@@ -49,7 +49,7 @@ main(int argc, char** argv)
 		return 0;
 	}
 
-/* loop, listen for client, print received, reply to client, close socket */
+/* loop, listen for client, print received, reply to client */
 	for(;;) {
 		printf("waiting for client message on port %d\n", SERV_PORT);
 		recvlen = recvfrom(sockfd, buf, MSGLEN, 0, (struct sockaddr *)&cliaddr, &addrlen);
