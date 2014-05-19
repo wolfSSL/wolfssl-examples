@@ -8,10 +8,10 @@ all: 	server-dtls
 #LIBS=-lsocket
 
 server-udp:	server-udp.c
-	$(CC) -o server-udp server-udp.c $(LIBS)
+	$(CC) -o server-udp server-udp.c $(LIBS)	
 
 server-dtls:	server-dtls.c
-	$(CC) -o server-dtls server-dtls.c $(LIBS)
+	$(CC) -o server-dtls server-dtls.c $(LIBS) -lcyassl
 
 .PHONY: clean
 
