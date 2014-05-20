@@ -1,12 +1,12 @@
 #include 			<stdio.h> 			/* standard in/out procedures */
 #include 			<stdlib.h>			/* defines system calls */
 #include 			<string.h>			/* necessary for memset */
-#include			<netdb.h>
+#include		    <netdb.h>
 #include 			<sys/socket.h>		/* used for all socket calls */
 #include 			<netinet/in.h>		/* used for sockaddr_in */
 #include			<arpa/inet.h>
 #include            <cyassl/ssl.h>      /* include the dtls library */
-#include            <signal.h>          /* used to implement sigaction */
+#include            "unp.h"
 
 #define SERV_PORT   11111				/* define our server port number */
 #define MSGLEN 		80  				/* limit incoming message size */
@@ -20,6 +20,24 @@ void sig_handler(const int sig)
     return;                                                                     
 }  
 
+str_echo(CYASSL* ssl)
+{
+    int     n;
+    char    buf[MSGLEN];
+
+    while ( (n = CyaSSL_read(ssl, buf, MSGLEN)) > 0) {
+        if (CyaSSL_write(ssl, buf, n) != n {
+                err_sys("CyaSSL_write failed");
+        }
+    }
+
+    if ( n < 0 )
+        printf("CyaSSL_read error = %d\n", CyaSSL_get_error(ssl,n));
+
+    else if ( n == 0 )
+        printf("The peer has closed the connection.\n");
+}
+
 int
 main(int argc, char** argv)
 {
@@ -32,7 +50,7 @@ main(int argc, char** argv)
     socklen_t addrlen = sizeof(cliaddr);/* length of address' */
     int                 recvlen;		/* number of bytes recieved */
     int                 msgnum = 0;		/* the messages we reveive in order */
-    char                buf[MSGLEN];    /* the incoming message */
+    char                buff[MSGLEN];    /* the incoming message */
     struct sigaction    act, oact;
 
     act.sa_handler = sig_handler;
@@ -74,14 +92,13 @@ main(int argc, char** argv)
     }     
 
     /* create a UDP/IP socket */
-    if((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
-    {
-        perror("cannot create socket");
-        return 0;
-    }
+    sockfd = Socket(AF_INET, SOCK_DGRAM, 0);
+    /* setsockopt: Eliminates "ERROR on bind: Addr in use" error. */
+    optval = 1;
+    setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (const void *)&optval , sizeof(int));
 
     /* INADDR_ANY = IP address and socket =  11111, modify SERV_PORT to change */
-    memset((char *)&servaddr, 0, sizeof(servaddr));
+    memset(&servaddr, sizeof(servaddr));
 
     /* Use Datagram Service */
     servaddr.sin_family 	 = AF_INET;
@@ -93,26 +110,43 @@ main(int argc, char** argv)
     servaddr.sin_port 		 = htons(SERV_PORT);
 
 
-    if (bind(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
-        perror("bind failed");
-        return 0;
-    }
+    Bind(sockfd, (SA *) &servaddr, sizeof(servaddr));
+    Listen(sockfd, LISTENQ);
 
     /* loop, listen for client, print received, reply to client */
-    while(cleanup != 1) {
+    while (cleanup != 1)  {
         printf("waiting for client message on port %d\n", SERV_PORT);
-        recvlen = CyaSSL_read(cyasockfd, buf, MSGLEN);
-        printf("heard %d bytes\n", recvlen);
-        if (recvlen > 0) {
-            buf[recvlen] = 0;
-            printf("I heard this: \"%s\"\n", buf);
+
+        
+
+        if ( ( recvlen = accept(sockfd, (SA *)&cliaddr, &addrlen)) < 0 )
+        {
+            if (errno == EINTR)
+                continue;   /* back to while() */
+            else
+                err_sys("accept error\n");
         }
-        else
-            printf("lost the connection to client\n");
-        sprintf(buf, "Message #%d received\n", msgnum++);
-        printf("reply sent \"%s\"\n", buf);
-        if (CyaSSL_write(cyasockfd, buf, strlen(buf)) < 0)
-            perror("sendto");
-        /* continues to loop, use "Ctrl+C" to terminate listening */
-    }
+        printf("heard on port %d, a message from %s\n", 
+                ntohs(cliaddr.sin_port), inet_ntop(AF_INET, &cliaddr.sin_addr, buff, sizeof(buff));
+
+        printf("made it this far");
+        if ( (ssl = CyaSSL_new(ctx)) == NULL) {
+            printf("got into the if");
+            fprintf(stderr, "CyaSSL_new error.\n");
+            exit(EXIT_FAILURE);
+        }
+        
+        CyaSSL_set_fd(ssl, recvlen);
+        str_echo(ssl);
+        CyasSSL_free(ssl);
+        Close(recvlen);
+            printf("reset recvlen in the buf to zero");
+            printf("I heard this: \"%s\"\n", buff);
+        }
+        
+        CyaSSL_CTX_free(ctx);
+        printf("CyaSSL_CTX freed up\n");
+        CyaSSL_Cleanup();
+        printf("CyaSSL freed up");
+        exit(EXIT_SUCCESS);
 }
