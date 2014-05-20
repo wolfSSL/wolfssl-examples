@@ -1079,7 +1079,7 @@ configure: failed program was:
 configure:18379: result: no
 configure:18277: checking whether pthreads work without any flags
 configure:18370: clang -o conftest -g -O2   -fvisibility=hidden  conftest.c   >&5
-/tmp/conftest-c6ef02.o: In function `main':
+/tmp/conftest-c8fdce.o: In function `main':
 /home/khimes/work/project1/cyassl-3.0.0/conftest.c:49: undefined reference to `pthread_create'
 /home/khimes/work/project1/cyassl-3.0.0/conftest.c:50: undefined reference to `pthread_join'
 /home/khimes/work/project1/cyassl-3.0.0/conftest.c:52: undefined reference to `__pthread_register_cancel'

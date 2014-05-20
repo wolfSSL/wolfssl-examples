@@ -1,6 +1,6 @@
 DEPS = ../include/unp.h
 CC=gcc
-CFLAGS=-Wall -I ../include
+CFLAGS=-Wall -I ../include -DCYASSL_DTLS
 OBJ = echoserver.o
 
 #if you are on a sunOS (System V) machine, you'll need to uncomment
@@ -9,15 +9,12 @@ OBJ = echoserver.o
 #LIBS=-lsocket
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
-
-%.0: %.c $(DEPS)
-	$(CC) -c -o $@ $< $(CFLAGS)
-
+all: server-udp server-dtls
 server-udp: server-udp.c
 	$(CC) -Wall -o server-udp server-udp.c -I ../include -lcyassl	
 
 server-dtls: server-dtls.c
-	$(CC) -Wall -o server-dtls server-dtls.c -I ../include -lcyassl
+	$(CC) -Wall -DCYASSL_DTLS -o server-dtls server-dtls.c -I ../include -lcyassl
 
 .PHONY: clean
 
