@@ -18,7 +18,6 @@ void sig_handler(const int sig)
 {
     printf("\nSIGINT handled.\n");
     cleanup = 1;
-    exit(0);
 }
 
 static void err_sys(const char* msg)
@@ -31,6 +30,8 @@ static void err_sys(const char* msg)
 int main(int argc, char** argv)
 {
     /* CREATE THE SOCKET */
+
+    char ack[] = "I hear you fashizzle!";
 
     struct sockaddr_in servaddr; 		/* our server's address */
     struct sockaddr_in cliaddr;			/* the client's address */
@@ -49,6 +50,7 @@ int main(int argc, char** argv)
     act.sa_flags = 0;
     sigaction(SIGINT, &act, &oact);
 
+    CyaSSL_Debugging_ON();
     CyaSSL_Init();                      /* Initialize CyaSSL */
     CYASSL_CTX* ctx;
 
@@ -131,10 +133,12 @@ int main(int argc, char** argv)
         n = (int)recvfrom(listenfd, (char*)b, sizeof(b), MSG_PEEK,
                 (struct sockaddr*)&cliaddr, &clilen);
 
-
         if (n > 0) {
-            connect(listenfd, (struct sockaddr *) &servaddr, sizeof(servaddr));
+            if (connect(listenfd, (const struct sockaddr *)&cliaddr, 
+                        sizeof(cliaddr)) != 0)
+                err_sys("udp connect failed");
         }
+        else err_sys("recvfrom failed");
 
 
         printf("connection attempt made.\n");
@@ -161,35 +165,37 @@ int main(int argc, char** argv)
 
         printf("connected!\n");
 
+        if (( recvlen = CyaSSL_read(ssl, buff, sizeof(buff)-1)) > 0){
 
-        for ( ; ; ){
+            printf("heard %d bytes\n", recvlen);
 
-            if (( recvlen = CyaSSL_read(ssl, buff, MSGLEN)) > 0){
-                printf("heard %d bytes\n", recvlen);
+            buff[recvlen] = 0;
+            printf("I heard this: \"%s\"\n", buff);
 
-                if (recvlen > 0) {
-                    buff[recvlen] = 0;
-                    printf("I heard this: \"%s\"\n", buff);
-                }
 
-                if (recvlen < 0) {
-                    int readErr = CyaSSL_get_error(ssl, 0);
-                    if(readErr != SSL_ERROR_WANT_READ)
-                        err_sys("SSL_read failed");
-                }
-                if (CyaSSL_write(ssl, buff, strlen(buff)) < 0) {
-                    perror("sendto");
-                    printf("reply sent \"%s\"\n", buff);
-                }
+            if (recvlen < 0) {
+                int readErr = CyaSSL_get_error(ssl, 0);
+                if(readErr != SSL_ERROR_WANT_READ)
+                    err_sys("SSL_read failed");
             }
 
-            else {
-                printf("lost the connection to client\n");
-                break;
+            if (CyaSSL_write(ssl, ack, sizeof(ack)-1) < 0) {
+                err_sys("CyaSSL_write fail");
             }
-
+            printf("reply sent \"%s\"\n", ack);
         }
+
+        else {
+            printf("lost the connection to client\n");
+            break;
+        }
+
+        CyaSSL_shutdown(ssl);
+        CyaSSL_free(ssl);
+
+        printf("Client left return to idle state\n");
         continue;
     }
+    CyaSSL_CTX_free(ctx);
     return(0);
 }
