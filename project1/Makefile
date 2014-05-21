@@ -9,7 +9,8 @@ OBJ = echoserver.o
 #LIBS=-lsocket
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
-all: server-udp server-dtls
+all: server-udp server-dtls 
+
 server-udp: server-udp.c
 	$(CC) -Wall -o server-udp server-udp.c -I ../include -lcyassl	
 

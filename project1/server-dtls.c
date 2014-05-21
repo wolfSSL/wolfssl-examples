@@ -1,13 +1,13 @@
-#include 			<stdio.h> 			/* standard in/out procedures */
-#include 			<stdlib.h>			/* defines system calls */
-#include 			<string.h>			/* necessary for memset */
-#include			<netdb.h>
-#include 			<sys/socket.h>		/* used for all socket calls */
-#include 			<netinet/in.h>		/* used for sockaddr_in */
-#include			<arpa/inet.h>
-#include            <cyassl/ssl.h>
-#include            <cyassl/test.h>
-#include            <errno.h>
+#include <stdio.h>          /* standard in/out procedures */
+#include <stdlib.h>         /* defines system calls */
+#include <string.h>         /* necessary for memset */
+#include <netdb.h>
+#include <sys/socket.h>     /* used for all socket calls */
+#include <netinet/in.h>     /* used for sockaddr_in */
+#include <arpa/inet.h>
+#include <cyassl/ssl.h>
+#include <errno.h>
+#include <signal.h>
 
 #define SERV_PORT 	11111				/* define our server port number */
 #define MSGLEN      4096
@@ -21,6 +21,13 @@ void sig_handler(const int sig)
     exit(0);
 }
 
+static void err_sys(const char* msg)
+{
+    printf("error: %s\n", msg);
+    if (msg)
+        exit(EXIT_FAILURE);
+}
+
 int main(int argc, char** argv)
 {
     /* CREATE THE SOCKET */
@@ -30,7 +37,6 @@ int main(int argc, char** argv)
     int listenfd; 						/* Initialize our socket */
     socklen_t clilen;                   /* length of address' */
     int recvlen;                        /* length of message */
-    int connfd;                         /* the connection the client makes */
     char buff[MSGLEN];			        /* the incoming message */
     struct sigaction	act, oact;		/* structures for signal handling */
 
@@ -91,6 +97,8 @@ int main(int argc, char** argv)
     servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
     servaddr.sin_port = htons(SERV_PORT);
 
+
+
     /* Eliminate socket already in use error */
     int res, on = 1;
     socklen_t len = sizeof(on);
@@ -99,6 +107,8 @@ int main(int argc, char** argv)
         err_sys("setsockopt SO_REUSEADDR failed\n");
     }
 
+
+    /*Bind Socket*/
     if (bind(listenfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
         perror("bind failed");
         return 0;
@@ -121,7 +131,14 @@ int main(int argc, char** argv)
         n = (int)recvfrom(listenfd, (char*)b, sizeof(b), MSG_PEEK,
                 (struct sockaddr*)&cliaddr, &clilen);
 
+
+        if (n > 0) {
+            connect(listenfd, (struct sockaddr *) &servaddr, sizeof(servaddr));
+        }
+
+
         printf("connection attempt made.\n");
+
 
         /* Create the CYASSL Object */
         if (( ssl = CyaSSL_new(ctx) ) == NULL) {
@@ -129,71 +146,52 @@ int main(int argc, char** argv)
             exit(EXIT_FAILURE);
         }
 
+
         /* set the session ssl to clientfd */
         CyaSSL_set_fd(ssl, listenfd);
 
-        if (n > 0) {
-//            if(CyaSSL_connect(ssl) != 0){
-//                int err = CyaSSL_get_error(ssl, 0);
-//                char buffer[CYASSL_MAX_ERROR_SZ];
-//                printf("error = %d, %s\n", err, CyaSSL_ERR_error_string(err, buffer));
-//                err_sys("udp connect failed\n");
-//            }
 
-            if (CyaSSL_accept(ssl) != SSL_SUCCESS) {
-                int err = CyaSSL_get_error(ssl, 0);
-                char buffer[CYASSL_MAX_ERROR_SZ];
-                int temp = CyaSSL_accept(ssl);
-                printf("CyaSSL_accept returned: %d\n", temp);
-                printf("error = %d, %s\n", err, CyaSSL_ERR_error_string(err, buffer));
-                err_sys("SSL_accept failed\n");
-            }
+        if (CyaSSL_accept(ssl) != SSL_SUCCESS) {
+            int err = CyaSSL_get_error(ssl, 0);
+            char buffer[80];
+            int temp = CyaSSL_accept(ssl);
+            printf("CyaSSL_accept returned: %d\n", temp);
+            printf("error = %d, %s\n", err, CyaSSL_ERR_error_string(err, buffer));
+            err_sys("SSL_accept failed\n");
+        }
 
-//            connfd = accept(listenfd, (struct sockaddr *)&cliaddr, &clilen);
 
-            
+        printf("connected!\n");
 
-            connfd = CyaSSL_accept(ssl);
 
-            if (connfd == 1) {
-                printf("connfd = %d\n", connfd);
-                printf("accept error\n");
+        for ( ; ; ){
+
+            if (( recvlen = CyaSSL_read(ssl, buff, MSGLEN)) > 0){
+                printf("heard %d bytes\n", recvlen);
+
+                if (recvlen > 0) {
+                    buff[recvlen] = 0;
+                    printf("I heard this: \"%s\"\n", buff);
+                }
+
+                if (recvlen < 0) {
+                    int readErr = CyaSSL_get_error(ssl, 0);
+                    if(readErr != SSL_ERROR_WANT_READ)
+                        err_sys("SSL_read failed");
+                }
+                if (CyaSSL_write(ssl, buff, strlen(buff)) < 0) {
+                    perror("sendto");
+                    printf("reply sent \"%s\"\n", buff);
+                }
             }
 
             else {
-                printf("connected!\n");
-
-                for ( ; ; ) {
-
-                    if (( recvlen = CyaSSL_read(ssl, buff, MSGLEN)) > 0){
-                        printf("heard %d bytes\n", recvlen);
-
-                        if (recvlen > 0) {
-                            buff[recvlen] = 0;
-                            printf("I heard this: \"%s\"\n", buff);
-                        }
-
-                        if (recvlen < 0) {
-                            int readErr = CyaSSL_get_error(ssl, 0);
-                            if(readErr != SSL_ERROR_WANT_READ)
-                                err_sys("SSL_read failed");
-                        }
-                        if (CyaSSL_write(ssl, buff, strlen(buff)) < 0) {
-                            perror("sendto");
-                            printf("reply sent \"%s\"\n", buff);
-                        }
-                    }
-
-                    else {
-                        printf("lost the connection to client\n");
-                        break;
-                    }
-
-                }
-                continue;
+                printf("lost the connection to client\n");
+                break;
             }
-        }
 
+        }
+        continue;
     }
     return(0);
 }
