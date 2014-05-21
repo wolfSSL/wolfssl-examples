@@ -91,11 +91,14 @@ main(int argc, char** argv)
     memset((char *)&servaddr, 0, sizeof(servaddr));
 
 
-    servaddr.sin_family 	 = AF_INET;
+    servaddr.sin_family = AF_INET;
+
     /* host-to-network-long conversion (htonl) */
     servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+
     /* host-to-network-short conversion (htons) */
-    servaddr.sin_port 		 = htons(SERV_PORT);
+    servaddr.sin_port = htons(SERV_PORT);
+
 
     /* Eliminate socket already in use error */
     int res, on = 1;
