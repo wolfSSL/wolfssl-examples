@@ -147,15 +147,13 @@ int main(int argc, char** argv)
         }
 
 
-        /* set the session ssl to clientfd */
+        /* set the session ssl to client connection port */
         CyaSSL_set_fd(ssl, listenfd);
 
 
         if (CyaSSL_accept(ssl) != SSL_SUCCESS) {
             int err = CyaSSL_get_error(ssl, 0);
             char buffer[80];
-            int temp = CyaSSL_accept(ssl);
-            printf("CyaSSL_accept returned: %d\n", temp);
             printf("error = %d, %s\n", err, CyaSSL_ERR_error_string(err, buffer));
             err_sys("SSL_accept failed\n");
         }
