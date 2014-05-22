@@ -32,8 +32,8 @@
 #include <arpa/inet.h>
 
 
-#define SERV_PORT 	11111               /* define our server port number */
-#define MSGLEN 		80                  /* limit incoming message size */
+#define SERV_PORT   11111               /* define our server port number */
+#define MSGLEN      80                  /* limit incoming message size */
 
 int main (int argc, char** argv) 
 {
