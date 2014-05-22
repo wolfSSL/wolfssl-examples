@@ -1,3 +1,29 @@
+/* server-dtls.c 
+ *
+ * Copyright (C) 2006-2014 wolfSSL Inc.
+ *
+ * This file is part of CyaSSL.
+ *
+ * CyaSSL is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * CyaSSL is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,  
+ * USA
+ * =============================================================================
+ *
+ * Bare-bones example of a DTLS server for instructional/learning purposes.
+ * Utilizes DTLS 1.2.
+ */
+
 #include <stdio.h>          /* standard in/out procedures */
 #include <stdlib.h>         /* defines system calls */
 #include <string.h>         /* necessary for memset */
@@ -8,16 +34,18 @@
 #include <cyassl/ssl.h>
 #include <errno.h>
 #include <signal.h>
+#include <unistd.h>
 
-#define SERV_PORT 	11111				/* define our server port number */
+#define SERV_PORT   11111               /* define our server port number */
 #define MSGLEN      4096
 
-static int cleanup;		                /* To handle shutdown */
+static int cleanup;                     /* To handle shutdown */
 
 void sig_handler(const int sig) 
 {
     printf("\nSIGINT handled.\n");
     cleanup = 1;
+    exit(0);
 }
 
 static void err_sys(const char* msg)
@@ -33,17 +61,17 @@ int main(int argc, char** argv)
 
     char ack[] = "I hear you fashizzle!";
 
-    struct sockaddr_in servaddr; 		/* our server's address */
-    struct sockaddr_in cliaddr;			/* the client's address */
-    int listenfd; 						/* Initialize our socket */
+    struct sockaddr_in servaddr;        /* our server's address */
+    struct sockaddr_in cliaddr;         /* the client's address */
+    int listenfd;                       /* Initialize our socket */
     socklen_t clilen;                   /* length of address' */
     int recvlen;                        /* length of message */
-    char buff[MSGLEN];			        /* the incoming message */
-    struct sigaction	act, oact;		/* structures for signal handling */
+    char buff[MSGLEN];                  /* the incoming message */
+    struct sigaction    act, oact;      /* structures for signal handling */
 
     /* Define a signal handler for when the user closes the program
-       with Ctrl-C. Also, turn off SA_RESTART so that the OS doesn't 
-       restart the call to accept() after the signal is handled. */
+     *        with Ctrl-C. Also, turn off SA_RESTART so that the OS doesn't 
+     *               restart the call to accept() after the signal is handled. */
 
     act.sa_handler = sig_handler;
     sigemptyset(&act.sa_mask);
@@ -128,12 +156,15 @@ int main(int argc, char** argv)
         CYASSL*                 ssl;    /* initialize arg */
         clilen =    sizeof(cliaddr);    /* set clilen to |cliaddr| */
         unsigned char       b[1500];    
-        int                       n;      
+        int                  connfd;      
 
-        n = (int)recvfrom(listenfd, (char*)b, sizeof(b), MSG_PEEK,
+        connfd = (int)recvfrom(listenfd, (char*)b, sizeof(b), MSG_PEEK,
                 (struct sockaddr*)&cliaddr, &clilen);
 
-        if (n > 0) {
+        if (connfd < 0)
+            printf("No clients in que, enter idle state\n");
+
+        else if (connfd > 0) {
             if (connect(listenfd, (const struct sockaddr *)&cliaddr, 
                         sizeof(cliaddr)) != 0)
                 err_sys("udp connect failed");
@@ -141,7 +172,7 @@ int main(int argc, char** argv)
         else err_sys("recvfrom failed");
 
 
-        printf("connection attempt made.\n");
+        printf("Connected!\n");
 
 
         /* Create the CYASSL Object */
@@ -149,7 +180,6 @@ int main(int argc, char** argv)
             fprintf(stderr, "CyaSSL_new error.\n");
             exit(EXIT_FAILURE);
         }
-
 
         /* set the session ssl to client connection port */
         CyaSSL_set_fd(ssl, listenfd);
@@ -162,8 +192,6 @@ int main(int argc, char** argv)
             err_sys("SSL_accept failed\n");
         }
 
-
-        printf("connected!\n");
 
         if (( recvlen = CyaSSL_read(ssl, buff, sizeof(buff)-1)) > 0){
 
@@ -189,9 +217,10 @@ int main(int argc, char** argv)
             printf("lost the connection to client\n");
             break;
         }
-
-        CyaSSL_shutdown(ssl);
+        
+        CyaSSL_set_fd(ssl, connfd);
         CyaSSL_free(ssl);
+        close(connfd);
 
         printf("Client left return to idle state\n");
         continue;
