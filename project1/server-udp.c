@@ -24,27 +24,27 @@
  */
 
 #include <stdio.h>                      /* standard in/out procedures */
-#include <stdlib.h>	                    /* defines system calls */
-#include <string.h>	                    /* necessary for memset */
+#include <stdlib.h>                     /* defines system calls */
+#include <string.h>                     /* necessary for memset */
 #include <netdb.h>
-#include <sys/socket.h>	                /* used for all socket calls */
-#include <netinet/in.h>	                /* used for sockaddr_in */
+#include <sys/socket.h>                 /* used for all socket calls */
+#include <netinet/in.h>                 /* used for sockaddr_in */
 #include <arpa/inet.h>
 
 
-#define SERV_PORT 	11111				/* define our server port number */
-#define MSGLEN 		80  				/* limit incoming message size */
+#define SERV_PORT 	11111               /* define our server port number */
+#define MSGLEN 		80                  /* limit incoming message size */
 
 int main (int argc, char** argv) 
 {
     /* CREATE THE SOCKET */
 
     struct sockaddr_in servaddr;        /* our server's address */
-    struct sockaddr_in cliaddr;	        /* the client's address */
+    struct sockaddr_in cliaddr;         /* the client's address */
     int sockfd;                         /* Initialize our socket */
     socklen_t addrlen = sizeof(cliaddr);/* length of address' */
     int recvlen;                        /* number of bytes recieved */
-    int msgnum = 0;	                    /* the messages we reveive in order */
+    int msgnum = 0;                     /* the messages we reveive in order */
     char buf[MSGLEN];                   /* the incoming message */
 
 
