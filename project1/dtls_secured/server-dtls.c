@@ -199,13 +199,10 @@ int main(int argc, char** argv)
             exit(EXIT_FAILURE);
         }
 
-/******/printf("STEP 1\n");
-
 
         /* set the session ssl to client connection port */
         CyaSSL_set_fd(ssl, listenfd);
 
-/******/printf("STEP 2\n");
 
         if (CyaSSL_accept(ssl) != SSL_SUCCESS) {
             int err = CyaSSL_get_error(ssl, 0);
@@ -215,7 +212,6 @@ int main(int argc, char** argv)
             err_sys("SSL_accept failed\n");
         }
 
-/*******/printf("STEP 3\n");
 
         if (( recvlen = CyaSSL_read(ssl, buff, sizeof(buff)-1)) > 0){
 
@@ -225,7 +221,6 @@ int main(int argc, char** argv)
             printf("I heard this: \"%s\"\n", buff);
         }
 
-/*******/printf("STEP 4\n");
 
         if (recvlen < 0) {
             int readErr = CyaSSL_get_error(ssl, 0);
@@ -233,7 +228,6 @@ int main(int argc, char** argv)
                 err_sys("SSL_read failed");
         }
 
-/******/printf("STEP 5\n");
 
         if (CyaSSL_write(ssl, ack, sizeof(ack)) < 0) {
             err_sys("CyaSSL_write fail");
