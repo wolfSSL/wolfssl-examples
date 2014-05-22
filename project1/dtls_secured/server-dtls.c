@@ -92,25 +92,25 @@ int main(int argc, char** argv)
     }
     printf("CTX set to DTLS 1.2\n");
 
-    if (CyaSSL_CTX_load_verify_locations(ctx,"certs/ca-cert.pem",0) != 
+    if (CyaSSL_CTX_load_verify_locations(ctx,"../certs/ca-cert.pem",0) != 
             SSL_SUCCESS) {
-        fprintf(stderr, "Error loading certs/ca-cert.pem, "
+        fprintf(stderr, "Error loading ../certs/ca-cert.pem, "
                 "please check the file.\n");
         exit(EXIT_FAILURE);
     }
     printf("Loaded CA certs\n");
 
-    if (CyaSSL_CTX_use_certificate_file(ctx,"certs/server-cert.pem", 
+    if (CyaSSL_CTX_use_certificate_file(ctx,"../certs/server-cert.pem", 
                 SSL_FILETYPE_PEM) != SSL_SUCCESS) {
-        fprintf(stderr, "Error loading certs/server-cert.pem, "
+        fprintf(stderr, "Error loading ../certs/server-cert.pem, "
                 "please check the file.\n");
         exit(EXIT_FAILURE);
     }
     printf("Loaded server certs\n");
 
-    if (CyaSSL_CTX_use_PrivateKey_file(ctx,"certs/server-key.pem", 
+    if (CyaSSL_CTX_use_PrivateKey_file(ctx,"../certs/server-key.pem", 
                 SSL_FILETYPE_PEM) != SSL_SUCCESS) {
-        fprintf(stderr, "Error loading certs/server-key.pem, "
+        fprintf(stderr, "Error loading ../certs/server-key.pem, "
                 "please check the file.\n");
         exit(EXIT_FAILURE);
     }
