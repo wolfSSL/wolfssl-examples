@@ -174,7 +174,7 @@ int main(int argc, char** argv)
         int              connfd = 0;     
 
 
-        connfd = (int)recvfrom(listenfd, (char *)&b, sizeof(b), MSG_OOB,
+        connfd = (int)recvfrom(listenfd, (char *)&b, sizeof(b), MSG_PEEK,
                 (struct sockaddr*)&cliaddr, &clilen);
 
         if (connfd < 0){
