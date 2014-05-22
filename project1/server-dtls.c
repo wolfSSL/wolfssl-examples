@@ -113,7 +113,7 @@ int main(int argc, char** argv)
     printf("Loaded server keys\n");
 
     if ( (listenfd = socket(AF_INET, SOCK_DGRAM, 0) ) < 0 ) {
-        perror("cannot create socket");
+        err_sys("cannot create socket");
         return 0;
     }
     printf("Socket allocated\n");
@@ -140,7 +140,7 @@ int main(int argc, char** argv)
 
     /*Bind Socket*/
     if (bind(listenfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
-        perror("bind failed");
+        err_sys("bind failed");
         return 0;
     }
     printf("Socket bind complete\n");
@@ -153,16 +153,18 @@ int main(int argc, char** argv)
 
         printf("Awaiting client connection on port %d\n", SERV_PORT);
 
-        CYASSL*                 ssl;    /* initialize arg */
+        CYASSL*             ssl = 0;    /* initialize arg */
         clilen =    sizeof(cliaddr);    /* set clilen to |cliaddr| */
         unsigned char       b[1500];    
-        int                  connfd;      
+        int                  connfd;     
 
         connfd = (int)recvfrom(listenfd, (char*)b, sizeof(b), MSG_PEEK,
                 (struct sockaddr*)&cliaddr, &clilen);
 
-        if (connfd < 0)
+        if (connfd < 0){
             printf("No clients in que, enter idle state\n");
+            continue;
+        }
 
         else if (connfd > 0) {
             if (connect(listenfd, (const struct sockaddr *)&cliaddr, 
@@ -199,32 +201,32 @@ int main(int argc, char** argv)
 
             buff[recvlen] = 0;
             printf("I heard this: \"%s\"\n", buff);
-
-
-            if (recvlen < 0) {
-                int readErr = CyaSSL_get_error(ssl, 0);
-                if(readErr != SSL_ERROR_WANT_READ)
-                    err_sys("SSL_read failed");
-            }
-
-            if (CyaSSL_write(ssl, ack, sizeof(ack)-1) < 0) {
-                err_sys("CyaSSL_write fail");
-            }
-            printf("reply sent \"%s\"\n", ack);
         }
 
-        else {
+        if (recvlen < 0) {
+            int readErr = CyaSSL_get_error(ssl, 0);
+            if(readErr != SSL_ERROR_WANT_READ)
+                err_sys("SSL_read failed");
+        }
+
+        if (CyaSSL_write(ssl, ack, sizeof(ack)-1) < 0) {
+            err_sys("CyaSSL_write fail");
+        }
+
+        else 
             printf("lost the connection to client\n");
-            break;
-        }
-        
-        CyaSSL_set_fd(ssl, connfd);
-        CyaSSL_free(ssl);
-        close(connfd);
+
+        printf("reply sent \"%s\"\n", ack);
+
+
+        CyaSSL_set_fd(ssl, 0); 
+        CyaSSL_shutdown(ssl);        
+        //        CyaSSL_free(ssl);
+        //
 
         printf("Client left return to idle state\n");
         continue;
     }
-    CyaSSL_CTX_free(ctx);
+    //    CyaSSL_CTX_free(ctx);
     return(0);
 }
