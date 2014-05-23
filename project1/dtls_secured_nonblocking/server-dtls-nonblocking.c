@@ -35,12 +35,17 @@
 #include <errno.h>
 #include <signal.h>
 #include <unistd.h>
+#include <sys/ioctl.h>              /* for "icotl" to set non-blocking */
+#include <sys/select.h>             /* for fd_set */
+#include <sys/time.h>
+#include <fcntl.h>
 
 #define SERV_PORT   11111           /* define our server port number */
 #define MSGLEN      4096
+#define FALSE       0
+#define TRUE        1
 
 static int cleanup;                 /* To handle shutdown */
-
 
 void sig_handler(const int sig) 
 {
@@ -63,14 +68,20 @@ int main(int argc, char** argv)
     /* CREATE THE SOCKET */
 
     char ack[] = "I hear you fashizzle!";
-    struct sockaddr_in servaddr;    /* our server's address */
-    struct sockaddr_in cliaddr;     /* the client's address */
-    int listenfd = 0;               /* Initialize our socket */
-    socklen_t clilen;               /* length of address' */
-    int recvlen = 0;                /* length of message */
-    char buff[MSGLEN];              /* the incoming message */
+    struct sockaddr_in  servaddr;   /* Our server's address */
+    struct sockaddr_in  cliaddr;    /* The client's address */
+    int listenfd, maxfd, newfd;     /* Initialize our socket */
+    int closeconn;                  /* Close the connection */
+    int descrdy, endserv = FALSE;
+    socklen_t clilen;               /* Length of address' */
+    char buff[MSGLEN];              /* The incoming message */
+    struct timeval      timeout;
+    fd_set       masterset, workingset;
     struct sigaction    act, oact;  /* structures for signal handling */
-
+    int i;                          /* for the "for" loops */
+    CYASSL*              ssl;    
+    clilen = sizeof(cliaddr);    
+    unsigned char    b[1500];    
 
     /* 
      * Define a signal handler for when the user closes the program
@@ -82,7 +93,7 @@ int main(int argc, char** argv)
     act.sa_flags = 0;
     sigaction(SIGINT, &act, &oact);
 
-    CyaSSL_Debugging_ON();
+    //    CyaSSL_Debugging_ON();
     CyaSSL_Init();                      /* Initialize CyaSSL */
     CYASSL_CTX* ctx;
 
@@ -129,61 +140,98 @@ int main(int argc, char** argv)
 
 
 
-    while (cleanup != 1) {
-
+    do{
         if ( (listenfd = socket(AF_INET, SOCK_DGRAM, 0) ) < 0 ) {
             err_sys("cannot create socket");
             return 0;
         }
         printf("Socket allocated\n");
 
-        /* INADDR_ANY=IPaddr, socket =  11111, modify SERV_PORT to change */
-        memset((char *)&servaddr, 0, sizeof(servaddr));
 
+        /* Eliminate socket already in use error */
+        int res = 1;
+        int on = 1;
+        socklen_t len = sizeof(on);
+
+
+
+        res = setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &on, len);
+
+
+        if (res < 0) {
+            close(listenfd);
+            err_sys("setsockopt SO_REUSEADDR failed");
+        }
+
+
+        /* set res non blocking */
+        fcntl(listenfd, F_SETFL, O_NONBLOCK);
+
+        /* INADDR_ANY=IPaddr, socket =  11111, modify SERV_PORT to change */
         /* host-to-network-long conversion (htonl) */
         /* host-to-network-short conversion (htons) */
+
+        memset((char *)&servaddr, 0, sizeof(servaddr));
         servaddr.sin_family = AF_INET;
         servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
         servaddr.sin_port = htons(SERV_PORT);
 
 
-
-        /* Eliminate socket already in use error */
-        int res = 1; 
-        int on = 1;
-        socklen_t len = sizeof(on);
-        res = setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &on, len);
-        if (res < 0) {
-            err_sys("setsockopt SO_REUSEADDR failed\n");
-        }
-
-
         /*Bind Socket*/
-        if (bind(listenfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
+        if ((bind(listenfd, (struct sockaddr *)&servaddr, 
+                        sizeof(servaddr))) < 0) {
+            close(listenfd);
             err_sys("bind failed");
-            return 0;
         }
-        printf("Socket bind complete\n");
 
 
         printf("Awaiting client connection on port %d\n", SERV_PORT);
 
-        CYASSL*                 ssl;    /* initialize arg */
-        clilen =    sizeof(cliaddr);    /* set clilen to |cliaddr| */
-        unsigned char       b[1500];    
-        int              connfd = 0;     
+
+        /* Initialize the master set */
+        FD_ZERO(&masterset);
+        maxfd = listenfd;
+        FD_SET(listenfd, &masterset);
 
 
-        connfd = (int)recvfrom(listenfd, (char *)&b, sizeof(b), MSG_PEEK,
-                (struct sockaddr*)&cliaddr, &clilen);
+        /* set timeval struct to 5 min, end if inactive for 5 min */
+        timeout.tv_sec = 5 * 60;
+        timeout.tv_usec = 0;
 
-        if (connfd < 0){
-            printf("No clients in que, enter idle state\n");
-            continue;
+
+
+
+
+        memcpy(&workingset, &masterset, sizeof(masterset));
+
+        printf("Wating to select()\n");
+
+        if ((res = select(maxfd + 1, 
+                        &workingset, NULL, NULL, &timeout)) < 0 ) {
+            printf("select() failed");
         }
 
-        else if (connfd > 0) {
-            if (connect(listenfd, (const struct sockaddr *)&cliaddr, 
+
+        descrdy = res;
+
+
+        if (res == 0) {
+            printf("select() timed out.\n");
+        }
+
+        /* Some file descriptor is readable, find it */
+
+        res = (int)recvfrom(listenfd, 
+                (char *)&b, sizeof(b), MSG_PEEK,
+                (struct sockaddr*)&cliaddr, &clilen);
+
+        if (res < 0)
+            printf("No clients in que, enter idle state\n");
+
+
+        else if (res > 0) {
+            if (connect(listenfd, 
+                        (const struct sockaddr *)&cliaddr, 
                         sizeof(cliaddr)) != 0)
                 err_sys("udp connect failed");
         }
@@ -192,65 +240,96 @@ int main(int argc, char** argv)
 
         printf("Connected!\n");
 
-
         /* Create the CYASSL Object */
         if (( ssl = CyaSSL_new(ctx) ) == NULL) {
             fprintf(stderr, "CyaSSL_new error.\n");
             exit(EXIT_FAILURE);
         }
 
-/******/printf("STEP 1\n");
+
+        /* Make the port a non-blocking port */
+        CyaSSL_set_using_nonblock(ssl, 1);
+        printf("\"ssl object\" set to non-blocking\n");
 
 
-        /* set the session ssl to client connection port */
+        /* set session ssl to client connection port */
         CyaSSL_set_fd(ssl, listenfd);
 
-/******/printf("STEP 2\n");
+        printf("Connected!\n");
 
-        if (CyaSSL_accept(ssl) != SSL_SUCCESS) {
-            int err = CyaSSL_get_error(ssl, 0);
-            char buffer[80];
-            printf("error = %d, %s\n", err, CyaSSL_ERR_error_string(err, buffer));
-            buffer[80]= 0;
-            err_sys("SSL_accept failed\n");
-        }
+        for (i = 0; i <= maxfd && descrdy > 0; i++){
+            if (FD_ISSET(i, &workingset)){
+                descrdy -= 1;
+                if (i == listenfd){
+                    printf("listenfd is readable\n");
+                    do{
 
-/*******/printf("STEP 3\n");
-
-        if (( recvlen = CyaSSL_read(ssl, buff, sizeof(buff)-1)) > 0){
-
-            printf("heard %d bytes\n", recvlen);
-
-            buff[recvlen] = 0;
-            printf("I heard this: \"%s\"\n", buff);
-        }
-
-/*******/printf("STEP 4\n");
-
-        if (recvlen < 0) {
-            int readErr = CyaSSL_get_error(ssl, 0);
-            if(readErr != SSL_ERROR_WANT_READ)
-                err_sys("SSL_read failed");
-        }
-
-/******/printf("STEP 5\n");
-
-        if (CyaSSL_write(ssl, ack, sizeof(ack)) < 0) {
-            err_sys("CyaSSL_write fail");
-        }
-
-        else 
-            printf("lost the connection to client\n");
-
-        printf("reply sent \"%s\"\n", ack);
+                        if (CyaSSL_accept(ssl) != SSL_SUCCESS) {
+                            int err = CyaSSL_get_error(ssl, 0);
+                            char buffer[80];
+                            printf("error = %d, %s\n", err, CyaSSL_ERR_error_string(err, buffer));
+                            buffer[80]= 0;
+                            err_sys("SSL_accept failed\n");
 
 
-        CyaSSL_set_fd(ssl, 0); 
-        CyaSSL_shutdown(ssl);        
-        CyaSSL_free(ssl);
+                        }
+                        newfd = CyaSSL_accept(ssl);
+                        printf("New different connection incoming\n");
+                        printf("on port %d\n", newfd);
+                        FD_SET(newfd, &masterset);
+                        if (newfd > maxfd)
+                            maxfd = newfd;
+                        /* Continue to accept incoming connections */
+                    } while (newfd != -1);
+                }
+                else{
+                    printf("Descriptor %d is readable\n", i);
+                    closeconn = FALSE;
+                    do{
+                        len = CyaSSL_read(ssl, buff, sizeof(buff)-1);
+                        if (len > 0) {
+                            printf("heard %d bytes\n", len);
 
-        printf("Client left return to idle state\n");
-        continue;
+                            buff[len] = 0;
+                            printf("I heard this: \"%s\"\n", buff);
+                        }
+                        else if (len < 0) {
+                            int readErr = CyaSSL_get_error(ssl, 0);
+                            if (readErr != SSL_ERROR_WANT_READ)
+                                err_sys("SSL_read failed");
+                            closeconn = TRUE;
+                        }
+
+
+                        if (CyaSSL_write(ssl, ack, sizeof(ack)) < 0) {
+                            err_sys("CyaSSL_write fail");
+                            closeconn = TRUE;
+                        }
+                        printf("reply sent \"%s\"\n", ack);
+                    }while (TRUE);
+                    if(closeconn){
+                        printf("Lost connection to client\n");
+                        close(i);
+                        FD_CLR(i, &masterset);
+                        if(i == maxfd){
+                            while(FD_ISSET(maxfd, &masterset) == FALSE)
+                                maxfd -= 1;
+                        }
+                    }
+                } /*End of readable connection */
+
+                CyaSSL_set_fd(ssl, 0); 
+                CyaSSL_shutdown(ssl);        
+                CyaSSL_free(ssl);
+                printf("Client left return to idle state\n");
+
+            } /* End of if (FD_ISSET(i, &workingset)) */
+        } /* End of loop through descriptors */
+    }while (endserv == FALSE);
+    /* Close all open sockets */
+    for(i = 0; i <= maxfd; i++){
+        if(FD_ISSET(i, &masterset))
+            close(i);
     }
     CyaSSL_CTX_free(ctx);
     return(0);
