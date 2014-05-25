@@ -38,13 +38,13 @@
 #include <fcntl.h>
 #include <sys/time.h>
 #include <sys/select.h>
-#include <cyassl/test.h>
 
 #define SERV_PORT   11111           /* define our server port number */
 #define MSGLEN      4096
 
 static int cleanup;                 /* To handle shutdown */
 
+static int dtls_select(socklen_t sockfd, int to_sec);
 
 void sig_handler(const int sig) 
 {
@@ -52,6 +52,48 @@ void sig_handler(const int sig)
     cleanup = 1;
     exit(0);
 }
+
+static void err_sys(const char* msg)
+{
+    printf("yassl error: %s\n", msg);
+    if (msg)
+        exit(EXIT_FAILURE);
+}
+
+enum {
+    TEST_SELECT_FAIL,
+    TEST_TIMEOUT,
+    TEST_RECV_READY,
+    TEST_ERROR_READY
+};
+
+static int dtls_select(socklen_t sockfd, int to_sec)
+{
+    fd_set masterset, workingset;
+    socklen_t nfds = sockfd + 1;
+    struct timeval timeout = { (to_sec > 0) ? to_sec : 0, 0};
+    int result;
+
+    FD_ZERO(&masterset);
+    FD_SET(sockfd, &masterset);
+    FD_ZERO(&workingset);
+    FD_SET(sockfd, &workingset);
+
+
+    result = select(nfds, &masterset, NULL, &workingset, &timeout);
+
+    if (result == 0)
+        return TEST_TIMEOUT;
+    else if (result > 0) {
+        if (FD_ISSET(sockfd, &masterset))
+            return TEST_RECV_READY;
+        else if(FD_ISSET(sockfd, &workingset))
+            return TEST_ERROR_READY;
+    }
+
+    return TEST_SELECT_FAIL;
+}
+
 
 
 int main(int argc, char** argv)
@@ -61,7 +103,7 @@ int main(int argc, char** argv)
     char ack[] = "I hear you fashizzle!";
     struct sockaddr_in servaddr;    /* our server's address */
     struct sockaddr_in cliaddr;     /* the client's address */
-    int listenfd = 0;               /* Initialize our socket */
+    int listenfd;                  /* Initialize our socket */
     socklen_t clilen;               /* length of address' */
     int recvlen = 0;                /* length of message */
     char buff[MSGLEN];              /* the incoming message */
@@ -78,7 +120,7 @@ int main(int argc, char** argv)
     act.sa_flags = 0;
     sigaction(SIGINT, &act, &oact);
 
-    CyaSSL_Debugging_ON();
+//    CyaSSL_Debugging_ON();
     CyaSSL_Init();                      /* Initialize CyaSSL */
     CYASSL_CTX* ctx;
 
@@ -153,6 +195,9 @@ int main(int argc, char** argv)
             err_sys("setsockopt SO_REUSEADDR failed\n");
         }
 
+        /* set listenfd non-blocking */
+        fcntl(listenfd, F_SETFL, O_NONBLOCK);
+
 
         /*Bind Socket*/
         if (bind(listenfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
@@ -161,7 +206,7 @@ int main(int argc, char** argv)
         }
         printf("Socket bind complete\n");
 
-
+       
         printf("Awaiting client connection on port %d\n", SERV_PORT);
 
         CYASSL*                 ssl;    /* initialize arg */
@@ -202,7 +247,6 @@ int main(int argc, char** argv)
         /* set listen port to nonblocking, accept nonblocking */
         /* handle peer error */
         CyaSSL_set_using_nonblock(ssl, 1);
-        fcntl(listenfd, F_SETFL, O_NONBLOCK);
 
 
         ret = CyaSSL_accept(ssl);
@@ -220,7 +264,10 @@ int main(int argc, char** argv)
                 printf("... server would write block\n");
 
             currTimeout = CyaSSL_dtls_get_current_timeout(ssl);
-            select_ret = tcp_select(sockfd, currTimeout);
+
+            printf("waiting to select()\n");
+
+            select_ret = dtls_select(sockfd, currTimeout);
 
             if ((select_ret == TEST_RECV_READY) ||
                     (select_ret == TEST_ERROR_READY)) {
