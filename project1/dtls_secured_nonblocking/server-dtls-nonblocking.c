@@ -220,7 +220,6 @@ int main(int argc, char** argv)
 
         if (connfd < 0){
             printf("No clients in que, enter idle state\n");
-            continue;
         }
 
         else if (connfd > 0) {
@@ -231,7 +230,6 @@ int main(int argc, char** argv)
         else err_sys("recvfrom failed");
 
 
-        printf("Connected!\n");
 
 
         /* Create the CYASSL Object */
@@ -256,14 +254,13 @@ int main(int argc, char** argv)
 
         while (ret != SSL_SUCCESS && (error == SSL_ERROR_WANT_READ ||
                     error == SSL_ERROR_WANT_WRITE)) {
-            int currTimeout = 1;
+
+            int currTimeout = 5 * 60;
 
             if (error == SSL_ERROR_WANT_READ)
                 printf("... server would read block\n");
             else
                 printf("... server would write block\n");
-
-            currTimeout = CyaSSL_dtls_get_current_timeout(ssl);
 
             printf("waiting to select()\n");
 
@@ -288,6 +285,8 @@ int main(int argc, char** argv)
         if (ret != SSL_SUCCESS)
             err_sys("SSL_accept failed");
 
+        
+        printf("Connected!\n");
 
         if (( recvlen = CyaSSL_read(ssl, buff, sizeof(buff)-1)) > 0){
 
