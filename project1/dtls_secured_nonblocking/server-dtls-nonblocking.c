@@ -255,7 +255,9 @@ int main(int argc, char** argv)
         while (ret != SSL_SUCCESS && (error == SSL_ERROR_WANT_READ ||
                     error == SSL_ERROR_WANT_WRITE)) {
 
-            int currTimeout = 5 * 60;
+            int currTimeout = 1;
+
+            currTimeout = CyaSSL_dtls_get_current_timeout(ssl);
 
             if (error == SSL_ERROR_WANT_READ)
                 printf("... server would read block\n");
