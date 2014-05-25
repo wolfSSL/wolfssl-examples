@@ -257,6 +257,7 @@ int main(int argc, char** argv)
 
             int currTimeout = 1;
 
+            /* NOTE: changes over time */
             currTimeout = CyaSSL_dtls_get_current_timeout(ssl);
 
             if (error == SSL_ERROR_WANT_READ)
