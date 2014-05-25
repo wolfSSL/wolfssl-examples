@@ -285,7 +285,7 @@ int main(int argc, char** argv)
             }
         }
         if (ret != SSL_SUCCESS){
-            printf("SSL_accept failed");
+            printf("SSL_accept failed\n");
             continue;
         }
 
