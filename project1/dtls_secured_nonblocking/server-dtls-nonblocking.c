@@ -284,8 +284,10 @@ int main(int argc, char** argv)
                 error = SSL_FATAL_ERROR;
             }
         }
-        if (ret != SSL_SUCCESS)
-            err_sys("SSL_accept failed");
+        if (ret != SSL_SUCCESS){
+            printf("SSL_accept failed");
+            continue;
+        }
 
         
         printf("Connected!\n");
