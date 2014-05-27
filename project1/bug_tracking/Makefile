@@ -11,8 +11,8 @@ OBJ = echoserver.o
 	$(CC) -c -o $@ $< $(CFLAGS)
 all: server
 
-server: server.c
-		$(CC) -Wall -DCYASSL_DTLS -o server server.c -I ../include -lcyassl
+server: server-dtls.c
+		$(CC) -Wall -DCYASSL_DTLS -o server server-dtls.c -I ../include -lcyassl
 
 
 .PHONY: clean
