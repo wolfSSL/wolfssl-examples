@@ -1,4 +1,4 @@
-/* server-dtls-nonblocking.c 
+/* server-dtls-nonblocking-threaded.c 
  *
  * Copyright (C) 2006-2014 wolfSSL Inc.
  *
@@ -21,7 +21,8 @@
  *=============================================================================
  *
  * Bare-bones example of a DTLS server for instructional/learning purposes.
- * Utilizes DTLS 1.2 and non-blocking sockets
+ * Utilizes DTLS 1.2 and non-blocking sockets and multi threading to handle
+ * multiple clients.
  */
 
 #include <stdio.h>                  /* standard in/out procedures */
