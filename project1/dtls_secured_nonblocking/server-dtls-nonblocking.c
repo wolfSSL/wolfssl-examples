@@ -42,9 +42,13 @@
 #define SERV_PORT   11111           /* define our server port number */
 #define MSGLEN      4096
 
+CYASSL_CTX* ctx;
+
 static int cleanup;                 /* To handle shutdown */
 
 static int dtls_select(socklen_t sockfd, int to_sec);
+
+int Accept();
 
 void sig_handler(const int sig) 
 {
@@ -57,7 +61,7 @@ static void err_sys(const char* msg)
 {
     printf("yassl error: %s\n", msg);
     if (msg)
-        exit(EXIT_FAILURE);
+        exit(0);
 }
 
 enum {
@@ -70,7 +74,7 @@ enum {
 static int dtls_select(socklen_t sockfd, int to_sec)
 {
     fd_set masterset, workingset;
-    socklen_t nfds = sockfd + 1;
+    socklen_t maxfd = sockfd + 1;
     struct timeval timeout = { (to_sec > 0) ? to_sec : 0, 0};
     int result;
 
@@ -79,8 +83,14 @@ static int dtls_select(socklen_t sockfd, int to_sec)
     FD_ZERO(&workingset);
     FD_SET(sockfd, &workingset);
 
+    /* Uncomment to make the timout a static 3 minutes */
 
-    result = select(nfds, &masterset, NULL, &workingset, &timeout);
+    /*
+       timeout.tv_sec = 0;
+       timeout.tv_usec = 0;
+       */
+
+    result = select(maxfd, &masterset, NULL, &workingset, &timeout);
 
     if (result == 0)
         return TEST_TIMEOUT;
@@ -94,80 +104,17 @@ static int dtls_select(socklen_t sockfd, int to_sec)
     return TEST_SELECT_FAIL;
 }
 
-
-
-int main(int argc, char** argv)
-{
-    /* CREATE THE SOCKET */
-
-    char ack[] = "I hear you fashizzle!";
-    struct sockaddr_in servaddr;    /* our server's address */
-    struct sockaddr_in cliaddr;     /* the client's address */
-    int listenfd;                  /* Initialize our socket */
-    socklen_t clilen;               /* length of address' */
-    int recvlen = 0;                /* length of message */
-    char buff[MSGLEN];              /* the incoming message */
-    struct sigaction    act, oact;  /* structures for signal handling */
-
-
-    /* 
-     * Define a signal handler for when the user closes the program
-     * with Ctrl-C. Also, turn off SA_RESTART so that the OS doesn't 
-     * restart the call to accept() after the signal is handled. 
-     */
-    act.sa_handler = sig_handler;
-    sigemptyset(&act.sa_mask);
-    act.sa_flags = 0;
-    sigaction(SIGINT, &act, &oact);
-
-//    CyaSSL_Debugging_ON();
-    CyaSSL_Init();                      /* Initialize CyaSSL */
-    CYASSL_CTX* ctx;
-
-    if ( (ctx = CyaSSL_CTX_new(CyaDTLSv1_2_server_method())) == NULL){
-        fprintf(stderr, "CyaSSL_CTX_new error.\n");
-        exit(EXIT_FAILURE);
-    }
-    printf("CTX set to DTLS 1.2\n");
-
-    if (CyaSSL_CTX_load_verify_locations(ctx,"../certs/ca-cert.pem",0) != 
-            SSL_SUCCESS) {
-        fprintf(stderr, "Error loading ../certs/ca-cert.pem, "
-                "please check the file.\n");
-        exit(EXIT_FAILURE);
-    }
-    printf("Loaded CA certs\n");
-
-    if (CyaSSL_CTX_use_certificate_file(ctx,"../certs/server-cert.pem", 
-                SSL_FILETYPE_PEM) != SSL_SUCCESS) {
-        fprintf(stderr, "Error loading ../certs/server-cert.pem, "
-                "please check the file.\n");
-        exit(EXIT_FAILURE);
-    }
-    printf("Loaded server certs\n");
-
-    if (CyaSSL_CTX_use_PrivateKey_file(ctx,"../certs/server-key.pem", 
-                SSL_FILETYPE_PEM) != SSL_SUCCESS) {
-        fprintf(stderr, "Error loading ../certs/server-key.pem, "
-                "please check the file.\n");
-        exit(EXIT_FAILURE);
-    }
-    printf("Loaded server keys\n");
-
-
-
-    /* BEGIN: avoid valgrind error when using DTLS v1.2 and AES */
-    int ret;
-
-    ret = CyaSSL_CTX_set_cipher_list(ctx, "DES-CBC3-SHA");
-    if(ret == SSL_SUCCESS)
-        printf("ret successfully set to \"DES-CBC3-SHA\"\n");
-    /* END: avoid valgrind error */
-
-
-
+int Accept(){
 
     while (cleanup != 1) {
+        char ack[] = "I hear you fashizzle!";
+        struct sockaddr_in servaddr;    /* our server's address */
+        struct sockaddr_in cliaddr;     /* the client's address */
+        int listenfd;                  /* Initialize our socket */
+        socklen_t clilen;               /* length of address' */
+        int recvlen = 0;                /* length of message */
+        char buff[MSGLEN];              /* the incoming message */
+
 
         if ( (listenfd = socket(AF_INET, SOCK_DGRAM, 0) ) < 0 ) {
             err_sys("cannot create socket");
@@ -195,8 +142,6 @@ int main(int argc, char** argv)
             err_sys("setsockopt SO_REUSEADDR failed\n");
         }
 
-        /* set listenfd non-blocking */
-        fcntl(listenfd, F_SETFL, O_NONBLOCK);
 
 
         /*Bind Socket*/
@@ -206,8 +151,11 @@ int main(int argc, char** argv)
         }
         printf("Socket bind complete\n");
 
-       
+
         printf("Awaiting client connection on port %d\n", SERV_PORT);
+
+        /* set listenfd non-blocking */
+        fcntl(res, F_SETFL, O_NONBLOCK);
 
         CYASSL*                 ssl;    /* initialize arg */
         clilen =    sizeof(cliaddr);    /* set clilen to |cliaddr| */
@@ -242,15 +190,19 @@ int main(int argc, char** argv)
         /* set the session ssl to client connection port */
         CyaSSL_set_fd(ssl, listenfd);
 
+
         /* set listen port to nonblocking, accept nonblocking */
         /* handle peer error */
         CyaSSL_set_using_nonblock(ssl, 1);
 
 
-        ret = CyaSSL_accept(ssl);
+        int ret;
         int error = CyaSSL_get_error(ssl, 0);
         socklen_t sockfd = (socklen_t)CyaSSL_get_fd(ssl);
         int select_ret;
+
+        ret = CyaSSL_accept(ssl);
+        printf("ret = %d\n", ret);
 
         while (ret != SSL_SUCCESS && (error == SSL_ERROR_WANT_READ ||
                     error == SSL_ERROR_WANT_WRITE)) {
@@ -261,20 +213,27 @@ int main(int argc, char** argv)
             currTimeout = CyaSSL_dtls_get_current_timeout(ssl);
 
             if (error == SSL_ERROR_WANT_READ)
-                printf("... server would read block\n");
+                printf("Server wants to read...\n");
             else
-                printf("... server would write block\n");
+                printf("Server wants to write...\n");
 
             printf("waiting to select()\n");
 
             select_ret = dtls_select(sockfd, currTimeout);
 
-            if ((select_ret == TEST_RECV_READY) ||
-                    (select_ret == TEST_ERROR_READY)) {
+            if (select_ret == TEST_RECV_READY) {
+                printf("TEST_RECV_READY!\n");
                 ret = CyaSSL_accept(ssl);
+            }
+
+            if (select_ret == TEST_ERROR_READY && !CyaSSL_dtls(ssl)) {
+                printf("TEST_ERROR_READY\n");
                 error = CyaSSL_get_error(ssl, 0);
             }
-            else if (select_ret == TEST_TIMEOUT && !CyaSSL_dtls(ssl)) {
+
+            else if (select_ret == TEST_TIMEOUT && CyaSSL_dtls(ssl) &&
+                    CyaSSL_dtls_got_timeout(ssl) ) {
+                printf("TEST_TIMEOUT\n");
                 error = SSL_ERROR_WANT_READ;
             }
             else if (select_ret == TEST_TIMEOUT && CyaSSL_dtls(ssl) &&
@@ -290,8 +249,8 @@ int main(int argc, char** argv)
             continue;
         }
 
-        
-        printf("Connected!\n");
+
+        printf("Connected with a client!\n");
 
         if (( recvlen = CyaSSL_read(ssl, buff, sizeof(buff)-1)) > 0){
 
@@ -318,14 +277,69 @@ int main(int argc, char** argv)
 
         printf("reply sent \"%s\"\n", ack);
 
-
         CyaSSL_set_fd(ssl, 0); 
         CyaSSL_shutdown(ssl);        
         CyaSSL_free(ssl);
 
         printf("Client left return to idle state\n");
-        continue;
+
     }
-    CyaSSL_CTX_free(ctx);
+    return 1;
+}
+
+int main(int argc, char** argv)
+{
+    /* CREATE THE SOCKET */
+
+    struct sigaction    act, oact;  /* structures for signal handling */
+
+
+    /* 
+     * Define a signal handler for when the user closes the program
+     * with Ctrl-C. Also, turn off SA_RESTART so that the OS doesn't 
+     * restart the call to accept() after the signal is handled. 
+     */
+    act.sa_handler = sig_handler;
+    sigemptyset(&act.sa_mask);
+    act.sa_flags = 0;
+    sigaction(SIGINT, &act, &oact);
+
+    //    CyaSSL_Debugging_ON();
+    CyaSSL_Init();                      /* Initialize CyaSSL */
+
+    if ( (ctx = CyaSSL_CTX_new(CyaDTLSv1_2_server_method())) == NULL){
+        fprintf(stderr, "CyaSSL_CTX_new error.\n");
+        exit(EXIT_FAILURE);
+    }
+    printf("CTX set to DTLS 1.2\n");
+
+    if (CyaSSL_CTX_load_verify_locations(ctx,"../certs/ca-cert.pem",0) != 
+            SSL_SUCCESS) {
+        fprintf(stderr, "Error loading ../certs/ca-cert.pem, "
+                "please check the file.\n");
+        exit(EXIT_FAILURE);
+    }
+    printf("Loaded CA certs\n");
+
+    if (CyaSSL_CTX_use_certificate_file(ctx,"../certs/server-cert.pem", 
+                SSL_FILETYPE_PEM) != SSL_SUCCESS) {
+        fprintf(stderr, "Error loading ../certs/server-cert.pem, "
+                "please check the file.\n");
+        exit(EXIT_FAILURE);
+    }
+    printf("Loaded server certs\n");
+
+    if (CyaSSL_CTX_use_PrivateKey_file(ctx,"../certs/server-key.pem", 
+                SSL_FILETYPE_PEM) != SSL_SUCCESS) {
+        fprintf(stderr, "Error loading ../certs/server-key.pem, "
+                "please check the file.\n");
+        exit(EXIT_FAILURE);
+    }
+    printf("Loaded server keys\n");
+
+
+    int cont = Accept();
+    if(cont == 0)
+        CyaSSL_CTX_free(ctx);
     return(0);
 }
