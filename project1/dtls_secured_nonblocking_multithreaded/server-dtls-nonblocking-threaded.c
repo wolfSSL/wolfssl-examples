@@ -140,7 +140,6 @@ int Accept(){
         /* set listenfd non-blocking */
         fcntl(res, F_SETFL, O_NONBLOCK);
 
-        CYASSL*                 ssl;    /* initialize arg */
         clilen =    sizeof(cliaddr);    /* set clilen to |cliaddr| */
         unsigned char       b[1500];    
         int              connfd = 0;     
@@ -155,88 +154,14 @@ int Accept(){
 
         /* Client attempted to connect but was not using udp */
         else if (connfd > 0) {
-            if (connect(listenfd, (const struct sockaddr *)&cliaddr, 
-                        sizeof(cliaddr)) != 0)
-                err_sys("udp connect failed");
-        }
+            pthread_t threadID;
 
-        /* client attempted to connect, recvfrom failed */
-        else err_sys("recvfrom failed");
-
-        /* Create the CYASSL Object */
-        if (( ssl = CyaSSL_new(ctx) ) == NULL) {
-            fprintf(stderr, "CyaSSL_new error.\n");
-            exit(EXIT_FAILURE);
-        }
-
-        /* set the session ssl to client connection port */
-        CyaSSL_set_fd(ssl, listenfd);
-
-
-        /* set listen port to nonblocking, accept nonblocking */
-        CyaSSL_set_using_nonblock(ssl, 1);
-
-
-        int ret;
-        int error = CyaSSL_get_error(ssl, 0);
-        socklen_t sockfd = (socklen_t)CyaSSL_get_fd(ssl);
-        int select_ret;
-
-        ret = CyaSSL_accept(ssl);
-        printf("ret = %d\n", ret);
-
-        while (ret != SSL_SUCCESS && (error == SSL_ERROR_WANT_READ ||
-                    error == SSL_ERROR_WANT_WRITE)) {
-
-            int currTimeout = 1;
-
-            /* NOTE: changes over time */
-            currTimeout = CyaSSL_dtls_get_current_timeout(ssl);
-
-            if (error == SSL_ERROR_WANT_READ)
-                printf("Server wants to read...\n");
-            else
-                printf("Server wants to write...\n");
-
-            printf("waiting to select()\n");
-
-            select_ret = dtls_select(sockfd, currTimeout);
-
-            if (select_ret == TEST_RECV_READY) {
-                printf("TEST_RECV_READY!\n");
-                ret = CyaSSL_accept(ssl);
+            if (pthread_create(&threadID, NULL, ThreadControl, (void *)&connfd) < 0) {
+                printf("pthread_create failed.\n");
             }
 
-            if (select_ret == TEST_ERROR_READY && !CyaSSL_dtls(ssl)) {
-                printf("TEST_ERROR_READY\n");
-                error = CyaSSL_get_error(ssl, 0);
-            }
-
-            else if (select_ret == TEST_TIMEOUT && CyaSSL_dtls(ssl) &&
-                    CyaSSL_dtls_got_timeout(ssl) ) {
-                printf("TEST_TIMEOUT\n");
-                error = SSL_ERROR_WANT_READ;
-            }
-            else if (select_ret == TEST_TIMEOUT && CyaSSL_dtls(ssl) &&
-                    CyaSSL_dtls_got_timeout(ssl) >= 0) {
-                error = SSL_ERROR_WANT_READ;
-            }
-            else {
-                error = SSL_FATAL_ERROR;
-            }
+            printf("Connection being re-routed to Thread Control.\n");
         }
-        if (ret != SSL_SUCCESS){
-            printf("SSL_accept failed\n");
-            continue;
-        }
-
-        pthread_t threadID;
-
-        if (pthread_create(&threadID, NULL, ThreadControl, (void *)&ret) < 0) {
-            printf("pthread_create failed.\n");
-        }
-        printf("Connection being re-routed to Thread Control.\n");
-    }
     return 1;
 }
 
