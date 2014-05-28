@@ -86,13 +86,6 @@ static int dtls_select(socklen_t sockfd, int to_sec)
     FD_ZERO(&workingset);
     FD_SET(sockfd, &workingset);
 
-    /* Uncomment to make the timout a static 3 minutes */
-
-    /*
-       timeout.tv_sec = 0;
-       timeout.tv_usec = 0;
-       */
-
     result = select(maxfd, &masterset, NULL, &workingset, &timeout);
 
     if (result == 0)
@@ -112,7 +105,6 @@ int Accept(){
     while (cleanup != 1) {
         socklen_t clilen;               /* length of address' */
 
-
         if ( (listenfd = socket(AF_INET, SOCK_DGRAM, 0) ) < 0 ) {
             err_sys("cannot create socket");
             return 0;
@@ -128,8 +120,6 @@ int Accept(){
         servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
         servaddr.sin_port = htons(SERV_PORT);
 
-
-
         /* Eliminate socket already in use error */
         int res = 1; 
         int on = 1;
@@ -139,16 +129,12 @@ int Accept(){
             err_sys("setsockopt SO_REUSEADDR failed\n");
         }
 
-
-
         /*Bind Socket*/
         if (bind(listenfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
             err_sys("bind failed");
             return 0;
         }
         printf("Socket bind complete\n");
-
-
         printf("Awaiting client connection on port %d\n", SERV_PORT);
 
         /* set listenfd non-blocking */
@@ -158,7 +144,6 @@ int Accept(){
         clilen =    sizeof(cliaddr);    /* set clilen to |cliaddr| */
         unsigned char       b[1500];    
         int              connfd = 0;     
-
 
         connfd = (int)recvfrom(listenfd, (char *)&b, sizeof(b), MSG_PEEK,
                 (struct sockaddr*)&cliaddr, &clilen);
@@ -251,42 +236,6 @@ int Accept(){
             printf("pthread_create failed.\n");
         }
         printf("Connection being re-routed to Thread Control.\n");
-
-
-        /*
-           printf("Connected with a client!\n");
-
-           if (( recvlen = CyaSSL_read(ssl, buff, sizeof(buff)-1)) > 0){
-
-           printf("heard %d bytes\n", recvlen);
-
-           buff[recvlen] = 0;
-           printf("I heard this: \"%s\"\n", buff);
-           }
-
-
-           if (recvlen < 0) {
-           int readErr = CyaSSL_get_error(ssl, 0);
-           if(readErr != SSL_ERROR_WANT_READ)
-           err_sys("SSL_read failed");
-           }
-
-
-           if (CyaSSL_write(ssl, ack, sizeof(ack)) < 0) {
-           err_sys("CyaSSL_write fail");
-           }
-
-           else 
-           printf("lost the connection to client\n");
-
-           printf("reply sent \"%s\"\n", ack);
-
-           CyaSSL_set_fd(ssl, 0); 
-           CyaSSL_shutdown(ssl);        
-           CyaSSL_free(ssl);
-
-           printf("Client left return to idle state\n");
-           */
     }
     return 1;
 }
@@ -296,17 +245,15 @@ void* ThreadControl(void* openSock)
     char ack[] = "I hear you fashizzle!";
     struct sockaddr_in servaddr;    /* our server's address */
     struct sockaddr_in cliaddr;     /* the client's address */
-    int listenfd;                  /* Initialize our socket */
+    int listenfd;                   /* Initialize our socket */
     socklen_t clilen;               /* length of address' */
     int recvlen = 0;                /* length of message */
     char buff[MSGLEN];              /* the incoming message */
 
-
+    listenfd = *(int*)openSock;
     if ( (listenfd = socket(AF_INET, SOCK_DGRAM, 0) ) < 0 ) {
         err_sys("cannot create socket");
-        return 0;
     }
-    printf("Socket allocated\n");
 
     /* INADDR_ANY=IPaddr, socket =  11111, modify SERV_PORT to change */
     memset((char *)&servaddr, 0, sizeof(servaddr));
@@ -317,8 +264,6 @@ void* ThreadControl(void* openSock)
     servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
     servaddr.sin_port = htons(SERV_PORT);
 
-
-
     /* Eliminate socket already in use error */
     int res = 1; 
     int on = 1;
@@ -328,17 +273,10 @@ void* ThreadControl(void* openSock)
         err_sys("setsockopt SO_REUSEADDR failed\n");
     }
 
-
-
     /*Bind Socket*/
     if (bind(listenfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
         err_sys("bind failed");
-        return 0;
     }
-    printf("Socket bind complete\n");
-
-
-    printf("Awaiting client connection on port %d\n", SERV_PORT);
 
     /* set listenfd non-blocking */
     fcntl(res, F_SETFL, O_NONBLOCK);
@@ -348,17 +286,11 @@ void* ThreadControl(void* openSock)
     unsigned char       b[1500];    
     int              connfd = 0;     
 
-
     connfd = (int)recvfrom(listenfd, (char *)&b, sizeof(b), MSG_PEEK,
             (struct sockaddr*)&cliaddr, &clilen);
 
-    /* No clients attempting to connect */
-    if (connfd < 0){
-        printf("No clients in que, enter idle state\n");
-    }
-
     /* Client attempted to connect but was not using udp */
-    else if (connfd > 0) {
+    if (connfd > 0) {
         if (connect(listenfd, (const struct sockaddr *)&cliaddr, 
                     sizeof(cliaddr)) != 0)
             err_sys("udp connect failed");
@@ -376,10 +308,8 @@ void* ThreadControl(void* openSock)
     /* set the session ssl to client connection port */
     CyaSSL_set_fd(ssl, listenfd);
 
-
     /* set listen port to nonblocking, accept nonblocking */
     CyaSSL_set_using_nonblock(ssl, 1);
-
 
     int ret;
     int error = CyaSSL_get_error(ssl, 0);
@@ -387,7 +317,6 @@ void* ThreadControl(void* openSock)
     int select_ret;
 
     ret = CyaSSL_accept(ssl);
-    printf("ret = %d\n", ret);
 
     while (ret != SSL_SUCCESS && (error == SSL_ERROR_WANT_READ ||
                 error == SSL_ERROR_WANT_WRITE)) {
@@ -438,8 +367,6 @@ void* ThreadControl(void* openSock)
     if (pthread_create(&threadID, NULL, ThreadControl, (void *)&ret) < 0) {
         printf("pthread_create failed.\n");
     }
-    printf("Connection being re-routed to Thread Control.\n");
-
 
     printf("Connected with a client!\n");
 
@@ -451,13 +378,11 @@ void* ThreadControl(void* openSock)
         printf("I heard this: \"%s\"\n", buff);
     }
 
-
     if (recvlen < 0) {
         int readErr = CyaSSL_get_error(ssl, 0);
         if(readErr != SSL_ERROR_WANT_READ)
             err_sys("SSL_read failed");
     }
-
 
     if (CyaSSL_write(ssl, ack, sizeof(ack)) < 0) {
         err_sys("CyaSSL_write fail");
@@ -473,57 +398,13 @@ void* ThreadControl(void* openSock)
     CyaSSL_free(ssl);
 
     printf("Client left return to idle state\n");
-
-    /*
-       int connfd = *(int*) openSock;
-       CYASSL* ssl;
-       printf("Connection now being handled by Thread Control\n\n");
-
-       if ((ssl = CyaSSL_new(ctx)) == NULL) {
-       fprintf(stderr, "CyaSSL_new error.\n");
-       exit(EXIT_FAILURE);
-       }
-       CyaSSL_set_fd(ssl, connfd);
-       CyaSSL_set_using_nonblock(ssl, 1);
-
-       for(;;){
-       char buff[MSGLEN];
-       int ret = 0;
-
-       bzero(&buff, sizeof(buff));
-
-       if ((ret = CyaSSL_read(ssl, buff, sizeof(buff)-1)) > 0) {
-       printf("Client connected in Thread Control\n");
-       char ack[] = "I hear you fashizzle!";
-       CyaSSL_write(ssl, ack, sizeof(ack)-1);
-       }
-       else {
-       if (ret < 0) {
-       printf("CyaSSL_read error returned: %d.\n", 
-       CyaSSL_get_error(ssl, ret));
-       continue;
-       }
-       else if (ret == 0)
-       printf("Connection Lost, return to Idle state.\n");
-
-       CyaSSL_set_fd(ssl, 0);
-       CyaSSL_shutdown(ssl);
-       CyaSSL_free(ssl);
-       break;
-       }
-       }
-       */
-
 }
-
-
 
 int main(int argc, char** argv)
 {
     /* CREATE THE SOCKET */
 
     struct sigaction    act, oact;  /* structures for signal handling */
-
 
     /* 
      * Define a signal handler for when the user closes the program
@@ -567,7 +448,6 @@ int main(int argc, char** argv)
         exit(EXIT_FAILURE);
     }
     printf("Loaded server keys\n");
-
 
     int cont = Accept();
 
