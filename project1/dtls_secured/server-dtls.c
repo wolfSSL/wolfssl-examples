@@ -82,7 +82,7 @@ int main(int argc, char** argv)
     act.sa_flags = 0;
     sigaction(SIGINT, &act, &oact);
 
-    CyaSSL_Debugging_ON();
+//    CyaSSL_Debugging_ON();
     CyaSSL_Init();                      /* Initialize CyaSSL */
     CYASSL_CTX* ctx;
 
