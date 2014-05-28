@@ -51,7 +51,7 @@ int listenfd;                   /* Initialize our socket */
 
 static int dtls_select(socklen_t sockfd, int to_sec);
 int Accept();
-void* ThreadControl(void*);
+void *ThreadControl(void*);
 
 void sig_handler(const int sig) 
 {
@@ -100,7 +100,8 @@ static int dtls_select(socklen_t sockfd, int to_sec)
     return TEST_SELECT_FAIL;
 }
 
-int Accept(){
+int Accept()
+{
 
     while (cleanup != 1) {
         socklen_t clilen;               /* length of address' */
@@ -162,10 +163,11 @@ int Accept(){
 
             printf("Connection being re-routed to Thread Control.\n");
         }
+    }
     return 1;
 }
 
-void* ThreadControl(void* openSock)
+void *ThreadControl(void* openSock)
 {
     char ack[] = "I hear you fashizzle!";
     struct sockaddr_in servaddr;    /* our server's address */
@@ -285,12 +287,6 @@ void* ThreadControl(void* openSock)
     }
     if (ret != SSL_SUCCESS){
         printf("SSL_accept failed\n");
-    }
-
-    pthread_t threadID;
-
-    if (pthread_create(&threadID, NULL, ThreadControl, (void *)&ret) < 0) {
-        printf("pthread_create failed.\n");
     }
 
     printf("Connected with a client!\n");
