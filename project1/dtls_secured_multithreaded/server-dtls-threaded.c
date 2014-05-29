@@ -45,33 +45,26 @@ struct sockaddr_in cliaddr;         /* the client's address */
 static int cleanup;                 /* To handle shutdown */
 CYASSL_CTX* ctx;
 
-int Accept();
+void AwaitDGram();
 void* ThreadControl(void*);
 
 void sig_handler(const int sig) 
 {
     printf("\nSIGINT handled.\n");
+    CyaSSL_Cleanup();
     cleanup = 1;
-    exit(0);
 }
 
-static void err_sys(const char* msg)
-{
-    printf("error: %s\n", msg);
-    if (msg)
-        exit(EXIT_FAILURE);
-}
-
-int Accept()
+void AwaitDGram()
 {
     int listenfd = 0;               /* Initialize our socket */
     socklen_t clilen;               /* length of address' */
 
     while (cleanup != 1) {
-
         if ( (listenfd = socket(AF_INET, SOCK_DGRAM, 0) ) < 0 ) {
-            err_sys("cannot create socket");
-            return 0;
+            printf("Cannot create socket.\n");
+            cleanup = 1;
+            break;
         }
         printf("Socket allocated\n");
 
@@ -90,13 +83,16 @@ int Accept()
         socklen_t len = sizeof(on);
         res = setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &on, len);
         if (res < 0) {
-            err_sys("setsockopt SO_REUSEADDR failed\n");
+            printf("Setsockopt SO_REUSEADDR failed.\n");
+            cleanup = 1;
+            break;
         }
 
         /*Bind Socket*/
         if (bind(listenfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
-            err_sys("bind failed");
-            return 0;
+            printf("Bind failed.\n");
+            cleanup = 1;
+            break;
         }
         printf("Socket bind complete\n");
 
@@ -125,23 +121,31 @@ int Accept()
         }
         printf("Connection being re-routed to Thread Control.\n");
         }
-        else err_sys("recvfrom failed");
+        else {
+            printf("Recvfrom failed.\n");
+            cleanup = 1;
+        }
+        pthread_t threadID = pthread_self();
+        pthread_join(threadID, (void*)&connfd);
+
+        sleep(1);
         continue;
     }
-    return 1;
 }
 
 void* ThreadControl(void* openSock)
 {
-    char ack[] = "I hear you fashizzle!";
-    int listenfd = 0;               /* Initialize our socket */
+
+    pthread_detach(pthread_self());
+    char ack[] = "I hear you fashizzle!\n";
+    int listenfd = 0;
     socklen_t clilen;               /* length of address' */
     int recvlen = 0;                /* length of message */
     char buff[MSGLEN];              /* the incoming message */
 
     if ( (listenfd = socket(AF_INET, SOCK_DGRAM, 0) ) < 0 ) {
-        err_sys("cannot create socket");
-        return 0;
+        printf("Cannot create socket.\n");
+        cleanup = 1;
     }
 
     /* INADDR_ANY=IPaddr, socket =  11111, modify SERV_PORT to change */
@@ -159,13 +163,14 @@ void* ThreadControl(void* openSock)
     socklen_t len = sizeof(on);
     res = setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &on, len);
     if (res < 0) {
-        err_sys("setsockopt SO_REUSEADDR failed\n");
+        printf("Setsockopt SO_REUSEADDR failed.\n");
+        cleanup = 1;
     }
 
     /*Bind Socket*/
     if (bind(listenfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
-        err_sys("bind failed");
-        return 0;
+        printf("Bind failed.\n");
+        cleanup = 1;
     }
 
     CYASSL*                 ssl;    /* initialize arg */
@@ -182,17 +187,22 @@ void* ThreadControl(void* openSock)
 
     else if (connfd > 0) {
         if (connect(listenfd, (const struct sockaddr *)&cliaddr, 
-                    sizeof(cliaddr)) != 0)
-            err_sys("udp connect failed");
+                    sizeof(cliaddr)) != 0) {
+            printf("Udp connect failed.\n");
+            cleanup = 1;
+        }
     }
-    else err_sys("recvfrom failed");
+    else {
+        printf("Recvfrom failed.\n");
+        cleanup = 1;
+    }
 
     printf("Connected!\n");
 
     /* Create the CYASSL Object */
     if (( ssl = CyaSSL_new(ctx) ) == NULL) {
-        fprintf(stderr, "CyaSSL_new error.\n");
-        exit(EXIT_FAILURE);
+        printf("CyaSSL_new error.\n");
+        cleanup = 1;
     }
 
     /* set the session ssl to client connection port */
@@ -203,7 +213,8 @@ void* ThreadControl(void* openSock)
         char buffer[80];
         printf("error = %d, %s\n", err, CyaSSL_ERR_error_string(err, buffer));
         buffer[80]= 0;
-        err_sys("SSL_accept failed\n");
+        printf("SSL_accept failed.\n");
+        cleanup = 1;
     }
 
     if (( recvlen = CyaSSL_read(ssl, buff, sizeof(buff)-1)) > 0){
@@ -216,25 +227,31 @@ void* ThreadControl(void* openSock)
 
     if (recvlen < 0) {
         int readErr = CyaSSL_get_error(ssl, 0);
-        if(readErr != SSL_ERROR_WANT_READ)
-            err_sys("SSL_read failed");
+        if(readErr != SSL_ERROR_WANT_READ) {
+            printf("SSL_read failed.\n"); 
+            cleanup = 1;
+        }
     }
 
     if (CyaSSL_write(ssl, ack, sizeof(ack)) < 0) {
-        err_sys("CyaSSL_write fail");
+        printf("CyaSSL_write fail.\n"); 
+        cleanup = 1;
     }
 
     else 
-        printf("lost the connection to client\n");
+        printf("Sending Reply...\n");
 
     printf("reply sent \"%s\"\n", ack);
+    printf("No further packets, severing connection to client.\n");
 
     CyaSSL_set_fd(ssl, 0); 
     CyaSSL_shutdown(ssl);        
     CyaSSL_free(ssl);
+  
 
-    printf("Client left return to idle state\n");
-
+    printf("Returning to idle state\n");
+    int dummy;
+    pthread_exit((void*)&dummy);
 }
 
 int main(int argc, char** argv)
@@ -284,8 +301,10 @@ int main(int argc, char** argv)
     }
     printf("Loaded server keys\n");
 
-    int cont = Accept();
-    if (cont == 0)
+    AwaitDGram();
+    if (cleanup == 1){
+        CyaSSL_Cleanup();
         CyaSSL_CTX_free(ctx);
+    }
     return(0);
 }
