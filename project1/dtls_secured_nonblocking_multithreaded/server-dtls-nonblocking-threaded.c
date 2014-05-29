@@ -140,7 +140,7 @@ int Accept()
         printf("Awaiting client connection on port %d\n", SERV_PORT);
 
         /* set listenfd non-blocking */
-        fcntl(res, F_SETFL, O_NONBLOCK);
+        fcntl(listenfd, F_SETFL, O_NONBLOCK);
 
         clilen =    sizeof(cliaddr);    /* set clilen to |cliaddr| */
         unsigned char       b[1500];    
@@ -207,7 +207,7 @@ void *ThreadControl(void* openSock)
     }
 
     /* set listenfd non-blocking */
-    fcntl(res, F_SETFL, O_NONBLOCK);
+    fcntl(listenfd, F_SETFL, O_NONBLOCK);
 
     CYASSL*                 ssl;    /* initialize arg */
     clilen =    sizeof(cliaddr);    /* set clilen to |cliaddr| */
