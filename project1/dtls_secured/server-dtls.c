@@ -40,100 +40,33 @@
 #define MSGLEN      4096
 
 static int cleanup;                 /* To handle shutdown */
-
+void AwaitDGram();                   /* Separate out Handling Datagrams */
+struct sockaddr_in servaddr;        /* our server's address */
+struct sockaddr_in cliaddr;         /* the client's address */
+CYASSL_CTX* ctx;
+void sig_handler(const int sig);
 
 void sig_handler(const int sig) 
 {
     printf("\nSIGINT handled.\n");
     cleanup = 1;
-    exit(0);
 }
 
 
-static void err_sys(const char* msg)
+void AwaitDGram()
 {
-    printf("error: %s\n", msg);
-    if (msg)
-        exit(EXIT_FAILURE);
-}
-
-
-int main(int argc, char** argv)
-{
-    /* CREATE THE SOCKET */
-
     char ack[] = "I hear you fashizzle!";
-    struct sockaddr_in servaddr;    /* our server's address */
-    struct sockaddr_in cliaddr;     /* the client's address */
     int listenfd = 0;               /* Initialize our socket */
     socklen_t clilen;               /* length of address' */
     int recvlen = 0;                /* length of message */
     char buff[MSGLEN];              /* the incoming message */
-    struct sigaction    act, oact;  /* structures for signal handling */
-
-
-    /* 
-     * Define a signal handler for when the user closes the program
-     * with Ctrl-C. Also, turn off SA_RESTART so that the OS doesn't 
-     * restart the call to accept() after the signal is handled. 
-     */
-    act.sa_handler = sig_handler;
-    sigemptyset(&act.sa_mask);
-    act.sa_flags = 0;
-    sigaction(SIGINT, &act, &oact);
-
-//    CyaSSL_Debugging_ON();
-    CyaSSL_Init();                      /* Initialize CyaSSL */
-    CYASSL_CTX* ctx;
-
-    if ( (ctx = CyaSSL_CTX_new(CyaDTLSv1_2_server_method())) == NULL){
-        fprintf(stderr, "CyaSSL_CTX_new error.\n");
-        exit(EXIT_FAILURE);
-    }
-    printf("CTX set to DTLS 1.2\n");
-
-    if (CyaSSL_CTX_load_verify_locations(ctx,"../certs/ca-cert.pem",0) != 
-            SSL_SUCCESS) {
-        fprintf(stderr, "Error loading ../certs/ca-cert.pem, "
-                "please check the file.\n");
-        exit(EXIT_FAILURE);
-    }
-    printf("Loaded CA certs\n");
-
-    if (CyaSSL_CTX_use_certificate_file(ctx,"../certs/server-cert.pem", 
-                SSL_FILETYPE_PEM) != SSL_SUCCESS) {
-        fprintf(stderr, "Error loading ../certs/server-cert.pem, "
-                "please check the file.\n");
-        exit(EXIT_FAILURE);
-    }
-    printf("Loaded server certs\n");
-
-    if (CyaSSL_CTX_use_PrivateKey_file(ctx,"../certs/server-key.pem", 
-                SSL_FILETYPE_PEM) != SSL_SUCCESS) {
-        fprintf(stderr, "Error loading ../certs/server-key.pem, "
-                "please check the file.\n");
-        exit(EXIT_FAILURE);
-    }
-    printf("Loaded server keys\n");
-
-
-
-    /* BEGIN: avoid valgrind error when using DTLS v1.2 and AES */
-    int ret;
-
-    ret = CyaSSL_CTX_set_cipher_list(ctx, "DES-CBC3-SHA");
-    if(ret == SSL_SUCCESS)
-        printf("ret successfully set to \"DES-CBC3-SHA\"\n");
-    /* END: avoid valgrind error */
-
-
 
 
     while (cleanup != 1) {
 
         if ( (listenfd = socket(AF_INET, SOCK_DGRAM, 0) ) < 0 ) {
-            err_sys("cannot create socket");
-            return 0;
+            printf("Cannot create socket.\n");
+            cleanup = 1;
         }
         printf("Socket allocated\n");
 
@@ -147,24 +80,22 @@ int main(int argc, char** argv)
         servaddr.sin_port = htons(SERV_PORT);
 
 
-
         /* Eliminate socket already in use error */
         int res = 1; 
         int on = 1;
         socklen_t len = sizeof(on);
         res = setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &on, len);
         if (res < 0) {
-            err_sys("setsockopt SO_REUSEADDR failed\n");
+            printf("Setsockopt SO_REUSEADDR failed.\n");
+            cleanup = 1;
         }
 
 
         /*Bind Socket*/
         if (bind(listenfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
-            err_sys("bind failed");
-            return 0;
+            printf("Bind failed.\n");
+            cleanup = 1;
         }
-        printf("Socket bind complete\n");
-
 
         printf("Awaiting client connection on port %d\n", SERV_PORT);
 
@@ -184,10 +115,15 @@ int main(int argc, char** argv)
 
         else if (connfd > 0) {
             if (connect(listenfd, (const struct sockaddr *)&cliaddr, 
-                        sizeof(cliaddr)) != 0)
-                err_sys("udp connect failed");
+                        sizeof(cliaddr)) != 0) {
+                printf("Udp connect failed.\n");
+                cleanup = 1;
+            }
         }
-        else err_sys("recvfrom failed");
+        else {
+         printf("Recvfrom failed.\n");
+         cleanup = 1;
+        }
 
 
         printf("Connected!\n");
@@ -195,8 +131,8 @@ int main(int argc, char** argv)
 
         /* Create the CYASSL Object */
         if (( ssl = CyaSSL_new(ctx) ) == NULL) {
-            fprintf(stderr, "CyaSSL_new error.\n");
-            exit(EXIT_FAILURE);
+            printf("CyaSSL_new error.\n");
+            cleanup = 1;
         }
 
 
@@ -209,7 +145,8 @@ int main(int argc, char** argv)
             char buffer[80];
             printf("error = %d, %s\n", err, CyaSSL_ERR_error_string(err, buffer));
             buffer[80]= 0;
-            err_sys("SSL_accept failed\n");
+            printf("SSL_accept failed.\n");
+            cleanup = 1;
         }
 
 
@@ -224,13 +161,16 @@ int main(int argc, char** argv)
 
         if (recvlen < 0) {
             int readErr = CyaSSL_get_error(ssl, 0);
-            if(readErr != SSL_ERROR_WANT_READ)
-                err_sys("SSL_read failed");
+            if(readErr != SSL_ERROR_WANT_READ) {
+                printf("SSL_read failed.\n");
+                cleanup = 1;
+            }
         }
 
 
         if (CyaSSL_write(ssl, ack, sizeof(ack)) < 0) {
-            err_sys("CyaSSL_write fail");
+            printf("CyaSSL_write fail.\n");
+            cleanup = 1;
         }
 
         else 
@@ -246,6 +186,60 @@ int main(int argc, char** argv)
         printf("Client left return to idle state\n");
         continue;
     }
-    CyaSSL_CTX_free(ctx);
-    return(0);
+}
+
+
+int main(int argc, char** argv)
+{
+    /* CREATE THE SOCKET */
+
+    struct sigaction    act, oact;  /* structures for signal handling */
+
+
+    /* 
+     * Define a signal handler for when the user closes the program
+     * with Ctrl-C. Also, turn off SA_RESTART so that the OS doesn't 
+     * restart the call to accept() after the signal is handled. 
+     */
+    act.sa_handler = sig_handler;
+    sigemptyset(&act.sa_mask);
+    act.sa_flags = 0;
+    sigaction(SIGINT, &act, &oact);
+
+#if defined(DEBUG_CYASSL) && !defined(CYASSL_MDK_SHELL)                         
+    CyaSSL_Debugging_ON();                                                  
+#endif 
+    CyaSSL_Init();                      /* Initialize CyaSSL */
+
+    /* Set ctx to DTLS 1.2 */
+    if ( (ctx = CyaSSL_CTX_new(CyaDTLSv1_2_server_method())) == NULL){
+        fprintf(stderr, "CyaSSL_CTX_new error.\n");
+        exit(EXIT_FAILURE);
+    }
+    /* Load CA certificates */
+    if (CyaSSL_CTX_load_verify_locations(ctx,"../certs/ca-cert.pem",0) != 
+            SSL_SUCCESS) {
+        fprintf(stderr, "Error loading ../certs/ca-cert.pem, "
+                "please check the file.\n");
+        exit(EXIT_FAILURE);
+    }
+    /* Load server certificates */
+    if (CyaSSL_CTX_use_certificate_file(ctx,"../certs/server-cert.pem", 
+                SSL_FILETYPE_PEM) != SSL_SUCCESS) {
+        fprintf(stderr, "Error loading ../certs/server-cert.pem, "
+                "please check the file.\n");
+        exit(EXIT_FAILURE);
+    }
+    /* Load server Keys */
+    if (CyaSSL_CTX_use_PrivateKey_file(ctx,"../certs/server-key.pem", 
+                SSL_FILETYPE_PEM) != SSL_SUCCESS) {
+        fprintf(stderr, "Error loading ../certs/server-key.pem, "
+                "please check the file.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    AwaitDGram();
+    if (cleanup ==1)
+        CyaSSL_CTX_free(ctx);
+    return 0;
 }
