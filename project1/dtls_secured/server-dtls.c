@@ -40,7 +40,7 @@
 #define MSGLEN      4096
 
 static int cleanup;                 /* To handle shutdown */
-void AwaitDGram();                   /* Separate out Handling Datagrams */
+void AwaitDGram();                  /* Separate out Handling Datagrams */
 struct sockaddr_in servaddr;        /* our server's address */
 struct sockaddr_in cliaddr;         /* the client's address */
 CYASSL_CTX* ctx;
@@ -64,13 +64,14 @@ void AwaitDGram()
 
     while (cleanup != 1) {
 
+        /* Create a UDP/IP socket */
         if ( (listenfd = socket(AF_INET, SOCK_DGRAM, 0) ) < 0 ) {
             printf("Cannot create socket.\n");
             cleanup = 1;
         }
         printf("Socket allocated\n");
 
-        /* INADDR_ANY=IPaddr, socket =  11111, modify SERV_PORT to change */
+        /* clear servaddr each loop */
         memset((char *)&servaddr, 0, sizeof(servaddr));
 
         /* host-to-network-long conversion (htonl) */
@@ -92,15 +93,16 @@ void AwaitDGram()
 
 
         /*Bind Socket*/
-        if (bind(listenfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
+        if (bind(listenfd, 
+                    (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
             printf("Bind failed.\n");
             cleanup = 1;
         }
 
         printf("Awaiting client connection on port %d\n", SERV_PORT);
 
-        CYASSL*                 ssl;    /* initialize arg */
-        clilen =    sizeof(cliaddr);    /* set clilen to |cliaddr| */
+        /* set clilen to |cliaddr| */
+        clilen =    sizeof(cliaddr);   
         unsigned char       b[1500];    
         int              connfd = 0;     
 
@@ -108,7 +110,7 @@ void AwaitDGram()
         connfd = (int)recvfrom(listenfd, (char *)&b, sizeof(b), MSG_PEEK,
                 (struct sockaddr*)&cliaddr, &clilen);
 
-        if (connfd < 0){
+        if (connfd < 0) {
             printf("No clients in que, enter idle state\n");
             continue;
         }
@@ -121,13 +123,13 @@ void AwaitDGram()
             }
         }
         else {
-         printf("Recvfrom failed.\n");
-         cleanup = 1;
+            printf("Recvfrom failed.\n");
+            cleanup = 1;
         }
-
-
         printf("Connected!\n");
 
+        /* initialize arg */
+        CYASSL* ssl;
 
         /* Create the CYASSL Object */
         if (( ssl = CyaSSL_new(ctx) ) == NULL) {
@@ -143,14 +145,15 @@ void AwaitDGram()
         if (CyaSSL_accept(ssl) != SSL_SUCCESS) {
             int err = CyaSSL_get_error(ssl, 0);
             char buffer[80];
-            printf("error = %d, %s\n", err, CyaSSL_ERR_error_string(err, buffer));
+            printf("error = %d, %s\n", err, 
+                    CyaSSL_ERR_error_string(err, buffer));
             buffer[80]= 0;
             printf("SSL_accept failed.\n");
             cleanup = 1;
         }
 
 
-        if (( recvlen = CyaSSL_read(ssl, buff, sizeof(buff)-1)) > 0){
+        if (( recvlen = CyaSSL_read(ssl, buff, sizeof(buff)-1)) > 0) {
 
             printf("heard %d bytes\n", recvlen);
 
@@ -184,35 +187,32 @@ void AwaitDGram()
         CyaSSL_free(ssl);
 
         printf("Client left return to idle state\n");
-        continue;
     }
 }
 
 
 int main(int argc, char** argv)
 {
-    /* CREATE THE SOCKET */
-
-    struct sigaction    act, oact;  /* structures for signal handling */
-
+    /* structures for signal handling */
+    struct sigaction    act, oact;
 
     /* 
      * Define a signal handler for when the user closes the program
      * with Ctrl-C. Also, turn off SA_RESTART so that the OS doesn't 
      * restart the call to accept() after the signal is handled. 
-     */
+    */
     act.sa_handler = sig_handler;
     sigemptyset(&act.sa_mask);
     act.sa_flags = 0;
     sigaction(SIGINT, &act, &oact);
 
-#if defined(DEBUG_CYASSL) && !defined(CYASSL_MDK_SHELL)                         
+#if defined(DEBUG_CYASSL) && !defined(CYASSL_MDK_SHELL)
     CyaSSL_Debugging_ON();                                                  
 #endif 
     CyaSSL_Init();                      /* Initialize CyaSSL */
 
     /* Set ctx to DTLS 1.2 */
-    if ( (ctx = CyaSSL_CTX_new(CyaDTLSv1_2_server_method())) == NULL){
+    if ( (ctx = CyaSSL_CTX_new(CyaDTLSv1_2_server_method())) == NULL) {
         fprintf(stderr, "CyaSSL_CTX_new error.\n");
         exit(EXIT_FAILURE);
     }
@@ -239,7 +239,7 @@ int main(int argc, char** argv)
     }
 
     AwaitDGram();
-    if (cleanup ==1)
+    if (cleanup == 1)
         CyaSSL_CTX_free(ctx);
     return 0;
 }
