@@ -1,4 +1,4 @@
-/* server-dtls-nonblocking.c 
+/* server-dtls.c 
  *
  * Copyright (C) 2006-2014 wolfSSL Inc.
  *
@@ -20,8 +20,8 @@
  * USA
  *=============================================================================
  *
- * Bare-bones example of a DTLS server for instructional/learning purposes.
- * Utilizes DTLS 1.2 and non-blocking sockets
+ * Bare-bones example of a DTLS erver for instructional/learning purposes.
+ * Utilizes DTLS 1.2.
  */
 
 #include <stdio.h>                  /* standard in/out procedures */
@@ -36,33 +36,20 @@
 #include <signal.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <sys/time.h>
-#include <sys/select.h>
+#include <time.h>
 
 #define SERV_PORT   11111           /* define our server port number */
 #define MSGLEN      4096
 
-CYASSL_CTX* ctx;
-
 static int cleanup;                 /* To handle shutdown */
-
-static int dtls_select(socklen_t sockfd, int to_sec);
-
-int Accept();
-
-void sig_handler(const int sig) 
-{
-    printf("\nSIGINT handled.\n");
-    cleanup = 1;
-    exit(0);
-}
-
-static void err_sys(const char* msg)
-{
-    printf("yassl error: %s\n", msg);
-    if (msg)
-        exit(0);
-}
+void AwaitDGram();                  /* Separate out Handling Datagrams */
+struct sockaddr_in servaddr;               /* our server's address */
+CYASSL_CTX* ctx;
+void sig_handler(const int sig);
+static int udp_read_connect(int listenfd);
+static void NonBlockingSSL_Accept(CYASSL* ssl);
+static void tcp_set_nonblocking(int* listenfd);
+static int tcp_select();
 
 enum {
     TEST_SELECT_FAIL,
@@ -71,58 +58,26 @@ enum {
     TEST_ERROR_READY
 };
 
-static int dtls_select(socklen_t sockfd, int to_sec)
+void sig_handler(const int sig) 
 {
-    fd_set masterset, workingset;
-    socklen_t maxfd = sockfd + 1;
-    struct timeval timeout = { (to_sec > 0) ? to_sec : 0, 0};
-    int result;
-
-    FD_ZERO(&masterset);
-    FD_SET(sockfd, &masterset);
-    FD_ZERO(&workingset);
-    FD_SET(sockfd, &workingset);
-
-    /* Uncomment to make the timout a static 3 minutes */
-
-    /*
-       timeout.tv_sec = 0;
-       timeout.tv_usec = 0;
-       */
-
-    result = select(maxfd, &masterset, NULL, &workingset, &timeout);
-
-    if (result == 0)
-        return TEST_TIMEOUT;
-    else if (result > 0) {
-        if (FD_ISSET(sockfd, &masterset))
-            return TEST_RECV_READY;
-        else if(FD_ISSET(sockfd, &workingset))
-            return TEST_ERROR_READY;
-    }
-
-    return TEST_SELECT_FAIL;
+    printf("\nSIGINT handled.\n");
+    cleanup = 1;
 }
 
-int Accept(){
+void AwaitDGram()
+{
+    int listenfd;              /* Initialize our socket */
+    int clientfd;              /* client connection */
+    CYASSL* ssl;                    /* Initialize ssl object */
 
     while (cleanup != 1) {
-        char ack[] = "I hear you fashizzle!";
-        struct sockaddr_in servaddr;    /* our server's address */
-        struct sockaddr_in cliaddr;     /* the client's address */
-        int listenfd;                  /* Initialize our socket */
-        socklen_t clilen;               /* length of address' */
-        int recvlen = 0;                /* length of message */
-        char buff[MSGLEN];              /* the incoming message */
-
-
+        /* Create a UDP/IP socket */
         if ( (listenfd = socket(AF_INET, SOCK_DGRAM, 0) ) < 0 ) {
-            err_sys("cannot create socket");
-            return 0;
+            printf("Cannot create socket.\n");
+            cleanup = 1;
         }
-        printf("Socket allocated\n");
 
-        /* INADDR_ANY=IPaddr, socket =  11111, modify SERV_PORT to change */
+        printf("Socket allocated\n");
         memset((char *)&servaddr, 0, sizeof(servaddr));
 
         /* host-to-network-long conversion (htonl) */
@@ -132,167 +87,189 @@ int Accept(){
         servaddr.sin_port = htons(SERV_PORT);
 
 
-
         /* Eliminate socket already in use error */
         int res = 1; 
         int on = 1;
-        socklen_t len = sizeof(on);
+        int len = sizeof(on);
         res = setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &on, len);
         if (res < 0) {
-            err_sys("setsockopt SO_REUSEADDR failed\n");
+            printf("Setsockopt SO_REUSEADDR failed.\n");
+            cleanup = 1;
         }
-
 
 
         /*Bind Socket*/
-        if (bind(listenfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
-            err_sys("bind failed");
-            return 0;
+        if (bind(listenfd, 
+                    (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
+            printf("Bind failed.\n");
+            cleanup = 1;
         }
-        printf("Socket bind complete\n");
-
 
         printf("Awaiting client connection on port %d\n", SERV_PORT);
-
-        /* set listenfd non-blocking */
-        fcntl(listenfd, F_SETFL, O_NONBLOCK);
-
-        CYASSL*                 ssl;    /* initialize arg */
-        clilen =    sizeof(cliaddr);    /* set clilen to |cliaddr| */
-        unsigned char       b[1500];    
-        int              connfd = 0;     
-
-
-        connfd = (int)recvfrom(listenfd, (char *)&b, sizeof(b), MSG_PEEK,
-                (struct sockaddr*)&cliaddr, &clilen);
-
-        if (connfd < 0){
-            printf("No clients in que, enter idle state\n");
-        }
-
-        else if (connfd > 0) {
-            if (connect(listenfd, (const struct sockaddr *)&cliaddr, 
-                        sizeof(cliaddr)) != 0)
-                err_sys("udp connect failed");
-        }
-        else err_sys("recvfrom failed");
-
-
-
+        clientfd = udp_read_connect(listenfd);
 
         /* Create the CYASSL Object */
         if (( ssl = CyaSSL_new(ctx) ) == NULL) {
-            fprintf(stderr, "CyaSSL_new error.\n");
-            exit(EXIT_FAILURE);
+            printf("CyaSSL_new error.\n");
+            cleanup = 1;
         }
 
+        /* set clilen to |cliaddr| */
+        printf("Connected!\n");
 
-        /* set the session ssl to client connection port */
-        CyaSSL_set_fd(ssl, listenfd);
+        /* set the/ session ssl to client connection port */
+        CyaSSL_set_fd(ssl, clientfd);
 
 
-        /* set listen port to nonblocking, accept nonblocking */
-        /* handle peer error */
         CyaSSL_set_using_nonblock(ssl, 1);
+        tcp_set_nonblocking(&clientfd);
+        NonBlockingSSL_Accept(ssl);
 
+        /* Reply to the client */
+        int readWriteErr; 
+        int  recvlen;         /* length of string read */
+        char buff[MSGLEN];   /* string read from client */
+        char ack[] = "I hear you fashizzle\n";
+        int currTimeout = 1;
 
-        int ret;
-        int error = CyaSSL_get_error(ssl, 0);
-        socklen_t sockfd = (socklen_t)CyaSSL_get_fd(ssl);
-        int select_ret;
+        recvlen = CyaSSL_read(ssl, buff, MSGLEN);
 
-        ret = CyaSSL_accept(ssl);
-        printf("ret = %d\n", ret);
+        currTimeout = CyaSSL_dtls_get_current_timeout(ssl);
 
-        while (ret != SSL_SUCCESS && (error == SSL_ERROR_WANT_READ ||
-                    error == SSL_ERROR_WANT_WRITE)) {
-
-            int currTimeout = 1;
-
-            /* NOTE: changes over time */
-            currTimeout = CyaSSL_dtls_get_current_timeout(ssl);
-
-            if (error == SSL_ERROR_WANT_READ)
-                printf("Server wants to read...\n");
-            else
-                printf("Server wants to write...\n");
-
-            printf("waiting to select()\n");
-
-            select_ret = dtls_select(sockfd, currTimeout);
-
-            if (select_ret == TEST_RECV_READY) {
-                printf("TEST_RECV_READY!\n");
-                ret = CyaSSL_accept(ssl);
+        if (CyaSSL_write(ssl, ack, sizeof(ack)-1) > sizeof(ack)-1){
+            printf("Write error.\n");
+            cleanup = 1;
+        }       
+        do {
+            if (recvlen < 0) {
+                readWriteErr = CyaSSL_get_error(ssl, 0);
+                if (readWriteErr != SSL_ERROR_WANT_READ) {
+                    printf("Read Error.\n");
+                    cleanup = 1;
+                }
+                recvlen = CyaSSL_read(ssl, buff, MSGLEN);
             }
-
-            if (select_ret == TEST_ERROR_READY && !CyaSSL_dtls(ssl)) {
-                printf("TEST_ERROR_READY\n");
-                error = CyaSSL_get_error(ssl, 0);
-            }
-
-            else if (select_ret == TEST_TIMEOUT && CyaSSL_dtls(ssl) &&
-                    CyaSSL_dtls_got_timeout(ssl) ) {
-                printf("TEST_TIMEOUT\n");
-                error = SSL_ERROR_WANT_READ;
-            }
-            else if (select_ret == TEST_TIMEOUT && CyaSSL_dtls(ssl) &&
-                    CyaSSL_dtls_got_timeout(ssl) >= 0) {
-                error = SSL_ERROR_WANT_READ;
-            }
-            else {
-                error = SSL_FATAL_ERROR;
-            }
-        }
-        if (ret != SSL_SUCCESS){
-            printf("SSL_accept failed\n");
-            continue;
-        }
-
-
-        printf("Connected with a client!\n");
-
-        if (( recvlen = CyaSSL_read(ssl, buff, sizeof(buff)-1)) > 0){
-
-            printf("heard %d bytes\n", recvlen);
-
+        }while (readWriteErr == SSL_ERROR_WANT_READ && recvlen < 0 && 
+                currTimeout >= 0 && cleanup != 1); 
+        if (recvlen > 0) {
             buff[recvlen] = 0;
-            printf("I heard this: \"%s\"\n", buff);
+            printf("I heard this:\"%s\"\n", buff);
+        } else {
+            printf("Connection Timed Out.\n");
         }
-
-
-        if (recvlen < 0) {
-            int readErr = CyaSSL_get_error(ssl, 0);
-            if(readErr != SSL_ERROR_WANT_READ)
-                err_sys("SSL_read failed");
-        }
-
-
-        if (CyaSSL_write(ssl, ack, sizeof(ack)) < 0) {
-            err_sys("CyaSSL_write fail");
-        }
-
-        else 
-            printf("lost the connection to client\n");
-
-        printf("reply sent \"%s\"\n", ack);
-
-        CyaSSL_set_fd(ssl, 0); 
-        CyaSSL_shutdown(ssl);        
-        CyaSSL_free(ssl);
-
-        printf("Client left return to idle state\n");
-
+        /* End Reply to Client */
     }
-    return 1;
+}
+
+
+static int udp_read_connect(int listenfd)
+{
+    struct sockaddr_in cliaddr;
+    unsigned char  b[1500];
+    int n;
+    socklen_t clilen = sizeof(cliaddr);
+
+    n = (int)recvfrom(listenfd, (char*)b, sizeof(b), MSG_PEEK,
+            (struct sockaddr*)&cliaddr, &clilen);
+    if (n > 0) {
+        if (connect(listenfd, (const struct sockaddr*)&cliaddr, 
+                    sizeof(cliaddr)) != 0) {
+            printf("udp connect failed.\n");
+        }
+    }
+    else {
+        printf("recvfrom failed.\n");
+    }
+    return listenfd;
+}
+
+
+static void NonBlockingSSL_Accept(CYASSL* ssl)
+{
+    int ret = CyaSSL_accept(ssl);
+    int error = CyaSSL_get_error(ssl, 0);
+    int listenfd = (int)CyaSSL_get_fd(ssl);
+    int select_ret;
+
+    while (cleanup != 1 && (ret != SSL_SUCCESS && 
+                (error == SSL_ERROR_WANT_READ ||
+                 error == SSL_ERROR_WANT_WRITE))) {
+        int currTimeout = 1;
+
+        if (error == SSL_ERROR_WANT_READ)
+            printf("... server would read block\n");
+        else
+            printf("... server would write block\n");
+
+        currTimeout = CyaSSL_dtls_get_current_timeout(ssl);
+        select_ret = tcp_select(listenfd, currTimeout);
+
+        if ((select_ret == TEST_RECV_READY) ||
+                (select_ret == TEST_ERROR_READY)) {
+            ret = CyaSSL_accept(ssl);
+            error = CyaSSL_get_error(ssl, 0);
+        }
+        else if (select_ret == TEST_TIMEOUT && !CyaSSL_dtls(ssl)) {
+            error = SSL_ERROR_WANT_READ;
+        }
+        else if (select_ret == TEST_TIMEOUT && CyaSSL_dtls(ssl) &&
+                CyaSSL_dtls_got_timeout(ssl) >= 0) {
+            error = SSL_ERROR_WANT_READ;
+        }
+        else {
+            error = SSL_FATAL_ERROR;
+        }
+    }
+    if (ret != SSL_SUCCESS) {
+        printf("SSL_accept failed.\n");
+    }
+}
+
+
+static void tcp_set_nonblocking(int* listenfd)
+{
+    int flags = fcntl(*listenfd, F_GETFL, 0);            
+    if (flags < 0) {
+        printf("fcntl get failed");
+        cleanup = 1;
+    }            
+    flags = fcntl(*listenfd, F_SETFL, flags | O_NONBLOCK);            
+    if (flags < 0) {
+        printf("fcntl set failed.\n");
+        cleanup = 1;
+    }
+}
+
+static int tcp_select(int socketfd, int to_sec)
+{
+    fd_set recvfds, errfds;
+    int nfds = socketfd + 1;
+    struct timeval timeout = { (to_sec > 0) ? to_sec : 0, 0};
+    int result;
+
+    FD_ZERO(&recvfds);
+    FD_SET(socketfd, &recvfds);
+    FD_ZERO(&errfds);
+    FD_SET(socketfd, &errfds);
+
+    result = select(nfds, &recvfds, NULL, &errfds, &timeout);
+
+    if (result == 0)
+        return TEST_TIMEOUT;
+    else if (result > 0) {
+        if (FD_ISSET(socketfd, &recvfds))
+            return TEST_RECV_READY;
+        else if(FD_ISSET(socketfd, &errfds))
+            return TEST_ERROR_READY;
+    }
+
+    return TEST_SELECT_FAIL;
 }
 
 int main(int argc, char** argv)
 {
-    /* CREATE THE SOCKET */
-
-    struct sigaction    act, oact;  /* structures for signal handling */
-
+    /* structures for signal handling */
+    struct sigaction    act, oact;
 
     /* 
      * Define a signal handler for when the user closes the program
@@ -304,42 +281,40 @@ int main(int argc, char** argv)
     act.sa_flags = 0;
     sigaction(SIGINT, &act, &oact);
 
-    //    CyaSSL_Debugging_ON();
+    //CyaSSL_Debugging_ON();                                                  
     CyaSSL_Init();                      /* Initialize CyaSSL */
 
-    if ( (ctx = CyaSSL_CTX_new(CyaDTLSv1_2_server_method())) == NULL){
+    /* Set ctx to DTLS 1.2 */
+    if ( (ctx = CyaSSL_CTX_new(CyaDTLSv1_2_server_method())) == NULL) {
         fprintf(stderr, "CyaSSL_CTX_new error.\n");
         exit(EXIT_FAILURE);
     }
-    printf("CTX set to DTLS 1.2\n");
-
+    /* Load CA certificates */
     if (CyaSSL_CTX_load_verify_locations(ctx,"../certs/ca-cert.pem",0) != 
             SSL_SUCCESS) {
         fprintf(stderr, "Error loading ../certs/ca-cert.pem, "
                 "please check the file.\n");
         exit(EXIT_FAILURE);
     }
-    printf("Loaded CA certs\n");
-
+    /* Load server certificates */
     if (CyaSSL_CTX_use_certificate_file(ctx,"../certs/server-cert.pem", 
                 SSL_FILETYPE_PEM) != SSL_SUCCESS) {
         fprintf(stderr, "Error loading ../certs/server-cert.pem, "
                 "please check the file.\n");
         exit(EXIT_FAILURE);
     }
-    printf("Loaded server certs\n");
-
+    /* Load server Keys */
     if (CyaSSL_CTX_use_PrivateKey_file(ctx,"../certs/server-key.pem", 
                 SSL_FILETYPE_PEM) != SSL_SUCCESS) {
         fprintf(stderr, "Error loading ../certs/server-key.pem, "
                 "please check the file.\n");
         exit(EXIT_FAILURE);
     }
-    printf("Loaded server keys\n");
-
-
-    int cont = Accept();
-    if(cont == 0)
+    if (cleanup == 1) {
         CyaSSL_CTX_free(ctx);
-    return(0);
+        CyaSSL_Cleanup();
+    }
+
+    AwaitDGram();
+    return 0;
 }
