@@ -47,8 +47,8 @@ CYASSL_CTX* ctx;
 void sig_handler(const int sig);
 static int udp_read_connect(int listenfd);
 static void NonBlockingSSL_Accept(CYASSL* ssl);
-static void tcp_set_nonblocking(int* listenfd);
-static int tcp_select();
+static void dtls_set_nonblocking(int* listenfd);
+static int dtls_select();
 
 enum {
     TEST_SELECT_FAIL,
@@ -71,11 +71,11 @@ void AwaitDGram()
 
     while (cleanup != 1) {
 
-     if (cleanup == 1) {
-        CyaSSL_CTX_free(ctx);
-        CyaSSL_Cleanup();
-    }
-       
+        if (cleanup == 1) {
+            CyaSSL_CTX_free(ctx);
+            CyaSSL_Cleanup();
+        }
+
         /* Create a UDP/IP socket */
         if ( (listenfd = socket(AF_INET, SOCK_DGRAM, 0) ) < 0 ) {
             printf("Cannot create socket.\n");
@@ -127,7 +127,7 @@ void AwaitDGram()
 
 
         CyaSSL_set_using_nonblock(ssl, 1);
-        tcp_set_nonblocking(&clientfd);
+        dtls_set_nonblocking(&clientfd);
         NonBlockingSSL_Accept(ssl);
 
         /* Reply to the client */
@@ -147,6 +147,10 @@ void AwaitDGram()
         }
         readWriteErr = CyaSSL_get_error(ssl, 0);       
         do {
+            if (cleanup == 1) {
+                CyaSSL_CTX_free(ctx);
+                CyaSSL_Cleanup();
+            }
             if (recvlen < 0) {
                 readWriteErr = CyaSSL_get_error(ssl, 0);
                 if (readWriteErr != SSL_ERROR_WANT_READ) {
@@ -158,7 +162,7 @@ void AwaitDGram()
         }while (readWriteErr == SSL_ERROR_WANT_READ && recvlen < 0 && 
                 currTimeout >= 0 && cleanup != 1); 
         if (recvlen > 0) {
-            buff[recvlen] = 0;
+            buff[recvlen-1] = 0;
             printf("I heard this:\"%s\"\n", buff);
         } else {
             printf("Connection Timed Out.\n");
@@ -172,12 +176,12 @@ static int udp_read_connect(int listenfd)
 {
     struct sockaddr_in cliaddr;
     unsigned char  b[1500];
-    int n;
+    int connfd;
     socklen_t clilen = sizeof(cliaddr);
 
-    n = (int)recvfrom(listenfd, (char*)b, sizeof(b), MSG_PEEK,
+    connfd = (int)recvfrom(listenfd, (char*)b, sizeof(b), MSG_PEEK,
             (struct sockaddr*)&cliaddr, &clilen);
-    if (n > 0) {
+    if (connfd > 0) {
         if (connect(listenfd, (const struct sockaddr*)&cliaddr, 
                     sizeof(cliaddr)) != 0) {
             printf("udp connect failed.\n");
@@ -200,6 +204,11 @@ static void NonBlockingSSL_Accept(CYASSL* ssl)
     while (cleanup != 1 && (ret != SSL_SUCCESS && 
                 (error == SSL_ERROR_WANT_READ ||
                  error == SSL_ERROR_WANT_WRITE))) {
+        if (cleanup == 1) {
+            CyaSSL_CTX_free(ctx);
+            CyaSSL_Cleanup();
+        }
+
         int currTimeout = 1;
 
         if (error == SSL_ERROR_WANT_READ)
@@ -208,7 +217,7 @@ static void NonBlockingSSL_Accept(CYASSL* ssl)
             printf("... server would write block\n");
 
         currTimeout = CyaSSL_dtls_get_current_timeout(ssl);
-        select_ret = tcp_select(listenfd, currTimeout);
+        select_ret = dtls_select(listenfd, currTimeout);
 
         if ((select_ret == TEST_RECV_READY) ||
                 (select_ret == TEST_ERROR_READY)) {
@@ -232,7 +241,7 @@ static void NonBlockingSSL_Accept(CYASSL* ssl)
 }
 
 
-static void tcp_set_nonblocking(int* listenfd)
+static void dtls_set_nonblocking(int* listenfd)
 {
     int flags = fcntl(*listenfd, F_GETFL, 0);            
     if (flags < 0) {
@@ -246,7 +255,7 @@ static void tcp_set_nonblocking(int* listenfd)
     }
 }
 
-static int tcp_select(int socketfd, int to_sec)
+static int dtls_select(int socketfd, int to_sec)
 {
     fd_set recvfds, errfds;
     int nfds = socketfd + 1;
@@ -322,5 +331,11 @@ int main(int argc, char** argv)
     }
 
     AwaitDGram();
+    if (cleanup == 1) {
+        CyaSSL_CTX_free(ctx);
+        CyaSSL_Cleanup();
+    }
+
+
     return 0;
 }
