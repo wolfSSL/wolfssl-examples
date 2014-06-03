@@ -63,6 +63,7 @@ void sig_handler(const int sig)
     cleanup = 1;
     CyaSSL_CTX_free(ctx);
     CyaSSL_Cleanup();
+    exit(0);
 }
 
 void AwaitDGram()
