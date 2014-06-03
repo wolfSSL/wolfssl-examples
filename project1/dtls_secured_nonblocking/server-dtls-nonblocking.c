@@ -61,6 +61,8 @@ void sig_handler(const int sig)
 {
     printf("\nSIGINT handled.\n");
     cleanup = 1;
+    CyaSSL_CTX_free(ctx);
+    CyaSSL_Cleanup();
 }
 
 void AwaitDGram()
@@ -70,11 +72,6 @@ void AwaitDGram()
     CYASSL* ssl;                    /* Initialize ssl object */
 
     while (cleanup != 1) {
-
-        if (cleanup == 1) {
-            CyaSSL_CTX_free(ctx);
-            CyaSSL_Cleanup();
-        }
 
         /* Create a UDP/IP socket */
         if ( (listenfd = socket(AF_INET, SOCK_DGRAM, 0) ) < 0 ) {
@@ -148,8 +145,7 @@ void AwaitDGram()
         readWriteErr = CyaSSL_get_error(ssl, 0);       
         do {
             if (cleanup == 1) {
-                CyaSSL_CTX_free(ctx);
-                CyaSSL_Cleanup();
+                break;
             }
             if (recvlen < 0) {
                 readWriteErr = CyaSSL_get_error(ssl, 0);
@@ -205,8 +201,7 @@ static void NonBlockingSSL_Accept(CYASSL* ssl)
                 (error == SSL_ERROR_WANT_READ ||
                  error == SSL_ERROR_WANT_WRITE))) {
         if (cleanup == 1) {
-            CyaSSL_CTX_free(ctx);
-            CyaSSL_Cleanup();
+            break;
         }
 
         int currTimeout = 1;
