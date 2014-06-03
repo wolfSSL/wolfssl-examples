@@ -239,7 +239,9 @@ int main(int argc, char** argv)
     }
 
     AwaitDGram();
-    if (cleanup == 1)
+    if (cleanup == 1) {
         CyaSSL_CTX_free(ctx);
+        CyaSSL_cleanup();
+    }
     return 0;
 }
