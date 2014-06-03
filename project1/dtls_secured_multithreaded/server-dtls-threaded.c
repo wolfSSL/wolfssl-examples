@@ -61,6 +61,10 @@ void AwaitDGram()
     socklen_t clilen;               /* length of address' */
 
     while (cleanup != 1) {
+        if (cleanup == 1){
+            CyaSSL_Cleanup();
+            CyaSSL_CTX_free(ctx);
+        }
         if ( (listenfd = socket(AF_INET, SOCK_DGRAM, 0) ) < 0 ) {
             printf("Cannot create socket.\n");
             cleanup = 1;
@@ -113,20 +117,18 @@ void AwaitDGram()
 
         else if (connfd > 0) {
 
-        pthread_t threadID;
+            pthread_t threadID;
 
-        if (pthread_create(&threadID, NULL, 
-                    ThreadControl, (void *)&connfd) < 0) {
-            printf("pthread_create failed.\n");
-        }
-        printf("Connection being re-routed to Thread Control.\n");
+            if (pthread_create(&threadID, NULL, 
+                        ThreadControl, (void *)&connfd) < 0) {
+                printf("pthread_create failed.\n");
+            }
+            printf("Connection being re-routed to Thread Control.\n");
         }
         else {
             printf("Recvfrom failed.\n");
             cleanup = 1;
         }
-        pthread_t threadID = pthread_self();
-        pthread_join(threadID, (void*)&connfd);
 
         sleep(1);
         continue;
@@ -247,7 +249,7 @@ void* ThreadControl(void* openSock)
     CyaSSL_set_fd(ssl, 0); 
     CyaSSL_shutdown(ssl);        
     CyaSSL_free(ssl);
-  
+
 
     printf("Returning to idle state\n");
     int dummy;
@@ -302,9 +304,10 @@ int main(int argc, char** argv)
     printf("Loaded server keys\n");
 
     AwaitDGram();
-    if (cleanup == 1){
+    if (cleanup == 1) {
         CyaSSL_Cleanup();
         CyaSSL_CTX_free(ctx);
     }
+
     return(0);
 }
