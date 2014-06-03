@@ -147,7 +147,7 @@ void AwaitDGram()
             char buffer[80];
             printf("error = %d, %s\n", err, 
                     CyaSSL_ERR_error_string(err, buffer));
-            buffer[80]= 0;
+            buffer[sizeof(buffer)-1]= 0;
             printf("SSL_accept failed.\n");
             cleanup = 1;
         }
