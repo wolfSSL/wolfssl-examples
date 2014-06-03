@@ -36,7 +36,6 @@
 #include <signal.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <time.h>
 
 #define SERV_PORT   11111           /* define our server port number */
 #define MSGLEN      4096
@@ -71,6 +70,12 @@ void AwaitDGram()
     CYASSL* ssl;                    /* Initialize ssl object */
 
     while (cleanup != 1) {
+
+     if (cleanup == 1) {
+        CyaSSL_CTX_free(ctx);
+        CyaSSL_Cleanup();
+    }
+       
         /* Create a UDP/IP socket */
         if ( (listenfd = socket(AF_INET, SOCK_DGRAM, 0) ) < 0 ) {
             printf("Cannot create socket.\n");
@@ -139,7 +144,8 @@ void AwaitDGram()
         if (CyaSSL_write(ssl, ack, sizeof(ack)-1) > sizeof(ack)-1){
             printf("Write error.\n");
             cleanup = 1;
-        }       
+        }
+        readWriteErr = CyaSSL_get_error(ssl, 0);       
         do {
             if (recvlen < 0) {
                 readWriteErr = CyaSSL_get_error(ssl, 0);
