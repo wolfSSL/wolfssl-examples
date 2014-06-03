@@ -61,10 +61,6 @@ void AwaitDGram()
     socklen_t clilen;               /* length of address' */
 
     while (cleanup != 1) {
-        if (cleanup == 1){
-            CyaSSL_Cleanup();
-            CyaSSL_CTX_free(ctx);
-        }
         if ( (listenfd = socket(AF_INET, SOCK_DGRAM, 0) ) < 0 ) {
             printf("Cannot create socket.\n");
             cleanup = 1;
@@ -130,7 +126,7 @@ void AwaitDGram()
             cleanup = 1;
         }
 
-        sleep(1);
+//        sleep(1);
         continue;
     }
 }
@@ -249,7 +245,6 @@ void* ThreadControl(void* openSock)
     CyaSSL_set_fd(ssl, 0); 
     CyaSSL_shutdown(ssl);        
     CyaSSL_free(ssl);
-
 
     printf("Returning to idle state\n");
     int dummy;
