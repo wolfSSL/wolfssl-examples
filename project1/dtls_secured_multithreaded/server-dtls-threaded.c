@@ -51,9 +51,9 @@ void* ThreadControl(void*);
 void sig_handler(const int sig) 
 {
     printf("\nSIGINT handled.\n");
+    cleanup = 1;
     CyaSSL_CTX_free(ctx);
     CyaSSL_Cleanup();
-    cleanup = 1;
     exit(0);
 }
 
