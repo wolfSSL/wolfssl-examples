@@ -50,6 +50,9 @@ void sig_handler(const int sig)
 {
     printf("\nSIGINT handled.\n");
     cleanup = 1;
+    CyaSSL_CTX_free(ctx);
+    CyaSSL_Cleanup();
+    exit(0);
 }
 
 
