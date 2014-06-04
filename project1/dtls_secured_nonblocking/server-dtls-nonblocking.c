@@ -61,6 +61,7 @@ void sig_handler(const int sig)
 {
     printf("\nSIGINT handled.\n");
     cleanup = 1;
+    AwaitDGram();
     CyaSSL_CTX_free(ctx);
     CyaSSL_Cleanup();
     exit(0);
@@ -70,7 +71,8 @@ void AwaitDGram()
 {
     int listenfd;              /* Initialize our socket */
     int clientfd;              /* client connection */
-    CYASSL* ssl;                    /* Initialize ssl object */
+    CYASSL* ssl;               /* Initialize ssl object */
+
 
     while (cleanup != 1) {
 
@@ -130,19 +132,16 @@ void AwaitDGram()
 
         /* Reply to the client */
         int readWriteErr; 
-        int  recvlen;         /* length of string read */
-        char buff[MSGLEN];   /* string read from client */
+        int  recvlen;           /* length of string read */
+        char buff[80];          /* string read from client */
         char ack[] = "I hear you fashizzle\n";
         int currTimeout = 1;
 
-        recvlen = CyaSSL_read(ssl, buff, MSGLEN);
+        buff[sizeof(buff)-1] = 0;
+        recvlen = CyaSSL_read(ssl, buff, sizeof(buff)-1);
 
         currTimeout = CyaSSL_dtls_get_current_timeout(ssl);
 
-        if (CyaSSL_write(ssl, ack, sizeof(ack)-1) > sizeof(ack)-1){
-            printf("Write error.\n");
-            cleanup = 1;
-        }
         readWriteErr = CyaSSL_get_error(ssl, 0);       
         do {
             if (cleanup == 1) {
@@ -154,18 +153,29 @@ void AwaitDGram()
                     printf("Read Error.\n");
                     cleanup = 1;
                 }
-                recvlen = CyaSSL_read(ssl, buff, MSGLEN);
+                buff[sizeof(buff)-1] = 0;
+                recvlen = CyaSSL_read(ssl, buff, sizeof(buff)-1);
             }
-        }while (readWriteErr == SSL_ERROR_WANT_READ && recvlen < 0 && 
+        } while (readWriteErr == SSL_ERROR_WANT_READ && recvlen < 0 && 
                 currTimeout >= 0 && cleanup != 1); 
         if (recvlen > 0) {
-            buff[recvlen-1] = 0;
+            buff[recvlen] = 0;
             printf("I heard this:\"%s\"\n", buff);
-        } else {
+        } 
+        else {
             printf("Connection Timed Out.\n");
         }
+
+        if (CyaSSL_write(ssl, ack, sizeof(ack)) < 0) {
+            printf("Write error.\n");
+            cleanup = 1;
+        }
+
         /* End Reply to Client */
     }
+    CyaSSL_set_fd(ssl, 0);
+    CyaSSL_free(ssl);
+    CyaSSL_shutdown(ssl);
 }
 
 
@@ -202,6 +212,7 @@ static void NonBlockingSSL_Accept(CYASSL* ssl)
                 (error == SSL_ERROR_WANT_READ ||
                  error == SSL_ERROR_WANT_WRITE))) {
         if (cleanup == 1) {
+
             break;
         }
 
