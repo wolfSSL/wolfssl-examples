@@ -42,13 +42,16 @@
 
 static int cleanup;                 /* To handle shutdown */
 void AwaitDGram();                  /* Separate out Handling Datagrams */
-struct sockaddr_in servaddr;               /* our server's address */
-CYASSL_CTX* ctx;
+static CYASSL_CTX* ctx;
 void sig_handler(const int sig);
-static int udp_read_connect(int listenfd);
-static void NonBlockingSSL_Accept(CYASSL* ssl);
-static void dtls_set_nonblocking(int* listenfd);
-static int dtls_select();
+//rm static
+int udp_read_connect(int);
+//rm static
+void NonBlockingSSL_Accept(CYASSL*);
+//rm static
+void dtls_set_nonblocking(int*);
+//rm static
+int dtls_select();
 
 enum {
     TEST_SELECT_FAIL,
@@ -61,7 +64,6 @@ void sig_handler(const int sig)
 {
     printf("\nSIGINT handled.\n");
     cleanup = 1;
-    AwaitDGram();
     CyaSSL_CTX_free(ctx);
     CyaSSL_Cleanup();
     exit(0);
@@ -69,9 +71,10 @@ void sig_handler(const int sig)
 
 void AwaitDGram()
 {
-    int listenfd;              /* Initialize our socket */
-    int clientfd;              /* client connection */
-    CYASSL* ssl;               /* Initialize ssl object */
+    int listenfd = 0;           /* Initialize our socket */
+    struct sockaddr_in servaddr;/* our server's address */
+    int clientfd = 0;           /* client connection */
+    CYASSL* ssl;                /* Initialize ssl object */
 
 
     while (cleanup != 1) {
@@ -145,6 +148,7 @@ void AwaitDGram()
         readWriteErr = CyaSSL_get_error(ssl, 0);       
         do {
             if (cleanup == 1) {
+                memset(buff, 0, sizeof(buff));
                 break;
             }
             if (recvlen < 0) {
@@ -153,7 +157,6 @@ void AwaitDGram()
                     printf("Read Error.\n");
                     cleanup = 1;
                 }
-                buff[sizeof(buff)-1] = 0;
                 recvlen = CyaSSL_read(ssl, buff, sizeof(buff)-1);
             }
         } while (readWriteErr == SSL_ERROR_WANT_READ && recvlen < 0 && 
@@ -164,27 +167,34 @@ void AwaitDGram()
         } 
         else {
             printf("Connection Timed Out.\n");
+            continue;
         }
 
         if (CyaSSL_write(ssl, ack, sizeof(ack)) < 0) {
             printf("Write error.\n");
             cleanup = 1;
         }
+        printf("Reply sent:\"%s\"\n", ack);
+        memset(buff, 0, sizeof(buff));
+        close(listenfd);
+//        CyaSSL_set_fd(ssl, 0);
+        CyaSSL_free(ssl);
+//        CyaSSL_shutdown(ssl);
 
         /* End Reply to Client */
     }
-    CyaSSL_set_fd(ssl, 0);
-    CyaSSL_free(ssl);
-    CyaSSL_shutdown(ssl);
 }
 
 
-static int udp_read_connect(int listenfd)
+int udp_read_connect(int listenfd)
 {
     struct sockaddr_in cliaddr;
     unsigned char  b[1500];
     int connfd;
     socklen_t clilen = sizeof(cliaddr);
+
+    /* ensure b is empty upon each call */
+    memset(b, 0, sizeof(b));
 
     connfd = (int)recvfrom(listenfd, (char*)b, sizeof(b), MSG_PEEK,
             (struct sockaddr*)&cliaddr, &clilen);
@@ -200,8 +210,7 @@ static int udp_read_connect(int listenfd)
     return listenfd;
 }
 
-
-static void NonBlockingSSL_Accept(CYASSL* ssl)
+void NonBlockingSSL_Accept(CYASSL* ssl)
 {
     int ret = CyaSSL_accept(ssl);
     int error = CyaSSL_get_error(ssl, 0);
@@ -212,7 +221,8 @@ static void NonBlockingSSL_Accept(CYASSL* ssl)
                 (error == SSL_ERROR_WANT_READ ||
                  error == SSL_ERROR_WANT_WRITE))) {
         if (cleanup == 1) {
-
+            CyaSSL_free(ssl);       //added
+            CyaSSL_shutdown(ssl);   //added
             break;
         }
 
@@ -248,7 +258,7 @@ static void NonBlockingSSL_Accept(CYASSL* ssl)
 }
 
 
-static void dtls_set_nonblocking(int* listenfd)
+void dtls_set_nonblocking(int* listenfd)
 {
     int flags = fcntl(*listenfd, F_GETFL, 0);            
     if (flags < 0) {
@@ -262,7 +272,7 @@ static void dtls_set_nonblocking(int* listenfd)
     }
 }
 
-static int dtls_select(int socketfd, int to_sec)
+int dtls_select(int socketfd, int to_sec)
 {
     fd_set recvfds, errfds;
     int nfds = socketfd + 1;
@@ -331,10 +341,6 @@ int main(int argc, char** argv)
         fprintf(stderr, "Error loading ../certs/server-key.pem, "
                 "please check the file.\n");
         exit(EXIT_FAILURE);
-    }
-    if (cleanup == 1) {
-        CyaSSL_CTX_free(ctx);
-        CyaSSL_Cleanup();
     }
 
     AwaitDGram();
