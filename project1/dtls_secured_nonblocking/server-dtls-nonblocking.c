@@ -44,13 +44,9 @@ static int cleanup;                 /* To handle shutdown */
 void AwaitDGram();                  /* Separate out Handling Datagrams */
 CYASSL_CTX* ctx;
 void sig_handler(const int sig);
-//rm static
 int udp_read_connect(int);
-//rm static
 void NonBlockingSSL_Accept(CYASSL*);
-//rm static
 void dtls_set_nonblocking(int*);
-//rm static
 int dtls_select();
 
 enum {
@@ -175,13 +171,10 @@ void AwaitDGram()
             cleanup = 1;
         }
         printf("Reply sent:\"%s\"\n", ack);
-        memset(buff, 0, sizeof(buff));
-        /* do not close listenfd, breaks*/
-        //close(listenfd);
-//        CyaSSL_set_fd(ssl, 0);
-        CyaSSL_free(ssl);
-//        CyaSSL_shutdown(ssl);
 
+        /* free allocated memory */
+        memset(buff, 0, sizeof(buff));
+        CyaSSL_free(ssl);
         /* End Reply to Client */
     }
 }
