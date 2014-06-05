@@ -32,22 +32,18 @@
 #include <netinet/in.h>                 /* used for sockaddr_in */
 #include <arpa/inet.h>
 
-
 #define SERV_PORT   11111               /* define our server port number */
 #define MSGLEN      80                  /* limit incoming message size */
 
 int main (int argc, char** argv) 
 {
-    /* CREATE THE SOCKET */
-
     struct sockaddr_in servaddr;        /* our server's address */
-    struct sockaddr_in cliaddr;         /* the client's address */
-    int sockfd;                         /* Initialize our socket */
+    struct  sockaddr_in cliaddr;        /* the client's address */
+    int                 recvlen;        /* number of bytes recieved */
+    int                  sockfd;        /* Initialize our socket */
+    int              msgnum = 0;        /* the messages we reveive in order */
+    char            buf[MSGLEN];        /* the incoming message */
     socklen_t addrlen = sizeof(cliaddr);/* length of address' */
-    int recvlen;                        /* number of bytes recieved */
-    int msgnum = 0;                     /* the messages we reveive in order */
-    char buf[MSGLEN];                   /* the incoming message */
-
 
     /* create a UDP/IP socket */
     if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
@@ -55,10 +51,8 @@ int main (int argc, char** argv)
         return 0;
     }
 
-
     /* INADDR_ANY = IPaddr, socket =  11111, modify SERV_PORT to change */
     memset((char *)&servaddr, 0, sizeof(servaddr));
-
 
     /* host-to-network-long conversion (htonl) */
     /* host-to-network-short conversion (htons) */
@@ -66,15 +60,13 @@ int main (int argc, char** argv)
     servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
     servaddr.sin_port 		 = htons(SERV_PORT);
 
-
     if (bind(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
         perror("bind failed");
         return 0;
     }
 
-
     /* loop, listen for client, print received, reply to client */
-    for ( ; ; ) {
+    for (;;) {
         printf("waiting for client message on port %d\n", SERV_PORT);
 
         recvlen = recvfrom(sockfd, buf, MSGLEN, 0, 
@@ -86,7 +78,6 @@ int main (int argc, char** argv)
             buf[recvlen] = 0;
             printf("I heard this: \"%s\"\n", buf);
         }
-
         else
             printf("lost the connection to client\n");
 
