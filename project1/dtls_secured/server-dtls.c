@@ -61,13 +61,13 @@ void AwaitDGram()
     int                  on = 1;
     int                 res = 1; 
     int              connfd = 0;  
-    int             recvlen = 0; /* length of message */
-    int            listenfd = 0; /* Initialize our socket */
+    int             recvlen = 0;    /* length of message */
+    int            listenfd = 0;    /* Initialize our socket */
     CYASSL* ssl =          NULL;
     socklen_t            clilen;
     socklen_t len =  sizeof(on);
-    unsigned char       b[1500];    
-    char           buff[MSGLEN]; /* the incoming message */
+    unsigned char       b[1500];    /* watch for incoming messages */
+    char           buff[MSGLEN];    /* the incoming message */
     char ack[] = "I hear you fashizzle!\n";
 
     while (cleanup != 1) {
@@ -189,7 +189,9 @@ int main(int argc, char** argv)
     sigaction(SIGINT, &act, &oact);
 
     /* CyaSSL_Debugging_ON(); */
-    CyaSSL_Init();                      /* Initialize CyaSSL */
+
+    /* Initialize CyaSSL */
+    CyaSSL_Init();
 
     /* Set ctx to DTLS 1.2 */
     if ((ctx = CyaSSL_CTX_new(CyaDTLSv1_2_server_method())) == NULL) {
