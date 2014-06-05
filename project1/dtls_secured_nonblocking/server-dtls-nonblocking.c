@@ -41,14 +41,16 @@
 #define MSGLEN      4096
 
 static int cleanup;                 /* To handle shutdown */
-void AwaitDGram();                  /* Separate out Handling Datagrams */
 CYASSL_CTX* ctx;
-void sig_handler(const int sig);
-int udp_read_connect(int);
-void NonBlockingSSL_Accept(CYASSL*);
-void dtls_set_nonblocking(int*);
+
+void AwaitDGram();                  /* Separate out Handling Datagrams */
+void sig_handler(const int sig);    /* handles ctrl+c termination */
+int udp_read_connect(int);          /* broken out to improve readability */
+void NonBlockingSSL_Accept(CYASSL*);/* non-blocking accept */
+void dtls_set_nonblocking(int*);    /* set the socket non-blocking */
 int dtls_select();
 
+/* costumes for select_ret to wear */
 enum {
     TEST_SELECT_FAIL,
     TEST_TIMEOUT,
@@ -68,9 +70,19 @@ void sig_handler(const int sig)
 void AwaitDGram()
 {
     int listenfd = 0;           /* Initialize our socket */
-    struct sockaddr_in servaddr;/* our server's address */
     int clientfd = 0;           /* client connection */
+    int res = 1;
+    int on = 1;
+    int len = sizeof(on);
+    int readWriteErr; 
+    int  recvlen;           /* length of string read */
+    int currTimeout = 1;
+    char buff[80];          /* string read from client */
+    char ack[] = "I hear you fashizzle\n";
+    struct sockaddr_in servaddr;/* our server's address */
 
+    /* Initialize ssl object */
+    CYASSL* ssl = NULL;
 
     while (cleanup != 1) {
 
@@ -89,17 +101,12 @@ void AwaitDGram()
         servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
         servaddr.sin_port = htons(SERV_PORT);
 
-
         /* Eliminate socket already in use error */
-        int res = 1; 
-        int on = 1;
-        int len = sizeof(on);
         res = setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &on, len);
         if (res < 0) {
             printf("Setsockopt SO_REUSEADDR failed.\n");
             cleanup = 1;
         }
-
 
         /*Bind Socket*/
         if (bind(listenfd, 
@@ -111,8 +118,6 @@ void AwaitDGram()
         printf("Awaiting client connection on port %d\n", SERV_PORT);
         clientfd = udp_read_connect(listenfd);
 
-        /* Initialize ssl object */
-        CYASSL* ssl;
         /* Create the CYASSL Object */
         if (( ssl = CyaSSL_new(ctx) ) == NULL) {
             printf("CyaSSL_new error.\n");
@@ -125,18 +130,11 @@ void AwaitDGram()
         /* set the/ session ssl to client connection port */
         CyaSSL_set_fd(ssl, clientfd);
 
-
         CyaSSL_set_using_nonblock(ssl, 1);
         dtls_set_nonblocking(&clientfd);
         NonBlockingSSL_Accept(ssl);
 
-        /* Reply to the client */
-        int readWriteErr; 
-        int  recvlen;           /* length of string read */
-        char buff[80];          /* string read from client */
-        char ack[] = "I hear you fashizzle\n";
-        int currTimeout = 1;
-
+        /* Begin: Reply to the client */
         buff[sizeof(buff)-1] = 0;
         recvlen = CyaSSL_read(ssl, buff, sizeof(buff)-1);
 
@@ -158,7 +156,8 @@ void AwaitDGram()
                 }
             }
         } while (readWriteErr == SSL_ERROR_WANT_READ && recvlen < 0 && 
-                currTimeout >= 0 && cleanup != 1); 
+                currTimeout >= 0 && cleanup != 1);
+
         if (recvlen > 0) {
             buff[recvlen] = 0;
             printf("I heard this:\"%s\"\n", buff);
@@ -176,10 +175,10 @@ void AwaitDGram()
         /* free allocated memory */
         memset(buff, 0, sizeof(buff));
         CyaSSL_free(ssl);
-        /* End Reply to Client */
+
+        /* End: Reply to the Client */
     }
 }
-
 
 int udp_read_connect(int listenfd)
 {
@@ -211,6 +210,7 @@ void NonBlockingSSL_Accept(CYASSL* ssl)
     int error = CyaSSL_get_error(ssl, 0);
     int listenfd = (int)CyaSSL_get_fd(ssl);
     int select_ret;
+    int currTimeout = 1;
 
     while (cleanup != 1 && (ret != SSL_SUCCESS && 
                 (error == SSL_ERROR_WANT_READ ||
@@ -220,8 +220,6 @@ void NonBlockingSSL_Accept(CYASSL* ssl)
             CyaSSL_shutdown(ssl);   //added
             break;
         }
-
-        int currTimeout = 1;
 
         if (error == SSL_ERROR_WANT_READ)
             printf("... server would read block\n");
@@ -251,7 +249,6 @@ void NonBlockingSSL_Accept(CYASSL* ssl)
         printf("SSL_accept failed.\n");
     }
 }
-
 
 void dtls_set_nonblocking(int* listenfd)
 {
@@ -343,7 +340,5 @@ int main(int argc, char** argv)
         CyaSSL_CTX_free(ctx);
         CyaSSL_Cleanup();
     }
-
-
     return 0;
 }
