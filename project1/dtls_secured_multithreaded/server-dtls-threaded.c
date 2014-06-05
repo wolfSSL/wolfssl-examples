@@ -62,8 +62,8 @@ void AwaitDGram()
     int                  on = 1;
     int                 res = 1; 
     int              connfd = 0;     
-    int            listenfd = 0; /* Initialize our socket */
-    socklen_t            clilen; /* length of address' */
+    int            listenfd = 0;    /* Initialize our socket */
+    socklen_t            clilen;    /* length of address' */
     socklen_t len =  sizeof(on);
     unsigned char       b[1500];    
 
@@ -259,7 +259,9 @@ int main(int argc, char** argv)
     sigaction(SIGINT, &act, &oact);
 
     /* CyaSSL_Debugging_ON(); */
-    CyaSSL_Init();                      /* Initialize CyaSSL */
+
+    /* Initialize CyaSSL */
+    CyaSSL_Init();
 
     if ((ctx = CyaSSL_CTX_new(CyaDTLSv1_2_server_method())) == NULL){
         fprintf(stderr, "CyaSSL_CTX_new error.\n");
