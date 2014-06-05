@@ -40,10 +40,10 @@
 #define SERV_PORT   11111           /* define our server port number */
 #define MSGLEN      4096
 
+CYASSL_CTX* ctx;
+static int cleanup;                 /* To handle shutdown */
 struct sockaddr_in servaddr;        /* our server's address */
 struct sockaddr_in cliaddr;         /* the client's address */
-static int cleanup;                 /* To handle shutdown */
-CYASSL_CTX* ctx;
 
 void AwaitDGram();
 void* ThreadControl(void*);
@@ -60,7 +60,12 @@ void sig_handler(const int sig)
 void AwaitDGram()
 {
     int listenfd = 0;               /* Initialize our socket */
-    socklen_t clilen;               /* length of address' */
+    int      res = 1; 
+    int   connfd = 0;     
+    int       on = 1;
+    socklen_t len =  sizeof(on);
+    socklen_t            clilen;  /* length of address' */
+    unsigned char       b[1500];    
 
     while (cleanup != 1) {
         if ( (listenfd = socket(AF_INET, SOCK_DGRAM, 0) ) < 0 ) {
@@ -80,9 +85,6 @@ void AwaitDGram()
         servaddr.sin_port = htons(SERV_PORT);
 
         /* Eliminate socket already in use error */
-        int res = 1; 
-        int on = 1;
-        socklen_t len = sizeof(on);
         res = setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &on, len);
         if (res < 0) {
             printf("Setsockopt SO_REUSEADDR failed.\n");
@@ -91,20 +93,17 @@ void AwaitDGram()
         }
 
         /*Bind Socket*/
-        if (bind(listenfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
+        if (bind(listenfd, (struct sockaddr *)&servaddr, 
+                    sizeof(servaddr)) < 0) {
             printf("Bind failed.\n");
             cleanup = 1;
             break;
         }
         printf("Socket bind complete\n");
-
-
         printf("Awaiting client connection on port %d\n", SERV_PORT);
 
-        clilen =    sizeof(cliaddr);    /* set clilen to |cliaddr| */
-        unsigned char       b[1500];    
-        int              connfd = 0;     
-
+        /* set clilen to |cliaddr| */
+        clilen = sizeof(cliaddr);   
         connfd = (int)recvfrom(listenfd, (char *)&b, sizeof(b), MSG_PEEK,
                 (struct sockaddr*)&cliaddr, &clilen);
 
@@ -112,11 +111,10 @@ void AwaitDGram()
             printf("No clients in que, enter idle state\n");
             continue;
         }
-
         else if (connfd > 0) {
-
+            /* create a new thread ID */
             pthread_t threadID;
-
+            /* use ID to spawn a unique thread */
             if (pthread_create(&threadID, NULL, 
                         ThreadControl, (void *)&connfd) < 0) {
                 printf("pthread_create failed.\n");
@@ -127,23 +125,28 @@ void AwaitDGram()
             printf("Recvfrom failed.\n");
             cleanup = 1;
         }
-
-//        sleep(1);
+        sleep(1);
         continue;
     }
 }
 
 void* ThreadControl(void* openSock)
 {
-
     pthread_detach(pthread_self());
-    char ack[] = "I hear you fashizzle!\n";
-    int listenfd = 0;
-    socklen_t clilen;               /* length of address' */
-    int recvlen = 0;                /* length of message */
-    char buff[MSGLEN];              /* the incoming message */
 
-    if ( (listenfd = socket(AF_INET, SOCK_DGRAM, 0) ) < 0 ) {
+    CYASSL*          ssl = NULL;
+    unsigned char       b[1500];
+    int              connfd = 0;
+    int            listenfd = 0;
+    int                 res = 1;
+    int             recvlen = 0;
+    int                  on = 1;
+    socklen_t len =  sizeof(on);
+    socklen_t            clilen;
+    char           buff[MSGLEN];
+    char ack[] = "I hear you fashizzle!\n";
+
+    if ((listenfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) {
         printf("Cannot create socket.\n");
         cleanup = 1;
     }
@@ -158,9 +161,6 @@ void* ThreadControl(void* openSock)
     servaddr.sin_port = htons(SERV_PORT);
 
     /* Eliminate socket already in use error */
-    int res = 1; 
-    int on = 1;
-    socklen_t len = sizeof(on);
     res = setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &on, len);
     if (res < 0) {
         printf("Setsockopt SO_REUSEADDR failed.\n");
@@ -173,11 +173,7 @@ void* ThreadControl(void* openSock)
         cleanup = 1;
     }
 
-    CYASSL*                 ssl;    /* initialize arg */
-    clilen =    sizeof(cliaddr);    /* set clilen to |cliaddr| */
-    unsigned char       b[1500];    
-    int              connfd = 0;     
-
+    clilen =    sizeof(cliaddr);
     connfd = (int)recvfrom(listenfd, (char *)&b, sizeof(b), MSG_PEEK,
             (struct sockaddr*)&cliaddr, &clilen);
 
@@ -200,7 +196,7 @@ void* ThreadControl(void* openSock)
     printf("Connected!\n");
 
     /* Create the CYASSL Object */
-    if (( ssl = CyaSSL_new(ctx) ) == NULL) {
+    if ((ssl = CyaSSL_new(ctx)) == NULL) {
         printf("CyaSSL_new error.\n");
         cleanup = 1;
     }
@@ -216,30 +212,27 @@ void* ThreadControl(void* openSock)
         printf("SSL_accept failed.\n");
         cleanup = 1;
     }
-
-    if (( recvlen = CyaSSL_read(ssl, buff, sizeof(buff)-1)) > 0){
+    if ((recvlen = CyaSSL_read(ssl, buff, sizeof(buff)-1)) > 0){
 
         printf("heard %d bytes\n", recvlen);
 
         buff[recvlen] = 0;
         printf("I heard this: \"%s\"\n", buff);
     }
-
     if (recvlen < 0) {
         int readErr = CyaSSL_get_error(ssl, 0);
-        if(readErr != SSL_ERROR_WANT_READ) {
+        if (readErr != SSL_ERROR_WANT_READ) {
             printf("SSL_read failed.\n"); 
             cleanup = 1;
         }
     }
-
     if (CyaSSL_write(ssl, ack, sizeof(ack)) < 0) {
         printf("CyaSSL_write fail.\n"); 
         cleanup = 1;
     }
-
-    else 
+    else {
         printf("Sending Reply...\n");
+    }
 
     printf("reply sent \"%s\"\n", ack);
     printf("No further packets, severing connection to client.\n");
@@ -267,7 +260,7 @@ int main(int argc, char** argv)
     act.sa_flags = 0;
     sigaction(SIGINT, &act, &oact);
 
-    //    CyaSSL_Debugging_ON();
+    /* CyaSSL_Debugging_ON(); */
     CyaSSL_Init();                      /* Initialize CyaSSL */
 
     if ( (ctx = CyaSSL_CTX_new(CyaDTLSv1_2_server_method())) == NULL){
@@ -305,6 +298,5 @@ int main(int argc, char** argv)
         CyaSSL_Cleanup();
         CyaSSL_CTX_free(ctx);
     }
-
     return(0);
 }
