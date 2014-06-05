@@ -151,10 +151,11 @@ void AwaitDGram()
             if (recvlen < 0) {
                 readWriteErr = CyaSSL_get_error(ssl, 0);
                 if (readWriteErr != SSL_ERROR_WANT_READ) {
-                    printf("Read Error.\n");
+                    printf("Read Error, error was: %d.\n", readWriteErr);
                     cleanup = 1;
+                } else {
+                    recvlen = CyaSSL_read(ssl, buff, sizeof(buff)-1);
                 }
-                recvlen = CyaSSL_read(ssl, buff, sizeof(buff)-1);
             }
         } while (readWriteErr == SSL_ERROR_WANT_READ && recvlen < 0 && 
                 currTimeout >= 0 && cleanup != 1); 
