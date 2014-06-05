@@ -71,15 +71,15 @@ void AwaitDGram()
 {
     int                  on = 1;
     int                 res = 1;
-    int                 recvlen; /* length of string read */
+    int                 recvlen;    /* length of string read */
     int            readWriteErr; 
-    int            listenfd = 0; /* Initialize our socket */
-    int            clientfd = 0; /* client connection */
+    int            listenfd = 0;    /* Initialize our socket */
+    int            clientfd = 0;    /* client connection */
     int         currTimeout = 1;
     int        len = sizeof(on);
-    CYASSL* ssl =          NULL; /* Initialize ssl object */
-    struct sockaddr_in servaddr; /* our server's address */
-    char               buff[80]; /* string read from client */
+    CYASSL* ssl =          NULL;    /* Initialize ssl object */
+    struct sockaddr_in servaddr;    /* our server's address */
+    char               buff[80];    /* string read from client */
     char ack[] = "I hear you fashizzle\n";
 
 
@@ -215,8 +215,8 @@ void NonBlockingSSL_Accept(CYASSL* ssl)
                 (error == SSL_ERROR_WANT_READ ||
                  error == SSL_ERROR_WANT_WRITE))) {
         if (cleanup == 1) {
-            CyaSSL_free(ssl);       //added
-            CyaSSL_shutdown(ssl);   //added
+            CyaSSL_free(ssl);
+            CyaSSL_shutdown(ssl);
             break;
         }
 
@@ -303,8 +303,10 @@ int main(int argc, char** argv)
     act.sa_flags = 0;
     sigaction(SIGINT, &act, &oact);
 
-    //CyaSSL_Debugging_ON();                                                  
-    CyaSSL_Init();                      /* Initialize CyaSSL */
+    /* CyaSSL_Debugging_ON(); */
+
+    /* Initialize CyaSSL */
+    CyaSSL_Init();
 
     /* Set ctx to DTLS 1.2 */
     if ((ctx = CyaSSL_CTX_new(CyaDTLSv1_2_server_method())) == NULL) {
