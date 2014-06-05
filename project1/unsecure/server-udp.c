@@ -37,12 +37,12 @@
 
 int main (int argc, char** argv) 
 {
-    struct sockaddr_in servaddr;        /* our server's address */
-    struct  sockaddr_in cliaddr;        /* the client's address */
-    int                 recvlen;        /* number of bytes recieved */
     int                  sockfd;        /* Initialize our socket */
+    int                 recvlen;        /* number of bytes recieved */
     int              msgnum = 0;        /* the messages we reveive in order */
     char            buf[MSGLEN];        /* the incoming message */
+    struct sockaddr_in servaddr;        /* our server's address */
+    struct  sockaddr_in cliaddr;        /* the client's address */
     socklen_t addrlen = sizeof(cliaddr);/* length of address' */
 
     /* create a UDP/IP socket */
@@ -87,7 +87,7 @@ int main (int argc, char** argv)
         if (sendto(sockfd, buf, strlen(buf), 0, 
                     (struct sockaddr *)&cliaddr, addrlen) < 0)
             perror("sendto");
-        
+
         /* continues to loop, use "Ctrl+C" to terminate listening */
     }
 }
