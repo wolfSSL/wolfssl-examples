@@ -58,24 +58,22 @@ void sig_handler(const int sig)
 
 void AwaitDGram()
 {
-    char ack[] = "I hear you fashizzle!\n";
-    char buff[MSGLEN];              /* the incoming message */
-    int  listenfd = 0;               /* Initialize our socket */
-    int   recvlen = 0;                /* length of message */
-    int       res = 1; 
-    int        on = 1;
-    int    connfd = 0;  
-
+    char           buff[MSGLEN]; /* the incoming message */
+    int            listenfd = 0; /* Initialize our socket */
+    int             recvlen = 0; /* length of message */
+    int                 res = 1; 
+    int                  on = 1;
+    int              connfd = 0;  
     socklen_t len =  sizeof(on);
     socklen_t            clilen;
-    clilen =    sizeof(cliaddr);   
     unsigned char       b[1500];    
     CYASSL* ssl =          NULL;
+    char ack[] = "I hear you fashizzle!\n";
 
     while (cleanup != 1) {
 
         /* Create a UDP/IP socket */
-        if ( (listenfd = socket(AF_INET, SOCK_DGRAM, 0) ) < 0 ) {
+        if ((listenfd = socket(AF_INET, SOCK_DGRAM, 0) ) < 0 ) {
             printf("Cannot create socket.\n");
             cleanup = 1;
         }
@@ -106,9 +104,7 @@ void AwaitDGram()
 
         printf("Awaiting client connection on port %d\n", SERV_PORT);
 
-        /* set clilen to |cliaddr| */
-
-
+        clilen =    sizeof(cliaddr);   
         connfd = (int)recvfrom(listenfd, (char *)&b, sizeof(b), MSG_PEEK,
                 (struct sockaddr*)&cliaddr, &clilen);
 
@@ -132,7 +128,7 @@ void AwaitDGram()
 
 
         /* Create the CYASSL Object */
-        if (( ssl = CyaSSL_new(ctx) ) == NULL) {
+        if (( ssl = CyaSSL_new(ctx)) == NULL) {
             printf("CyaSSL_new error.\n");
             cleanup = 1;
         }
@@ -184,8 +180,7 @@ int main(int argc, char** argv)
     /* structures for signal handling */
     struct sigaction    act, oact;
 
-    /* 
-     * Define a signal handler for when the user closes the program
+    /* Define a signal handler for when the user closes the program
      * with Ctrl-C. Also, turn off SA_RESTART so that the OS doesn't 
      * restart the call to accept() after the signal is handled. 
      */
@@ -194,13 +189,11 @@ int main(int argc, char** argv)
     act.sa_flags = 0;
     sigaction(SIGINT, &act, &oact);
 
-#if defined(DEBUG_CYASSL) && !defined(CYASSL_MDK_SHELL)
-    CyaSSL_Debugging_ON();                                                  
-#endif 
+    /* CyaSSL_Debugging_ON(); */
     CyaSSL_Init();                      /* Initialize CyaSSL */
 
     /* Set ctx to DTLS 1.2 */
-    if ( (ctx = CyaSSL_CTX_new(CyaDTLSv1_2_server_method())) == NULL) {
+    if ((ctx = CyaSSL_CTX_new(CyaDTLSv1_2_server_method())) == NULL) {
         fprintf(stderr, "CyaSSL_CTX_new error.\n");
         exit(EXIT_FAILURE);
     }
