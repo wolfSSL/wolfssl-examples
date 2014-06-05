@@ -118,7 +118,7 @@ void AwaitDGram()
         clientfd = udp_read_connect(listenfd);
 
         /* Create the CYASSL Object */
-        if (( ssl = CyaSSL_new(ctx) ) == NULL) {
+        if (( ssl = CyaSSL_new(ctx)) == NULL) {
             printf("CyaSSL_new error.\n");
             cleanup = 1;
         }
@@ -307,7 +307,7 @@ int main(int argc, char** argv)
     CyaSSL_Init();                      /* Initialize CyaSSL */
 
     /* Set ctx to DTLS 1.2 */
-    if ( (ctx = CyaSSL_CTX_new(CyaDTLSv1_2_server_method())) == NULL) {
+    if ((ctx = CyaSSL_CTX_new(CyaDTLSv1_2_server_method())) == NULL) {
         fprintf(stderr, "CyaSSL_CTX_new error.\n");
         exit(EXIT_FAILURE);
     }
