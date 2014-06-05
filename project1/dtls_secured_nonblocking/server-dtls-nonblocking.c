@@ -69,25 +69,24 @@ void sig_handler(const int sig)
 
 void AwaitDGram()
 {
-    int listenfd = 0;           /* Initialize our socket */
-    int clientfd = 0;           /* client connection */
-    int res = 1;
-    int on = 1;
-    int len = sizeof(on);
-    int readWriteErr; 
-    int  recvlen;           /* length of string read */
-    int currTimeout = 1;
-    char buff[80];          /* string read from client */
+    int                  on = 1;
+    int                 res = 1;
+    int                 recvlen; /* length of string read */
+    int            readWriteErr; 
+    int            listenfd = 0; /* Initialize our socket */
+    int            clientfd = 0; /* client connection */
+    int         currTimeout = 1;
+    int        len = sizeof(on);
+    CYASSL* ssl =          NULL; /* Initialize ssl object */
+    struct sockaddr_in servaddr; /* our server's address */
+    char               buff[80]; /* string read from client */
     char ack[] = "I hear you fashizzle\n";
-    struct sockaddr_in servaddr;/* our server's address */
 
-    /* Initialize ssl object */
-    CYASSL* ssl = NULL;
 
     while (cleanup != 1) {
 
         /* Create a UDP/IP socket */
-        if ( (listenfd = socket(AF_INET, SOCK_DGRAM, 0) ) < 0 ) {
+        if ((listenfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) {
             printf("Cannot create socket.\n");
             cleanup = 1;
         }
@@ -182,9 +181,9 @@ void AwaitDGram()
 
 int udp_read_connect(int listenfd)
 {
-    struct sockaddr_in cliaddr;
-    unsigned char  b[1500];
     int connfd;
+    unsigned char  b[1500];
+    struct sockaddr_in cliaddr;
     socklen_t clilen = sizeof(cliaddr);
 
     /* ensure b is empty upon each call */
@@ -206,11 +205,11 @@ int udp_read_connect(int listenfd)
 
 void NonBlockingSSL_Accept(CYASSL* ssl)
 {
+    int select_ret;
+    int currTimeout = 1;
     int ret = CyaSSL_accept(ssl);
     int error = CyaSSL_get_error(ssl, 0);
     int listenfd = (int)CyaSSL_get_fd(ssl);
-    int select_ret;
-    int currTimeout = 1;
 
     while (cleanup != 1 && (ret != SSL_SUCCESS && 
                 (error == SSL_ERROR_WANT_READ ||
@@ -252,7 +251,7 @@ void NonBlockingSSL_Accept(CYASSL* ssl)
 
 void dtls_set_nonblocking(int* listenfd)
 {
-    int flags = fcntl(*listenfd, F_GETFL, 0);            
+    int flags = fcntl(*listenfd, F_GETFL, 0);
     if (flags < 0) {
         printf("fcntl get failed");
         cleanup = 1;
@@ -266,10 +265,10 @@ void dtls_set_nonblocking(int* listenfd)
 
 int dtls_select(int socketfd, int to_sec)
 {
-    fd_set recvfds, errfds;
-    int nfds = socketfd + 1;
-    struct timeval timeout = { (to_sec > 0) ? to_sec : 0, 0};
     int result;
+    int nfds = socketfd + 1;
+    fd_set  recvfds, errfds;
+    struct timeval timeout = { (to_sec > 0) ? to_sec : 0, 0};
 
     FD_ZERO(&recvfds);
     FD_SET(socketfd, &recvfds);
@@ -295,8 +294,7 @@ int main(int argc, char** argv)
     /* structures for signal handling */
     struct sigaction    act, oact;
 
-    /* 
-     * Define a signal handler for when the user closes the program
+    /* Define a signal handler for when the user closes the program
      * with Ctrl-C. Also, turn off SA_RESTART so that the OS doesn't 
      * restart the call to accept() after the signal is handled. 
      */
