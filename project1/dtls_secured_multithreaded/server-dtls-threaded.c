@@ -42,8 +42,8 @@
 
 CYASSL_CTX* ctx;
 static int cleanup;                 /* To handle shutdown */
-struct sockaddr_in servaddr;        /* our server's address */
 struct sockaddr_in cliaddr;         /* the client's address */
+struct sockaddr_in servaddr;        /* our server's address */
 
 void AwaitDGram();
 void* ThreadControl(void*);
@@ -59,16 +59,16 @@ void sig_handler(const int sig)
 
 void AwaitDGram()
 {
-    int listenfd = 0;               /* Initialize our socket */
-    int      res = 1; 
-    int   connfd = 0;     
-    int       on = 1;
+    int                  on = 1;
+    int                 res = 1; 
+    int              connfd = 0;     
+    int            listenfd = 0; /* Initialize our socket */
+    socklen_t            clilen; /* length of address' */
     socklen_t len =  sizeof(on);
-    socklen_t            clilen;  /* length of address' */
     unsigned char       b[1500];    
 
     while (cleanup != 1) {
-        if ( (listenfd = socket(AF_INET, SOCK_DGRAM, 0) ) < 0 ) {
+        if ((listenfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
             printf("Cannot create socket.\n");
             cleanup = 1;
             break;
@@ -107,7 +107,7 @@ void AwaitDGram()
         connfd = (int)recvfrom(listenfd, (char *)&b, sizeof(b), MSG_PEEK,
                 (struct sockaddr*)&cliaddr, &clilen);
 
-        if (connfd < 0){
+        if (connfd < 0) {
             printf("No clients in que, enter idle state\n");
             continue;
         }
@@ -134,15 +134,15 @@ void* ThreadControl(void* openSock)
 {
     pthread_detach(pthread_self());
 
+    int                  on = 1;
+    int                 res = 1;
+    int              connfd = 0;
+    int             recvlen = 0;
+    int            listenfd = 0;
+    socklen_t            clilen;
+    socklen_t len =  sizeof(on);
     CYASSL*          ssl = NULL;
     unsigned char       b[1500];
-    int              connfd = 0;
-    int            listenfd = 0;
-    int                 res = 1;
-    int             recvlen = 0;
-    int                  on = 1;
-    socklen_t len =  sizeof(on);
-    socklen_t            clilen;
     char           buff[MSGLEN];
     char ack[] = "I hear you fashizzle!\n";
 
@@ -177,10 +177,9 @@ void* ThreadControl(void* openSock)
     connfd = (int)recvfrom(listenfd, (char *)&b, sizeof(b), MSG_PEEK,
             (struct sockaddr*)&cliaddr, &clilen);
 
-    if (connfd < 0){
+    if (connfd < 0) {
         printf("No clients in que, enter idle state\n");
     }
-
     else if (connfd > 0) {
         if (connect(listenfd, (const struct sockaddr *)&cliaddr, 
                     sizeof(cliaddr)) != 0) {
@@ -250,8 +249,7 @@ int main(int argc, char** argv)
 {
     struct sigaction    act, oact;  /* structures for signal handling */
 
-    /* 
-     * Define a signal handler for when the user closes the program
+    /* Define a signal handler for when the user closes the program
      * with Ctrl-C. Also, turn off SA_RESTART so that the OS doesn't 
      * restart the call to accept() after the signal is handled. 
      */
@@ -263,11 +261,10 @@ int main(int argc, char** argv)
     /* CyaSSL_Debugging_ON(); */
     CyaSSL_Init();                      /* Initialize CyaSSL */
 
-    if ( (ctx = CyaSSL_CTX_new(CyaDTLSv1_2_server_method())) == NULL){
+    if ((ctx = CyaSSL_CTX_new(CyaDTLSv1_2_server_method())) == NULL){
         fprintf(stderr, "CyaSSL_CTX_new error.\n");
         exit(EXIT_FAILURE);
     }
-    printf("CTX set to DTLS 1.2\n");
 
     if (CyaSSL_CTX_load_verify_locations(ctx,"../certs/ca-cert.pem",0) != 
             SSL_SUCCESS) {
@@ -275,7 +272,6 @@ int main(int argc, char** argv)
                 "please check the file.\n");
         exit(EXIT_FAILURE);
     }
-    printf("Loaded CA certs\n");
 
     if (CyaSSL_CTX_use_certificate_file(ctx,"../certs/server-cert.pem", 
                 SSL_FILETYPE_PEM) != SSL_SUCCESS) {
@@ -283,7 +279,6 @@ int main(int argc, char** argv)
                 "please check the file.\n");
         exit(EXIT_FAILURE);
     }
-    printf("Loaded server certs\n");
 
     if (CyaSSL_CTX_use_PrivateKey_file(ctx,"../certs/server-key.pem", 
                 SSL_FILETYPE_PEM) != SSL_SUCCESS) {
@@ -291,7 +286,6 @@ int main(int argc, char** argv)
                 "please check the file.\n");
         exit(EXIT_FAILURE);
     }
-    printf("Loaded server keys\n");
 
     AwaitDGram();
     if (cleanup == 1) {
