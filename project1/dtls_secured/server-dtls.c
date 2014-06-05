@@ -39,11 +39,12 @@
 #define SERV_PORT   11111           /* define our server port number */
 #define MSGLEN      4096
 
+CYASSL_CTX* ctx;
 static int cleanup;                 /* To handle shutdown */
-void AwaitDGram();                  /* Separate out Handling Datagrams */
+
 struct sockaddr_in servaddr;        /* our server's address */
 struct sockaddr_in cliaddr;         /* the client's address */
-CYASSL_CTX* ctx;
+void AwaitDGram();                  /* Separate out Handling Datagrams */
 void sig_handler(const int sig);
 
 void sig_handler(const int sig) 
@@ -55,15 +56,21 @@ void sig_handler(const int sig)
     exit(0);
 }
 
-
 void AwaitDGram()
 {
-    char ack[] = "I hear you fashizzle!";
-    int listenfd = 0;               /* Initialize our socket */
-    socklen_t clilen;               /* length of address' */
-    int recvlen = 0;                /* length of message */
+    char ack[] = "I hear you fashizzle!\n";
     char buff[MSGLEN];              /* the incoming message */
+    int  listenfd = 0;               /* Initialize our socket */
+    int   recvlen = 0;                /* length of message */
+    int       res = 1; 
+    int        on = 1;
+    int    connfd = 0;  
 
+    socklen_t len =  sizeof(on);
+    socklen_t            clilen;
+    clilen =    sizeof(cliaddr);   
+    unsigned char       b[1500];    
+    CYASSL* ssl =          NULL;
 
     while (cleanup != 1) {
 
@@ -83,17 +90,12 @@ void AwaitDGram()
         servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
         servaddr.sin_port = htons(SERV_PORT);
 
-
         /* Eliminate socket already in use error */
-        int res = 1; 
-        int on = 1;
-        socklen_t len = sizeof(on);
         res = setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &on, len);
         if (res < 0) {
             printf("Setsockopt SO_REUSEADDR failed.\n");
             cleanup = 1;
         }
-
 
         /*Bind Socket*/
         if (bind(listenfd, 
@@ -105,9 +107,6 @@ void AwaitDGram()
         printf("Awaiting client connection on port %d\n", SERV_PORT);
 
         /* set clilen to |cliaddr| */
-        clilen =    sizeof(cliaddr);   
-        unsigned char       b[1500];    
-        int              connfd = 0;     
 
 
         connfd = (int)recvfrom(listenfd, (char *)&b, sizeof(b), MSG_PEEK,
@@ -131,8 +130,6 @@ void AwaitDGram()
         }
         printf("Connected!\n");
 
-        /* initialize arg */
-        CYASSL* ssl;
 
         /* Create the CYASSL Object */
         if (( ssl = CyaSSL_new(ctx) ) == NULL) {
@@ -140,10 +137,8 @@ void AwaitDGram()
             cleanup = 1;
         }
 
-
         /* set the session ssl to client connection port */
         CyaSSL_set_fd(ssl, listenfd);
-
 
         if (CyaSSL_accept(ssl) != SSL_SUCCESS) {
             int err = CyaSSL_get_error(ssl, 0);
@@ -154,17 +149,12 @@ void AwaitDGram()
             printf("SSL_accept failed.\n");
             cleanup = 1;
         }
-
-
         if (( recvlen = CyaSSL_read(ssl, buff, sizeof(buff)-1)) > 0) {
-
             printf("heard %d bytes\n", recvlen);
 
             buff[recvlen] = 0;
             printf("I heard this: \"%s\"\n", buff);
         }
-
-
         if (recvlen < 0) {
             int readErr = CyaSSL_get_error(ssl, 0);
             if(readErr != SSL_ERROR_WANT_READ) {
@@ -172,18 +162,14 @@ void AwaitDGram()
                 cleanup = 1;
             }
         }
-
-
         if (CyaSSL_write(ssl, ack, sizeof(ack)) < 0) {
             printf("CyaSSL_write fail.\n");
             cleanup = 1;
+        } else {
+            printf("lost the connection to client\n");
         }
 
-        else 
-            printf("lost the connection to client\n");
-
         printf("reply sent \"%s\"\n", ack);
-
 
         CyaSSL_set_fd(ssl, 0); 
         CyaSSL_shutdown(ssl);        
@@ -192,7 +178,6 @@ void AwaitDGram()
         printf("Client left return to idle state\n");
     }
 }
-
 
 int main(int argc, char** argv)
 {
@@ -203,7 +188,7 @@ int main(int argc, char** argv)
      * Define a signal handler for when the user closes the program
      * with Ctrl-C. Also, turn off SA_RESTART so that the OS doesn't 
      * restart the call to accept() after the signal is handled. 
-    */
+     */
     act.sa_handler = sig_handler;
     sigemptyset(&act.sa_mask);
     act.sa_flags = 0;
