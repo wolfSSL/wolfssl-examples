@@ -41,9 +41,9 @@
 
 CYASSL_CTX* ctx;
 static int cleanup;                 /* To handle shutdown */
-
 struct sockaddr_in servaddr;        /* our server's address */
 struct sockaddr_in cliaddr;         /* the client's address */
+
 void AwaitDGram();                  /* Separate out Handling Datagrams */
 void sig_handler(const int sig);
 
@@ -58,22 +58,22 @@ void sig_handler(const int sig)
 
 void AwaitDGram()
 {
-    char           buff[MSGLEN]; /* the incoming message */
-    int            listenfd = 0; /* Initialize our socket */
-    int             recvlen = 0; /* length of message */
-    int                 res = 1; 
     int                  on = 1;
+    int                 res = 1; 
     int              connfd = 0;  
-    socklen_t len =  sizeof(on);
-    socklen_t            clilen;
-    unsigned char       b[1500];    
+    int             recvlen = 0; /* length of message */
+    int            listenfd = 0; /* Initialize our socket */
     CYASSL* ssl =          NULL;
+    socklen_t            clilen;
+    socklen_t len =  sizeof(on);
+    unsigned char       b[1500];    
+    char           buff[MSGLEN]; /* the incoming message */
     char ack[] = "I hear you fashizzle!\n";
 
     while (cleanup != 1) {
 
         /* Create a UDP/IP socket */
-        if ((listenfd = socket(AF_INET, SOCK_DGRAM, 0) ) < 0 ) {
+        if ((listenfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) {
             printf("Cannot create socket.\n");
             cleanup = 1;
         }
@@ -104,7 +104,7 @@ void AwaitDGram()
 
         printf("Awaiting client connection on port %d\n", SERV_PORT);
 
-        clilen =    sizeof(cliaddr);   
+        clilen = sizeof(cliaddr);   
         connfd = (int)recvfrom(listenfd, (char *)&b, sizeof(b), MSG_PEEK,
                 (struct sockaddr*)&cliaddr, &clilen);
 
@@ -126,9 +126,8 @@ void AwaitDGram()
         }
         printf("Connected!\n");
 
-
         /* Create the CYASSL Object */
-        if (( ssl = CyaSSL_new(ctx)) == NULL) {
+        if ((ssl = CyaSSL_new(ctx)) == NULL) {
             printf("CyaSSL_new error.\n");
             cleanup = 1;
         }
@@ -145,7 +144,7 @@ void AwaitDGram()
             printf("SSL_accept failed.\n");
             cleanup = 1;
         }
-        if (( recvlen = CyaSSL_read(ssl, buff, sizeof(buff)-1)) > 0) {
+        if ((recvlen = CyaSSL_read(ssl, buff, sizeof(buff)-1)) > 0) {
             printf("heard %d bytes\n", recvlen);
 
             buff[recvlen] = 0;
