@@ -42,7 +42,7 @@
 
 static int cleanup;                 /* To handle shutdown */
 void AwaitDGram();                  /* Separate out Handling Datagrams */
-static CYASSL_CTX* ctx;
+CYASSL_CTX* ctx;
 void sig_handler(const int sig);
 //rm static
 int udp_read_connect(int);
@@ -74,7 +74,6 @@ void AwaitDGram()
     int listenfd = 0;           /* Initialize our socket */
     struct sockaddr_in servaddr;/* our server's address */
     int clientfd = 0;           /* client connection */
-    CYASSL* ssl;                /* Initialize ssl object */
 
 
     while (cleanup != 1) {
@@ -116,6 +115,8 @@ void AwaitDGram()
         printf("Awaiting client connection on port %d\n", SERV_PORT);
         clientfd = udp_read_connect(listenfd);
 
+        /* Initialize ssl object */
+        CYASSL* ssl;
         /* Create the CYASSL Object */
         if (( ssl = CyaSSL_new(ctx) ) == NULL) {
             printf("CyaSSL_new error.\n");
@@ -167,7 +168,6 @@ void AwaitDGram()
         } 
         else {
             printf("Connection Timed Out.\n");
-            continue;
         }
 
         if (CyaSSL_write(ssl, ack, sizeof(ack)) < 0) {
@@ -176,7 +176,8 @@ void AwaitDGram()
         }
         printf("Reply sent:\"%s\"\n", ack);
         memset(buff, 0, sizeof(buff));
-        close(listenfd);
+        /* do not close listenfd, breaks*/
+        //close(listenfd);
 //        CyaSSL_set_fd(ssl, 0);
         CyaSSL_free(ssl);
 //        CyaSSL_shutdown(ssl);
