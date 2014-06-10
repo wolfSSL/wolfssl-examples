@@ -33,17 +33,17 @@
 #include <arpa/inet.h>
 
 #define SERV_PORT   11111                   /* define our server port number */
-#define MSGLEN      80                      /* limit incoming message size */
+#define MSGLEN      4096                    /* limit incoming message size */
 
 int main (int argc, char** argv) 
 {
-    int       sockfd;                       /* Initialize our socket */
-    int       recvlen;                      /* number of bytes recieved */
-    int       msgnum = 0;                   /* the messages we reveive in order */
-    char      buf[MSGLEN];                  /* the incoming message */
-    struct    sockaddr_in servaddr;         /* our server's address */
-    struct    sockaddr_in cliaddr;          /* the client's address */
-    socklen_t cliaddrlen = sizeof(cliaddr); /* length of address' */
+    int           sockfd;                   /* Initialize our socket */
+    int           recvLen;                  /* number of bytes recieved */
+    int           msgNum = 0;               /* number of msg received */
+    unsigned char buf[MSGLEN];              /* the incoming message */
+    struct        sockaddr_in servAddr;     /* our server's address */
+    struct        sockaddr_in cliAddr;      /* the client's address */
+    socklen_t cliAddrLen = sizeof(cliAddr); /* length of address' */
 
     /* create a UDP/IP socket */
     if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
@@ -51,41 +51,41 @@ int main (int argc, char** argv)
         return 0;
     }
 
-    /* INADDR_ANY = IPaddr, socket =  11111, modify SERV_PORT to change */
-    memset((char *)&servaddr, 0, sizeof(servaddr));
+    memset((char *)&servAddr, 0, sizeof(servAddr));
 
     /* host-to-network-long conversion (htonl) */
     /* host-to-network-short conversion (htons) */
-    servaddr.sin_family      = AF_INET;
-    servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    servaddr.sin_port        = htons(SERV_PORT);
+    servAddr.sin_family      = AF_INET;
+    servAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    servAddr.sin_port        = htons(SERV_PORT);
 
-    if (bind(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
+    if (bind(sockfd, (struct sockaddr *)&servAddr, sizeof(servAddr)) < 0) {
         perror("bind failed");
         return 0;
     }
 
     /* loop, listen for client, print received, reply to client */
     for (;;) {
+        memset(buf, 0, sizeof(buf));
         printf("waiting for client message on port %d\n", SERV_PORT);
 
-        recvlen = recvfrom(sockfd, buf, MSGLEN, 0, 
-                (struct sockaddr *)&cliaddr, &cliaddrlen);
+        recvLen = recvfrom(sockfd, buf, MSGLEN, 0, 
+                (struct sockaddr *)&cliAddr, &cliAddrLen);
 
-        printf("heard %d bytes\n", recvlen);
+        printf("heard %d bytes\n", recvLen);
 
-        if (recvlen > 0) {
-            buf[recvlen] = 0;
+        if (recvLen > 0) {
+            buf[recvLen] = 0;
             printf("I heard this: \"%s\"\n", buf);
         }
         else
             printf("lost the connection to client\n");
 
-        printf(buf, "Message #%d received\n", msgnum++);
+        printf("Message #%d received\n", msgNum++);
         printf("reply sent \"%s\"\n", buf);
 
-        if (sendto(sockfd, buf, strlen(buf), 0, 
-                    (struct sockaddr *)&cliaddr, cliaddrlen) < 0) {
+        if (sendto(sockfd, buf, sizeof(buf), 0, 
+                    (struct sockaddr *)&cliAddr, cliAddrLen) < 0) {
             printf("\"sendto\" failed.\n");
             return 1;
         }
