@@ -81,7 +81,7 @@ int main (int argc, char** argv)
         else
             printf("lost the connection to client\n");
 
-        sprintf(buf, "Message #%d received\n", msgnum++);
+        printf(buf, "Message #%d received\n", msgnum++);
         printf("reply sent \"%s\"\n", buf);
 
         if (sendto(sockfd, buf, strlen(buf), 0, 
@@ -93,3 +93,4 @@ int main (int argc, char** argv)
     }
     return 0;
 }
+
