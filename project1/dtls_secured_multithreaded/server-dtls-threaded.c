@@ -24,6 +24,7 @@
  * Utilizes DTLS 1.2. and multi-threading
  */
 
+
 #include <stdio.h>                  /* standard in/out procedures */
 #include <stdlib.h>                 /* defines system calls */
 #include <string.h>                 /* necessary for memset */
@@ -65,7 +66,8 @@ void AwaitDGram()
     int            listenfd = 0;    /* Initialize our socket */
     socklen_t            clilen;    /* length of address' */
     socklen_t len =  sizeof(on);
-    unsigned char       b[1500];    
+    unsigned char       b[1500];
+    void*               dummy = NULL;    
 
     while (cleanup != 1) {
         if ((listenfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
@@ -119,6 +121,7 @@ void AwaitDGram()
                         ThreadControl, (void *)&connfd) < 0) {
                 printf("pthread_create failed.\n");
             }
+            pthread_join(pthread_self(), dummy);
             printf("Connection being re-routed to Thread Control.\n");
         }
         else {
@@ -126,7 +129,6 @@ void AwaitDGram()
             cleanup = 1;
         }
         sleep(1);
-        continue;
     }
 }
 
