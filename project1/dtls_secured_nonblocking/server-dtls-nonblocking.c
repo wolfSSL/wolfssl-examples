@@ -45,9 +45,9 @@ CYASSL_CTX* ctx;
 
 void AwaitDGram();                  /* Separate out Handling Datagrams */
 void sig_handler(const int sig);    /* handles ctrl+c termination */
-int udp_read_connect(int);          /* broken out to improve readability */
 void NonBlockingSSL_Accept(CYASSL*);/* non-blocking accept */
 void dtls_set_nonblocking(int*);    /* set the socket non-blocking */
+int udp_read_connect(int);          /* broken out to improve readability */
 int dtls_select();
 
 /* costumes for select_ret to wear */
@@ -69,18 +69,18 @@ void sig_handler(const int sig)
 
 void AwaitDGram()
 {
-    int                  on = 1;
-    int                 res = 1;
-    int                 recvlen;    /* length of string read */
-    int            readWriteErr; 
-    int            listenfd = 0;    /* Initialize our socket */
-    int            clientfd = 0;    /* client connection */
-    int         currTimeout = 1;
-    int        len = sizeof(on);
-    CYASSL* ssl =          NULL;    /* Initialize ssl object */
-    struct sockaddr_in servaddr;    /* our server's address */
-    char               buff[80];    /* string read from client */
-    char ack[] = "I hear you fashizzle\n";
+    int     on = 1;
+    int     res = 1;
+    int     recvLen;                 /* length of string read */
+    int     readWriteErr; 
+    int     listenfd = 0;            /* Initialize our socket */
+    int     clientfd = 0;            /* client connection */
+    int     currTimeout = 1;
+    int     len = sizeof(on);
+    char    buff[MSGLEN];                /* string read from client */
+    CYASSL* ssl = NULL;              /* Initialize ssl object */
+    struct sockaddr_in servAddr;     /* our server's address */
+    char    ack[] = "I hear you fashizzle\n";
 
 
     while (cleanup != 1) {
@@ -90,15 +90,15 @@ void AwaitDGram()
             printf("Cannot create socket.\n");
             cleanup = 1;
         }
-
+        
         printf("Socket allocated\n");
-        memset((char *)&servaddr, 0, sizeof(servaddr));
+//        memset((char *)&servAddr, 0, sizeof(servAddr));
 
         /* host-to-network-long conversion (htonl) */
         /* host-to-network-short conversion (htons) */
-        servaddr.sin_family = AF_INET;
-        servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-        servaddr.sin_port = htons(SERV_PORT);
+        servAddr.sin_family = AF_INET;
+        servAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+        servAddr.sin_port = htons(SERV_PORT);
 
         /* Eliminate socket already in use error */
         res = setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &on, len);
@@ -109,13 +109,15 @@ void AwaitDGram()
 
         /*Bind Socket*/
         if (bind(listenfd, 
-                    (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
+                    (struct sockaddr *)&servAddr, sizeof(servAddr)) < 0) {
             printf("Bind failed.\n");
             cleanup = 1;
         }
 
         printf("Awaiting client connection on port %d\n", SERV_PORT);
+
         clientfd = udp_read_connect(listenfd);
+        dtls_set_nonblocking(&clientfd);
 
         /* Create the CYASSL Object */
         if (( ssl = CyaSSL_new(ctx)) == NULL) {
@@ -123,19 +125,17 @@ void AwaitDGram()
             cleanup = 1;
         }
 
-        /* set clilen to |cliaddr| */
+        /* set clilen to |cliAddr| */
         printf("Connected!\n");
 
         /* set the/ session ssl to client connection port */
         CyaSSL_set_fd(ssl, clientfd);
 
         CyaSSL_set_using_nonblock(ssl, 1);
-        dtls_set_nonblocking(&clientfd);
         NonBlockingSSL_Accept(ssl);
 
         /* Begin: Reply to the client */
-        buff[sizeof(buff)-1] = 0;
-        recvlen = CyaSSL_read(ssl, buff, sizeof(buff)-1);
+        recvLen = CyaSSL_read(ssl, buff, sizeof(buff)-1);
 
         currTimeout = CyaSSL_dtls_get_current_timeout(ssl);
 
@@ -145,20 +145,20 @@ void AwaitDGram()
                 memset(buff, 0, sizeof(buff));
                 break;
             }
-            if (recvlen < 0) {
+            if (recvLen < 0) {
                 readWriteErr = CyaSSL_get_error(ssl, 0);
                 if (readWriteErr != SSL_ERROR_WANT_READ) {
                     printf("Read Error, error was: %d.\n", readWriteErr);
                     cleanup = 1;
                 } else {
-                    recvlen = CyaSSL_read(ssl, buff, sizeof(buff)-1);
+                    recvLen = CyaSSL_read(ssl, buff, sizeof(buff)-1);
                 }
             }
-        } while (readWriteErr == SSL_ERROR_WANT_READ && recvlen < 0 && 
+        } while (readWriteErr == SSL_ERROR_WANT_READ && recvLen < 0 && 
                 currTimeout >= 0 && cleanup != 1);
 
-        if (recvlen > 0) {
-            buff[recvlen] = 0;
+        if (recvLen > 0) {
+            buff[recvLen] = 0;
             printf("I heard this:\"%s\"\n", buff);
         } 
         else {
@@ -183,17 +183,17 @@ int udp_read_connect(int listenfd)
 {
     int connfd;
     unsigned char  b[1500];
-    struct sockaddr_in cliaddr;
-    socklen_t clilen = sizeof(cliaddr);
+    struct sockaddr_in cliAddr;
+    socklen_t clilen = sizeof(cliAddr);
 
     /* ensure b is empty upon each call */
     memset(b, 0, sizeof(b));
 
     connfd = (int)recvfrom(listenfd, (char*)b, sizeof(b), MSG_PEEK,
-            (struct sockaddr*)&cliaddr, &clilen);
+            (struct sockaddr*)&cliAddr, &clilen);
     if (connfd > 0) {
-        if (connect(listenfd, (const struct sockaddr*)&cliaddr, 
-                    sizeof(cliaddr)) != 0) {
+        if (connect(listenfd, (const struct sockaddr*)&cliAddr, 
+                    sizeof(cliAddr)) != 0) {
             printf("udp connect failed.\n");
         }
     }
@@ -263,12 +263,12 @@ void dtls_set_nonblocking(int* listenfd)
     }
 }
 
-int dtls_select(int socketfd, int to_sec)
+int dtls_select(int socketfd, int toSec)
 {
     int result;
     int nfds = socketfd + 1;
     fd_set  recvfds, errfds;
-    struct timeval timeout = { (to_sec > 0) ? to_sec : 0, 0};
+    struct timeval timeout = { (toSec > 0) ? toSec : 0, 0};
 
     FD_ZERO(&recvfds);
     FD_SET(socketfd, &recvfds);
