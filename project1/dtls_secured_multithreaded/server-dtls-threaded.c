@@ -43,8 +43,8 @@
 
 CYASSL_CTX* ctx;
 static int cleanup;                 /* To handle shutdown */
-struct sockaddr_in cliaddr;         /* the client's address */
-struct sockaddr_in servaddr;        /* our server's address */
+struct sockaddr_in cliAddr;         /* the client's address */
+struct sockaddr_in servAddr;        /* our server's address */
 
 void AwaitDGram();
 void* ThreadControl(void*);
@@ -60,14 +60,14 @@ void sig_handler(const int sig)
 
 void AwaitDGram()
 {
-    int                  on = 1;
-    int                 res = 1; 
-    int              connfd = 0;     
+    int            on = 1;
+    int            res = 1; 
+    int            connfd = 0;     
     int            listenfd = 0;    /* Initialize our socket */
-    socklen_t            clilen;    /* length of address' */
-    socklen_t len =  sizeof(on);
-    unsigned char       b[1500];
-    void*               dummy = NULL;    
+    socklen_t      cliLen;          /* length of address' */
+    socklen_t      len = sizeof(on);
+    unsigned char  b[MSGLEN];
+    void*          dummy = NULL;    
 
     while (cleanup != 1) {
         if ((listenfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
@@ -78,13 +78,13 @@ void AwaitDGram()
         printf("Socket allocated\n");
 
         /* INADDR_ANY=IPaddr, socket =  11111, modify SERV_PORT to change */
-        memset((char *)&servaddr, 0, sizeof(servaddr));
+        memset((char *)&servAddr, 0, sizeof(servAddr));
 
         /* host-to-network-long conversion (htonl) */
         /* host-to-network-short conversion (htons) */
-        servaddr.sin_family = AF_INET;
-        servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-        servaddr.sin_port = htons(SERV_PORT);
+        servAddr.sin_family = AF_INET;
+        servAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+        servAddr.sin_port = htons(SERV_PORT);
 
         /* Eliminate socket already in use error */
         res = setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &on, len);
@@ -95,8 +95,8 @@ void AwaitDGram()
         }
 
         /*Bind Socket*/
-        if (bind(listenfd, (struct sockaddr *)&servaddr, 
-                    sizeof(servaddr)) < 0) {
+        if (bind(listenfd, (struct sockaddr *)&servAddr, 
+                    sizeof(servAddr)) < 0) {
             printf("Bind failed.\n");
             cleanup = 1;
             break;
@@ -104,10 +104,10 @@ void AwaitDGram()
         printf("Socket bind complete\n");
         printf("Awaiting client connection on port %d\n", SERV_PORT);
 
-        /* set clilen to |cliaddr| */
-        clilen = sizeof(cliaddr);   
+        /* set cliLen to |cliAddr| */
+        cliLen = sizeof(cliAddr);   
         connfd = (int)recvfrom(listenfd, (char *)&b, sizeof(b), MSG_PEEK,
-                (struct sockaddr*)&cliaddr, &clilen);
+                (struct sockaddr*)&cliAddr, &cliLen);
 
         if (connfd < 0) {
             printf("No clients in que, enter idle state\n");
@@ -136,17 +136,18 @@ void* ThreadControl(void* openSock)
 {
     pthread_detach(pthread_self());
 
-    int                  on = 1;
-    int                 res = 1;
-    int              connfd = 0;
-    int             recvlen = 0;
-    int            listenfd = 0;
-    socklen_t            clilen;
-    socklen_t len =  sizeof(on);
-    CYASSL*          ssl = NULL;
-    unsigned char       b[1500];
-    char           buff[MSGLEN];
-    char ack[] = "I hear you fashizzle!\n";
+    int           on = 1;
+    int           res = 1;
+    int           connfd = 0;
+    int           recvlen = 0;
+    int           listenfd = 0;
+    socklen_t     cliLen;
+    socklen_t     len =  sizeof(on);
+    CYASSL*       ssl = NULL;
+    unsigned char b[MSGLEN];
+    char          buff[MSGLEN];
+    char          ack[] = "I hear you fashizzle!\n";
+    void*         dummy;
 
     if ((listenfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) {
         printf("Cannot create socket.\n");
@@ -154,13 +155,13 @@ void* ThreadControl(void* openSock)
     }
 
     /* INADDR_ANY=IPaddr, socket =  11111, modify SERV_PORT to change */
-    memset((char *)&servaddr, 0, sizeof(servaddr));
+    memset((char *)&servAddr, 0, sizeof(servAddr));
 
     /* host-to-network-long conversion (htonl) */
     /* host-to-network-short conversion (htons) */
-    servaddr.sin_family = AF_INET;
-    servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    servaddr.sin_port = htons(SERV_PORT);
+    servAddr.sin_family = AF_INET;
+    servAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    servAddr.sin_port = htons(SERV_PORT);
 
     /* Eliminate socket already in use error */
     res = setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &on, len);
@@ -170,21 +171,21 @@ void* ThreadControl(void* openSock)
     }
 
     /*Bind Socket*/
-    if (bind(listenfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
+    if (bind(listenfd, (struct sockaddr *)&servAddr, sizeof(servAddr)) < 0) {
         printf("Bind failed.\n");
         cleanup = 1;
     }
 
-    clilen =    sizeof(cliaddr);
+    cliLen =    sizeof(cliAddr);
     connfd = (int)recvfrom(listenfd, (char *)&b, sizeof(b), MSG_PEEK,
-            (struct sockaddr*)&cliaddr, &clilen);
+            (struct sockaddr*)&cliAddr, &cliLen);
 
     if (connfd < 0) {
         printf("No clients in que, enter idle state\n");
     }
     else if (connfd > 0) {
-        if (connect(listenfd, (const struct sockaddr *)&cliaddr, 
-                    sizeof(cliaddr)) != 0) {
+        if (connect(listenfd, (const struct sockaddr *)&cliAddr, 
+                    sizeof(cliAddr)) != 0) {
             printf("Udp connect failed.\n");
             cleanup = 1;
         }
@@ -243,8 +244,7 @@ void* ThreadControl(void* openSock)
     CyaSSL_free(ssl);
 
     printf("Returning to idle state\n");
-    int dummy;
-    pthread_exit((void*)&dummy);
+    pthread_exit(&dummy);
 }
 
 int main(int argc, char** argv)
