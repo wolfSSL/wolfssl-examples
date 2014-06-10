@@ -86,10 +86,9 @@ int main (int argc, char** argv)
 
         if (sendto(sockfd, buf, strlen(buf), 0, 
                     (struct sockaddr *)&cliaddr, cliaddrlen) < 0) {
-            printf("sendto");
+            printf("\"sendto\" failed.\n");
             return 1;
         }
-
         /* continues to loop, use "Ctrl+C" to terminate listening */
     }
     return 0;
