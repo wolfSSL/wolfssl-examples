@@ -41,7 +41,7 @@
 
 CYASSL_CTX* ctx;
 static int cleanup;                 /* To handle shutdown */
-struct sockaddr_in servaddr;        /* our server's address */
+struct sockaddr_in servAddr;        /* our server's address */
 struct sockaddr_in cliaddr;         /* the client's address */
 
 void AwaitDGram();                  /* Separate out Handling Datagrams */
@@ -58,35 +58,34 @@ void sig_handler(const int sig)
 
 void AwaitDGram()
 {
-    int                  on = 1;
-    int                 res = 1; 
-    int              connfd = 0;  
-    int             recvlen = 0;    /* length of message */
-    int            listenfd = 0;    /* Initialize our socket */
-    CYASSL* ssl =          NULL;
-    socklen_t            clilen;
-    socklen_t len =  sizeof(on);
-    unsigned char       b[1500];    /* watch for incoming messages */
-    char           buff[MSGLEN];    /* the incoming message */
-    char ack[] = "I hear you fashizzle!\n";
+    int           on = 1;
+    int           res = 1; 
+    int           connfd = 0;  
+    int           recvLen = 0;    /* length of message */
+    int           listenfd = 0;   /* Initialize our socket */
+    CYASSL*       ssl = NULL;
+    socklen_t     cliLen;
+    socklen_t     len = sizeof(on);
+    unsigned char b[MSGLEN];      /* watch for incoming messages */
+    char          buff[MSGLEN];   /* the incoming message */
+    char          ack[] = "I hear you fashizzle!\n";
 
     while (cleanup != 1) {
-
         /* Create a UDP/IP socket */
         if ((listenfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) {
             printf("Cannot create socket.\n");
             cleanup = 1;
         }
-        printf("Socket allocated\n");
+        printf("Socket all/ocated\n");
 
-        /* clear servaddr each loop */
-        memset((char *)&servaddr, 0, sizeof(servaddr));
+        /* clear servAddr each loop */
+        memset((char *)&servAddr, 0, sizeof(servAddr));
 
         /* host-to-network-long conversion (htonl) */
         /* host-to-network-short conversion (htons) */
-        servaddr.sin_family = AF_INET;
-        servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-        servaddr.sin_port = htons(SERV_PORT);
+        servAddr.sin_family      = AF_INET;
+        servAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+        servAddr.sin_port        = htons(SERV_PORT);
 
         /* Eliminate socket already in use error */
         res = setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &on, len);
@@ -97,16 +96,16 @@ void AwaitDGram()
 
         /*Bind Socket*/
         if (bind(listenfd, 
-                    (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
+                    (struct sockaddr *)&servAddr, sizeof(servAddr)) < 0) {
             printf("Bind failed.\n");
             cleanup = 1;
         }
 
         printf("Awaiting client connection on port %d\n", SERV_PORT);
 
-        clilen = sizeof(cliaddr);   
+        cliLen = sizeof(cliaddr);   
         connfd = (int)recvfrom(listenfd, (char *)&b, sizeof(b), MSG_PEEK,
-                (struct sockaddr*)&cliaddr, &clilen);
+                (struct sockaddr*)&cliaddr, &cliLen);
 
         if (connfd < 0) {
             printf("No clients in que, enter idle state\n");
@@ -131,26 +130,30 @@ void AwaitDGram()
             printf("CyaSSL_new error.\n");
             cleanup = 1;
         }
-
+        
         /* set the session ssl to client connection port */
         CyaSSL_set_fd(ssl, listenfd);
-
+        
         if (CyaSSL_accept(ssl) != SSL_SUCCESS) {
+            printf("Not SSL_SUCCESS.\n");
             int err = CyaSSL_get_error(ssl, 0);
+            printf("err set.\n");
             char buffer[80];
+            printf("buffer initialized.\n");
             printf("error = %d, %s\n", err, 
                     CyaSSL_ERR_error_string(err, buffer));
             buffer[sizeof(buffer)-1]= 0;
             printf("SSL_accept failed.\n");
-            cleanup = 1;
+            continue;
         }
-        if ((recvlen = CyaSSL_read(ssl, buff, sizeof(buff)-1)) > 0) {
-            printf("heard %d bytes\n", recvlen);
 
-            buff[recvlen] = 0;
+        if ((recvLen = CyaSSL_read(ssl, buff, sizeof(buff)-1)) > 0) {
+            printf("heard %d bytes\n", recvLen);
+
+            buff[recvLen] = 0;
             printf("I heard this: \"%s\"\n", buff);
         }
-        if (recvlen < 0) {
+        if (recvLen < 0) {
             int readErr = CyaSSL_get_error(ssl, 0);
             if(readErr != SSL_ERROR_WANT_READ) {
                 printf("SSL_read failed.\n");
