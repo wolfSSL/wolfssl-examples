@@ -41,12 +41,10 @@
 #define MSGLEN      4096
 
 static int cleanup;                 /* To handle shutdown */
-CYASSL_CTX* ctx;
 
-void AwaitDGram();                  /* Separate out Handling Datagrams */
-void sig_handler(const int sig);    /* handles ctrl+c termination */
 void NonBlockingSSL_Accept(CYASSL*);/* non-blocking accept */
 void dtls_set_nonblocking(int*);    /* set the socket non-blocking */
+int AwaitDGram(CYASSL_CTX* ctx);                   /* Separate out Handling Datagrams */
 int udp_read_connect(int);          /* broken out to improve readability */
 int dtls_select();
 
@@ -58,16 +56,7 @@ enum {
     TEST_ERROR_READY
 };
 
-void sig_handler(const int sig) 
-{
-    printf("\nSIGINT handled.\n");
-    cleanup = 1;
-    CyaSSL_CTX_free(ctx);
-    CyaSSL_Cleanup();
-    exit(0);
-}
-
-void AwaitDGram()
+int AwaitDGram(CYASSL_CTX* ctx)
 {
     int     on = 1;
     int     res = 1;
@@ -89,10 +78,11 @@ void AwaitDGram()
         if ((listenfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) {
             printf("Cannot create socket.\n");
             cleanup = 1;
+            return 1;
         }
         
         printf("Socket allocated\n");
-//        memset((char *)&servAddr, 0, sizeof(servAddr));
+        memset((char *)&servAddr, 0, sizeof(servAddr));
 
         /* host-to-network-long conversion (htonl) */
         /* host-to-network-short conversion (htons) */
@@ -105,6 +95,7 @@ void AwaitDGram()
         if (res < 0) {
             printf("Setsockopt SO_REUSEADDR failed.\n");
             cleanup = 1;
+            return 1;
         }
 
         /*Bind Socket*/
@@ -112,6 +103,7 @@ void AwaitDGram()
                     (struct sockaddr *)&servAddr, sizeof(servAddr)) < 0) {
             printf("Bind failed.\n");
             cleanup = 1;
+            return 1;
         }
 
         printf("Awaiting client connection on port %d\n", SERV_PORT);
@@ -123,6 +115,7 @@ void AwaitDGram()
         if (( ssl = CyaSSL_new(ctx)) == NULL) {
             printf("CyaSSL_new error.\n");
             cleanup = 1;
+            return 1;
         }
 
         /* set clilen to |cliAddr| */
@@ -150,6 +143,7 @@ void AwaitDGram()
                 if (readWriteErr != SSL_ERROR_WANT_READ) {
                     printf("Read Error, error was: %d.\n", readWriteErr);
                     cleanup = 1;
+                    return 1;
                 } else {
                     recvLen = CyaSSL_read(ssl, buff, sizeof(buff)-1);
                 }
@@ -168,6 +162,7 @@ void AwaitDGram()
         if (CyaSSL_write(ssl, ack, sizeof(ack)) < 0) {
             printf("Write error.\n");
             cleanup = 1;
+            return 1;
         }
         printf("Reply sent:\"%s\"\n", ack);
 
@@ -177,6 +172,7 @@ void AwaitDGram()
 
         /* End: Reply to the Client */
     }
+    return 0;
 }
 
 int udp_read_connect(int listenfd)
@@ -291,18 +287,14 @@ int dtls_select(int socketfd, int toSec)
 
 int main(int argc, char** argv)
 {
-    /* structures for signal handling */
-    struct sigaction    act, oact;
-
-    /* Define a signal handler for when the user closes the program
-     * with Ctrl-C. Also, turn off SA_RESTART so that the OS doesn't 
-     * restart the call to accept() after the signal is handled. 
-     */
-    act.sa_handler = sig_handler;
-    sigemptyset(&act.sa_mask);
-    act.sa_flags = 0;
-    sigaction(SIGINT, &act, &oact);
-
+    /* cont short for "continue?", Loc short for "location" */    
+    int         cont = 0;
+    char        caCertLoc[] = "../certs/ca-cert.pem";
+    char        servCertLoc[] = "../certs/server-cert.pem";
+    char        servKeyLoc[] = "../certs/server-key.pem";
+    CYASSL_CTX* ctx;
+    
+    /* "./config --enable-debug" and uncomment next line for debugging */
     /* CyaSSL_Debugging_ON(); */
 
     /* Initialize CyaSSL */
@@ -310,35 +302,34 @@ int main(int argc, char** argv)
 
     /* Set ctx to DTLS 1.2 */
     if ((ctx = CyaSSL_CTX_new(CyaDTLSv1_2_server_method())) == NULL) {
-        fprintf(stderr, "CyaSSL_CTX_new error.\n");
-        exit(EXIT_FAILURE);
+        printf("CyaSSL_CTX_new error.\n");
+        return 1;
     }
     /* Load CA certificates */
-    if (CyaSSL_CTX_load_verify_locations(ctx,"../certs/ca-cert.pem",0) != 
+    if (CyaSSL_CTX_load_verify_locations(ctx,caCertLoc,0) != 
             SSL_SUCCESS) {
-        fprintf(stderr, "Error loading ../certs/ca-cert.pem, "
-                "please check the file.\n");
-        exit(EXIT_FAILURE);
+        printf("Error loading %s, please check the file.\n", caCertLoc);
+        return 1;
     }
     /* Load server certificates */
-    if (CyaSSL_CTX_use_certificate_file(ctx,"../certs/server-cert.pem", 
-                SSL_FILETYPE_PEM) != SSL_SUCCESS) {
-        fprintf(stderr, "Error loading ../certs/server-cert.pem, "
-                "please check the file.\n");
-        exit(EXIT_FAILURE);
+    if (CyaSSL_CTX_use_certificate_file(ctx, servCertLoc, SSL_FILETYPE_PEM) != 
+                                                                 SSL_SUCCESS) {
+        printf("Error loading %s, please check the file.\n", servCertLoc);
+        return 1;
     }
     /* Load server Keys */
-    if (CyaSSL_CTX_use_PrivateKey_file(ctx,"../certs/server-key.pem", 
+    if (CyaSSL_CTX_use_PrivateKey_file(ctx, servKeyLoc, 
                 SSL_FILETYPE_PEM) != SSL_SUCCESS) {
-        fprintf(stderr, "Error loading ../certs/server-key.pem, "
-                "please check the file.\n");
-        exit(EXIT_FAILURE);
+        printf("Error loading %s, please check the file.\n", servKeyLoc);
+        return 1;
     }
 
-    AwaitDGram();
-    if (cleanup == 1) {
+    cont = AwaitDGram(ctx);
+
+    if (cont == 1) {
         CyaSSL_CTX_free(ctx);
         CyaSSL_Cleanup();
     }
+
     return 0;
 }

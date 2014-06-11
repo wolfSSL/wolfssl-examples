@@ -41,44 +41,39 @@
 #define SERV_PORT   11111           /* define our server port number */
 #define MSGLEN      4096
 
-CYASSL_CTX* ctx;
-static int cleanup;                 /* To handle shutdown */
+CYASSL_CTX*        ctx;             /* must be global for ThreadControl */
+static int         cleanup;         /* To handle shutdown */
 struct sockaddr_in cliAddr;         /* the client's address */
 struct sockaddr_in servAddr;        /* our server's address */
 
-void AwaitDGram();
+int AwaitDGram(CYASSL_CTX* ctx);
 void* ThreadControl(void*);
 
-void sig_handler(const int sig) 
+int AwaitDGram(CYASSL_CTX* ctx)
 {
-    printf("\nSIGINT handled.\n");
-    cleanup = 1;
-    CyaSSL_CTX_free(ctx);
-    CyaSSL_Cleanup();
-    exit(0);
-}
-
-void AwaitDGram()
-{
-    int            on = 1;
-    int            res = 1; 
-    int            connfd = 0;     
-    int            listenfd = 0;    /* Initialize our socket */
-    socklen_t      cliLen;          /* length of address' */
-    socklen_t      len = sizeof(on);
-    unsigned char  b[MSGLEN];
-    void*          dummy = NULL;    
 
     while (cleanup != 1) {
+        int            on = 1;
+        int            res = 1; 
+        int            connfd = 0;     
+        int            listenfd = 0;    /* Initialize our socket */
+        socklen_t      cliLen = 0;      /* length of address' */
+        socklen_t      len = sizeof(on);
+        unsigned char  b[MSGLEN];
+        void*          dummy = NULL;    
+
         if ((listenfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
             printf("Cannot create socket.\n");
             cleanup = 1;
-            break;
+            return 1;
         }
+
         printf("Socket allocated\n");
 
         /* INADDR_ANY=IPaddr, socket =  11111, modify SERV_PORT to change */
         memset((char *)&servAddr, 0, sizeof(servAddr));
+        memset((char *)&cliAddr, 0, sizeof(cliAddr));
+        memset(&b, 0, MSGLEN);
 
         /* host-to-network-long conversion (htonl) */
         /* host-to-network-short conversion (htons) */
@@ -91,7 +86,7 @@ void AwaitDGram()
         if (res < 0) {
             printf("Setsockopt SO_REUSEADDR failed.\n");
             cleanup = 1;
-            break;
+            return 1;
         }
 
         /*Bind Socket*/
@@ -99,7 +94,7 @@ void AwaitDGram()
                     sizeof(servAddr)) < 0) {
             printf("Bind failed.\n");
             cleanup = 1;
-            break;
+            return 1;
         }
         printf("Socket bind complete\n");
         printf("Awaiting client connection on port %d\n", SERV_PORT);
@@ -121,15 +116,15 @@ void AwaitDGram()
                         ThreadControl, (void *)&connfd) < 0) {
                 printf("pthread_create failed.\n");
             }
-            pthread_join(pthread_self(), dummy);
             printf("Connection being re-routed to Thread Control.\n");
         }
         else {
             printf("Recvfrom failed.\n");
             cleanup = 1;
         }
-        sleep(1);
+        pthread_join(pthread_self(), dummy);
     }
+    return 0;
 }
 
 void* ThreadControl(void* openSock)
@@ -176,7 +171,7 @@ void* ThreadControl(void* openSock)
         cleanup = 1;
     }
 
-    cliLen =    sizeof(cliAddr);
+    cliLen = sizeof(cliAddr);
     connfd = (int)recvfrom(listenfd, (char *)&b, sizeof(b), MSG_PEEK,
             (struct sockaddr*)&cliAddr, &cliLen);
 
@@ -207,10 +202,8 @@ void* ThreadControl(void* openSock)
     CyaSSL_set_fd(ssl, listenfd);
 
     if (CyaSSL_accept(ssl) != SSL_SUCCESS) {
-        int err = CyaSSL_get_error(ssl, 0);
-        char buffer[80];
-        printf("error = %d, %s\n", err, CyaSSL_ERR_error_string(err, buffer));
-        buffer[sizeof(buffer)-1] = 0;
+        int e = CyaSSL_get_error(ssl, 0);
+        printf("error = %d, %s\n", e, CyaSSL_ERR_reason_error_string(e));
         printf("SSL_accept failed.\n");
         cleanup = 1;
     }
@@ -249,52 +242,48 @@ void* ThreadControl(void* openSock)
 
 int main(int argc, char** argv)
 {
-    struct sigaction    act, oact;  /* structures for signal handling */
+    /* cont short for "continue?", Loc short for "location" */    
+    int         cont = 0;
+    char        caCertLoc[] = "../certs/ca-cert.pem";
+    char        servCertLoc[] = "../certs/server-cert.pem";
+    char        servKeyLoc[] = "../certs/server-key.pem";
 
-    /* Define a signal handler for when the user closes the program
-     * with Ctrl-C. Also, turn off SA_RESTART so that the OS doesn't 
-     * restart the call to accept() after the signal is handled. 
-     */
-    act.sa_handler = sig_handler;
-    sigemptyset(&act.sa_mask);
-    act.sa_flags = 0;
-    sigaction(SIGINT, &act, &oact);
-
+    /* "./config --enable-debug" and uncomment next line for debugging */
     /* CyaSSL_Debugging_ON(); */
 
     /* Initialize CyaSSL */
     CyaSSL_Init();
 
-    if ((ctx = CyaSSL_CTX_new(CyaDTLSv1_2_server_method())) == NULL){
-        fprintf(stderr, "CyaSSL_CTX_new error.\n");
-        exit(EXIT_FAILURE);
+    /* Set ctx to DTLS 1.2 */
+    if ((ctx = CyaSSL_CTX_new(CyaDTLSv1_2_server_method())) == NULL) {
+        printf("CyaSSL_CTX_new error.\n");
+        return 1;
     }
-
-    if (CyaSSL_CTX_load_verify_locations(ctx,"../certs/ca-cert.pem",0) != 
+    /* Load CA certificates */
+    if (CyaSSL_CTX_load_verify_locations(ctx,caCertLoc,0) != 
             SSL_SUCCESS) {
-        fprintf(stderr, "Error loading ../certs/ca-cert.pem, "
-                "please check the file.\n");
-        exit(EXIT_FAILURE);
+        printf("Error loading %s, please check the file.\n", caCertLoc);
+        return 1;
     }
-
-    if (CyaSSL_CTX_use_certificate_file(ctx,"../certs/server-cert.pem", 
+    /* Load server certificates */
+    if (CyaSSL_CTX_use_certificate_file(ctx, servCertLoc, SSL_FILETYPE_PEM) != 
+            SSL_SUCCESS) {
+        printf("Error loading %s, please check the file.\n", servCertLoc);
+        return 1;
+    }
+    /* Load server Keys */
+    if (CyaSSL_CTX_use_PrivateKey_file(ctx, servKeyLoc, 
                 SSL_FILETYPE_PEM) != SSL_SUCCESS) {
-        fprintf(stderr, "Error loading ../certs/server-cert.pem, "
-                "please check the file.\n");
-        exit(EXIT_FAILURE);
+        printf("Error loading %s, please check the file.\n", servKeyLoc);
+        return 1;
     }
 
-    if (CyaSSL_CTX_use_PrivateKey_file(ctx,"../certs/server-key.pem", 
-                SSL_FILETYPE_PEM) != SSL_SUCCESS) {
-        fprintf(stderr, "Error loading ../certs/server-key.pem, "
-                "please check the file.\n");
-        exit(EXIT_FAILURE);
-    }
+    cont = AwaitDGram(ctx);
 
-    AwaitDGram();
-    if (cleanup == 1) {
-        CyaSSL_Cleanup();
+    if (cont == 1) {
         CyaSSL_CTX_free(ctx);
+        CyaSSL_Cleanup();
     }
-    return(0);
+
+    return 0;
 }
