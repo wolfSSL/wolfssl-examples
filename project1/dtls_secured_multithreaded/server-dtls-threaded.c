@@ -43,24 +43,23 @@
 
 CYASSL_CTX*        ctx;             /* must be global for ThreadControl */
 static int         cleanup;         /* To handle shutdown */
-struct sockaddr_in cliAddr;         /* the client's address */
-struct sockaddr_in servAddr;        /* our server's address */
 
 int AwaitDGram(CYASSL_CTX* ctx);
 void* ThreadControl(void*);
 
 int AwaitDGram(CYASSL_CTX* ctx)
 {
-
     while (cleanup != 1) {
         int            on = 1;
         int            res = 1; 
-        int            connfd = 0;     
+        int            bytesRcvd = 0;     
         int            listenfd = 0;    /* Initialize our socket */
         socklen_t      cliLen = 0;      /* length of address' */
         socklen_t      len = sizeof(on);
         unsigned char  b[MSGLEN];
         void*          dummy = NULL;    
+        struct sockaddr_in cliAddr;     /* the client's address */
+        struct sockaddr_in servAddr;    /* our server's address */
 
         if ((listenfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
             printf("Cannot create socket.\n");
@@ -73,7 +72,7 @@ int AwaitDGram(CYASSL_CTX* ctx)
         /* INADDR_ANY=IPaddr, socket =  11111, modify SERV_PORT to change */
         memset((char *)&servAddr, 0, sizeof(servAddr));
         memset((char *)&cliAddr, 0, sizeof(cliAddr));
-        memset(&b, 0, MSGLEN);
+        //        memset(&b, 0, MSGLEN);
 
         /* host-to-network-long conversion (htonl) */
         /* host-to-network-short conversion (htons) */
@@ -101,19 +100,19 @@ int AwaitDGram(CYASSL_CTX* ctx)
 
         /* set cliLen to |cliAddr| */
         cliLen = sizeof(cliAddr);   
-        connfd = (int)recvfrom(listenfd, (char *)&b, sizeof(b), MSG_PEEK,
+        bytesRcvd = (int)recvfrom(listenfd, (char *)&b, sizeof(b), MSG_PEEK,
                 (struct sockaddr*)&cliAddr, &cliLen);
 
-        if (connfd < 0) {
+        if (bytesRcvd < 0) {
             printf("No clients in que, enter idle state\n");
             continue;
         }
-        else if (connfd > 0) {
+        else if (bytesRcvd > 0) {
             /* create a new thread ID */
             pthread_t threadID;
             /* use ID to spawn a unique thread */
             if (pthread_create(&threadID, NULL, 
-                        ThreadControl, (void *)&connfd) < 0) {
+                        ThreadControl, (void *)&bytesRcvd) < 0) {
                 printf("pthread_create failed.\n");
             }
             printf("Connection being re-routed to Thread Control.\n");
@@ -133,7 +132,7 @@ void* ThreadControl(void* openSock)
 
     int           on = 1;
     int           res = 1;
-    int           connfd = 0;
+    int           bytesRcvd = 0;
     int           recvlen = 0;
     int           listenfd = 0;
     socklen_t     cliLen;
@@ -143,6 +142,8 @@ void* ThreadControl(void* openSock)
     char          buff[MSGLEN];
     char          ack[] = "I hear you fashizzle!\n";
     void*         dummy;
+    struct sockaddr_in cliAddr;         /* the client's address */
+    struct sockaddr_in servAddr;        /* our server's address */
 
     if ((listenfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) {
         printf("Cannot create socket.\n");
@@ -150,6 +151,7 @@ void* ThreadControl(void* openSock)
     }
 
     /* INADDR_ANY=IPaddr, socket =  11111, modify SERV_PORT to change */
+    memset((char *)&servAddr, 0, sizeof(servAddr));
     memset((char *)&servAddr, 0, sizeof(servAddr));
 
     /* host-to-network-long conversion (htonl) */
@@ -172,13 +174,13 @@ void* ThreadControl(void* openSock)
     }
 
     cliLen = sizeof(cliAddr);
-    connfd = (int)recvfrom(listenfd, (char *)&b, sizeof(b), MSG_PEEK,
+    bytesRcvd = (int)recvfrom(listenfd, (char *)&b, sizeof(b), MSG_PEEK,
             (struct sockaddr*)&cliAddr, &cliLen);
 
-    if (connfd < 0) {
+    if (bytesRcvd < 0) {
         printf("No clients in que, enter idle state\n");
     }
-    else if (connfd > 0) {
+    else if (bytesRcvd > 0) {
         if (connect(listenfd, (const struct sockaddr *)&cliAddr, 
                     sizeof(cliAddr)) != 0) {
             printf("Udp connect failed.\n");
