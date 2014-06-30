@@ -1,3 +1,4 @@
+#include <unistd.h>
 #include <cyassl/ssl.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -122,7 +123,6 @@ int main (int argc, char** argv)
     CYASSL_CTX* 	ctx = 0;
     CYASSL* 		sslResume = 0;
     CYASSL_SESSION*	session = 0;
-    int     		resumeSession = 0;
     char            cert_array[] = "../cyassl/certs/ca-cert.pem";
     char*           certs = cert_array;
     char*           srTest = "testing session resume";

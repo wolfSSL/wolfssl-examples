@@ -1,3 +1,4 @@
+#include <unistd.h>
 #include <cyassl/ssl.h>
 #include <cyassl/options.h>
 #include <netdb.h>
@@ -16,7 +17,7 @@
 void DatagramClient (CYASSL* ssl) 
 {
     int  n = 0;
-    char m, sendLine[MAXLINE], recvLine[MAXLINE - 1];
+    char sendLine[MAXLINE], recvLine[MAXLINE - 1];
 
     while (fgets(sendLine, MAXLINE, stdin) != NULL) {
     

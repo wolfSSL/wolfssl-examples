@@ -1,3 +1,4 @@
+#include <unistd.h>
 #include <cyassl/ssl.h>
 #include <cyassl/options.h>
 #include <netdb.h>
