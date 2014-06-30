@@ -7,36 +7,50 @@ TCP/PSK Tutorial
 # **Tutorial for adding Cyassl Security and PSK (Pre shared Keys) to a Simple Server.**
  
 1. Include the CyaSSL compatibility header:
-    ```#include <cyassl/ssl.h>```
+
+```    
+#include <cyassl/ssl.h>
+```
 
 2. Change all calls from read() or recv() to CyaSSL_read(), in the simple server
-    ```read(sockfd, recvline, MAXLINE)``` 
+```
+    read(sockfd, recvline, MAXLINE) 
 becomes
-```CyaSSL_read(ssl, recvline, MAXLINE)```	
+    CyaSSL_read(ssl, recvline, MAXLINE)	
+```
     * (CyaSSL_read on first use also calls CyaSSL_accept if not explicitly 
             called earlier in code.)
  
 3. Change all calls from write() or send() to CySSL_write(), in the simple client
-```write(sockfd, sendline, strlen(sendline))``` 
+
+```
+    write(sockfd, sendline, strlen(sendline))
 becomes
-```CyaSSL_write(ssl, sendline, strlen(sendline))```
+CyaSSL_write(ssl, sendline, strlen(sendline))
+```
+
 4. Run the CyaSSL method to initalize CyaSSL
-```CyaSSL_Init()```
+
+```
+    CyaSSL_Init()
+```
 5. Create a ctx pointer that contains using the following process.
-    ```	
+
+```
     CYASSL_CTX* ctx;
 	
     if ((ctx = CyaSSL_CTX_new(CyaSSLv23_server_method())) == NULL)
-	    err_sys(“CyaSSL_CTX_new error”);
-    ```
+        err_sys(“CyaSSL_CTX_new error”);
+```
 
 6. In the servers main loop for accepting clients create a CYASSL pointer. Once 
 a new client is accepted create a CyaSSL object and associate that object with 
 the socket that the client is on. After using the CyaSSL object it should be 
 freed and also before closing the program the ctx pointer should be freed and a 
 CyaSSL cleanup method called.
+
 ```
-CYASSL* ssl;
+    CYASSL* ssl;
 	
 	CyaSSL_set_fd(ssl, “integer returned from accept”);
 
@@ -52,6 +66,7 @@ CYASSL* ssl;
 1. Build CyaSSL with pre shared keys enabled executing the following commands 
 in CyaSSL’s root directory. Depending on file locations sudo may be needed when 
 running the commands.
+
 ```
     ./configure --enable-psk
     make
@@ -59,10 +74,11 @@ running the commands.
 ```
 
 2. Set up the psk suit with using the CyaSSL callback, identity hint, and cipher list methods. These methods get called immediately after the process of setting up ctx.
+
 ```
-CyaSSL_CTX_set_psk_server_callback(ctx, my_psk_server_cb);
-CyaSSL_CTX_use_psk_identity_hint(ctx, “cyassl server”);
-CyaSSL_CTX_set_cipher_list(ctx, “PSK-AES128-CBC-SHA256”);
+    CyaSSL_CTX_set_psk_server_callback(ctx, my_psk_server_cb);
+    CyaSSL_CTX_use_psk_identity_hint(ctx, “cyassl server”);
+    CyaSSL_CTX_set_cipher_list(ctx, “PSK-AES128-CBC-SHA256”);
 ```
 
     * PSK-AES128-CBC-SHA256 creates the cipher list of having pre shared keys 
@@ -85,7 +101,7 @@ CyaSSL_CTX_set_cipher_list(ctx, “PSK-AES128-CBC-SHA256”);
 is passed in as an argument to the CyaSSL callback.
 
 ```
-static inline unsigned int my_psk_client_cb(CYASSL* ssl, char* identity, unsigned 
+    static inline unsigned int my_psk_client_cb(CYASSL* ssl, char* identity, unsigned 
                                           char* key, unsigned int key_max_len) {
     		(void)ssl;
     		(void)key_max_len;
@@ -105,6 +121,7 @@ static inline unsigned int my_psk_client_cb(CYASSL* ssl, char* identity, unsigne
 ```
 
 Example Makefile for Simple Cyass PSK Client:
+
 ```	
 CC=gcc
 OBJ = client-psk.o
@@ -158,9 +175,11 @@ processing without having to lock the memory.
 
 
 3. After the main thread accepts a client, call the pthread_create function.
+
 ```
-pthread_create(pthread_t* thread, int attribute, void* function, void* arg)
+    pthread_create(pthread_t* thread, int attribute, void* function, void* arg)
 ```
+
 4. In the example the function passed to pthread_create accepts one void * 
 argument which is the socket the client is on. The function then performs the 
 process of creating a new SSL object, reading and writing to the client, freeing 
@@ -203,6 +222,7 @@ the SSL object, and then terminating the thread.
          pthread_exit( NULL);
  }
 ```
+
 5. Void* arg is the argument that gets passed into cyassal_thread when 
 pthread_create is called. In this example that argument is used to pass the 
 socket value that the client for the current thread is on.
