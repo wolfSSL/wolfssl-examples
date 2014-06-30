@@ -3,189 +3,44 @@ TCP/PSK Tutorial
 
 < TODO >
 
-# **Tutorial for adding Cyassl Security and PSK (Pre shared Keys) to a Simple Client.**
- 
-1. Include the CyaSSL OpenSSL compatibility header:
- 
-**`#include <cyassl/ssl.h>`**
-
-2.Change all calls from read() or recv() to CyaSSL_read(), in the simple client
- 
-```c
-        	read(sockfd, recvline, MAXLINE)
-``` 
-becomes
-```c 
-CyaSSL_read(ssl, recvline, MAXLINE)
-```
-3. Change all calls from write() or send() to CySSL_write(), in the simple client
- ```c
-        	write(sockfd, sendline, strlen(sendline))
- ```c
-becomes
- ```c
-CyaSSL_write(ssl, sendline, strlen(sendline))
-```
-4. Change 
-```c
-           void SendReceive(FILE *fp, int sockfd) 
-```
- to
-```c
-void SendReceive(FILE *fp, CYASSL* ssl)
-```
-
-5. In the  main method initialize CyaSSL and CYASSL_CTX. You can use one CYASSL_CTX no matter how many CYASSL objects you end up creating. Basically you’ll just have to load CA certificates to verify the server you’re connecting to. Basic initialization looks like:
-```c
-CyaSSL_Init();
-
-CYASSL_CTX* ctx;
-
-	if ( (ctx = CyaSSL_CTX_new(CyaTLSv1_client_method())) == NULL) {
-   		fprintf(stderr, "CyaSSL_CTX_new error.\n");
-   		exit(EXIT_FAILURE);
-	}
-if (CyaSSL_CTX_load_verify_locations(ctx,"./ca-cert.pem",0) != SSL_SUCCESS) {
-   		fprintf(stderr, "Error loading ./ca-cert.pem,"
-                   	" please check the file.\n");
-   		exit(EXIT_FAILURE);
-	}
-```
-6. Adding these lines you must add a cert folder, which will contain:
-	
-ca-cert.pem
-server-cert.pem
-server-key.pem
-
-
-7. Create the CYASSL object after each TCP connect and associate the file descriptor with the session:
-```c
-// after connecting to socket fd
-
-CYASSL* ssl;
-
-if ( (ssl = CyaSSL_new(ctx)) == NULL) {
-   fprintf(stderr, "CyaSSL_new error.\n");
-   exit(EXIT_FAILURE);
-}
-
-CyaSSL_set_fd(ssl, fd);
-```
-
-
-8. Cleanup. After each CYASSL object is done being used you can free it up by calling:
-
-`CyaSSL_free(ssl);`
-
-
-	
-9. When  you are completely done using SSL/TLS altogether you can free the CYASSL_CTX object by calling: 
-```c
-CyaSSL_CTX_free(ctx);
-	
-CyaSSL_Cleanup();
-```
-
-	
-
-
-
-
-
-
-
-# Now adding Pre-Shared Keys (PSK) to the CyaSSL Simple Client:
-
-1. When configuring Cyassl:
-`
-sudo ./configure --enable-psk
-sudo make
-sudo make install
-`
-2. In the main method add:
-```c
-CyaSSL_CTX_set_psk_client_callback(ctx,My_Psk_Client_Cb);
-```
-3. Add:
-```c
-static inline unsigned int My_Psk_Client_Cb(CYASSL* ssl, const char* hint,
-        		char* identity, unsigned int id_max_len, unsigned char* key, 
-       			 unsigned int key_max_len){
-    		(void)ssl;
-    		(void)hint;
-    		(void)key_max_len;
-
-    		/* identity is OpenSSL testing default for openssl s_client, keep same*/
-    		strncpy(identity, "Client_identity", id_max_len);
-
-    		/* test key n hex is 0x1a2b3c4d , in decimal 439,041,101, we're using
-     		* unsigned binary */
-    		key[0] = 26;
-    		key[1] = 43;
-    		key[2] = 60;
-    		key[3] = 77;
-
-    		return 4;
-}
-```
-
-
-
-
-
-
-
-
-
-
 
 # **Tutorial for adding Cyassl Security and PSK (Pre shared Keys) to a Simple Server.**
  
 1. Include the CyaSSL compatibility header:
- 
+``` 
 #include <cyassl/ssl.h>
-
+```
 
 2.Change all calls from read() or recv() to CyaSSL_read(), in the simple server
 ```c 
-        	read(sockfd, recvline, MAXLINE)
+    read(sockfd, recvline, MAXLINE)
 ``` 
 becomes
 ```c 
-CyaSSL_read(ssl, recvline, MAXLINE)
+    CyaSSL_read(ssl, recvline, MAXLINE)
 ```	
 (CyaSSL_read on first use also calls CyaSSL_accept if not explicitly called earlier in code.)
  
 3. Change all calls from write() or send() to CySSL_write(), in the simple client
 ```c 
-        	write(sockfd, sendline, strlen(sendline))
+    write(sockfd, sendline, strlen(sendline))
 ``` 
 becomes
 ```c 
-CyaSSL_write(ssl, sendline, strlen(sendline))
+    CyaSSL_write(ssl, sendline, strlen(sendline))
 ```
 4. Run the CyaSSL method to initalize CyaSSL
 `	
 CyaSSL_Init()
 `
-5. Create a ctx pointer that contains certificate information using the following process.
+5. Create a ctx pointer that contains using the following process.
 ```c	
 CYASSL_CTX* ctx;
 	
 if ((ctx = CyaSSL_CTX_new(CyaSSLv23_server_method())) == NULL)
 	err_sys(“CyaSSL_CTX_new error”);
-	
-if (CyaSSL_CTX_load_verify_locations(ctx, “....certificate directory…/ca-cert.pem”, 
-  0) != SSL_SUCCESS)
-	err_sys(“Error loading ca-cert.pem”);
-	
-if (CyaSSL_CTX_use_certificate_file(ctx,  “....certificate 
-directory…/server-cert.pem”, SSL_FILETYPE_PEM) != SSL_SUCCESS)		err_sys(“Error loading server-cert.pem”);
-
-if (CyaSSL_CTX_use_PrivateKey_file(ctx, “....certificate 
- directory.../server-key.pem”, SSL_FILETYPE_PEM) != SSL_SUCCESS)
- err_sys(“Error loading server-key”);
 ```
+
 6. In the servers main loop for accepting clients create a CYASSL pointer. Once a new client is accepted create a CyaSSL object and associate that object with the socket that the client is on. After using the CyaSSL object it should be freed and also before closing the program the ctx pointer should be freed and a CyaSSL cleanup method called.
 ```c
 CYASSL* ssl;
