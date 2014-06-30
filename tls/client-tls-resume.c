@@ -19,6 +19,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 #include    <stdio.h>
+#include    <unistd.h>
 #include    <stdlib.h>                  
 #include    <string.h>
 #include    <errno.h>
@@ -181,14 +182,15 @@ int main(int argc, char** argv)
     servAddr.sin_port = htons(SERV_PORT);   /* sets port to defined port */
 
     /* looks for the server at the entered address (ip in the command line) */
-    if (inet_pton(AF_INET, argv[1], &servAddr.sin_addr) < 1) {
+    if ((ret = inet_pton(AF_INET, argv[1], &servAddr.sin_addr)) < 1) {
         /* checks validity of address */
         ret = errno;
         printf("Invalid Address. Error: %i\n", ret);
         return EXIT_FAILURE;
     }
 
-    if (connect(sockfd, (struct sockaddr *) &servAddr, sizeof(servAddr)) < 0) {
+    if ((ret = connect(sockfd, (struct sockaddr *) &servAddr, 
+        sizeof(servAddr))) < 0) {
         /* if socket fails to connect to the server*/
         ret = errno;
         printf("Connect error. Error: %i\n", ret);
