@@ -43,14 +43,14 @@
  */
 enum read_write_t {WRITE, READ, ACCEPT};
 
-int AcceptAndRead(CYASSL_CTX* ctx, int socketfd, 
+int AcceptAndRead(CYASSL_CTX* ctx, socklen_t socketfd, 
     struct sockaddr_in clientAddr);
-int TCPSelect(int socketfd);
-int NonBlocking_ReadWriteAccept(CYASSL* ssl, int socketfd, 
+int TCPSelect(socklen_t socketfd);
+int NonBlocking_ReadWriteAccept(CYASSL* ssl, socklen_t socketfd, 
     enum read_write_t rw);
 
 /*  Check if any sockets are ready for reading and writing and set it */
-int TCPSelect(int socketfd)
+int TCPSelect(socklen_t socketfd)
 {
     fd_set recvfds, errfds;
     int nfds = socketfd + 1;
@@ -75,7 +75,7 @@ int TCPSelect(int socketfd)
 }
 /* Checks if NonBlocking I/O is wanted, if it is wanted it will
  * wait until it's available on the socket before reading or writing */
-int NonBlocking_ReadWriteAccept(CYASSL* ssl, int socketfd, 
+int NonBlocking_ReadWriteAccept(CYASSL* ssl, socklen_t socketfd, 
     enum read_write_t rw)
 {
     const char reply[] = "I hear ya fa shizzle!\n";
@@ -144,15 +144,13 @@ int NonBlocking_ReadWriteAccept(CYASSL* ssl, int socketfd,
     return 1;
 }
 
-int AcceptAndRead(CYASSL_CTX* ctx, int socketfd, struct sockaddr_in clientAddr)
+int AcceptAndRead(CYASSL_CTX* ctx, socklen_t socketfd, struct sockaddr_in clientAddr)
 {
     int     size = sizeof(clientAddr);
-    int     ret = 0;
-    int     err = 0;
     CYASSL* ssl;
 
     /* Wait until a client connects */
-    int connd = accept(socketfd, (struct sockaddr *)&clientAddr, &size);
+    int connd = accept(socketfd, (struct sockaddr_in *)&clientAddr, &size);
 
     /* If fails to connect, loop back up and wait for a new connection */
     if (connd == -1) {
@@ -201,9 +199,9 @@ int main()
      * Sets the type to be Stream based (TCP),
      * 0 means choose the default protocol.
      */
-    int socketfd = socket(AF_INET, SOCK_STREAM, 0);
+    socklen_t socketfd = socket(AF_INET, SOCK_STREAM, 0);
     int loopExit = 0; /* 0 = False, 1 = True */
-    int ret      = 0; /* Return variable */
+    int ret      = 0;
     int on       = 1;
 
     /* Set nonblocking */
@@ -245,7 +243,7 @@ int main()
     }
 
     /* Load server certificate into CYASSL_CTX */
-    if (CyaSSL_CTX_use_certificate_file(ctx, "certs/server-cert.pem", 
+    if (CyaSSL_CTX_use_certificate_file(ctx, "../certs/server-cert.pem", 
                 SSL_FILETYPE_PEM) != SSL_SUCCESS) {
         fprintf(stderr, "Error loading certs/server-cert.pem, please check"
                 "the file.\n");
@@ -253,7 +251,7 @@ int main()
     }
 
     /* Load server key into CYASSL_CTX */
-    if (CyaSSL_CTX_use_PrivateKey_file(ctx, "certs/server-key.pem", 
+    if (CyaSSL_CTX_use_PrivateKey_file(ctx, "../certs/server-key.pem", 
                 SSL_FILETYPE_PEM) != SSL_SUCCESS) {
         fprintf(stderr, "Error loading certs/server-key.pem, please check"
                 "the file.\n");

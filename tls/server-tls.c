@@ -38,15 +38,15 @@
 
 #define DEFAULT_PORT 11111
 
-int AcceptAndRead(CYASSL_CTX* ctx, int sockfd, struct sockaddr_in clientAddr);
+int AcceptAndRead(CYASSL_CTX* ctx, socklen_t sockfd, struct sockaddr_in 
+    clientAddr);
 
-int AcceptAndRead(CYASSL_CTX* ctx, int sockfd, struct sockaddr_in clientAddr)
+int AcceptAndRead(CYASSL_CTX* ctx, socklen_t sockfd, struct sockaddr_in 
+    clientAddr)
 {
         /* Create our reply message */
     const char reply[]  = "I hear ya fa shizzle!\n";
     int         size    = sizeof(clientAddr);
-    int         ret     = 0;
-    int         err     = 0;
     CYASSL*     ssl;
 
     /* Wait until a client connects */
@@ -119,7 +119,7 @@ int main()
      * Sets the type to be Stream based (TCP),
      * 0 means choose the default protocol.
      */
-    int sockfd   = socket(AF_INET, SOCK_STREAM, 0);
+    socklen_t sockfd   = socket(AF_INET, SOCK_STREAM, 0);
     int loopExit = 0; /* 0 = False, 1 = True */
     int ret      = 0; /* Return value */
     /* Server and client socket address structures */
@@ -141,7 +141,7 @@ int main()
     }
 
     /* Load server certificate into CYASSL_CTX */
-    if (CyaSSL_CTX_use_certificate_file(ctx, "certs/server-cert.pem", 
+    if (CyaSSL_CTX_use_certificate_file(ctx, "../certs/server-cert.pem", 
                 SSL_FILETYPE_PEM) != SSL_SUCCESS) {
         fprintf(stderr, "Error loading certs/server-cert.pem, please check"
                 "the file.\n");
@@ -149,7 +149,7 @@ int main()
     }
 
     /* Load server key into CYASSL_CTX */
-    if (CyaSSL_CTX_use_PrivateKey_file(ctx, "certs/server-key.pem", 
+    if (CyaSSL_CTX_use_PrivateKey_file(ctx, "../certs/server-key.pem", 
                 SSL_FILETYPE_PEM) != SSL_SUCCESS) {
         fprintf(stderr, "Error loading certs/server-key.pem, please check"
                 "the file.\n");
