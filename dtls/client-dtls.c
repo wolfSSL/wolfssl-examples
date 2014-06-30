@@ -91,7 +91,7 @@ int main (int argc, char** argv)
     CyaSSL_set_fd(ssl, sockfd);
     if (CyaSSL_connect(ssl) != SSL_SUCCESS) {
 	    int err1 = CyaSSL_get_error(ssl, 0);
-	    printf("err = %d, %d\n", err1, CyaSSL_ERR_reason_error_string(err1));
+	    printf("err = %d, %s\n", err1, CyaSSL_ERR_reason_error_string(err1));
 	    printf("SSL_connect failed");
         return 1;
     }
