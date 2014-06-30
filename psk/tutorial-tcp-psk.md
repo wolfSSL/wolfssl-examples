@@ -7,42 +7,30 @@ TCP/PSK Tutorial
 # **Tutorial for adding Cyassl Security and PSK (Pre shared Keys) to a Simple Server.**
  
 1. Include the CyaSSL compatibility header:
-``` 
-#include <cyassl/ssl.h>
-```
+    ```#include <cyassl/ssl.h>```
 
-2.Change all calls from read() or recv() to CyaSSL_read(), in the simple server
-```c 
-    read(sockfd, recvline, MAXLINE)
-``` 
+* Change all calls from read() or recv() to CyaSSL_read(), in the simple server
+    ```read(sockfd, recvline, MAXLINE)``` 
 becomes
-```c 
-    CyaSSL_read(ssl, recvline, MAXLINE)
-```	
-(CyaSSL_read on first use also calls CyaSSL_accept if not explicitly called earlier in code.)
+```CyaSSL_read(ssl, recvline, MAXLINE)```	
+    * (CyaSSL_read on first use also calls CyaSSL_accept if not explicitly called earlier in code.)
  
-3. Change all calls from write() or send() to CySSL_write(), in the simple client
-```c 
-    write(sockfd, sendline, strlen(sendline))
-``` 
+* Change all calls from write() or send() to CySSL_write(), in the simple client
+```write(sockfd, sendline, strlen(sendline))``` 
 becomes
-```c 
-    CyaSSL_write(ssl, sendline, strlen(sendline))
-```
-4. Run the CyaSSL method to initalize CyaSSL
-`	
-CyaSSL_Init()
-`
-5. Create a ctx pointer that contains using the following process.
-```c	
+```CyaSSL_write(ssl, sendline, strlen(sendline))```
+* Run the CyaSSL method to initalize CyaSSL
+```CyaSSL_Init()```
+* Create a ctx pointer that contains using the following process.
+```	
 CYASSL_CTX* ctx;
 	
 if ((ctx = CyaSSL_CTX_new(CyaSSLv23_server_method())) == NULL)
 	err_sys(“CyaSSL_CTX_new error”);
 ```
 
-6. In the servers main loop for accepting clients create a CYASSL pointer. Once a new client is accepted create a CyaSSL object and associate that object with the socket that the client is on. After using the CyaSSL object it should be freed and also before closing the program the ctx pointer should be freed and a CyaSSL cleanup method called.
-```c
+* In the servers main loop for accepting clients create a CYASSL pointer. Once a new client is accepted create a CyaSSL object and associate that object with the socket that the client is on. After using the CyaSSL object it should be freed and also before closing the program the ctx pointer should be freed and a CyaSSL cleanup method called.
+```
 CYASSL* ssl;
 	
 	CyaSSL_set_fd(ssl, “integer returned from accept”);
@@ -57,20 +45,20 @@ CYASSL* ssl;
 # Now adding Pre-Shared Keys (PSK) to the CyaSSL Simple Server:
 
 1. Build CyaSSL with pre shared keys enabled executing the following commands in CyaSSL’s root directory. Depending on file locations sudo may be needed when running the commands.
-`
-./configure --enable-psk
-make
-make install
-`
+```
+    ./configure --enable-psk
+    make
+    make install
+```
 
-2. Set up the psk suit with using the CyaSSL callback, identity hint, and cipher list methods. These methods get called immediately after the process of setting up ctx.
-```c
+* Set up the psk suit with using the CyaSSL callback, identity hint, and cipher list methods. These methods get called immediately after the process of setting up ctx.
+```
 CyaSSL_CTX_set_psk_server_callback(ctx, my_psk_server_cb);
 CyaSSL_CTX_use_psk_identity_hint(ctx, “cyassl server”);
 CyaSSL_CTX_set_cipher_list(ctx, “PSK-AES128-CBC-SHA256”);
 ```
 
-PSK-AES128-CBC-SHA256 creates the cipher list of having pre shared keys with advanced encryption security using 128 bit key with cipher block chaining using secure hash algorithm.
+    * PSK-AES128-CBC-SHA256 creates the cipher list of having pre shared keys with advanced encryption security using 128 bit key with cipher block chaining using secure hash algorithm.
 
 
 
@@ -84,10 +72,10 @@ PSK-AES128-CBC-SHA256 creates the cipher list of having pre shared keys with adv
 
 
 
-3. Add the my_psk_server_cb function as follows. This is a function needed that is passed in as an argument to the CyaSSL callback.
-```c
+* Add the my_psk_server_cb function as follows. This is a function needed that is passed in as an argument to the CyaSSL callback.
+```
 static inline unsigned int my_psk_client_cb(CYASSL* ssl, char* identity, unsigned 
-                                                                         char* key, unsigned int key_max_len) {
+                                          char* key, unsigned int key_max_len) {
     		(void)ssl;
     		(void)key_max_len;
 
@@ -147,15 +135,15 @@ The main thread accepts clients and for each client accepted a new thread is spa
         **`#include <pthread.h>`**
 
 
-2. When creating multiple threads the state of variables can become an issue. Since in the example, CYASSL_CTX* is not changed after being initially set we can make it a global variable and allow all threads read access while they are processing without having to lock the memory.
+* When creating multiple threads the state of variables can become an issue. Since in the example, CYASSL_CTX* is not changed after being initially set we can make it a global variable and allow all threads read access while they are processing without having to lock the memory.
 
 
-3. After the main thread accepts a client, call the pthread_create function.
-```c
+* After the main thread accepts a client, call the pthread_create function.
+```
 pthread_create(pthread_t* thread, int attribute, void* function, void* arg)
 ```
-4. In the example the function passed to pthread_create accepts one void * argument which is the socket the client is on. The function then performs the process of creating a new SSL object, reading and writing to the client, freeing the SSL object, and then terminating the thread.
-```c
+* In the example the function passed to pthread_create accepts one void * argument which is the socket the client is on. The function then performs the process of creating a new SSL object, reading and writing to the client, freeing the SSL object, and then terminating the thread.
+```
  /*
   *Process handled by a thread.
   */
@@ -192,5 +180,5 @@ pthread_create(pthread_t* thread, int attribute, void* function, void* arg)
          pthread_exit( NULL);
  }
 ```
-5. Void* arg is the argument that gets passed into cyassal_thread when pthread_create is called. In this example that argument is used to pass the socket value that the client for the current thread is on.
+* Void* arg is the argument that gets passed into cyassal_thread when pthread_create is called. In this example that argument is used to pass the socket value that the client for the current thread is on.
 
