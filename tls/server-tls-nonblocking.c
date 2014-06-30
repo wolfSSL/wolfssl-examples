@@ -146,11 +146,10 @@ int NonBlocking_ReadWriteAccept(CYASSL* ssl, socklen_t socketfd,
 
 int AcceptAndRead(CYASSL_CTX* ctx, socklen_t socketfd, struct sockaddr_in clientAddr)
 {
-    int     size = sizeof(clientAddr);
-    CYASSL* ssl;
+    socklen_t     size = sizeof(clientAddr);
 
     /* Wait until a client connects */
-    int connd = accept(socketfd, (struct sockaddr_in *)&clientAddr, &size);
+    int connd = accept(socketfd, (struct sockaddr *)&clientAddr, &size);
 
     /* If fails to connect, loop back up and wait for a new connection */
     if (connd == -1) {
@@ -159,7 +158,7 @@ int AcceptAndRead(CYASSL_CTX* ctx, socklen_t socketfd, struct sockaddr_in client
     /* If it connects, read in and reply to the client */
     else {
         printf("Client connected successfully!\n");
-
+        CYASSL* ssl;
         if ( (ssl = CyaSSL_new(ctx)) == NULL) {
             fprintf(stderr, "CyaSSL_new error.\n");
             exit(EXIT_FAILURE);
@@ -184,8 +183,8 @@ int AcceptAndRead(CYASSL_CTX* ctx, socklen_t socketfd, struct sockaddr_in client
             if (NonBlocking_ReadWriteAccept(ssl, socketfd, WRITE) == 0)
                 break;
         }
+        CyaSSL_free(ssl);           /* Free the CYASSL object */
     } 
-    CyaSSL_free(ssl);           /* Free the CYASSL object */
     close(connd);               /* close the connected socket */
 
     return 0;
@@ -224,7 +223,7 @@ int main()
     socklen_t len = sizeof(on);
 
     /* If positive value, the socket is valid */
-    if (socketfd < 0) {
+    if (socketfd == -1) {
         printf("ERROR: failed to create the socket\n");
         exit(EXIT_FAILURE);        /* Kill the server with exit status 1 */
     }

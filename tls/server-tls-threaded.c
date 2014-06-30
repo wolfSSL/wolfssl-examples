@@ -100,7 +100,7 @@ void *ThreadHandler(void* socketDesc)
 
 int AcceptAndRead(socklen_t sockfd, struct sockaddr_in clientAddr)
 {
-    int size = sizeof(clientAddr);
+    socklen_t size = sizeof(clientAddr);
     int connd;      /* Identify and access the clients connection */
 
     pthread_t thread_id;
@@ -149,7 +149,7 @@ int main()
     CyaSSL_Init();
 
     /* If positive value, the socket is valid */
-    if (sockfd < 0) {
+    if (sockfd == -1) {
         printf("ERROR: failed to create the socket\n");
         return EXIT_FAILURE;        
     }

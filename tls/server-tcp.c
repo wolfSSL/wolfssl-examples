@@ -39,7 +39,7 @@ int AcceptAndRead(socklen_t sockfd);
 int AcceptAndRead(socklen_t sockfd)
 {
     struct sockaddr_in clientAddr;
- 	int size = sizeof(clientAddr);
+ 	socklen_t size = sizeof(clientAddr);
     int ret  = 0;
 
     /* Wait until a client connects */
@@ -99,7 +99,7 @@ int main()
     int exit   = 0; 	/* 0 = false, 1 = true */
 
     /* If positive value, the socket is valid */
-    if(sockfd < 0){
+    if(sockfd == -1){
         printf("ERROR: failed to create the socket\n");
         return 1;        /* Kill the server with exit status 1 */        
     }
