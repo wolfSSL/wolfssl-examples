@@ -118,6 +118,8 @@ becomes
 	
 ## Now adding Pre-Shared Keys (PSK) to the CyaSSL Simple Server:
 
+The following steps are on how to use PSK in a CyaSSL server
+
 1. Build CyaSSL with pre shared keys enabled executing the following commands in CyaSSL’s root directory. Depending on file locations sudo may be needed when running the commands.
     ```
     ./configure --enable-psk
@@ -190,7 +192,7 @@ The makefile for the server is going to be similar to that of the client. If the
 ###### What is nonblocking?
 When a socket is setup as non-blocking, reads and writes to the socket do not cause the application to block and wait. Instead the read or write function will read/write only the data currently available (if any). If the entire read/write is not completed, a status indicator is returned. The application may retry the read/write later.
 
-Tutorial for adding nonblocking to a Client.
+##Tutorial for adding nonblocking to a Client.
 1. Include the fcntl.h header file. This is needed for some of the constants that will be used when dealing with non blocking on the socket.
 
     ``#include <fcntl.h>``
@@ -317,6 +319,9 @@ Tutorial for adding nonblocking to a Client.
  	}
     ```
 ##Tutorial for adding nonblocking to a Server.
+
+Nonblocking on the server side allows for switching between multiple client connections when reading and writing without closing them.
+
 1. Include the fcntl.h header file. This is needed for some of the constants that will be used when dealing with non blocking on the socket.
     ``#include <fcntl.h>``
 	
@@ -327,13 +332,13 @@ Tutorial for adding nonblocking to a Client.
     
     ``fcntl(*sockfd, F_SETFL, O_NONBLOCK);``
 
->Both F_SETFL and O_NONBLOCK are constants from the fcntl.h file.
+	>Both F_SETFL and O_NONBLOCK are constants from the fcntl.h file.
 
 4. Include a function to select tcp. What this function does is it checks file descriptors for readiness of reading, writing, for pending exceptions, and for timeout. The timeout variable needs to point to struct timeval type. If the timeval members are 0 then the function does not block. The function and its input parameters are listed below.
     ``select(int nfds, fd_set* read, fd_set* write, fd_set* exception, struct timeval* time)`` 
 
->For the example server we do not consider write when selecting the tcp so it is set to NULL. For ease the example code uses enumerated values >for which state the function select returns. This then makes the next loop discussed easier.
-                                                                        
+	>For the example server we do not consider write when selecting the tcp so it is set to NULL. For ease the example code uses enumerated values for which state the function select returns. This then makes the next loop discussed easier.
+	
 5. Next is to add a loop for handling when to read and write. This loop uses the select tcp function to continually check on the status of the tcp connection and when it is ready or has an exception the CyaSSL_accept function is called.
 
 6. The final thing added is a loop around CyaSSL_read. This is done so that when encountering the error SSL_ERROR_WANT_READ the server gives the client some time to send the message.
