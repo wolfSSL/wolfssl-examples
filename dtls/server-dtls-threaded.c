@@ -160,7 +160,6 @@ int AwaitDGram(CYASSL_CTX* ctx)
         printf("Connected!\n");
 
         pthread_t threadid;
-        printf("new id %d created.\n",(int) threadid);
         /* SPIN A THREAD HERE TO HANDLE "buff" and "reply/ack" */
         pthread_create(&threadid, NULL, ThreadControl, args);
         printf("control passed to thread control.\n");
