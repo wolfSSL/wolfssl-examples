@@ -1,7 +1,32 @@
-TCP/TLS Tutorial
-================
+Tutorial
+========
+This tutorial will teach you how to install and run a basic TCP Server and Client. As well as how to incorporate CyaSSL TLS and some additional features on top of these basic examples. It is expected that you have a basic understanding of a simple tcp server/client. If not, before continueing please take a moment to look over the `server-tcp.c` and `client-tcp.c` file which contains the basic tcp server that we will be expanding upon in this tutorial.
 
-<<<<<<< HEAD
+
+First you will need `gcc` and `make` installed on your terminal. You can do this by opening a new terminal window and typing:
+
+	```
+	sudo apt-get install gcc make
+	```
+
+## Incorporating CyaSSL TLS
+To incorporate CyaSSL TLS into your client or server you need to first configure and install the CyaSSL library to your linux machine. After you have done that, you can then run `make` to compile the TLS versions into an executeable.
+
+### Installing CyaSSL
+	* Download and extract the CyaSSL package from [here](http://wolfssl.com/yaSSL/Products-cyassl.html)
+	* In terminal, navigate to the root of the extracted folder.
+	* Type `./configure` press enter. Wait until it finishes configuring.
+	* Type `make` press enter. 
+	* Type `sudo make install`, this will install the CyaSSL libraries to your machine.
+
+CyaSSL libraries should now be installed to your machine and ready to use. You can now make and run the server and client examples.
+
+## Server TLS Tutorial
+
+### Basic TLS Server
+### Basic Nonblocking TLS Server
+### Basic Multi-threaded TLS Server
+
 ## Client TLS Tutorial
 
 ### Basic TLS Client
@@ -324,4 +349,3 @@ Run `make` in both the server and client folders, this will compile the source f
 Congratulations, you now have a basic client and server that can communicate with each other in an unsecured or secured manner.  
 
 =======
->>>>>>> a62664a86549dd488e2fa5ae902aa66da8b7a85d
