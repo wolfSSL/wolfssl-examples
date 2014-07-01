@@ -78,7 +78,7 @@ There are five initial steps to creating a UDP/IP Server.
 
     Figure 1.3 Setting Protocol
     
-   `#include <sys/socket.h>`
+   ```#include <sys/socket.h>
     …
     int sockfd;
 
@@ -88,7 +88,7 @@ There are five initial steps to creating a UDP/IP Server.
         perror("cannot create socket");
         return 0;
     }
-    printf("created socket: descriptor=%d\n", sockfd);`
+    printf("created socket: descriptor=%d\n", sockfd);```
 
 
 
