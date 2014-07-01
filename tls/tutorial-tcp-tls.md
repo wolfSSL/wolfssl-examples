@@ -11,7 +11,7 @@ First you will need `gcc` and `make` installed on your terminal. You can do this
 To incorporate CyaSSL TLS into your client or server you need to first configure and install the CyaSSL library to your linux machine. After you have done that, you can then run `make` to compile the TLS versions into an executeable.
 
 ### Installing CyaSSL
-+ Download and extract the CyaSSL package from [here](http://wolfssl.com/yaSSL/Products-cyassl.html)
++ Download and extract the CyaSSL package from [here.](http://wolfssl.com/yaSSL/Products-cyassl.html)
 + In terminal, navigate to the root of the extracted folder.
 + Type `./configure` press enter. Wait until it finishes configuring.
 + Type `make` press enter. 
@@ -22,6 +22,114 @@ CyaSSL libraries should now be installed to your machine and ready to use. You c
 ## Server TLS Tutorial
 
 ### Basic TLS Server
+To begin, we will be re-writing the basic `server-tcp.c` with CyaSSL. The structure of the file will be almost identical. To begin, we will need to include the cyassl libraries with the rest of our includes at the top of the file: 
+
+```c
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <string.h>
+#include <netinet/in.h>
+#include <stdlib.h>
+#include <errno.h>
+
+/* include the CyaSSL library for our TLS 1.2 security */
+#include <cyassl/ssl.h>
+```
+Next we will add our `#define DEFAULT_PORT 11111` and the prototype for our `AcceptAndRead` function:
+
+```c
+#define DEFAULT_PORT 11111
+
+int AcceptAndRead(CYASSL_CTX* ctx, socklen_t sockfd, struct sockaddr_in 
+    clientAddr);
+```
+Now we will build our `main()` function for the program. What happens here is we create a CYASSL context pointer and a socket. We then initialize CyaSSL so that it can be used. After that we tell CyaSSL where our certificate and private key files are that we want our server to use. We then attach our socket to the `DEFAULT_PORT` that we defined above. The last thing to do in the main function is to listen for a new connection on the socket that we binded to our port above. When we get a new connection, we call the `AcceptAndRead` function. The main function should look like: 
+
+```c
+int main()
+{
+    /* Create a ctx pointer for our ssl */
+    CYASSL_CTX* ctx;
+
+    /* 
+     * Creates a socket that uses an internet IP address,
+     * Sets the type to be Stream based (TCP),
+     * 0 means choose the default protocol.
+     */
+    socklen_t sockfd   = socket(AF_INET, SOCK_STREAM, 0);
+    int loopExit = 0; /* 0 = False, 1 = True */
+    int ret      = 0; /* Return value */
+    /* Server and client socket address structures */
+    struct sockaddr_in serverAddr, clientAddr;
+
+    /* Initialize CyaSSL */
+    CyaSSL_Init();
+
+    /* If positive value, the socket is valid */
+    if (sockfd == -1) {
+        printf("ERROR: failed to create the socket\n");
+        return EXIT_FAILURE;        /* Kill the server with exit status 1 */        
+    }
+
+    /* create and initialize CYASSL_CTX structure */
+    if ((ctx = CyaSSL_CTX_new(CyaTLSv1_2_server_method())) == NULL) {
+        fprintf(stderr, "CyaSSL_CTX_new error.\n");
+        return EXIT_FAILURE;
+    }
+
+    /* Load server certificate into CYASSL_CTX */
+    if (CyaSSL_CTX_use_certificate_file(ctx, "../certs/server-cert.pem", 
+                SSL_FILETYPE_PEM) != SSL_SUCCESS) {
+        fprintf(stderr, "Error loading certs/server-cert.pem, please check"
+                "the file.\n");
+        return EXIT_FAILURE;
+    }
+
+    /* Load server key into CYASSL_CTX */
+    if (CyaSSL_CTX_use_PrivateKey_file(ctx, "../certs/server-key.pem", 
+                SSL_FILETYPE_PEM) != SSL_SUCCESS) {
+        fprintf(stderr, "Error loading certs/server-key.pem, please check"
+                "the file.\n");
+        return EXIT_FAILURE;
+    }
+
+    /* Initialize the server address struct to zero */
+    memset((char *)&serverAddr, 0, sizeof(serverAddr)); 
+
+    /* Fill the server's address family */
+    serverAddr.sin_family      = AF_INET;
+    serverAddr.sin_addr.s_addr = INADDR_ANY;
+    serverAddr.sin_port        = htons(DEFAULT_PORT);
+
+    /* Attach the server socket to our port */
+    if (bind(sockfd, (struct sockaddr *)&serverAddr, sizeof(serverAddr))
+        < 0) {
+        printf("ERROR: failed to bind\n");
+        return EXIT_FAILURE;
+    }
+
+    printf("Waiting for a connection...\n");
+    /* Continuously accept connects while not currently in an active connection
+       or told to quit */
+    while (loopExit == 0) {
+        /* listen for a new connection, allow 5 pending connections */
+        ret = listen(sockfd, 5);
+        if (ret == 0) {
+
+            /* Accept client connections and read from them */
+            loopExit = AcceptAndRead(ctx, sockfd, clientAddr);
+        }
+    }
+
+    CyaSSL_CTX_free(ctx);   /* Free CYASSL_CTX */
+    CyaSSL_Cleanup();       /* Free CyaSSL */
+    return EXIT_SUCCESS;
+}
+```
+
+
 ### Basic Nonblocking TLS Server
 ### Basic Multi-threaded TLS Server
 
@@ -35,7 +143,7 @@ Again, we will need to import the security library.  Just like in the server, ad
 const char* cert = "../certs/ca-cert.pem";
 ```
 
-Now comes changing the 'ClientGreet()' function so its arguments and functions incorporate the security library.
+Now comes changing the `ClientGreet()` function so its arguments and functions incorporate the security library.
 
 ```c
 void ClientGreet(int sock, CYASSL* ssl)
