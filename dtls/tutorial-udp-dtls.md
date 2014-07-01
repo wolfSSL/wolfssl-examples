@@ -102,7 +102,8 @@ The transport address is defined in the socket address structure. Since sockets 
 Figure 1.4 Bind the Socket
 ```c
 int
-bind(int socket, const struct sockaddr *address, socklen_t address_len);```
+bind(int socket, const struct sockaddr *address, socklen_t address_len);
+```
 
 
 The first parameter “socket” is the socket we created in STEP 1 (sockfd)
