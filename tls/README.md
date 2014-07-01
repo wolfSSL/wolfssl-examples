@@ -9,17 +9,17 @@ First you will need `gcc` and `make` installed on your terminal. You can do this
     sudo apt-get install gcc make
 
 ## Index
-1. [Incorporating CyaSSL TLS](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#incorporating-cyassl-tls)
-  * [Installing CyaSSL](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#installing-cyassl)
-2. [Server TLS Tutorial](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#server-tls-tutorial)
-  * [Basic TLS Server](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#basic-tls-server)
-  * [Adding Multi-threading](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#adding-server-multi-threading)
-  * [Adding Non-blocking I/O](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#adding-server-non-blocking-io)
-3. [Client TLS Tutorial](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#client-tls-tutorial)
-  * [Basic TLS Client](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#basic-tls-client)
-  * [Adding Session Resumption](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#adding-client-session-resumption)
-  * [Adding Non-blocking I/O](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#adding-client-non-blocking-io)
-4. [Starting the TLS Client & Server](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#starting-the-tls-client--server)
+1. [Incorporating CyaSSL TLS](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/README.md#incorporating-cyassl-tls)
+  * [Installing CyaSSL](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/README.md#installing-cyassl)
+2. [Server TLS Tutorial](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/README.md#server-tls-tutorial)
+  * [Basic TLS Server](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/README.md#basic-tls-server)
+  * [Adding Multi-threading](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/README.md#adding-server-multi-threading)
+  * [Adding Non-blocking I/O](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/README.md#adding-server-non-blocking-io)
+3. [Client TLS Tutorial](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/README.md#client-tls-tutorial)
+  * [Basic TLS Client](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/README.md#basic-tls-client)
+  * [Adding Session Resumption](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/README.md#adding-client-session-resumption)
+  * [Adding Non-blocking I/O](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/README.md#adding-client-non-blocking-io)
+4. [Starting the TLS Client & Server](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/README.md#starting-the-tls-client--server)
 
 ## Incorporating CyaSSL TLS
 To incorporate CyaSSL TLS into your client or server you need to first configure and install the CyaSSL library to your linux machine. After you have done that, you can then run `make` to compile the TLS versions into an executeable.
