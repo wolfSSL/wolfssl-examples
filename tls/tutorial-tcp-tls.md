@@ -216,11 +216,350 @@ int AcceptAndRead(CYASSL_CTX* ctx, socklen_t sockfd, struct sockaddr_in
 ```
 And with that, you should now have a basic TLS server that accepts a connection, reads in data from the client, sends a reply back, and closes the clients connection. 
 
+**The finished source code for this can be [found here.](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/server-tls.c)**
+
 ### Adding Server Multi-threading
 To add multi-threading support to the basic `tls-server.c` that we created above, we will be using pthreads. Multi-threading will allow the server to handle multiple client connections at the same time. It will pass each new connection off into it's own thread. To do this we will create a new function called `ThreadHandler`. This function will be passed off to its own thread when a new client connection is accepted. We will also be making some minor changes to our `main()` and `AcceptAndRead` functions.
 
+We will start by adding a `#include <pthread.h>` followed by removing our `CYASSL_CTX* ctx` from our main() function and making it global. This will allow our threads to have access to it. Because we are no long passing it into the `AcceptAndRead` function, we need to modify the prototype function to no longer take a `CyaSSL_CTX` parameter. The top of your file should now look like:
+
+```c
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <string.h>
+#include <netinet/in.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <pthread.h>
+
+/* Include the CyaSSL library for our TLS 1.2 security */
+#include <cyassl/ssl.h>
+
+#define DEFAULT_PORT 11111
+
+int  AcceptAndRead(socklen_t sockfd, struct sockaddr_in clientAddr);
+void *ThreadHandler(void* socketDesc);
+
+/* Create a ctx pointer for our ssl */
+CYASSL_CTX* ctx;
+```
+Moving down to our `main()` function, we need to now remove `CYASSL_CTX* ctx` from the top of the function since it is now a global variable. Lastly we need modify the `while` loop at the bottom of `main()` to look like:
+
+```c
+  printf("Waiting for a connection...\n");
+    /* Continuously accept connects while not currently in an active connection
+       or told to quit */
+    while (loopExit == 0) {
+        /* Listen for a new connection, allow 5 pending connections */
+        ret = listen(sockfd, 5);
+        if (ret == 0) {
+
+            /* Accept client connections and read from them */
+            loopExit = AcceptAndRead(sockfd, clientAddr);
+        }
+```
+As you can tell, when we call 
+    loopExit = AcceptAndRead(sockfd, clientAddr);
+we are no longer passing in our `CYASSL_CTX` pointer since it's now global.
+
+Moving on, we can now modify our `AcceptAndRead` function. This function will now pass accepted connections off into their own thread using `pthreads`. This new thread will then loop, reading and writing to the connected client. Because of this most of this function will be moved into the 'ThreadHandler' function. The `AcceptAndRead` function will now look like:
+
+```c
+int AcceptAndRead(socklen_t sockfd, struct sockaddr_in clientAddr)
+{
+    socklen_t size = sizeof(clientAddr);
+    int connd;      /* Identify and access the clients connection */
+
+    pthread_t thread_id;
+
+    /* Wait until a client connects */
+    while ((connd = accept(sockfd, (struct sockaddr *)&clientAddr, 
+        &size))) {
+        /* Pass the client into a new thread */
+        if (pthread_create(&thread_id, NULL, ThreadHandler, (void *)
+            &connd) < 0) {
+            perror("could not create thread");
+        }
+        printf("Handler assigned\n");
+    }
+    if (connd < 0) {
+        perror("accept failed");
+    }
+
+    return 0;
+}
+```
+
+Now that we have that passing client connections to their own threads, we need to create the `ThreadHandler`, this function will act just like the original `AcceptAndRead` function, just in it's own thread so that we can have multiple clients connected. In this function we will be create our `ssl` object and directing it at our client. It will continuously run in a `for ( ; ; )` loop, reading and writing to the connected client until the client disconnects. It should look like: 
+
+```c
+void *ThreadHandler(void* socketDesc)
+{
+    int     connd = *(int*)socketDesc;
+    CYASSL* ssl;
+    /* Create our reply message */
+    const char reply[] = "I hear ya fa shizzle!\n";
+
+    printf("Client connected successfully\n");
+
+    if ( (ssl = CyaSSL_new(ctx)) == NULL) {
+        fprintf(stderr, "CyaSSL_new error.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    /* Direct our ssl to our clients connection */
+    CyaSSL_set_fd(ssl, connd);
+
+    for ( ; ; ) {
+        char buff[256];
+        int  ret = 0;
+
+        /* Clear the buffer memory for anything  possibly left over */
+        memset(&buff, 0, sizeof(buff));
+
+        /* Read the client data into our buff array */
+        if ((ret = CyaSSL_read(ssl, buff, sizeof(buff)-1)) > 0) {
+            /* Print any data the client sends to the console */
+            printf("Client on Socket %d: %s\n", connd, buff);
+            
+            /* Reply back to the client */
+            if ((ret = CyaSSL_write(ssl, reply, sizeof(reply)-1)) 
+                < 0) {
+                printf("CyaSSL_write error = %d\n", CyaSSL_get_error(ssl, ret));
+            }
+        }
+        /* if the client disconnects break the loop */
+        else {
+            if (ret < 0)
+                printf("CyaSSL_read error = %d\n", CyaSSL_get_error(ssl
+                    ,ret));
+            else if (ret == 0)
+                printf("The client has closed the connection.\n");
+
+            CyaSSL_free(ssl);           /* Free the CYASSL object */
+            close(connd);               /* close the connected socket */
+            break;
+        }
+    }
+
+    exit(EXIT_SUCCESS);
+}
+
+```
+And that's it. You now have a TLS server using multi-threading to handle multiple clients in seperate threads. 
+
+**The finished source code for this can be [found here.](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/server-tls-threaded.c)**
 
 ### Adding Server Non-blocking I/O
+A Nonblocking server, like the multi-threaded server, can handle multiple connections. It does this by moving clients to the next available socket and handling them all from a single thread. The benefit to this approach is that it there is much less memory consumption than creating a new thread for each connected client. Nonblocking is also much faster. 100 clients connected through nonblocking would be much faster than 100 clients through multi-threading. However, for non-blocking to work the connecting client must also be configured to work with non-blocking servers. 
+
+To add non-blocking input and ouput to our `server-tls.c` file we will need to create two new functions `TCPSelect` and `NonBlocking_ReadWriteAccept`. We will also create an enum that will be used to tell our `NonBlocking_ReadWriteAccept` what exactly to do, does it need to Read? Does it need to Write? or does it need to Accept? this is done so we can re-use the same code and not end up writing three more functions that practically do that same thing. 
+
+To start, let's create our enumerator and prototype functions. The top of your file should look like: 
+
+```c
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <string.h>
+#include <netinet/in.h>
+#include <stdlib.h>
+#include <sys/fcntl.h>
+#include <errno.h>
+
+/* Include the CyaSSL library for our TLS 1.2 security */
+#include <cyassl/ssl.h>
+
+#define DEFAULT_PORT 11111
+
+/* Create an enum that we will use to tell our 
+ * NonBlocking_ReadWriteAccept() method what to do
+ */
+enum read_write_t {WRITE, READ, ACCEPT};
+
+int AcceptAndRead(CYASSL_CTX* ctx, socklen_t socketfd, 
+    struct sockaddr_in clientAddr);
+int TCPSelect(socklen_t socketfd);
+int NonBlocking_ReadWriteAccept(CYASSL* ssl, socklen_t socketfd, 
+    enum read_write_t rw);
+```
+
+We will start by modifying our `main()` function. Because we are using non-blocking we need to give our socket specific options. To do this, we will make a `setsockopt()` call just above our `CyaSSL_init()` call. It should look something like the following: 
+
+```c
+ /* If positive value, the socket is valid */
+    if (socketfd == -1) {
+        printf("ERROR: failed to create the socket\n");
+        exit(EXIT_FAILURE);        /* Kill the server with exit status 1 */
+    }
+    /* Set the sockets options for use with nonblocking i/o */
+    if (setsockopt(socketfd, SOL_SOCKET, SO_REUSEADDR, &on, len) 
+        < 0)                    
+        printf("setsockopt SO_REUSEADDR failed\n");
+
+    /* Initialize CyaSSL */
+    CyaSSL_Init();
+```
+
+Now we are going to re-write our `AcceptAndRead()` function such that it now takes into consideration non-blocking I/O. This function will be directing our `ssl` object to our client. we will then use a `for ( ; ; )` loop to call our `NonBlocking_ReadWriteAccept()` function passing our `READ` and `WRITE` enums in respectively. This tells our `NonBlocking_ReadWriteAccept()` function what we currently want it to do; read or write.
+
+The function, with more detailed comments should now look like: 
+
+```c
+int AcceptAndRead(CYASSL_CTX* ctx, socklen_t socketfd, struct sockaddr_in clientAddr)
+{
+    socklen_t     size = sizeof(clientAddr);
+
+    /* Wait until a client connects */
+    int connd = accept(socketfd, (struct sockaddr *)&clientAddr, &size);
+
+    /* If fails to connect, loop back up and wait for a new connection */
+    if (connd == -1) {
+        printf("failed to accept the connection..\n");
+    }
+    /* If it connects, read in and reply to the client */
+    else {
+        printf("Client connected successfully!\n");
+        CYASSL* ssl;
+        if ( (ssl = CyaSSL_new(ctx)) == NULL) {
+            fprintf(stderr, "CyaSSL_new error.\n");
+            exit(EXIT_FAILURE);
+        }
+
+        /* Direct our ssl to our clients connection */
+        CyaSSL_set_fd(ssl, connd);
+        
+        /* Sets CyaSSL_accept(ssl) */
+        if(NonBlocking_ReadWriteAccept(ssl, socketfd, ACCEPT) < 0)
+            return 0;
+
+        /* 
+         * loop until the connected client disconnects
+         * and read in any messages the client sends
+         */
+        for ( ; ; ) {   
+            /* Read data in when I/O is available */
+            if (NonBlocking_ReadWriteAccept(ssl, socketfd, READ) == 0)
+                break;
+            /* Write data out when I/O is available */
+            if (NonBlocking_ReadWriteAccept(ssl, socketfd, WRITE) == 0)
+                break;
+        }
+        CyaSSL_free(ssl);           /* Free the CYASSL object */
+    } 
+    close(connd);               /* close the connected socket */
+
+    return 0;
+}
+```
+
+Next we will write the `NonBlocking_ReadWriteAccept()` function. This function in short swtiches between doing `CyaSSL_accept()`, `CyaSSL_read()`, and `CyaSSL_write()`. It uses a while loop to loop on the socket and assign new client connections to the next available socket using the `TCPSelect()` function we will be writing soon. It then asks each socket if it wants read or wants write. This function should look like: 
+
+```c
+/* Checks if NonBlocking I/O is wanted, if it is wanted it will
+ * wait until it's available on the socket before reading or writing */
+int NonBlocking_ReadWriteAccept(CYASSL* ssl, socklen_t socketfd, 
+    enum read_write_t rw)
+{
+    const char reply[] = "I hear ya fa shizzle!\n";
+    char       buff[256];
+    int        rwret = 0;
+    int        selectRet;
+    int        ret;
+
+
+    /* Clear the buffer memory for anything  possibly left 
+       over */
+    memset(&buff, 0, sizeof(buff));
+
+    if (rw == READ)
+        rwret = CyaSSL_read(ssl, buff, sizeof(buff)-1);
+    else if (rw == WRITE)
+        rwret = CyaSSL_write(ssl, reply, sizeof(reply)-1);
+    else if (rw == ACCEPT)
+        rwret = CyaSSL_accept(ssl);
+
+    if (rwret == 0) {
+        printf("The client has closed the connection!\n");
+        return 0;
+    }
+    else if (rwret != SSL_SUCCESS) {
+        int error = CyaSSL_get_error(ssl, 0);
+
+        /* while I/O is not ready, keep waiting */
+        while ((error == SSL_ERROR_WANT_READ || 
+            error == SSL_ERROR_WANT_WRITE)) {
+
+            if (error == SSL_ERROR_WANT_READ)
+                printf("... server would read block\n");
+            else
+                printf("... server would write block\n");
+
+            selectRet = TCPSelect(socketfd);
+
+            if ((selectRet == 1) || (selectRet == 2)) {
+                if (rw == READ)
+                    rwret = CyaSSL_read(ssl, buff, sizeof(buff)-1);
+                else if (rw == WRITE)
+                    rwret = CyaSSL_write(ssl, reply, sizeof(reply)-1);
+                else if (rw == ACCEPT)
+                    rwret = CyaSSL_accept(ssl);
+                
+                error = CyaSSL_get_error(ssl, 0);
+            }
+            else {
+                error = SSL_FATAL_ERROR;
+                return -1;
+            }
+        }
+        /* Print any data the client sends to the console */
+        if (rw == READ)
+            printf("Client: %s\n", buff);
+        /* Reply back to the client */
+        else if (rw == WRITE) {
+            if ((ret = CyaSSL_write(ssl, reply, sizeof(reply)-1)) < 0) {
+                printf("CyaSSL_write error = %d\n", 
+                    CyaSSL_get_error(ssl, ret));
+            }
+        }
+    }
+
+    return 1;
+}
+```
+Lastly, we just need to write our `TCPSelect()` function which will check whether or not any socket is ready for reading and writing and set it accordingly. It should look like: 
+
+```c
+int TCPSelect(socklen_t socketfd)
+{
+    fd_set recvfds, errfds;
+    int nfds = socketfd + 1;
+    int result;
+
+    FD_ZERO(&recvfds);
+    FD_SET(socketfd, &recvfds);
+    FD_ZERO(&errfds);
+    FD_SET(socketfd, &errfds);
+
+    result = select(nfds, &recvfds, NULL, &errfds, NULL);
+
+    if (result > 0) {
+        if (FD_ISSET(socketfd, &recvfds))
+            return 1; /* RECV READY */
+        else if (FD_ISSET(socketfd, &errfds))
+            return 2; /* ERROR READY */
+    }
+
+    return -1; /* TEST FAILED */
+
+}
+```
+And now you should have a functional TCP TLS Server that uses Nonblocking input and output to accept multiple connections without the use of multi-threading.
+
+**The finished source code for this can be [found here.](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/server-tls-nonblocking.c)**
 
 ## Client TLS Tutorial
 
@@ -301,6 +640,8 @@ int Security(int sock)
 
 As you can see, this is where we make the call to “greet” the server.  This function sends its certification, `../ca-certs.pem` to the server which checks for this. If it’s there, it establishes the connection and secures the information being sent and received between the two.  Once this has been done, it frees all the data so no processes remain after the connection has been terminated.
 
+**The finished source code for this can be [found here.](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/client-tls.c)**
+
 ### Adding Client Session Resumption
 
 In case the connection to the server gets lost, and you want to save time, you’ll want to be able to resume the connection. In this example, we disconnect from the server, then reconnect to the same session afterwards, bypassing the handshake process and ultimately saving time. To accomplish this, you’ll need to add some variable declarations in `Security()`.
@@ -357,6 +698,8 @@ ret = ClientGreet(sock, sslResume);
 ```
 
 We will aslo have to slightly alter our last `CyaSSL_free()` call. Instead of `CyaSSL_free(ssl);` it needs to state `CyaSSL_free(sslResume);`
+
+**The finished source code for this can be [found here.](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/client-tls-resume.c)**
 
 ### Adding Client Non-blocking I/O
 
@@ -532,6 +875,8 @@ while (ret != 0)
 ```
 
 This keeps trying to connect to the socket until it stops being busy and allows the connection.
+
+**The finished source code for this can be [found here.](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/client-tls-nonblocking.c)**
 
 ## Starting the TLS CLient & Server
 
