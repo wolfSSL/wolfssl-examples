@@ -1,7 +1,7 @@
 TCP/PSK Tutorial
 ================
 
-#**Tutorial for adding Cyassl Security to a Simple Client.**
+# **Tutorial for adding Cyassl Security to a Simple Client.**
 
 1. Include the CyaSSL compatibility header:
 ``#include <cyassl/ssl.h>``
@@ -42,7 +42,7 @@ TCP/PSK Tutorial
 
     ``CyaSSL_Cleanup();``
 
-#**Adding Pre-Shared Keys (PSK) to the CyaSSL Simple Client.**
+# **Adding Pre-Shared Keys (PSK) to the CyaSSL Simple Client.**
 
 1. When configuring CyaSSL
 
@@ -76,7 +76,7 @@ TCP/PSK Tutorial
         		return 4;
         	}
 
-#**Adding Non-Blocking to the CyaSSL Simple Client.**  
+# **Adding Non-Blocking to the CyaSSL Simple Client.**  
 
 1. Include the fcntl.h header file. This is needed for some of the constants that will be used when dealing with non-blocking on the socket. `` #include <fcntl.h>`` 
 
@@ -179,7 +179,7 @@ TCP/PSK Tutorial
 
 	        return 0;
         }
-#**Tutorial for adding Cyassl Security and PSK (Pre shared Keys) to a Simple Client.**
+# **Tutorial for adding Cyassl Security and PSK (Pre shared Keys) to a Simple Client.**
 
 1. Include the CyaSSL compatibility header:
 ``` 
