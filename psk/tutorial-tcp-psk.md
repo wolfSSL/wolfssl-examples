@@ -85,7 +85,7 @@ becomes
 becomes
     ``CyaSSL_read(ssl, recvline, MAXLINE)``
 
-(CyaSSL_read on first use also calls CyaSSL_accept if not explicitly called earlier in code.)
+>(CyaSSL_read on first use also calls CyaSSL_accept if not explicitly called earlier in code.)
  
 3. Change all calls from write() or send() to CySSL_write(), in the simple server
     ``write(sockfd, sendline, strlen(sendline))`` 
@@ -132,7 +132,7 @@ becomes
     CyaSSL_CTX_set_cipher_list(ctx, “PSK-AES128-CBC-SHA256”);
     ```
 
-PSK-AES128-CBC-SHA256 creates the cipher list of having pre shared keys with advanced encryption security using 128 bit key with cipher block chaining using secure hash algorithm.
+>PSK-AES128-CBC-SHA256 creates the cipher list of having pre shared keys with advanced encryption security using 128 bit key with cipher block >chaining using secure hash algorithm.
 
 3. Add the my_psk_server_cb function as follows. This is a function needed that is passed in as an argument to the CyaSSL callback.
     
@@ -291,29 +291,29 @@ Tutorial for adding nonblocking to a Client.
 	                           error == SSL_ERROR_WANT_WRITE)) {
 		int currTimeout = 1;
 
-   		if (error == SSL_ERROR_WANT_READ)
-        	printf("... client would read block\n");
-    	else
-       		printf("... client would write block\n");
+		if (error == SSL_ERROR_WANT_READ)
+			printf("... client would read block\n");
+		else {
+			printf("... client would write block\n");
 
-           	select_ret = tcp_select(sockfd, currTimeout);
+	    	select_ret = tcp_select(sockfd, currTimeout);
 
-           	if ((select_ret == TEST_RECV_READY) ||
+		    	if ((select_ret == TEST_RECV_READY) ||
 				(select_ret == TEST_ERROR_READY)) {
-            	ret = CyaSSL_connect(ssl);
-          		error = CyaSSL_get_error(ssl, 0);
-  			}
+				ret = CyaSSL_connect(ssl);
+				error = CyaSSL_get_error(ssl, 0);
+			}
 			else if (select_ret == TEST_TIMEOUT && !CyaSSL_dtls(ssl)) {
-       			error = SSL_ERROR_WANT_READ;
-  			}
+				error = SSL_ERROR_WANT_READ;
+			}
 			else {
-        		error = SSL_FATAL_ERROR;
-   			}
-  		}
- 		if (ret != SSL_SUCCESS){
-      		printf("SSL_connect failed");
-      		exit(0);
-   		}
+				error = SSL_FATAL_ERROR;
+			}
+		}
+		if (ret != SSL_SUCCESS){
+			printf("SSL_connect failed");
+			exit(0);
+		}
  	}
     ```
 ##Tutorial for adding nonblocking to a Server.
@@ -327,12 +327,12 @@ Tutorial for adding nonblocking to a Client.
     
     ``fcntl(*sockfd, F_SETFL, O_NONBLOCK);``
 
-Both F_SETFL and O_NONBLOCK are constants from the fcntl.h file.
+>Both F_SETFL and O_NONBLOCK are constants from the fcntl.h file.
 
 4. Include a function to select tcp. What this function does is it checks file descriptors for readiness of reading, writing, for pending exceptions, and for timeout. The timeout variable needs to point to struct timeval type. If the timeval members are 0 then the function does not block. The function and its input parameters are listed below.
     ``select(int nfds, fd_set* read, fd_set* write, fd_set* exception, struct timeval* time)`` 
 
-For the example server we do not consider write when selecting the tcp so it is set to NULL. For ease the example code uses enumerated values for which state the function select returns. This then makes the next loop discussed easier.
+>For the example server we do not consider write when selecting the tcp so it is set to NULL. For ease the example code uses enumerated values >for which state the function select returns. This then makes the next loop discussed easier.
                                                                         
 5. Next is to add a loop for handling when to read and write. This loop uses the select tcp function to continually check on the status of the tcp connection and when it is ready or has an exception the CyaSSL_accept function is called.
 
