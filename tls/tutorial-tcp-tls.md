@@ -13,12 +13,12 @@ First you will need `gcc` and `make` installed on your terminal. You can do this
   * [Installing CyaSSL](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#installing-cyassl)
 2. [Server TLS Tutorial](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#server-tls-tutorial)
   * [Basic TLS Server](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#basic-tls-server)
-  * [Adding Non-blocking I/O](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#basic-nonblocking-tls-server)
-  * [Adding Multi-threading](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#basic-multi-threaded-tls-server)
+  * [Adding Multi-threading](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#adding-server-multi-threading)
+  * [Adding Non-blocking I/O](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#adding-server-non-blocking-io)
 3. [Client TLS Tutorial](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#client-tls-tutorial)
   * [Basic TLS Client](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#basic-tls-client)
-  * [Adding Session Resumption](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#adding-session-resumption)
-  * [Adding Non-blocking I/O](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#adding-non-blocking-io)
+  * [Adding Session Resumption](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#adding-client-session-resumption)
+  * [Adding Non-blocking I/O](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#adding-client-non-blocking-io)
 4. [Starting the TLS Client & Server](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#starting-the-tls-client--server)
 
 ## Incorporating CyaSSL TLS
@@ -216,9 +216,9 @@ int AcceptAndRead(CYASSL_CTX* ctx, socklen_t sockfd, struct sockaddr_in
 ```
 And with that, you should now have a basic TLS server that accepts a connection, reads in data from the client, sends a reply back, and closes the clients connection. 
 
-### Adding Non-blocking I/O
+### Adding Server Multi-threading
 
-### Adding Multi-threading
+### Adding Server Non-blocking I/O
 
 ## Client TLS Tutorial
 
@@ -299,7 +299,7 @@ int Security(int sock)
 
 As you can see, this is where we make the call to “greet” the server.  This function sends its certification, `../ca-certs.pem` to the server which checks for this. If it’s there, it establishes the connection and secures the information being sent and received between the two.  Once this has been done, it frees all the data so no processes remain after the connection has been terminated.
 
-### Adding Session Resumption
+### Adding Client Session Resumption
 
 In case the connection to the server gets lost, and you want to save time, you’ll want to be able to resume the connection. In this example, we disconnect from the server, then reconnect to the same session afterwards, bypassing the handshake process and ultimately saving time. To accomplish this, you’ll need to add some variable declarations in `Security()`.
 
@@ -356,7 +356,7 @@ ret = ClientGreet(sock, sslResume);
 
 We will aslo have to slightly alter our last `CyaSSL_free()` call. Instead of `CyaSSL_free(ssl);` it needs to state `CyaSSL_free(sslResume);`
 
-### Adding Non-blocking I/O
+### Adding Client Non-blocking I/O
 
 The first thing that has to be done in order to make a socket a non-blocking socket is to add another library to the top of the code.
 
