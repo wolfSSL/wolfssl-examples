@@ -49,9 +49,9 @@ int AcceptAndRead(CYASSL_CTX* ctx, socklen_t sockfd, struct sockaddr_in
     socklen_t         size    = sizeof(clientAddr);
 
     /* Wait until a client connects */
-    int connd = accept(sockfd, (struct sockaddr *)&clientAddr, &size);
+    socklen_t connd = accept(sockfd, (struct sockaddr *)&clientAddr, &size);
 
-    /* If fails to connect, loop back up and wait for a new connection */
+    /* If fails to connect,int loop back up and wait for a new connection */
     if (connd == -1) {
         printf("failed to accept the connection..\n");
     }

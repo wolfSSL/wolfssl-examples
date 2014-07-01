@@ -128,7 +128,79 @@ int main()
     return EXIT_SUCCESS;
 }
 ```
+Now all that is left is the `AcceptAndRead` function. This function accepts the new connection and passes it off to its on file descriptor `connd`. We then create our ssl object and direct it to our clients connection. Once thats done we jump into a `for ( ; ; )` loop and do a `CyaSSL_read` which will decrypt and send any data the client sends to our `buff` array. Once that happens we print the data to the console and then send a reply back to the client letting the client know that we reicieved their message. We then break out of the loop, free our ssl and close the `connd` connection since it's no longer used. We then `return 0` which tells our loop in main that it was successful and to continue listening for new connections. 
 
+Here is the `AcceptAndRead` with more detailed comments on what's happening.
+
+```c
+int AcceptAndRead(CYASSL_CTX* ctx, socklen_t sockfd, struct sockaddr_in 
+    clientAddr)
+{
+        /* Create our reply message */
+    const char reply[]  = "I hear ya fa shizzle!\n";
+    socklen_t         size    = sizeof(clientAddr);
+
+    /* Wait until a client connects */
+    socklen_t connd = accept(sockfd, (struct sockaddr *)&clientAddr, &size);
+
+    /* If fails to connect,int loop back up and wait for a new connection */
+    if (connd == -1) {
+        printf("failed to accept the connection..\n");
+    }
+    /* If it connects, read in and reply to the client */
+    else {
+        printf("Client connected successfully\n");
+        CYASSL*     ssl;
+
+        if ( (ssl = CyaSSL_new(ctx)) == NULL) {
+            fprintf(stderr, "CyaSSL_new error.\n");
+            exit(EXIT_FAILURE);
+        }
+
+        /* direct our ssl to our clients connection */
+        CyaSSL_set_fd(ssl, connd);
+
+        printf("Using Non-Blocking I/O: %d\n", CyaSSL_get_using_nonblock(
+            ssl));
+
+        for ( ; ; ) {
+            char buff[256];
+            int  ret = 0;
+
+            /* Clear the buffer memory for anything  possibly left over */
+            memset(&buff, 0, sizeof(buff));
+
+            /* Read the client data into our buff array */
+            if ((ret = CyaSSL_read(ssl, buff, sizeof(buff)-1)) > 0) {
+                /* Print any data the client sends to the console */
+                printf("Client: %s\n", buff);
+                
+                /* Reply back to the client */
+                if ((ret = CyaSSL_write(ssl, reply, sizeof(reply)-1)) 
+                    < 0)
+                {
+                    printf("CyaSSL_write error = %d\n", CyaSSL_get_error(ssl, ret));
+                }
+            }
+            /* if the client disconnects break the loop */
+            else {
+                if (ret < 0)
+                    printf("CyaSSL_read error = %d\n", CyaSSL_get_error(ssl
+                        ,ret));
+                else if (ret == 0)
+                    printf("The client has closed the connection.\n");
+
+                break;
+            }
+        }
+        CyaSSL_free(ssl);           /* Free the CYASSL object */
+    }
+    close(connd);               /* close the connected socket */
+
+    return 0;
+}
+```
+And with that, you should now have a basic TLS server that accepts a connection, reads in data from the client, sends a reply back, and closes the clients connection. 
 
 ### Basic Nonblocking TLS Server
 ### Basic Multi-threaded TLS Server
