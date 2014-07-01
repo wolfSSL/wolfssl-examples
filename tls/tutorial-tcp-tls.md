@@ -13,8 +13,8 @@ First you will need `gcc` and `make` installed on your terminal. You can do this
   * [Installing CyaSSL](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#installing-cyassl)
 2. [Server TLS Tutorial](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#server-tls-tutorial)
   * [Basic TLS Server](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#basic-tls-server)
-  * [Basic Nonblocking TLS Server](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#basic-nonblocking-tls-server)
-  * [Basic Multi-threaded TLS Server](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#basic-multi-threaded-tls-server)
+  * [Adding Non-blocking I/O](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#basic-nonblocking-tls-server)
+  * [Adding Multi-threading](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#basic-multi-threaded-tls-server)
 3. [Client TLS Tutorial](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#client-tls-tutorial)
   * [Basic TLS Client](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#basic-tls-client)
   * [Adding Session Resumption](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#adding-session-resumption)
@@ -216,6 +216,10 @@ int AcceptAndRead(CYASSL_CTX* ctx, socklen_t sockfd, struct sockaddr_in
 ```
 And with that, you should now have a basic TLS server that accepts a connection, reads in data from the client, sends a reply back, and closes the clients connection. 
 
+### Adding Non-blocking I/O
+
+### Adding Multi-threading
+
 ## Client TLS Tutorial
 
 ### Basic TLS Client
@@ -294,10 +298,6 @@ int Security(int sock)
 ```
 
 As you can see, this is where we make the call to “greet” the server.  This function sends its certification, `../ca-certs.pem` to the server which checks for this. If it’s there, it establishes the connection and secures the information being sent and received between the two.  Once this has been done, it frees all the data so no processes remain after the connection has been terminated.
-
-### Basic Nonblocking TLS Server
-
-### Basic Multi-threaded TLS Server
 
 ### Adding Session Resumption
 
