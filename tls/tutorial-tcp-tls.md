@@ -9,7 +9,7 @@ First you will need `gcc` and `make` installed on your terminal. You can do this
     sudo apt-get install gcc make
 
 ## Index
-1. [Incorporating CyaSSL TLS](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#incorporating-cyassl-tls)
+1. [Incorporating CyaSSL TLS](../blob/master/tls/tutorial-tcp-tls.md#incorporating-cyassl-tls)
   * [Installing CyaSSL](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#installing-cyassl)
 2. [Server TLS Tutorial](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#server-tls-tutorial)
   * [Basic TLS Server](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#basic-tls-server)
