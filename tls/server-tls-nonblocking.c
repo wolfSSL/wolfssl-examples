@@ -203,9 +203,6 @@ int main()
     int ret      = 0;
     int on       = 1;
 
-    /* Set nonblocking */
-    //fcntl(socketfd, F_SETFL, fcntl(socketfd, F_GETFL, 0) | O_NONBLOCK);
-
     /* Create a ctx pointer for our ssl */
     CYASSL_CTX* ctx;
 
@@ -227,7 +224,7 @@ int main()
         printf("ERROR: failed to create the socket\n");
         exit(EXIT_FAILURE);        /* Kill the server with exit status 1 */
     }
-
+    /* Set the sockets options for use with nonblocking i/o */
     if (setsockopt(socketfd, SOL_SOCKET, SO_REUSEADDR, &on, len) 
         < 0)                    
         printf("setsockopt SO_REUSEADDR failed\n");
