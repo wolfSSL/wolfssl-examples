@@ -216,9 +216,141 @@ int AcceptAndRead(CYASSL_CTX* ctx, socklen_t sockfd, struct sockaddr_in
 ```
 And with that, you should now have a basic TLS server that accepts a connection, reads in data from the client, sends a reply back, and closes the clients connection. 
 
+The finished source code for this can be [found here.](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/server-tls.c)
+
 ### Adding Server Multi-threading
 To add multi-threading support to the basic `tls-server.c` that we created above, we will be using pthreads. Multi-threading will allow the server to handle multiple client connections at the same time. It will pass each new connection off into it's own thread. To do this we will create a new function called `ThreadHandler`. This function will be passed off to its own thread when a new client connection is accepted. We will also be making some minor changes to our `main()` and `AcceptAndRead` functions.
 
+We will start by adding a `#include <pthread.h>` followed by removing our `CYASSL_CTX* ctx` from our main() function and making it global. This will allow our threads to have access to it. Because we are no long passing it into the `AcceptAndRead` function, we need to modify the prototype function to no longer take a `CyaSSL_CTX` parameter. The top of your file should now look like:
+
+```c
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <string.h>
+#include <netinet/in.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <pthread.h>
+
+/* Include the CyaSSL library for our TLS 1.2 security */
+#include <cyassl/ssl.h>
+
+#define DEFAULT_PORT 11111
+
+int  AcceptAndRead(socklen_t sockfd, struct sockaddr_in clientAddr);
+void *ThreadHandler(void* socketDesc);
+
+/* Create a ctx pointer for our ssl */
+CYASSL_CTX* ctx;
+```
+Moving down to our `main()` function, we need to now remove `CYASSL_CTX* ctx` from the top of the function since it is now a global variable. Lastly we need modify the `while` loop at the bottom of `main()` to look like:
+
+```c
+  printf("Waiting for a connection...\n");
+    /* Continuously accept connects while not currently in an active connection
+       or told to quit */
+    while (loopExit == 0) {
+        /* Listen for a new connection, allow 5 pending connections */
+        ret = listen(sockfd, 5);
+        if (ret == 0) {
+
+            /* Accept client connections and read from them */
+            loopExit = AcceptAndRead(sockfd, clientAddr);
+        }
+```
+As you can tell, when we call 
+    loopExit = AcceptAndRead(sockfd, clientAddr);
+we are no longer passing in our `CYASSL_CTX` pointer since it's now global.
+
+Moving on, we can now modify our `AcceptAndRead` function. This function will now pass accepted connections off into their own thread using `pthreads`. This new thread will then loop, reading and writing to the connected client. Because of this most of this function will be moved into the 'ThreadHandler' function. The `AcceptAndRead` function will now look like:
+
+```c
+int AcceptAndRead(socklen_t sockfd, struct sockaddr_in clientAddr)
+{
+    socklen_t size = sizeof(clientAddr);
+    int connd;      /* Identify and access the clients connection */
+
+    pthread_t thread_id;
+
+    /* Wait until a client connects */
+    while ((connd = accept(sockfd, (struct sockaddr *)&clientAddr, 
+        &size))) {
+        /* Pass the client into a new thread */
+        if (pthread_create(&thread_id, NULL, ThreadHandler, (void *)
+            &connd) < 0) {
+            perror("could not create thread");
+        }
+        printf("Handler assigned\n");
+    }
+    if (connd < 0) {
+        perror("accept failed");
+    }
+
+    return 0;
+}
+```
+
+Now that we have that passing client connections to their own threads, we need to create the `ThreadHandler`, this function will act just like the original `AcceptAndRead` function, just in it's own thread so that we can have multiple clients connected. In this function we will be create our `ssl` object and directing it at our client. It will continuously run in a `for ( ; ; )` loop, reading and writing to the connected client until the client disconnects. It should look like: 
+
+```c
+void *ThreadHandler(void* socketDesc)
+{
+    int     connd = *(int*)socketDesc;
+    CYASSL* ssl;
+    /* Create our reply message */
+    const char reply[] = "I hear ya fa shizzle!\n";
+
+    printf("Client connected successfully\n");
+
+    if ( (ssl = CyaSSL_new(ctx)) == NULL) {
+        fprintf(stderr, "CyaSSL_new error.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    /* Direct our ssl to our clients connection */
+    CyaSSL_set_fd(ssl, connd);
+
+    for ( ; ; ) {
+        char buff[256];
+        int  ret = 0;
+
+        /* Clear the buffer memory for anything  possibly left over */
+        memset(&buff, 0, sizeof(buff));
+
+        /* Read the client data into our buff array */
+        if ((ret = CyaSSL_read(ssl, buff, sizeof(buff)-1)) > 0) {
+            /* Print any data the client sends to the console */
+            printf("Client on Socket %d: %s\n", connd, buff);
+            
+            /* Reply back to the client */
+            if ((ret = CyaSSL_write(ssl, reply, sizeof(reply)-1)) 
+                < 0) {
+                printf("CyaSSL_write error = %d\n", CyaSSL_get_error(ssl, ret));
+            }
+        }
+        /* if the client disconnects break the loop */
+        else {
+            if (ret < 0)
+                printf("CyaSSL_read error = %d\n", CyaSSL_get_error(ssl
+                    ,ret));
+            else if (ret == 0)
+                printf("The client has closed the connection.\n");
+
+            CyaSSL_free(ssl);           /* Free the CYASSL object */
+            close(connd);               /* close the connected socket */
+            break;
+        }
+    }
+
+    exit(EXIT_SUCCESS);
+}
+
+```
+And that's it. You now have a TLS server using multi-threading to handle multiple clients in seperate threads. 
+
+The finished source code for this can be [found here.](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/server-tls-threaded.c)
 
 ### Adding Server Non-blocking I/O
 
