@@ -1,7 +1,5 @@
 TCP/PSK Tutorial
 ================
-TCP/PSK Tutorial
-================
 
 # **Tutorial for adding Cyassl Security to a Simple Client.**
 
