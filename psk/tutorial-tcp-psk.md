@@ -179,6 +179,77 @@ TCP/PSK Tutorial
 
 	        return 0;
         }
+
+## **Adding Session Resumption to Simple Client**
+
+Session resumption allows a client/server pair to re-use previously generated crypto material, so that they don't have to compute new crypto keys every time a connection gets established. 
+
+1. After sending a string to the server we need to save the session ID so it can be used again for the next connection. 
+
+        /* Save the session ID to reuse */
+        CYASSL_SESSION* session   = CyaSSL_get_session(ssl);
+        CYASSL*         sslResume = CyaSSL_new(ctx); 
+
+2. Now we must close CyaSSL SSL and close connections. Alos free the socket and ctx. 
+ 
+        /* shut down CyaSSL */
+        CyaSSL_shutdown(ssl);
+
+        /* close connection */
+        close(sockfd);
+
+        /* cleanup */
+        CyaSSL_free(ssl);
+        CyaSSL_CTX_free(ctx);
+        CyaSSL_Cleanup();      
+
+3. Now we are ready to reconnect and start a new socket but we are going to reuse the session id to make things go a little faster. 
+
+      
+        sock = socket(AF_INET, SOCK_STREAM, 0);
+    
+        /* connect to the socket */
+        ret = connect(sock, (struct sockaddr *) &servaddr,         sizeof(servaddr));
+    
+        if (ret != 0){
+            return 1;
+        }
+
+        /* set the session ID to connect to the server */
+        CyaSSL_set_fd(sslResume, sock);
+        CyaSSL_set_session(sslResume, session);
+
+4. Check if the connect was successful. 
+
+        /* check has connect successfully */
+        if (CyaSSL_connect(sslResume) != SSL_SUCCESS) {
+            printf("SSL resume failed\n");
+            return 1;
+        }
+
+5. If successful we can write to the server again. 
+
+6. Check to see if the session id was actually reused or if it was just a new session.
+
+        /* check to see if the session id is being reused */
+        if (CyaSSL_session_reused(sslResume))
+            printf("reused session id\n");
+        else
+            printf("didn't reuse session id!!!\n");
+
+7. Now close the ssl and socket. 
+
+        /* shut down CyaSSL */
+        CyaSSL_shutdown(sslResume);
+
+        /* shut down socket */
+        close(sock);
+
+        /* clean up */
+        CyaSSL_free(sslResume);   
+        CyaSSL_CTX_free(ctx);
+        CyaSSL_Cleanup();
+    
         
 ## **Tutorial for adding Cyassl Security and PSK (Pre shared Keys) to a Simple Client.**
 
