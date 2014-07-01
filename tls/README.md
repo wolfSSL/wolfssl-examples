@@ -6,7 +6,7 @@ This tutorial will teach you how to install and run a basic TCP Server and Clien
 
 First you will need `gcc` and `make` installed on your terminal. You can do this by opening a new terminal window and typing:
 
-	sudo apt-get install gcc make
+    sudo apt-get install gcc make
 
 ## Index
 1. [Incorporating CyaSSL TLS](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#incorporating-cyassl-tls)
@@ -217,6 +217,8 @@ int AcceptAndRead(CYASSL_CTX* ctx, socklen_t sockfd, struct sockaddr_in
 And with that, you should now have a basic TLS server that accepts a connection, reads in data from the client, sends a reply back, and closes the clients connection. 
 
 ### Adding Server Multi-threading
+To add multi-threading support to the basic `tls-server.c` that we created above, we will be using pthreads. Multi-threading will allow the server to handle multiple client connections at the same time. It will pass each new connection off into it's own thread. To do this we will create a new function called `ThreadHandler`. This function will be passed off to its own thread when a new client connection is accepted. We will also be making some minor changes to our `main()` and `AcceptAndRead` functions.
+
 
 ### Adding Server Non-blocking I/O
 
