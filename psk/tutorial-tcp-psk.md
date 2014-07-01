@@ -257,16 +257,12 @@ Session resumption allows a client/server pair to re-use previously generated cr
     ``#include <cyassl/ssl.h>``
 
 2. Change all calls from read() or recv() to CyaSSL_read(), in the simple server
-    ``read(sockfd, recvline, MAXLINE)`` 
->becomes
-    ``CyaSSL_read(ssl, recvline, MAXLINE)``
+    ``read(sockfd, recvline, MAXLINE)`` becomes ``CyaSSL_read(ssl, recvline, MAXLINE)``
 
->(CyaSSL_read on first use also calls CyaSSL_accept if not explicitly called earlier in code.)
+> (CyaSSL_read on first use also calls CyaSSL_accept if not explicitly called earlier in code.)
  
 3. Change all calls from write() or send() to CySSL_write(), in the simple server
-    ``write(sockfd, sendline, strlen(sendline))`` 
-becomes
-    ``CyaSSL_write(ssl, sendline, strlen(sendline))``
+    ``write(sockfd, sendline, strlen(sendline))`` becomes ``CyaSSL_write(ssl, sendline, strlen(sendline))``
 
 4. Run the CyaSSL method to initalize CyaSSL
     ``CyaSSL_Init()``
