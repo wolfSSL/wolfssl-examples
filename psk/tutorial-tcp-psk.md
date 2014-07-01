@@ -1,6 +1,186 @@
 TCP/PSK Tutorial
 ================
+TCP/PSK Tutorial
+================
 
+# **Tutorial for adding Cyassl Security to a Simple Client.**
+
+1. Include the CyaSSL compatibility header:
+``#include <cyassl/ssl.h>``
+* Change all calls from read() or recv() to CyaSSL_read(), in the simple client 
+
+    ``read(sockfd, recvline, MAXLINE)`` becomes ``CyaSSL_read(ssl, recvline, MAXLINE)``
+
+3. Change all calls from write() or send() to CySSL_write(), in the simple client 
+
+    ``write(socked, send line,strlen(send line))`` becomes ``CyaSSL_write(ssl, send line, strlen(sendline))``
+
+4. In the main method initialize CyaSSL and CYASSL_CTX. 
+     
+        CyaSSL_Init();    
+        
+        if ((ctx = CyaSSL_CTX_new(CyaTLSv1_2_client_method())) == NULL)     
+            fprintf(stderr, "SSL_CTX_new error.\n");
+            return 1;
+        } 
+
+5. Create the CyaSSL object after each TCP connect and associate the file descriptor with the session:
+
+        if ((ssl = CyaSSL_new(ctx)) == NULL) {
+            fprintf(stderr, "CyaSSL_new error.\n");
+            return 1;
+        }
+        
+        ret = CyaSSL_set_fd(ssl, sockfd);
+
+        if (ret != SSL_SUCCESS){
+            return 1;
+        }
+        
+6. Cleanup. After each CyaSSL object is done being used you can free it up by calling ``CyaSSL_free(ssl);``
+7. When completely done using SSL/TLS, free the CYASSL_CTX object by 
+
+    ``CyaSSL_CTX_free(CTX);``
+
+    ``CyaSSL_Cleanup();``
+
+#**Adding Pre-Shared Keys (PSK) to the CyaSSL Simple Client.**
+
+1. When configuring CyaSSL
+
+    ``sudo ./configure --enable-psk``
+
+    ``sudo make``
+
+    ``sudo make install``
+        
+2. In the main method add
+
+    ``CyaSSL_CTX_set_psk_client_callback(ctx, 	My_Psk_Client_cb);``
+
+3. Add the function 
+
+		static inline unsigned int My_Psk_Client_Cb(CYASSL* ssl, const char* hint,
+            char* identity, unsigned int id_max_len, unsigned char* key, 
+            unsigned int key_max_len)
+    		{
+        		(void)ssl;
+        		(void)hint;
+        		(void)key_max_len;
+    
+        		strncpy(identity, "Client_identity", id_max_len);
+    
+        		key[0] = 26;
+        		key[1] = 43;
+       			key[2] = 60;
+        		key[3] = 77;
+        		
+        		return 4;
+        	}
+
+#**Adding Non-Blocking to the CyaSSL Simple Client.**  
+
+1. Include the fcntl.h header file. This is needed for some of the constants that will be used when dealing with non-blocking on the socket. `` #include <fcntl.h>`` 
+
+2. After the function ``CyaSSL_set_fd(ssl,sockfd)``, tell CyaSSL that you want non-blocking to be used. This is done by adding : `` CyaSSL_set_using_nonblock(ssl,1);``
+
+3. Now we much invoke the fcnt callable serve to use non-blocking. 
+
+        int flags = fcntl(sockfd, F_GETFL, 0);
+        if (flags < 0) {
+            printf("fcntl get failed\n");
+            return 1;
+        }
+
+        flags = fcntl(sockfd, F_SETFL, flags | O_NONBLOCK);
+        if (flags < 0) {
+            printf("fcntl set failed\n");
+            return 1;
+        }
+4. Now we are ready to call the function to start non-blocking on our socket. This is done by adding: 
+
+        ret = NonBlockingSSL_Connect(ssl);
+
+        if (ret != 0) {
+    	    return 1;
+        }
+
+5. Now we need to add the non-blocking function. 
+
+     **Add the tcp_select function**
+
+            enum {
+            TEST_SELECT_FAIL,
+            TEST_TIMEOUT,
+            TEST_RECV_READY,
+            TEST_ERROR_READY
+            };
+
+
+            static inline int tcp_select(int socketfd, int to_sec)
+            {
+                fd_set recvfds, errfds;
+                int nfds = socketfd + 1;
+                struct timeval timeout = { (to_sec > 0) ? to_sec : 0, 0};
+
+                FD_ZERO(&recvfds);
+                FD_SET(socketfd, &recvfds);
+                FD_ZERO(&errfds);
+                FD_SET(socketfd, &errfds);
+
+                int result = select(nfds, &recvfds, NULL, &errfds, &timeout);
+
+                if (result == 0)
+                    return TEST_TIMEOUT;
+                else if (result > 0) {
+                    if (FD_ISSET(socketfd, &recvfds))
+                        return TEST_RECV_READY;
+                    else if(FD_ISSET(socketfd, &errfds))
+                        return TEST_ERROR_READY;
+                }
+
+                return TEST_SELECT_FAIL;
+            }
+
+    **Add the non-blocking function**
+
+        static int NonBlockingSSL_Connect(CYASSL* ssl)
+        {
+            int ret, error, sockfd, select_ret, currTimeout;
+    
+            ret    = CyaSSL_connect(ssl);
+            error  = CyaSSL_get_error(ssl, 0);
+            sockfd = (int)CyaSSL_get_fd(ssl);
+
+            while (ret != SSL_SUCCESS && (error == SSL_ERROR_WANT_READ || error == SSL_ERROR_WANT_WRITE)) {
+                currTimeout = 1;
+
+                if (error == SSL_ERROR_WANT_READ)
+                    printf("... client would read block\n");
+                else
+                    printf("... client would write block\n");
+
+                select_ret = tcp_select(sockfd, currTimeout);
+
+                if ((select_ret == TEST_RECV_READY) ||
+                    (select_ret == TEST_ERROR_READY)) {
+                    ret   = CyaSSL_connect(ssl);
+                    error = CyaSSL_get_error(ssl, 0);
+                }
+                else if (select_ret == TEST_TIMEOUT) {
+                    error = SSL_ERROR_WANT_READ;
+                }
+                else {
+                    error = SSL_FATAL_ERROR;
+                }
+            }
+            if (ret != SSL_SUCCESS){
+                printf("SSL_connect failed");
+                return 1;
+            }
+
+	        return 0;
+        }
 # **Tutorial for adding Cyassl Security and PSK (Pre shared Keys) to a Simple Client.**
 
 1. Include the CyaSSL compatibility header:
