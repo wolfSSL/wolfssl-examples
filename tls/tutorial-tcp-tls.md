@@ -5,17 +5,17 @@ This tutorial will teach you how to install and run a basic TCP Server and Clien
 
 First you will need `gcc` and `make` installed on your terminal. You can do this by opening a new terminal window and typing:
 
-	```sudo apt-get install gcc make```
+	sudo apt-get install gcc make
 
 ## Incorporating CyaSSL TLS
 To incorporate CyaSSL TLS into your client or server you need to first configure and install the CyaSSL library to your linux machine. After you have done that, you can then run `make` to compile the TLS versions into an executeable.
 
 ### Installing CyaSSL
-	+ Download and extract the CyaSSL package from [here](http://wolfssl.com/yaSSL/Products-cyassl.html)
-	+ In terminal, navigate to the root of the extracted folder.
-	+ Type `./configure` press enter. Wait until it finishes configuring.
-	+ Type `make` press enter. 
-	+ Type `sudo make install`, this will install the CyaSSL libraries to your machine.
++ Download and extract the CyaSSL package from [here](http://wolfssl.com/yaSSL/Products-cyassl.html)
++ In terminal, navigate to the root of the extracted folder.
++ Type `./configure` press enter. Wait until it finishes configuring.
++ Type `make` press enter. 
++ Type `sudo make install`, this will install the CyaSSL libraries to your machine.
 
 CyaSSL libraries should now be installed to your machine and ready to use. You can now make and run the server and client examples.
 
