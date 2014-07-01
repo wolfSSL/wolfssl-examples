@@ -57,19 +57,20 @@ There are five initial steps to creating a UDP/IP Server.
     1. Domain
     The domain can also be referred to as the address family. It is the communication domain in which the socket should be created. Below you will see some of the examples domains or address families that we  could work with. At the end will be a description of what we will choose specifically for a UDP server.
 
+    ```c
     AF_INET:     Internet Protocol (IP)
     AF_INET6:    IP version 6 (IPv6)
     AF_UNIX:     local channel, similar to pipes
     AF_ISO:     “In Search Of” (ISO) protocols
     AF_NS:    Xerox Network Systems protocols
-
+```
     2. Type
     This is the type of service we will be providing with our UDP server. This is selected based on the requirements of the application, and will likely aid in determining which Domain (above) you will select ultimately.
-
+```c
     SOCK_STREAM:     a virtual circuit service
     SOCK_DGRAM:     a datagram service
     SOCK_RAW:     a direct IP service
-
+```
     3. Protocol
     A protocol supports the sockets operation. This parameter is optional but is helpful in cases where the domain (family) supports multiple protocols. In these cases we can specify which protocol to use for said family. If the family supports only one type of protocol this value will be zero.
 
@@ -78,7 +79,8 @@ There are five initial steps to creating a UDP/IP Server.
 
     Figure 1.3 Setting Protocol
     
-   ```#include <sys/socket.h>
+   ```c
+    #include <sys/socket.h>
     …
     int sockfd;
 
@@ -100,8 +102,9 @@ The transport address is defined in the socket address structure. Since sockets 
 `#include <sys/socket.h>` contains the relevant “bind” call we will need. Since we already used it in STEP 1 we do not need to include it a second time.
 
 Figure 1.4 Bind the Socket
-`int
- bind(int socket, const struct sockaddr *address, socklen_t address_len);`
+```c
+    int
+    bind(int socket, const struct sockaddr *address, socklen_t address_len);```
 
 
 The first parameter “socket” is the socket we created in STEP 1 (sockfd)
@@ -110,13 +113,14 @@ The first parameter “socket” is the socket we created in STEP 1 (sockfd)
 
 
     Figure 1.5 Explain address family
-    `struct sockaddr_in{
+    ```c
+    struct sockaddr_in{
         __uint8_t        sin_len;
         sa_family_t      sin_family;
         in_port_t        sin_port;
         struct in_addr   sin_addr;
         char             sin_zero[8];
-    };`
+    };```
 
 
 NOTE: this code will not be found in our example server. It is imported with the following call (figure 1.6).
@@ -157,7 +161,7 @@ The port number (transport address). This can either be explicitly declared, or 
 
     Using any of the above 4.4 macros will guarantee that your code remains portable regardless of the architecture you use in compilation.
 
-    1.5. <BEGIN LOOP>:
+####1.5. <BEGIN LOOP>:
     WAIT FOR A MESSAGE
     Later when we layer on DTLS our server will set up a socket for listening via the “listen” system call. The server would then call “accept” upon hearing a request to communicate, and then wait for a connection to be established. UDP however in it`s base for is connectionless. So our server, as of right now, is capable of listening for a message purely due to the fact that it has a socket! We use recvfrom system call to wait for an incoming datagram on a specific transport address (IP address, and port number).
     The recvfrom call is included with the #include <sys/socket.h> therefore we do not need to include this library again since we already included it in STEP 1.
