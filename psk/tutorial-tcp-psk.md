@@ -259,7 +259,7 @@ Session resumption allows a client/server pair to re-use previously generated cr
 2. Change all calls from read() or recv() to CyaSSL_read(), in the simple server
     ``read(sockfd, recvline, MAXLINE)`` becomes ``CyaSSL_read(ssl, recvline, MAXLINE)``
 
-> (CyaSSL_read on first use also calls CyaSSL_accept if not explicitly called earlier in code.)
+	>(CyaSSL_read on first use also calls CyaSSL_accept if not explicitly called earlier in code.)
  
 3. Change all calls from write() or send() to CySSL_write(), in the simple server
     ``write(sockfd, sendline, strlen(sendline))`` becomes ``CyaSSL_write(ssl, sendline, strlen(sendline))``
@@ -307,7 +307,8 @@ The following steps are on how to use PSK in a CyaSSL server
     CyaSSL_CTX_set_cipher_list(ctx, “PSK-AES128-CBC-SHA256”);
     ```
 
->PSK-AES128-CBC-SHA256 creates the cipher list of having pre shared keys with advanced encryption security using 128 bit key with cipher block >chaining using secure hash algorithm.
+	>PSK-AES128-CBC-SHA256 creates the cipher list of having pre shared keys with advanced encryption security using 128 bit key 
+	>with cipher block chaining using secure hash algorithm.
 
 3. Add the my_psk_server_cb function as follows. This is a function needed that is passed in as an argument to the CyaSSL callback.
     
