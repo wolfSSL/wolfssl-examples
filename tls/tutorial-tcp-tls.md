@@ -1,6 +1,13 @@
 Tutorial
 ========
 
+This tutorial will teach you how to install and run a basic TCP Server and Client. As well as how to incorporate CyaSSL TLS and some additional features on top of these basic examples. It is expected that you have a basic understanding of a simple tcp server/client. If not, before continueing please take a moment to look over the `server-tcp.c` and `client-tcp.c` file which contains the basic tcp server that we will be expanding upon in this tutorial.
+
+
+First you will need `gcc` and `make` installed on your terminal. You can do this by opening a new terminal window and typing:
+
+	sudo apt-get install gcc make
+
 ## Index
 1. [Incorporating CyaSSL TLS](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#incorporating-cyassl-tls)
   * [Installing CyaSSL](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#installing-cyassl)
@@ -13,13 +20,6 @@ Tutorial
   * [Adding Session Resumption](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#adding-session-resumption)
   * [Adding Non-blocking I/O](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#adding-non-blocking-io)
 4. [Starting the TLS Client & Server](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#starting-the-tls-client--server)
-
-This tutorial will teach you how to install and run a basic TCP Server and Client. As well as how to incorporate CyaSSL TLS and some additional features on top of these basic examples. It is expected that you have a basic understanding of a simple tcp server/client. If not, before continueing please take a moment to look over the `server-tcp.c` and `client-tcp.c` file which contains the basic tcp server that we will be expanding upon in this tutorial.
-
-
-First you will need `gcc` and `make` installed on your terminal. You can do this by opening a new terminal window and typing:
-
-	sudo apt-get install gcc make
 
 ## Incorporating CyaSSL TLS
 To incorporate CyaSSL TLS into your client or server you need to first configure and install the CyaSSL library to your linux machine. After you have done that, you can then run `make` to compile the TLS versions into an executeable.
