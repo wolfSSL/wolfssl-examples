@@ -26,7 +26,7 @@ server-tls-nonblocking: server-tls-nonblocking.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 server-tls-threaded: server-tls-threaded.o
-	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS) -lpthread
 
 .PHONY: clean all
 

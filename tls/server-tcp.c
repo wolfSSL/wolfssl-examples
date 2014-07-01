@@ -34,14 +34,16 @@
 
 #define DEFAULT_PORT 11111
 
-int AcceptAndRead();
+int AcceptAndRead(socklen_t sockfd);
 
-int AcceptAndRead(int sockfd, struct sockaddr_in clientAddr)
+int AcceptAndRead(socklen_t sockfd)
 {
- 	int size = sizeof(clientAddr);
+    struct sockaddr_in clientAddr;
+ 	socklen_t size = sizeof(clientAddr);
+    int ret  = 0;
 
     /* Wait until a client connects */
-    int connd = accept(sockfd, (struct sockaddr *)&clientAddr, &size);
+    int connd = accept(sockfd,(struct sockaddr *)&clientAddr, &size);
 
     /* If fails to connect, loop back up and wait for a new connection */
     if (connd == -1){
@@ -60,7 +62,7 @@ int AcceptAndRead(int sockfd, struct sockaddr_in clientAddr)
             bzero(&buff, sizeof(buff));
             
             /* Read the client data into our buff array */
-            if (read(connd, buff, sizeof(buff)-1) > 0){
+            if ((ret = read(connd, buff, sizeof(buff)-1)) > 0){
                 /* Print any data the client sends to the console */
                 printf("Client: %s\n", buff);
 
@@ -68,7 +70,8 @@ int AcceptAndRead(int sockfd, struct sockaddr_in clientAddr)
                 char reply[] = "I hear ya fa shizzle!\n";
                 
                 /* Reply back to the client */
-                write(connd, reply, sizeof(reply)-1);
+                if ((ret = write(connd, reply, sizeof(reply)-1)) < 0)
+                    printf("write error\n");
             }
             /* If the client disconnects break the loop */
             else
@@ -92,17 +95,17 @@ int main()
      */
 
      /* Identify and access the sockets */
-    int sockfd = socket(AF_INET, SOCK_STREAM, 0); 
+    socklen_t sockfd = socket(AF_INET, SOCK_STREAM, 0); 
     int exit   = 0; 	/* 0 = false, 1 = true */
 
     /* If positive value, the socket is valid */
-    if(sockfd < 0){
+    if(sockfd == -1){
         printf("ERROR: failed to create the socket\n");
         return 1;        /* Kill the server with exit status 1 */        
     }
 
     /* Server and client socket address structures */
-	struct sockaddr_in serverAddr, clientAddr;
+	struct sockaddr_in serverAddr;
 
 	/* Initialize the server address struct to zero */
     memset((char *)&serverAddr, 0, sizeof(serverAddr)); 
@@ -125,7 +128,7 @@ int main()
         printf("Waiting for a connection...\n");
 
         /* Accept client connections and read from them */
-    	exit = AcceptAndRead(sockfd, clientAddr);
+    	exit = AcceptAndRead(sockfd);
     }
 
     /* Close the open sockets */

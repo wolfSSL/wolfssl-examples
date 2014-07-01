@@ -28,7 +28,7 @@
 #define MAXDATASIZE  4096           /* maximum acceptable amount of data */
 #define SERV_PORT    11111          /* define default port number */
 
-const char* cert = "./certs/ca-cert.pem";
+const char* cert = "../certs/ca-cert.pem";
 
 /* 
  * clients initial contact with server. (socket to connect, security layer)
