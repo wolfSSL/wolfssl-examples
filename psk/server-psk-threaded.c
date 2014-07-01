@@ -64,7 +64,7 @@ static inline unsigned int my_psk_server_cb(CYASSL* ssl, const char* identity,
 void* cyassl_thread(void* fd)
 {
     CYASSL* ssl;
-    int connfd = (int)fd;
+    int connfd = *((int*)fd);
     int  n;             
     char buf[MAXLINE];  
     char response[] = "I hear ya for shizzle";
@@ -169,7 +169,7 @@ int main()
                    inet_ntop(AF_INET, &cliAddr.sin_addr, buff, sizeof(buff)),
                    ntohs(cliAddr.sin_port));
             
-            if (pthread_create(&thread, NULL, &cyassl_thread, (void*) connfd) 
+            if (pthread_create(&thread, NULL, &cyassl_thread, (void*) &connfd) 
                                != 0) {
                 return 1;   
             }
