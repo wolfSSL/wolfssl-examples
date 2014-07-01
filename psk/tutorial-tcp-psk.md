@@ -257,16 +257,12 @@ Session resumption allows a client/server pair to re-use previously generated cr
     ``#include <cyassl/ssl.h>``
 
 2. Change all calls from read() or recv() to CyaSSL_read(), in the simple server
-    ``read(sockfd, recvline, MAXLINE)`` 
-becomes
-    ``CyaSSL_read(ssl, recvline, MAXLINE)``
+    ``read(sockfd, recvline, MAXLINE)`` becomes ``CyaSSL_read(ssl, recvline, MAXLINE)``
 
->(CyaSSL_read on first use also calls CyaSSL_accept if not explicitly called earlier in code.)
+	>(CyaSSL_read on first use also calls CyaSSL_accept if not explicitly called earlier in code.)
  
 3. Change all calls from write() or send() to CySSL_write(), in the simple server
-    ``write(sockfd, sendline, strlen(sendline))`` 
-becomes
-    ``CyaSSL_write(ssl, sendline, strlen(sendline))``
+    ``write(sockfd, sendline, strlen(sendline))`` becomes ``CyaSSL_write(ssl, sendline, strlen(sendline))``
 
 4. Run the CyaSSL method to initalize CyaSSL
     ``CyaSSL_Init()``
@@ -280,7 +276,8 @@ becomes
     ```
 
 6. In the servers main loop for accepting clients create a CYASSL pointer. Once a new client is accepted create a CyaSSL object and associate that object with the socket that the client is on. After using the CyaSSL object it should be freed and also before closing the program the ctx pointer should be freed and a CyaSSL cleanup method called.
-    ```
+    
+	```
     CYASSL* ssl;
 	
 	CyaSSL_set_fd(ssl, “integer returned from accept”);
@@ -310,11 +307,12 @@ The following steps are on how to use PSK in a CyaSSL server
     CyaSSL_CTX_set_cipher_list(ctx, “PSK-AES128-CBC-SHA256”);
     ```
 
->PSK-AES128-CBC-SHA256 creates the cipher list of having pre shared keys with advanced encryption security using 128 bit key with cipher block >chaining using secure hash algorithm.
+	>PSK-AES128-CBC-SHA256 creates the cipher list of having pre shared keys with advanced encryption security using 128 bit key 
+	>with cipher block chaining using secure hash algorithm.
 
 3. Add the my_psk_server_cb function as follows. This is a function needed that is passed in as an argument to the CyaSSL callback.
     
-    ```
+```
     static inline unsigned int my_psk_client_cb(CYASSL* ssl, char* identity, unsigned 
                                                 char* key, unsigned int key_max_len) {
     		(void)ssl;
@@ -332,37 +330,39 @@ The following steps are on how to use PSK in a CyaSSL server
 
     		return 4;
     }
-    ```
+```
 
 	
 Example Makefile for Simple Cyass PSK Client:
-    ```	
-    CC=gcc
-    OBJ = client-psk.o
-    CFLAG=-Wall
+	
+```
+	CC=gcc
+	OBJ = client-psk.o
+	CFLAG=-Wall
 
     %.o: %.c $(DEPS)
         $(CC) -c -o $@ $< $(CFLAGS)
 
-    client-psk: client-psk.c
+	client-psk: client-psk.c
         $(CC) -Wall -o client-psk client-psk.c -lcyassl	
 
     .PHONY: clean
 
-    clean:
-	    rm -f *.o client-psk
-    ```
+	clean:   
+		rm -f *.o client-psk
+```
 
 The -lcyassl will link the Cyassl Libraries to your program 
 
 
 The makefile for the server is going to be similar to that of the client. If the user wants separate makefiles just make a use the same set up of the client makefile and replace every instance of client-psk with server-psk. To combine make files just add a server-psk with similar ending to each time client-psk is referenced and change the target. There will also need to be a target for when compiling all targets.
-    ```	
-    all: server-psk client-psk
+
+```	
+	all: server-psk client-psk
 
 	server-psk: server-psk.c
 		$(CC) -Wall -o server-psk server-psk.c -lcyassl
-    ```
+```
 
 ## Nonblocking psk
 ###### What is nonblocking?
