@@ -1,9 +1,9 @@
-CHAPTER 1: 
+##CHAPTER 1: 
 A Simple UDP SERVER & Client
 
-Section 1: By Kaleb Himes
+###Section 1: By Kaleb Himes
 
-1.1. Introduction and description of UDP
+####1.1. Introduction and description of UDP
 What is UDP? User Datagram Protocol (UDP) is a core member of Internet Protocol Suite (IPS). Messages sent using UDP are called datagrams. A client can send messages to other hosts (clients or servers that have host capabilities) on an Internet Protocol (IP) network without any prior communications to set up special transmissions channels or data paths. A formal definition can be found in Request for Comments (RFC) 768 (http://tools.ietf.org/html/rfc768).
 
 UDP uses a minimum of protocol mechanisms in that it requires no handshake. Rather UDP uses a checksum for data integrity and port numbers for addressing different functions at the source and destination of the datagram.
@@ -20,48 +20,46 @@ maximum size 65,535 bytes to be defined. If larger, set to 0. (IPv6 will allow l
 Field 4: Contains a Checksum for security purposes. Contains some checksum of the header and data.
 
 CHECKSUM
-All 16 bit words are summed using “one's complement arithmetic”. The sum is then “one's complemented” and this is the value placed in the UDP checksum field.
+All 16 bit words are summed using “one`s complement arithmetic”. The sum is then “one`s complemented” and this is the value placed in the UDP checksum field.
 
 Figure 1.1 Check Sum Example
 EXAMPLE: you have two 16 bit words as follows :
 
-ONE's COMPLEMENT OF WORD1:     1 0 0 1 1 1 1 0 0 1 1 0 0 0 1 0
-ONE's COMPLEMENT OF WORD2:     0 1 0 1 0 0 0 1 0 1 0 0 1 1 0 1
+ONE`s COMPLEMENT OF WORD1:     1 0 0 1 1 1 1 0 0 1 1 0 0 0 1 0
+ONE`s COMPLEMENT OF WORD2:     0 1 0 1 0 0 0 1 0 1 0 0 1 1 0 1
 ---------------------------------
 SUM:     1 1 1 0 1 1 1 1 1 0 1 0 1 1 1 1
 ---------------------------------
-ONE's COMPLEMENT OF SUM:   0 0 0 1 0 0 0 0 0 1 0 1 0 0 0 0
+ONE`s COMPLEMENT OF SUM:   0 0 0 1 0 0 0 0 0 1 0 1 0 0 0 0
 
 The final value would be placed in the Checksum Field.
 
 
-
-
-1.2. Creating a UDP/IP Server
+####1.2. Creating a UDP/IP Server
 There are five initial steps to creating a UDP/IP Server.
 
     1. Create the socket
-2. Identify the socket (IE give it a name)
-    <Begin a loop>
+    2. Identify the socket (IE give it a name)
+        <Begin a loop>
     3. On the server wait for a message
     4. Send a response to the client once message is received
     5. Close the socket (in our case, just return to looking for packets arriving).
-    <End of loop>
+        <End of loop>
 
-    1.3.  STEP 1: CREATE THE SOCKET
+####1.3.  STEP 1: CREATE THE SOCKET
 
     A socket is created with the socket system call.
 
     Figure 1.2 Create a Socket
     int sockfd = socket(domain, type, protocol);
 
-    Let's briefly discuss those parameters domain, type, and protocol.
+    Let`s briefly discuss those parameters domain, type, and protocol.
 
     1. Domain
     The domain can also be referred to as the address family. It is the communication domain in which the socket should be created. Below you will see some of the examples domains or address families that we  could work with. At the end will be a description of what we will choose specifically for a UDP server.
 
     AF_INET:     Internet Protocol (IP)
-AF_INET6:    IP version 6 (IPv6)
+    AF_INET6:    IP version 6 (IPv6)
     AF_UNIX:     local channel, similar to pipes
     AF_ISO:     “In Search Of” (ISO) protocols
     AF_NS:    Xerox Network Systems protocols
@@ -80,7 +78,8 @@ AF_INET6:    IP version 6 (IPv6)
     Defined:
 
     Figure 1.3 Setting Protocol
-#include <sys/socket.h>
+    
+   `#include <sys/socket.h>
     …
     int sockfd;
 
@@ -90,21 +89,20 @@ AF_INET6:    IP version 6 (IPv6)
         perror("cannot create socket");
         return 0;
     }
-printf("created socket: descriptor=%d\n", sockfd);
+    printf("created socket: descriptor=%d\n", sockfd);`
 
 
 
-
-1.4. STEP 2: IDENTIFY/NAME THE SOCKET
+####1.4. STEP 2: IDENTIFY/NAME THE SOCKET
 By naming the socket we are assigning a transport address to the socket (I.E. a port number in IP networking). This is more commonly referred to as “binding” an address. The bind system call is used to do this. In other words we are giving our server a unique address so that communication with our server can be established much like a person with a mailing address. They can receive communiques (letters) via their mailbox. Our server can do the same once it has a “bound” socket.
 
 The transport address is defined in the socket address structure. Since sockets can receive and send data  using a myriad of communication interfaces, the interface is very general. Rather than accepting a port number as a parameter, it will look for a “sockaddr” (short for socket address)structure whose format is based off the address family we chose.
 
-#include <sys/socket.h> contains the relevant “bind” call we will need. Since we already used it in STEP 1 we do not need to include it a second time.
+`#include <sys/socket.h>` contains the relevant “bind” call we will need. Since we already used it in STEP 1 we do not need to include it a second time.
 
 Figure 1.4 Bind the Socket
-int
-bind(int socket, const struct sockaddr *address, socklen_t address_len);
+`int
+ bind(int socket, const struct sockaddr *address, socklen_t address_len);`
 
 
 The first parameter “socket” is the socket we created in STEP 1 (sockfd)
@@ -113,30 +111,30 @@ The first parameter “socket” is the socket we created in STEP 1 (sockfd)
 
 
     Figure 1.5 Explain address family
-    struct sockaddr_in{
+    `struct sockaddr_in{
         __uint8_t        sin_len;
-        sa_family_t        sin_family;
+        sa_family_t      sin_family;
         in_port_t        sin_port;
-        struct in_addr    sin_addr;
-        char            sin_zero[8];
-    };
+        struct in_addr   sin_addr;
+        char             sin_zero[8];
+    };`
 
 
 NOTE: this code will not be found in our example server. It is imported with the following call (figure 1.6).
 
 Figure 1.6 
-#include <netinet/in.h>
+`#include <netinet/in.h>`
 
 Before calling bind, we need to fill this struct. The three key parts we need to set are:
 
-1. sin_family
+    1. sin_family
 The address family we used in STEP 1 (AF_INET).
 
     2. sin_port
 The port number (transport address). This can either be explicitly declared, or you can allow the OS to assign one. Since we are creating a server, ideally we would want to explicitly declare a well known port so that clients know where to address their messages. However for this particular tutorial we will use the generic 11111 (five ones). This will be defined directly beneath the include section of our code.(figure 1.1.7)
 
     Figure 1.7
-#define SERV_PORT  11111
+`#define SERV_PORT  11111`
 
     We can then call SERV_PORT where it is needed and if you, the client, are already using port 11111 for any particular reason, you can then easily redefine it as needed for this tutorial. Additionally if you use #define SERV_PORT 0, your system will use any available port.
 
@@ -153,16 +151,16 @@ The port number (transport address). This can either be explicitly declared, or 
     host to network - long : convert a number into a 32-bit network representation. This is commonly used to store an IP address into a sockaddr structure.
 
     4.3 “ntohs”
-    network to host - short : convert a 16-bit number from a network representation into the local processor's format. This is commonly used to read a port number from a sockaddr structure.
+    network to host - short : convert a 16-bit number from a network representation into the local processor`s format. This is commonly used to read a port number from a sockaddr structure.
 
     4.4 “ntohl”
-    network to host - long : convert a 32-bit number from a network representation into the local processor's format. This is commonly used to read an IP address from a sockaddr structure.
+    network to host - long : convert a 32-bit number from a network representation into the local processor`s format. This is commonly used to read an IP address from a sockaddr structure.
 
     Using any of the above 4.4 macros will guarantee that your code remains portable regardless of the architecture you use in compilation.
 
     1.5. <BEGIN LOOP>:
     WAIT FOR A MESSAGE
-    Later when we layer on DTLS our server will set up a socket for listening via the “listen” system call. The server would then call “accept” upon hearing a request to communicate, and then wait for a connection to be established. UDP however in it's base for is connectionless. So our server, as of right now, is capable of listening for a message purely due to the fact that it has a socket! We use recvfrom system call to wait for an incoming datagram on a specific transport address (IP address, and port number).
+    Later when we layer on DTLS our server will set up a socket for listening via the “listen” system call. The server would then call “accept” upon hearing a request to communicate, and then wait for a connection to be established. UDP however in it`s base for is connectionless. So our server, as of right now, is capable of listening for a message purely due to the fact that it has a socket! We use recvfrom system call to wait for an incoming datagram on a specific transport address (IP address, and port number).
     The recvfrom call is included with the #include <sys/socket.h> therefore we do not need to include this library again since we already included it in STEP 1.
     Defined:
 
@@ -176,13 +174,13 @@ int recvfrom(int socket, void* restrict buffer, size_t length,
     5.1.2 “ void* restrict buffer ”
     The incoming data will be placed into memory at buffer.
     5.1.3 “ size_t length “
-    No more than length bytes will be transferred (that's the size of your buffer).
+    No more than length bytes will be transferred (that`s the size of your buffer).
     5.1.4 “ int socklen_t *restrict *src_len “
     For this tutorial we can ignore this last flags. However this parameter will allow us to “peek” at an incoming message without removing it from the queue or block until the request is fully satisfied. To ignore these flags, simply place a zero in as the parameter. See the man page for recvfrom to see an  in-depth description of the last parameter.
     Defined:
 
     Figure 1.9 Looping Receive
-    for (;;) {
+    `for (;;) {
         printf("waiting for client message on port %d\n", SERV_PORT);
 
         recvlen = recvfrom(sockfd, buf, MSGLEN, 0,
@@ -196,53 +194,49 @@ int recvfrom(int socket, void* restrict buffer, size_t length,
         }
         else
             printf("lost the connection to client\n");
-    }
+    }`
 
-1.6. REPLY TO MESSAGE
+####1.6. REPLY TO MESSAGE
 
 Now we are able to receive messages from our clients but how do we let clients know their messages are being received? We have no connection to the server and we don’t know their IP address. Fortunately the recvfrom call gave us the address, and it was placed in remaddr:
 Defined:
 
 Figure 1.10
-recvlen = recvfrom(sockfd, buf, MSGLEN, 0, (struct sockaddr *)&cliaddr, &addrlen);
+`recvlen = recvfrom(sockfd, buf, MSGLEN, 0, (struct sockaddr *)&cliaddr, &addrlen);`
 
 The server can use that address in sendto and send a message back to the recipient’s address.
 Defined:
 
     Figure 1.11
-sendto(sockfd, buf, strlen(buf), 0, (struct sockaddr *)&cliaddr, addrlen)
+`sendto(sockfd, buf, strlen(buf), 0, (struct sockaddr *)&cliaddr, addrlen)`
 
-    With this our UDP/IP server is now up and running. We can listen for client connections on a specific port, and we can acknowledge to the client that we have received the communications. Click link for a sample of completed code.
-
-    https://github.com/kaleb-himes/wolfSSL_Interns/blob/master/project1/unsecure/server-udp.c
-
-    1.7. Close the socket
+####1.7. Close the socket
     This step is not necessary for our examples server however can easily be accomplished with a call to close().
 
     Figure 1.12
-    close(sockfd);
+    `close(sockfd);`
 
     This concludes the simple UDP server portion of Chapter 1. Section 2 will now cover a Simple UDP Client.
 
     Section 2: By Leah Thompson
 
-    2.1 UDP(User Datagram Protocol) Definitions:
-    No connection to create and maintain
-    More control over when data is sent
-    No error recovery
-    No compensation for lost packets
-    Packets may arrive out of order
-    No congestion control
-    Overall, UDP is lightweight but unreliable. Some applications where UDP is used include DNS, NFS, and SNMP.
+####2.1 UDP(User Datagram Protocol) Definitions:
+        No connection to create and maintain
+        More control over when data is sent
+        No error recovery
+        No compensation for lost packets
+        Packets may arrive out of order
+        No congestion control
+        Overall, UDP is lightweight but unreliable. Some applications where UDP is used include DNS, NFS, and SNMP.
 
-    2.2 Create Basic UDP Client:
+####2.2 Create Basic UDP Client:
     Create a function to send and receive data
     This function will send a message to the server and then loop back. The function does not return anything and takes in 4 objects: the input variable name, a socket, a pointer to a socket address structure, and a length for the address.
 
     Within this function, we will read in user input (fgets) from the client and loop while this input is valid. This loop will send the input to the server using the sendto() function. It will then read back the server’s echo with recvfrom() and print this echo(fputs). Our function:
 
     Figure 1.13        
-    void DatagramClient (FILE* clientInput, CYASSL* ssl) {
+    `void DatagramClient (FILE* clientInput, CYASSL* ssl) {
 
         int  n = 0;
         char sendLine[MAXLINE], recvLine[MAXLINE - 1];
@@ -262,39 +256,39 @@ sendto(sockfd, buf, strlen(buf), 0, (struct sockaddr *)&cliaddr, addrlen)
 
         recvLine[n] = '\0';
         fputs(recvLine, stdout);
-    }
+    }`
 **This function can be accomplished within main without creating an additional function. 
 
-2.3. Main Function
-2.3.1. Create a socket
+####2.3. Main Function
+    #####2.3.1. Create a socket
 The socket should be of type int in the form:
 
 
 Figure 1.14    
-int yourSocket = socket(domain, type, protocol);
+`int yourSocket = socket(domain, type, protocol);`
 Example Code:
 
     Figure 1.15        
-if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
-    err_sys("cannot create a socket.");
+`if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
+    err_sys("cannot create a socket.");`
     This method checks for a socket creation error, a good idea when setting up any socket implementation. Include the socket header:
 
     Figure 1.16        
-#include <sys/socket.h>
+`#include <sys/socket.h>`
     domain: the address family that is used for the socket you created, typically the internet protocol address AF_INET is used here. 
     type: a datagram socket, in this case we will use SOCK_DGRAM which is in the IPv4 protocol.
     protocol: we use 0 because there is only one type of datagram service.
 
-    2.3.2. Set up the server
+#####2.3.2. Set up the server
     Create a socket address structure. Typically declared as:
 
     Figure 1.17        
-    struct sockaddr_in servaddr;
+`struct sockaddr_in servaddr;`
 
     This struct is contained in the header:
 
         Figure 1.18        
-#include <netinet/in.h>
+`#include <netinet/in.h>`
 
         This socket address structure will then be initialized to 0 using the bzero() or memset() functions. It will be filled with the IP address and port number of the server and then passed to the function you will create next. Here are the assignments to the servaddr:
 
@@ -305,74 +299,74 @@ if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
         Example code:
 
         Figure 1.19        
-        bzero(&servAddr, sizeof(servAddr));
+       `bzero(&servAddr, sizeof(servAddr));
         servAddr.sin_family = AF_INET;
         servAddr.sin_port = htons(SERV_PORT);
-        inet_pton(AF_INET, argv[1], &servAddr.sin_addr);
+        inet_pton(AF_INET, argv[1], &servAddr.sin_addr);`
 
 
-        CHAPTER 2: 
+##CHAPTER 2: 
         Layering DTLS onto Simple Server and Client.
 
-        Section 1: Kaleb
-        1.1. New imports
+###Section 1: Kaleb
+####1.1. New imports
         We will begin by adding the following libraries to pull from.
 
         Figure 2.1
-#include <cyassl/ssl.h>
+`#include <cyassl/ssl.h>
 #include <errno.h>
 #include <signal.h>
-#include <unistd.h>
+#include <unistd.h>`
 
-        1.2. Increase MSGLEN
+####1.2. Increase MSGLEN
         Next change the size of our MSGLEN to 4096 to be more universal. This step is unnecessary if you’re testing against the client.c located in cyassl/examples/client as it will only send a message of length 14 or so but why not be able to handle a little user input if we want to test against a friends client or something!
 
-        1.3. Shifting Variables, Making new Methods
-        1.3.1 Move sockaddr_in’s
+####1.3. Shifting Variables, Making new Methods
+#####1.3.1 Move sockaddr_in’s
         Now move our structs of type sockaddr_in so they are within scope of the entire program. We do this in preparation for the next step which will be to bust our client handling out of main. 
 
-        1.3.2 Create Signal Handler
+#####1.3.2 Create Signal Handler
         Additionally we will create a static int called cleanup here. This variable will be our signal to run CyaSSL_cleanup(); which will free the CyaSSL libraries and all allocated memory at the end of our program.
 
-        1.3.3 Create ctx and sig_handler Method
+#####1.3.3 Create ctx and sig_handler Method
         Now we declare a CYASSL_CTX pointer and call it “ctx” for simplicity, and declare a void sig_handler method that takes a constant integer as an argument. 
 
-1.3.4 Declare AwaitDGram()
+#####1.3.4 Declare AwaitDGram()
     Finally we will declare a method AwaitDGram(). We will break our client handling out of main() and handle those connection in our new method. This is in preparation for Chapter 3 where we will be handling multiple client connections simultaneously.Your variable section should now look something like Figure 2.2:
 
 
 
     Figure 2.2
-#includes here...
+`#includes here...
     CYASSL_CTX* ctx;
     static int cleanup;                 /* To handle shutdown */
     struct sockaddr_in servaddr;        /* our server's address */
     struct sockaddr_in cliaddr;         /* the client's address */
 
     void AwaitDGram();                  /* Separate out Handling Datagrams */
-    void sig_handler(const int sig);
+    void sig_handler(const int sig);`
 
-    1.4. Break Client Connection out of Main
-    1.4.1 Write Skeleton
+####1.4. Break Client Connection out of Main
+#####1.4.1 Write Skeleton
     Just below sig_handler insert the following lines:
 
     Figure 2.3
-56 void AwaitDGram()
-    57 {
-        58 
-            59 }
+ `void AwaitDGram()
+     {
+         
+             }`
 
 
 
-1.4.2 Move Variables from main()
+#####1.4.2 Move Variables from main()
     Literally cut and paste variable section from main() into our skeleton. Additionally add the variable “char ack”. This will be a reply message that we send to our clients. Ack is short for “Acknowledge”. So our clients have some sort of feedback letting them know that we received their communication successfully. See section 2.1.7.4 to see how ack is used in the code.
 
-    1.4.3 Remove un-needed Variables and Move all Declarations Together
+#####1.4.3 Remove un-needed Variables and Move all Declarations Together
     We will no longer refer to the open socket as “sockfd”, instead we will now call it “listenfd”. This reminds us that the socket is just listening for packets to arrive and we are not actually handling those packets immediately like we did in Chapter 1. We will want to confirm our client is encrypting their data with an acceptable cypher suite prior to opening a communication channel with them.
     With this change we will also rename “addrlen” to “clilen” to remind us that this socklen_t is the length of the clients address and not to be confused with our socket’s address. We will no longer assign the length of “clilen” upon declaration either. That will be handled later in our program. Remove msgnum altogether. Take note: “recvlen” is being declared here however is not used until we have verified our client is encrypting with DTLS version 1.2. See sub-section 2.1.7.4 to see “recvlen” used in code. Our variable section should now look something like this:
 
     Figure 2.4
-void AwaitDGram()
+`void AwaitDGram()
 {
     int                  on = 1;
     int                 res = 1;
@@ -385,96 +379,93 @@ void AwaitDGram()
     unsigned char       b[1500];    /* watch for incoming messages */
     char           buff[MSGLEN];    /* the incoming message */
     char ack[] = "I hear you fashizzle!\n";
+}`
 
 
-
-    1.4.4 Loop shift
+#####1.4.4 Loop shift
         With the layering on of dtls we will need to re-allocate our socket and re-bind our socket for each client connection. Since we will need to free up all memory allocated to handle these connections and additional security our loop will now change to a “while” loop instead of a for loop. We will loop on the condition that cleanup is not equal to 1. If cleanup equals 1 we will run CyaSSL_cleanup() remember?
         So while not 1 we will keep our socket open and listening for packets to arrive!
         Start a while loop just below your variable declarations in method “AwaitDGram”. 
 
-        Figure 2.5
-        65     while (cleanup != 1) {
-
-            1.4.5 Move main() body into AwaitDGram()
+#####1.4.5 Move main() body into AwaitDGram()
                 Now cut and paste all remaining code from main() into the while loop you just made, and delete the beginning of the “for” loop. Your while loop should now look like this: 
                 NOTE: (ignore the line numbering DO NOT worry about the line numbers on the left as I am pulling straight from my old code just like you would be. The line numbers are irrelevant)
 
                 Figure 2.6
-                51  while (cleanup != 1) {  
-                    52     /* create a UDP/IP socket */
-                        53     if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-                            54         perror("cannot create socket");
-                            55         return 0;
-                            56     }
-                    57 
-                        58 
-                        59     /* INADDR_ANY = IPaddr, socket =  11111, modify SERV_PORT to change */
-                        60     memset((char *)&servaddr, 0, sizeof(servaddr));
-                    61 
-                        62 
-                        63     /* host-to-network-long conversion (htonl) */
-                        64     /* host-to-network-short conversion (htons) */
-                        65     servaddr.sin_family      = AF_INET;
-                    66     servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-                    67     servaddr.sin_port        = htons(SERV_PORT);
-                    68 
-                        69 
-                        70     if (bind(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
-                            71         perror("bind failed");
-                            72         return 0;
-                            73     }
-                    74 
-                        75 
-                        76     (line deleted)
-                        77     (line deleted)
-                        78         printf("waiting for client message on port %d\n", SERV_PORT);
-                    79 
-                        80         recvlen = recvfrom(sockfd, buf, MSGLEN, 0,
-                                81                 (struct sockaddr *)&cliaddr, &addrlen);
-                    82 
-                        83         printf("heard %d bytes\n", recvlen);
-                    84 
-                        85         if (recvlen > 0) {
-                            86             buf[recvlen] = 0;
-                            87             printf("I heard this: \"%s\"\n", buf);
-                            88         }
-                    89 
-                        90         else
-                        91             printf("lost the connection to client\n");
-                    92 
-                        93         sprintf(buf, "Message #%d received\n", msgnum++);
-                    94         printf("reply sent \"%s\"\n", buf);
-                    95 
-                        96         if (sendto(sockfd, buf, strlen(buf), 0,
-                                    97                     (struct sockaddr *)&cliaddr, addrlen) < 0)
-                        98             perror("sendto");
-                    99 
-                        100         /* continues to loop, use "Ctrl+C" to terminate listening */
-                        101     }
-            102 }
+                  `while (cleanup != 1) {  
+                         /* create a UDP/IP socket */
+                     if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+                        perror("cannot create socket");
+                        return 0;
+                     }
+                     
+                     
+                     /* INADDR_ANY = IPaddr, socket =  11111, modify SERV_PORT to change */
+                     memset((char *)&servaddr, 0, sizeof(servaddr));
+                     
+                     
+                    /* host-to-network-long conversion (htonl) */
+                    /* host-to-network-short conversion (htons) */
+                    servaddr.sin_family      = AF_INET;
+                    servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+                    servaddr.sin_port        = htons(SERV_PORT);
+                     
+                     
+                    if (bind(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
+                        perror("bind failed");
+                        return 0;
+                    }
+                     
+                     
+                    (line deleted)
+                    (line deleted)
+                    printf("waiting for client message on port %d\n", SERV_PORT);
+                         
+                    recvlen = recvfrom(sockfd, buf, MSGLEN, 0,
+                                                 (struct sockaddr *)&cliaddr, &addrlen);
+                     
+                    printf("heard %d bytes\n", recvlen);
+                     
+                    if (recvlen > 0) {
+                        buf[recvlen] = 0;
+                        printf("I heard this: \"%s\"\n", buf);
+                    }
+                     
+                    else
+                        printf("lost the connection to client\n");
+                     
+                    sprintf(buf, "Message #%d received\n", msgnum++);
+                    printf("reply sent \"%s\"\n", buf);
+                     
+                    if (sendto(sockfd, buf, strlen(buf), 0,
+                                        (struct sockaddr *)&cliaddr, addrlen) < 0)
+                        perror("sendto");
+                     
+                    /* continues to loop, use "Ctrl+C" to terminate listening */
+                    }
+                }`
     Your main() should now just be an empty shell ready for the next step.
 
-        1.5 New “main()”
-        1.5.1 Signal handlers for program termination
+####1.5 New “main()”
+#####1.5.1 Signal handlers for program termination
         Since our program will be running in an infinite loop just listening for clients we will need a way to terminate the program if necessary. For this we will need some signal action variables that will send a kill signal to our sig_handler method that we created at the beginning of chapter 2.
 
         Figure 2.7
-        196     struct sigaction    act, oact;  /* structures for signal handling */
+    `struct sigaction    act, oact;  /* structures for signal handling */
 
     /* Some comment */
-    203     act.sa_handler = sig_handler;                                
-    204     sigemptyset(&act.sa_mask);   
-    205     act.sa_flags = 0;            
-    206     sigaction(SIGINT, &act, &oact);
+    act.sa_handler = sig_handler;                                
+    sigemptyset(&act.sa_mask);   
+    act.sa_flags = 0;            
+    sigaction(SIGINT, &act, &oact);`
 
-    1.5.2 If Defined, turn on CyaSSL Debugging
+#####1.5.2 If Defined, turn on CyaSSL Debugging
         This is pretty self-explanatory.
 
         Figure 2.8
-        209     CyaSSL_Debugging_ON();
+      `CyaSSL_Debugging_ON();`
 
-    1.5.3 Initialize CyaSSL, Load Certificates and Keys 
+#####1.5.3 Initialize CyaSSL, Load Certificates and Keys 
         In order for these to load properly you will need to place a copy of the “certs” file one directory above your current working directory. You can find a copy of the “certs” file in cyassl home directory. Simply copy and paste this file into the directory one up from your working directory, or change the file path in the code to search your cyassl home directory for the certs file.
         Figure 2.9
         211     CyaSSL_Init();                      /* Initialize CyaSSL */
