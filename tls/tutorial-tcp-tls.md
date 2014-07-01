@@ -1,6 +1,7 @@
 TCP/TLS Tutorial
 ================
 
+<<<<<<< HEAD
 ## Client TLS Tutorial
 
 ### client-tls.c
@@ -26,3 +27,5 @@ to
 Security(sockfd);
 '''
 Now we just have to make the 'Security()' 
+=======
+>>>>>>> a62664a86549dd488e2fa5ae902aa66da8b7a85d
