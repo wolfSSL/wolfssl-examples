@@ -1,5 +1,19 @@
 Tutorial
 ========
+
+## Index
++ [Incorporating CyaSSL TLS](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#incorporating-cyassl-tls)
+..+ [Installing CyaSSL](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#installing-cyassl)
++ [Server TLS Tutorial](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#server-tls-tutorial)
+..+ [Basic TLS Server](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#basic-tls-server)
+..+ [Basic Nonblocking TLS Server](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#basic-nonblocking-tls-server)
+..+ [Basic Multi-threaded TLS Server](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#basic-multi-threaded-tls-server)
++ [Client TLS Tutorial](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#client-tls-tutorial)
+..+ [Basic TLS Client](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#basic-tls-client)
+..+ [Adding Session Resumption](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#adding-session-resumption)
+..+ [Adding Non-blocking I/O](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#adding-non-blocking-io)
++ [Starting the TLS Client & Server](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/tutorial-tcp-tls.md#starting-the-tls-client--server)
+
 This tutorial will teach you how to install and run a basic TCP Server and Client. As well as how to incorporate CyaSSL TLS and some additional features on top of these basic examples. It is expected that you have a basic understanding of a simple tcp server/client. If not, before continueing please take a moment to look over the `server-tcp.c` and `client-tcp.c` file which contains the basic tcp server that we will be expanding upon in this tutorial.
 
 
@@ -202,9 +216,6 @@ int AcceptAndRead(CYASSL_CTX* ctx, socklen_t sockfd, struct sockaddr_in
 ```
 And with that, you should now have a basic TLS server that accepts a connection, reads in data from the client, sends a reply back, and closes the clients connection. 
 
-### Basic Nonblocking TLS Server
-### Basic Multi-threaded TLS Server
-
 ## Client TLS Tutorial
 
 ### Basic TLS Client
@@ -283,6 +294,10 @@ int Security(int sock)
 ```
 
 As you can see, this is where we make the call to “greet” the server.  This function sends its certification, `../ca-certs.pem` to the server which checks for this. If it’s there, it establishes the connection and secures the information being sent and received between the two.  Once this has been done, it frees all the data so no processes remain after the connection has been terminated.
+
+### Basic Nonblocking TLS Server
+
+### Basic Multi-threaded TLS Server
 
 ### Adding Session Resumption
 
