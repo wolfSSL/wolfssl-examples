@@ -1,6 +1,7 @@
 TCP/TLS Tutorial
 ================
 
+<<<<<<< Updated upstream
 <<<<<<< HEAD
 ## Client TLS Tutorial
 
@@ -29,3 +30,14 @@ Security(sockfd);
 Now we just have to make the 'Security()' 
 =======
 >>>>>>> a62664a86549dd488e2fa5ae902aa66da8b7a85d
+=======
+```
+This tutorial will teach you how to install and run a basic TCP Server and Client. As well as how to incorporate CyaSSL TLS and some additional features on top of those basic programs. 
+
+First you will need “gcc” and “make” installed on your terminal. Do this by typing:
+ 		
+sudo apt-get install gcc make 
+
+into your terminal and pressing enter.
+```
+>>>>>>> Stashed changes
