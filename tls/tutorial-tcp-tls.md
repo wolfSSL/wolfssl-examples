@@ -216,7 +216,7 @@ int AcceptAndRead(CYASSL_CTX* ctx, socklen_t sockfd, struct sockaddr_in
 ```
 And with that, you should now have a basic TLS server that accepts a connection, reads in data from the client, sends a reply back, and closes the clients connection. 
 
-The finished source code for this can be [found here.](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/server-tls.c)
+**The finished source code for this can be [found here.](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/server-tls.c)**
 
 ### Adding Server Multi-threading
 To add multi-threading support to the basic `tls-server.c` that we created above, we will be using pthreads. Multi-threading will allow the server to handle multiple client connections at the same time. It will pass each new connection off into it's own thread. To do this we will create a new function called `ThreadHandler`. This function will be passed off to its own thread when a new client connection is accepted. We will also be making some minor changes to our `main()` and `AcceptAndRead` functions.
@@ -350,7 +350,7 @@ void *ThreadHandler(void* socketDesc)
 ```
 And that's it. You now have a TLS server using multi-threading to handle multiple clients in seperate threads. 
 
-The finished source code for this can be [found here.](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/server-tls-threaded.c)
+**The finished source code for this can be [found here.](https://github.com/wolfSSL/wolfssl-examples/blob/master/tls/server-tls-threaded.c)**
 
 ### Adding Server Non-blocking I/O
 
