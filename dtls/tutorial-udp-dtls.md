@@ -1,5 +1,4 @@
-##CHAPTER 1: 
-A Simple UDP SERVER & Client
+##CHAPTER 1: A Simple UDP SERVER & Client
 
 ###Section 1: By Kaleb Himes
 
@@ -27,9 +26,9 @@ EXAMPLE: you have two 16 bit words as follows :
 
 ONE`s COMPLEMENT OF WORD1:     1 0 0 1 1 1 1 0 0 1 1 0 0 0 1 0
 ONE`s COMPLEMENT OF WORD2:     0 1 0 1 0 0 0 1 0 1 0 0 1 1 0 1
----------------------------------
+
 SUM:     1 1 1 0 1 1 1 1 1 0 1 0 1 1 1 1
----------------------------------
+
 ONE`s COMPLEMENT OF SUM:   0 0 0 1 0 0 0 0 0 1 0 1 0 0 0 0
 
 The final value would be placed in the Checksum Field.
