@@ -172,7 +172,8 @@ Defined:
 Figure 1.8 “recvfrom”
 ```c
 int recvfrom(int socket, void* restrict buffer, size_t length,
-             int socklen_t *restrict *src_len)```
+             int socklen_t *restrict *src_len)
+```
 
     *5.1 PARAMETERS DEFINED
         *5.1.1 “ int socket ”
@@ -201,7 +202,8 @@ for (;;) {
     }
     else
         printf("lost the connection to client\n");
-}```
+}
+```
 
 ####1.6. REPLY TO MESSAGE
 
@@ -209,171 +211,187 @@ Now we are able to receive messages from our clients but how do we let clients k
 Defined:
 
 Figure 1.10
-`recvlen = recvfrom(sockfd, buf, MSGLEN, 0, (struct sockaddr *)&cliaddr, &addrlen);`
+```c
+recvlen = recvfrom(sockfd, buf, MSGLEN, 0, (struct sockaddr *)&cliaddr, &addrlen);
+```
 
 The server can use that address in sendto and send a message back to the recipient’s address.
 Defined:
 
-    Figure 1.11
-`sendto(sockfd, buf, strlen(buf), 0, (struct sockaddr *)&cliaddr, addrlen)`
+Figure 1.11
+```c
+sendto(sockfd, buf, strlen(buf), 0, (struct sockaddr *)&cliaddr, addrlen)
+```
 
 ####1.7. Close the socket
-    This step is not necessary for our examples server however can easily be accomplished with a call to close().
+This step is not necessary for our examples server however can easily be accomplished with a call to close().
 
-    Figure 1.12
-    `close(sockfd);`
+Figure 1.12
+```c
+close(sockfd);
+```
 
-    This concludes the simple UDP server portion of Chapter 1. Section 2 will now cover a Simple UDP Client.
+This concludes the simple UDP server portion of Chapter 1. Section 2 will now cover a Simple UDP Client.
 
-    Section 2: By Leah Thompson
+Section 2: By Leah Thompson
 
 ####2.1 UDP(User Datagram Protocol) Definitions:
-        No connection to create and maintain
-        More control over when data is sent
-        No error recovery
-        No compensation for lost packets
-        Packets may arrive out of order
-        No congestion control
-        Overall, UDP is lightweight but unreliable. Some applications where UDP is used include DNS, NFS, and SNMP.
+`No connection to create and maintain
+More control over when data is sent
+No error recovery
+No compensation for lost packets
+Packets may arrive out of order
+No congestion control
+Overall, UDP is lightweight but unreliable. Some applications where UDP is used include DNS, NFS, and SNMP.`
 
 ####2.2 Create Basic UDP Client:
-    Create a function to send and receive data
-    This function will send a message to the server and then loop back. The function does not return anything and takes in 4 objects: the input variable name, a socket, a pointer to a socket address structure, and a length for the address.
+Create a function to send and receive data
 
-    Within this function, we will read in user input (fgets) from the client and loop while this input is valid. This loop will send the input to the server using the sendto() function. It will then read back the server’s echo with recvfrom() and print this echo(fputs). Our function:
+This function will send a message to the server and then loop back. The function does not return anything and takes in 4 objects: the input variable name, a socket, a pointer to a socket address structure, and a length for the address.
 
-    Figure 1.13        
-    `void DatagramClient (FILE* clientInput, CYASSL* ssl) {
+Within this function, we will read in user input (fgets) from the client and loop while this input is valid. This loop will send the input to the server using the sendto() function. It will then read back the server’s echo with recvfrom() and print this echo(fputs). Our function:
 
-        int  n = 0;
-        char sendLine[MAXLINE], recvLine[MAXLINE - 1];
+Figure 1.13        
+    ```c
+void DatagramClient (FILE* clientInput, CYASSL* ssl) {
 
-        fgets(sendLine, MAXLINE, clientInput);
+    int  n = 0;
+    char sendLine[MAXLINE], recvLine[MAXLINE - 1];
 
-        if ( ( CyaSSL_write(ssl, sendLine, strlen(sendLine))) !=  
-                strlen(sendLine))
-            err_sys("SSL_write failed");
+    fgets(sendLine, MAXLINE, clientInput);
 
-        n = CyaSSL_read(ssl, recvLine, sizeof(recvLine)-1); 
-        if (n < 0) {
-            int readErr = CyaSSL_get_error(ssl, 0);
-            if(readErr != SSL_ERROR_WANT_READ)
-                err_sys("CyaSSL_read failed");
-        }
+    if ( ( CyaSSL_write(ssl, sendLine, strlen(sendLine))) !=  
+           strlen(sendLine))
+        err_sys("SSL_write failed");
 
-        recvLine[n] = '\0';
-        fputs(recvLine, stdout);
-    }`
+    n = CyaSSL_read(ssl, recvLine, sizeof(recvLine)-1); 
+    if (n < 0) {
+        int readErr = CyaSSL_get_error(ssl, 0);
+        if(readErr != SSL_ERROR_WANT_READ)
+            err_sys("CyaSSL_read failed");
+    }
+
+    recvLine[n] = '\0';
+    fputs(recvLine, stdout);
+}
+```
 **This function can be accomplished within main without creating an additional function. 
 
 ####2.3. Main Function
-    #####2.3.1. Create a socket
+#####2.3.1. Create a socket
 The socket should be of type int in the form:
 
 
 Figure 1.14    
-`int yourSocket = socket(domain, type, protocol);`
+```c
+int yourSocket = socket(domain, type, protocol);
+```
 Example Code:
 
-    Figure 1.15        
-`if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
-    err_sys("cannot create a socket.");`
-    This method checks for a socket creation error, a good idea when setting up any socket implementation. Include the socket header:
+Figure 1.15        
+```c
+if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
+    err_sys("cannot create a socket.");
+```
+This method checks for a socket creation error, a good idea when setting up any socket implementation. Include the socket header:
 
-    Figure 1.16        
+Figure 1.16        
 `#include <sys/socket.h>`
-    domain: the address family that is used for the socket you created, typically the internet protocol address AF_INET is used here. 
-    type: a datagram socket, in this case we will use SOCK_DGRAM which is in the IPv4 protocol.
-    protocol: we use 0 because there is only one type of datagram service.
+domain: the address family that is used for the socket you created, typically the internet protocol address AF_INET is used here. 
+type: a datagram socket, in this case we will use SOCK_DGRAM which is in the IPv4 protocol.
+protocol: we use 0 because there is only one type of datagram service.
 
 #####2.3.2. Set up the server
-    Create a socket address structure. Typically declared as:
+Create a socket address structure. Typically declared as:
 
-    Figure 1.17        
+Figure 1.17        
 `struct sockaddr_in servaddr;`
 
-    This struct is contained in the header:
+This struct is contained in the header:
 
-        Figure 1.18        
+Figure 1.18        
 `#include <netinet/in.h>`
 
-        This socket address structure will then be initialized to 0 using the bzero() or memset() functions. It will be filled with the IP address and port number of the server and then passed to the function you will create next. Here are the assignments to the servaddr:
+This socket address structure will then be initialized to 0 using the bzero() or memset() functions. It will be filled with the IP address and port number of the server and then passed to the function you will create next. Here are the assignments to the servaddr:
 
-        sin_family: the address family we used when setting up the socket, in our case, AF_INET.
-        sin_port: the port number. This can be assigned or you can allow the operating system to assign one. Specifying the port to 0 allows the OS to pick any available port number.
-        sin_addr: the address for the socket(i.e., your machine’s IP address).
+sin_family: the address family we used when setting up the socket, in our case, AF_INET.
+sin_port: the port number. This can be assigned or you can allow the operating system to assign one. Specifying the port to 0 allows the OS to pick any available port number.
+sin_addr: the address for the socket(i.e., your machine’s IP address).
 
-        Example code:
-
-        Figure 1.19        
-       `bzero(&servAddr, sizeof(servAddr));
-        servAddr.sin_family = AF_INET;
-        servAddr.sin_port = htons(SERV_PORT);
-        inet_pton(AF_INET, argv[1], &servAddr.sin_addr);`
+Figure 1.19        
+```c
+memset(&servAddr, 0, sizeof(servAddr));
+servAddr.sin_family = AF_INET;
+servAddr.sin_port = htons(SERV_PORT);
+inet_pton(AF_INET, argv[1], &servAddr.sin_addr);
+```
 
 
 ##CHAPTER 2: 
-        Layering DTLS onto Simple Server and Client.
+Layering DTLS onto Simple Server and Client.
 
 ###Section 1: Kaleb
 ####1.1. New imports
-        We will begin by adding the following libraries to pull from.
+We will begin by adding the following libraries to pull from.
 
-        Figure 2.1
-`#include <cyassl/ssl.h>
+Figure 2.1
+```c
+#include <cyassl/ssl.h>
 #include <errno.h>
 #include <signal.h>
-#include <unistd.h>`
+#include <unistd.h>
+```
 
 ####1.2. Increase MSGLEN
-        Next change the size of our MSGLEN to 4096 to be more universal. This step is unnecessary if you’re testing against the client.c located in cyassl/examples/client as it will only send a message of length 14 or so but why not be able to handle a little user input if we want to test against a friends client or something!
+Next change the size of our MSGLEN to 4096 to be more universal. This step is unnecessary if you’re testing against the client.c located in cyassl/examples/client as it will only send a message of length 14 or so but why not be able to handle a little user input if we want to test against a friends client or something!
 
 ####1.3. Shifting Variables, Making new Methods
 #####1.3.1 Move sockaddr_in’s
-        Now move our structs of type sockaddr_in so they are within scope of the entire program. We do this in preparation for the next step which will be to bust our client handling out of main. 
+Now move our structs of type sockaddr_in so they are within scope of the entire program. We do this in preparation for the next step which will be to bust our client handling out of main. 
 
 #####1.3.2 Create Signal Handler
-        Additionally we will create a static int called cleanup here. This variable will be our signal to run CyaSSL_cleanup(); which will free the CyaSSL libraries and all allocated memory at the end of our program.
+Additionally we will create a static int called cleanup here. This variable will be our signal to run CyaSSL_cleanup(); which will free the CyaSSL libraries and all allocated memory at the end of our program.
 
 #####1.3.3 Create ctx and sig_handler Method
-        Now we declare a CYASSL_CTX pointer and call it “ctx” for simplicity, and declare a void sig_handler method that takes a constant integer as an argument. 
+Now we declare a CYASSL_CTX pointer and call it “ctx” for simplicity, and declare a void sig_handler method that takes a constant integer as an argument. 
 
 #####1.3.4 Declare AwaitDGram()
-    Finally we will declare a method AwaitDGram(). We will break our client handling out of main() and handle those connection in our new method. This is in preparation for Chapter 3 where we will be handling multiple client connections simultaneously.Your variable section should now look something like Figure 2.2:
-
-
-
-    Figure 2.2
-`#includes here...
+Finally we will declare a method AwaitDGram(). We will break our client handling out of main() and handle those connection in our new method. This is in preparation for Chapter 3 where we will be handling multiple client connections simultaneously.Your variable section should now look something like 
+Figure 2.2
+```c
+#includes here...
     CYASSL_CTX* ctx;
     static int cleanup;                 /* To handle shutdown */
     struct sockaddr_in servaddr;        /* our server's address */
     struct sockaddr_in cliaddr;         /* the client's address */
 
     void AwaitDGram();                  /* Separate out Handling Datagrams */
-    void sig_handler(const int sig);`
+    void sig_handler(const int sig);
+```
 
 ####1.4. Break Client Connection out of Main
 #####1.4.1 Write Skeleton
-    Just below sig_handler insert the following lines:
+Just below sig_handler insert the following lines:
 
-    Figure 2.3
- `void AwaitDGram()
+Figure 2.3
+```c
+void AwaitDGram()
      {
          
-             }`
-
-
+             }
+```
 
 #####1.4.2 Move Variables from main()
-    Literally cut and paste variable section from main() into our skeleton. Additionally add the variable “char ack”. This will be a reply message that we send to our clients. Ack is short for “Acknowledge”. So our clients have some sort of feedback letting them know that we received their communication successfully. See section 2.1.7.4 to see how ack is used in the code.
+Literally cut and paste variable section from main() into our skeleton. Additionally add the variable “char ack”. This will be a reply message that we send to our clients. Ack is short for “Acknowledge”. So our clients have some sort of feedback letting them know that we received their communication successfully. See section 2.1.7.4 to see how ack is used in the code.
 
 #####1.4.3 Remove un-needed Variables and Move all Declarations Together
-    We will no longer refer to the open socket as “sockfd”, instead we will now call it “listenfd”. This reminds us that the socket is just listening for packets to arrive and we are not actually handling those packets immediately like we did in Chapter 1. We will want to confirm our client is encrypting their data with an acceptable cypher suite prior to opening a communication channel with them.
-    With this change we will also rename “addrlen” to “clilen” to remind us that this socklen_t is the length of the clients address and not to be confused with our socket’s address. We will no longer assign the length of “clilen” upon declaration either. That will be handled later in our program. Remove msgnum altogether. Take note: “recvlen” is being declared here however is not used until we have verified our client is encrypting with DTLS version 1.2. See sub-section 2.1.7.4 to see “recvlen” used in code. Our variable section should now look something like this:
+We will no longer refer to the open socket as “sockfd”, instead we will now call it “listenfd”. This reminds us that the socket is just listening for packets to arrive and we are not actually handling those packets immediately like we did in Chapter 1. We will want to confirm our client is encrypting their data with an acceptable cypher suite prior to opening a communication channel with them.
 
-    Figure 2.4
-`void AwaitDGram()
+With this change we will also rename “addrlen” to “clilen” to remind us that this socklen_t is the length of the clients address and not to be confused with our socket’s address. We will no longer assign the length of “clilen” upon declaration either. That will be handled later in our program. Remove msgnum altogether. Take note: “recvlen” is being declared here however is not used until we have verified our client is encrypting with DTLS version 1.2. See sub-section 2.1.7.4 to see “recvlen” used in code. Our variable section should now look something like this:
+
+Figure 2.4
+```c
+void AwaitDGram()
 {
     int                  on = 1;
     int                 res = 1;
@@ -386,142 +404,148 @@ Example Code:
     unsigned char       b[1500];    /* watch for incoming messages */
     char           buff[MSGLEN];    /* the incoming message */
     char ack[] = "I hear you fashizzle!\n";
-}`
-
+}
+```
 
 #####1.4.4 Loop shift
-        With the layering on of dtls we will need to re-allocate our socket and re-bind our socket for each client connection. Since we will need to free up all memory allocated to handle these connections and additional security our loop will now change to a “while” loop instead of a for loop. We will loop on the condition that cleanup is not equal to 1. If cleanup equals 1 we will run CyaSSL_cleanup() remember?
-        So while not 1 we will keep our socket open and listening for packets to arrive!
-        Start a while loop just below your variable declarations in method “AwaitDGram”. 
+With the layering on of dtls we will need to re-allocate our socket and re-bind our socket for each client connection. Since we will need to free up all memory allocated to handle these connections and additional security our loop will now change to a “while” loop instead of a for loop. We will loop on the condition that cleanup is not equal to 1. If cleanup equals 1 we will run CyaSSL_cleanup() remember?
+
+So while not 1 we will keep our socket open and listening for packets to arrive!
+
+Start a while loop just below your variable declarations in method “AwaitDGram”. 
 
 #####1.4.5 Move main() body into AwaitDGram()
-                Now cut and paste all remaining code from main() into the while loop you just made, and delete the beginning of the “for” loop. Your while loop should now look like this: 
-                NOTE: (ignore the line numbering DO NOT worry about the line numbers on the left as I am pulling straight from my old code just like you would be. The line numbers are irrelevant)
 
-                Figure 2.6
-                  `while (cleanup != 1) {  
-                         /* create a UDP/IP socket */
-                     if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-                        perror("cannot create socket");
-                        return 0;
-                     }
+Now cut and paste all remaining code from main() into the while loop you just made, and delete the beginning of the “for” loop. Your while loop should now look like this: 
+
+NOTE: (ignore the line numbering DO NOT worry about the line numbers on the left as I am pulling straight from my old code just like you would be. The line numbers are irrelevant)
+
+Figure 2.6
+```c
+while (cleanup != 1) {  
+    /* create a UDP/IP socket */
+    if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+        perror("cannot create socket");
+        return 0;
+    }
                      
                      
-                     /* INADDR_ANY = IPaddr, socket =  11111, modify SERV_PORT to change */
-                     memset((char *)&servaddr, 0, sizeof(servaddr));
+/* INADDR_ANY = IPaddr, socket =  11111, modify SERV_PORT to change */
+memset((char *)&servaddr, 0, sizeof(servaddr));
+                                         
+/* host-to-network-long conversion (htonl) */                    
+/* host-to-network-short conversion (htons) */
+                    
+servaddr.sin_family      = AF_INET;
+servaddr.sin_addr.s_addr = htonl(INADDR_ANY);                    
+servaddr.sin_port        = htons(SERV_PORT);                     
+                                         
+if (bind(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {                    
+    perror("bind failed");                  
+    return 0;
+}
+                                                              
+printf("waiting for client message on port %d\n", SERV_PORT);
+                                             
+recvlen = recvfrom(sockfd, buf, MSGLEN, 0,
+                                       (struct sockaddr *)&cliaddr, &addrlen);
                      
+printf("heard %d bytes\n", recvlen);
                      
-                    /* host-to-network-long conversion (htonl) */
-                    /* host-to-network-short conversion (htons) */
-                    servaddr.sin_family      = AF_INET;
-                    servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-                    servaddr.sin_port        = htons(SERV_PORT);
-                     
-                     
-                    if (bind(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
-                        perror("bind failed");
-                        return 0;
-                    }
-                     
-                     
-                    (line deleted)
-                    (line deleted)
-                    printf("waiting for client message on port %d\n", SERV_PORT);
+if (recvlen > 0) {
+    buf[recvlen] = 0;    
+    printf("I heard this: \"%s\"\n", buf);                    
+}
+                                         
+else                        
+    printf("lost the connection to client\n");
                          
-                    recvlen = recvfrom(sockfd, buf, MSGLEN, 0,
-                                                 (struct sockaddr *)&cliaddr, &addrlen);
+sprintf(buf, "Message #%d received\n", msgnum++);
+printf("reply sent \"%s\"\n", buf);
                      
-                    printf("heard %d bytes\n", recvlen);
+if (sendto(sockfd, buf, strlen(buf), 0,
+                               (struct sockaddr *)&cliaddr, addrlen) < 0)
+    perror("sendto");
                      
-                    if (recvlen > 0) {
-                        buf[recvlen] = 0;
-                        printf("I heard this: \"%s\"\n", buf);
-                    }
-                     
-                    else
-                        printf("lost the connection to client\n");
-                     
-                    sprintf(buf, "Message #%d received\n", msgnum++);
-                    printf("reply sent \"%s\"\n", buf);
-                     
-                    if (sendto(sockfd, buf, strlen(buf), 0,
-                                        (struct sockaddr *)&cliaddr, addrlen) < 0)
-                        perror("sendto");
-                     
-                    /* continues to loop, use "Ctrl+C" to terminate listening */
-                    }
-                }`
-    Your main() should now just be an empty shell ready for the next step.
+/* continues to loop, use "Ctrl+C" to terminate listening */
+    }
+}
+```
+Your main() should now just be an empty shell ready for the next step.
 
 ####1.5 New “main()”
 #####1.5.1 Signal handlers for program termination
-        Since our program will be running in an infinite loop just listening for clients we will need a way to terminate the program if necessary. For this we will need some signal action variables that will send a kill signal to our sig_handler method that we created at the beginning of chapter 2.
+Since our program will be running in an infinite loop just listening for clients we will need a way to terminate the program if necessary. For this we will need some signal action variables that will send a kill signal to our sig_handler method that we created at the beginning of chapter 2.
 
-        Figure 2.7
-    `struct sigaction    act, oact;  /* structures for signal handling */
+Figure 2.7
+```c
+struct sigaction    act, oact;  /* structures for signal handling */
 
-    /* Some comment */
-    act.sa_handler = sig_handler;                                
-    sigemptyset(&act.sa_mask);   
-    act.sa_flags = 0;            
-    sigaction(SIGINT, &act, &oact);`
+/* Some comment */
+act.sa_handler = sig_handler;                                
+sigemptyset(&act.sa_mask);   
+act.sa_flags = 0;            
+sigaction(SIGINT, &act, &oact);
+```
 
 #####1.5.2 If Defined, turn on CyaSSL Debugging
-        This is pretty self-explanatory.
+This is pretty self-explanatory.
 
-        Figure 2.8
-      `CyaSSL_Debugging_ON();`
+Figure 2.8
+`CyaSSL_Debugging_ON();`
 
 #####1.5.3 Initialize CyaSSL, Load Certificates and Keys 
-        In order for these to load properly you will need to place a copy of the “certs” file one directory above your current working directory. You can find a copy of the “certs” file in cyassl home directory. Simply copy and paste this file into the directory one up from your working directory, or change the file path in the code to search your cyassl home directory for the certs file.
-        Figure 2.9
-        211     CyaSSL_Init();                      /* Initialize CyaSSL */
-    212                                                                
-        213     /* Set ctx to DTLS 1.2 */                                  
-        214     if ( (ctx = CyaSSL_CTX_new(CyaDTLSv1_2_server_method())) == NULL){
-            215         fprintf(stderr, "CyaSSL_CTX_new error.\n");                   
-            216         exit(EXIT_FAILURE);                                           
-            217     }                                              
-    218     /* Load CA certificates */
-        219     if (CyaSSL_CTX_load_verify_locations(ctx,"../certs/ca-cert.pem",0) !=
-                220             SSL_SUCCESS) {                                               
-            221         fprintf(stderr, "Error loading ../certs/ca-cert.pem, "
-                    222                 "please check the file.\n");
-            223         exit(EXIT_FAILURE);
-            224     }
-    225     /* Load server certificates */
-        226     if (CyaSSL_CTX_use_certificate_file(ctx,"../certs/server-cert.pem",
-                    227                 SSL_FILETYPE_PEM) != SSL_SUCCESS) {
-            228         fprintf(stderr, "Error loading ../certs/server-cert.pem, "
-                    229                 "please check the file.\n");
-            230         exit(EXIT_FAILURE);
-            231     }
-    232     /* Load server Keys */
-        233     if (CyaSSL_CTX_use_PrivateKey_file(ctx,"../certs/server-key.pem",
-                    234                 SSL_FILETYPE_PEM) != SSL_SUCCESS) {
-            235         fprintf(stderr, "Error loading ../certs/server-key.pem, "
-                    236                 "please check the file.\n");
-            237         exit(EXIT_FAILURE);
-            238     }
+In order for these to load properly you will need to place a copy of the “certs” file one directory above your current working directory. You can find a copy of the “certs” file in cyassl home directory. Simply copy and paste this file into the directory one up from your working directory, or change the file path in the code to search your cyassl home directory for the certs file.
+Figure 2.9
+```c 
+CyaSSL_Init();                      /* Initialize CyaSSL */
+                                                                
+/* Set ctx to DTLS 1.2 */                                  
+if ( (ctx = CyaSSL_CTX_new(CyaDTLSv1_2_server_method())) == NULL){
+    fprintf(stderr, "CyaSSL_CTX_new error.\n");                   
+    exit(EXIT_FAILURE);                                           
+}                                              
+/* Load CA certificates */
+if (CyaSSL_CTX_load_verify_locations(ctx,"../certs/ca-cert.pem",0) !=
+                                                             SSL_SUCCESS) {                                               
+    fprintf(stderr, "Error loading ../certs/ca-cert.pem, "
+                       "please check the file.\n");
+    exit(EXIT_FAILURE);
+}
+/* Load server certificates */
+if (CyaSSL_CTX_use_certificate_file(ctx,"../certs/server-cert.pem",
+                                    SSL_FILETYPE_PEM) != SSL_SUCCESS) {
+    fprintf(stderr, "Error loading ../certs/server-cert.pem, "
+                                   "please check the file.\n");
+    exit(EXIT_FAILURE);
+}
+/* Load server Keys */
+if (CyaSSL_CTX_use_PrivateKey_file(ctx,"../certs/server-key.pem",
+                                   SSL_FILETYPE_PEM) != SSL_SUCCESS) {
+    fprintf(stderr, "Error loading ../certs/server-key.pem, "
+                                     "please check the file.\n");
+    exit(EXIT_FAILURE);
+}
 
-    1.5.4 Call AwaitDGram() and add cleanup conditional
-        To finish our main() method we will call our method that handles client connections and add a conditional statement that will free up any allocated memory at the termination of our program. Last, add a return method for main().
+#####1.5.4 Call AwaitDGram() and add cleanup conditional
+To finish our main() method we will call our method that handles client connections and add a conditional statement that will free up any allocated memory at the termination of our program. Last, add a return method for main().
 
-        Figure 2.10
-        240     AwaitDGram();
-    241     if (cleanup == 1)
-        242         CyaSSL_CTX_free(ctx);
-    243     return 0;
+Figure 2.10
+```c
+AwaitDGram();
+if (cleanup == 1)
+    CyaSSL_CTX_free(ctx);
+return 0;
+```
+####1.6 Quick recap
+So we’ve loaded all the certificates and keys we will need to encrypt any and all communications sent between our server and client. This encryption will be of type DTLS version 1.2 as seen on line 214 of figure 2.1.5.3, CyaDTLSv1_2_server_method(). In order for a client to now talk to our DTLS encrypted server they themselves will have to have certificates to verify our encryption, accept our key, and perform a DTLS handshake. See section 2 of this chapter for a tutorial on encrypting a client with DTLS version 1.2. 
 
-    1.6 Quick recap
-        So we’ve loaded all the certificates and keys we will need to encrypt any and all communications sent between our server and client. This encryption will be of type DTLS version 1.2 as seen on line 214 of figure 2.1.5.3, CyaDTLSv1_2_server_method(). In order for a client to now talk to our DTLS encrypted server they themselves will have to have certificates to verify our encryption, accept our key, and perform a DTLS handshake. See section 2 of this chapter for a tutorial on encrypting a client with DTLS version 1.2. 
+####1.7 Adding DTLS to AwaitDGram()
+#####1.7.1 Avoid Socket in Use Error
+Our client handling is now running in a while loop, so it will continue to listen for clients even after a client has communicated with us and the closed their port. Our program will re-allocate that socket, rebind that socket and continue to await the arrival of more datagrams from that same or different clients. Our first step to avoid potential errors with our program will be to avoid “socket already in use” errors. Initialize a two dummy integers, “res” and “on”. set both equal to “1”. Then initialize a struct of type socklen_t (same as our clilen for getting the length of the clients address) call it “len” and set it equal to the size of “on”. We will use these variables to set the socket options to avoid that error.
 
-        1.7 Adding DTLS to AwaitDGram()
-        1.7.1 Avoid Socket in Use Error
-        Our client handling is now running in a while loop, so it will continue to listen for clients even after a client has communicated with us and the closed their port. Our program will re-allocate that socket, rebind that socket and continue to await the arrival of more datagrams from that same or different clients. Our first step to avoid potential errors with our program will be to avoid “socket already in use” errors. Initialize a two dummy integers, “res” and “on”. set both equal to “1”. Then initialize a struct of type socklen_t (same as our clilen for getting the length of the clients address) call it “len” and set it equal to the size of “on”. We will use these variables to set the socket options to avoid that error.
-
-        Figure 2.11
-        Our code:                                       (socket)        (level) (option_name)(option_value) (option_len)
+Figure 2.11
+Our code:                                       (socket)        (level) (option_name)(option_value) (option_len)
         |                   |                    |                 |             /
         |                   |                    |                 |           /        
         V                 V                  V               V        V
@@ -529,12 +553,14 @@ Example Code:
 
 
 
-    What it does:
-        “int setsockopt(int socket, int level, int option_name, const void*option_value, socklen_t option_len);
+What it does:
+“int setsockopt(int socket, int level, int option_name, const void*option_value, socklen_t option_len);
 
-    The setsockopt() function sets the option specified by the option_name argument, at the protocol level specified by the level argument, to the value pointed to by the option_value argument for the socket associated with the file descriptor specified by the socket argument.
-        The level argument specifies the protocol level at which the option resides. To set options at the socket level, specify the level argument as SOL_SOCKET. To set options at other levels, supply the appropriate protocol number for the protocol controlling the option. For example, to indicate that an option will be interpreted by the TCP (Transport Control Protocol), set level to the protocol number of TCP, as defined in the <netinet/in.h> header, or as determined by using” [2]
-        We will also check to ensure that the method did not fail as if it did it we would think we were listening for clients when in reality our server would not be able to receive any datagrams on that socket and clients would be getting rejected without our knowledge.
+The setsockopt() function sets the option specified by the option_name argument, at the protocol level specified by the level argument, to the value pointed to by the option_value argument for the socket associated with the file descriptor specified by the socket argument.
+
+The level argument specifies the protocol level at which the option resides. To set options at the socket level, specify the level argument as SOL_SOCKET. To set options at other levels, supply the appropriate protocol number for the protocol controlling the option. For example, to indicate that an option will be interpreted by the TCP (Transport Control Protocol), set level to the protocol number of TCP, as defined in the <netinet/in.h> header, or as determined by using” [2]
+
+We will also check to ensure that the method did not fail as if it did it we would think we were listening for clients when in reality our server would not be able to receive any datagrams on that socket and clients would be getting rejected without our knowledge.
 
         Figure 2.12
         84         /* Eliminate socket already in use error */
