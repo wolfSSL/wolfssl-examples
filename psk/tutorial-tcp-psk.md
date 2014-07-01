@@ -279,45 +279,42 @@ Tutorial for adding nonblocking to a Client.
 6. Now we can add the NonBlockingSSL_Connect function. This can be done by adding:
 
     ```
-    /*
-     * sets up and uses nonblocking protocols using cyassl 
-     */
     static void NonBlockingSSL_Connect(CYASSL* ssl){
 
-       int ret = CyaSSL_connect(ssl);
+    int ret = CyaSSL_connect(ssl);
 
-       int error = CyaSSL_get_error(ssl, 0);
-       int sockfd = (int)CyaSSL_get_fd(ssl);
-       int select_ret;
+    int error = CyaSSL_get_error(ssl, 0);
+    int sockfd = (int)CyaSSL_get_fd(ssl);
+	int select_ret;
 
-      while (ret != SSL_SUCCESS && (error == SSL_ERROR_WANT_READ ||
-                                 error == SSL_ERROR_WANT_WRITE)) {
-           int currTimeout = 1;
+	while (ret != SSL_SUCCESS && (error == SSL_ERROR_WANT_READ ||
+	                           error == SSL_ERROR_WANT_WRITE)) {
+		int currTimeout = 1;
 
-           if (error == SSL_ERROR_WANT_READ)
-               printf("... client would read block\n");
-            else
-               printf("... client would write block\n");
+   		if (error == SSL_ERROR_WANT_READ)
+        	printf("... client would read block\n");
+    	else
+       		printf("... client would write block\n");
 
-           select_ret = tcp_select(sockfd, currTimeout);
+           	select_ret = tcp_select(sockfd, currTimeout);
 
-           if ((select_ret == TEST_RECV_READY) ||
-                             (select_ret == TEST_ERROR_READY)) {
-                   ret = CyaSSL_connect(ssl);
-               error = CyaSSL_get_error(ssl, 0);
-       }
-      else if (select_ret == TEST_TIMEOUT && !CyaSSL_dtls(ssl)) {
-               error = SSL_ERROR_WANT_READ;
-       }
-           else {
-               error = SSL_FATAL_ERROR;
-       }
-       }
-       if (ret != SSL_SUCCESS){
-          printf("SSL_connect failed");
-          exit(0);
-       }
-    }
+           	if ((select_ret == TEST_RECV_READY) ||
+				(select_ret == TEST_ERROR_READY)) {
+            	ret = CyaSSL_connect(ssl);
+          		error = CyaSSL_get_error(ssl, 0);
+  			}
+			else if (select_ret == TEST_TIMEOUT && !CyaSSL_dtls(ssl)) {
+       			error = SSL_ERROR_WANT_READ;
+  			}
+			else {
+        		error = SSL_FATAL_ERROR;
+   			}
+  		}
+ 		if (ret != SSL_SUCCESS){
+      		printf("SSL_connect failed");
+      		exit(0);
+   		}
+ 	}
     ```
 ##Tutorial for adding nonblocking to a Server.
 1. Include the fcntl.h header file. This is needed for some of the constants that will be used when dealing with non blocking on the socket.
