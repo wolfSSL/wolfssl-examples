@@ -112,7 +112,6 @@ int ClientGreet(CYASSL* ssl)
     /* data to send to the server, data recieved from the server */
     char sendBuff[MAXDATASIZE], rcvBuff[MAXDATASIZE] = {0};
     int ret = 0;
-int count = 0;
 
     printf("Message for server:\t");
     fgets(sendBuff, MAXDATASIZE, stdin);
@@ -129,11 +128,9 @@ int count = 0;
         /* the server failed to send data, or error trying */
         ret = CyaSSL_get_error(ssl, 0);
         while (ret == SSL_ERROR_WANT_READ) {
-count++;
             ret = CyaSSL_read(ssl, rcvBuff, MAXDATASIZE);
             ret = CyaSSL_get_error(ssl, 0);
         }
-printf("counter %d\n", count);
         if (ret < 0) {
             ret = CyaSSL_get_error(ssl, 0);
             printf("Read error. Error: %d\n", ret);
