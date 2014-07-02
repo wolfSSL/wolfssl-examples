@@ -562,407 +562,418 @@ The level argument specifies the protocol level at which the option resides. To 
 
 We will also check to ensure that the method did not fail as if it did it we would think we were listening for clients when in reality our server would not be able to receive any datagrams on that socket and clients would be getting rejected without our knowledge.
 
-        Figure 2.12
-        84         /* Eliminate socket already in use error */
-        85         int res = 1;
-    86         int on = 1;
-    87         socklen_t len = sizeof(on);
-    88         res = setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &on, len);
-    89         if (res < 0) {
-        90             printf("Setsockopt SO_REUSEADDR failed.\n");
-        91             cleanup = 1;
-        92         }
-    This code error avoidance code will be inserted just after we finish our host to network short conversion of SERV_PORT and just before we bind the socket. 
+Figure 2.12
+```c
+/* Eliminate socket already in use error */
+int res = 1;
+int on = 1;
+socklen_t len = sizeof(on);
+res = setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &on, len);
+if (res < 0) {
+    printf("Setsockopt SO_REUSEADDR failed.\n");
+    cleanup = 1;
+}
+```
+This code error avoidance code will be inserted just after we finish our host to network short conversion of SERV_PORT and just before we bind the socket. 
 
-        NOTE: We have now changed our error handling from:
-        perror(“some message”); and return 0; 
+NOTE: We have now changed our error handling from:
+`perror(“some message”); and return 0;` 
 to: 
-    printf(“some message”); and cleanup = 1;? 
-        All active error situations will now change to match this format and all future error situations will be of the same format. This will ensure that all memory is freed at the termination of our program.
+`printf(“some message”); and cleanup = 1;` 
+ All active error situations will now change to match this format and all future error situations will be of the same format. This will ensure that all memory is freed at the termination of our program.
 
-        1.7.2 Await Datagram arrival
-        Here is where we will now set clilen = sizeof(cliaddr); as well. We will declare a unsigned char that will behave as buff does. Buff will now be used by “ssl” to read client messages and the new buff (we will just call it “b”) is for one purpose only. To “peek” at any incoming messages. We will not actually read those messages until later on. Right now we just want to see if there is a message waiting to be read or not. We must do this on a UDP server because no actual “connection” takes place… perseh. Packets arrive or they don’t, that’s how UDP works. Then we will perform some error handling on the fact that there are Datagrams waiting or there aren’t. If none are waiting we will want our while loop to cycle and continue to await packet arrivals. If there are packets sitting there then we want to know about it.
+#####1.7.2 Await Datagram arrival
+Here is where we will now set clilen = sizeof(cliaddr); as well. We will declare a unsigned char that will behave as buff does. Buff will now be used by “ssl” to read client messages and the new buff (we will just call it “b”) is for one purpose only. To “peek” at any incoming messages. We will not actually read those messages until later on. Right now we just want to see if there is a message waiting to be read or not. We must do this on a UDP server because no actual “connection” takes place… perseh. Packets arrive or they don’t, that’s how UDP works. Then we will perform some error handling on the fact that there are Datagrams waiting or there aren’t. If none are waiting we will want our while loop to cycle and continue to await packet arrivals. If there are packets sitting there then we want to know about it.
 
-        Figure 2.13
-        /* set clilen to |cliaddr| */
-        104         clilen =    sizeof(cliaddr); /* will be moved to the variable section later */
-    105         unsigned char       b[1500]; /* will be moved to the variable section later */
-    106         int              connfd = 0; /* will be moved to the variable section later */
-    107 
-        108 
-        109         connfd = (int)recvfrom(listenfd, (char *)&b, sizeof(b), MSG_PEEK,
-                110                 (struct sockaddr*)&cliaddr, &clilen);
-    111 
-        112         if (connfd < 0){
-            113             printf("No clients in que, enter idle state\n");
-            114             continue;
-            115         }
-    116 
-        117         else if (connfd > 0) {
-            118             if (connect(listenfd, (const struct sockaddr *)&cliaddr,
-                        119                         sizeof(cliaddr)) != 0) {
-                120                 printf("Udp connect failed.\n");
-                121                 cleanup = 1;
-                122             }
-            123         }
-    124         else {
-        125             printf("Recvfrom failed.\n");
-        126             cleanup = 1;
-        127         }
-    128         printf("Connected!\n");
-    We say “Connected” for user friendly interpretation, but what we really mean is: “Datagrams have arrived, a client is attempting to communicate with us… let’s perform a handshake and see if they are using DTLS version 1.2… if so then ok, we’ll read their Datagrams and see what they have to say”.
+Figure 2.13
+```c
+/* set clilen to |cliaddr| */
+clilen =    sizeof(cliaddr); /* will be moved to the variable section later */
+unsigned char       b[1500]; /* will be moved to the variable section later */
+int              connfd = 0; /* will be moved to the variable section later */
+ 
+ 
+connfd = (int)recvfrom(listenfd, (char *)&b, sizeof(b), MSG_PEEK,
+                                  (struct sockaddr*)&cliaddr, &clilen); 
+if (connfd < 0){
+    printf("No clients in que, enter idle state\n");
+    continue;
+}
+ 
+else if (connfd > 0) {
+    if (connect(listenfd, (const struct sockaddr *)&cliaddr,
+        sizeof(cliaddr)) != 0) {
+        printf("Udp connect failed.\n");
+        cleanup = 1;
+    }
+}
+else {
+    printf("Recvfrom failed.\n");
+    cleanup = 1;
+}
+printf("Connected!\n");
+```
+We say “Connected” for user friendly interpretation, but what we really mean is: “Datagrams have arrived, a client is attempting to communicate with us… let’s perform a handshake and see if they are using DTLS version 1.2… if so then ok, we’ll read their Datagrams and see what they have to say”.
 
-        1.7.3 Using CyaSSL to Open a Session with Client.
-        First we must declare an object that points to a CYASSL structure. We will just call it “ssl”. We will then assign it to use the correct cypher suite as previously defined by “ctx”. We will again perform some error handling on this assignment and then set the file descriptor that will handle all incoming and outgoing messages for this session. 
-        Once all that has been set up we are ready to check and see if our client is using an acceptable cypher suite. We accomplish this by making a call to CyaSSL_accept on our ssl object that is now pointing to the file descriptor that has an awaiting Datagram in it. ( That’s a lot i know). We’ll use some fancy calls to error get methods so that if this part fails we will have a little bit of an idea as to why it failed, and how to fix it.
+#####1.7.3 Using CyaSSL to Open a Session with Client.
+First we must declare an object that points to a CYASSL structure. We will just call it “ssl”. We will then assign it to use the correct cypher suite as previously defined by “ctx”. We will again perform some error handling on this assignment and then set the file descriptor that will handle all incoming and outgoing messages for this session. 
 
-        Figure 2.14
-        130         /* initialize arg */   
-        131         CYASSL* ssl;        
-    132                             
-        133         /* Create the CYASSL Object */
-        134         if (( ssl = CyaSSL_new(ctx) ) == NULL) {
-            135             printf("CyaSSL_new error.\n");      
-            136             cleanup = 1;                        
-            137         }                                 
-    138                         
-        139          
-        140         /* set the session ssl to client connection port */
-        141         CyaSSL_set_fd(ssl, listenfd);                      
-    142                                                            
-        143                                      
-        144         if (CyaSSL_accept(ssl) != SSL_SUCCESS) {
-            145             int err = CyaSSL_get_error(ssl, 0); 
-            146             char buffer[80];
-            147             printf("error = %d, %s\n", err, CyaSSL_ERR_error_string(err, buffe    r));
-            148             buffer[sizeof(buffer)-1]= 0;
-            149             printf("SSL_accept failed.\n");
-            150             cleanup = 1;
-            151         }
+Once all that has been set up we are ready to check and see if our client is using an acceptable cypher suite. We accomplish this by making a call to CyaSSL_accept on our ssl object that is now pointing to the file descriptor that has an awaiting Datagram in it. ( That’s a lot i know). We’ll use some fancy calls to error get methods so that if this part fails we will have a little bit of an idea as to why it failed, and how to fix it.
 
+Figure 2.14
+```c
+/* initialize arg */   
+CYASSL* ssl;        
+                             
+/* Create the CYASSL Object */
+if (( ssl = CyaSSL_new(ctx) ) == NULL) {
+    printf("CyaSSL_new error.\n");      
+    cleanup = 1;                        
+}                                 
+                                   
+/* set the session ssl to client connection port */
+CyaSSL_set_fd(ssl, listenfd);                      
+                                                            
+                                     
+if (CyaSSL_accept(ssl) != SSL_SUCCESS) {
+    int err = CyaSSL_get_error(ssl, 0); 
+    char buffer[80];
+    printf("error = %d, %s\n", err, CyaSSL_ERR_error_string(err, buffe    r));
+    buffer[sizeof(buffer)-1]= 0;
+    printf("SSL_accept failed.\n");
+    cleanup = 1;
+}
+```
+#####1.7.4 Read the Message, acknowledge that message was Read.
+Ok so our client is using DTLS version 1.2, we have a message waiting for us… so let’s read it! Then let’s send our client an acknowlegement that we have received their message. Don’t forget to handle any potential errors along the way!
 
-    1.7.4 Read the Message, acknowledge that message was Read.
-        Ok so our client is using DTLS version 1.2, we have a message waiting for us… so let’s read it! Then let’s send our client an acknowlegement that we have received their message. Don’t forget to handle any potential errors along the way!
+Figure 2.15
+```c
+if (( recvlen = CyaSSL_read(ssl, buff, sizeof(buff)-1)) > 0){
+    printf("heard %d bytes\n", recvlen);
+    buff[recvlen - 1] = 0;
+    printf("I heard this: \"%s\"\n", buff);
+}
+  
+if (recvlen < 0) {
+    int readErr = CyaSSL_get_error(ssl, 0);
+    if(readErr != SSL_ERROR_WANT_READ) {
+    printf("SSL_read failed.\n");
+    cleanup = 1;
+    }
+}
+    
+if (CyaSSL_write(ssl, ack, sizeof(ack)) < 0) {
+    printf("CyaSSL_write fail.\n");
+    cleanup = 1;
+}
+else
+    printf("lost the connection to client\n");
+    printf("reply sent \"%s\"\n", ack);
+```
+#####1.7.5 Free up the Memory
+Finally we need to free up all memory that was allocated on our server for this particular session. If the client so chooses they can connect with us again using the same session key. But we do not want to bog down our server with unnecessary messages from previous sessions, once those messages have been handled. So we reset the file descriptor to 0 allocated bits, and shutdown our active ssl object and free the memory. Lastly we print out a line letting us know that we have reached the end of our loop successfully, all memory is free, and we are returning to the top to listen for the next client that might want to talk to us.
 
-        Figure 2.15
-        154         if (( recvlen = CyaSSL_read(ssl, buff, sizeof(buff)-1)) > 0){
-            155 
-                156             printf("heard %d bytes\n", recvlen);
-            157 
-                158             buff[recvlen - 1] = 0;
-            159             printf("I heard this: \"%s\"\n", buff);
-            160         }
-    161 
-        162 
-        163         if (recvlen < 0) {
-            164             int readErr = CyaSSL_get_error(ssl, 0);
-            165             if(readErr != SSL_ERROR_WANT_READ) {
-                166                 printf("SSL_read failed.\n");
-                167                 cleanup = 1;
-                168             }
-            169         }
-    170
-        171         if (CyaSSL_write(ssl, ack, sizeof(ack)) < 0) {
-            172             printf("CyaSSL_write fail.\n");
-            173             cleanup = 1;
-            174         }
-    175 
-        176         else
-        177             printf("lost the connection to client\n");
-    178 
-        179         printf("reply sent \"%s\"\n", ack);
+Figure 2.16
+```c
+CyaSSL_set_fd(ssl, 0);
+CyaSSL_shutdown(ssl);
+CyaSSL_free(ssl);
+printf("Client left return to idle state\n");
+```
+This concludes Section 1 of Chapter 2 on “Layering DTLS onto a UDP Server”. Secition 2 will now cover Layering DTLS onto a UDP Client.
 
-    1.7.5 Free up the Memory
-        Finally we need to free up all memory that was allocated on our server for this particular session. If the client so chooses they can connect with us again using the same session key. But we do not want to bog down our server with unnecessary messages from previous sessions, once those messages have been handled. So we reset the file descriptor to 0 allocated bits, and shutdown our active ssl object and free the memory. Lastly we print out a line letting us know that we have reached the end of our loop successfully, all memory is free, and we are returning to the top to listen for the next client that might want to talk to us.
+###Section 2: Leah
 
-        Figure 2.16
-        183         CyaSSL_set_fd(ssl, 0);
-    184         CyaSSL_shutdown(ssl);
-    185         CyaSSL_free(ssl);
-    186 
-        187         printf("Client left return to idle state\n");
-    This concludes Section 1 of Chapter 2 on “Layering DTLS onto a UDP Server”. Secition 2 will now cover Layering DTLS onto a UDP Client.
-        A working version of this server code can be found at:
-        https://github.com/kaleb-himes/wolfSSL_Interns/blob/master/project1/dtls_secured/server-dtls.c
+####2.1. Enable DTLS
+As stated in chapter 4 of the CyaSSL manual, DTLS is enabled by using the --enable-dtls build option when building CyaSSL. If you have not done so, this should be your first step.  
 
-        Section 2: Leah
+####2.2. CyaSSL Tutorial
+Walk through chapter 11 in the CyaSSL tutorial. Follow the guides for TLS/SSL using the correct CyaDTLS client method. A few adjustments for dtls:
 
-        2.1. Enable DTLS
-        As stated in chapter 4 of the CyaSSL manual, DTLS is enabled by using the --enable-dtls build option when building CyaSSL. If you have not done so, this should be your first step.  
+####2.2.1.    
+Make sure you have the correct port defined in your program, i.e., 
+`#define SERV_PORT 11111 for server with 11111 set as the port.`
 
-        2.2. CyaSSL Tutorial
-        Walk through chapter 11 in the CyaSSL tutorial. Follow the guides for TLS/SSL using the correct CyaDTLS client method. A few adjustments for dtls:
+####2.2.2.    
+Edit the arguments in your send and receive function to just 2 arguments - a FILE* 
+object and a CYASSL* object (previously this function had 4 arguments).
 
-        2.2.1.    
-        Make sure you have the correct port defined in your program, i.e., #define 
-        SERV_PORT 11111 for server with 11111 set as the port.
+####2.2.3.    
+Change sendto and recvfrom functions to CyaSSL_write and CyaSSL_read. 
+Delete the last 3 arguments that were in sendto and recvfrom. In the CyaSSL_read() call, change the first argument from a socket to the CYASSL* object from the original function call.
 
-        2.2.2.    
-        Edit the arguments in your send and receive function to just 2 arguments - a FILE* 
-        object and a CYASSL* object (previously this function had 4 arguments).
+####2.3. Set Peer
+Make a call to the CyaSSL_dtls_set_peer() function. It will take in as arguments your CYASSL* object, a point to the address carrying your sockaddr_in structure, and size of the structure. Example:
 
-        2.2.3.    
-        Change sendto and recvfrom functions to CyaSSL_write and CyaSSL_read. 
-        Delete the last 3 arguments that were in sendto and recvfrom. In the CyaSSL_read() call, change the first argument from a socket to the CYASSL* object from the original function call.
+Figure 2.17            
+```c
+CyaSSL_dtls_set_peer(ssl, &servAddr, sizeof(servAddr));
+```
+This function will be called between where you built the sockaddr_in structure and your socket creation.
+####2.4. Connect
+Add a CyaSSL connect function below the call to CyaSSL_set_fd() and pass the CYASSL* object you created as the argument. Include error checking. Example:
 
-        2.3. Set Peer
-        Make a call to the CyaSSL_dtls_set_peer() function. It will take in as arguments your CYASSL* object, a point to the address carrying your sockaddr_in structure, and size of the structure. Example:
+Figure 2.18            
+```c
+if  (CyaSSL_connect(ssl) != SSL_SUCCESS) {
+    int err1 = CyaSSL_get_error(ssl, 0);
+    char buffer[80];              
+    printf("err = %d, %s\n", err1,yaSSL_ERR_error_string(err1, buffer));
+    err_sys("SSL_connect failed");                                   
+}
+```
+####2.5. Write/Read
+Call your CyaSSL_write/CyaSSL_read function. Example:
 
-        Figure 2.17            
-        CyaSSL_dtls_set_peer(ssl, &servAddr, sizeof(servAddr));
+####Figure 2.19            
+DatagramClient(stdin, ssl);
 
-    This function will be called between where you built the sockaddr_in structure and your socket creation.
-        2.4. Connect
-        Add a CyaSSL connect function below the call to CyaSSL_set_fd() and pass the CYASSL* object you created as the argument. Include error checking. Example:
+####2.6. Shutdown, free, cleanup
+Make calls to CyaSSL_shutdown(), CyaSSL_free(), CyaSSL_CTX_free(), and CyaSSL_Cleanup() with correct parameters in each. This can be done in the read/write function or at the end of the main method. 
 
-        Figure 2.18            
-        if  (CyaSSL_connect(ssl) != SSL_SUCCESS) {
-            int err1 = CyaSSL_get_error(ssl, 0);
-            char buffer[80];              
-            printf("err = %d, %s\n", err1,yaSSL_ERR_error_string(err1, buffer));
-            err_sys("SSL_connect failed");                                   
-        }
+####2.7. Adjust Makefile
+Include -DCYASSL_DTLS before -o in your compilation line. This will include the DTLS method you chose. 
 
-    2.5. Write/Read
-        Call your CyaSSL_write/CyaSSL_read function. Example:
+##CHAPTER 3: 
+Multi-threading the DTLS server.
 
-        Figure 2.19            
-        DatagramClient(stdin, ssl);
+1. Include the pthread library
+To begin multi-threading our server we will need to include the library called pthread.h, (#include <pthread.h>). Add that to the rest of your #include statements and initialize a new method called “void* ThreadControl(void*);”. We will make this method our model that controls thread behavior. Then scroll to the line in the method “AwaitDGram” that sais: 
 
-    2.6. Shutdown, free, cleanup
-        Make calls to CyaSSL_shutdown(), CyaSSL_free(), CyaSSL_CTX_free(), and CyaSSL_Cleanup() with correct parameters in each. This can be done in the read/write function or at the end of the main method. 
+Figure 3.1
+```c
+connfd = (int)recvfrom(listenfd, (char *)&b, sizeof(b), MSG_PEEK,
+                            (struct sockaddr*)&cliaddr, &clilen);
 
-        2.7. Adjust Makefile
-        Include -DCYASSL_DTLS before -o in your compilation line. This will include the DTLS method you chose. 
+```
+2. Spinning a New thread
+Recall this line of code is simply “watching” for a message to arrive thus the “MSG_PEEK”. Once a message arrives we want to spin off a thread separate from the main thread of our server to handle the client session. In this way many clients can be handled simultaneously. Remember we included the library for pthread’s so we can now use the following code to initialize a new thread upon each message arrival (Figure 3.2). 
 
+Figure 3.2 Spinning a new thread
+```c
+pthread_t threadID;
+ 
+if (pthread_create(&threadID, NULL,
+                   ThreadControl, (void *)&connfd) < 0) {
+    printf("pthread_create failed.\n");
+    printf("Connection being re-routed to Thread Control.\n");
+}
+else {
+    printf("Recvfrom failed.\n");
+    cleanup = 1;
+}
+```
+We initialize a thread ID that will be a unique identifier for each individual thread. Next we call pthread_create on that id, some thread attribute (NULL here), a start routine (ThreadControl here), and our socket that the connection attempt was made on.  Some error handling and we’re done here. Now let’s go build our thread layout so each individual thread will know how it is supposed to behave upon instantiation.
 
+3. Thread Model
+We want each thread we spin to behave in the same manner as our previous server that wold loop on client messages until no further messages were sent. This is accomplished by never closing the socket the client initiated contact on, however we will exit our thread upon thread completion. In this way we do retain the socket descriptor but nothing else in memory. This will reduce our overhead cost of handling multiple clients simultaneously. In order to close a thread upon completion and have that memory be re-allocated we must detach the thread immediately upon creation. We can accomplish this by calling pthread_detach on itself as seen in line 141 of figure 3.3. Next we have all the variables previously in our AwaitDGram() method moved here for every call beyond the listening for datagrams to arrive line (line 110-111 in figure 3.1.
 
-        CHAPTER 3: 
-        Multi-threading the DTLS server.
+Other than that our behavior for our thead is nearly identicle to what we had previously in AwaitDGram() after we layered on dtls in chapter 2. At the end of ThreadControl, we need to also initialize a dummy int that will become a void pointer, and call pthread_exit on that dummy variable. Our thread will then return a void pointer that can be accessed by pthread_join to make use of the memory space this current thread had used,  after it is exited. (Sounds confusing).
 
-        1. Include the pthread library
-        To begin multi-threading our server we will need to include the library called pthread.h, (#include <pthread.h>). Add that to the rest of your #include statements and initialize a new method called “void* ThreadControl(void*);”. We will make this method our model that controls thread behavior. Then scroll to the line in the method “AwaitDGram” that sais: 
-
-        Figure 3.1
-        110         connfd = (int)recvfrom(listenfd, (char *)&b, sizeof(b), MSG_PEEK,
-                111                 (struct sockaddr*)&cliaddr, &clilen);
-
-
-    2. Spinning a New thread
-        Recall this line of code is simply “watching” for a message to arrive thus the “MSG_PEEK”. Once a message arrives we want to spin off a thread separate from the main thread of our server to handle the client session. In this way many clients can be handled simultaneously. Remember we included the library for pthread’s so we can now use the following code to initialize a new thread upon each message arrival (Figure 3.2). 
-
-        Figure 3.2 Spinning a new thread
-        116         pthread_t threadID;
-    117 
-        118         if (pthread_create(&threadID, NULL,
-                    119                     ThreadControl, (void *)&connfd) < 0) {
-            120             printf("pthread_create failed.\n");
-            121         }
-    122         printf("Connection being re-routed to Thread Control.\n");
-    123         }
-    124         else {
-        125             printf("Recvfrom failed.\n");
-        126             cleanup = 1;
-        127         }
-
-        We initialize a thread ID that will be a unique identifier for each individual thread. Next we call pthread_create on that id, some thread attribute (NULL here), a start routine (ThreadControl here), and our socket that the connection attempt was made on.  Some error handling and we’re done here. Now let’s go build our thread layout so each individual thread will know how it is supposed to behave upon instantiation.
-
-        3. Thread Model
-        We want each thread we spin to behave in the same manner as our previous server that wold loop on client messages until no further messages were sent. This is accomplished by never closing the socket the client initiated contact on, however we will exit our thread upon thread completion. In this way we do retain the socket descriptor but nothing else in memory. This will reduce our overhead cost of handling multiple clients simultaneously. In order to close a thread upon completion and have that memory be re-allocated we must detach the thread immediately upon creation. We can accomplish this by calling pthread_detach on itself as seen in line 141 of figure 3.3. Next we have all the variables previously in our AwaitDGram() method moved here for every call beyond the listening for datagrams to arrive line (line 110-111 in figure 3.1.
-
-                Other than that our behavior for our thead is nearly identicle to what we had previously in AwaitDGram() after we layered on dtls in chapter 2. At the end of ThreadControl, we need to also initialize a dummy int that will become a void pointer, and call pthread_exit on that dummy variable. Our thread will then return a void pointer that can be accessed by pthread_join to make use of the memory space this current thread had used,  after it is exited. (Sounds confusing).
-
-                Figure 3.3 Thread Control
-                138 void* ThreadControl(void* openSock)
-                139 {
-                140 
-                141     pthread_detach(pthread_self());
-                142     char ack[] = "I hear you fashizzle!\n";
-                143     int listenfd = 0;
-                144     socklen_t clilen;               /* length of address' */
-                145     int recvlen = 0;                /* length of message */
-                146     char buff[MSGLEN];              /* the incoming message */
-
+Figure 3.3 Thread Control
+```c
+void* ThreadControl(void* openSock)
+{
+ 
+    pthread_detach(pthread_self());
+    char ack[] = "I hear you fashizzle!\n";
+    int listenfd = 0;
+    socklen_t clilen;               /* length of address' */
+    int recvlen = 0;                /* length of message */
+    char buff[MSGLEN];              /* the incoming message */
+```
 
                 THE RESET OF OUR BODY HERE...
-
-                245 
-                246     printf("reply sent \"%s\"\n", ack);
-                247     printf("No further packets, severing connection to client.\n");
-                248 
-                    249     CyaSSL_set_fd(ssl, 0);
-                250     CyaSSL_shutdown(ssl);
-                251     CyaSSL_free(ssl);
-                252 
-                    253 
-                    254     printf("Returning to idle state\n");
-                255     int dummy;
-                256     pthread_exit((void*)&dummy);
-                257 }
-                This completes the section on multi-threading our dtls wrapped, UDP server. Next I will cover non-blocking in chapter 5.
-                A working version of the multi-threaded server can be found at: https://github.com/kaleb-himes/wolfSSL_Interns/blob/master/project1/dtls_secured_multithreaded/server-dtls-threaded.c
-
-
-
-
-
-
-
-                CHAPTER 4: 
-                Session Resumption with DTLS client.
-                Leah
-
-                1. Main Method Changes
-                1.1     
-                All of the code up until the main method will remain the same for session 
-                resumption.however, you may want to add some of the main method calls into their own functions to shorten main.
-
-                1.2 
-                Add a few new objects at the top of main 
-
-                1.2.1. 
-                A new CyaSSL object for the resumption portion.
-
-                1.2.2. 
-                A CyaSSL session object to create the session.
-
-                1.2.3.
-                A char* object to print a message that session resume is testing.
-
-Figure 4.1 (1.2.1-1.2.3 Example code:)        
-    CYASSL* sslResume = 0;
-    CYASSL_SESSION* session = 0;
-    char* srTest = "testing session resume";
-
-    2. Start session resumption
-    2.1.     
-    After the call to your read/write function, you will need to write again. Make a call 
-    to CyaSSL_write() using your original ssl object, your char* resume test object, and size of resume test object as the 3 arguments. This will send the message that you are trying to test for session resumption to the server.
-    2.2.     
-    Set your CyaSSL session object to get the session with  your Cyassl object.
-    2.3.     
-    Set up a new CyaSSL object for the resumption stage using sslResume.
-
-Figure 4.2 (2.1-2.3 Example code:)        
-    CyaSSL_write(ssl, srTest, sizeof(srTest));
-    session = CyaSSL_get_session(ssl);
-    sslResume = CyaSSL_new(ctx);
-
-
-    2.4.     
-    Shutdown and free your original CYASSL object, ssl in our case, and close the     socket.
-
-    Figure 4.3
+```c 
+    printf("reply sent \"%s\"\n", ack);
+    printf("No further packets, severing connection to client.\n");
+     
+    CyaSSL_set_fd(ssl, 0);
     CyaSSL_shutdown(ssl);
     CyaSSL_free(ssl);
-    close(sockfd);
+      
+    printf("Returning to idle state\n");
+    int dummy;
+    pthread_exit((void*)&dummy);
+}
+```
+   
+This completes the section on multi-threading our dtls wrapped, UDP server. Next I will cover non-blocking in chapter 5.
+A working version of the multi-threaded server can be found at: https://github.com/kaleb-himes/wolfSSL_Interns/blob/master/project1/dtls_secured_multithreaded/server-dtls-threaded.c
 
-    2.5.     
-    Rebuild the server address structure the same way you did in setting up UDP. 
-    Simply repeat the four lines of code at the end of II.B. in Create Basic UDP Client).
-    2.6.     
-    Reset the DTLS peer by calling the CyaSSL_dtls_set_peer function again 
-    changing only the first parameter from your original CYASSL object to your resumption object → we changed ssl to sslResume.    
 
-    Figure 4.4
-    CyaSSL_dtls_set_peer(sslResume, &servAddr, sizeof(servAddr));
-    Next, re-create your socket using the method used prior - same code as in part 
-    2.1 of Create Basic UDP Client.
-    2.7.    
-    Set the file descriptor by calling CyaSSL_set_fd again with the new CYASSL 
-    2.8.    
-    Set the session. Use CyaSSL_set_session(sslResume, session).
-    object, i.e., sslResume. Use the same socket you just recreated.
-    2.9.    
-    Connect again using CyaSSL_connect with your new resume CYASSL 
-    object(sslResume).
-    2.10.    
-    Check if the session was actually reused. 
-    2.11.    
-    Call your read and write function a second time with the sslResume as your new 
-    CYASSL object. 
-    2.12.    
-    Call CyaSSL_write with the same parameters as step A. only changing ssl to 
-    sslResume.
+##CHAPTER 4: 
+Session Resumption with DTLS client.
+
+Leah
+
+###1. Main Method Changes
+
+####1.1     
+                
+All of the code up until the main method will remain the same for session 
+resumption.however, you may want to add some of the main method calls into their own functions to shorten main.
+
+####1.2 
+Add a few new objects at the top of main 
+
+####1.2.1. 
+A new CyaSSL object for the resumption portion.
+
+####1.2.2. 
+A CyaSSL session object to create the session.
+
+####1.2.3.
+A char* object to print a message that session resume is testing.
+
+Figure 4.1 (1.2.1-1.2.3 Example code:)        
+```c
+CYASSL* sslResume = 0;
+CYASSL_SESSION* session = 0;
+char* srTest = "testing session resume";
+```
+###2. Start session resumption
+####2.1.     
+After the call to your read/write function, you will need to write again. Make a call 
+to CyaSSL_write() using your original ssl object, your char* resume test object, and size of resume test object as the 3 arguments. This will send the message that you are trying to test for session resumption to the server.
+####2.2.     
+Set your CyaSSL session object to get the session with  your Cyassl object.
+####2.3.     
+Set up a new CyaSSL object for the resumption stage using sslResume.
+
+Figure 4.2 (2.1-2.3 Example code:)        
+```c
+CyaSSL_write(ssl, srTest, sizeof(srTest));
+session = CyaSSL_get_session(ssl);
+sslResume = CyaSSL_new(ctx);
+```
+
+####2.4.     
+Shutdown and free your original CYASSL object, ssl in our case, and close the     socket.
+
+Figure 4.3
+```c
+CyaSSL_shutdown(ssl);
+CyaSSL_free(ssl);
+close(sockfd);
+```
+####2.5.     
+Rebuild the server address structure the same way you did in setting up UDP. 
+Simply repeat the four lines of code at the end of II.B. in Create Basic UDP Client).
+####2.6.     
+Reset the DTLS peer by calling the CyaSSL_dtls_set_peer function again 
+changing only the first parameter from your original CYASSL object to your resumption object → we changed ssl to sslResume.    
+
+Figure 4.4
+```c
+CyaSSL_dtls_set_peer(sslResume, &servAddr, sizeof(servAddr));
+```    
+Next, re-create your socket using the method used prior - same code as in part 
+2.1 of Create Basic UDP Client.
+####2.7.    
+Set the file descriptor by calling CyaSSL_set_fd again with the new CYASSL 
+####2.8.    
+Set the session. Use CyaSSL_set_session(sslResume, session).
+object, i.e., sslResume. Use the same socket you just recreated.
+####2.9.    
+Connect again using CyaSSL_connect with your new resume CYASSL 
+object(sslResume).
+####2.10.    
+Check if the session was actually reused. 
+####2.11.    
+Call your read and write function a second time with the sslResume as your new 
+CYASSL object. 
+####2.12.    
+Call CyaSSL_write with the same parameters as step A. only changing ssl to 
+sslResume.
 
 Figure 4.5 (2.7 - 2.12 Example Code:)
-    CyaSSL_set_fd(sslResume, sockfd);
-    CyaSSL_set_session(sslResume, session);
+```c
+CyaSSL_set_fd(sslResume, sockfd);
+CyaSSL_set_session(sslResume, session);
 
 if (CyaSSL_connect(sslResume) != SSL_SUCCESS)
     err_sys("SSL_connect failed");
 
 if(CyaSSL_session_reused(sslResume))
     printf("reused session id\n");
-    else
+else
     printf("didn't reuse session id!!!\n");
 
-    DatagramClient(stdin, sslResume);
-    CyaSSL_write(sslResume, srTest, sizeof(srTest));
+DatagramClient(stdin, sslResume);
+CyaSSL_write(sslResume, srTest, sizeof(srTest));
+```
 
+####2.13.    
+Shutdown and free sslResume and close the socket. Make sure you still have 
+the call to free your ctx and cleanup.     
 
+Figure 4.6
+```c 
+CyaSSL_shutdown(sslResume);
+CyaSSL_free(sslResume);
+close(sockfd);
+CyaSSL_CTX_free(ctx);
+CyaSSL_Cleanup();
+```
+###3. Adjust Main Method
+####3.1.    
+After the first call to CyaSSL_set_fd and again after the first call to 
+CyaSSL_set_session(), replace the following:
 
-    2.13.    
-    Shutdown and free sslResume and close the socket. Make sure you still have 
-    the call to free your ctx and cleanup.     
-
-    Figure 4.6
-    CyaSSL_shutdown(sslResume);
-    CyaSSL_free(sslResume);
-    close(sockfd);
-    CyaSSL_CTX_free(ctx);
-    CyaSSL_Cleanup();
-
-    3. Adjust Main Method
-    3.1.    
-    After the first call to CyaSSL_set_fd and again after the first call to 
-    CyaSSL_set_session(), replace the following:
-
-    Figure 4.7
-    if (CyaSSL_connect(ssl) != SSL_SUCCESS) {
-        int err1 = CyaSSL_get_error(ssl, 0);
-        char buffer[80];
-        printf("err = %d, %s\n", err1, CyaSSL_ERR_error_string(err1, buffer));  
-        err_sys("SSL_connect failed");
-    }
+Figure 4.7
+```c
+if (CyaSSL_connect(ssl) != SSL_SUCCESS) {
+    int err1 = CyaSSL_get_error(ssl, 0);
+    char buffer[80];
+    printf("err = %d, %s\n", err1, CyaSSL_ERR_error_string(err1, buffer));  
+    err_sys("SSL_connect failed");
+}
+```
 with:
 
 Figure 4.8
+```c
 CyaSSL_set_using_nonblock(ssl, 1);
 fcntl(sockfd, F_SETFL, O_NONBLOCK);
 NonBlockingDTLS_Connect(ssl);
+```
 Replace:
 
-    Figure 4.9
+Figure 4.9
+```c
 if (CyaSSL_connect(sslResume) != SSL_SUCCESS)
     err_sys("SSL_connect failed");
+```
 with:
 
 Figure 4.10
+```c
 CyaSSL_set_using_nonblock(sslResume, 1);
 fcntl(sockfd, F_SETFL, O_NONBLOCK);
 NonBlockingDTLS_Connect(sslResume);
+```
 
-
-
-
-
-3.2.    
+####3.2.    
 Finally, add a call to sleep after the last call to write:
 
 Figure 4.11
+```c
 sleep(1);
+```
 This concludes the simple UDP client portion of Chapter 1.
 
-CHAPTER 5:
+##CHAPTER 5:
 Convert Server and Client to non-blocking.
 
-Section 1: Kaleb
-1.1 To begin non-blocking
+###Section 1: Kaleb
+####1.1 To begin non-blocking
 Go back to our dtls wrapped udp server example (Not the multi-threaded version, just the dtls). We will include the library “fcntl.h” that will allow us to set our socket to a non-blocking state.
 Next we are going to need some methods if we do not want the main body of our code to get rediculously long. So initialize the methods as seen in figure 5.1. The model for our nonblocking server can be seen in sub-Figure 5.1.1
 
 Figure 5.1 methods declaration
+```c
 static int cleanup;                 /* To handle shutdown */
 CYASSL_CTX* ctx;
 
@@ -980,11 +991,12 @@ enum {
     TEST_RECV_READY,
     TEST_ERROR_READY
 };
-
+```
 
 Picture enum variables as costumes. One variable we will call “bill”. Bill can either dress up like a pirate, a ninja, a soldier, or a nurse, but whatever costum he’s wearing, it’s still Bill inside. Our variable here can either dress up as a TEST_SELECT_FAIL, or a TEST_TIMEOUT… etc. reference figure 5.3 to see how enum is used.
 
 Figure 5.1.1 non blocking server model
+`
 1. Create Socket
 2. Bind Socket
 3. Await DGram arrival
@@ -995,13 +1007,14 @@ Figure 5.1.1 non blocking server model
 7. Read Message                              |
 8. Reply to Message                          |
 9. Loop to step 4-----------------------------
-
+`
 
 
 1.2 udp_read_connect (int)
-    We previously had this code in the body of AwaitDGram() however we broke it out to reduce the size of AwaitDGram() as well as to improve readability of the code. This is just our method to “watch” for datagrams to arrive.
+We previously had this code in the body of AwaitDGram() however we broke it out to reduce the size of AwaitDGram() as well as to improve readability of the code. This is just our method to “watch” for datagrams to arrive.
 
-    Figure 5.2 watch for datagrams
+Figure 5.2 watch for datagrams
+```c
 int udp_read_connect(int listenfd)
 {
     int connfd;
@@ -1025,11 +1038,12 @@ int udp_read_connect(int listenfd)
     }
     return listenfd;
 }
+```
+####1.3 NonBlockingSSL_Accept(CYASSL* ssl)
+Here we will see the variable “select_ret” dress up in different costumes. In order to get a costume we reference method “dtls_select()” to see how different costumes are picked by “select_ret” (see figure 5.5) Based on the costume “select_ret” is wearing we will make some decisions. This method is pulled in directly from the library test.h in the cyassl libraries and can be found in the following location: Starting from the root directory of cyassl type “cd cyassl” this is where test.h is located. Search for NonBlockingSSL_Accept to see this code in it’s original format. Figure 5.3 has some very minor edits to make it work with our example server.
 
-1.3 NonBlockingSSL_Accept(CYASSL* ssl)
-    Here we will see the variable “select_ret” dress up in different costumes. In order to get a costume we reference method “dtls_select()” to see how different costumes are picked by “select_ret” (see figure 5.5) Based on the costume “select_ret” is wearing we will make some decisions. This method is pulled in directly from the library test.h in the cyassl libraries and can be found in the following location: Starting from the root directory of cyassl type “cd cyassl” this is where test.h is located. Search for NonBlockingSSL_Accept to see this code in it’s original format. Figure 5.3 has some very minor edits to make it work with our example server.
-
-    Figure 5.3 NonBlockingSSL_Accept
+Figure 5.3 NonBlockingSSL_Accept
+```c
 void NonBlockingSSL_Accept(CYASSL* ssl)
 {
     int select_ret;
@@ -1039,8 +1053,8 @@ void NonBlockingSSL_Accept(CYASSL* ssl)
     int listenfd = (int)CyaSSL_get_fd(ssl);
 
     while (cleanup != 1 && (ret != SSL_SUCCESS &&
-                (error == SSL_ERROR_WANT_READ ||
-                 error == SSL_ERROR_WANT_WRITE))) {
+                            (error == SSL_ERROR_WANT_READ ||
+                             error == SSL_ERROR_WANT_WRITE))) {
         if (cleanup == 1) {
             CyaSSL_free(ssl);
             CyaSSL_shutdown(ssl);
@@ -1075,93 +1089,96 @@ void NonBlockingSSL_Accept(CYASSL* ssl)
         printf("SSL_accept failed.\n");
     }
 }
-
+```
 1.4 dtls_set_nonblocking(int*)
-    Again this method is pulled in from test.h however modified slightly to work with our server. (removed un-necessary #ifdefs). Here is where we use fcntl to set our socket to a non-blocking state.
+Again this method is pulled in from test.h however modified slightly to work with our server. (removed un-necessary #ifdefs). Here is where we use fcntl to set our socket to a non-blocking state.
 
-    Figure 5.4 set nonblocking
-235 static void dtls_set_nonblocking(int* listenfd)
-    236 {
-        237     int flags = fcntl(*listenfd, F_GETFL, 0);
-        238     if (flags < 0) {
-            239         printf("fcntl get failed");
-            240         cleanup = 1;
-            241     }
-        242     flags = fcntl(*listenfd, F_SETFL, flags | O_NONBLOCK);
-        243     if (flags < 0) {
-            244         printf("fcntl set failed.\n");
-            245         cleanup = 1;
-            246     }
-        247 }
+Figure 5.4 set nonblocking
+```c
+static void dtls_set_nonblocking(int* listenfd)
+{
+    int flags = fcntl(*listenfd, F_GETFL, 0);
+    if (flags < 0) {
+        printf("fcntl get failed");
+        cleanup = 1;
+    }
+    flags = fcntl(`*`listenfd, F_SETFL, flags | O_NONBLOCK);
+    if (flags < 0) {
+        printf("fcntl set failed.\n");
+        cleanup = 1;
+    }
+}
+```
+####1.5 Select()
+Again this is pulled from test.h and modified to work with our server.  Here you see how “select_ret” from section 5.1.3 picks a costume to wear as a result of given conditions.
 
-1.5 Select()
-    Again this is pulled from test.h and modified to work with our server.  Here you see how “select_ret” from section 5.1.3 picks a costume to wear as a result of given conditions.
+Figure 5.5 Picking a costume for select_ret
+```c
+static int dtls_select(int socketfd, int to_sec)
+{
+    fd_set recvfds, errfds;
+    int nfds = socketfd + 1;
+    struct timeval timeout = { (to_sec > 0) ? to_sec : 0, 0};
+    int result;
+     
+    FD_ZERO(&recvfds);
+    FD_SET(socketfd, &recvfds);
+    FD_ZERO(&errfds);
+    FD_SET(socketfd, &errfds);
+     
+    result = select(nfds, &recvfds, NULL, &errfds, &timeout);
+     
+    if (result == 0)
+        return TEST_TIMEOUT;
+    else if (result > 0) {
+        if (FD_ISSET(socketfd, &recvfds))
+                             return TEST_RECV_READY;
+        else if(FD_ISSET(socketfd, &errfds))
+            return TEST_ERROR_READY;
+    }
+     
+    return TEST_SELECT_FAIL;
+}
+```
 
-    Figure 5.5 Picking a costume for select_ret
-249 static int dtls_select(int socketfd, int to_sec)
-    250 {
-        251     fd_set recvfds, errfds;
-        252     int nfds = socketfd + 1;
-        253     struct timeval timeout = { (to_sec > 0) ? to_sec : 0, 0};
-        254     int result;
-        255 
-            256     FD_ZERO(&recvfds);
-        257     FD_SET(socketfd, &recvfds);
-        258     FD_ZERO(&errfds);
-        259     FD_SET(socketfd, &errfds);
-        260 
-            261     result = select(nfds, &recvfds, NULL, &errfds, &timeout);
-        262 
-            263     if (result == 0)
-            264         return TEST_TIMEOUT;
-        265     else if (result > 0) {
-            266         if (FD_ISSET(socketfd, &recvfds))
-                267             return TEST_RECV_READY;
-            268         else if(FD_ISSET(socketfd, &errfds))
-                269             return TEST_ERROR_READY;
-            270     }
-        271 
-            272     return TEST_SELECT_FAIL;
-        273 }
+####1.6 AwaitDGram() after changes
+*note: all line references in this section are referencing figure 5.6 unless stated otherwise.
 
-        1.6 AwaitDGram() after changes
-        *note: all line references in this section are referencing figure 5.6 unless stated otherwise.
+After we initialize the CYASSL object in AwaitDGram() we will then let it know that it is going to using non-blocking methods (line 129) Then we will set our socket to a non-blocking state (line 130). Next accept the datagram packets arriving in a non-blocking manner, attempt to read the message arriving, attempt to reply, if any of those fail, loop and try to read and/or write again. 
 
-        After we initialize the CYASSL object in AwaitDGram() we will then let it know that it is going to using non-blocking methods (line 129) Then we will set our socket to a non-blocking state (line 130). Next accept the datagram packets arriving in a non-blocking manner, attempt to read the message arriving, attempt to reply, if any of those fail, loop and try to read and/or write again. 
+Figure 5.6 
+```c
+CyaSSL_set_using_nonblock(ssl, 1);
+dtls_set_nonblocking(&clientfd);
+NonBlockingSSL_Accept(ssl);
 
-        Figure 5.6 
-        CyaSSL_set_using_nonblock(ssl, 1);
-        dtls_set_nonblocking(&clientfd);
-        NonBlockingSSL_Accept(ssl);
+/* Begin: Reply to the client */
+buff[sizeof(buff)-1] = 0;
+recvlen = CyaSSL_read(ssl, buff, sizeof(buff)-1);
 
-        /* Begin: Reply to the client */
-        buff[sizeof(buff)-1] = 0;
-        recvlen = CyaSSL_read(ssl, buff, sizeof(buff)-1);
+currTimeout = CyaSSL_dtls_get_current_timeout(ssl);
 
-        currTimeout = CyaSSL_dtls_get_current_timeout(ssl);
-
-        readWriteErr = CyaSSL_get_error(ssl, 0);      
-        do {
-            if (cleanup == 1) {
-                memset(buff, 0, sizeof(buff));
-                break;
-            }
-            if (recvlen < 0) {
-                readWriteErr = CyaSSL_get_error(ssl, 0);
-                if (readWriteErr != SSL_ERROR_WANT_READ) {
-                    printf("Read Error, error was: %d.\n", readWriteErr);
-                    cleanup = 1;
-                } else {
-                    recvlen = CyaSSL_read(ssl, buff, sizeof(buff)-1);
-                }
-            }
-        } while (readWriteErr == SSL_ERROR_WANT_READ && recvlen < 0 &&
-                currTimeout >= 0 && cleanup != 1);
-
-        if (recvlen > 0) {
-            buff[recvlen] = 0;
-            printf("I heard this:\"%s\"\n", buff);
+readWriteErr = CyaSSL_get_error(ssl, 0);      
+do {
+    if (cleanup == 1) {
+        memset(buff, 0, sizeof(buff));
+        break;
+    }
+    if (recvlen < 0) {
+        readWriteErr = CyaSSL_get_error(ssl, 0);
+        if (readWriteErr != SSL_ERROR_WANT_READ) {
+            printf("Read Error, error was: %d.\n", readWriteErr);
+            cleanup = 1;
+        } else {
+            recvlen = CyaSSL_read(ssl, buff, sizeof(buff)-1);
         }
+    }
+} while (readWriteErr == SSL_ERROR_WANT_READ && recvlen < 0 &&
+    currTimeout >= 0 && cleanup != 1);
+if (recvlen > 0) {
+    buff[recvlen] = 0;
+    printf("I heard this:\"%s\"\n", buff);
+}
 else {
     printf("Connection Timed Out.\n");
 }
@@ -1179,119 +1196,123 @@ CyaSSL_free(ssl);
 /* End: Reply to the Client */
 }
 }
-
+```
 This concludes the tutorial section on making a dtls wrapped 
 
-Section 2: Leah
+###Section 2: Leah
 
-2.1. Add new headers to top of file:    
+####2.1. Add new headers to top of file:    
 #include <errno.h>    /* error checking */
 #include <fcntl.h>    /* set file status flags */
 
-2.2. Add enum variables for testing functions - before first function:    
+####2.2. Add enum variables for testing functions - before first function:    
+```c
 enum {
     TEST_SELECT_FAIL,
     TEST_TIMEOUT,
     TEST_RECV_READY,
     TEST_ERROR_READY
 };
-
-2.3. Add a DTLS selection function 
+```
+####2.3. Add a DTLS selection function 
 This is similar to the tcp_select() function in CyaSSL. This function will also call 
 select():
-    35 /* tcp select using dtls nonblocking function*/
-    36 static int dtls_select(int socketfd, int to_sec)
-    37 {
-        38
-            39     fd_set         recvfds, errfds;
-        40     int            nfds = socketfd +1;
-        41     struct timeval timeout = { (to_sec > 0) ? to_sec : 0, 0};
-        42     int            result;
-        43
-            44     FD_ZERO(&recvfds);
-        45     FD_SET(socketfd, &recvfds);
-        46     FD_ZERO(&errfds);
-        47     FD_SET(socketfd, &errfds);
-        48
-            49     result = select(nfds, &recvfds, NULL, &errfds, &timeout);
-        50
-            51     if (result == 0)
-            52         return TEST_TIMEOUT;
-        53     else if (result > 0) {
-            54         if (FD_ISSET(socketfd, &recvfds))
-                55             return TEST_RECV_READY;
-            56         else if (FD_ISSET(socketfd, &errfds))
-                57             return TEST_ERROR_READY;
-            58     }
-        59     return TEST_SELECT_FAIL;
-        60 }
+```c
+/* tcp select using dtls nonblocking function*/
+static int dtls_select(int socketfd, int to_sec)
+{
+
+    fd_set         recvfds, errfds;
+    int            nfds = socketfd +1;
+    struct timeval timeout = { (to_sec > 0) ? to_sec : 0, 0};
+    int            result;
+    
+    FD_ZERO(&recvfds);
+    FD_SET(socketfd, &recvfds);
+    FD_ZERO(&errfds);
+    FD_SET(socketfd, &errfds);
+    
+    result = select(nfds, &recvfds, NULL, &errfds, &timeout);
+    
+    if (result == 0)
+        return TEST_TIMEOUT;
+    else if (result > 0) {
+        if (FD_ISSET(socketfd, &recvfds))
+            return TEST_RECV_READY;
+        else if (FD_ISSET(socketfd, &errfds))
+            return TEST_ERROR_READY;
+    }
+    return TEST_SELECT_FAIL;
+}
+```
 
 
-
-        2.4. NonBlocking DTLS connect function:
-        This function calls the connect function and checks for various errors within the connection attempts. We placed it before the DatagramClient() function:
-        /*Connect using Nonblocking - DTLS version*/
-63 static void NonBlockingDTLS_Connect(CYASSL* ssl)
-    64 {
-        65     int      ret = CyaSSL_connect(ssl);
-        66     int      error = CyaSSL_get_error(ssl, 0);
-        67     int      sockfd = (int)CyaSSL_get_fd(ssl);
-        68     int      select_ret;
-        69     while (ret != SSL_SUCCESS && (error == SSL_ERROR_WANT_READ ||
-                    70                 error == SSL_ERROR_WANT_WRITE)) {
-            71         int currTimeout = 1;
-            72         if (error == SSL_ERROR_WANT_READ)
-                73                 printf("... client would read block\n");
-            74         else
-                75                 printf("... client would write block\n");
-            76         currTimeout = CyaSSL_dtls_get_current_timeout(ssl);
-            77         select_ret = dtls_select(sockfd, currTimeout);
-            78         if ( ( select_ret == TEST_RECV_READY) ||
-                    79                 (select_ret == TEST_ERROR_READY)) {
-                80                 ret = CyaSSL_connect(ssl);
-                81                 error = CyaSSL_get_error(ssl, 0);
-                82         }
-            83         else if (select_ret == TEST_TIMEOUT && !CyaSSL_dtls(ssl)) {
-                84                 error = 2;
-                85         }
-            86         else if (select_ret == TEST_TIMEOUT && CyaSSL_dtls(ssl) &&
-                    87                 CyaSSL_dtls_got_timeout(ssl) >= 0) {
-                88                 error = 2;
-                89         }
-            90         else{
-                91                 error = SSL_FATAL_ERROR;
-                92         }
-            93     }
-        94
-            95     if (ret != SSL_SUCCESS)
-            96         err_sys("SSL_connect failed with");
-        97 }
-
-
-        2.5.    Adjust Datagram Client Function (could be located within main method).
-        Create while loops for CyaSSL_write() and CyaSSL_read() to check for error    
-        void DatagramClient (FILE* clientInput, CYASSL* ssl) {
-
-            int     n = 0;
-            char    sendLine[MAXLINE], recvLine[MAXLINE - 1];
-
-            fgets(sendLine, MAXLINE, clientInput);
-
-            while  ( ( CyaSSL_write(ssl, sendLine, strlen(sendLine))) !=
-                    strlen(sendLine)) 
-                err_sys("SSL_write failed");
-
-            while ( (n = CyaSSL_read(ssl, recvLine, sizeof(recvLine)-1)) <= 0) {
-
-                int readErr = CyaSSL_get_error(ssl, 0);
-                if(readErr != SSL_ERROR_WANT_READ)
-                    err_sys("CyaSSL_read failed");
-            }
-
-            recvLine[n] = '\0';
-            fputs(recvLine, stdout);
-
+####2.4. NonBlocking DTLS connect function:
+This function calls the connect function and checks for various errors within the connection attempts. We placed it before the DatagramClient() function:
+```c
+/*Connect using Nonblocking - DTLS version*/
+static void NonBlockingDTLS_Connect(CYASSL* ssl)
+{
+    int      ret = CyaSSL_connect(ssl);
+    int      error = CyaSSL_get_error(ssl, 0);
+    int      sockfd = (int)CyaSSL_get_fd(ssl);
+    int      select_ret;
+    while (ret != SSL_SUCCESS && (error == SSL_ERROR_WANT_READ ||
+                                     error == SSL_ERROR_WANT_WRITE)) {
+        int currTimeout = 1;
+        if (error == SSL_ERROR_WANT_READ)
+            printf("... client would read block\n");
+        else
+            printf("... client would write block\n");
+        currTimeout = CyaSSL_dtls_get_current_timeout(ssl);
+        select_ret = dtls_select(sockfd, currTimeout);
+        if ( ( select_ret == TEST_RECV_READY) ||
+                                   (select_ret == TEST_ERROR_READY)) {
+            ret = CyaSSL_connect(ssl);
+            error = CyaSSL_get_error(ssl, 0);
         }
+        else if (select_ret == TEST_TIMEOUT && !CyaSSL_dtls(ssl)) {
+            error = 2;
+        }
+        else if (select_ret == TEST_TIMEOUT && CyaSSL_dtls(ssl) &&
+                                    CyaSSL_dtls_got_timeout(ssl) >= 0) {
+            error = 2;
+        }
+        else {
+             error = SSL_FATAL_ERROR;
+        }
+    }
+    
+    if (ret != SSL_SUCCESS)
+        err_sys("SSL_connect failed with");
+    }
+```
+
+####2.5.    Adjust Datagram Client Function (could be located within main method).
+Create while loops for CyaSSL_write() and CyaSSL_read() to check for error    
+```c
+void DatagramClient (FILE* clientInput, CYASSL* ssl) 
+{
+    int     n = 0;
+    char    sendLine[MAXLINE], recvLine[MAXLINE - 1];
+
+    fgets(sendLine, MAXLINE, clientInput);
+
+    while  ( ( CyaSSL_write(ssl, sendLine, strlen(sendLine))) !=
+                                                    strlen(sendLine)) 
+        err_sys("SSL_write failed");
+
+    while ( (n = CyaSSL_read(ssl, recvLine, sizeof(recvLine)-1)) <= 0) {
+        int readErr = CyaSSL_get_error(ssl, 0);
+        if(readErr != SSL_ERROR_WANT_READ)
+            err_sys("CyaSSL_read failed");
+    }
+
+        recvLine[n] = '\0';
+        fputs(recvLine, stdout);
+
+}
+```
 
 REFERENCES:
 
