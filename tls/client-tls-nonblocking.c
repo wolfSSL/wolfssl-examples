@@ -22,6 +22,7 @@
 #include    <stdlib.h>                  
 #include    <string.h>
 #include    <errno.h>
+#include    <sys/select.h>
 #include    <arpa/inet.h>
 #include    <cyassl/ssl.h>          /* CyaSSL security library */
 #include    <fcntl.h>               /* nonblocking I/O library */
