@@ -43,8 +43,8 @@
 static int cleanup;                 /* To handle shutdown */
 
 void dtls_set_nonblocking(int*);    /* set the socket non-blocking */
-int NonBlockingSSL_Accept(CYASSL*);/* non-blocking accept */
-int AwaitDGram(CYASSL_CTX* ctx);                   /* Separate out Handling Datagrams */
+int NonBlockingSSL_Accept(CYASSL*); /* non-blocking accept */
+int AwaitDGram(CYASSL_CTX* ctx);    /* Separate out Handling Datagrams */
 int udp_read_connect(int);          /* broken out to improve readability */
 int dtls_select();
 
@@ -80,6 +80,9 @@ int AwaitDGram(CYASSL_CTX* ctx)
         }
         
         printf("Socket allocated\n");
+        
+        dtls_set_nonblocking(&listenfd);
+
         memset((char *)&servAddr, 0, sizeof(servAddr));
 
         /* host-to-network-long conversion (htonl) */
@@ -105,7 +108,6 @@ int AwaitDGram(CYASSL_CTX* ctx)
         printf("Awaiting client connection on port %d\n", SERV_PORT);
         
         clientfd = udp_read_connect(listenfd);
-        dtls_set_nonblocking(&clientfd);
 
         /* Create the CYASSL Object */
         if (( ssl = CyaSSL_new(ctx)) == NULL) {
@@ -189,9 +191,11 @@ int udp_read_connect(int listenfd)
     struct sockaddr_in cliAddr;
     socklen_t clilen = sizeof(cliAddr);
 
-
-    bytesRecvd = (int)recvfrom(listenfd, (char*)b, sizeof(b), MSG_PEEK,
+    do {
+        bytesRecvd = (int)recvfrom(listenfd, (char*)b, sizeof(b), MSG_PEEK,
             (struct sockaddr*)&cliAddr, &clilen);
+    } while (bytesRecvd <= 0);
+
     if (bytesRecvd > 0) {
         if (connect(listenfd, (const struct sockaddr*)&cliAddr, 
                     sizeof(cliAddr)) != 0) {
@@ -201,6 +205,8 @@ int udp_read_connect(int listenfd)
     else {
         printf("recvfrom failed.\n");
     }
+
+    printf("FOUND SOMETHING TO CONNECT TO!!!!!!!!***********************.\n");
     /* ensure b is empty upon each call */
     memset(&b, 0, sizeof(b));
     return listenfd;
@@ -343,3 +349,4 @@ int main(int argc, char** argv)
 
     return 0;
 }
+
