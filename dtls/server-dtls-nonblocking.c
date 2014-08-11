@@ -107,7 +107,11 @@ int AwaitDGram(CYASSL_CTX* ctx)
 
         printf("Awaiting client connection on port %d\n", SERV_PORT);
         
+        
         clientfd = udp_read_connect(listenfd);
+     
+
+//        dtls_set_nonblocking(&clientfd);
 
         /* Create the CYASSL Object */
         if (( ssl = CyaSSL_new(ctx)) == NULL) {
