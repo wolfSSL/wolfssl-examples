@@ -210,7 +210,7 @@ int udp_read_connect(int listenfd)
         printf("recvfrom failed.\n");
     }
 
-    printf("FOUND SOMETHING TO CONNECT TO!!!!!!!!***********************.\n");
+    printf("Connected!\n");
     /* ensure b is empty upon each call */
     memset(&b, 0, sizeof(b));
     return listenfd;
