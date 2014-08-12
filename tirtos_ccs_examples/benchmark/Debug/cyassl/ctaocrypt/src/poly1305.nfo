@@ -1,0 +1,140 @@
+TI ARM C/C++ Optimizer                  v5.1.6
+Build Number 1OE9R-KDADEMDK-RTARQ-WAR-ZAZE_V_R_W
+
+		======File-level Analysis Summary======
+
+
+extern int Poly1305Final() is called from 0 sites in this file.
+    It appears to be inlineable (size = 284 units)
+    It has 4 non-trivial scope blocks nested 4 deep.
+    It calls these functions:
+	U32TO8() (4 times)
+	poly1305_blocks() (1 times)
+
+extern int Poly1305SetKey() is called from 0 sites in this file.
+    It appears to be inlineable (size = 108 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	U8TO32() (9 times)
+
+extern int Poly1305Update() is called from 0 sites in this file.
+    It appears to be inlineable (size = 98 units)
+    It has 5 non-trivial scope blocks nested 4 deep.
+    It calls these functions:
+	poly1305_blocks() (2 times)
+
+static void U32TO8() is called from 4 sites in this file.
+    It appears to be inlineable (size = 21 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+static unsigned U8TO32() is called from 14 sites in this file.
+    It appears to be inlineable (size = 22 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+static void poly1305_blocks() is called from 3 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	U8TO32() (5 times)
+
+
+
+		======= End file-level Analysis =======
+
+
+==============================================================================
+
+static unsigned U8TO32() is called from 14 sites in this file.
+    It appears to be inlineable (size = 22 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+There are 4 memory accesses with 0 dependences.
+
+
+==============================================================================
+
+static void poly1305_blocks() is called from 3 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	U8TO32() (5 times)
+
+There are 16 memory accesses with 5 dependences.
+
+
+==============================================================================
+
+extern int Poly1305Update() is called from 0 sites in this file.
+    It appears to be inlineable (size = 98 units)
+    It has 5 non-trivial scope blocks nested 4 deep.
+    It calls these functions:
+	poly1305_blocks() (2 times)
+
+ADVICE: In function Poly1305Update() in C:/cyassl/ctaocrypt/src/poly1305.c
+	in the 'for' loop with loop variable 'i' at lines C:/cyassl/ctaocrypt/src/poly1305.c:526-527
+	for the statement ((unsigned char *)ctx)[(int)(*ctx).leftover+(int)i+60] = m[i]; at line 527
+
+	Consider declaring 'm' as const unsigned char * restrict m
+	or declaring 'ctx' as  struct Poly1305 * const restrict ctx
+	to assert that 'm' in the address of m[i];
+	and            'ctx' in the address of ((unsigned char *)ctx)[(int)(*ctx).leftover+(int)i+60];
+	do not access the same object in memory.
+
+ADVICE: In function Poly1305Update() in C:/cyassl/ctaocrypt/src/poly1305.c
+	in the 'for' loop with loop variable 'i' at lines C:/cyassl/ctaocrypt/src/poly1305.c:547-548
+	for the statement ((unsigned char *)ctx)[(int)(*ctx).leftover+(int)i+60] = m[i]; at line 548
+
+	Consider declaring 'm' as const unsigned char * restrict m
+	or declaring 'ctx' as  struct Poly1305 * const restrict ctx
+	to assert that 'm' in the address of m[i];
+	and            'ctx' in the address of ((unsigned char *)ctx)[(int)(*ctx).leftover+(int)i+60];
+	do not access the same object in memory.
+Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/poly1305.c:526-527 by factor 2.
+Estimated speedup: 1.20x, code size increase: 1.50x (4:->6)
+Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/poly1305.c:547-548 by factor 2.
+Estimated speedup: 1.20x, code size increase: 1.50x (4:->6)
+
+There are 23 memory accesses with 186 dependences.
+
+
+==============================================================================
+
+extern int Poly1305SetKey() is called from 0 sites in this file.
+    It appears to be inlineable (size = 108 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	U8TO32() (9 times)
+
+There are 16 memory accesses with 0 dependences.
+
+
+==============================================================================
+
+static void U32TO8() is called from 4 sites in this file.
+    It appears to be inlineable (size = 21 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+There are 4 memory accesses with 0 dependences.
+
+
+==============================================================================
+
+extern int Poly1305Final() is called from 0 sites in this file.
+    It appears to be inlineable (size = 284 units)
+    It has 4 non-trivial scope blocks nested 4 deep.
+    It calls these functions:
+	poly1305_blocks() (1 times)
+	U32TO8() (4 times)
+Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/poly1305.c:423-424 by factor 2.
+Estimated speedup: 1.23x, code size increase: 1.33x (3:->4)
+
+There are 29 memory accesses with 114 dependences.
+
+
+== END OF INFO OUTPUT==
