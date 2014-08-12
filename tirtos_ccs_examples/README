@@ -1,7 +1,12 @@
+Disclaimer
+---------------------------------------------------------
 These have currently been tested in windows CCS only. Once testing on the linux distribution for CCS is complete
 this README will be updated.
 
+Setting up the file system
+---------------------------------------------------------
 Clone the entire "tirtos_ccs_examples" folder into your <cyassl_root>/tirtos directory.
+You should now have <cyassl_root>/tirtos/tirtos_ccs_examples.
 
 Instructions for building CyaSSL application for TI-RTOS
 ---------------------------------------------------------
