@@ -13,8 +13,7 @@ Instructions for building CyaSSL application for TI-RTOS
 
 Installing the software
 -----------------------
-1. Install the NDK product 
-ndk 2.24.00.05 in C:/ti
+1. Install the NDK product ndk 2.24.00.05 in C:/ti
 2. Open CCS. A prompt opens asking to install discovered product. Select the ndk product and click finish. 
 Restart if prompted.
 3. In CCS, open View -> CCS App Center. Search "ti-rtos". Select "TI-RTOS for TivaC" from the results and click 
