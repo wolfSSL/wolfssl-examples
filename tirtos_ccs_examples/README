@@ -5,8 +5,12 @@ this README will be updated.
 
 Setting up the file system
 ---------------------------------------------------------
-Clone this repository using "github for windows". Copy and paste the "tirtos_ccs_examples" folder into your 
-<cyassl_root>/tirtos directory.
+ensure that cyassl is on the C:/ drive and remove any version numbers on the file. For example if your cyassl
+directory is named "cyassl_3_1_0 or cyassl-3.1.0" rename it to "cyassl". You should now have C:/cyassl directory.
+
+Clone this repository using "github for windows". The projects have been made portable so you can run them straight
+from the github clone repo or you can copy and paste the "tirtos_ccs_examples" folder out of the repo to wherever and 
+they should still debug just fine once imported into your workspace (see end of this README).
 You should now have <cyassl_root>/tirtos/tirtos_ccs_examples.
 
 Instructions for building CyaSSL application for TI-RTOS
@@ -37,13 +41,14 @@ Running CyaSSL CTaoCrypt benchmark and test application.
    Select benchmark.xem4f and Click Open and Click OK to load the application.
 2. Test by running the application.
 3. Repeat the steps 1 and 2 for Test application (C:\cyassl\tirtos\packages\ti\net\cyassl\tests\ctaocrypt\test).
+4. The example cyassl_tirtos_benchmark in this repository has all the correct optimization settings and will 
+   re-build the relevant c files at compile time for optimal results and additional benchmarks for camellia, rabbit, 
+   chacha, poly1305, sha512, and ECC.
 
-Getting Optimal Results for the benchmarks
+Import a project into your workspace.
 --------------------------------------------------------
-The example included in this repository has all the correct optimization settings and will re-build the relevant
-c files at compile time. In CCS go to the Project tab. Click "Import CCS Projects...". 
-Click "Browse..." and navigate to <cyassl_root>/tirtos/tirtos_ccs_examples/ and click "OK". In the "Discovered projects"
+In CCS go to the Project tab. Click "Import CCS Projects...". 
+Click "Browse..." and navigate to tirtos_ccs_examples/ file and click "OK". In the "Discovered projects"
 window you will see all CCS projects. Check the ones you would like to import into the workspace, and check
 the box at the bottom labled "Copy projects into workspace", now click "Finish".
-Build and debug the benchmark project to see Optimal results and additional benchmarks for camellia, rabbit, chacha, 
-poly1305, sha512, and ECC. 
+Build and debug the desired projects. 
