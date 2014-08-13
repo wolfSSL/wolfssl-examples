@@ -1,0 +1,151 @@
+TI ARM C/C++ Optimizer                  v5.1.6
+Build Number 1OE9R-KDADEMDK-RTARQ-WAR-ZAZE_V_R_W
+
+		======File-level Analysis Summary======
+
+
+extern int DhAgree() is called from 0 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	mp_clear() (3 times)
+	mp_unsigned_bin_size() (1 times)
+	mp_to_unsigned_bin() (1 times)
+	mp_exptmod() (1 times)
+	mp_read_unsigned_bin() (2 times)
+	mp_init_multi() (1 times)
+
+extern int DhGenerateKeyPair() is called from 0 sites in this file.
+    It appears to be inlineable (size = 20 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	GeneratePublic() (1 times)
+	GeneratePrivate() (1 times)
+
+static unsigned DiscreteLogWorkFactor() is called from 1 sites in this file.
+    It appears to be inlineable (size = 22 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	log() (1 times)
+	pow() (2 times)
+
+extern void FreeDhKey() is called from 0 sites in this file.
+    It appears to be inlineable (size = 1 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+static int GeneratePrivate() is called from 1 sites in this file.
+    It appears to be inlineable (size = 32 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	RNG_GenerateBlock() (1 times)
+	DiscreteLogWorkFactor() (1 times)
+	min() (1 times)
+	mp_unsigned_bin_size() (1 times)
+
+static int GeneratePublic() is called from 1 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	mp_clear() (2 times)
+	mp_unsigned_bin_size() (1 times)
+	mp_to_unsigned_bin() (1 times)
+	mp_exptmod() (1 times)
+	mp_read_unsigned_bin() (1 times)
+	mp_init_multi() (1 times)
+
+extern void InitDhKey() is called from 0 sites in this file.
+    It appears to be inlineable (size = 1 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+static unsigned min() is called from 1 sites in this file.
+    It appears to be inlineable (size = 9 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+
+These functions may be recursive:
+	DhAgree()
+	DhGenerateKeyPair()
+	GeneratePublic()
+	GeneratePrivate()
+Inlineable function will be suppressed: min()
+
+Making this function inlineable: DiscreteLogWorkFactor()
+Inlineable function will be suppressed: DiscreteLogWorkFactor()
+
+Making this function inlineable: GeneratePrivate()
+Inlineable function will be suppressed: GeneratePrivate()
+
+These external functions are called but not defined here:
+	pow()
+	log()
+	RNG_GenerateBlock()
+	mp_init_multi()
+	mp_read_unsigned_bin()
+	mp_exptmod()
+	mp_to_unsigned_bin()
+	mp_unsigned_bin_size()
+	mp_clear()
+
+
+		======= End file-level Analysis =======
+
+
+==============================================================================
+
+extern void InitDhKey() is called from 0 sites in this file.
+    It appears to be inlineable (size = 1 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+There are 0 memory accesses with 0 dependences.
+
+
+==============================================================================
+
+extern void FreeDhKey() is called from 0 sites in this file.
+    It appears to be inlineable (size = 1 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+There are 0 memory accesses with 0 dependences.
+
+
+==============================================================================
+
+static int GeneratePublic() is called from 1 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+There are 1 memory accesses with 0 dependences.
+
+
+==============================================================================
+
+extern int DhGenerateKeyPair() is called from 0 sites in this file.
+    It appears to be inlineable (size = 20 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	GeneratePrivate() (1 times)
+	GeneratePublic() (1 times)
+
+There are 2 memory accesses with 1 dependences.
+
+
+==============================================================================
+
+extern int DhAgree() is called from 0 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+There are 1 memory accesses with 0 dependences.
+
+
+== END OF INFO OUTPUT==

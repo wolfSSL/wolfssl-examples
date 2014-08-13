@@ -1,0 +1,21 @@
+/* THIS IS A GENERATED FILE -- DO NOT EDIT */
+
+var target;    /* the target used for this build */
+
+/* configuro was passed the target's name explicitly */
+try {
+    target = xdc.module('ti.targets.arm.elf.M4F');
+}
+catch (e) {
+    throw new Error("Can't find the target named '" + 'ti.targets.arm.elf.M4F'
+                    + "' along the path '" + environment["xdc.path"]
+                    + "': please check the spelling of the target's name and that it exists along this path.");
+}
+if (!(target instanceof xdc.module("xdc.bld.ITarget").Module)) {
+    throw new Error("The module named 'ti.targets.arm.elf.M4F' exists but it's not a target: please check the spelling of the target's name");
+}
+
+/* configuro was passed the target's rootDir explicitly */
+target.rootDir = 'c:/ti/ccsv6/tools/compiler/arm_5.1.6';
+
+Build.targets = [target];

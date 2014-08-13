@@ -1,0 +1,220 @@
+TI ARM C/C++ Optimizer                  v5.1.6
+Build Number 1OE9R-KDADEMDK-RTARQ-WAR-ZAZE_V_R_W
+
+		======File-level Analysis Summary======
+
+
+static void EK_TM4C1294XL_errorDMAHwi() is called from 0 sites in this file.
+    It appears to be inlineable (size = 7 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	xdc_runtime_System_abort__E() (1 times)
+	uDMAErrorStatusClear() (1 times)
+	uDMAErrorStatusGet() (1 times)
+	xdc_runtime_System_printf__E() (1 times)
+
+extern void EK_TM4C1294XL_initDMA() is called from 0 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	uDMAControlBaseSet() (1 times)
+	uDMAEnable() (1 times)
+	SysCtlPeripheralEnable() (1 times)
+	xdc_runtime_System_abort__E() (1 times)
+	xdc_runtime_Error_check__E() (1 times)
+	ti_sysbios_family_arm_m3_Hwi_construct() (1 times)
+	ti_sysbios_family_arm_m3_Hwi_Params_init() (1 times)
+	xdc_runtime_Error_init__E() (1 times)
+
+extern void EK_TM4C1294XL_initEMAC() is called from 0 sites in this file.
+    It appears to be inlineable (size = 110 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	EMAC_init() (1 times)
+	GPIOPinTypeEthernetLED() (1 times)
+	GPIOPinConfigure() (2 times)
+	xdc_runtime_System_printf__E() (1 times)
+	xdc_runtime_System_abort__E() (1 times)
+	FlashUserGet() (1 times)
+
+extern void EK_TM4C1294XL_initGPIO() is called from 0 sites in this file.
+    It appears to be inlineable (size = 13 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	GPIO_init() (1 times)
+	GPIOPadConfigSet() (1 times)
+	GPIOPinTypeGPIOInput() (1 times)
+	GPIOPinTypeGPIOOutput() (1 times)
+
+extern void EK_TM4C1294XL_initGeneral() is called from 0 sites in this file.
+    It appears to be inlineable (size = 37 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	SysCtlPeripheralEnable() (18 times)
+
+extern void EK_TM4C1294XL_initUSB() is called from 0 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	xdc_runtime_System_abort__E() (1 times)
+	xdc_runtime_Error_check__E() (1 times)
+	ti_sysbios_family_arm_m3_Hwi_construct() (1 times)
+	ti_sysbios_family_arm_m3_Hwi_Params_init() (1 times)
+	xdc_runtime_Error_init__E() (1 times)
+	GPIOIntClear() (1 times)
+	GPIOIntTypeSet() (1 times)
+	GPIOPadConfigSet() (1 times)
+	GPIOPinTypeUSBDigital() (1 times)
+	GPIOPinConfigure() (1 times)
+	GPIOPinTypeUSBAnalog() (2 times)
+	SysCtlUSBPLLEnable() (1 times)
+	SysCtlPeripheralEnable() (1 times)
+
+static void EK_TM4C1294XL_usbBusFaultHwi() is called from 0 sites in this file.
+    It appears to be inlineable (size = 7 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	xdc_runtime_System_abort__E() (1 times)
+	ti_sysbios_family_arm_m3_Hwi_clearInterrupt__E() (1 times)
+	xdc_runtime_System_printf__E() (1 times)
+
+static void ti_sysbios_family_arm_m3_Hwi_Params_init() is called from 2 sites in this file.
+    It appears to be inlineable (size = 10 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	ti_sysbios_family_arm_m3_Hwi_Params__init__S() (1 times)
+
+Address of global variable is never taken:
+	static unsigned short DMA_initialized
+
+
+
+These functions may be recursive:
+	EK_TM4C1294XL_errorDMAHwi()
+	EK_TM4C1294XL_initDMA()
+	EK_TM4C1294XL_initEMAC()
+	EK_TM4C1294XL_initGPIO()
+	EK_TM4C1294XL_initGeneral()
+	EK_TM4C1294XL_initUSB()
+	ti_sysbios_family_arm_m3_Hwi_Params_init()
+	EK_TM4C1294XL_usbBusFaultHwi()
+Inlineable function will be suppressed: ti_sysbios_family_arm_m3_Hwi_Params_init()
+
+These external functions are called but not defined here:
+	ti_sysbios_family_arm_m3_Hwi_Params__init__S()
+	ti_sysbios_family_arm_m3_Hwi_clearInterrupt__E()
+	SysCtlUSBPLLEnable()
+	GPIOPinTypeUSBAnalog()
+	GPIOPinTypeUSBDigital()
+	GPIOIntTypeSet()
+	GPIOIntClear()
+	GPIOPinTypeGPIOOutput()
+	GPIOPinTypeGPIOInput()
+	GPIOPadConfigSet()
+	GPIO_init()
+	FlashUserGet()
+	GPIOPinConfigure()
+	GPIOPinTypeEthernetLED()
+	EMAC_init()
+	xdc_runtime_Error_init__E()
+	ti_sysbios_family_arm_m3_Hwi_construct()
+	xdc_runtime_Error_check__E()
+	SysCtlPeripheralEnable()
+	uDMAEnable()
+	uDMAControlBaseSet()
+	xdc_runtime_System_printf__E()
+	uDMAErrorStatusGet()
+	uDMAErrorStatusClear()
+	xdc_runtime_System_abort__E()
+
+
+The following variables will be grouped together to share a common
+base address.  References in the source interlisting will look like
+"1$$.macAddress", "K$1->macAddress", "C$1->macAddress", "&1$$+2", and "C$1+2".
+
+     --offset--    --size--	--variable--
+
+          0            2	static unsigned short DMA_initialized
+          2            6	extern unsigned char macAddress[6]
+          8           28	static struct ti_sysbios_family_arm_m3_Hwi_Struct dmaHwiStruct
+         36           28	static struct ti_sysbios_family_arm_m3_Hwi_Struct usbBusFaultHwiStruct
+       1024          512	static struct $$fake0 EK_TM4C1294XL_DMAControlTable[32]
+
+
+		======= End file-level Analysis =======
+
+
+==============================================================================
+
+static void EK_TM4C1294XL_usbBusFaultHwi() is called from 0 sites in this file.
+    It appears to be inlineable (size = 7 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+There are 0 memory accesses with 0 dependences.
+
+
+==============================================================================
+
+extern void EK_TM4C1294XL_initUSB() is called from 0 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	ti_sysbios_family_arm_m3_Hwi_Params_init() (1 times)
+
+There are 2 memory accesses with 1 dependences.
+
+
+==============================================================================
+
+extern void EK_TM4C1294XL_initGeneral() is called from 0 sites in this file.
+    It appears to be inlineable (size = 37 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+There are 0 memory accesses with 0 dependences.
+
+
+==============================================================================
+
+extern void EK_TM4C1294XL_initGPIO() is called from 0 sites in this file.
+    It appears to be inlineable (size = 13 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+There are 0 memory accesses with 0 dependences.
+
+
+==============================================================================
+
+extern void EK_TM4C1294XL_initEMAC() is called from 0 sites in this file.
+    It appears to be inlineable (size = 110 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+There are 20 memory accesses with 6 dependences.
+
+
+==============================================================================
+
+extern void EK_TM4C1294XL_initDMA() is called from 0 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	ti_sysbios_family_arm_m3_Hwi_Params_init() (1 times)
+
+There are 2 memory accesses with 1 dependences.
+
+
+==============================================================================
+
+static void EK_TM4C1294XL_errorDMAHwi() is called from 0 sites in this file.
+    It appears to be inlineable (size = 7 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+There are 0 memory accesses with 0 dependences.
+
+
+== END OF INFO OUTPUT==
