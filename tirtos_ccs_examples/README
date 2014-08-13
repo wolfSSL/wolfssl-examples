@@ -41,8 +41,9 @@ Running CyaSSL CTaoCrypt benchmark and test application.
 Getting Optimal Results for the benchmarks
 --------------------------------------------------------
 The example included in this repository has all the correct optimization settings and will re-build the relevant
-c files at compile time. In CCS go to the Project tab. Click "Import CCS Projects..."
+c files at compile time. In CCS go to the Project tab. Click "Import CCS Projects...". 
 Click "Browse..." and navigate to <cyassl_root>/tirtos/tirtos_ccs_examples/ and click "OK". In the "Discovered projects"
-window you will see all CCS projects. Check the ones you would like to import into the workspace and click "Finish".
+window you will see all CCS projects. Check the ones you would like to import into the workspace, and check
+the box at the bottom labled "Copy projects into workspace", now click "Finish".
 Build and debug the benchmark project to see Optimal results and additional benchmarks for camellia, rabbit, chacha, 
 poly1305, sha512, and ECC. 
