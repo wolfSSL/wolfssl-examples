@@ -1,6 +1,6 @@
 ;******************************************************************************
 ;* TI ARM C/C++ Codegen                                             PC v5.1.6 *
-;* Date/Time created: Wed Aug 13 09:47:39 2014                                *
+;* Date/Time created: Wed Aug 13 10:20:05 2014                                *
 ;******************************************************************************
 	.compiler_opts --abi=eabi --arm_vmrs_si_workaround=on --code_state=16 --diag_wrap=off --disable_dual_state --embedded_constants=on --endian=little --float_support=FPv4SPD16 --hll_source=on --object_format=elf --silicon_version=7M4 --symdebug:dwarf --symdebug:dwarf_version=3 --unaligned_access=on 
 	.thumb
@@ -9,7 +9,7 @@ $C$DW$CU	.dwtag  DW_TAG_compile_unit
 	.dwattr $C$DW$CU, DW_AT_name("C:/cyassl/ctaocrypt/src/ecc.c")
 	.dwattr $C$DW$CU, DW_AT_producer("TI TI ARM C/C++ Codegen PC v5.1.6 Copyright (c) 1996-2014 Texas Instruments Incorporated")
 	.dwattr $C$DW$CU, DW_AT_TI_version(0x01)
-	.dwattr $C$DW$CU, DW_AT_comp_dir("C:\cyassl\tirtos\ccs_examples\cyassl_tirtos_benchmark\Debug")
+	.dwattr $C$DW$CU, DW_AT_comp_dir("C:\Users\khimes\workspace_v6_0\cyassl_tirtos_benchmark\Debug")
 
 $C$DW$1	.dwtag  DW_TAG_subprogram, DW_AT_name("memcpy")
 	.dwattr $C$DW$1, DW_AT_TI_symbol_name("memcpy")
@@ -683,7 +683,7 @@ $C$DW$132	.dwtag  DW_TAG_variable, DW_AT_name("ecc_sets")
 	.dwattr $C$DW$132, DW_AT_decl_file("C:/cyassl/ctaocrypt/src/ecc.c")
 	.dwattr $C$DW$132, DW_AT_decl_line(0x3e)
 	.dwattr $C$DW$132, DW_AT_decl_column(0x14)
-;	c:\ti\ccsv6\tools\compiler\arm_5.1.6\bin\armopt.exe --call_assumptions=3 --gen_opt_info=2 C:\\Users\\khimes\\AppData\\Local\\Temp\\010202 C:\\Users\\khimes\\AppData\\Local\\Temp\\010204 --opt_info_filename=cyassl/ctaocrypt/src/ecc.nfo 
+;	c:\ti\ccsv6\tools\compiler\arm_5.1.6\bin\armopt.exe --call_assumptions=3 --gen_opt_info=2 C:\\Users\\khimes\\AppData\\Local\\Temp\\015602 C:\\Users\\khimes\\AppData\\Local\\Temp\\015604 --opt_info_filename=cyassl/ctaocrypt/src/ecc.nfo 
 	.sect	".text:ecc_is_valid_idx"
 	.clink
 	.thumbfunc ecc_is_valid_idx

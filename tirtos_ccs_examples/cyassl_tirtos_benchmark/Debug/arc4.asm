@@ -1,6 +1,6 @@
 ;******************************************************************************
 ;* TI ARM C/C++ Codegen                                             PC v5.1.6 *
-;* Date/Time created: Wed Aug 13 09:47:04 2014                                *
+;* Date/Time created: Wed Aug 13 10:19:15 2014                                *
 ;******************************************************************************
 	.compiler_opts --abi=eabi --arm_vmrs_si_workaround=on --code_state=16 --diag_wrap=off --disable_dual_state --embedded_constants=on --endian=little --float_support=FPv4SPD16 --hll_source=on --object_format=elf --silicon_version=7M4 --symdebug:dwarf --symdebug:dwarf_version=3 --unaligned_access=on 
 	.thumb
@@ -9,8 +9,8 @@ $C$DW$CU	.dwtag  DW_TAG_compile_unit
 	.dwattr $C$DW$CU, DW_AT_name("C:/cyassl/ctaocrypt/src/arc4.c")
 	.dwattr $C$DW$CU, DW_AT_producer("TI TI ARM C/C++ Codegen PC v5.1.6 Copyright (c) 1996-2014 Texas Instruments Incorporated")
 	.dwattr $C$DW$CU, DW_AT_TI_version(0x01)
-	.dwattr $C$DW$CU, DW_AT_comp_dir("C:\cyassl\tirtos\ccs_examples\cyassl_tirtos_benchmark\Debug")
-;	c:\ti\ccsv6\tools\compiler\arm_5.1.6\bin\armopt.exe --call_assumptions=3 --gen_opt_info=2 C:\\Users\\khimes\\AppData\\Local\\Temp\\034362 C:\\Users\\khimes\\AppData\\Local\\Temp\\034364 --opt_info_filename=cyassl/ctaocrypt/src/arc4.nfo 
+	.dwattr $C$DW$CU, DW_AT_comp_dir("C:\Users\khimes\workspace_v6_0\cyassl_tirtos_benchmark\Debug")
+;	c:\ti\ccsv6\tools\compiler\arm_5.1.6\bin\armopt.exe --call_assumptions=3 --gen_opt_info=2 C:\\Users\\khimes\\AppData\\Local\\Temp\\034322 C:\\Users\\khimes\\AppData\\Local\\Temp\\034324 --opt_info_filename=cyassl/ctaocrypt/src/arc4.nfo 
 	.sect	".text:Arc4SetKey"
 	.clink
 	.thumbfunc Arc4SetKey

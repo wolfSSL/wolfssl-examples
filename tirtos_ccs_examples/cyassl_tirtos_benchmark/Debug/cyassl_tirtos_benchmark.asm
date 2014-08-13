@@ -1,6 +1,6 @@
 ;******************************************************************************
 ;* TI ARM C/C++ Codegen                                             PC v5.1.6 *
-;* Date/Time created: Wed Aug 13 09:46:57 2014                                *
+;* Date/Time created: Wed Aug 13 10:19:05 2014                                *
 ;******************************************************************************
 	.compiler_opts --abi=eabi --arm_vmrs_si_workaround=on --code_state=16 --diag_wrap=off --disable_dual_state --embedded_constants=on --endian=little --float_support=FPv4SPD16 --hll_source=on --object_format=elf --silicon_version=7M4 --symdebug:dwarf --symdebug:dwarf_version=3 --unaligned_access=on 
 	.thumb
@@ -9,7 +9,7 @@ $C$DW$CU	.dwtag  DW_TAG_compile_unit
 	.dwattr $C$DW$CU, DW_AT_name("../cyassl_tirtos_benchmark.c")
 	.dwattr $C$DW$CU, DW_AT_producer("TI TI ARM C/C++ Codegen PC v5.1.6 Copyright (c) 1996-2014 Texas Instruments Incorporated")
 	.dwattr $C$DW$CU, DW_AT_TI_version(0x01)
-	.dwattr $C$DW$CU, DW_AT_comp_dir("C:\cyassl\tirtos\ccs_examples\cyassl_tirtos_benchmark\Debug")
+	.dwattr $C$DW$CU, DW_AT_comp_dir("C:\Users\khimes\workspace_v6_0\cyassl_tirtos_benchmark\Debug")
 
 $C$DW$1	.dwtag  DW_TAG_subprogram, DW_AT_name("ti_sysbios_BIOS_start__E")
 	.dwattr $C$DW$1, DW_AT_TI_symbol_name("ti_sysbios_BIOS_start__E")
@@ -203,7 +203,7 @@ $C$DW$35	.dwtag  DW_TAG_variable, DW_AT_name("msTicks")
 	.dwattr $C$DW$35, DW_AT_decl_file("../cyassl_tirtos_benchmark.c")
 	.dwattr $C$DW$35, DW_AT_decl_line(0x40)
 	.dwattr $C$DW$35, DW_AT_decl_column(0x0f)
-;	c:\ti\ccsv6\tools\compiler\arm_5.1.6\bin\armopt.exe --call_assumptions=3 --gen_opt_info=2 C:\\Users\\khimes\\AppData\\Local\\Temp\\026962 C:\\Users\\khimes\\AppData\\Local\\Temp\\026964 --opt_info_filename=cyassl_tirtos_benchmark.nfo 
+;	c:\ti\ccsv6\tools\compiler\arm_5.1.6\bin\armopt.exe --call_assumptions=3 --gen_opt_info=2 C:\\Users\\khimes\\AppData\\Local\\Temp\\024442 C:\\Users\\khimes\\AppData\\Local\\Temp\\024444 --opt_info_filename=cyassl_tirtos_benchmark.nfo 
 ;
 
 ; The following variables will be grouped together to share a common
