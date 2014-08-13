@@ -1,0 +1,561 @@
+TI ARM C/C++ Optimizer                  v5.1.6
+Build Number 1OE9R-KDADEMDK-RTARQ-WAR-ZAZE_V_R_W
+
+		======File-level Analysis Summary======
+
+
+extern void ecc_del_point() is called from 8 sites in this file.
+    It appears to be inlineable (size = 16 units)
+    It has 4 non-trivial scope blocks nested 4 deep.
+    It calls these functions:
+	CyaSSL_Free() (1 times)
+	mp_clear() (3 times)
+
+extern int ecc_export_private_only() is called from 0 sites in this file.
+    It appears to be inlineable (size = 44 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	mp_unsigned_bin_size() (1 times)
+	mp_to_unsigned_bin() (1 times)
+	memset() (1 times)
+	ecc_is_valid_idx() (1 times)
+
+extern int ecc_export_x963() is called from 0 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	memcpy() (2 times)
+	mp_unsigned_bin_size() (2 times)
+	mp_to_unsigned_bin() (2 times)
+	memset() (2 times)
+	ecc_is_valid_idx() (1 times)
+
+extern void ecc_free() is called from 3 sites in this file.
+    It appears to be inlineable (size = 18 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	mp_clear() (4 times)
+
+extern int ecc_import_private_key() is called from 0 sites in this file.
+    It appears to be inlineable (size = 22 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	mp_read_unsigned_bin() (1 times)
+	ecc_import_x963() (1 times)
+
+extern int ecc_import_x963() is called from 1 sites in this file.
+    It appears to be inlineable (size = 162 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	mp_clear() (4 times)
+	mp_set() (1 times)
+	mp_read_unsigned_bin() (2 times)
+	mp_init_multi() (1 times)
+
+extern void ecc_init() is called from 0 sites in this file.
+    It appears to be inlineable (size = 1 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+static int ecc_is_valid_idx() is called from 6 sites in this file.
+    It appears to be inlineable (size = 33 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+extern int ecc_make_key() is called from 0 sites in this file.
+    It appears to be inlineable (size = 75 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	ecc_make_key_ex() (1 times)
+
+extern int ecc_make_key_ex() is called from 2 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	ecc_del_point() (1 times)
+	mp_clear() (6 times)
+	ecc_mulmod() (1 times)
+	mp_mod() (1 times)
+	mp_cmp() (1 times)
+	mp_read_unsigned_bin() (1 times)
+	mp_set() (1 times)
+	mp_read_radix() (4 times)
+	ecc_new_point() (1 times)
+	mp_init_multi() (1 times)
+	RNG_GenerateBlock() (1 times)
+
+extern int ecc_map() is called from 2 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	mp_clear() (2 times)
+	mp_set() (1 times)
+	mp_mul() (3 times)
+	mp_mod() (2 times)
+	mp_sqr() (1 times)
+	mp_invmod() (1 times)
+	mp_montgomery_reduce() (3 times)
+	mp_init_multi() (1 times)
+
+static int ecc_mulmod() is called from 4 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	get_digit() (1 times)
+	ecc_map() (1 times)
+	get_digit_count() (1 times)
+	ecc_projective_add_point() (3 times)
+	ecc_projective_dbl_point() (6 times)
+	mp_mulmod() (3 times)
+	mp_copy() (9 times)
+	mp_cmp_d() (1 times)
+	ecc_del_point() (3 times)
+	ecc_new_point() (2 times)
+	mp_clear() (4 times)
+	mp_montgomery_calc_normalization() (1 times)
+	mp_init() (1 times)
+	mp_montgomery_setup() (1 times)
+
+extern struct $$fake1 *ecc_new_point() is called from 6 sites in this file.
+    It appears to be inlineable (size = 28 units)
+    It has 4 non-trivial scope blocks nested 4 deep.
+    It calls these functions:
+	CyaSSL_Free() (1 times)
+	mp_init_multi() (1 times)
+	memset() (1 times)
+	CyaSSL_Malloc() (1 times)
+
+extern int ecc_projective_add_point() is called from 4 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	fp_div_2() (1 times)
+	fp_add() (11 times)
+	fp_cmp_d() (6 times)
+	fp_mul() (12 times)
+	fp_montgomery_reduce() (16 times)
+	fp_sqr() (4 times)
+	memcpy() (6 times)
+	ecc_projective_dbl_point() (1 times)
+	get_digit_count() (3 times)
+	fp_cmp() (8 times)
+	fp_sub() (11 times)
+	mp_init_multi() (1 times)
+
+extern int ecc_projective_dbl_point() is called from 7 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	fp_div_2() (1 times)
+	fp_cmp_d() (5 times)
+	fp_sub() (10 times)
+	fp_cmp() (5 times)
+	fp_add() (11 times)
+	fp_mul() (4 times)
+	fp_montgomery_reduce() (8 times)
+	fp_sqr() (4 times)
+	mp_init_multi() (1 times)
+	memcpy() (3 times)
+
+extern int ecc_shared_secret() is called from 0 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	mp_clear() (1 times)
+	mp_to_unsigned_bin() (1 times)
+	memset() (1 times)
+	mp_unsigned_bin_size() (2 times)
+	ecc_mulmod() (1 times)
+	mp_read_radix() (1 times)
+	ecc_del_point() (2 times)
+	mp_init() (1 times)
+	ecc_new_point() (1 times)
+	strncmp() (1 times)
+	ecc_is_valid_idx() (2 times)
+
+extern int ecc_sig_size() is called from 0 sites in this file.
+    It appears to be inlineable (size = 14 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	ecc_size() (1 times)
+
+extern int ecc_sign_hash() is called from 0 sites in this file.
+    It has 5 non-trivial scope blocks nested 4 deep.
+    It calls these functions:
+	mp_clear() (4 times)
+	StoreECC_DSA_Sig() (1 times)
+	ecc_free() (3 times)
+	mp_add() (1 times)
+	mp_mulmod() (2 times)
+	mp_invmod() (1 times)
+	mp_iszero() (2 times)
+	mp_mod() (2 times)
+	ecc_make_key_ex() (1 times)
+	mp_rshb() (1 times)
+	mp_read_unsigned_bin() (1 times)
+	mp_count_bits() (1 times)
+	mp_read_radix() (1 times)
+	mp_init_multi() (1 times)
+	ecc_is_valid_idx() (1 times)
+
+extern int ecc_size() is called from 1 sites in this file.
+    It appears to be inlineable (size = 9 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+extern int ecc_verify_hash() is called from 0 sites in this file.
+    It has 5 non-trivial scope blocks nested 4 deep.
+    It calls these functions:
+	ecc_del_point() (2 times)
+	mp_mod() (1 times)
+	ecc_map() (1 times)
+	ecc_projective_add_point() (1 times)
+	mp_montgomery_setup() (1 times)
+	ecc_mulmod() (2 times)
+	mp_copy() (3 times)
+	mp_set() (1 times)
+	mp_mulmod() (2 times)
+	mp_invmod() (1 times)
+	mp_rshb() (1 times)
+	mp_read_unsigned_bin() (1 times)
+	mp_count_bits() (1 times)
+	mp_cmp() (3 times)
+	mp_iszero() (2 times)
+	mp_read_radix() (4 times)
+	DecodeECC_DSA_Sig() (1 times)
+	memset() (2 times)
+	ecc_new_point() (2 times)
+	mp_clear() (15 times)
+	mp_init() (1 times)
+	mp_init_multi() (1 times)
+	ecc_is_valid_idx() (1 times)
+
+static unsigned get_digit() is called from 1 sites in this file.
+    It appears to be inlineable (size = 23 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+static int get_digit_count() is called from 4 sites in this file.
+    It appears to be inlineable (size = 8 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+static int strncmp() is called from 1 sites in this file.
+    It appears to be inlineable (size = 32 units)
+    It has 4 non-trivial scope blocks nested 4 deep.
+    It calls these functions:
+	<NONE>
+
+
+These functions may be recursive:
+	ecc_export_private_only()
+	ecc_export_x963()
+	ecc_import_private_key()
+	ecc_import_x963()
+	ecc_make_key()
+	ecc_shared_secret()
+	ecc_sign_hash()
+	ecc_free()
+	ecc_make_key_ex()
+	ecc_verify_hash()
+	ecc_mulmod()
+	ecc_map()
+	ecc_projective_add_point()
+	ecc_projective_dbl_point()
+	ecc_del_point()
+	ecc_new_point()
+
+Results of interprocedural value propagation:
+
+   static int ecc_mulmod() has these parameter attributes:
+      int map :           map <= 1;  map >= 0;
+Inlineable function will be suppressed: strncmp()
+
+Making this function inlineable: get_digit()
+Inlineable function will be suppressed: get_digit()
+
+These external functions are called but not defined here:
+	memcpy()
+	memset()
+	DecodeECC_DSA_Sig()
+	mp_count_bits()
+	mp_rshb()
+	mp_iszero()
+	mp_add()
+	StoreECC_DSA_Sig()
+	fp_sub()
+	fp_cmp()
+	fp_sqr()
+	fp_montgomery_reduce()
+	fp_mul()
+	fp_cmp_d()
+	fp_add()
+	fp_div_2()
+	CyaSSL_Malloc()
+	mp_montgomery_setup()
+	mp_init()
+	mp_montgomery_calc_normalization()
+	mp_cmp_d()
+	mp_copy()
+	mp_mulmod()
+	mp_montgomery_reduce()
+	mp_invmod()
+	mp_sqr()
+	mp_mul()
+	RNG_GenerateBlock()
+	mp_read_radix()
+	mp_cmp()
+	mp_mod()
+	mp_init_multi()
+	mp_set()
+	mp_read_unsigned_bin()
+	mp_to_unsigned_bin()
+	mp_unsigned_bin_size()
+	mp_clear()
+	CyaSSL_Free()
+
+
+		======= End file-level Analysis =======
+
+
+==============================================================================
+
+static int ecc_is_valid_idx() is called from 6 sites in this file.
+    It appears to be inlineable (size = 33 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+There are 2 memory accesses with 0 dependences.
+
+
+==============================================================================
+
+extern struct $$fake1 *ecc_new_point() is called from 6 sites in this file.
+    It appears to be inlineable (size = 28 units)
+    It has 4 non-trivial scope blocks nested 4 deep.
+    It calls these functions:
+	<NONE>
+
+There are 0 memory accesses with 0 dependences.
+
+
+==============================================================================
+
+extern void ecc_del_point() is called from 8 sites in this file.
+    It appears to be inlineable (size = 16 units)
+    It has 4 non-trivial scope blocks nested 4 deep.
+    It calls these functions:
+	<NONE>
+
+There are 0 memory accesses with 0 dependences.
+
+
+==============================================================================
+
+extern int ecc_projective_dbl_point() is called from 7 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+There are 10 memory accesses with 0 dependences.
+
+
+==============================================================================
+
+static int get_digit_count() is called from 4 sites in this file.
+    It appears to be inlineable (size = 8 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+There are 1 memory accesses with 0 dependences.
+
+
+==============================================================================
+
+extern int ecc_projective_add_point() is called from 4 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	get_digit_count() (3 times)
+	ecc_projective_dbl_point() (1 times)
+
+There are 18 memory accesses with 0 dependences.
+
+
+==============================================================================
+
+extern int ecc_map() is called from 2 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+There are 3 memory accesses with 0 dependences.
+
+
+==============================================================================
+
+static int ecc_mulmod() is called from 4 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	ecc_new_point() (2 times)
+	ecc_del_point() (3 times)
+	ecc_projective_dbl_point() (6 times)
+	ecc_projective_add_point() (3 times)
+	get_digit_count() (1 times)
+	ecc_map() (1 times)
+	get_digit() (1 times)
+
+There are 16 memory accesses with 26 dependences.
+
+
+==============================================================================
+
+extern int ecc_verify_hash() is called from 0 sites in this file.
+    It has 5 non-trivial scope blocks nested 4 deep.
+    It calls these functions:
+	ecc_is_valid_idx() (1 times)
+	ecc_new_point() (2 times)
+	ecc_mulmod() (2 times)
+	ecc_projective_add_point() (1 times)
+	ecc_map() (1 times)
+	ecc_del_point() (2 times)
+
+There are 11 memory accesses with 19 dependences.
+
+
+==============================================================================
+
+extern int ecc_size() is called from 1 sites in this file.
+    It appears to be inlineable (size = 9 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+There are 2 memory accesses with 0 dependences.
+
+
+==============================================================================
+
+extern int ecc_make_key_ex() is called from 2 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	ecc_new_point() (1 times)
+	ecc_mulmod() (1 times)
+	ecc_del_point() (1 times)
+
+There are 13 memory accesses with 19 dependences.
+
+
+==============================================================================
+
+extern void ecc_free() is called from 3 sites in this file.
+    It appears to be inlineable (size = 18 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+There are 0 memory accesses with 0 dependences.
+
+
+==============================================================================
+
+extern int ecc_sign_hash() is called from 0 sites in this file.
+    It has 5 non-trivial scope blocks nested 4 deep.
+    It calls these functions:
+	ecc_is_valid_idx() (1 times)
+	ecc_make_key_ex() (1 times)
+	ecc_free() (3 times)
+
+There are 5 memory accesses with 0 dependences.
+
+
+==============================================================================
+
+extern int ecc_sig_size() is called from 0 sites in this file.
+    It appears to be inlineable (size = 14 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	ecc_size() (1 times)
+
+There are 0 memory accesses with 0 dependences.
+
+
+==============================================================================
+
+extern int ecc_shared_secret() is called from 0 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	ecc_is_valid_idx() (2 times)
+	strncmp() (1 times)
+	ecc_new_point() (1 times)
+	ecc_del_point() (2 times)
+	ecc_mulmod() (1 times)
+
+There are 13 memory accesses with 12 dependences.
+
+
+==============================================================================
+
+extern int ecc_make_key() is called from 0 sites in this file.
+    It appears to be inlineable (size = 75 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	ecc_make_key_ex() (1 times)
+
+There are 4 memory accesses with 0 dependences.
+
+
+==============================================================================
+
+extern void ecc_init() is called from 0 sites in this file.
+    It appears to be inlineable (size = 1 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+There are 0 memory accesses with 0 dependences.
+
+
+==============================================================================
+
+extern int ecc_import_x963() is called from 1 sites in this file.
+    It appears to be inlineable (size = 162 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+There are 6 memory accesses with 3 dependences.
+
+
+==============================================================================
+
+extern int ecc_import_private_key() is called from 0 sites in this file.
+    It appears to be inlineable (size = 22 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	ecc_import_x963() (1 times)
+
+There are 1 memory accesses with 0 dependences.
+
+
+==============================================================================
+
+extern int ecc_export_x963() is called from 0 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	ecc_is_valid_idx() (1 times)
+
+There are 7 memory accesses with 15 dependences.
+
+
+==============================================================================
+
+extern int ecc_export_private_only() is called from 0 sites in this file.
+    It appears to be inlineable (size = 44 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	ecc_is_valid_idx() (1 times)
+
+There are 6 memory accesses with 9 dependences.
+
+
+== END OF INFO OUTPUT==

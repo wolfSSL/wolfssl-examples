@@ -1,0 +1,176 @@
+TI ARM C/C++ Optimizer                  v5.1.6
+Build Number 1OE9R-KDADEMDK-RTARQ-WAR-ZAZE_V_R_W
+
+		======File-level Analysis Summary======
+
+
+static void AddLength() is called from 2 sites in this file.
+    It appears to be inlineable (size = 16 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+static unsigned ByteReverseWord32() is called from 1 sites in this file.
+    It appears to be inlineable (size = 15 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	rotlFixed() (1 times)
+
+static void ByteReverseWords() is called from 4 sites in this file.
+    It appears to be inlineable (size = 29 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	ByteReverseWord32() (1 times)
+
+extern int InitSha() is called from 2 sites in this file.
+    It appears to be inlineable (size = 30 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+extern int ShaFinal() is called from 1 sites in this file.
+    It appears to be inlineable (size = 88 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	InitSha() (1 times)
+	memcpy() (3 times)
+	Transform() (2 times)
+	ByteReverseWords() (3 times)
+	memset() (2 times)
+	AddLength() (1 times)
+
+extern int ShaHash() is called from 0 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	ShaFinal() (1 times)
+	ShaUpdate() (1 times)
+	InitSha() (1 times)
+
+extern int ShaUpdate() is called from 1 sites in this file.
+    It appears to be inlineable (size = 44 units)
+    It has 4 non-trivial scope blocks nested 4 deep.
+    It calls these functions:
+	AddLength() (1 times)
+	Transform() (1 times)
+	ByteReverseWords() (1 times)
+	memcpy() (1 times)
+	min() (1 times)
+
+static void Transform() is called from 3 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	rotlFixed() (224 times)
+
+static unsigned min() is called from 1 sites in this file.
+    It appears to be inlineable (size = 9 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+static unsigned rotlFixed() is called from 225 sites in this file.
+    It appears to be inlineable (size = 10 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+
+Results of interprocedural value propagation:
+
+   static void ByteReverseWords() has these parameter attributes:
+      unsigned byteCount :  byteCount%44u == 20u;  byteCount <= 64u;  byteCount >= 20u;
+
+Results of interprocedural value propagation:
+
+   static unsigned rotlFixed() has these parameter attributes:
+      unsigned y :        y <= 30u;  y >= 1u;
+Inlineable function will be suppressed: rotlFixed()
+Inlineable function will be suppressed: min()
+Inlineable function will be suppressed: ByteReverseWord32()
+Inlineable function will be suppressed: AddLength()
+Inlineable function will be suppressed: ByteReverseWords()
+
+These external functions are called but not defined here:
+	memset()
+	memcpy()
+
+
+		======= End file-level Analysis =======
+
+
+==============================================================================
+
+static void Transform() is called from 3 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	rotlFixed() (224 times)
+
+There are 39 memory accesses with 5 dependences.
+
+
+==============================================================================
+
+extern int ShaUpdate() is called from 1 sites in this file.
+    It appears to be inlineable (size = 44 units)
+    It has 4 non-trivial scope blocks nested 4 deep.
+    It calls these functions:
+	min() (1 times)
+	ByteReverseWords() (1 times)
+	Transform() (1 times)
+	AddLength() (1 times)
+Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/misc.c:102-103 by factor 4.
+Estimated speedup: 1.19x, code size increase: 3.57x (14:->50)
+
+		====== Unroll-and-jam Result Summary ======
+
+LOOP#1 in ShaUpdate() fails to unroll-and-jam: Outer Loop has multiple blocks
+
+		====== End Unroll-and-jam Result ======
+
+
+There are 15 memory accesses with 116 dependences.
+
+
+==============================================================================
+
+extern int InitSha() is called from 2 sites in this file.
+    It appears to be inlineable (size = 30 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+There are 8 memory accesses with 0 dependences.
+
+
+==============================================================================
+
+extern int ShaFinal() is called from 1 sites in this file.
+    It appears to be inlineable (size = 88 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	AddLength() (1 times)
+	ByteReverseWords() (3 times)
+	Transform() (2 times)
+	InitSha() (1 times)
+Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/misc.c:102-103 by factor 4.
+Estimated speedup: 1.19x, code size increase: 3.57x (14:->50)
+Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/misc.c:102-103 by factor 4.
+Estimated speedup: 1.19x, code size increase: 3.57x (14:->50)
+Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/misc.c:102-103 completely by factor 5.
+Estimated speedup: 1.39x, code size increase: 4.29x (14:->60)
+
+There are 39 memory accesses with 232 dependences.
+
+
+==============================================================================
+
+extern int ShaHash() is called from 0 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	InitSha() (1 times)
+	ShaUpdate() (1 times)
+	ShaFinal() (1 times)
+
+There are 0 memory accesses with 0 dependences.
+
+
+== END OF INFO OUTPUT==

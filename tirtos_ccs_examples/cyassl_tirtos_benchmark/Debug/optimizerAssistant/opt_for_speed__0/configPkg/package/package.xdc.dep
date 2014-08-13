@@ -1,0 +1,53 @@
+clean::
+	$(RM) package/configPkg.sch
+	$(RM) package/.vers_g180
+	$(RM) package/.vers_r170
+	$(RM) package/.vers_b160
+	$(RM) package/.xdc-A32
+	$(RM) package/configPkg.java
+	$(RM) package/configPkg.class
+	$(RM) package/package_configPkg.c
+	$(RM) package/package.defs.h
+	$(RM) package/configPkg.ccs
+
+.interfaces: package/configPkg.sch package/.vers_g180 package/.vers_r170 package/.vers_b160 package/.xdc-A32 package/configPkg.java package/package_configPkg.c package/package.defs.h package/configPkg.ccs 
+package/package.xdc.inc: package/.vers_g180
+package/.vers_g180:
+package/package.xdc.inc: package/.vers_r170
+package/.vers_r170:
+package/package.xdc.inc: package/.vers_b160
+package/.vers_b160:
+
+.interfaces: 
+
+# schema include file dependencies
+package.xs:
+package/package.xdc.inc: package.xs
+
+# schema update dependencies
+package/package.xdc.inc: xdc/IPackage.xdc
+xdc/IPackage.xdc:
+vpath xdc/IPackage.xdc $(XPKGVPATH)
+
+ifneq (clean,$(MAKECMDGOALS))
+C:/ti/xdctools_3_30_01_25_core/packages/xdc/shelf/java/tar.jar:
+package/package.xdc.inc: C:/ti/xdctools_3_30_01_25_core/packages/xdc/shelf/java/tar.jar
+C:/ti/xdctools_3_30_01_25_core/packages/xdc/shelf/java/ecj.jar:
+package/package.xdc.inc: C:/ti/xdctools_3_30_01_25_core/packages/xdc/shelf/java/ecj.jar
+C:/ti/xdctools_3_30_01_25_core/packages/xdc/shelf/java/antlr.jar:
+package/package.xdc.inc: C:/ti/xdctools_3_30_01_25_core/packages/xdc/shelf/java/antlr.jar
+C:/ti/xdctools_3_30_01_25_core/packages/xdc/services/intern/gen/java/package.jar:
+package/package.xdc.inc: C:/ti/xdctools_3_30_01_25_core/packages/xdc/services/intern/gen/java/package.jar
+C:/ti/xdctools_3_30_01_25_core/packages/xdc/shelf/java/js.jar:
+package/package.xdc.inc: C:/ti/xdctools_3_30_01_25_core/packages/xdc/shelf/java/js.jar
+C:/ti/xdctools_3_30_01_25_core/packages/xdc/services/global/java/package.jar:
+package/package.xdc.inc: C:/ti/xdctools_3_30_01_25_core/packages/xdc/services/global/java/package.jar
+C:/ti/xdctools_3_30_01_25_core/packages/xdc/services/intern/xsr/java/package.jar:
+package/package.xdc.inc: C:/ti/xdctools_3_30_01_25_core/packages/xdc/services/intern/xsr/java/package.jar
+C:/ti/xdctools_3_30_01_25_core/packages/xdc/services/intern/cmd/java/package.jar:
+package/package.xdc.inc: C:/ti/xdctools_3_30_01_25_core/packages/xdc/services/intern/cmd/java/package.jar
+C:/ti/xdctools_3_30_01_25_core/packages/xdc/services/spec/java/package.jar:
+package/package.xdc.inc: C:/ti/xdctools_3_30_01_25_core/packages/xdc/services/spec/java/package.jar
+endif
+# goals for files generated during schema generation but unspecified by schema's pattern rule
+

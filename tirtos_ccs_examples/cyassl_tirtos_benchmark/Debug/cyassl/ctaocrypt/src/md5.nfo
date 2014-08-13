@@ -1,0 +1,140 @@
+TI ARM C/C++ Optimizer                  v5.1.6
+Build Number 1OE9R-KDADEMDK-RTARQ-WAR-ZAZE_V_R_W
+
+		======File-level Analysis Summary======
+
+
+static void AddLength() is called from 2 sites in this file.
+    It appears to be inlineable (size = 16 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+extern void InitMd5() is called from 2 sites in this file.
+    It appears to be inlineable (size = 25 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+extern void Md5Final() is called from 1 sites in this file.
+    It appears to be inlineable (size = 70 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	InitMd5() (1 times)
+	memcpy() (3 times)
+	Transform() (2 times)
+	memset() (2 times)
+	AddLength() (1 times)
+
+extern int Md5Hash() is called from 0 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	Md5Final() (1 times)
+	Md5Update() (1 times)
+	InitMd5() (1 times)
+
+extern void Md5Update() is called from 1 sites in this file.
+    It appears to be inlineable (size = 37 units)
+    It has 4 non-trivial scope blocks nested 4 deep.
+    It calls these functions:
+	AddLength() (1 times)
+	Transform() (1 times)
+	memcpy() (1 times)
+	min() (1 times)
+
+static void Transform() is called from 3 sites in this file.
+    It appears to be inlineable (size = 931 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	rotlFixed() (64 times)
+
+static unsigned min() is called from 1 sites in this file.
+    It appears to be inlineable (size = 9 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+static unsigned rotlFixed() is called from 64 sites in this file.
+    It appears to be inlineable (size = 10 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+
+Results of interprocedural value propagation:
+
+   static unsigned rotlFixed() has these parameter attributes:
+      unsigned y :        y <= 23u;  y >= 4u;
+Inlineable function will be suppressed: rotlFixed()
+Inlineable function will be suppressed: min()
+Inlineable function will be suppressed: AddLength()
+
+These external functions are called but not defined here:
+	memset()
+	memcpy()
+
+
+		======= End file-level Analysis =======
+
+
+==============================================================================
+
+static void Transform() is called from 3 sites in this file.
+    It appears to be inlineable (size = 931 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	rotlFixed() (64 times)
+
+There are 24 memory accesses with 4 dependences.
+
+
+==============================================================================
+
+extern void Md5Update() is called from 1 sites in this file.
+    It appears to be inlineable (size = 37 units)
+    It has 4 non-trivial scope blocks nested 4 deep.
+    It calls these functions:
+	min() (1 times)
+	Transform() (1 times)
+	AddLength() (1 times)
+
+There are 7 memory accesses with 16 dependences.
+
+
+==============================================================================
+
+extern void InitMd5() is called from 2 sites in this file.
+    It appears to be inlineable (size = 25 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+There are 7 memory accesses with 0 dependences.
+
+
+==============================================================================
+
+extern void Md5Final() is called from 1 sites in this file.
+    It appears to be inlineable (size = 70 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	AddLength() (1 times)
+	Transform() (2 times)
+	InitMd5() (1 times)
+
+There are 13 memory accesses with 29 dependences.
+
+
+==============================================================================
+
+extern int Md5Hash() is called from 0 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	InitMd5() (1 times)
+	Md5Update() (1 times)
+	Md5Final() (1 times)
+
+There are 0 memory accesses with 0 dependences.
+
+
+== END OF INFO OUTPUT==

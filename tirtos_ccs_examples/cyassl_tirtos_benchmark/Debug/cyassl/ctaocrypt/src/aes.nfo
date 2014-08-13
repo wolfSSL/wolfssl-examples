@@ -1,0 +1,216 @@
+TI ARM C/C++ Optimizer                  v5.1.6
+Build Number 1OE9R-KDADEMDK-RTARQ-WAR-ZAZE_V_R_W
+
+		======File-level Analysis Summary======
+
+
+extern int AesCbcDecrypt() is called from 0 sites in this file.
+    It appears to be inlineable (size = 45 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	xorbuf() (1 times)
+	AesDecrypt() (1 times)
+	memcpy() (2 times)
+
+extern int AesCbcEncrypt() is called from 0 sites in this file.
+    It appears to be inlineable (size = 41 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	memcpy() (1 times)
+	AesEncrypt() (1 times)
+	xorbuf() (1 times)
+
+static void AesDecrypt() is called from 1 sites in this file.
+    It appears to be inlineable (size = 807 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	ByteReverseWord32() (8 times)
+	memcpy() (8 times)
+
+static void AesEncrypt() is called from 1 sites in this file.
+    It appears to be inlineable (size = 807 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	ByteReverseWord32() (8 times)
+	memcpy() (8 times)
+
+extern int AesSetIV() is called from 1 sites in this file.
+    It appears to be inlineable (size = 23 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	memset() (1 times)
+	memcpy() (1 times)
+
+extern int AesSetKey() is called from 0 sites in this file.
+    It appears to be inlineable (size = 26 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	AesSetKeyLocal() (1 times)
+
+static int AesSetKeyLocal() is called from 1 sites in this file.
+    It appears to be inlineable (size = 1062 units)
+    It has 4 non-trivial scope blocks nested 4 deep.
+    It calls these functions:
+	AesSetIV() (1 times)
+	ByteReverseWords() (1 times)
+	memcpy() (1 times)
+
+static unsigned ByteReverseWord32() is called from 17 sites in this file.
+    It appears to be inlineable (size = 15 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	rotlFixed() (1 times)
+
+static void ByteReverseWords() is called from 1 sites in this file.
+    It appears to be inlineable (size = 29 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	ByteReverseWord32() (1 times)
+
+static void XorWords() is called from 1 sites in this file.
+    It appears to be inlineable (size = 26 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+static unsigned rotlFixed() is called from 1 sites in this file.
+    It appears to be inlineable (size = 10 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+static void xorbuf() is called from 2 sites in this file.
+    It appears to be inlineable (size = 34 units)
+    It has 4 non-trivial scope blocks nested 4 deep.
+    It calls these functions:
+	XorWords() (1 times)
+
+
+Function xorbuf() will be specialized on these parameters:
+	[3] count == 16u;
+
+Results of interprocedural value propagation:
+
+   static void xorbuf() has these parameter attributes:
+      unsigned count :    count == 16u;
+
+Function XorWords() will be specialized on these parameters:
+	[3] n == 4u;
+
+Results of interprocedural value propagation:
+
+   static void XorWords() has these parameter attributes:
+      unsigned n :        n == 4u;
+
+Function rotlFixed() will be specialized on these parameters:
+	[2] y == 16u;
+
+Results of interprocedural value propagation:
+
+   static unsigned rotlFixed() has these parameter attributes:
+      unsigned y :        y == 16u;
+Inlineable function will be suppressed: rotlFixed()
+Inlineable function will be suppressed: xorbuf()
+Inlineable function will be suppressed: ByteReverseWord32()
+Inlineable function will be suppressed: XorWords()
+Inlineable function will be suppressed: ByteReverseWords()
+
+Making this function inlineable: AesDecrypt()
+Inlineable function will be suppressed: AesDecrypt()
+
+Making this function inlineable: AesEncrypt()
+Inlineable function will be suppressed: AesEncrypt()
+
+Making this function inlineable: AesSetKeyLocal()
+Inlineable function will be suppressed: AesSetKeyLocal()
+
+These external functions are called but not defined here:
+	memset()
+	memcpy()
+
+
+The following variables will be grouped together to share a common
+base address.  References in the source interlisting will look like
+"1$$.Te", "K$1->Te", "C$1->Te", "&1$$+40", and "C$1+40".
+
+     --offset--    --size--	--variable--
+
+          0           40	static const unsigned rcon[10]
+         40         5120	static const unsigned Te[5][256]
+       5160         5120	static const unsigned Td[5][256]
+
+
+		======= End file-level Analysis =======
+
+
+==============================================================================
+
+extern int AesSetIV() is called from 1 sites in this file.
+    It appears to be inlineable (size = 23 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+There are 0 memory accesses with 0 dependences.
+
+
+==============================================================================
+
+extern int AesSetKey() is called from 0 sites in this file.
+    It appears to be inlineable (size = 26 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	AesSetKeyLocal() (1 times)
+Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/misc.c:102-103 completely by factor 8.
+Estimated speedup: 1.20x, code size increase: 7.14x (14:->100)
+
+There are 134 memory accesses with 4183 dependences.
+
+
+==============================================================================
+
+extern int AesCbcEncrypt() is called from 0 sites in this file.
+    It appears to be inlineable (size = 41 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	xorbuf() (1 times)
+	AesEncrypt() (1 times)
+Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/misc.c:155-155 completely by factor 4.
+Estimated speedup: 1.76x, code size increase: 2.67x (6:->16)
+Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/misc.c:168-168 completely by factor 16.
+Estimated speedup: 1.81x, code size increase: 10.67x (6:->64)
+
+		====== Unroll-and-jam Result Summary ======
+
+LOOP#1 in AesCbcEncrypt() fails to unroll-and-jam: Outer Loop has multiple blocks
+
+		====== End Unroll-and-jam Result ======
+
+
+There are 141 memory accesses with 3872 dependences.
+
+
+==============================================================================
+
+extern int AesCbcDecrypt() is called from 0 sites in this file.
+    It appears to be inlineable (size = 45 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	AesDecrypt() (1 times)
+	xorbuf() (1 times)
+Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/misc.c:155-155 completely by factor 4.
+Estimated speedup: 1.76x, code size increase: 2.67x (6:->16)
+Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/misc.c:168-168 completely by factor 16.
+Estimated speedup: 1.81x, code size increase: 10.67x (6:->64)
+
+		====== Unroll-and-jam Result Summary ======
+
+LOOP#1 in AesCbcDecrypt() fails to unroll-and-jam: Outer Loop has multiple blocks
+
+		====== End Unroll-and-jam Result ======
+
+
+There are 141 memory accesses with 3964 dependences.
+
+
+== END OF INFO OUTPUT==

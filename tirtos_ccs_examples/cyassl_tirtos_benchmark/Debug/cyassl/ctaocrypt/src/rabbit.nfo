@@ -1,0 +1,876 @@
+TI ARM C/C++ Optimizer                  v5.1.6
+Build Number 1OE9R-KDADEMDK-RTARQ-WAR-ZAZE_V_R_W
+Making RabbitSetKey a function synonym of DoKey
+Making RabbitProcess a function synonym of DoProcess
+
+		======File-level Analysis Summary======
+
+
+static int DoKey() is called from 1 sites in this file.
+    It appears to be inlineable (size = 192 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	RabbitSetIV() (1 times)
+	RABBIT_next_state() (1 times)
+	rotlFixed() (4 times)
+
+static int DoProcess() is called from 1 sites in this file.
+    It appears to be inlineable (size = 216 units)
+    It has 4 non-trivial scope blocks nested 4 deep.
+    It calls these functions:
+	memset() (1 times)
+	RABBIT_next_state() (2 times)
+
+static unsigned RABBIT_g_func() is called from 1 sites in this file.
+    It appears to be inlineable (size = 22 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+static void RABBIT_next_state() is called from 4 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	rotlFixed() (12 times)
+	RABBIT_g_func() (1 times)
+
+extern int RabbitProcess() is called from 0 sites in this file.
+    It appears to be inlineable (size = 10 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	DoProcess() (1 times)
+
+static void RabbitSetIV() is called from 1 sites in this file.
+    It appears to be inlineable (size = 133 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	RABBIT_next_state() (1 times)
+	memcpy() (1 times)
+	memset() (1 times)
+
+extern int RabbitSetKey() is called from 0 sites in this file.
+    It appears to be inlineable (size = 8 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	DoKey() (1 times)
+
+static unsigned rotlFixed() is called from 16 sites in this file.
+    It appears to be inlineable (size = 10 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+
+Results of interprocedural value propagation:
+
+   static unsigned rotlFixed() has these parameter attributes:
+      unsigned y :        y%8u == 0u;  y <= 16u;  y >= 8u;
+Inlineable function will be suppressed: rotlFixed()
+Inlineable function will be suppressed: DoKey()
+Inlineable function will be suppressed: DoProcess()
+
+Making this function inlineable: RABBIT_g_func()
+Inlineable function will be suppressed: RABBIT_g_func()
+
+Making this function inlineable: RabbitSetIV()
+Inlineable function will be suppressed: RabbitSetIV()
+
+These external functions are called but not defined here:
+	memcpy()
+	memset()
+
+
+		======= End file-level Analysis =======
+
+
+==============================================================================
+
+static void RABBIT_next_state() is called from 4 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	RABBIT_g_func() (1 times)
+	rotlFixed() (12 times)
+Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/rabbit.c:76-77 completely by factor 8.
+Estimated speedup: 2.18x, code size increase: 4.00x (4:->16)
+Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/rabbit.c:91-92 by factor 4.
+Estimated speedup: 1.18x, code size increase: 3.67x (18:->66)
+
+There are 74 memory accesses with 69 dependences.
+
+
+==============================================================================
+
+extern int RabbitSetKey() is called from 0 sites in this file.
+    It appears to be inlineable (size = 8 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	DoKey() (1 times)
+
+There are 0 memory accesses with 0 dependences.
+
+
+Inlineable function DoKey() was marked for suppression,
+but it cannot be because of a problematic use in RabbitSetKey().
+
+
+Inlineable function DoKey() was marked for suppression,
+but it cannot be because of a problematic use in RabbitSetKey().
+
+
+Inlineable function DoKey() was marked for suppression,
+but it cannot be because of a problematic use in RabbitSetKey().
+
+
+==============================================================================
+
+extern int RabbitProcess() is called from 0 sites in this file.
+    It appears to be inlineable (size = 10 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	DoProcess() (1 times)
+
+There are 0 memory accesses with 0 dependences.
+
+
+Inlineable function DoProcess() was marked for suppression,
+but it cannot be because of a problematic use in RabbitProcess().
+
+
+Inlineable function DoProcess() was marked for suppression,
+but it cannot be because of a problematic use in RabbitProcess().
+
+
+Inlineable function DoProcess() was marked for suppression,
+but it cannot be because of a problematic use in RabbitProcess().
+
+
+==============================================================================
+
+static int DoKey() is called from 1 sites in this file.
+    It appears to be inlineable (size = 192 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	rotlFixed() (4 times)
+	RABBIT_next_state() (1 times)
+	RabbitSetIV() (1 times)
+Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/rabbit.c:185-186 completely by factor 8.
+Estimated speedup: 1.80x, code size increase: 5.33x (6:->32)
+Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/rabbit.c:189-192 completely by factor 8.
+Estimated speedup: 1.80x, code size increase: 5.33x (6:->32)
+Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/rabbit.c:135-136 completely by factor 8.
+Estimated speedup: 2.18x, code size increase: 4.00x (4:->16)
+
+There are 91 memory accesses with 295 dependences.
+
+
+==============================================================================
+
+static int DoProcess() is called from 1 sites in this file.
+    It appears to be inlineable (size = 216 units)
+    It has 4 non-trivial scope blocks nested 4 deep.
+    It calls these functions:
+	RABBIT_next_state() (2 times)
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
+
+	Consider declaring 'ctx' as struct Rabbit * const restrict ctx
+	or declaring 'output' as  unsigned char * restrict output
+	to assert that 'ctx' in the address of ((unsigned *)ctx)[20];
+	and            'output' in the address of *output;
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
+	and the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
+
+	Consider declaring 'ctx' as struct Rabbit * const restrict ctx
+	or declaring 'output' as  unsigned char * restrict output
+	to assert that 'ctx' in the address of ((unsigned *)ctx)[20];
+	and            'output' in the address of ((unsigned *)output)[1];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
+	and the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
+
+	Consider declaring 'ctx' as struct Rabbit * const restrict ctx
+	or declaring 'output' as  unsigned char * restrict output
+	to assert that 'ctx' in the address of ((unsigned *)ctx)[20];
+	and            'output' in the address of ((unsigned *)output)[2];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
+	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
+
+	Consider declaring 'ctx' as struct Rabbit * const restrict ctx
+	or declaring 'output' as  unsigned char * restrict output
+	to assert that 'ctx' in the address of ((unsigned *)ctx)[20];
+	and            'output' in the address of ((unsigned *)output)[3];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
+
+	Consider declaring 'ctx' as struct Rabbit * const restrict ctx
+	or declaring 'output' as  unsigned char * restrict output
+	to assert that 'ctx' in the address of ((unsigned *)ctx)[22];
+	and            'output' in the address of *output;
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
+	and the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
+
+	Consider declaring 'ctx' as struct Rabbit * const restrict ctx
+	or declaring 'output' as  unsigned char * restrict output
+	to assert that 'ctx' in the address of ((unsigned *)ctx)[22];
+	and            'output' in the address of ((unsigned *)output)[1];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
+	and the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
+
+	Consider declaring 'ctx' as struct Rabbit * const restrict ctx
+	or declaring 'output' as  unsigned char * restrict output
+	to assert that 'ctx' in the address of ((unsigned *)ctx)[22];
+	and            'output' in the address of ((unsigned *)output)[2];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
+	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
+
+	Consider declaring 'ctx' as struct Rabbit * const restrict ctx
+	or declaring 'output' as  unsigned char * restrict output
+	to assert that 'ctx' in the address of ((unsigned *)ctx)[22];
+	and            'output' in the address of ((unsigned *)output)[3];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
+
+	Consider declaring 'ctx' as struct Rabbit * const restrict ctx
+	or declaring 'output' as  unsigned char * restrict output
+	to assert that 'ctx' in the address of ((unsigned *)ctx)[17];
+	and            'output' in the address of *output;
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
+	and the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
+
+	Consider declaring 'ctx' as struct Rabbit * const restrict ctx
+	or declaring 'output' as  unsigned char * restrict output
+	to assert that 'ctx' in the address of ((unsigned *)ctx)[17];
+	and            'output' in the address of ((unsigned *)output)[1];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
+	and the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
+
+	Consider declaring 'ctx' as struct Rabbit * const restrict ctx
+	or declaring 'output' as  unsigned char * restrict output
+	to assert that 'ctx' in the address of ((unsigned *)ctx)[17];
+	and            'output' in the address of ((unsigned *)output)[2];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
+	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
+
+	Consider declaring 'ctx' as struct Rabbit * const restrict ctx
+	or declaring 'output' as  unsigned char * restrict output
+	to assert that 'ctx' in the address of ((unsigned *)ctx)[17];
+	and            'output' in the address of ((unsigned *)output)[3];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
+
+	Consider declaring 'input' as const unsigned char * restrict input
+	or declaring 'output' as  unsigned char * restrict output
+	to assert that 'input' in the address of *input;
+	and            'output' in the address of *output;
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
+	and the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
+
+	Consider declaring 'input' as const unsigned char * restrict input
+	or declaring 'output' as  unsigned char * restrict output
+	to assert that 'input' in the address of *input;
+	and            'output' in the address of ((unsigned *)output)[1];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
+	and the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
+
+	Consider declaring 'input' as const unsigned char * restrict input
+	or declaring 'output' as  unsigned char * restrict output
+	to assert that 'input' in the address of *input;
+	and            'output' in the address of ((unsigned *)output)[2];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
+	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
+
+	Consider declaring 'input' as const unsigned char * restrict input
+	or declaring 'output' as  unsigned char * restrict output
+	to assert that 'input' in the address of *input;
+	and            'output' in the address of ((unsigned *)output)[3];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
+	and the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
+
+	Consider declaring 'output' as unsigned char * restrict output
+	or declaring 'ctx' as  struct Rabbit * const restrict ctx
+	to assert that 'output' in the address of *output;
+	and            'ctx' in the address of ((unsigned *)ctx)[22];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
+	and the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
+
+	Consider declaring 'output' as unsigned char * restrict output
+	or declaring 'ctx' as  struct Rabbit * const restrict ctx
+	to assert that 'output' in the address of *output;
+	and            'ctx' in the address of ((unsigned *)ctx)[24];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
+	and the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
+
+	Consider declaring 'output' as unsigned char * restrict output
+	or declaring 'ctx' as  struct Rabbit * const restrict ctx
+	to assert that 'output' in the address of *output;
+	and            'ctx' in the address of ((unsigned *)ctx)[19];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
+	and the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
+
+	Consider declaring 'output' as unsigned char * restrict output
+	or declaring 'input' as  const unsigned char * restrict input
+	to assert that 'output' in the address of *output;
+	and            'input' in the address of ((unsigned *)input)[1];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
+	and the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
+
+	Consider declaring 'output' as unsigned char * restrict output
+	or declaring 'ctx' as  struct Rabbit * const restrict ctx
+	to assert that 'output' in the address of *output;
+	and            'ctx' in the address of ((unsigned *)ctx)[24];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
+	and the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
+
+	Consider declaring 'output' as unsigned char * restrict output
+	or declaring 'ctx' as  struct Rabbit * const restrict ctx
+	to assert that 'output' in the address of *output;
+	and            'ctx' in the address of ((unsigned *)ctx)[18];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
+	and the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
+
+	Consider declaring 'output' as unsigned char * restrict output
+	or declaring 'ctx' as  struct Rabbit * const restrict ctx
+	to assert that 'output' in the address of *output;
+	and            'ctx' in the address of ((unsigned *)ctx)[21];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
+	and the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
+
+	Consider declaring 'output' as unsigned char * restrict output
+	or declaring 'input' as  const unsigned char * restrict input
+	to assert that 'output' in the address of *output;
+	and            'input' in the address of ((unsigned *)input)[2];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
+	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
+
+	Consider declaring 'output' as unsigned char * restrict output
+	or declaring 'ctx' as  struct Rabbit * const restrict ctx
+	to assert that 'output' in the address of *output;
+	and            'ctx' in the address of ((unsigned *)ctx)[18];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
+	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
+
+	Consider declaring 'output' as unsigned char * restrict output
+	or declaring 'ctx' as  struct Rabbit * const restrict ctx
+	to assert that 'output' in the address of *output;
+	and            'ctx' in the address of ((unsigned *)ctx)[20];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
+	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
+
+	Consider declaring 'output' as unsigned char * restrict output
+	or declaring 'ctx' as  struct Rabbit * const restrict ctx
+	to assert that 'output' in the address of *output;
+	and            'ctx' in the address of ((unsigned *)ctx)[23];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
+	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
+
+	Consider declaring 'output' as unsigned char * restrict output
+	or declaring 'input' as  const unsigned char * restrict input
+	to assert that 'output' in the address of *output;
+	and            'input' in the address of ((unsigned *)input)[3];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
+
+	Consider declaring 'ctx' as struct Rabbit * const restrict ctx
+	or declaring 'output' as  unsigned char * restrict output
+	to assert that 'ctx' in the address of ((unsigned *)ctx)[22];
+	and            'output' in the address of ((unsigned *)output)[1];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
+	and the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
+
+	Consider declaring 'ctx' as struct Rabbit * const restrict ctx
+	or declaring 'output' as  unsigned char * restrict output
+	to assert that 'ctx' in the address of ((unsigned *)ctx)[22];
+	and            'output' in the address of ((unsigned *)output)[2];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
+	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
+
+	Consider declaring 'ctx' as struct Rabbit * const restrict ctx
+	or declaring 'output' as  unsigned char * restrict output
+	to assert that 'ctx' in the address of ((unsigned *)ctx)[22];
+	and            'output' in the address of ((unsigned *)output)[3];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
+
+	Consider declaring 'ctx' as struct Rabbit * const restrict ctx
+	or declaring 'output' as  unsigned char * restrict output
+	to assert that 'ctx' in the address of ((unsigned *)ctx)[24];
+	and            'output' in the address of ((unsigned *)output)[1];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
+	and the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
+
+	Consider declaring 'ctx' as struct Rabbit * const restrict ctx
+	or declaring 'output' as  unsigned char * restrict output
+	to assert that 'ctx' in the address of ((unsigned *)ctx)[24];
+	and            'output' in the address of ((unsigned *)output)[2];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
+	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
+
+	Consider declaring 'ctx' as struct Rabbit * const restrict ctx
+	or declaring 'output' as  unsigned char * restrict output
+	to assert that 'ctx' in the address of ((unsigned *)ctx)[24];
+	and            'output' in the address of ((unsigned *)output)[3];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
+
+	Consider declaring 'ctx' as struct Rabbit * const restrict ctx
+	or declaring 'output' as  unsigned char * restrict output
+	to assert that 'ctx' in the address of ((unsigned *)ctx)[19];
+	and            'output' in the address of ((unsigned *)output)[1];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
+	and the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
+
+	Consider declaring 'ctx' as struct Rabbit * const restrict ctx
+	or declaring 'output' as  unsigned char * restrict output
+	to assert that 'ctx' in the address of ((unsigned *)ctx)[19];
+	and            'output' in the address of ((unsigned *)output)[2];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
+	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
+
+	Consider declaring 'ctx' as struct Rabbit * const restrict ctx
+	or declaring 'output' as  unsigned char * restrict output
+	to assert that 'ctx' in the address of ((unsigned *)ctx)[19];
+	and            'output' in the address of ((unsigned *)output)[3];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
+
+	Consider declaring 'input' as const unsigned char * restrict input
+	or declaring 'output' as  unsigned char * restrict output
+	to assert that 'input' in the address of ((unsigned *)input)[1];
+	and            'output' in the address of ((unsigned *)output)[1];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
+	and the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
+
+	Consider declaring 'input' as const unsigned char * restrict input
+	or declaring 'output' as  unsigned char * restrict output
+	to assert that 'input' in the address of ((unsigned *)input)[1];
+	and            'output' in the address of ((unsigned *)output)[2];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
+	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
+
+	Consider declaring 'input' as const unsigned char * restrict input
+	or declaring 'output' as  unsigned char * restrict output
+	to assert that 'input' in the address of ((unsigned *)input)[1];
+	and            'output' in the address of ((unsigned *)output)[3];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
+	and the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
+
+	Consider declaring 'output' as unsigned char * restrict output
+	or declaring 'ctx' as  struct Rabbit * const restrict ctx
+	to assert that 'output' in the address of ((unsigned *)output)[1];
+	and            'ctx' in the address of ((unsigned *)ctx)[24];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
+	and the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
+
+	Consider declaring 'output' as unsigned char * restrict output
+	or declaring 'ctx' as  struct Rabbit * const restrict ctx
+	to assert that 'output' in the address of ((unsigned *)output)[1];
+	and            'ctx' in the address of ((unsigned *)ctx)[18];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
+	and the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
+
+	Consider declaring 'output' as unsigned char * restrict output
+	or declaring 'ctx' as  struct Rabbit * const restrict ctx
+	to assert that 'output' in the address of ((unsigned *)output)[1];
+	and            'ctx' in the address of ((unsigned *)ctx)[21];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
+	and the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
+
+	Consider declaring 'output' as unsigned char * restrict output
+	or declaring 'input' as  const unsigned char * restrict input
+	to assert that 'output' in the address of ((unsigned *)output)[1];
+	and            'input' in the address of ((unsigned *)input)[2];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
+	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
+
+	Consider declaring 'output' as unsigned char * restrict output
+	or declaring 'ctx' as  struct Rabbit * const restrict ctx
+	to assert that 'output' in the address of ((unsigned *)output)[1];
+	and            'ctx' in the address of ((unsigned *)ctx)[18];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
+	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
+
+	Consider declaring 'output' as unsigned char * restrict output
+	or declaring 'ctx' as  struct Rabbit * const restrict ctx
+	to assert that 'output' in the address of ((unsigned *)output)[1];
+	and            'ctx' in the address of ((unsigned *)ctx)[20];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
+	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
+
+	Consider declaring 'output' as unsigned char * restrict output
+	or declaring 'ctx' as  struct Rabbit * const restrict ctx
+	to assert that 'output' in the address of ((unsigned *)output)[1];
+	and            'ctx' in the address of ((unsigned *)ctx)[23];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
+	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
+
+	Consider declaring 'output' as unsigned char * restrict output
+	or declaring 'input' as  const unsigned char * restrict input
+	to assert that 'output' in the address of ((unsigned *)output)[1];
+	and            'input' in the address of ((unsigned *)input)[3];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
+
+	Consider declaring 'ctx' as struct Rabbit * const restrict ctx
+	or declaring 'output' as  unsigned char * restrict output
+	to assert that 'ctx' in the address of ((unsigned *)ctx)[24];
+	and            'output' in the address of ((unsigned *)output)[2];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
+	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
+
+	Consider declaring 'ctx' as struct Rabbit * const restrict ctx
+	or declaring 'output' as  unsigned char * restrict output
+	to assert that 'ctx' in the address of ((unsigned *)ctx)[24];
+	and            'output' in the address of ((unsigned *)output)[3];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
+
+	Consider declaring 'ctx' as struct Rabbit * const restrict ctx
+	or declaring 'output' as  unsigned char * restrict output
+	to assert that 'ctx' in the address of ((unsigned *)ctx)[18];
+	and            'output' in the address of ((unsigned *)output)[2];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
+	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
+
+	Consider declaring 'ctx' as struct Rabbit * const restrict ctx
+	or declaring 'output' as  unsigned char * restrict output
+	to assert that 'ctx' in the address of ((unsigned *)ctx)[18];
+	and            'output' in the address of ((unsigned *)output)[3];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
+
+	Consider declaring 'ctx' as struct Rabbit * const restrict ctx
+	or declaring 'output' as  unsigned char * restrict output
+	to assert that 'ctx' in the address of ((unsigned *)ctx)[21];
+	and            'output' in the address of ((unsigned *)output)[2];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
+	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
+
+	Consider declaring 'ctx' as struct Rabbit * const restrict ctx
+	or declaring 'output' as  unsigned char * restrict output
+	to assert that 'ctx' in the address of ((unsigned *)ctx)[21];
+	and            'output' in the address of ((unsigned *)output)[3];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
+
+	Consider declaring 'input' as const unsigned char * restrict input
+	or declaring 'output' as  unsigned char * restrict output
+	to assert that 'input' in the address of ((unsigned *)input)[2];
+	and            'output' in the address of ((unsigned *)output)[2];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
+	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
+
+	Consider declaring 'input' as const unsigned char * restrict input
+	or declaring 'output' as  unsigned char * restrict output
+	to assert that 'input' in the address of ((unsigned *)input)[2];
+	and            'output' in the address of ((unsigned *)output)[3];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
+	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
+
+	Consider declaring 'output' as unsigned char * restrict output
+	or declaring 'ctx' as  struct Rabbit * const restrict ctx
+	to assert that 'output' in the address of ((unsigned *)output)[2];
+	and            'ctx' in the address of ((unsigned *)ctx)[18];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
+	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
+
+	Consider declaring 'output' as unsigned char * restrict output
+	or declaring 'ctx' as  struct Rabbit * const restrict ctx
+	to assert that 'output' in the address of ((unsigned *)output)[2];
+	and            'ctx' in the address of ((unsigned *)ctx)[20];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
+	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
+
+	Consider declaring 'output' as unsigned char * restrict output
+	or declaring 'ctx' as  struct Rabbit * const restrict ctx
+	to assert that 'output' in the address of ((unsigned *)output)[2];
+	and            'ctx' in the address of ((unsigned *)ctx)[23];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
+	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
+
+	Consider declaring 'output' as unsigned char * restrict output
+	or declaring 'input' as  const unsigned char * restrict input
+	to assert that 'output' in the address of ((unsigned *)output)[2];
+	and            'input' in the address of ((unsigned *)input)[3];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
+
+	Consider declaring 'ctx' as struct Rabbit * const restrict ctx
+	or declaring 'output' as  unsigned char * restrict output
+	to assert that 'ctx' in the address of ((unsigned *)ctx)[18];
+	and            'output' in the address of ((unsigned *)output)[3];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
+
+	Consider declaring 'ctx' as struct Rabbit * const restrict ctx
+	or declaring 'output' as  unsigned char * restrict output
+	to assert that 'ctx' in the address of ((unsigned *)ctx)[20];
+	and            'output' in the address of ((unsigned *)output)[3];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
+
+	Consider declaring 'ctx' as struct Rabbit * const restrict ctx
+	or declaring 'output' as  unsigned char * restrict output
+	to assert that 'ctx' in the address of ((unsigned *)ctx)[23];
+	and            'output' in the address of ((unsigned *)output)[3];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/cyassl/ctaocrypt/src/rabbit.c:226-248
+	for the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
+
+	Consider declaring 'input' as const unsigned char * restrict input
+	or declaring 'output' as  unsigned char * restrict output
+	to assert that 'input' in the address of ((unsigned *)input)[3];
+	and            'output' in the address of ((unsigned *)output)[3];
+	do not access the same object in memory.
+
+ADVICE: In function DoProcess() in C:/cyassl/ctaocrypt/src/rabbit.c
+	in the 'for' loop with loop variable 'i' at lines C:/cyassl/ctaocrypt/src/rabbit.c:273-274
+	for the statement output[i] = input[i]^((unsigned char *)tmp)[i]; at line 274
+
+	Consider declaring 'input' as const unsigned char * restrict input
+	or declaring 'output' as  unsigned char * restrict output
+	to assert that 'input' in the address of input[i];
+	and            'output' in the address of output[i];
+	do not access the same object in memory.
+Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/rabbit.c:273-274 by factor 2.
+Estimated speedup: 1.16x, code size increase: 1.67x (6:->10)
+
+There are 41 memory accesses with 283 dependences.
+
+
+== END OF INFO OUTPUT==
