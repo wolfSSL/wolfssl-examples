@@ -21,8 +21,7 @@ Installing the software
 
 Building CyaSSL libraries for TI-RTOS
 -------------------------------------
-1. Replace tirtos.mak in C:\ti\tirtos_tivac_2_00_02_36 with the tirtos.mak from <cyassl_root>/tirtos/tirtos_ccs_examples. 
-   Ensure you have cyassl in the proper location (should be C:/cyassl).
+1. Replace tirtos.mak in C:\ti\tirtos_tivac_2_00_02_36 with the tirtos.mak from <cyassl_root>/tirtos/tirtos_ccs_examples. Ensure you have cyassl in the proper location (should be C:/cyassl).
 2. Open a command prompt. CD into C:\ti\tirtos_tivac_2_00_02_36.
 3. Run the make command to build CyaSSL libaries.
     
@@ -30,17 +29,12 @@ Building CyaSSL libraries for TI-RTOS
 
 Running CyaSSL CTaoCrypt benchmark and test application.
 --------------------------------------------------------
-1. After running the TCP Echo Server application, in the Debugger View, open Run -> Load Program. 
-   Browse to the Benchmark application (C:\cyassl\tirtos\packages\ti\net\cyassl\tests\ctaocrypt\benchmark). 
-   Select benchmark.xem4f and Click Open and Click OK to load the application.
+1. After running the TCP Echo Server application, in the Debugger View, open Run -> Load Program. Browse to the Benchmark application (C:\cyassl\tirtos\packages\ti\net\cyassl\tests\ctaocrypt\benchmark). Select benchmark.xem4f and Click Open and Click OK to load the application.
 2. Test by running the application.
 3. Repeat the steps 1 and 2 for Test application (C:\cyassl\tirtos\packages\ti\net\cyassl\tests\ctaocrypt\test).
-4. The example cyassl_tirtos_benchmark in this repository has all the correct optimization settings and will 
-   re-build the relevant c files at compile time for optimal results and additional benchmarks for camellia, rabbit, 
-   chacha, poly1305, sha512, and ECC.
+4. The example cyassl_tirtos_benchmark in this repository has all the correct optimization settings and will re-build the relevant c files at compile time for optimal results and additional benchmarks for camellia, rabbit, chacha, poly1305, sha512, and ECC.
 
 Import a project into your workspace.
 --------------------------------------------------------
 In CCS go to the Project tab. Click "Import CCS Projects...". 
-Click "Browse..." and navigate to tirtos_ccs_examples/ file and click "OK". In the "Discovered projects" window you will see all CCS projects. Check the ones you would like to import into the workspace, and check the box at the bottom labled "Copy projects into workspace", now click "Finish".
-Build and debug the desired projects. 
+Click "Browse..." and navigate to tirtos_ccs_examples/ file and click "OK". In the "Discovered projects" window you will see all CCS projects. Check the ones you would like to import into the workspace, and check the box at the bottom labled "Copy projects into workspace", now click "Finish". Build and debug the desired projects. 
