@@ -5,7 +5,8 @@ this README will be updated.
 
 Setting up the file system
 ---------------------------------------------------------
-Clone the entire "tirtos_ccs_examples" folder into your <cyassl_root>/tirtos directory.
+Clone this repository using "github for windows". Copy and paste the "tirtos_ccs_examples" folder into your 
+<cyassl_root>/tirtos directory.
 You should now have <cyassl_root>/tirtos/tirtos_ccs_examples.
 
 Instructions for building CyaSSL application for TI-RTOS
@@ -15,15 +16,15 @@ Installing the software
 -----------------------
 1. Install the NDK product ndk 2.24.00.05 in C:/ti
 2. Open CCS. A prompt opens asking to install discovered product. Select the ndk product and click finish. 
-Restart if prompted.
+   Restart if prompted.
 3. In CCS, open View -> CCS App Center. Search "ti-rtos". Select "TI-RTOS for TivaC" from the results and click 
-Install Software. Follow the instructions.
+   Install Software. Follow the instructions.
 
 
 Building CyaSSL libraries for TI-RTOS
 -------------------------------------
-1. Replace tirtos.mak in C:\ti\tirtos_tivac_2_00_02_36 with the tirtos.mak in this repository. 
-Open the tirtos.mak and set CYASSL_INSTALLATION_DIR variable to the correct CyaSSL installation path.
+1. Replace tirtos.mak in C:\ti\tirtos_tivac_2_00_02_36 with the tirtos.mak from <cyassl_root>/tirtos/tirtos_ccs_examples. 
+   Ensure you have cyassl in the proper location (should be C:/cyassl).
 2. Open a command prompt. CD into C:\ti\tirtos_tivac_2_00_02_36.
 3. Run the make command to build CyaSSL libaries.
     
@@ -32,8 +33,8 @@ Open the tirtos.mak and set CYASSL_INSTALLATION_DIR variable to the correct CyaS
 Running CyaSSL CTaoCrypt benchmark and test application.
 --------------------------------------------------------
 1. After running the TCP Echo Server application, in the Debugger View, open Run -> Load Program. 
-Browse to the Benchmark application (C:\cyassl\tirtos\packages\ti\net\cyassl\tests\ctaocrypt\benchmark). 
-Select benchmark.xem4f and Click Open and Click OK to load the application.
+   Browse to the Benchmark application (C:\cyassl\tirtos\packages\ti\net\cyassl\tests\ctaocrypt\benchmark). 
+   Select benchmark.xem4f and Click Open and Click OK to load the application.
 2. Test by running the application.
 3. Repeat the steps 1 and 2 for Test application (C:\cyassl\tirtos\packages\ti\net\cyassl\tests\ctaocrypt\test).
 
