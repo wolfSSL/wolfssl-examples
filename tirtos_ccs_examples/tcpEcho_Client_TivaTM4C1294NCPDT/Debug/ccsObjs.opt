@@ -1,0 +1,1 @@
+-l"./configPkg/linker.cmd" "./tcpEcho.obj" "./EK_TM4C1294XL.obj" "../EK_TM4C1294XL.cmd" -l"libc.a" -l"c:/ti/tirtos_tivac_2_00_02_36/products/TivaWare_C_Series-2.1.0.12573c/driverlib/ccs/Debug/driverlib.lib" -l"c:/ti/tirtos_tivac_2_00_02_36/products/TivaWare_C_Series-2.1.0.12573c/usblib/ccs/Debug/usblib.lib" 
