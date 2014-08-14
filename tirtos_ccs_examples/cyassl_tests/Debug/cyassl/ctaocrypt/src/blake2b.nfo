@@ -1,0 +1,336 @@
+TI ARM C/C++ Optimizer                  v5.1.6
+Build Number 1OE9R-KDADEMDK-RTARQ-WAR-ZAZE_V_R_W
+
+		======File-level Analysis Summary======
+
+
+extern int Blake2bFinal() is called from 0 sites in this file.
+    It appears to be inlineable (size = 17 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	blake2b_final() (1 times)
+
+extern int Blake2bUpdate() is called from 0 sites in this file.
+    It appears to be inlineable (size = 9 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	blake2b_update() (1 times)
+
+extern int InitBlake2b() is called from 0 sites in this file.
+    It appears to be inlineable (size = 9 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	blake2b_init() (1 times)
+
+extern int blake2b() is called from 0 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	blake2b_final() (1 times)
+	blake2b_update() (1 times)
+	blake2b_init_key() (1 times)
+	blake2b_init() (1 times)
+
+static int blake2b_compress() is called from 3 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	rotr64() (384 times)
+	load64() (1 times)
+
+extern int blake2b_final() is called from 2 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	store64() (1 times)
+	memset() (1 times)
+	blake2b_set_lastblock() (1 times)
+	memcpy() (2 times)
+	blake2b_compress() (2 times)
+	blake2b_increment_counter() (2 times)
+
+static int blake2b_increment_counter() is called from 3 sites in this file.
+    It appears to be inlineable (size = 18 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+extern int blake2b_init() is called from 2 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	blake2b_init_param() (1 times)
+	memset() (3 times)
+	store64() (1 times)
+	store32() (1 times)
+
+static int blake2b_init0() is called from 1 sites in this file.
+    It appears to be inlineable (size = 30 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	memset() (1 times)
+
+extern int blake2b_init_key() is called from 1 sites in this file.
+    It has 4 non-trivial scope blocks nested 4 deep.
+    It calls these functions:
+	secure_zero_memory() (1 times)
+	blake2b_update() (1 times)
+	memcpy() (1 times)
+	blake2b_init_param() (1 times)
+	memset() (4 times)
+	store64() (1 times)
+	store32() (1 times)
+
+extern int blake2b_init_param() is called from 2 sites in this file.
+    It appears to be inlineable (size = 28 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	load64() (1 times)
+	blake2b_init0() (1 times)
+
+static int blake2b_set_lastblock() is called from 1 sites in this file.
+    It appears to be inlineable (size = 13 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	blake2b_set_lastnode() (1 times)
+
+static int blake2b_set_lastnode() is called from 1 sites in this file.
+    It appears to be inlineable (size = 8 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+extern int blake2b_update() is called from 3 sites in this file.
+    It has 4 non-trivial scope blocks nested 4 deep.
+    It calls these functions:
+	blake2b_compress() (1 times)
+	blake2b_increment_counter() (1 times)
+	memcpy() (3 times)
+
+static unsigned long long load64() is called from 2 sites in this file.
+    It appears to be inlineable (size = 4 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+static unsigned long long rotr64() is called from 384 sites in this file.
+    It appears to be inlineable (size = 10 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+static void secure_zero_memory() is called from 1 sites in this file.
+    It appears to be inlineable (size = 19 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+static void store32() is called from 2 sites in this file.
+    It appears to be inlineable (size = 6 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+static void store64() is called from 3 sites in this file.
+    It appears to be inlineable (size = 6 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+
+Function secure_zero_memory() will be specialized on these parameters:
+	[2] n == 128uLL;
+
+Results of interprocedural value propagation:
+
+   static void secure_zero_memory() has these parameter attributes:
+      unsigned long long n :  n == 128uLL;
+
+Function store32() will be specialized on these parameters:
+	[2] w == 0u;
+
+Results of interprocedural value propagation:
+
+   static void store32() has these parameter attributes:
+      unsigned w :        w == 0u;
+
+Results of interprocedural value propagation:
+
+   static unsigned long long rotr64() has these parameter attributes:
+      unsigned c :        c <= 63u;  c >= 16u;
+Inlineable function will be suppressed: load64()
+Inlineable function will be suppressed: rotr64()
+Inlineable function will be suppressed: store64()
+Inlineable function will be suppressed: store32()
+Inlineable function will be suppressed: blake2b_set_lastnode()
+Inlineable function will be suppressed: secure_zero_memory()
+Inlineable function will be suppressed: blake2b_set_lastblock()
+Inlineable function will be suppressed: blake2b_increment_counter()
+Inlineable function will be suppressed: blake2b_init0()
+
+These external functions are called but not defined here:
+	memcpy()
+	memset()
+
+
+The following variables will be grouped together to share a common
+base address.  References in the source interlisting will look like
+"1$$.blake2b_sigma", "K$1->blake2b_sigma", "C$1->blake2b_sigma", "&1$$+64", and "C$1+64".
+
+     --offset--    --size--	--variable--
+
+          0           64	static const unsigned long long blake2b_IV[8]
+         64          192	static const unsigned char blake2b_sigma[12][16]
+
+
+		======= End file-level Analysis =======
+
+
+==============================================================================
+
+static int blake2b_compress() is called from 3 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	load64() (1 times)
+	rotr64() (384 times)
+
+ADVICE: In function blake2b_compress() in C:/cyassl/ctaocrypt/src/blake2b.c
+	in the 'for' loop with loop variable 'i' at lines C:/cyassl/ctaocrypt/src/blake2b.c:263-264
+	for the statement (*S).h[i] ^= v[i]^v[i+8]; at line 264
+
+	Consider declaring 'S' as struct __blake2b_state * const restrict S
+	to assert that lvalues (*S).h;
+	and                    (*S).h[i];
+	do not access the same object in memory.
+Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/blake2b.c:214-215 completely by factor 16.
+Estimated speedup: 4.89x, code size increase: 5.33x (6:->32)
+Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/blake2b.c:217-218 completely by factor 8.
+Estimated speedup: 3.29x, code size increase: 4.00x (4:->16)
+Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/blake2b.c:263-264 completely by factor 8.
+Estimated speedup: 1.80x, code size increase: 5.00x (8:->40)
+
+There are 464 memory accesses with 3408 dependences.
+
+
+==============================================================================
+
+extern int blake2b_update() is called from 3 sites in this file.
+    It has 4 non-trivial scope blocks nested 4 deep.
+    It calls these functions:
+	blake2b_increment_counter() (1 times)
+	blake2b_compress() (1 times)
+
+There are 15 memory accesses with 27 dependences.
+
+
+==============================================================================
+
+extern int blake2b_init_param() is called from 2 sites in this file.
+    It appears to be inlineable (size = 28 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	blake2b_init0() (1 times)
+	load64() (1 times)
+
+ADVICE: In function blake2b_init_param() in C:/cyassl/ctaocrypt/src/blake2b.c
+	in the 'for' loop with loop variable 'i' at lines C:/cyassl/ctaocrypt/src/blake2b.c:113-114
+	for the statement (*S).h[i] ^= R$1; at line 114
+
+	Consider declaring 'S' as struct __blake2b_state * const restrict S
+	to assert that lvalues (*S).h;
+	and                    (*S).h[i];
+	do not access the same object in memory.
+Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/blake2b.c:100-100 completely by factor 8.
+Estimated speedup: 3.29x, code size increase: 4.00x (4:->16)
+Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/blake2b.c:113-114 completely by factor 8.
+Estimated speedup: 2.42x, code size increase: 4.00x (8:->32)
+
+There are 48 memory accesses with 536 dependences.
+
+
+==============================================================================
+
+extern int blake2b_init_key() is called from 1 sites in this file.
+    It has 4 non-trivial scope blocks nested 4 deep.
+    It calls these functions:
+	store32() (1 times)
+	store64() (1 times)
+	blake2b_init_param() (1 times)
+	blake2b_update() (1 times)
+	secure_zero_memory() (1 times)
+Unrolling 'while' loop on 'n' at lines C:/cyassl/cyassl/ctaocrypt/blake2-impl.h:150-150 by factor 2.
+Estimated speedup: 1.18x, code size increase: 1.50x (2:->3)
+
+There are 13 memory accesses with 0 dependences.
+
+
+==============================================================================
+
+extern int blake2b_init() is called from 2 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	store32() (1 times)
+	store64() (1 times)
+	blake2b_init_param() (1 times)
+
+There are 11 memory accesses with 0 dependences.
+
+
+==============================================================================
+
+extern int blake2b_final() is called from 2 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	blake2b_increment_counter() (2 times)
+	blake2b_compress() (2 times)
+	blake2b_set_lastblock() (1 times)
+	store64() (1 times)
+Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/blake2b.c:333-334 completely by factor 8.
+Estimated speedup: 4.73x, code size increase: 2.43x (7:->17)
+
+There are 51 memory accesses with 44 dependences.
+
+
+==============================================================================
+
+extern int blake2b() is called from 0 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	blake2b_init() (1 times)
+	blake2b_init_key() (1 times)
+	blake2b_update() (1 times)
+	blake2b_final() (1 times)
+
+There are 0 memory accesses with 0 dependences.
+
+
+==============================================================================
+
+extern int InitBlake2b() is called from 0 sites in this file.
+    It appears to be inlineable (size = 9 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	blake2b_init() (1 times)
+
+There are 1 memory accesses with 0 dependences.
+
+
+==============================================================================
+
+extern int Blake2bUpdate() is called from 0 sites in this file.
+    It appears to be inlineable (size = 9 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	blake2b_update() (1 times)
+
+There are 0 memory accesses with 0 dependences.
+
+
+==============================================================================
+
+extern int Blake2bFinal() is called from 0 sites in this file.
+    It appears to be inlineable (size = 17 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	blake2b_final() (1 times)
+
+There are 1 memory accesses with 0 dependences.
+
+
+== END OF INFO OUTPUT==

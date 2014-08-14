@@ -1,6 +1,6 @@
 ;******************************************************************************
 ;* TI ARM C/C++ Codegen                                             PC v5.1.6 *
-;* Date/Time created: Wed Aug 13 10:20:18 2014                                *
+;* Date/Time created: Thu Aug 14 09:05:46 2014                                *
 ;******************************************************************************
 	.compiler_opts --abi=eabi --arm_vmrs_si_workaround=on --code_state=16 --diag_wrap=off --disable_dual_state --embedded_constants=on --endian=little --float_support=FPv4SPD16 --hll_source=on --object_format=elf --silicon_version=7M4 --symdebug:dwarf --symdebug:dwarf_version=3 --unaligned_access=on 
 	.thumb
@@ -9,7 +9,7 @@ $C$DW$CU	.dwtag  DW_TAG_compile_unit
 	.dwattr $C$DW$CU, DW_AT_name("C:/cyassl/ctaocrypt/src/rabbit.c")
 	.dwattr $C$DW$CU, DW_AT_producer("TI TI ARM C/C++ Codegen PC v5.1.6 Copyright (c) 1996-2014 Texas Instruments Incorporated")
 	.dwattr $C$DW$CU, DW_AT_TI_version(0x01)
-	.dwattr $C$DW$CU, DW_AT_comp_dir("C:\Users\khimes\workspace_v6_0\cyassl_tirtos_benchmark\Debug")
+	.dwattr $C$DW$CU, DW_AT_comp_dir("C:\Users\khimes\Documents\GitHub\wolfssl-examples\tirtos_ccs_examples\cyassl_tirtos_benchmark\Debug")
 
 $C$DW$1	.dwtag  DW_TAG_subprogram, DW_AT_name("memcpy")
 	.dwattr $C$DW$1, DW_AT_TI_symbol_name("memcpy")
@@ -44,7 +44,7 @@ $C$DW$8	.dwtag  DW_TAG_formal_parameter
 	.dwattr $C$DW$8, DW_AT_type(*$C$DW$T$157)
 	.dwendtag $C$DW$5
 
-;	c:\ti\ccsv6\tools\compiler\arm_5.1.6\bin\armopt.exe --call_assumptions=3 --gen_opt_info=2 C:\\Users\\khimes\\AppData\\Local\\Temp\\012282 C:\\Users\\khimes\\AppData\\Local\\Temp\\012284 --opt_info_filename=cyassl/ctaocrypt/src/rabbit.nfo 
+;	c:\ti\ccsv6\tools\compiler\arm_5.1.6\bin\armopt.exe --call_assumptions=3 --gen_opt_info=2 C:\\Users\\khimes\\AppData\\Local\\Temp\\040603 C:\\Users\\khimes\\AppData\\Local\\Temp\\040605 --opt_info_filename=cyassl/ctaocrypt/src/rabbit.nfo 
 	.sect	".text:RABBIT_next_state"
 	.clink
 	.thumbfunc RABBIT_next_state

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="windows-1252"?>
+<!--  This file conforms to the DTD xdc/bld/build.dtd -->
+<package name="xconfig_benchmarkTest" version="" producerId="undefined">
+    <units>
+    </units>
+    <sources>
+        <srcFile name="package/cfg/benchmarkTest_pem4f.c"/>
+    </sources>
+    <configscripts>
+        <srcFile name="C:/Users/khimes/workspace_v6_0/benchmarkTest/benchmarkTest.cfg"/>
+    </configscripts>
+    <makefiles>
+        <srcFile name="package.mak" src="package.bld"/>
+        <srcFile name="package/package.xdc.dep" src="package.xdc"/>
+        <srcFile name="package/cfg/benchmarkTest_pem4f.mak" src="package.bld"/>
+        <srcFile name="package/cfg/benchmarkTest_pem4f.oem4f.dep" src="package/cfg/benchmarkTest_pem4f.c"/>
+        <srcFile name="package/cfg/benchmarkTest_pem4f.dep" src="package/cfg/benchmarkTest_pem4f.cfg"/>
+        <srcFile name="package/cfg/benchmarkTest.xem4f.mak" src="package.bld"/>
+        <srcFile name="package/rel/xconfig_benchmarkTest.tar.dep" src="package/rel/xconfig_benchmarkTest.xdc.inc"/>
+    </makefiles>
+    <targets>
+        <target name="ti.targets.arm.elf.M4F"
+            version="ti.targets.arm.elf.M4F{1,0,5.1,6"
+            rawVersion="5.1.6"
+            platform="ti.platforms.stellaris:LM4FSXLH5BB:1"
+            isa="v7M4"
+            suffix="em4f"
+            rootDir="c:/ti/ccsv6/tools/compiler/arm_5.1.6"
+            os="undefined"
+            rts="ti.targets.arm.rtsarm">
+            <model endian="little"
+                codeModel="thumb2"
+                dataModel="undefined"/>
+        </target>
+    </targets>
+    <libraries>
+    </libraries>
+    <configurations>
+    <configuration name="benchmarkTest"
+        pname="benchmarkTest.pem4f"
+        target="ti.targets.arm.elf.M4F"
+        platform="ti.platforms.tiva:TM4C1294NCPDT"
+        profile="release"
+        isPartial="false"
+        xCfgScript="package/cfg/benchmarkTest_pem4f.cfg"
+        xCfgPrefix="package/cfg/benchmarkTest_pem4f"
+        cfgScript="C:/Users/khimes/workspace_v6_0/benchmarkTest/benchmarkTest.cfg"
+        cfgArgs="null"
+        />
+    </configurations>
+    <executables>
+    <executable name="benchmarkTest"
+        pname="benchmarkTest.xem4f"
+        target="ti.targets.arm.elf.M4F"
+        platform="ti.platforms.tiva:TM4C1294NCPDT"
+        profile="release"
+        xCfgScript="package/cfg/benchmarkTest_pem4f.cfg"
+        xCfgPrefix="package/cfg/benchmarkTest_pem4f"
+        cfgScript="C:/Users/khimes/workspace_v6_0/benchmarkTest/benchmarkTest.cfg"
+        cfgArgs="null"
+        />
+    </executables>
+    <tests>
+    <test exeName="benchmarkTest.xem4f"
+        args=""
+        groupName="benchmarkTest.xem4f"
+        refOutput="undefined"
+        refExitCode="0"
+        execArgs=""
+        />
+    </tests>
+    <releases relDir="package/rel/">
+    <release name="xconfig_benchmarkTest"
+        pname="xconfig_benchmarkTest.tar"
+        label="default"
+    >
+        <file name="package/package.bld.xml"/>
+        <file name="package/build.cfg"/>
+        <file name="package/package.xdc.inc"/>
+    </release>
+    </releases>
+    <repositories>
+    </repositories>
+</package>

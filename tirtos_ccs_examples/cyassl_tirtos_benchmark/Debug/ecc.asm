@@ -1,6 +1,6 @@
 ;******************************************************************************
 ;* TI ARM C/C++ Codegen                                             PC v5.1.6 *
-;* Date/Time created: Wed Aug 13 10:20:05 2014                                *
+;* Date/Time created: Thu Aug 14 09:05:36 2014                                *
 ;******************************************************************************
 	.compiler_opts --abi=eabi --arm_vmrs_si_workaround=on --code_state=16 --diag_wrap=off --disable_dual_state --embedded_constants=on --endian=little --float_support=FPv4SPD16 --hll_source=on --object_format=elf --silicon_version=7M4 --symdebug:dwarf --symdebug:dwarf_version=3 --unaligned_access=on 
 	.thumb
@@ -9,7 +9,7 @@ $C$DW$CU	.dwtag  DW_TAG_compile_unit
 	.dwattr $C$DW$CU, DW_AT_name("C:/cyassl/ctaocrypt/src/ecc.c")
 	.dwattr $C$DW$CU, DW_AT_producer("TI TI ARM C/C++ Codegen PC v5.1.6 Copyright (c) 1996-2014 Texas Instruments Incorporated")
 	.dwattr $C$DW$CU, DW_AT_TI_version(0x01)
-	.dwattr $C$DW$CU, DW_AT_comp_dir("C:\Users\khimes\workspace_v6_0\cyassl_tirtos_benchmark\Debug")
+	.dwattr $C$DW$CU, DW_AT_comp_dir("C:\Users\khimes\Documents\GitHub\wolfssl-examples\tirtos_ccs_examples\cyassl_tirtos_benchmark\Debug")
 
 $C$DW$1	.dwtag  DW_TAG_subprogram, DW_AT_name("memcpy")
 	.dwattr $C$DW$1, DW_AT_TI_symbol_name("memcpy")
@@ -683,7 +683,7 @@ $C$DW$132	.dwtag  DW_TAG_variable, DW_AT_name("ecc_sets")
 	.dwattr $C$DW$132, DW_AT_decl_file("C:/cyassl/ctaocrypt/src/ecc.c")
 	.dwattr $C$DW$132, DW_AT_decl_line(0x3e)
 	.dwattr $C$DW$132, DW_AT_decl_column(0x14)
-;	c:\ti\ccsv6\tools\compiler\arm_5.1.6\bin\armopt.exe --call_assumptions=3 --gen_opt_info=2 C:\\Users\\khimes\\AppData\\Local\\Temp\\015602 C:\\Users\\khimes\\AppData\\Local\\Temp\\015604 --opt_info_filename=cyassl/ctaocrypt/src/ecc.nfo 
+;	c:\ti\ccsv6\tools\compiler\arm_5.1.6\bin\armopt.exe --call_assumptions=3 --gen_opt_info=2 C:\\Users\\khimes\\AppData\\Local\\Temp\\037242 C:\\Users\\khimes\\AppData\\Local\\Temp\\037244 --opt_info_filename=cyassl/ctaocrypt/src/ecc.nfo 
 	.sect	".text:ecc_is_valid_idx"
 	.clink
 	.thumbfunc ecc_is_valid_idx
@@ -695,13 +695,13 @@ $C$DW$133	.dwtag  DW_TAG_subprogram, DW_AT_name("ecc_is_valid_idx")
 	.dwattr $C$DW$133, DW_AT_TI_symbol_name("ecc_is_valid_idx")
 	.dwattr $C$DW$133, DW_AT_type(*$C$DW$T$10)
 	.dwattr $C$DW$133, DW_AT_TI_begin_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$133, DW_AT_TI_begin_line(0x4b4)
+	.dwattr $C$DW$133, DW_AT_TI_begin_line(0x556)
 	.dwattr $C$DW$133, DW_AT_TI_begin_column(0x0c)
 	.dwattr $C$DW$133, DW_AT_decl_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$133, DW_AT_decl_line(0x4b4)
+	.dwattr $C$DW$133, DW_AT_decl_line(0x556)
 	.dwattr $C$DW$133, DW_AT_decl_column(0x0c)
 	.dwattr $C$DW$133, DW_AT_TI_max_frame_size(0x00)
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1205,column 1,is_stmt,address ecc_is_valid_idx,isa 1
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1367,column 1,is_stmt,address ecc_is_valid_idx,isa 1
 
 	.dwfde $C$DW$CIE, ecc_is_valid_idx
 $C$DW$134	.dwtag  DW_TAG_formal_parameter, DW_AT_name("n")
@@ -739,54 +739,54 @@ $C$DW$138	.dwtag  DW_TAG_variable, DW_AT_name("$O$U14")
 	.dwattr $C$DW$138, DW_AT_type(*$C$DW$T$556)
 	.dwattr $C$DW$138, DW_AT_location[DW_OP_reg1]
 	.dwcfi	cfa_offset, 0
-;* 1208	-----------------------    x = 0;
-;* 1208	-----------------------    if ( !(*(C$1 = &ecc_sets[0])).size ) goto g4;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1208,column 16,is_stmt,isa 1
-        MOVW      A2, ecc_sets+0        ; [DPU_3_PIPE] |1208| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1205,column 1,is_stmt,isa 1
-        MOV       A3, A1                ; [DPU_3_PIPE] |1205| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1208,column 16,is_stmt,isa 1
-        MOVT      A2, ecc_sets+0        ; [DPU_3_PIPE] |1208| 
-        LDR       A1, [A2, #0]          ; [DPU_3_PIPE] |1208| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1208,column 9,is_stmt,isa 1
-        MOVS      A4, #0                ; [DPU_3_PIPE] |1208| 
+;* 1370	-----------------------    x = 0;
+;* 1370	-----------------------    if ( !(*(C$1 = &ecc_sets[0])).size ) goto g4;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1370,column 16,is_stmt,isa 1
+        MOVW      A2, ecc_sets+0        ; [DPU_3_PIPE] |1370| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1367,column 1,is_stmt,isa 1
+        MOV       A3, A1                ; [DPU_3_PIPE] |1367| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1370,column 16,is_stmt,isa 1
+        MOVT      A2, ecc_sets+0        ; [DPU_3_PIPE] |1370| 
+        LDR       A1, [A2, #0]          ; [DPU_3_PIPE] |1370| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1370,column 9,is_stmt,isa 1
+        MOVS      A4, #0                ; [DPU_3_PIPE] |1370| 
         CBZ       A1, ||$C$L2||         ; [] 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1208,column 16,is_stmt,isa 1
-        ; BRANCHCC OCCURS {||$C$L2||}    ; [] |1208| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1370,column 16,is_stmt,isa 1
+        ; BRANCHCC OCCURS {||$C$L2||}    ; [] |1370| 
 ;* --------------------------------------------------------------------------*
 ;**  	-----------------------    U$14 = C$1;
 ;**  	-----------------------    #pragma LOOP_FLAGS(4096u)
 ;* --------------------------------------------------------------------------*
 ;*   BEGIN LOOP ||$C$L1||
 ;*
-;*   Loop source line                : 1208
-;*   Loop closing brace source line  : 1209
+;*   Loop source line                : 1370
+;*   Loop closing brace source line  : 1371
 ;*   Known Minimum Trip Count        : 1
 ;*   Known Maximum Trip Count        : 4294967295
 ;*   Known Max Trip Count Factor     : 1
 ;* --------------------------------------------------------------------------*
 ||$C$L1||:    
 ;**	-----------------------g3:
-;* 1208	-----------------------    ++x;
-;* 1208	-----------------------    if ( (*(U$14 += 28)).size ) goto g3;
-        LDR       A1, [A2, #28]!        ; [DPU_3_PIPE] |1208| 
-        ADDS      A4, A4, #1            ; [DPU_3_PIPE] |1208| 
-        CMP       A1, #0                ; [DPU_3_PIPE] |1208| 
-        BNE       ||$C$L1||             ; [DPU_3_PIPE] |1208| 
-        ; BRANCHCC OCCURS {||$C$L1||}    ; [] |1208| 
+;* 1370	-----------------------    ++x;
+;* 1370	-----------------------    if ( (*(U$14 += 28)).size ) goto g3;
+        LDR       A1, [A2, #28]!        ; [DPU_3_PIPE] |1370| 
+        ADDS      A4, A4, #1            ; [DPU_3_PIPE] |1370| 
+        CMP       A1, #0                ; [DPU_3_PIPE] |1370| 
+        BNE       ||$C$L1||             ; [DPU_3_PIPE] |1370| 
+        ; BRANCHCC OCCURS {||$C$L1||}    ; [] |1370| 
 ;* --------------------------------------------------------------------------*
 ||$C$L2||:    
 ;**	-----------------------g4:
-;* 1215	-----------------------    return n >= (-1) && n < x;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1215,column 4,is_stmt,isa 1
-        CMP       A3, #-1               ; [DPU_3_PIPE] |1215| 
-        MOV       A1, #0                ; [DPU_3_PIPE] |1215| 
-        BLT       ||$C$L3||             ; [DPU_3_PIPE] |1215| 
-        ; BRANCHCC OCCURS {||$C$L3||}    ; [] |1215| 
+;* 1377	-----------------------    return n >= (-1) && n < x;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1377,column 4,is_stmt,isa 1
+        CMP       A3, #-1               ; [DPU_3_PIPE] |1377| 
+        MOV       A1, #0                ; [DPU_3_PIPE] |1377| 
+        BLT       ||$C$L3||             ; [DPU_3_PIPE] |1377| 
+        ; BRANCHCC OCCURS {||$C$L3||}    ; [] |1377| 
 ;* --------------------------------------------------------------------------*
-        CMP       A4, A3                ; [DPU_3_PIPE] |1215| 
+        CMP       A4, A3                ; [DPU_3_PIPE] |1377| 
         IT        GT                    ; [DPU_3_PIPE] 
-        MOVGT     A1, #1                ; [DPU_3_PIPE] |1215| 
+        MOVGT     A1, #1                ; [DPU_3_PIPE] |1377| 
 ;* --------------------------------------------------------------------------*
 ||$C$L3||:    
 $C$DW$139	.dwtag  DW_TAG_TI_branch
@@ -795,7 +795,7 @@ $C$DW$139	.dwtag  DW_TAG_TI_branch
         BX        LR                    ; [DPU_3_PIPE] 
         ; BRANCH OCCURS                  ; [] 
 	.dwattr $C$DW$133, DW_AT_TI_end_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$133, DW_AT_TI_end_line(0x4c0)
+	.dwattr $C$DW$133, DW_AT_TI_end_line(0x562)
 	.dwattr $C$DW$133, DW_AT_TI_end_column(0x01)
 	.dwendentry
 	.dwendtag $C$DW$133
@@ -813,13 +813,13 @@ $C$DW$140	.dwtag  DW_TAG_subprogram, DW_AT_name("ecc_new_point")
 	.dwattr $C$DW$140, DW_AT_external
 	.dwattr $C$DW$140, DW_AT_type(*$C$DW$T$550)
 	.dwattr $C$DW$140, DW_AT_TI_begin_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$140, DW_AT_TI_begin_line(0x492)
+	.dwattr $C$DW$140, DW_AT_TI_begin_line(0x534)
 	.dwattr $C$DW$140, DW_AT_TI_begin_column(0x0c)
 	.dwattr $C$DW$140, DW_AT_decl_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$140, DW_AT_decl_line(0x492)
+	.dwattr $C$DW$140, DW_AT_decl_line(0x534)
 	.dwattr $C$DW$140, DW_AT_decl_column(0x0c)
 	.dwattr $C$DW$140, DW_AT_TI_max_frame_size(0x18)
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1171,column 1,is_stmt,address ecc_new_point,isa 1
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1333,column 1,is_stmt,address ecc_new_point,isa 1
 
 	.dwfde $C$DW$CIE, ecc_new_point
 
@@ -842,82 +842,82 @@ $C$DW$141	.dwtag  DW_TAG_variable, DW_AT_name("p")
 	.dwattr $C$DW$141, DW_AT_type(*$C$DW$T$550)
 	.dwattr $C$DW$141, DW_AT_location[DW_OP_reg5]
 	.dwcfi	cfa_offset, 0
-;* 1173	-----------------------    p = (struct $$fake1 *)CyaSSL_Malloc(1656u);
-;* 1174	-----------------------    if ( p ) goto g3;
-;* 1175	-----------------------    return NULL;
+;* 1335	-----------------------    p = (struct $$fake1 *)CyaSSL_Malloc(1656u);
+;* 1336	-----------------------    if ( p ) goto g3;
+;* 1337	-----------------------    return NULL;
         PUSH      {V1, V2, LR}          ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 12
 	.dwcfi	save_reg_to_mem, 14, -4
 	.dwcfi	save_reg_to_mem, 5, -8
 	.dwcfi	save_reg_to_mem, 4, -12
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1173,column 4,is_stmt,isa 1
-        MOV       A1, #1656             ; [DPU_3_PIPE] |1173| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1335,column 4,is_stmt,isa 1
+        MOV       A1, #1656             ; [DPU_3_PIPE] |1335| 
         SUB       SP, SP, #12           ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 24
 $C$DW$142	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$142, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$142, DW_AT_name("CyaSSL_Malloc")
 	.dwattr $C$DW$142, DW_AT_TI_call
-        BL        CyaSSL_Malloc         ; [DPU_3_PIPE] |1173| 
-        ; CALL OCCURS {CyaSSL_Malloc }   ; [] |1173| 
-        MOV       V2, A1                ; [DPU_3_PIPE] |1173| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1174,column 4,is_stmt,isa 1
-        CMP       V2, #0                ; [DPU_3_PIPE] |1174| 
+        BL        CyaSSL_Malloc         ; [DPU_3_PIPE] |1335| 
+        ; CALL OCCURS {CyaSSL_Malloc }   ; [] |1335| 
+        MOV       V2, A1                ; [DPU_3_PIPE] |1335| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1336,column 4,is_stmt,isa 1
+        CMP       V2, #0                ; [DPU_3_PIPE] |1336| 
         IT        EQ                    ; [DPU_3_PIPE] 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1175,column 7,is_stmt,isa 1
-        MOVEQ     A1, #0                ; [DPU_3_PIPE] |1175| 
-        BEQ       ||$C$L5||             ; [DPU_3_PIPE] |1175| 
-        ; BRANCHCC OCCURS {||$C$L5||}    ; [] |1175| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1337,column 7,is_stmt,isa 1
+        MOVEQ     A1, #0                ; [DPU_3_PIPE] |1337| 
+        BEQ       ||$C$L5||             ; [DPU_3_PIPE] |1337| 
+        ; BRANCHCC OCCURS {||$C$L5||}    ; [] |1337| 
 ;* --------------------------------------------------------------------------*
 ;**	-----------------------g3:
-;* 1177	-----------------------    memset((void *)p, 0, 1656u);
-;* 1178	-----------------------    if ( !mp_init_multi((struct $$fake0 *)p, (struct $$fake0 *)p+552, (struct $$fake0 *)p+1104, NULL, NULL, NULL) ) goto g5;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1177,column 4,is_stmt,isa 1
-        MOVS      A2, #0                ; [DPU_3_PIPE] |1177| 
-        MOV       A3, #1656             ; [DPU_3_PIPE] |1177| 
+;* 1339	-----------------------    memset((void *)p, 0, 1656u);
+;* 1340	-----------------------    if ( !mp_init_multi((struct $$fake0 *)p, (struct $$fake0 *)p+552, (struct $$fake0 *)p+1104, NULL, NULL, NULL) ) goto g5;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1339,column 4,is_stmt,isa 1
+        MOVS      A2, #0                ; [DPU_3_PIPE] |1339| 
+        MOV       A3, #1656             ; [DPU_3_PIPE] |1339| 
 $C$DW$143	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$143, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$143, DW_AT_name("memset")
 	.dwattr $C$DW$143, DW_AT_TI_call
-        BL        memset                ; [DPU_3_PIPE] |1177| 
-        ; CALL OCCURS {memset }          ; [] |1177| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1178,column 4,is_stmt,isa 1
-        MOVS      V1, #0                ; [DPU_3_PIPE] |1178| 
-        STR       V1, [SP, #0]          ; [DPU_3_PIPE] |1178| 
-        ADD       A2, V2, #552          ; [DPU_3_PIPE] |1178| 
-        ADD       A3, V2, #1104         ; [DPU_3_PIPE] |1178| 
-        MOV       A1, V2                ; [DPU_3_PIPE] |1178| 
-        MOV       A4, V1                ; [DPU_3_PIPE] |1178| 
-        STR       V1, [SP, #4]          ; [DPU_3_PIPE] |1178| 
+        BL        memset                ; [DPU_3_PIPE] |1339| 
+        ; CALL OCCURS {memset }          ; [] |1339| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1340,column 4,is_stmt,isa 1
+        MOVS      V1, #0                ; [DPU_3_PIPE] |1340| 
+        STR       V1, [SP, #0]          ; [DPU_3_PIPE] |1340| 
+        ADD       A2, V2, #552          ; [DPU_3_PIPE] |1340| 
+        ADD       A3, V2, #1104         ; [DPU_3_PIPE] |1340| 
+        MOV       A1, V2                ; [DPU_3_PIPE] |1340| 
+        MOV       A4, V1                ; [DPU_3_PIPE] |1340| 
+        STR       V1, [SP, #4]          ; [DPU_3_PIPE] |1340| 
 $C$DW$144	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$144, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$144, DW_AT_name("mp_init_multi")
 	.dwattr $C$DW$144, DW_AT_TI_call
-        BL        mp_init_multi         ; [DPU_3_PIPE] |1178| 
-        ; CALL OCCURS {mp_init_multi }   ; [] |1178| 
+        BL        mp_init_multi         ; [DPU_3_PIPE] |1340| 
+        ; CALL OCCURS {mp_init_multi }   ; [] |1340| 
         CBZ       A1, ||$C$L4||         ; [] 
-        ; BRANCHCC OCCURS {||$C$L4||}    ; [] |1178| 
+        ; BRANCHCC OCCURS {||$C$L4||}    ; [] |1340| 
 ;* --------------------------------------------------------------------------*
-;* 1179	-----------------------    CyaSSL_Free((void *)p);
-;* 1180	-----------------------    return NULL;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1179,column 7,is_stmt,isa 1
-        MOV       A1, V2                ; [DPU_3_PIPE] |1179| 
+;* 1341	-----------------------    CyaSSL_Free((void *)p);
+;* 1342	-----------------------    return NULL;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1341,column 7,is_stmt,isa 1
+        MOV       A1, V2                ; [DPU_3_PIPE] |1341| 
 $C$DW$145	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$145, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$145, DW_AT_name("CyaSSL_Free")
 	.dwattr $C$DW$145, DW_AT_TI_call
-        BL        CyaSSL_Free           ; [DPU_3_PIPE] |1179| 
-        ; CALL OCCURS {CyaSSL_Free }     ; [] |1179| 
+        BL        CyaSSL_Free           ; [DPU_3_PIPE] |1341| 
+        ; CALL OCCURS {CyaSSL_Free }     ; [] |1341| 
         MOV       A1, V1                ; [DPU_3_PIPE] 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1180,column 7,is_stmt,isa 1
-        B         ||$C$L5||             ; [DPU_3_PIPE] |1180| 
-        ; BRANCH OCCURS {||$C$L5||}      ; [] |1180| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1342,column 7,is_stmt,isa 1
+        B         ||$C$L5||             ; [DPU_3_PIPE] |1342| 
+        ; BRANCH OCCURS {||$C$L5||}      ; [] |1342| 
 ;* --------------------------------------------------------------------------*
 ||$C$L4||:    
 ;**	-----------------------g5:
-;* 1182	-----------------------    return p;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1182,column 4,is_stmt,isa 1
-        MOV       A1, V2                ; [DPU_3_PIPE] |1182| 
+;* 1344	-----------------------    return p;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1344,column 4,is_stmt,isa 1
+        MOV       A1, V2                ; [DPU_3_PIPE] |1344| 
 ;* --------------------------------------------------------------------------*
 ||$C$L5||:    
         ADD       SP, SP, #12           ; [DPU_3_PIPE] 
@@ -929,7 +929,7 @@ $C$DW$146	.dwtag  DW_TAG_TI_branch
 	.dwcfi	cfa_offset, 0
         ; BRANCH OCCURS                  ; [] 
 	.dwattr $C$DW$140, DW_AT_TI_end_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$140, DW_AT_TI_end_line(0x49f)
+	.dwattr $C$DW$140, DW_AT_TI_end_line(0x541)
 	.dwattr $C$DW$140, DW_AT_TI_end_column(0x01)
 	.dwendentry
 	.dwendtag $C$DW$140
@@ -946,13 +946,13 @@ $C$DW$147	.dwtag  DW_TAG_subprogram, DW_AT_name("ecc_del_point")
 	.dwattr $C$DW$147, DW_AT_TI_symbol_name("ecc_del_point")
 	.dwattr $C$DW$147, DW_AT_external
 	.dwattr $C$DW$147, DW_AT_TI_begin_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$147, DW_AT_TI_begin_line(0x4a4)
+	.dwattr $C$DW$147, DW_AT_TI_begin_line(0x546)
 	.dwattr $C$DW$147, DW_AT_TI_begin_column(0x06)
 	.dwattr $C$DW$147, DW_AT_decl_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$147, DW_AT_decl_line(0x4a4)
+	.dwattr $C$DW$147, DW_AT_decl_line(0x546)
 	.dwattr $C$DW$147, DW_AT_decl_column(0x06)
 	.dwattr $C$DW$147, DW_AT_TI_max_frame_size(0x08)
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1189,column 1,is_stmt,address ecc_del_point,isa 1
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1351,column 1,is_stmt,address ecc_del_point,isa 1
 
 	.dwfde $C$DW$CIE, ecc_del_point
 $C$DW$148	.dwtag  DW_TAG_formal_parameter, DW_AT_name("p")
@@ -979,53 +979,53 @@ $C$DW$149	.dwtag  DW_TAG_variable, DW_AT_name("p")
 	.dwattr $C$DW$149, DW_AT_type(*$C$DW$T$553)
 	.dwattr $C$DW$149, DW_AT_location[DW_OP_reg4]
 	.dwcfi	cfa_offset, 0
-;* 1191	-----------------------    if ( p == NULL ) goto g3;
+;* 1353	-----------------------    if ( p == NULL ) goto g3;
         PUSH      {V1, LR}              ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 8
 	.dwcfi	save_reg_to_mem, 14, -4
 	.dwcfi	save_reg_to_mem, 4, -8
-        MOV       V1, A1                ; [DPU_3_PIPE] |1189| 
+        MOV       V1, A1                ; [DPU_3_PIPE] |1351| 
         CBZ       V1, ||$C$L6||         ; [] 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1191,column 4,is_stmt,isa 1
-        ; BRANCHCC OCCURS {||$C$L6||}    ; [] |1191| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1353,column 4,is_stmt,isa 1
+        ; BRANCHCC OCCURS {||$C$L6||}    ; [] |1353| 
 ;* --------------------------------------------------------------------------*
-;* 1192	-----------------------    mp_clear((struct $$fake0 *)p);
-;* 1193	-----------------------    mp_clear((struct $$fake0 *)p+552);
-;* 1194	-----------------------    mp_clear((struct $$fake0 *)p+1104);
-;* 1195	-----------------------    CyaSSL_Free((void *)p);
+;* 1354	-----------------------    mp_clear((struct $$fake0 *)p);
+;* 1355	-----------------------    mp_clear((struct $$fake0 *)p+552);
+;* 1356	-----------------------    mp_clear((struct $$fake0 *)p+1104);
+;* 1357	-----------------------    CyaSSL_Free((void *)p);
 ;**	-----------------------g3:
 ;**  	-----------------------    return;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1192,column 7,is_stmt,isa 1
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1354,column 7,is_stmt,isa 1
 $C$DW$150	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$150, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$150, DW_AT_name("mp_clear")
 	.dwattr $C$DW$150, DW_AT_TI_call
-        BL        mp_clear              ; [DPU_3_PIPE] |1192| 
-        ; CALL OCCURS {mp_clear }        ; [] |1192| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1193,column 7,is_stmt,isa 1
-        ADD       A1, V1, #552          ; [DPU_3_PIPE] |1193| 
+        BL        mp_clear              ; [DPU_3_PIPE] |1354| 
+        ; CALL OCCURS {mp_clear }        ; [] |1354| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1355,column 7,is_stmt,isa 1
+        ADD       A1, V1, #552          ; [DPU_3_PIPE] |1355| 
 $C$DW$151	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$151, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$151, DW_AT_name("mp_clear")
 	.dwattr $C$DW$151, DW_AT_TI_call
-        BL        mp_clear              ; [DPU_3_PIPE] |1193| 
-        ; CALL OCCURS {mp_clear }        ; [] |1193| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1194,column 7,is_stmt,isa 1
-        ADD       A1, V1, #1104         ; [DPU_3_PIPE] |1194| 
+        BL        mp_clear              ; [DPU_3_PIPE] |1355| 
+        ; CALL OCCURS {mp_clear }        ; [] |1355| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1356,column 7,is_stmt,isa 1
+        ADD       A1, V1, #1104         ; [DPU_3_PIPE] |1356| 
 $C$DW$152	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$152, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$152, DW_AT_name("mp_clear")
 	.dwattr $C$DW$152, DW_AT_TI_call
-        BL        mp_clear              ; [DPU_3_PIPE] |1194| 
-        ; CALL OCCURS {mp_clear }        ; [] |1194| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1195,column 7,is_stmt,isa 1
-        MOV       A1, V1                ; [DPU_3_PIPE] |1195| 
+        BL        mp_clear              ; [DPU_3_PIPE] |1356| 
+        ; CALL OCCURS {mp_clear }        ; [] |1356| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1357,column 7,is_stmt,isa 1
+        MOV       A1, V1                ; [DPU_3_PIPE] |1357| 
 $C$DW$153	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$153, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$153, DW_AT_name("CyaSSL_Free")
 	.dwattr $C$DW$153, DW_AT_TI_call
-        BL        CyaSSL_Free           ; [DPU_3_PIPE] |1195| 
-        ; CALL OCCURS {CyaSSL_Free }     ; [] |1195| 
+        BL        CyaSSL_Free           ; [DPU_3_PIPE] |1357| 
+        ; CALL OCCURS {CyaSSL_Free }     ; [] |1357| 
 ;* --------------------------------------------------------------------------*
 ||$C$L6||:    
 $C$DW$154	.dwtag  DW_TAG_TI_branch
@@ -1035,7 +1035,7 @@ $C$DW$154	.dwtag  DW_TAG_TI_branch
 	.dwcfi	cfa_offset, 0
         ; BRANCH OCCURS                  ; [] 
 	.dwattr $C$DW$147, DW_AT_TI_end_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$147, DW_AT_TI_end_line(0x4ad)
+	.dwattr $C$DW$147, DW_AT_TI_end_line(0x54f)
 	.dwattr $C$DW$147, DW_AT_TI_end_column(0x01)
 	.dwendentry
 	.dwendtag $C$DW$147
@@ -4952,13 +4952,13 @@ $C$DW$446	.dwtag  DW_TAG_subprogram, DW_AT_name("ecc_verify_hash")
 	.dwattr $C$DW$446, DW_AT_external
 	.dwattr $C$DW$446, DW_AT_type(*$C$DW$T$10)
 	.dwattr $C$DW$446, DW_AT_TI_begin_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$446, DW_AT_TI_begin_line(0x711)
+	.dwattr $C$DW$446, DW_AT_TI_begin_line(0x7b3)
 	.dwattr $C$DW$446, DW_AT_TI_begin_column(0x05)
 	.dwattr $C$DW$446, DW_AT_decl_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$446, DW_AT_decl_line(0x711)
+	.dwattr $C$DW$446, DW_AT_decl_line(0x7b3)
 	.dwattr $C$DW$446, DW_AT_decl_column(0x05)
 	.dwattr $C$DW$446, DW_AT_TI_max_frame_size(0x13a0)
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1811,column 1,is_stmt,address ecc_verify_hash,isa 1
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1973,column 1,is_stmt,address ecc_verify_hash,isa 1
 
 	.dwfde $C$DW$CIE, ecc_verify_hash
 $C$DW$447	.dwtag  DW_TAG_formal_parameter, DW_AT_name("sig")
@@ -5088,7 +5088,7 @@ $C$DW$472	.dwtag  DW_TAG_variable, DW_AT_name("m")
 	.dwattr $C$DW$472, DW_AT_type(*$C$DW$T$128)
 	.dwattr $C$DW$472, DW_AT_location[DW_OP_breg13 4428]
 	.dwcfi	cfa_offset, 0
-;* 1824	-----------------------    if ( sig == NULL || hash == NULL || (stat == NULL || key == NULL) ) goto g3;
+;* 1986	-----------------------    if ( sig == NULL || hash == NULL || (stat == NULL || key == NULL) ) goto g3;
         PUSH      {V1, V2, V3, V4, V5, V6, V7, V8, LR} ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 36
 	.dwcfi	save_reg_to_mem, 14, -4
@@ -5101,789 +5101,789 @@ $C$DW$472	.dwtag  DW_TAG_variable, DW_AT_name("m")
 	.dwcfi	save_reg_to_mem, 5, -32
 	.dwcfi	save_reg_to_mem, 4, -36
         ADD       V4, SP, #36           ; [DPU_3_PIPE] 
-        LDR       V6, [V4, #0]          ; [DPU_3_PIPE] |1811| 
+        LDR       V6, [V4, #0]          ; [DPU_3_PIPE] |1973| 
         MOVW      V1, #60548            ; [DPU_3_PIPE] 
-        MOV       V8, A1                ; [DPU_3_PIPE] |1811| 
+        MOV       V8, A1                ; [DPU_3_PIPE] |1973| 
         MOVT      V1, #65535            ; [DPU_3_PIPE] 
-        MOV       A1, #4984             ; [DPU_3_PIPE] |1811| 
-        MOV       V7, A4                ; [DPU_3_PIPE] |1811| 
+        MOV       A1, #4984             ; [DPU_3_PIPE] |1973| 
+        MOV       V7, A4                ; [DPU_3_PIPE] |1973| 
         ADD       SP, V1, SP            ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 5024
-        LDR       V1, [V4, #4]          ; [DPU_3_PIPE] |1811| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1824,column 4,is_stmt,isa 1
-        CMP       V8, #0                ; [DPU_3_PIPE] |1824| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1811,column 1,is_stmt,isa 1
-        STR       A3, [A1, +SP]         ; [DPU_3_PIPE] |1811| 
-        MOV       A1, #4980             ; [DPU_3_PIPE] |1811| 
-        STR       A2, [A1, +SP]         ; [DPU_3_PIPE] |1811| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1824,column 4,is_stmt,isa 1
-        BEQ       ||$C$L87||            ; [DPU_3_PIPE] |1824| 
-        ; BRANCHCC OCCURS {||$C$L87||}   ; [] |1824| 
+        LDR       V1, [V4, #4]          ; [DPU_3_PIPE] |1973| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1986,column 4,is_stmt,isa 1
+        CMP       V8, #0                ; [DPU_3_PIPE] |1986| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1973,column 1,is_stmt,isa 1
+        STR       A3, [A1, +SP]         ; [DPU_3_PIPE] |1973| 
+        MOV       A1, #4980             ; [DPU_3_PIPE] |1973| 
+        STR       A2, [A1, +SP]         ; [DPU_3_PIPE] |1973| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1986,column 4,is_stmt,isa 1
+        BEQ       ||$C$L87||            ; [DPU_3_PIPE] |1986| 
+        ; BRANCHCC OCCURS {||$C$L87||}   ; [] |1986| 
 ;* --------------------------------------------------------------------------*
         MOV       A1, A3                ; [DPU_3_PIPE] 
         CBZ       A1, ||$C$L87||        ; [] 
-        ; BRANCHCC OCCURS {||$C$L87||}   ; [] |1824| 
+        ; BRANCHCC OCCURS {||$C$L87||}   ; [] |1986| 
 ;* --------------------------------------------------------------------------*
-        CMP       V6, #0                ; [DPU_3_PIPE] |1824| 
-        BEQ       ||$C$L87||            ; [DPU_3_PIPE] |1824| 
-        ; BRANCHCC OCCURS {||$C$L87||}   ; [] |1824| 
+        CMP       V6, #0                ; [DPU_3_PIPE] |1986| 
+        BEQ       ||$C$L87||            ; [DPU_3_PIPE] |1986| 
+        ; BRANCHCC OCCURS {||$C$L87||}   ; [] |1986| 
 ;* --------------------------------------------------------------------------*
         CBZ       V1, ||$C$L87||        ; [] 
-        ; BRANCHCC OCCURS {||$C$L87||}   ; [] |1824| 
+        ; BRANCHCC OCCURS {||$C$L87||}   ; [] |1986| 
 ;* --------------------------------------------------------------------------*
-;* 1828	-----------------------    *stat = 0;
-;* 1831	-----------------------    if ( ecc_is_valid_idx((*key).idx) == 1 ) goto g4;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1828,column 4,is_stmt,isa 1
-        MOVS      V2, #0                ; [DPU_3_PIPE] |1828| 
-        STR       V2, [V6, #0]          ; [DPU_3_PIPE] |1828| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1831,column 4,is_stmt,isa 1
-        LDR       A1, [V1, #4]          ; [DPU_3_PIPE] |1831| 
+;* 1990	-----------------------    *stat = 0;
+;* 1993	-----------------------    if ( ecc_is_valid_idx((*key).idx) == 1 ) goto g4;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1990,column 4,is_stmt,isa 1
+        MOVS      V2, #0                ; [DPU_3_PIPE] |1990| 
+        STR       V2, [V6, #0]          ; [DPU_3_PIPE] |1990| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1993,column 4,is_stmt,isa 1
+        LDR       A1, [V1, #4]          ; [DPU_3_PIPE] |1993| 
 $C$DW$473	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$473, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$473, DW_AT_name("ecc_is_valid_idx")
 	.dwattr $C$DW$473, DW_AT_TI_call
-        BL        ecc_is_valid_idx      ; [DPU_3_PIPE] |1831| 
-        ; CALL OCCURS {ecc_is_valid_idx }  ; [] |1831| 
-        CMP       A1, #1                ; [DPU_3_PIPE] |1831| 
-        BEQ       ||$C$L88||            ; [DPU_3_PIPE] |1831| 
-        ; BRANCHCC OCCURS {||$C$L88||}   ; [] |1831| 
+        BL        ecc_is_valid_idx      ; [DPU_3_PIPE] |1993| 
+        ; CALL OCCURS {ecc_is_valid_idx }  ; [] |1993| 
+        CMP       A1, #1                ; [DPU_3_PIPE] |1993| 
+        BEQ       ||$C$L88||            ; [DPU_3_PIPE] |1993| 
+        ; BRANCHCC OCCURS {||$C$L88||}   ; [] |1993| 
 ;* --------------------------------------------------------------------------*
 ||$C$L87||:    
 ;**	-----------------------g3:
-;* 1832	-----------------------    return (-170);
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1832,column 7,is_stmt,isa 1
-        MVN       A1, #169              ; [DPU_3_PIPE] |1832| 
-        B         ||$C$L94||            ; [DPU_3_PIPE] |1832| 
-        ; BRANCH OCCURS {||$C$L94||}     ; [] |1832| 
+;* 1994	-----------------------    return (-170);
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1994,column 7,is_stmt,isa 1
+        MVN       A1, #169              ; [DPU_3_PIPE] |1994| 
+        B         ||$C$L94||            ; [DPU_3_PIPE] |1994| 
+        ; BRANCH OCCURS {||$C$L94||}     ; [] |1994| 
 ;* --------------------------------------------------------------------------*
 ||$C$L88||:    
 ;**	-----------------------g4:
-;* 1836	-----------------------    if ( !mp_init_multi(&v, &w, &u1, &u2, &p, &e) ) goto g6;
-;* 1837	-----------------------    return (-125);
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1836,column 4,is_stmt,isa 1
-        ADD       A1, SP, #3876         ; [DPU_3_PIPE] |1836| 
-        ADD       LR, SP, #3324         ; [DPU_3_PIPE] |1836| 
-        STR       A1, [SP, #0]          ; [DPU_3_PIPE] |1836| 
-        ADD       A2, SP, #1668         ; [DPU_3_PIPE] |1836| 
-        ADD       A3, SP, #2220         ; [DPU_3_PIPE] |1836| 
-        ADD       A4, SP, #2772         ; [DPU_3_PIPE] |1836| 
-        STR       LR, [SP, #4]          ; [DPU_3_PIPE] |1836| 
-        ADD       A1, SP, #1116         ; [DPU_3_PIPE] |1836| 
+;* 1998	-----------------------    if ( !mp_init_multi(&v, &w, &u1, &u2, &p, &e) ) goto g6;
+;* 1999	-----------------------    return (-125);
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1998,column 4,is_stmt,isa 1
+        ADD       A1, SP, #3876         ; [DPU_3_PIPE] |1998| 
+        ADD       LR, SP, #3324         ; [DPU_3_PIPE] |1998| 
+        STR       A1, [SP, #0]          ; [DPU_3_PIPE] |1998| 
+        ADD       A2, SP, #1668         ; [DPU_3_PIPE] |1998| 
+        ADD       A3, SP, #2220         ; [DPU_3_PIPE] |1998| 
+        ADD       A4, SP, #2772         ; [DPU_3_PIPE] |1998| 
+        STR       LR, [SP, #4]          ; [DPU_3_PIPE] |1998| 
+        ADD       A1, SP, #1116         ; [DPU_3_PIPE] |1998| 
 $C$DW$474	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$474, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$474, DW_AT_name("mp_init_multi")
 	.dwattr $C$DW$474, DW_AT_TI_call
-        BL        mp_init_multi         ; [DPU_3_PIPE] |1836| 
-        ; CALL OCCURS {mp_init_multi }   ; [] |1836| 
-        CMP       A1, #0                ; [DPU_3_PIPE] |1836| 
+        BL        mp_init_multi         ; [DPU_3_PIPE] |1998| 
+        ; CALL OCCURS {mp_init_multi }   ; [] |1998| 
+        CMP       A1, #0                ; [DPU_3_PIPE] |1998| 
         IT        NE                    ; [DPU_3_PIPE] 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1837,column 7,is_stmt,isa 1
-        MVNNE     A1, #124              ; [DPU_3_PIPE] |1837| 
-        BNE       ||$C$L94||            ; [DPU_3_PIPE] |1837| 
-        ; BRANCHCC OCCURS {||$C$L94||}   ; [] |1837| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1999,column 7,is_stmt,isa 1
+        MVNNE     A1, #124              ; [DPU_3_PIPE] |1999| 
+        BNE       ||$C$L94||            ; [DPU_3_PIPE] |1999| 
+        ; BRANCHCC OCCURS {||$C$L94||}   ; [] |1999| 
 ;* --------------------------------------------------------------------------*
 ;**	-----------------------g6:
-;* 1840	-----------------------    if ( !(err = mp_init(&m)) ) goto g8;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1840,column 4,is_stmt,isa 1
-        MOV       A1, #4428             ; [DPU_3_PIPE] |1840| 
-        ADD       A1, A1, SP            ; [DPU_3_PIPE] |1840| 
+;* 2002	-----------------------    if ( !(err = mp_init(&m)) ) goto g8;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2002,column 4,is_stmt,isa 1
+        MOV       A1, #4428             ; [DPU_3_PIPE] |2002| 
+        ADD       A1, A1, SP            ; [DPU_3_PIPE] |2002| 
 $C$DW$475	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$475, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$475, DW_AT_name("mp_init")
 	.dwattr $C$DW$475, DW_AT_TI_call
-        BL        mp_init               ; [DPU_3_PIPE] |1840| 
-        ; CALL OCCURS {mp_init }         ; [] |1840| 
-        MOV       V3, A1                ; [DPU_3_PIPE] |1840| 
+        BL        mp_init               ; [DPU_3_PIPE] |2002| 
+        ; CALL OCCURS {mp_init }         ; [] |2002| 
+        MOV       V3, A1                ; [DPU_3_PIPE] |2002| 
         CBZ       V3, ||$C$L89||        ; [] 
-        ; BRANCHCC OCCURS {||$C$L89||}   ; [] |1840| 
+        ; BRANCHCC OCCURS {||$C$L89||}   ; [] |2002| 
 ;* --------------------------------------------------------------------------*
-;* 1841	-----------------------    mp_clear(&v);
-;* 1842	-----------------------    mp_clear(&w);
-;* 1843	-----------------------    mp_clear(&u1);
-;* 1844	-----------------------    mp_clear(&u2);
-;* 1845	-----------------------    mp_clear(&p);
-;* 1846	-----------------------    mp_clear(&e);
-;* 1847	-----------------------    return (-125);
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1841,column 7,is_stmt,isa 1
-        ADD       A1, SP, #1116         ; [DPU_3_PIPE] |1841| 
+;* 2003	-----------------------    mp_clear(&v);
+;* 2004	-----------------------    mp_clear(&w);
+;* 2005	-----------------------    mp_clear(&u1);
+;* 2006	-----------------------    mp_clear(&u2);
+;* 2007	-----------------------    mp_clear(&p);
+;* 2008	-----------------------    mp_clear(&e);
+;* 2009	-----------------------    return (-125);
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2003,column 7,is_stmt,isa 1
+        ADD       A1, SP, #1116         ; [DPU_3_PIPE] |2003| 
 $C$DW$476	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$476, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$476, DW_AT_name("mp_clear")
 	.dwattr $C$DW$476, DW_AT_TI_call
-        BL        mp_clear              ; [DPU_3_PIPE] |1841| 
-        ; CALL OCCURS {mp_clear }        ; [] |1841| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1842,column 7,is_stmt,isa 1
-        ADD       A1, SP, #1668         ; [DPU_3_PIPE] |1842| 
+        BL        mp_clear              ; [DPU_3_PIPE] |2003| 
+        ; CALL OCCURS {mp_clear }        ; [] |2003| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2004,column 7,is_stmt,isa 1
+        ADD       A1, SP, #1668         ; [DPU_3_PIPE] |2004| 
 $C$DW$477	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$477, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$477, DW_AT_name("mp_clear")
 	.dwattr $C$DW$477, DW_AT_TI_call
-        BL        mp_clear              ; [DPU_3_PIPE] |1842| 
-        ; CALL OCCURS {mp_clear }        ; [] |1842| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1843,column 7,is_stmt,isa 1
-        ADD       A1, SP, #2220         ; [DPU_3_PIPE] |1843| 
+        BL        mp_clear              ; [DPU_3_PIPE] |2004| 
+        ; CALL OCCURS {mp_clear }        ; [] |2004| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2005,column 7,is_stmt,isa 1
+        ADD       A1, SP, #2220         ; [DPU_3_PIPE] |2005| 
 $C$DW$478	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$478, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$478, DW_AT_name("mp_clear")
 	.dwattr $C$DW$478, DW_AT_TI_call
-        BL        mp_clear              ; [DPU_3_PIPE] |1843| 
-        ; CALL OCCURS {mp_clear }        ; [] |1843| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1844,column 7,is_stmt,isa 1
-        ADD       A1, SP, #2772         ; [DPU_3_PIPE] |1844| 
+        BL        mp_clear              ; [DPU_3_PIPE] |2005| 
+        ; CALL OCCURS {mp_clear }        ; [] |2005| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2006,column 7,is_stmt,isa 1
+        ADD       A1, SP, #2772         ; [DPU_3_PIPE] |2006| 
 $C$DW$479	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$479, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$479, DW_AT_name("mp_clear")
 	.dwattr $C$DW$479, DW_AT_TI_call
-        BL        mp_clear              ; [DPU_3_PIPE] |1844| 
-        ; CALL OCCURS {mp_clear }        ; [] |1844| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1845,column 7,is_stmt,isa 1
-        ADD       A1, SP, #3876         ; [DPU_3_PIPE] |1845| 
+        BL        mp_clear              ; [DPU_3_PIPE] |2006| 
+        ; CALL OCCURS {mp_clear }        ; [] |2006| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2007,column 7,is_stmt,isa 1
+        ADD       A1, SP, #3876         ; [DPU_3_PIPE] |2007| 
 $C$DW$480	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$480, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$480, DW_AT_name("mp_clear")
 	.dwattr $C$DW$480, DW_AT_TI_call
-        BL        mp_clear              ; [DPU_3_PIPE] |1845| 
-        ; CALL OCCURS {mp_clear }        ; [] |1845| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1846,column 7,is_stmt,isa 1
-        ADD       A1, SP, #3324         ; [DPU_3_PIPE] |1846| 
+        BL        mp_clear              ; [DPU_3_PIPE] |2007| 
+        ; CALL OCCURS {mp_clear }        ; [] |2007| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2008,column 7,is_stmt,isa 1
+        ADD       A1, SP, #3324         ; [DPU_3_PIPE] |2008| 
 $C$DW$481	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$481, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$481, DW_AT_name("mp_clear")
 	.dwattr $C$DW$481, DW_AT_TI_call
-        BL        mp_clear              ; [DPU_3_PIPE] |1846| 
-        ; CALL OCCURS {mp_clear }        ; [] |1846| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1847,column 7,is_stmt,isa 1
-        MVN       A1, #124              ; [DPU_3_PIPE] |1847| 
-        B         ||$C$L94||            ; [DPU_3_PIPE] |1847| 
-        ; BRANCH OCCURS {||$C$L94||}     ; [] |1847| 
+        BL        mp_clear              ; [DPU_3_PIPE] |2008| 
+        ; CALL OCCURS {mp_clear }        ; [] |2008| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2009,column 7,is_stmt,isa 1
+        MVN       A1, #124              ; [DPU_3_PIPE] |2009| 
+        B         ||$C$L94||            ; [DPU_3_PIPE] |2009| 
+        ; BRANCH OCCURS {||$C$L94||}     ; [] |2009| 
 ;* --------------------------------------------------------------------------*
 ||$C$L89||:    
 ;**	-----------------------g8:
-;* 1851	-----------------------    mG = ecc_new_point();
-;* 1852	-----------------------    mQ = ecc_new_point();
-;* 1853	-----------------------    if ( mQ == NULL || mG == NULL ) goto g39;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1851,column 4,is_stmt,isa 1
+;* 2013	-----------------------    mG = ecc_new_point();
+;* 2014	-----------------------    mQ = ecc_new_point();
+;* 2015	-----------------------    if ( mQ == NULL || mG == NULL ) goto g39;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2013,column 4,is_stmt,isa 1
 $C$DW$482	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$482, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$482, DW_AT_name("ecc_new_point")
 	.dwattr $C$DW$482, DW_AT_TI_call
-        BL        ecc_new_point         ; [DPU_3_PIPE] |1851| 
-        ; CALL OCCURS {ecc_new_point }   ; [] |1851| 
-        MOV       V4, A1                ; [DPU_3_PIPE] |1851| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1852,column 4,is_stmt,isa 1
+        BL        ecc_new_point         ; [DPU_3_PIPE] |2013| 
+        ; CALL OCCURS {ecc_new_point }   ; [] |2013| 
+        MOV       V4, A1                ; [DPU_3_PIPE] |2013| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2014,column 4,is_stmt,isa 1
 $C$DW$483	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$483, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$483, DW_AT_name("ecc_new_point")
 	.dwattr $C$DW$483, DW_AT_TI_call
-        BL        ecc_new_point         ; [DPU_3_PIPE] |1852| 
-        ; CALL OCCURS {ecc_new_point }   ; [] |1852| 
-        MOV       V5, A1                ; [DPU_3_PIPE] |1852| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1853,column 4,is_stmt,isa 1
-        CMP       V5, #0                ; [DPU_3_PIPE] |1853| 
-        BEQ       ||$C$L92||            ; [DPU_3_PIPE] |1853| 
-        ; BRANCHCC OCCURS {||$C$L92||}   ; [] |1853| 
+        BL        ecc_new_point         ; [DPU_3_PIPE] |2014| 
+        ; CALL OCCURS {ecc_new_point }   ; [] |2014| 
+        MOV       V5, A1                ; [DPU_3_PIPE] |2014| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2015,column 4,is_stmt,isa 1
+        CMP       V5, #0                ; [DPU_3_PIPE] |2015| 
+        BEQ       ||$C$L92||            ; [DPU_3_PIPE] |2015| 
+        ; BRANCHCC OCCURS {||$C$L92||}   ; [] |2015| 
 ;* --------------------------------------------------------------------------*
-        CMP       V4, #0                ; [DPU_3_PIPE] |1853| 
-        BEQ       ||$C$L92||            ; [DPU_3_PIPE] |1853| 
-        ; BRANCHCC OCCURS {||$C$L92||}   ; [] |1853| 
+        CMP       V4, #0                ; [DPU_3_PIPE] |2015| 
+        BEQ       ||$C$L92||            ; [DPU_3_PIPE] |2015| 
+        ; BRANCHCC OCCURS {||$C$L92||}   ; [] |2015| 
 ;* --------------------------------------------------------------------------*
-;* 1860	-----------------------    memset(&r, 0, 552u);
-;* 1861	-----------------------    memset(&s, 0, 552u);
-;* 1862	-----------------------    if ( err ) goto g40;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1860,column 4,is_stmt,isa 1
-        ADD       A1, SP, #12           ; [DPU_3_PIPE] |1860| 
-        MOV       A2, V2                ; [DPU_3_PIPE] |1860| 
-        MOV       A3, #552              ; [DPU_3_PIPE] |1860| 
+;* 2022	-----------------------    memset(&r, 0, 552u);
+;* 2023	-----------------------    memset(&s, 0, 552u);
+;* 2024	-----------------------    if ( err ) goto g40;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2022,column 4,is_stmt,isa 1
+        ADD       A1, SP, #12           ; [DPU_3_PIPE] |2022| 
+        MOV       A2, V2                ; [DPU_3_PIPE] |2022| 
+        MOV       A3, #552              ; [DPU_3_PIPE] |2022| 
 $C$DW$484	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$484, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$484, DW_AT_name("memset")
 	.dwattr $C$DW$484, DW_AT_TI_call
-        BL        memset                ; [DPU_3_PIPE] |1860| 
-        ; CALL OCCURS {memset }          ; [] |1860| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1861,column 4,is_stmt,isa 1
-        ADD       A1, SP, #564          ; [DPU_3_PIPE] |1861| 
-        MOV       A2, V2                ; [DPU_3_PIPE] |1861| 
-        MOV       A3, #552              ; [DPU_3_PIPE] |1861| 
+        BL        memset                ; [DPU_3_PIPE] |2022| 
+        ; CALL OCCURS {memset }          ; [] |2022| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2023,column 4,is_stmt,isa 1
+        ADD       A1, SP, #564          ; [DPU_3_PIPE] |2023| 
+        MOV       A2, V2                ; [DPU_3_PIPE] |2023| 
+        MOV       A3, #552              ; [DPU_3_PIPE] |2023| 
 $C$DW$485	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$485, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$485, DW_AT_name("memset")
 	.dwattr $C$DW$485, DW_AT_TI_call
-        BL        memset                ; [DPU_3_PIPE] |1861| 
-        ; CALL OCCURS {memset }          ; [] |1861| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1862,column 4,is_stmt,isa 1
-        CMP       V3, #0                ; [DPU_3_PIPE] |1862| 
-        BNE       ||$C$L93||            ; [DPU_3_PIPE] |1862| 
-        ; BRANCHCC OCCURS {||$C$L93||}   ; [] |1862| 
+        BL        memset                ; [DPU_3_PIPE] |2023| 
+        ; CALL OCCURS {memset }          ; [] |2023| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2024,column 4,is_stmt,isa 1
+        CMP       V3, #0                ; [DPU_3_PIPE] |2024| 
+        BNE       ||$C$L93||            ; [DPU_3_PIPE] |2024| 
+        ; BRANCHCC OCCURS {||$C$L93||}   ; [] |2024| 
 ;* --------------------------------------------------------------------------*
-;* 1863	-----------------------    if ( err = DecodeECC_DSA_Sig(sig, siglen, &r, &s) ) goto g40;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1863,column 8,is_stmt,isa 1
-        MOV       A2, #4980             ; [DPU_3_PIPE] |1863| 
-        LDR       A2, [A2, +SP]         ; [DPU_3_PIPE] |1863| 
-        MOV       A1, V8                ; [DPU_3_PIPE] |1863| 
-        ADD       A3, SP, #12           ; [DPU_3_PIPE] |1863| 
-        ADD       A4, SP, #564          ; [DPU_3_PIPE] |1863| 
+;* 2025	-----------------------    if ( err = DecodeECC_DSA_Sig(sig, siglen, &r, &s) ) goto g40;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2025,column 8,is_stmt,isa 1
+        MOV       A2, #4980             ; [DPU_3_PIPE] |2025| 
+        LDR       A2, [A2, +SP]         ; [DPU_3_PIPE] |2025| 
+        MOV       A1, V8                ; [DPU_3_PIPE] |2025| 
+        ADD       A3, SP, #12           ; [DPU_3_PIPE] |2025| 
+        ADD       A4, SP, #564          ; [DPU_3_PIPE] |2025| 
 $C$DW$486	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$486, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$486, DW_AT_name("DecodeECC_DSA_Sig")
 	.dwattr $C$DW$486, DW_AT_TI_call
-        BL        DecodeECC_DSA_Sig     ; [DPU_3_PIPE] |1863| 
-        ; CALL OCCURS {DecodeECC_DSA_Sig }  ; [] |1863| 
-        MOV       V3, A1                ; [DPU_3_PIPE] |1863| 
-        CMP       V3, #0                ; [DPU_3_PIPE] |1863| 
-        BNE       ||$C$L93||            ; [DPU_3_PIPE] |1863| 
-        ; BRANCHCC OCCURS {||$C$L93||}   ; [] |1863| 
+        BL        DecodeECC_DSA_Sig     ; [DPU_3_PIPE] |2025| 
+        ; CALL OCCURS {DecodeECC_DSA_Sig }  ; [] |2025| 
+        MOV       V3, A1                ; [DPU_3_PIPE] |2025| 
+        CMP       V3, #0                ; [DPU_3_PIPE] |2025| 
+        BNE       ||$C$L93||            ; [DPU_3_PIPE] |2025| 
+        ; BRANCHCC OCCURS {||$C$L93||}   ; [] |2025| 
 ;* --------------------------------------------------------------------------*
-;* 1867	-----------------------    if ( err = mp_read_radix(&p, (*(*key).dp).order, 16) ) goto g40;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1867,column 8,is_stmt,isa 1
-        LDR       A1, [V1, #8]          ; [DPU_3_PIPE] |1867| 
-        LDR       A2, [A1, #16]         ; [DPU_3_PIPE] |1867| 
-        MOVS      A3, #16               ; [DPU_3_PIPE] |1867| 
-        ADD       A1, SP, #3876         ; [DPU_3_PIPE] |1867| 
+;* 2029	-----------------------    if ( err = mp_read_radix(&p, (*(*key).dp).order, 16) ) goto g40;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2029,column 8,is_stmt,isa 1
+        LDR       A1, [V1, #8]          ; [DPU_3_PIPE] |2029| 
+        LDR       A2, [A1, #16]         ; [DPU_3_PIPE] |2029| 
+        MOVS      A3, #16               ; [DPU_3_PIPE] |2029| 
+        ADD       A1, SP, #3876         ; [DPU_3_PIPE] |2029| 
 $C$DW$487	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$487, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$487, DW_AT_name("mp_read_radix")
 	.dwattr $C$DW$487, DW_AT_TI_call
-        BL        mp_read_radix         ; [DPU_3_PIPE] |1867| 
-        ; CALL OCCURS {mp_read_radix }   ; [] |1867| 
-        MOV       V3, A1                ; [DPU_3_PIPE] |1867| 
-        CMP       V3, #0                ; [DPU_3_PIPE] |1867| 
-        BNE       ||$C$L93||            ; [DPU_3_PIPE] |1867| 
-        ; BRANCHCC OCCURS {||$C$L93||}   ; [] |1867| 
+        BL        mp_read_radix         ; [DPU_3_PIPE] |2029| 
+        ; CALL OCCURS {mp_read_radix }   ; [] |2029| 
+        MOV       V3, A1                ; [DPU_3_PIPE] |2029| 
+        CMP       V3, #0                ; [DPU_3_PIPE] |2029| 
+        BNE       ||$C$L93||            ; [DPU_3_PIPE] |2029| 
+        ; BRANCHCC OCCURS {||$C$L93||}   ; [] |2029| 
 ;* --------------------------------------------------------------------------*
-;* 1871	-----------------------    if ( err = mp_read_radix(&m, (*(*key).dp).prime, 16) ) goto g40;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1871,column 8,is_stmt,isa 1
-        LDR       A1, [V1, #8]          ; [DPU_3_PIPE] |1871| 
-        LDR       A2, [A1, #8]          ; [DPU_3_PIPE] |1871| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1840,column 4,is_stmt,isa 1
-        MOV       LR, #4428             ; [DPU_3_PIPE] |1840| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1871,column 8,is_stmt,isa 1
-        MOVS      A3, #16               ; [DPU_3_PIPE] |1871| 
-        ADD       A1, LR, SP            ; [DPU_3_PIPE] |1871| 
+;* 2033	-----------------------    if ( err = mp_read_radix(&m, (*(*key).dp).prime, 16) ) goto g40;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2033,column 8,is_stmt,isa 1
+        LDR       A1, [V1, #8]          ; [DPU_3_PIPE] |2033| 
+        LDR       A2, [A1, #8]          ; [DPU_3_PIPE] |2033| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2002,column 4,is_stmt,isa 1
+        MOV       LR, #4428             ; [DPU_3_PIPE] |2002| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2033,column 8,is_stmt,isa 1
+        MOVS      A3, #16               ; [DPU_3_PIPE] |2033| 
+        ADD       A1, LR, SP            ; [DPU_3_PIPE] |2033| 
 $C$DW$488	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$488, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$488, DW_AT_name("mp_read_radix")
 	.dwattr $C$DW$488, DW_AT_TI_call
-        BL        mp_read_radix         ; [DPU_3_PIPE] |1871| 
-        ; CALL OCCURS {mp_read_radix }   ; [] |1871| 
-        MOV       V3, A1                ; [DPU_3_PIPE] |1871| 
-        CMP       V3, #0                ; [DPU_3_PIPE] |1871| 
-        BNE       ||$C$L93||            ; [DPU_3_PIPE] |1871| 
-        ; BRANCHCC OCCURS {||$C$L93||}   ; [] |1871| 
+        BL        mp_read_radix         ; [DPU_3_PIPE] |2033| 
+        ; CALL OCCURS {mp_read_radix }   ; [] |2033| 
+        MOV       V3, A1                ; [DPU_3_PIPE] |2033| 
+        CMP       V3, #0                ; [DPU_3_PIPE] |2033| 
+        BNE       ||$C$L93||            ; [DPU_3_PIPE] |2033| 
+        ; BRANCHCC OCCURS {||$C$L93||}   ; [] |2033| 
 ;* --------------------------------------------------------------------------*
-;* 1875	-----------------------    if ( mp_iszero(&r) ) goto g38;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1875,column 8,is_stmt,isa 1
-        ADD       A1, SP, #12           ; [DPU_3_PIPE] |1875| 
+;* 2037	-----------------------    if ( mp_iszero(&r) ) goto g38;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2037,column 8,is_stmt,isa 1
+        ADD       A1, SP, #12           ; [DPU_3_PIPE] |2037| 
 $C$DW$489	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$489, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$489, DW_AT_name("mp_iszero")
 	.dwattr $C$DW$489, DW_AT_TI_call
-        BL        mp_iszero             ; [DPU_3_PIPE] |1875| 
-        ; CALL OCCURS {mp_iszero }       ; [] |1875| 
-        CMP       A1, #0                ; [DPU_3_PIPE] |1875| 
-        BNE       ||$C$L91||            ; [DPU_3_PIPE] |1875| 
-        ; BRANCHCC OCCURS {||$C$L91||}   ; [] |1875| 
+        BL        mp_iszero             ; [DPU_3_PIPE] |2037| 
+        ; CALL OCCURS {mp_iszero }       ; [] |2037| 
+        CMP       A1, #0                ; [DPU_3_PIPE] |2037| 
+        BNE       ||$C$L91||            ; [DPU_3_PIPE] |2037| 
+        ; BRANCHCC OCCURS {||$C$L91||}   ; [] |2037| 
 ;* --------------------------------------------------------------------------*
-;* 1875	-----------------------    if ( mp_iszero(&s) ) goto g38;
-        ADD       A1, SP, #564          ; [DPU_3_PIPE] |1875| 
+;* 2037	-----------------------    if ( mp_iszero(&s) ) goto g38;
+        ADD       A1, SP, #564          ; [DPU_3_PIPE] |2037| 
 $C$DW$490	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$490, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$490, DW_AT_name("mp_iszero")
 	.dwattr $C$DW$490, DW_AT_TI_call
-        BL        mp_iszero             ; [DPU_3_PIPE] |1875| 
-        ; CALL OCCURS {mp_iszero }       ; [] |1875| 
-        CMP       A1, #0                ; [DPU_3_PIPE] |1875| 
-        BNE       ||$C$L91||            ; [DPU_3_PIPE] |1875| 
-        ; BRANCHCC OCCURS {||$C$L91||}   ; [] |1875| 
+        BL        mp_iszero             ; [DPU_3_PIPE] |2037| 
+        ; CALL OCCURS {mp_iszero }       ; [] |2037| 
+        CMP       A1, #0                ; [DPU_3_PIPE] |2037| 
+        BNE       ||$C$L91||            ; [DPU_3_PIPE] |2037| 
+        ; BRANCHCC OCCURS {||$C$L91||}   ; [] |2037| 
 ;* --------------------------------------------------------------------------*
-;* 1875	-----------------------    if ( mp_cmp(&r, &p) != (-1) ) goto g38;
-        ADD       A1, SP, #12           ; [DPU_3_PIPE] |1875| 
-        ADD       A2, SP, #3876         ; [DPU_3_PIPE] |1875| 
+;* 2037	-----------------------    if ( mp_cmp(&r, &p) != (-1) ) goto g38;
+        ADD       A1, SP, #12           ; [DPU_3_PIPE] |2037| 
+        ADD       A2, SP, #3876         ; [DPU_3_PIPE] |2037| 
 $C$DW$491	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$491, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$491, DW_AT_name("mp_cmp")
 	.dwattr $C$DW$491, DW_AT_TI_call
-        BL        mp_cmp                ; [DPU_3_PIPE] |1875| 
-        ; CALL OCCURS {mp_cmp }          ; [] |1875| 
-        CMP       A1, #-1               ; [DPU_3_PIPE] |1875| 
-        BNE       ||$C$L91||            ; [DPU_3_PIPE] |1875| 
-        ; BRANCHCC OCCURS {||$C$L91||}   ; [] |1875| 
+        BL        mp_cmp                ; [DPU_3_PIPE] |2037| 
+        ; CALL OCCURS {mp_cmp }          ; [] |2037| 
+        CMP       A1, #-1               ; [DPU_3_PIPE] |2037| 
+        BNE       ||$C$L91||            ; [DPU_3_PIPE] |2037| 
+        ; BRANCHCC OCCURS {||$C$L91||}   ; [] |2037| 
 ;* --------------------------------------------------------------------------*
-;* 1875	-----------------------    if ( mp_cmp(&s, &p) != (-1) ) goto g38;
-        ADD       A1, SP, #564          ; [DPU_3_PIPE] |1875| 
-        ADD       A2, SP, #3876         ; [DPU_3_PIPE] |1875| 
+;* 2037	-----------------------    if ( mp_cmp(&s, &p) != (-1) ) goto g38;
+        ADD       A1, SP, #564          ; [DPU_3_PIPE] |2037| 
+        ADD       A2, SP, #3876         ; [DPU_3_PIPE] |2037| 
 $C$DW$492	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$492, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$492, DW_AT_name("mp_cmp")
 	.dwattr $C$DW$492, DW_AT_TI_call
-        BL        mp_cmp                ; [DPU_3_PIPE] |1875| 
-        ; CALL OCCURS {mp_cmp }          ; [] |1875| 
-        CMP       A1, #-1               ; [DPU_3_PIPE] |1875| 
-        BNE       ||$C$L91||            ; [DPU_3_PIPE] |1875| 
-        ; BRANCHCC OCCURS {||$C$L91||}   ; [] |1875| 
+        BL        mp_cmp                ; [DPU_3_PIPE] |2037| 
+        ; CALL OCCURS {mp_cmp }          ; [] |2037| 
+        CMP       A1, #-1               ; [DPU_3_PIPE] |2037| 
+        BNE       ||$C$L91||            ; [DPU_3_PIPE] |2037| 
+        ; BRANCHCC OCCURS {||$C$L91||}   ; [] |2037| 
 ;* --------------------------------------------------------------------------*
-;* 1882	-----------------------    orderBits = mp_count_bits(&p);
-;* 1885	-----------------------    if ( hashlen<<3 <= orderBits ) goto g19;
-;* 1886	-----------------------    hashlen = orderBits+7u>>3;
+;* 2044	-----------------------    orderBits = mp_count_bits(&p);
+;* 2047	-----------------------    if ( hashlen<<3 <= orderBits ) goto g19;
+;* 2048	-----------------------    hashlen = orderBits+7u>>3;
 ;**	-----------------------g19:
-;* 1887	-----------------------    if ( err = mp_read_unsigned_bin(&e, hash, (int)hashlen) ) goto g40;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1882,column 31,is_stmt,isa 1
-        ADD       A1, SP, #3876         ; [DPU_3_PIPE] |1882| 
+;* 2049	-----------------------    if ( err = mp_read_unsigned_bin(&e, hash, (int)hashlen) ) goto g40;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2044,column 31,is_stmt,isa 1
+        ADD       A1, SP, #3876         ; [DPU_3_PIPE] |2044| 
 $C$DW$493	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$493, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$493, DW_AT_name("mp_count_bits")
 	.dwattr $C$DW$493, DW_AT_TI_call
-        BL        mp_count_bits         ; [DPU_3_PIPE] |1882| 
-        ; CALL OCCURS {mp_count_bits }   ; [] |1882| 
-        MOV       V8, A1                ; [DPU_3_PIPE] |1882| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1885,column 8,is_stmt,isa 1
-        CMP       V8, V7, LSL #3        ; [DPU_3_PIPE] |1885| 
+        BL        mp_count_bits         ; [DPU_3_PIPE] |2044| 
+        ; CALL OCCURS {mp_count_bits }   ; [] |2044| 
+        MOV       V8, A1                ; [DPU_3_PIPE] |2044| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2047,column 8,is_stmt,isa 1
+        CMP       V8, V7, LSL #3        ; [DPU_3_PIPE] |2047| 
         ITT       CC                    ; [DPU_3_PIPE] 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1886,column 12,is_stmt,isa 1
-        ADDCC     A1, V8, #7            ; [DPU_3_PIPE] |1886| 
-        LSRCC     V7, A1, #3            ; [DPU_3_PIPE] |1886| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1887,column 8,is_stmt,isa 1
-        MOV       A2, #4984             ; [DPU_3_PIPE] |1887| 
-        LDR       A2, [A2, +SP]         ; [DPU_3_PIPE] |1887| 
-        MOV       A3, V7                ; [DPU_3_PIPE] |1887| 
-        ADD       A1, SP, #3324         ; [DPU_3_PIPE] |1887| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2048,column 12,is_stmt,isa 1
+        ADDCC     A1, V8, #7            ; [DPU_3_PIPE] |2048| 
+        LSRCC     V7, A1, #3            ; [DPU_3_PIPE] |2048| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2049,column 8,is_stmt,isa 1
+        MOV       A2, #4984             ; [DPU_3_PIPE] |2049| 
+        LDR       A2, [A2, +SP]         ; [DPU_3_PIPE] |2049| 
+        MOV       A3, V7                ; [DPU_3_PIPE] |2049| 
+        ADD       A1, SP, #3324         ; [DPU_3_PIPE] |2049| 
 $C$DW$494	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$494, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$494, DW_AT_name("mp_read_unsigned_bin")
 	.dwattr $C$DW$494, DW_AT_TI_call
-        BL        mp_read_unsigned_bin  ; [DPU_3_PIPE] |1887| 
-        ; CALL OCCURS {mp_read_unsigned_bin }  ; [] |1887| 
-        MOV       V3, A1                ; [DPU_3_PIPE] |1887| 
-        CMP       V3, #0                ; [DPU_3_PIPE] |1887| 
-        BNE       ||$C$L93||            ; [DPU_3_PIPE] |1887| 
-        ; BRANCHCC OCCURS {||$C$L93||}   ; [] |1887| 
+        BL        mp_read_unsigned_bin  ; [DPU_3_PIPE] |2049| 
+        ; CALL OCCURS {mp_read_unsigned_bin }  ; [] |2049| 
+        MOV       V3, A1                ; [DPU_3_PIPE] |2049| 
+        CMP       V3, #0                ; [DPU_3_PIPE] |2049| 
+        BNE       ||$C$L93||            ; [DPU_3_PIPE] |2049| 
+        ; BRANCHCC OCCURS {||$C$L93||}   ; [] |2049| 
 ;* --------------------------------------------------------------------------*
-;* 1890	-----------------------    if ( hashlen<<3 <= orderBits ) goto g22;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1890,column 8,is_stmt,isa 1
-        CMP       V8, V7, LSL #3        ; [DPU_3_PIPE] |1890| 
-        BCS       ||$C$L90||            ; [DPU_3_PIPE] |1890| 
-        ; BRANCHCC OCCURS {||$C$L90||}   ; [] |1890| 
+;* 2052	-----------------------    if ( hashlen<<3 <= orderBits ) goto g22;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2052,column 8,is_stmt,isa 1
+        CMP       V8, V7, LSL #3        ; [DPU_3_PIPE] |2052| 
+        BCS       ||$C$L90||            ; [DPU_3_PIPE] |2052| 
+        ; BRANCHCC OCCURS {||$C$L90||}   ; [] |2052| 
 ;* --------------------------------------------------------------------------*
-;* 1891	-----------------------    mp_rshb(&e, (int)(8u-(orderBits&7u)));
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1891,column 12,is_stmt,isa 1
-        AND       A2, V8, #7            ; [DPU_3_PIPE] |1891| 
-        ADD       A1, SP, #3324         ; [DPU_3_PIPE] |1891| 
-        RSB       A2, A2, #8            ; [DPU_3_PIPE] |1891| 
+;* 2053	-----------------------    mp_rshb(&e, (int)(8u-(orderBits&7u)));
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2053,column 12,is_stmt,isa 1
+        AND       A2, V8, #7            ; [DPU_3_PIPE] |2053| 
+        ADD       A1, SP, #3324         ; [DPU_3_PIPE] |2053| 
+        RSB       A2, A2, #8            ; [DPU_3_PIPE] |2053| 
 $C$DW$495	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$495, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$495, DW_AT_name("mp_rshb")
 	.dwattr $C$DW$495, DW_AT_TI_call
-        BL        mp_rshb               ; [DPU_3_PIPE] |1891| 
-        ; CALL OCCURS {mp_rshb }         ; [] |1891| 
+        BL        mp_rshb               ; [DPU_3_PIPE] |2053| 
+        ; CALL OCCURS {mp_rshb }         ; [] |2053| 
 ;* --------------------------------------------------------------------------*
 ||$C$L90||:    
 ;**	-----------------------g22:
-;* 1896	-----------------------    if ( err = mp_invmod(&s, &p, &w) ) goto g40;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1896,column 8,is_stmt,isa 1
-        ADD       A1, SP, #564          ; [DPU_3_PIPE] |1896| 
-        ADD       A2, SP, #3876         ; [DPU_3_PIPE] |1896| 
-        ADD       A3, SP, #1668         ; [DPU_3_PIPE] |1896| 
+;* 2058	-----------------------    if ( err = mp_invmod(&s, &p, &w) ) goto g40;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2058,column 8,is_stmt,isa 1
+        ADD       A1, SP, #564          ; [DPU_3_PIPE] |2058| 
+        ADD       A2, SP, #3876         ; [DPU_3_PIPE] |2058| 
+        ADD       A3, SP, #1668         ; [DPU_3_PIPE] |2058| 
 $C$DW$496	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$496, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$496, DW_AT_name("mp_invmod")
 	.dwattr $C$DW$496, DW_AT_TI_call
-        BL        mp_invmod             ; [DPU_3_PIPE] |1896| 
-        ; CALL OCCURS {mp_invmod }       ; [] |1896| 
-        MOV       V3, A1                ; [DPU_3_PIPE] |1896| 
-        CMP       V3, #0                ; [DPU_3_PIPE] |1896| 
-        BNE       ||$C$L93||            ; [DPU_3_PIPE] |1896| 
-        ; BRANCHCC OCCURS {||$C$L93||}   ; [] |1896| 
+        BL        mp_invmod             ; [DPU_3_PIPE] |2058| 
+        ; CALL OCCURS {mp_invmod }       ; [] |2058| 
+        MOV       V3, A1                ; [DPU_3_PIPE] |2058| 
+        CMP       V3, #0                ; [DPU_3_PIPE] |2058| 
+        BNE       ||$C$L93||            ; [DPU_3_PIPE] |2058| 
+        ; BRANCHCC OCCURS {||$C$L93||}   ; [] |2058| 
 ;* --------------------------------------------------------------------------*
-;* 1900	-----------------------    if ( err = mp_mulmod(&e, &w, &p, &u1) ) goto g40;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1900,column 8,is_stmt,isa 1
-        ADD       A1, SP, #3324         ; [DPU_3_PIPE] |1900| 
-        ADD       A2, SP, #1668         ; [DPU_3_PIPE] |1900| 
-        ADD       A3, SP, #3876         ; [DPU_3_PIPE] |1900| 
-        ADD       A4, SP, #2220         ; [DPU_3_PIPE] |1900| 
+;* 2062	-----------------------    if ( err = mp_mulmod(&e, &w, &p, &u1) ) goto g40;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2062,column 8,is_stmt,isa 1
+        ADD       A1, SP, #3324         ; [DPU_3_PIPE] |2062| 
+        ADD       A2, SP, #1668         ; [DPU_3_PIPE] |2062| 
+        ADD       A3, SP, #3876         ; [DPU_3_PIPE] |2062| 
+        ADD       A4, SP, #2220         ; [DPU_3_PIPE] |2062| 
 $C$DW$497	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$497, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$497, DW_AT_name("mp_mulmod")
 	.dwattr $C$DW$497, DW_AT_TI_call
-        BL        mp_mulmod             ; [DPU_3_PIPE] |1900| 
-        ; CALL OCCURS {mp_mulmod }       ; [] |1900| 
-        MOV       V3, A1                ; [DPU_3_PIPE] |1900| 
-        CMP       V3, #0                ; [DPU_3_PIPE] |1900| 
-        BNE       ||$C$L93||            ; [DPU_3_PIPE] |1900| 
-        ; BRANCHCC OCCURS {||$C$L93||}   ; [] |1900| 
+        BL        mp_mulmod             ; [DPU_3_PIPE] |2062| 
+        ; CALL OCCURS {mp_mulmod }       ; [] |2062| 
+        MOV       V3, A1                ; [DPU_3_PIPE] |2062| 
+        CMP       V3, #0                ; [DPU_3_PIPE] |2062| 
+        BNE       ||$C$L93||            ; [DPU_3_PIPE] |2062| 
+        ; BRANCHCC OCCURS {||$C$L93||}   ; [] |2062| 
 ;* --------------------------------------------------------------------------*
-;* 1904	-----------------------    if ( err = mp_mulmod(&r, &w, &p, &u2) ) goto g40;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1904,column 8,is_stmt,isa 1
-        ADD       A1, SP, #12           ; [DPU_3_PIPE] |1904| 
-        ADD       A2, SP, #1668         ; [DPU_3_PIPE] |1904| 
-        ADD       A3, SP, #3876         ; [DPU_3_PIPE] |1904| 
-        ADD       A4, SP, #2772         ; [DPU_3_PIPE] |1904| 
+;* 2066	-----------------------    if ( err = mp_mulmod(&r, &w, &p, &u2) ) goto g40;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2066,column 8,is_stmt,isa 1
+        ADD       A1, SP, #12           ; [DPU_3_PIPE] |2066| 
+        ADD       A2, SP, #1668         ; [DPU_3_PIPE] |2066| 
+        ADD       A3, SP, #3876         ; [DPU_3_PIPE] |2066| 
+        ADD       A4, SP, #2772         ; [DPU_3_PIPE] |2066| 
 $C$DW$498	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$498, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$498, DW_AT_name("mp_mulmod")
 	.dwattr $C$DW$498, DW_AT_TI_call
-        BL        mp_mulmod             ; [DPU_3_PIPE] |1904| 
-        ; CALL OCCURS {mp_mulmod }       ; [] |1904| 
-        MOV       V3, A1                ; [DPU_3_PIPE] |1904| 
-        CMP       V3, #0                ; [DPU_3_PIPE] |1904| 
-        BNE       ||$C$L93||            ; [DPU_3_PIPE] |1904| 
-        ; BRANCHCC OCCURS {||$C$L93||}   ; [] |1904| 
+        BL        mp_mulmod             ; [DPU_3_PIPE] |2066| 
+        ; CALL OCCURS {mp_mulmod }       ; [] |2066| 
+        MOV       V3, A1                ; [DPU_3_PIPE] |2066| 
+        CMP       V3, #0                ; [DPU_3_PIPE] |2066| 
+        BNE       ||$C$L93||            ; [DPU_3_PIPE] |2066| 
+        ; BRANCHCC OCCURS {||$C$L93||}   ; [] |2066| 
 ;* --------------------------------------------------------------------------*
-;* 1908	-----------------------    if ( err = mp_read_radix((struct $$fake0 *)mG, (*(*key).dp).Gx, 16) ) goto g40;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1908,column 8,is_stmt,isa 1
-        LDR       A1, [V1, #8]          ; [DPU_3_PIPE] |1908| 
-        LDR       A2, [A1, #20]         ; [DPU_3_PIPE] |1908| 
-        MOVS      A3, #16               ; [DPU_3_PIPE] |1908| 
-        MOV       A1, V4                ; [DPU_3_PIPE] |1908| 
+;* 2070	-----------------------    if ( err = mp_read_radix((struct $$fake0 *)mG, (*(*key).dp).Gx, 16) ) goto g40;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2070,column 8,is_stmt,isa 1
+        LDR       A1, [V1, #8]          ; [DPU_3_PIPE] |2070| 
+        LDR       A2, [A1, #20]         ; [DPU_3_PIPE] |2070| 
+        MOVS      A3, #16               ; [DPU_3_PIPE] |2070| 
+        MOV       A1, V4                ; [DPU_3_PIPE] |2070| 
 $C$DW$499	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$499, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$499, DW_AT_name("mp_read_radix")
 	.dwattr $C$DW$499, DW_AT_TI_call
-        BL        mp_read_radix         ; [DPU_3_PIPE] |1908| 
-        ; CALL OCCURS {mp_read_radix }   ; [] |1908| 
-        MOV       V3, A1                ; [DPU_3_PIPE] |1908| 
-        CMP       V3, #0                ; [DPU_3_PIPE] |1908| 
-        BNE       ||$C$L93||            ; [DPU_3_PIPE] |1908| 
-        ; BRANCHCC OCCURS {||$C$L93||}   ; [] |1908| 
+        BL        mp_read_radix         ; [DPU_3_PIPE] |2070| 
+        ; CALL OCCURS {mp_read_radix }   ; [] |2070| 
+        MOV       V3, A1                ; [DPU_3_PIPE] |2070| 
+        CMP       V3, #0                ; [DPU_3_PIPE] |2070| 
+        BNE       ||$C$L93||            ; [DPU_3_PIPE] |2070| 
+        ; BRANCHCC OCCURS {||$C$L93||}   ; [] |2070| 
 ;* --------------------------------------------------------------------------*
-;* 1911	-----------------------    if ( err = mp_read_radix((struct $$fake0 *)mG+552, (*(*key).dp).Gy, 16) ) goto g40;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1911,column 8,is_stmt,isa 1
-        LDR       A1, [V1, #8]          ; [DPU_3_PIPE] |1911| 
-        LDR       A2, [A1, #24]         ; [DPU_3_PIPE] |1911| 
-        MOVS      A3, #16               ; [DPU_3_PIPE] |1911| 
-        ADD       A1, V4, #552          ; [DPU_3_PIPE] |1911| 
+;* 2073	-----------------------    if ( err = mp_read_radix((struct $$fake0 *)mG+552, (*(*key).dp).Gy, 16) ) goto g40;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2073,column 8,is_stmt,isa 1
+        LDR       A1, [V1, #8]          ; [DPU_3_PIPE] |2073| 
+        LDR       A2, [A1, #24]         ; [DPU_3_PIPE] |2073| 
+        MOVS      A3, #16               ; [DPU_3_PIPE] |2073| 
+        ADD       A1, V4, #552          ; [DPU_3_PIPE] |2073| 
 $C$DW$500	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$500, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$500, DW_AT_name("mp_read_radix")
 	.dwattr $C$DW$500, DW_AT_TI_call
-        BL        mp_read_radix         ; [DPU_3_PIPE] |1911| 
-        ; CALL OCCURS {mp_read_radix }   ; [] |1911| 
-        MOV       V3, A1                ; [DPU_3_PIPE] |1911| 
-        CMP       V3, #0                ; [DPU_3_PIPE] |1911| 
-        BNE       ||$C$L93||            ; [DPU_3_PIPE] |1911| 
-        ; BRANCHCC OCCURS {||$C$L93||}   ; [] |1911| 
+        BL        mp_read_radix         ; [DPU_3_PIPE] |2073| 
+        ; CALL OCCURS {mp_read_radix }   ; [] |2073| 
+        MOV       V3, A1                ; [DPU_3_PIPE] |2073| 
+        CMP       V3, #0                ; [DPU_3_PIPE] |2073| 
+        BNE       ||$C$L93||            ; [DPU_3_PIPE] |2073| 
+        ; BRANCHCC OCCURS {||$C$L93||}   ; [] |2073| 
 ;* --------------------------------------------------------------------------*
-;* 1913	-----------------------    mp_set((struct $$fake0 *)mG+1104, 1u);
-;* 1916	-----------------------    if ( err = mp_copy((struct $$fake0 *)key+12, (struct $$fake0 *)mQ) ) goto g40;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1913,column 8,is_stmt,isa 1
-        ADD       A1, V4, #1104         ; [DPU_3_PIPE] |1913| 
-        MOVS      A2, #1                ; [DPU_3_PIPE] |1913| 
+;* 2075	-----------------------    mp_set((struct $$fake0 *)mG+1104, 1u);
+;* 2078	-----------------------    if ( err = mp_copy((struct $$fake0 *)key+12, (struct $$fake0 *)mQ) ) goto g40;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2075,column 8,is_stmt,isa 1
+        ADD       A1, V4, #1104         ; [DPU_3_PIPE] |2075| 
+        MOVS      A2, #1                ; [DPU_3_PIPE] |2075| 
 $C$DW$501	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$501, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$501, DW_AT_name("mp_set")
 	.dwattr $C$DW$501, DW_AT_TI_call
-        BL        mp_set                ; [DPU_3_PIPE] |1913| 
-        ; CALL OCCURS {mp_set }          ; [] |1913| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1916,column 8,is_stmt,isa 1
-        ADD       A1, V1, #12           ; [DPU_3_PIPE] |1916| 
-        MOV       A2, V5                ; [DPU_3_PIPE] |1916| 
+        BL        mp_set                ; [DPU_3_PIPE] |2075| 
+        ; CALL OCCURS {mp_set }          ; [] |2075| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2078,column 8,is_stmt,isa 1
+        ADD       A1, V1, #12           ; [DPU_3_PIPE] |2078| 
+        MOV       A2, V5                ; [DPU_3_PIPE] |2078| 
 $C$DW$502	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$502, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$502, DW_AT_name("mp_copy")
 	.dwattr $C$DW$502, DW_AT_TI_call
-        BL        mp_copy               ; [DPU_3_PIPE] |1916| 
-        ; CALL OCCURS {mp_copy }         ; [] |1916| 
-        MOV       V3, A1                ; [DPU_3_PIPE] |1916| 
-        CMP       V3, #0                ; [DPU_3_PIPE] |1916| 
-        BNE       ||$C$L93||            ; [DPU_3_PIPE] |1916| 
-        ; BRANCHCC OCCURS {||$C$L93||}   ; [] |1916| 
+        BL        mp_copy               ; [DPU_3_PIPE] |2078| 
+        ; CALL OCCURS {mp_copy }         ; [] |2078| 
+        MOV       V3, A1                ; [DPU_3_PIPE] |2078| 
+        CMP       V3, #0                ; [DPU_3_PIPE] |2078| 
+        BNE       ||$C$L93||            ; [DPU_3_PIPE] |2078| 
+        ; BRANCHCC OCCURS {||$C$L93||}   ; [] |2078| 
 ;* --------------------------------------------------------------------------*
-;* 1918	-----------------------    if ( err = mp_copy((struct $$fake0 *)key+564, (struct $$fake0 *)mQ+552) ) goto g40;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1918,column 8,is_stmt,isa 1
-        ADD       A1, V1, #564          ; [DPU_3_PIPE] |1918| 
-        ADD       A2, V5, #552          ; [DPU_3_PIPE] |1918| 
+;* 2080	-----------------------    if ( err = mp_copy((struct $$fake0 *)key+564, (struct $$fake0 *)mQ+552) ) goto g40;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2080,column 8,is_stmt,isa 1
+        ADD       A1, V1, #564          ; [DPU_3_PIPE] |2080| 
+        ADD       A2, V5, #552          ; [DPU_3_PIPE] |2080| 
 $C$DW$503	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$503, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$503, DW_AT_name("mp_copy")
 	.dwattr $C$DW$503, DW_AT_TI_call
-        BL        mp_copy               ; [DPU_3_PIPE] |1918| 
-        ; CALL OCCURS {mp_copy }         ; [] |1918| 
-        MOV       V3, A1                ; [DPU_3_PIPE] |1918| 
-        CMP       V3, #0                ; [DPU_3_PIPE] |1918| 
-        BNE       ||$C$L93||            ; [DPU_3_PIPE] |1918| 
-        ; BRANCHCC OCCURS {||$C$L93||}   ; [] |1918| 
+        BL        mp_copy               ; [DPU_3_PIPE] |2080| 
+        ; CALL OCCURS {mp_copy }         ; [] |2080| 
+        MOV       V3, A1                ; [DPU_3_PIPE] |2080| 
+        CMP       V3, #0                ; [DPU_3_PIPE] |2080| 
+        BNE       ||$C$L93||            ; [DPU_3_PIPE] |2080| 
+        ; BRANCHCC OCCURS {||$C$L93||}   ; [] |2080| 
 ;* --------------------------------------------------------------------------*
-;* 1920	-----------------------    if ( err = mp_copy((struct $$fake0 *)key+1116, (struct $$fake0 *)mQ+1104) ) goto g40;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1920,column 8,is_stmt,isa 1
-        ADD       A1, V1, #1116         ; [DPU_3_PIPE] |1920| 
-        ADD       A2, V5, #1104         ; [DPU_3_PIPE] |1920| 
+;* 2082	-----------------------    if ( err = mp_copy((struct $$fake0 *)key+1116, (struct $$fake0 *)mQ+1104) ) goto g40;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2082,column 8,is_stmt,isa 1
+        ADD       A1, V1, #1116         ; [DPU_3_PIPE] |2082| 
+        ADD       A2, V5, #1104         ; [DPU_3_PIPE] |2082| 
 $C$DW$504	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$504, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$504, DW_AT_name("mp_copy")
 	.dwattr $C$DW$504, DW_AT_TI_call
-        BL        mp_copy               ; [DPU_3_PIPE] |1920| 
-        ; CALL OCCURS {mp_copy }         ; [] |1920| 
-        MOV       V3, A1                ; [DPU_3_PIPE] |1920| 
-        CMP       V3, #0                ; [DPU_3_PIPE] |1920| 
-        BNE       ||$C$L93||            ; [DPU_3_PIPE] |1920| 
-        ; BRANCHCC OCCURS {||$C$L93||}   ; [] |1920| 
+        BL        mp_copy               ; [DPU_3_PIPE] |2082| 
+        ; CALL OCCURS {mp_copy }         ; [] |2082| 
+        MOV       V3, A1                ; [DPU_3_PIPE] |2082| 
+        CMP       V3, #0                ; [DPU_3_PIPE] |2082| 
+        BNE       ||$C$L93||            ; [DPU_3_PIPE] |2082| 
+        ; BRANCHCC OCCURS {||$C$L93||}   ; [] |2082| 
 ;* --------------------------------------------------------------------------*
-;* 1928	-----------------------    if ( err = ecc_mulmod(&u1, mG, mG, &m, 0) ) goto g40;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1928,column 12,is_stmt,isa 1
-        MOV       A2, V4                ; [DPU_3_PIPE] |1928| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1840,column 4,is_stmt,isa 1
-        MOV       V1, #4428             ; [DPU_3_PIPE] |1840| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1928,column 12,is_stmt,isa 1
-        STR       V2, [SP, #0]          ; [DPU_3_PIPE] |1928| 
-        ADD       A1, SP, #2220         ; [DPU_3_PIPE] |1928| 
-        MOV       A3, A2                ; [DPU_3_PIPE] |1928| 
-        ADD       A4, V1, SP            ; [DPU_3_PIPE] |1928| 
+;* 2090	-----------------------    if ( err = ecc_mulmod(&u1, mG, mG, &m, 0) ) goto g40;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2090,column 12,is_stmt,isa 1
+        MOV       A2, V4                ; [DPU_3_PIPE] |2090| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2002,column 4,is_stmt,isa 1
+        MOV       V1, #4428             ; [DPU_3_PIPE] |2002| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2090,column 12,is_stmt,isa 1
+        STR       V2, [SP, #0]          ; [DPU_3_PIPE] |2090| 
+        ADD       A1, SP, #2220         ; [DPU_3_PIPE] |2090| 
+        MOV       A3, A2                ; [DPU_3_PIPE] |2090| 
+        ADD       A4, V1, SP            ; [DPU_3_PIPE] |2090| 
 $C$DW$505	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$505, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$505, DW_AT_name("ecc_mulmod")
 	.dwattr $C$DW$505, DW_AT_TI_call
-        BL        ecc_mulmod            ; [DPU_3_PIPE] |1928| 
-        ; CALL OCCURS {ecc_mulmod }      ; [] |1928| 
-        MOV       V3, A1                ; [DPU_3_PIPE] |1928| 
-        CMP       V3, #0                ; [DPU_3_PIPE] |1928| 
-        BNE       ||$C$L93||            ; [DPU_3_PIPE] |1928| 
-        ; BRANCHCC OCCURS {||$C$L93||}   ; [] |1928| 
+        BL        ecc_mulmod            ; [DPU_3_PIPE] |2090| 
+        ; CALL OCCURS {ecc_mulmod }      ; [] |2090| 
+        MOV       V3, A1                ; [DPU_3_PIPE] |2090| 
+        CMP       V3, #0                ; [DPU_3_PIPE] |2090| 
+        BNE       ||$C$L93||            ; [DPU_3_PIPE] |2090| 
+        ; BRANCHCC OCCURS {||$C$L93||}   ; [] |2090| 
 ;* --------------------------------------------------------------------------*
-;* 1930	-----------------------    if ( err = ecc_mulmod(&u2, mQ, mQ, &m, 0) ) goto g40;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1930,column 12,is_stmt,isa 1
-        MOV       A2, V5                ; [DPU_3_PIPE] |1930| 
-        STR       V2, [SP, #0]          ; [DPU_3_PIPE] |1930| 
-        ADD       A1, SP, #2772         ; [DPU_3_PIPE] |1930| 
-        ADD       A4, V1, SP            ; [DPU_3_PIPE] |1930| 
-        MOV       A3, A2                ; [DPU_3_PIPE] |1930| 
+;* 2092	-----------------------    if ( err = ecc_mulmod(&u2, mQ, mQ, &m, 0) ) goto g40;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2092,column 12,is_stmt,isa 1
+        MOV       A2, V5                ; [DPU_3_PIPE] |2092| 
+        STR       V2, [SP, #0]          ; [DPU_3_PIPE] |2092| 
+        ADD       A1, SP, #2772         ; [DPU_3_PIPE] |2092| 
+        ADD       A4, V1, SP            ; [DPU_3_PIPE] |2092| 
+        MOV       A3, A2                ; [DPU_3_PIPE] |2092| 
 $C$DW$506	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$506, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$506, DW_AT_name("ecc_mulmod")
 	.dwattr $C$DW$506, DW_AT_TI_call
-        BL        ecc_mulmod            ; [DPU_3_PIPE] |1930| 
-        ; CALL OCCURS {ecc_mulmod }      ; [] |1930| 
-        MOV       V3, A1                ; [DPU_3_PIPE] |1930| 
-        CMP       V3, #0                ; [DPU_3_PIPE] |1930| 
-        BNE       ||$C$L93||            ; [DPU_3_PIPE] |1930| 
-        ; BRANCHCC OCCURS {||$C$L93||}   ; [] |1930| 
+        BL        ecc_mulmod            ; [DPU_3_PIPE] |2092| 
+        ; CALL OCCURS {ecc_mulmod }      ; [] |2092| 
+        MOV       V3, A1                ; [DPU_3_PIPE] |2092| 
+        CMP       V3, #0                ; [DPU_3_PIPE] |2092| 
+        BNE       ||$C$L93||            ; [DPU_3_PIPE] |2092| 
+        ; BRANCHCC OCCURS {||$C$L93||}   ; [] |2092| 
 ;* --------------------------------------------------------------------------*
-;* 1934	-----------------------    if ( err = mp_montgomery_setup(&m, &mp) ) goto g40;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1934,column 12,is_stmt,isa 1
-        ADD       A2, SP, #8            ; [DPU_3_PIPE] |1934| 
-        ADD       A1, V1, SP            ; [DPU_3_PIPE] |1934| 
+;* 2096	-----------------------    if ( err = mp_montgomery_setup(&m, &mp) ) goto g40;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2096,column 12,is_stmt,isa 1
+        ADD       A2, SP, #8            ; [DPU_3_PIPE] |2096| 
+        ADD       A1, V1, SP            ; [DPU_3_PIPE] |2096| 
 $C$DW$507	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$507, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$507, DW_AT_name("mp_montgomery_setup")
 	.dwattr $C$DW$507, DW_AT_TI_call
-        BL        mp_montgomery_setup   ; [DPU_3_PIPE] |1934| 
-        ; CALL OCCURS {mp_montgomery_setup }  ; [] |1934| 
-        MOV       V3, A1                ; [DPU_3_PIPE] |1934| 
-        CMP       V3, #0                ; [DPU_3_PIPE] |1934| 
-        BNE       ||$C$L93||            ; [DPU_3_PIPE] |1934| 
-        ; BRANCHCC OCCURS {||$C$L93||}   ; [] |1934| 
+        BL        mp_montgomery_setup   ; [DPU_3_PIPE] |2096| 
+        ; CALL OCCURS {mp_montgomery_setup }  ; [] |2096| 
+        MOV       V3, A1                ; [DPU_3_PIPE] |2096| 
+        CMP       V3, #0                ; [DPU_3_PIPE] |2096| 
+        BNE       ||$C$L93||            ; [DPU_3_PIPE] |2096| 
+        ; BRANCHCC OCCURS {||$C$L93||}   ; [] |2096| 
 ;* --------------------------------------------------------------------------*
-;* 1938	-----------------------    if ( err = ecc_projective_add_point(mQ, mG, mG, &m, &mp) ) goto g40;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1938,column 12,is_stmt,isa 1
-        ADD       A1, SP, #8            ; [DPU_3_PIPE] |1938| 
-        MOV       A2, V4                ; [DPU_3_PIPE] |1938| 
-        STR       A1, [SP, #0]          ; [DPU_3_PIPE] |1938| 
-        ADD       A4, V1, SP            ; [DPU_3_PIPE] |1938| 
-        MOV       A3, A2                ; [DPU_3_PIPE] |1938| 
-        MOV       A1, V5                ; [DPU_3_PIPE] |1938| 
+;* 2100	-----------------------    if ( err = ecc_projective_add_point(mQ, mG, mG, &m, &mp) ) goto g40;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2100,column 12,is_stmt,isa 1
+        ADD       A1, SP, #8            ; [DPU_3_PIPE] |2100| 
+        MOV       A2, V4                ; [DPU_3_PIPE] |2100| 
+        STR       A1, [SP, #0]          ; [DPU_3_PIPE] |2100| 
+        ADD       A4, V1, SP            ; [DPU_3_PIPE] |2100| 
+        MOV       A3, A2                ; [DPU_3_PIPE] |2100| 
+        MOV       A1, V5                ; [DPU_3_PIPE] |2100| 
 $C$DW$508	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$508, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$508, DW_AT_name("ecc_projective_add_point")
 	.dwattr $C$DW$508, DW_AT_TI_call
-        BL        ecc_projective_add_point ; [DPU_3_PIPE] |1938| 
-        ; CALL OCCURS {ecc_projective_add_point }  ; [] |1938| 
-        MOV       V3, A1                ; [DPU_3_PIPE] |1938| 
+        BL        ecc_projective_add_point ; [DPU_3_PIPE] |2100| 
+        ; CALL OCCURS {ecc_projective_add_point }  ; [] |2100| 
+        MOV       V3, A1                ; [DPU_3_PIPE] |2100| 
         CBNZ      V3, ||$C$L93||        ; [] 
-        ; BRANCHCC OCCURS {||$C$L93||}   ; [] |1938| 
+        ; BRANCHCC OCCURS {||$C$L93||}   ; [] |2100| 
 ;* --------------------------------------------------------------------------*
-;* 1942	-----------------------    if ( err = ecc_map(mG, &m, &mp) ) goto g40;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1942,column 12,is_stmt,isa 1
-        MOV       A2, V1                ; [DPU_3_PIPE] |1942| 
-        MOV       A1, V4                ; [DPU_3_PIPE] |1942| 
-        ADD       A3, SP, #8            ; [DPU_3_PIPE] |1942| 
-        ADD       A2, A2, SP            ; [DPU_3_PIPE] |1942| 
+;* 2104	-----------------------    if ( err = ecc_map(mG, &m, &mp) ) goto g40;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2104,column 12,is_stmt,isa 1
+        MOV       A2, V1                ; [DPU_3_PIPE] |2104| 
+        MOV       A1, V4                ; [DPU_3_PIPE] |2104| 
+        ADD       A3, SP, #8            ; [DPU_3_PIPE] |2104| 
+        ADD       A2, A2, SP            ; [DPU_3_PIPE] |2104| 
 $C$DW$509	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$509, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$509, DW_AT_name("ecc_map")
 	.dwattr $C$DW$509, DW_AT_TI_call
-        BL        ecc_map               ; [DPU_3_PIPE] |1942| 
-        ; CALL OCCURS {ecc_map }         ; [] |1942| 
-        MOV       V3, A1                ; [DPU_3_PIPE] |1942| 
+        BL        ecc_map               ; [DPU_3_PIPE] |2104| 
+        ; CALL OCCURS {ecc_map }         ; [] |2104| 
+        MOV       V3, A1                ; [DPU_3_PIPE] |2104| 
         CBNZ      V3, ||$C$L93||        ; [] 
-        ; BRANCHCC OCCURS {||$C$L93||}   ; [] |1942| 
+        ; BRANCHCC OCCURS {||$C$L93||}   ; [] |2104| 
 ;* --------------------------------------------------------------------------*
-;* 1952	-----------------------    if ( err = mp_mod((struct $$fake0 *)mG, &p, &v) ) goto g40;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1952,column 8,is_stmt,isa 1
-        MOV       A1, V4                ; [DPU_3_PIPE] |1952| 
-        ADD       A2, SP, #3876         ; [DPU_3_PIPE] |1952| 
-        ADD       A3, SP, #1116         ; [DPU_3_PIPE] |1952| 
+;* 2114	-----------------------    if ( err = mp_mod((struct $$fake0 *)mG, &p, &v) ) goto g40;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2114,column 8,is_stmt,isa 1
+        MOV       A1, V4                ; [DPU_3_PIPE] |2114| 
+        ADD       A2, SP, #3876         ; [DPU_3_PIPE] |2114| 
+        ADD       A3, SP, #1116         ; [DPU_3_PIPE] |2114| 
 $C$DW$510	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$510, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$510, DW_AT_name("mp_mod")
 	.dwattr $C$DW$510, DW_AT_TI_call
-        BL        mp_mod                ; [DPU_3_PIPE] |1952| 
-        ; CALL OCCURS {mp_mod }          ; [] |1952| 
-        MOV       V3, A1                ; [DPU_3_PIPE] |1952| 
+        BL        mp_mod                ; [DPU_3_PIPE] |2114| 
+        ; CALL OCCURS {mp_mod }          ; [] |2114| 
+        MOV       V3, A1                ; [DPU_3_PIPE] |2114| 
         CBNZ      V3, ||$C$L93||        ; [] 
-        ; BRANCHCC OCCURS {||$C$L93||}   ; [] |1952| 
+        ; BRANCHCC OCCURS {||$C$L93||}   ; [] |2114| 
 ;* --------------------------------------------------------------------------*
-;* 1956	-----------------------    if ( mp_cmp(&v, &r) ) goto g40;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1956,column 8,is_stmt,isa 1
-        ADD       A1, SP, #1116         ; [DPU_3_PIPE] |1956| 
-        ADD       A2, SP, #12           ; [DPU_3_PIPE] |1956| 
+;* 2118	-----------------------    if ( mp_cmp(&v, &r) ) goto g40;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2118,column 8,is_stmt,isa 1
+        ADD       A1, SP, #1116         ; [DPU_3_PIPE] |2118| 
+        ADD       A2, SP, #12           ; [DPU_3_PIPE] |2118| 
 $C$DW$511	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$511, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$511, DW_AT_name("mp_cmp")
 	.dwattr $C$DW$511, DW_AT_TI_call
-        BL        mp_cmp                ; [DPU_3_PIPE] |1956| 
-        ; CALL OCCURS {mp_cmp }          ; [] |1956| 
+        BL        mp_cmp                ; [DPU_3_PIPE] |2118| 
+        ; CALL OCCURS {mp_cmp }          ; [] |2118| 
         CBNZ      A1, ||$C$L93||        ; [] 
-        ; BRANCHCC OCCURS {||$C$L93||}   ; [] |1956| 
+        ; BRANCHCC OCCURS {||$C$L93||}   ; [] |2118| 
 ;* --------------------------------------------------------------------------*
-;* 1957	-----------------------    *stat = 1;
-;* 1957	-----------------------    goto g40;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1957,column 12,is_stmt,isa 1
-        MOVS      A1, #1                ; [DPU_3_PIPE] |1957| 
-        STR       A1, [V6, #0]          ; [DPU_3_PIPE] |1957| 
-        B         ||$C$L93||            ; [DPU_3_PIPE] |1957| 
-        ; BRANCH OCCURS {||$C$L93||}     ; [] |1957| 
+;* 2119	-----------------------    *stat = 1;
+;* 2119	-----------------------    goto g40;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2119,column 12,is_stmt,isa 1
+        MOVS      A1, #1                ; [DPU_3_PIPE] |2119| 
+        STR       A1, [V6, #0]          ; [DPU_3_PIPE] |2119| 
+        B         ||$C$L93||            ; [DPU_3_PIPE] |2119| 
+        ; BRANCH OCCURS {||$C$L93||}     ; [] |2119| 
 ;* --------------------------------------------------------------------------*
 ||$C$L91||:    
 ;**	-----------------------g38:
-;* 1877	-----------------------    err = (-121);
-;* 1877	-----------------------    goto g40;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1877,column 12,is_stmt,isa 1
-        MVN       V3, #120              ; [DPU_3_PIPE] |1877| 
-        B         ||$C$L93||            ; [DPU_3_PIPE] |1877| 
-        ; BRANCH OCCURS {||$C$L93||}     ; [] |1877| 
+;* 2039	-----------------------    err = (-121);
+;* 2039	-----------------------    goto g40;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2039,column 12,is_stmt,isa 1
+        MVN       V3, #120              ; [DPU_3_PIPE] |2039| 
+        B         ||$C$L93||            ; [DPU_3_PIPE] |2039| 
+        ; BRANCH OCCURS {||$C$L93||}     ; [] |2039| 
 ;* --------------------------------------------------------------------------*
 ||$C$L92||:    
 ;**	-----------------------g39:
-;* 1860	-----------------------    memset(&r, 0, 552u);
-;* 1861	-----------------------    memset(&s, 0, 552u);
-;* 1854	-----------------------    err = (-125);
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1860,column 4,is_stmt,isa 1
-        ADD       A1, SP, #12           ; [DPU_3_PIPE] |1860| 
-        MOV       A2, V2                ; [DPU_3_PIPE] |1860| 
-        MOV       A3, #552              ; [DPU_3_PIPE] |1860| 
+;* 2022	-----------------------    memset(&r, 0, 552u);
+;* 2023	-----------------------    memset(&s, 0, 552u);
+;* 2016	-----------------------    err = (-125);
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2022,column 4,is_stmt,isa 1
+        ADD       A1, SP, #12           ; [DPU_3_PIPE] |2022| 
+        MOV       A2, V2                ; [DPU_3_PIPE] |2022| 
+        MOV       A3, #552              ; [DPU_3_PIPE] |2022| 
 $C$DW$512	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$512, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$512, DW_AT_name("memset")
 	.dwattr $C$DW$512, DW_AT_TI_call
-        BL        memset                ; [DPU_3_PIPE] |1860| 
-        ; CALL OCCURS {memset }          ; [] |1860| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1861,column 4,is_stmt,isa 1
-        ADD       A1, SP, #564          ; [DPU_3_PIPE] |1861| 
-        MOV       A2, V2                ; [DPU_3_PIPE] |1861| 
-        MOV       A3, #552              ; [DPU_3_PIPE] |1861| 
+        BL        memset                ; [DPU_3_PIPE] |2022| 
+        ; CALL OCCURS {memset }          ; [] |2022| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2023,column 4,is_stmt,isa 1
+        ADD       A1, SP, #564          ; [DPU_3_PIPE] |2023| 
+        MOV       A2, V2                ; [DPU_3_PIPE] |2023| 
+        MOV       A3, #552              ; [DPU_3_PIPE] |2023| 
 $C$DW$513	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$513, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$513, DW_AT_name("memset")
 	.dwattr $C$DW$513, DW_AT_TI_call
-        BL        memset                ; [DPU_3_PIPE] |1861| 
-        ; CALL OCCURS {memset }          ; [] |1861| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1854,column 7,is_stmt,isa 1
-        MVN       V3, #124              ; [DPU_3_PIPE] |1854| 
+        BL        memset                ; [DPU_3_PIPE] |2023| 
+        ; CALL OCCURS {memset }          ; [] |2023| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2016,column 7,is_stmt,isa 1
+        MVN       V3, #124              ; [DPU_3_PIPE] |2016| 
 ;* --------------------------------------------------------------------------*
 ||$C$L93||:    
 ;**	-----------------------g40:
-;* 1960	-----------------------    ecc_del_point(mG);
-;* 1961	-----------------------    ecc_del_point(mQ);
-;* 1963	-----------------------    mp_clear(&r);
-;* 1964	-----------------------    mp_clear(&s);
-;* 1965	-----------------------    mp_clear(&v);
-;* 1966	-----------------------    mp_clear(&w);
-;* 1967	-----------------------    mp_clear(&u1);
-;* 1968	-----------------------    mp_clear(&u2);
-;* 1969	-----------------------    mp_clear(&p);
-;* 1970	-----------------------    mp_clear(&e);
-;* 1971	-----------------------    mp_clear(&m);
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1960,column 4,is_stmt,isa 1
-        MOV       A1, V4                ; [DPU_3_PIPE] |1960| 
+;* 2122	-----------------------    ecc_del_point(mG);
+;* 2123	-----------------------    ecc_del_point(mQ);
+;* 2125	-----------------------    mp_clear(&r);
+;* 2126	-----------------------    mp_clear(&s);
+;* 2127	-----------------------    mp_clear(&v);
+;* 2128	-----------------------    mp_clear(&w);
+;* 2129	-----------------------    mp_clear(&u1);
+;* 2130	-----------------------    mp_clear(&u2);
+;* 2131	-----------------------    mp_clear(&p);
+;* 2132	-----------------------    mp_clear(&e);
+;* 2133	-----------------------    mp_clear(&m);
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2122,column 4,is_stmt,isa 1
+        MOV       A1, V4                ; [DPU_3_PIPE] |2122| 
 $C$DW$514	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$514, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$514, DW_AT_name("ecc_del_point")
 	.dwattr $C$DW$514, DW_AT_TI_call
-        BL        ecc_del_point         ; [DPU_3_PIPE] |1960| 
-        ; CALL OCCURS {ecc_del_point }   ; [] |1960| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1961,column 4,is_stmt,isa 1
-        MOV       A1, V5                ; [DPU_3_PIPE] |1961| 
+        BL        ecc_del_point         ; [DPU_3_PIPE] |2122| 
+        ; CALL OCCURS {ecc_del_point }   ; [] |2122| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2123,column 4,is_stmt,isa 1
+        MOV       A1, V5                ; [DPU_3_PIPE] |2123| 
 $C$DW$515	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$515, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$515, DW_AT_name("ecc_del_point")
 	.dwattr $C$DW$515, DW_AT_TI_call
-        BL        ecc_del_point         ; [DPU_3_PIPE] |1961| 
-        ; CALL OCCURS {ecc_del_point }   ; [] |1961| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1963,column 4,is_stmt,isa 1
-        ADD       A1, SP, #12           ; [DPU_3_PIPE] |1963| 
+        BL        ecc_del_point         ; [DPU_3_PIPE] |2123| 
+        ; CALL OCCURS {ecc_del_point }   ; [] |2123| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2125,column 4,is_stmt,isa 1
+        ADD       A1, SP, #12           ; [DPU_3_PIPE] |2125| 
 $C$DW$516	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$516, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$516, DW_AT_name("mp_clear")
 	.dwattr $C$DW$516, DW_AT_TI_call
-        BL        mp_clear              ; [DPU_3_PIPE] |1963| 
-        ; CALL OCCURS {mp_clear }        ; [] |1963| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1964,column 4,is_stmt,isa 1
-        ADD       A1, SP, #564          ; [DPU_3_PIPE] |1964| 
+        BL        mp_clear              ; [DPU_3_PIPE] |2125| 
+        ; CALL OCCURS {mp_clear }        ; [] |2125| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2126,column 4,is_stmt,isa 1
+        ADD       A1, SP, #564          ; [DPU_3_PIPE] |2126| 
 $C$DW$517	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$517, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$517, DW_AT_name("mp_clear")
 	.dwattr $C$DW$517, DW_AT_TI_call
-        BL        mp_clear              ; [DPU_3_PIPE] |1964| 
-        ; CALL OCCURS {mp_clear }        ; [] |1964| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1965,column 4,is_stmt,isa 1
-        ADD       A1, SP, #1116         ; [DPU_3_PIPE] |1965| 
+        BL        mp_clear              ; [DPU_3_PIPE] |2126| 
+        ; CALL OCCURS {mp_clear }        ; [] |2126| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2127,column 4,is_stmt,isa 1
+        ADD       A1, SP, #1116         ; [DPU_3_PIPE] |2127| 
 $C$DW$518	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$518, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$518, DW_AT_name("mp_clear")
 	.dwattr $C$DW$518, DW_AT_TI_call
-        BL        mp_clear              ; [DPU_3_PIPE] |1965| 
-        ; CALL OCCURS {mp_clear }        ; [] |1965| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1966,column 4,is_stmt,isa 1
-        ADD       A1, SP, #1668         ; [DPU_3_PIPE] |1966| 
+        BL        mp_clear              ; [DPU_3_PIPE] |2127| 
+        ; CALL OCCURS {mp_clear }        ; [] |2127| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2128,column 4,is_stmt,isa 1
+        ADD       A1, SP, #1668         ; [DPU_3_PIPE] |2128| 
 $C$DW$519	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$519, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$519, DW_AT_name("mp_clear")
 	.dwattr $C$DW$519, DW_AT_TI_call
-        BL        mp_clear              ; [DPU_3_PIPE] |1966| 
-        ; CALL OCCURS {mp_clear }        ; [] |1966| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1967,column 4,is_stmt,isa 1
-        ADD       A1, SP, #2220         ; [DPU_3_PIPE] |1967| 
+        BL        mp_clear              ; [DPU_3_PIPE] |2128| 
+        ; CALL OCCURS {mp_clear }        ; [] |2128| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2129,column 4,is_stmt,isa 1
+        ADD       A1, SP, #2220         ; [DPU_3_PIPE] |2129| 
 $C$DW$520	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$520, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$520, DW_AT_name("mp_clear")
 	.dwattr $C$DW$520, DW_AT_TI_call
-        BL        mp_clear              ; [DPU_3_PIPE] |1967| 
-        ; CALL OCCURS {mp_clear }        ; [] |1967| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1968,column 4,is_stmt,isa 1
-        ADD       A1, SP, #2772         ; [DPU_3_PIPE] |1968| 
+        BL        mp_clear              ; [DPU_3_PIPE] |2129| 
+        ; CALL OCCURS {mp_clear }        ; [] |2129| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2130,column 4,is_stmt,isa 1
+        ADD       A1, SP, #2772         ; [DPU_3_PIPE] |2130| 
 $C$DW$521	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$521, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$521, DW_AT_name("mp_clear")
 	.dwattr $C$DW$521, DW_AT_TI_call
-        BL        mp_clear              ; [DPU_3_PIPE] |1968| 
-        ; CALL OCCURS {mp_clear }        ; [] |1968| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1969,column 4,is_stmt,isa 1
-        ADD       A1, SP, #3876         ; [DPU_3_PIPE] |1969| 
+        BL        mp_clear              ; [DPU_3_PIPE] |2130| 
+        ; CALL OCCURS {mp_clear }        ; [] |2130| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2131,column 4,is_stmt,isa 1
+        ADD       A1, SP, #3876         ; [DPU_3_PIPE] |2131| 
 $C$DW$522	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$522, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$522, DW_AT_name("mp_clear")
 	.dwattr $C$DW$522, DW_AT_TI_call
-        BL        mp_clear              ; [DPU_3_PIPE] |1969| 
-        ; CALL OCCURS {mp_clear }        ; [] |1969| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1970,column 4,is_stmt,isa 1
-        ADD       A1, SP, #3324         ; [DPU_3_PIPE] |1970| 
+        BL        mp_clear              ; [DPU_3_PIPE] |2131| 
+        ; CALL OCCURS {mp_clear }        ; [] |2131| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2132,column 4,is_stmt,isa 1
+        ADD       A1, SP, #3324         ; [DPU_3_PIPE] |2132| 
 $C$DW$523	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$523, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$523, DW_AT_name("mp_clear")
 	.dwattr $C$DW$523, DW_AT_TI_call
-        BL        mp_clear              ; [DPU_3_PIPE] |1970| 
-        ; CALL OCCURS {mp_clear }        ; [] |1970| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1840,column 4,is_stmt,isa 1
-        MOV       A1, #4428             ; [DPU_3_PIPE] |1840| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1971,column 4,is_stmt,isa 1
-        ADD       A1, A1, SP            ; [DPU_3_PIPE] |1971| 
+        BL        mp_clear              ; [DPU_3_PIPE] |2132| 
+        ; CALL OCCURS {mp_clear }        ; [] |2132| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2002,column 4,is_stmt,isa 1
+        MOV       A1, #4428             ; [DPU_3_PIPE] |2002| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2133,column 4,is_stmt,isa 1
+        ADD       A1, A1, SP            ; [DPU_3_PIPE] |2133| 
 $C$DW$524	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$524, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$524, DW_AT_name("mp_clear")
 	.dwattr $C$DW$524, DW_AT_TI_call
-        BL        mp_clear              ; [DPU_3_PIPE] |1971| 
-        ; CALL OCCURS {mp_clear }        ; [] |1971| 
+        BL        mp_clear              ; [DPU_3_PIPE] |2133| 
+        ; CALL OCCURS {mp_clear }        ; [] |2133| 
 ;* --------------------------------------------------------------------------*
-;* 1973	-----------------------    return err;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1973,column 4,is_stmt,isa 1
-        MOV       A1, V3                ; [DPU_3_PIPE] |1973| 
+;* 2135	-----------------------    return err;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2135,column 4,is_stmt,isa 1
+        MOV       A1, V3                ; [DPU_3_PIPE] |2135| 
 ;* --------------------------------------------------------------------------*
 ||$C$L94||:    
         MOVW      V1, #4988             ; [DPU_3_PIPE] 
@@ -5897,7 +5897,7 @@ $C$DW$525	.dwtag  DW_TAG_TI_branch
 	.dwcfi	cfa_offset, 0
         ; BRANCH OCCURS                  ; [] 
 	.dwattr $C$DW$446, DW_AT_TI_end_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$446, DW_AT_TI_end_line(0x7b6)
+	.dwattr $C$DW$446, DW_AT_TI_end_line(0x858)
 	.dwattr $C$DW$446, DW_AT_TI_end_column(0x01)
 	.dwendentry
 	.dwendtag $C$DW$446
@@ -5915,13 +5915,13 @@ $C$DW$526	.dwtag  DW_TAG_subprogram, DW_AT_name("ecc_size")
 	.dwattr $C$DW$526, DW_AT_external
 	.dwattr $C$DW$526, DW_AT_type(*$C$DW$T$10)
 	.dwattr $C$DW$526, DW_AT_TI_begin_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$526, DW_AT_TI_begin_line(0x85e)
+	.dwattr $C$DW$526, DW_AT_TI_begin_line(0x900)
 	.dwattr $C$DW$526, DW_AT_TI_begin_column(0x05)
 	.dwattr $C$DW$526, DW_AT_decl_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$526, DW_AT_decl_line(0x85e)
+	.dwattr $C$DW$526, DW_AT_decl_line(0x900)
 	.dwattr $C$DW$526, DW_AT_decl_column(0x05)
 	.dwattr $C$DW$526, DW_AT_TI_max_frame_size(0x00)
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2143,column 1,is_stmt,address ecc_size,isa 1
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2305,column 1,is_stmt,address ecc_size,isa 1
 
 	.dwfde $C$DW$CIE, ecc_size
 $C$DW$527	.dwtag  DW_TAG_formal_parameter, DW_AT_name("key")
@@ -5944,20 +5944,20 @@ $C$DW$528	.dwtag  DW_TAG_variable, DW_AT_name("key")
 	.dwattr $C$DW$528, DW_AT_type(*$C$DW$T$564)
 	.dwattr $C$DW$528, DW_AT_location[DW_OP_reg0]
 	.dwcfi	cfa_offset, 0
-;* 2146	-----------------------    return (key != NULL) ? (*(*key).dp).size : 0;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2146,column 5,is_stmt,isa 1
-        CMP       A1, #0                ; [DPU_3_PIPE] |2146| 
+;* 2308	-----------------------    return (key != NULL) ? (*(*key).dp).size : 0;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2308,column 5,is_stmt,isa 1
+        CMP       A1, #0                ; [DPU_3_PIPE] |2308| 
         ITTE      NE                    ; [DPU_3_PIPE] 
-        LDRNE     A1, [A1, #8]          ; [DPU_3_PIPE] |2146| 
-        LDRNE     A1, [A1, #0]          ; [DPU_3_PIPE] |2146| 
-        MOVEQ     A1, #0                ; [DPU_3_PIPE] |2146| 
+        LDRNE     A1, [A1, #8]          ; [DPU_3_PIPE] |2308| 
+        LDRNE     A1, [A1, #0]          ; [DPU_3_PIPE] |2308| 
+        MOVEQ     A1, #0                ; [DPU_3_PIPE] |2308| 
 $C$DW$529	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$529, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$529, DW_AT_TI_return
         BX        LR                    ; [DPU_3_PIPE] 
         ; BRANCH OCCURS                  ; [] 
 	.dwattr $C$DW$526, DW_AT_TI_end_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$526, DW_AT_TI_end_line(0x863)
+	.dwattr $C$DW$526, DW_AT_TI_end_line(0x905)
 	.dwattr $C$DW$526, DW_AT_TI_end_column(0x01)
 	.dwendentry
 	.dwendtag $C$DW$526
@@ -5975,13 +5975,13 @@ $C$DW$530	.dwtag  DW_TAG_subprogram, DW_AT_name("ecc_make_key_ex")
 	.dwattr $C$DW$530, DW_AT_external
 	.dwattr $C$DW$530, DW_AT_type(*$C$DW$T$10)
 	.dwattr $C$DW$530, DW_AT_TI_begin_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$530, DW_AT_TI_begin_line(0x527)
+	.dwattr $C$DW$530, DW_AT_TI_begin_line(0x5c9)
 	.dwattr $C$DW$530, DW_AT_TI_begin_column(0x05)
 	.dwattr $C$DW$530, DW_AT_decl_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$530, DW_AT_decl_line(0x527)
+	.dwattr $C$DW$530, DW_AT_decl_line(0x5c9)
 	.dwattr $C$DW$530, DW_AT_decl_column(0x05)
 	.dwattr $C$DW$530, DW_AT_TI_max_frame_size(0x4b8)
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1320,column 1,is_stmt,address ecc_make_key_ex,isa 1
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1482,column 1,is_stmt,address ecc_make_key_ex,isa 1
 
 	.dwfde $C$DW$CIE, ecc_make_key_ex
 $C$DW$531	.dwtag  DW_TAG_formal_parameter, DW_AT_name("rng")
@@ -6063,7 +6063,7 @@ $C$DW$544	.dwtag  DW_TAG_variable, DW_AT_name("buf")
 	.dwattr $C$DW$544, DW_AT_type(*$C$DW$T$903)
 	.dwattr $C$DW$544, DW_AT_location[DW_OP_breg13 1112]
 	.dwcfi	cfa_offset, 0
-;* 1332	-----------------------    if ( key != NULL && rng != NULL && dp != NULL ) goto g3;
+;* 1494	-----------------------    if ( key != NULL && rng != NULL && dp != NULL ) goto g3;
         PUSH      {V1, V2, V3, V4, V5, V6, LR} ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 28
 	.dwcfi	save_reg_to_mem, 14, -4
@@ -6074,336 +6074,336 @@ $C$DW$544	.dwtag  DW_TAG_variable, DW_AT_name("buf")
 	.dwcfi	save_reg_to_mem, 5, -24
 	.dwcfi	save_reg_to_mem, 4, -28
         MOVW      A4, #64356            ; [DPU_3_PIPE] 
-        MOV       V1, A2                ; [DPU_3_PIPE] |1320| 
+        MOV       V1, A2                ; [DPU_3_PIPE] |1482| 
         MOVT      A4, #65535            ; [DPU_3_PIPE] 
         ADD       SP, A4, SP            ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 1208
         CBZ       V1, ||$C$L95||        ; [] 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1332,column 4,is_stmt,isa 1
-        ; BRANCHCC OCCURS {||$C$L95||}   ; [] |1332| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1494,column 4,is_stmt,isa 1
+        ; BRANCHCC OCCURS {||$C$L95||}   ; [] |1494| 
 ;* --------------------------------------------------------------------------*
-        CMP       A1, #0                ; [DPU_3_PIPE] |1332| 
+        CMP       A1, #0                ; [DPU_3_PIPE] |1494| 
         IT        NE                    ; [DPU_3_PIPE] 
-        CMPNE     A3, #0                ; [DPU_3_PIPE] |1332| 
-        BNE       ||$C$L96||            ; [DPU_3_PIPE] |1332| 
-        ; BRANCHCC OCCURS {||$C$L96||}   ; [] |1332| 
+        CMPNE     A3, #0                ; [DPU_3_PIPE] |1494| 
+        BNE       ||$C$L96||            ; [DPU_3_PIPE] |1494| 
+        ; BRANCHCC OCCURS {||$C$L96||}   ; [] |1494| 
 ;* --------------------------------------------------------------------------*
 ||$C$L95||:    
-;* 1333	-----------------------    return (-170);
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1333,column 8,is_stmt,isa 1
-        MVN       A1, #169              ; [DPU_3_PIPE] |1333| 
-        B         ||$C$L101||           ; [DPU_3_PIPE] |1333| 
-        ; BRANCH OCCURS {||$C$L101||}    ; [] |1333| 
+;* 1495	-----------------------    return (-170);
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1495,column 8,is_stmt,isa 1
+        MVN       A1, #169              ; [DPU_3_PIPE] |1495| 
+        B         ||$C$L101||           ; [DPU_3_PIPE] |1495| 
+        ; BRANCH OCCURS {||$C$L101||}    ; [] |1495| 
 ;* --------------------------------------------------------------------------*
 ||$C$L96||:    
 ;**	-----------------------g3:
-;* 1341	-----------------------    (*key).idx = (-1);
-;* 1342	-----------------------    (*key).dp = dp;
-;* 1343	-----------------------    keysize = (*dp).size;
-;* 1349	-----------------------    err = RNG_GenerateBlock(rng, &buf, (unsigned)keysize);
-;* 1346	-----------------------    base = NULL;
-;* 1350	-----------------------    if ( err ) goto g17;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1342,column 4,is_stmt,isa 1
-        STR       A3, [V1, #8]          ; [DPU_3_PIPE] |1342| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1341,column 4,is_stmt,isa 1
-        MOV       A2, #-1               ; [DPU_3_PIPE] |1341| 
-        STR       A2, [V1, #4]          ; [DPU_3_PIPE] |1341| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1343,column 4,is_stmt,isa 1
-        LDR       V3, [A3, #0]          ; [DPU_3_PIPE] |1343| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1349,column 4,is_stmt,isa 1
-        ADD       A2, SP, #1112         ; [DPU_3_PIPE] |1349| 
-        MOV       A3, V3                ; [DPU_3_PIPE] |1349| 
+;* 1503	-----------------------    (*key).idx = (-1);
+;* 1504	-----------------------    (*key).dp = dp;
+;* 1505	-----------------------    keysize = (*dp).size;
+;* 1511	-----------------------    err = RNG_GenerateBlock(rng, &buf, (unsigned)keysize);
+;* 1508	-----------------------    base = NULL;
+;* 1512	-----------------------    if ( err ) goto g17;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1504,column 4,is_stmt,isa 1
+        STR       A3, [V1, #8]          ; [DPU_3_PIPE] |1504| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1503,column 4,is_stmt,isa 1
+        MOV       A2, #-1               ; [DPU_3_PIPE] |1503| 
+        STR       A2, [V1, #4]          ; [DPU_3_PIPE] |1503| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1505,column 4,is_stmt,isa 1
+        LDR       V3, [A3, #0]          ; [DPU_3_PIPE] |1505| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1511,column 4,is_stmt,isa 1
+        ADD       A2, SP, #1112         ; [DPU_3_PIPE] |1511| 
+        MOV       A3, V3                ; [DPU_3_PIPE] |1511| 
 $C$DW$545	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$545, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$545, DW_AT_name("RNG_GenerateBlock")
 	.dwattr $C$DW$545, DW_AT_TI_call
-        BL        RNG_GenerateBlock     ; [DPU_3_PIPE] |1349| 
-        ; CALL OCCURS {RNG_GenerateBlock }  ; [] |1349| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1346,column 4,is_stmt,isa 1
-        MOVS      V2, #0                ; [DPU_3_PIPE] |1346| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1349,column 4,is_stmt,isa 1
-        MOV       V4, A1                ; [DPU_3_PIPE] |1349| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1350,column 4,is_stmt,isa 1
-        CMP       V4, #0                ; [DPU_3_PIPE] |1350| 
-        BNE       ||$C$L99||            ; [DPU_3_PIPE] |1350| 
-        ; BRANCHCC OCCURS {||$C$L99||}   ; [] |1350| 
+        BL        RNG_GenerateBlock     ; [DPU_3_PIPE] |1511| 
+        ; CALL OCCURS {RNG_GenerateBlock }  ; [] |1511| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1508,column 4,is_stmt,isa 1
+        MOVS      V2, #0                ; [DPU_3_PIPE] |1508| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1511,column 4,is_stmt,isa 1
+        MOV       V4, A1                ; [DPU_3_PIPE] |1511| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1512,column 4,is_stmt,isa 1
+        CMP       V4, #0                ; [DPU_3_PIPE] |1512| 
+        BNE       ||$C$L99||            ; [DPU_3_PIPE] |1512| 
+        ; BRANCHCC OCCURS {||$C$L99||}   ; [] |1512| 
 ;* --------------------------------------------------------------------------*
-;* 1351	-----------------------    buf[0] |= 0xcu;
-;* 1355	-----------------------    K$38 = (struct $$fake0 *)key+1668;
-;* 1355	-----------------------    K$43 = (struct $$fake0 *)key+12;
-;* 1355	-----------------------    if ( mp_init_multi((struct $$fake0 *)key+12, (struct $$fake0 *)key+564, (struct $$fake0 *)key+1116, K$38, &prime, &order) ) goto g16;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1351,column 8,is_stmt,isa 1
-        ADD       A2, SP, #1112         ; [DPU_3_PIPE] |1351| 
-        LDRB      A1, [A2, #0]          ; [DPU_3_PIPE] |1351| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1355,column 8,is_stmt,isa 1
-        ADD       A3, SP, #8            ; [DPU_3_PIPE] |1355| 
-        ADD       A4, SP, #560          ; [DPU_3_PIPE] |1355| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1351,column 8,is_stmt,isa 1
-        ORR       A1, A1, #12           ; [DPU_3_PIPE] |1351| 
-        STRB      A1, [A2, #0]          ; [DPU_3_PIPE] |1351| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1355,column 8,is_stmt,isa 1
-        ADD       V5, V1, #1668         ; [DPU_3_PIPE] |1355| 
-        STR       A3, [SP, #0]          ; [DPU_3_PIPE] |1355| 
-        ADD       A1, V1, #12           ; [DPU_3_PIPE] |1355| 
-        ADD       A2, V1, #564          ; [DPU_3_PIPE] |1355| 
-        ADD       A3, V1, #1116         ; [DPU_3_PIPE] |1355| 
-        STR       A4, [SP, #4]          ; [DPU_3_PIPE] |1355| 
-        MOV       A4, V5                ; [DPU_3_PIPE] |1355| 
+;* 1513	-----------------------    buf[0] |= 0xcu;
+;* 1517	-----------------------    K$38 = (struct $$fake0 *)key+1668;
+;* 1517	-----------------------    K$43 = (struct $$fake0 *)key+12;
+;* 1517	-----------------------    if ( mp_init_multi((struct $$fake0 *)key+12, (struct $$fake0 *)key+564, (struct $$fake0 *)key+1116, K$38, &prime, &order) ) goto g16;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1513,column 8,is_stmt,isa 1
+        ADD       A2, SP, #1112         ; [DPU_3_PIPE] |1513| 
+        LDRB      A1, [A2, #0]          ; [DPU_3_PIPE] |1513| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1517,column 8,is_stmt,isa 1
+        ADD       A3, SP, #8            ; [DPU_3_PIPE] |1517| 
+        ADD       A4, SP, #560          ; [DPU_3_PIPE] |1517| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1513,column 8,is_stmt,isa 1
+        ORR       A1, A1, #12           ; [DPU_3_PIPE] |1513| 
+        STRB      A1, [A2, #0]          ; [DPU_3_PIPE] |1513| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1517,column 8,is_stmt,isa 1
+        ADD       V5, V1, #1668         ; [DPU_3_PIPE] |1517| 
+        STR       A3, [SP, #0]          ; [DPU_3_PIPE] |1517| 
+        ADD       A1, V1, #12           ; [DPU_3_PIPE] |1517| 
+        ADD       A2, V1, #564          ; [DPU_3_PIPE] |1517| 
+        ADD       A3, V1, #1116         ; [DPU_3_PIPE] |1517| 
+        STR       A4, [SP, #4]          ; [DPU_3_PIPE] |1517| 
+        MOV       A4, V5                ; [DPU_3_PIPE] |1517| 
 $C$DW$546	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$546, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$546, DW_AT_name("mp_init_multi")
 	.dwattr $C$DW$546, DW_AT_TI_call
-        BL        mp_init_multi         ; [DPU_3_PIPE] |1355| 
-        ; CALL OCCURS {mp_init_multi }   ; [] |1355| 
-        ADD       V6, V1, #12           ; [DPU_3_PIPE] |1355| 
-        CMP       A1, #0                ; [DPU_3_PIPE] |1355| 
-        BNE       ||$C$L98||            ; [DPU_3_PIPE] |1355| 
-        ; BRANCHCC OCCURS {||$C$L98||}   ; [] |1355| 
+        BL        mp_init_multi         ; [DPU_3_PIPE] |1517| 
+        ; CALL OCCURS {mp_init_multi }   ; [] |1517| 
+        ADD       V6, V1, #12           ; [DPU_3_PIPE] |1517| 
+        CMP       A1, #0                ; [DPU_3_PIPE] |1517| 
+        BNE       ||$C$L98||            ; [DPU_3_PIPE] |1517| 
+        ; BRANCHCC OCCURS {||$C$L98||}   ; [] |1517| 
 ;* --------------------------------------------------------------------------*
-;* 1362	-----------------------    base = ecc_new_point();
-;* 1363	-----------------------    if ( base == NULL ) goto g16;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1362,column 8,is_stmt,isa 1
+;* 1524	-----------------------    base = ecc_new_point();
+;* 1525	-----------------------    if ( base == NULL ) goto g16;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1524,column 8,is_stmt,isa 1
 $C$DW$547	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$547, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$547, DW_AT_name("ecc_new_point")
 	.dwattr $C$DW$547, DW_AT_TI_call
-        BL        ecc_new_point         ; [DPU_3_PIPE] |1362| 
-        ; CALL OCCURS {ecc_new_point }   ; [] |1362| 
-        MOV       V2, A1                ; [DPU_3_PIPE] |1362| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1363,column 8,is_stmt,isa 1
-        CMP       V2, #0                ; [DPU_3_PIPE] |1363| 
-        BEQ       ||$C$L98||            ; [DPU_3_PIPE] |1363| 
-        ; BRANCHCC OCCURS {||$C$L98||}   ; [] |1363| 
+        BL        ecc_new_point         ; [DPU_3_PIPE] |1524| 
+        ; CALL OCCURS {ecc_new_point }   ; [] |1524| 
+        MOV       V2, A1                ; [DPU_3_PIPE] |1524| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1525,column 8,is_stmt,isa 1
+        CMP       V2, #0                ; [DPU_3_PIPE] |1525| 
+        BEQ       ||$C$L98||            ; [DPU_3_PIPE] |1525| 
+        ; BRANCHCC OCCURS {||$C$L98||}   ; [] |1525| 
 ;* --------------------------------------------------------------------------*
-;* 1369	-----------------------    if ( err = mp_read_radix(&prime, (*(*key).dp).prime, 16) ) goto g17;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1369,column 8,is_stmt,isa 1
-        LDR       A1, [V1, #8]          ; [DPU_3_PIPE] |1369| 
-        LDR       A2, [A1, #8]          ; [DPU_3_PIPE] |1369| 
-        MOVS      A3, #16               ; [DPU_3_PIPE] |1369| 
-        ADD       A1, SP, #8            ; [DPU_3_PIPE] |1369| 
+;* 1531	-----------------------    if ( err = mp_read_radix(&prime, (*(*key).dp).prime, 16) ) goto g17;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1531,column 8,is_stmt,isa 1
+        LDR       A1, [V1, #8]          ; [DPU_3_PIPE] |1531| 
+        LDR       A2, [A1, #8]          ; [DPU_3_PIPE] |1531| 
+        MOVS      A3, #16               ; [DPU_3_PIPE] |1531| 
+        ADD       A1, SP, #8            ; [DPU_3_PIPE] |1531| 
 $C$DW$548	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$548, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$548, DW_AT_name("mp_read_radix")
 	.dwattr $C$DW$548, DW_AT_TI_call
-        BL        mp_read_radix         ; [DPU_3_PIPE] |1369| 
-        ; CALL OCCURS {mp_read_radix }   ; [] |1369| 
-        MOV       V4, A1                ; [DPU_3_PIPE] |1369| 
-        CMP       V4, #0                ; [DPU_3_PIPE] |1369| 
-        BNE       ||$C$L99||            ; [DPU_3_PIPE] |1369| 
-        ; BRANCHCC OCCURS {||$C$L99||}   ; [] |1369| 
+        BL        mp_read_radix         ; [DPU_3_PIPE] |1531| 
+        ; CALL OCCURS {mp_read_radix }   ; [] |1531| 
+        MOV       V4, A1                ; [DPU_3_PIPE] |1531| 
+        CMP       V4, #0                ; [DPU_3_PIPE] |1531| 
+        BNE       ||$C$L99||            ; [DPU_3_PIPE] |1531| 
+        ; BRANCHCC OCCURS {||$C$L99||}   ; [] |1531| 
 ;* --------------------------------------------------------------------------*
-;* 1371	-----------------------    if ( err = mp_read_radix(&order, (*(*key).dp).order, 16) ) goto g17;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1371,column 8,is_stmt,isa 1
-        LDR       A1, [V1, #8]          ; [DPU_3_PIPE] |1371| 
-        LDR       A2, [A1, #16]         ; [DPU_3_PIPE] |1371| 
-        MOVS      A3, #16               ; [DPU_3_PIPE] |1371| 
-        ADD       A1, SP, #560          ; [DPU_3_PIPE] |1371| 
+;* 1533	-----------------------    if ( err = mp_read_radix(&order, (*(*key).dp).order, 16) ) goto g17;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1533,column 8,is_stmt,isa 1
+        LDR       A1, [V1, #8]          ; [DPU_3_PIPE] |1533| 
+        LDR       A2, [A1, #16]         ; [DPU_3_PIPE] |1533| 
+        MOVS      A3, #16               ; [DPU_3_PIPE] |1533| 
+        ADD       A1, SP, #560          ; [DPU_3_PIPE] |1533| 
 $C$DW$549	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$549, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$549, DW_AT_name("mp_read_radix")
 	.dwattr $C$DW$549, DW_AT_TI_call
-        BL        mp_read_radix         ; [DPU_3_PIPE] |1371| 
-        ; CALL OCCURS {mp_read_radix }   ; [] |1371| 
-        MOV       V4, A1                ; [DPU_3_PIPE] |1371| 
-        CMP       V4, #0                ; [DPU_3_PIPE] |1371| 
-        BNE       ||$C$L99||            ; [DPU_3_PIPE] |1371| 
-        ; BRANCHCC OCCURS {||$C$L99||}   ; [] |1371| 
+        BL        mp_read_radix         ; [DPU_3_PIPE] |1533| 
+        ; CALL OCCURS {mp_read_radix }   ; [] |1533| 
+        MOV       V4, A1                ; [DPU_3_PIPE] |1533| 
+        CMP       V4, #0                ; [DPU_3_PIPE] |1533| 
+        BNE       ||$C$L99||            ; [DPU_3_PIPE] |1533| 
+        ; BRANCHCC OCCURS {||$C$L99||}   ; [] |1533| 
 ;* --------------------------------------------------------------------------*
-;* 1373	-----------------------    if ( err = mp_read_radix((struct $$fake0 *)base, (*(*key).dp).Gx, 16) ) goto g17;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1373,column 8,is_stmt,isa 1
-        LDR       A1, [V1, #8]          ; [DPU_3_PIPE] |1373| 
-        LDR       A2, [A1, #20]         ; [DPU_3_PIPE] |1373| 
-        MOVS      A3, #16               ; [DPU_3_PIPE] |1373| 
-        MOV       A1, V2                ; [DPU_3_PIPE] |1373| 
+;* 1535	-----------------------    if ( err = mp_read_radix((struct $$fake0 *)base, (*(*key).dp).Gx, 16) ) goto g17;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1535,column 8,is_stmt,isa 1
+        LDR       A1, [V1, #8]          ; [DPU_3_PIPE] |1535| 
+        LDR       A2, [A1, #20]         ; [DPU_3_PIPE] |1535| 
+        MOVS      A3, #16               ; [DPU_3_PIPE] |1535| 
+        MOV       A1, V2                ; [DPU_3_PIPE] |1535| 
 $C$DW$550	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$550, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$550, DW_AT_name("mp_read_radix")
 	.dwattr $C$DW$550, DW_AT_TI_call
-        BL        mp_read_radix         ; [DPU_3_PIPE] |1373| 
-        ; CALL OCCURS {mp_read_radix }   ; [] |1373| 
-        MOV       V4, A1                ; [DPU_3_PIPE] |1373| 
-        CMP       V4, #0                ; [DPU_3_PIPE] |1373| 
-        BNE       ||$C$L99||            ; [DPU_3_PIPE] |1373| 
-        ; BRANCHCC OCCURS {||$C$L99||}   ; [] |1373| 
+        BL        mp_read_radix         ; [DPU_3_PIPE] |1535| 
+        ; CALL OCCURS {mp_read_radix }   ; [] |1535| 
+        MOV       V4, A1                ; [DPU_3_PIPE] |1535| 
+        CMP       V4, #0                ; [DPU_3_PIPE] |1535| 
+        BNE       ||$C$L99||            ; [DPU_3_PIPE] |1535| 
+        ; BRANCHCC OCCURS {||$C$L99||}   ; [] |1535| 
 ;* --------------------------------------------------------------------------*
-;* 1375	-----------------------    if ( err = mp_read_radix((struct $$fake0 *)base+552, (*(*key).dp).Gy, 16) ) goto g17;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1375,column 8,is_stmt,isa 1
-        LDR       A1, [V1, #8]          ; [DPU_3_PIPE] |1375| 
-        LDR       A2, [A1, #24]         ; [DPU_3_PIPE] |1375| 
-        MOVS      A3, #16               ; [DPU_3_PIPE] |1375| 
-        ADD       A1, V2, #552          ; [DPU_3_PIPE] |1375| 
+;* 1537	-----------------------    if ( err = mp_read_radix((struct $$fake0 *)base+552, (*(*key).dp).Gy, 16) ) goto g17;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1537,column 8,is_stmt,isa 1
+        LDR       A1, [V1, #8]          ; [DPU_3_PIPE] |1537| 
+        LDR       A2, [A1, #24]         ; [DPU_3_PIPE] |1537| 
+        MOVS      A3, #16               ; [DPU_3_PIPE] |1537| 
+        ADD       A1, V2, #552          ; [DPU_3_PIPE] |1537| 
 $C$DW$551	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$551, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$551, DW_AT_name("mp_read_radix")
 	.dwattr $C$DW$551, DW_AT_TI_call
-        BL        mp_read_radix         ; [DPU_3_PIPE] |1375| 
-        ; CALL OCCURS {mp_read_radix }   ; [] |1375| 
-        MOV       V4, A1                ; [DPU_3_PIPE] |1375| 
+        BL        mp_read_radix         ; [DPU_3_PIPE] |1537| 
+        ; CALL OCCURS {mp_read_radix }   ; [] |1537| 
+        MOV       V4, A1                ; [DPU_3_PIPE] |1537| 
         CBNZ      V4, ||$C$L99||        ; [] 
-        ; BRANCHCC OCCURS {||$C$L99||}   ; [] |1375| 
+        ; BRANCHCC OCCURS {||$C$L99||}   ; [] |1537| 
 ;* --------------------------------------------------------------------------*
-;* 1378	-----------------------    mp_set((struct $$fake0 *)base+1104, 1u);
-;* 1380	-----------------------    if ( err = mp_read_unsigned_bin(K$38, &buf, keysize) ) goto g17;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1378,column 8,is_stmt,isa 1
-        ADD       A1, V2, #1104         ; [DPU_3_PIPE] |1378| 
-        MOVS      A2, #1                ; [DPU_3_PIPE] |1378| 
+;* 1540	-----------------------    mp_set((struct $$fake0 *)base+1104, 1u);
+;* 1542	-----------------------    if ( err = mp_read_unsigned_bin(K$38, &buf, keysize) ) goto g17;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1540,column 8,is_stmt,isa 1
+        ADD       A1, V2, #1104         ; [DPU_3_PIPE] |1540| 
+        MOVS      A2, #1                ; [DPU_3_PIPE] |1540| 
 $C$DW$552	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$552, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$552, DW_AT_name("mp_set")
 	.dwattr $C$DW$552, DW_AT_TI_call
-        BL        mp_set                ; [DPU_3_PIPE] |1378| 
-        ; CALL OCCURS {mp_set }          ; [] |1378| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1380,column 8,is_stmt,isa 1
-        MOV       A1, V5                ; [DPU_3_PIPE] |1380| 
-        ADD       A2, SP, #1112         ; [DPU_3_PIPE] |1380| 
-        MOV       A3, V3                ; [DPU_3_PIPE] |1380| 
+        BL        mp_set                ; [DPU_3_PIPE] |1540| 
+        ; CALL OCCURS {mp_set }          ; [] |1540| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1542,column 8,is_stmt,isa 1
+        MOV       A1, V5                ; [DPU_3_PIPE] |1542| 
+        ADD       A2, SP, #1112         ; [DPU_3_PIPE] |1542| 
+        MOV       A3, V3                ; [DPU_3_PIPE] |1542| 
 $C$DW$553	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$553, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$553, DW_AT_name("mp_read_unsigned_bin")
 	.dwattr $C$DW$553, DW_AT_TI_call
-        BL        mp_read_unsigned_bin  ; [DPU_3_PIPE] |1380| 
-        ; CALL OCCURS {mp_read_unsigned_bin }  ; [] |1380| 
-        MOV       V4, A1                ; [DPU_3_PIPE] |1380| 
+        BL        mp_read_unsigned_bin  ; [DPU_3_PIPE] |1542| 
+        ; CALL OCCURS {mp_read_unsigned_bin }  ; [] |1542| 
+        MOV       V4, A1                ; [DPU_3_PIPE] |1542| 
         CBNZ      V4, ||$C$L99||        ; [] 
-        ; BRANCHCC OCCURS {||$C$L99||}   ; [] |1380| 
+        ; BRANCHCC OCCURS {||$C$L99||}   ; [] |1542| 
 ;* --------------------------------------------------------------------------*
-;* 1384	-----------------------    if ( mp_cmp(K$38, &order) == (-1) ) goto g13;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1384,column 8,is_stmt,isa 1
-        MOV       A1, V5                ; [DPU_3_PIPE] |1384| 
-        ADD       A2, SP, #560          ; [DPU_3_PIPE] |1384| 
+;* 1546	-----------------------    if ( mp_cmp(K$38, &order) == (-1) ) goto g13;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1546,column 8,is_stmt,isa 1
+        MOV       A1, V5                ; [DPU_3_PIPE] |1546| 
+        ADD       A2, SP, #560          ; [DPU_3_PIPE] |1546| 
 $C$DW$554	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$554, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$554, DW_AT_name("mp_cmp")
 	.dwattr $C$DW$554, DW_AT_TI_call
-        BL        mp_cmp                ; [DPU_3_PIPE] |1384| 
-        ; CALL OCCURS {mp_cmp }          ; [] |1384| 
-        CMP       A1, #-1               ; [DPU_3_PIPE] |1384| 
-        BEQ       ||$C$L97||            ; [DPU_3_PIPE] |1384| 
-        ; BRANCHCC OCCURS {||$C$L97||}   ; [] |1384| 
+        BL        mp_cmp                ; [DPU_3_PIPE] |1546| 
+        ; CALL OCCURS {mp_cmp }          ; [] |1546| 
+        CMP       A1, #-1               ; [DPU_3_PIPE] |1546| 
+        BEQ       ||$C$L97||            ; [DPU_3_PIPE] |1546| 
+        ; BRANCHCC OCCURS {||$C$L97||}   ; [] |1546| 
 ;* --------------------------------------------------------------------------*
-;* 1385	-----------------------    err = mp_mod(K$38, &order, K$38);
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1385,column 12,is_stmt,isa 1
-        MOV       A1, V5                ; [DPU_3_PIPE] |1385| 
-        ADD       A2, SP, #560          ; [DPU_3_PIPE] |1385| 
-        MOV       A3, A1                ; [DPU_3_PIPE] |1385| 
+;* 1547	-----------------------    err = mp_mod(K$38, &order, K$38);
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1547,column 12,is_stmt,isa 1
+        MOV       A1, V5                ; [DPU_3_PIPE] |1547| 
+        ADD       A2, SP, #560          ; [DPU_3_PIPE] |1547| 
+        MOV       A3, A1                ; [DPU_3_PIPE] |1547| 
 $C$DW$555	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$555, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$555, DW_AT_name("mp_mod")
 	.dwattr $C$DW$555, DW_AT_TI_call
-        BL        mp_mod                ; [DPU_3_PIPE] |1385| 
-        ; CALL OCCURS {mp_mod }          ; [] |1385| 
-        MOV       V4, A1                ; [DPU_3_PIPE] |1385| 
+        BL        mp_mod                ; [DPU_3_PIPE] |1547| 
+        ; CALL OCCURS {mp_mod }          ; [] |1547| 
+        MOV       V4, A1                ; [DPU_3_PIPE] |1547| 
 ;* --------------------------------------------------------------------------*
 ||$C$L97||:    
 ;**	-----------------------g13:
-;* 1388	-----------------------    if ( err ) goto g17;
+;* 1550	-----------------------    if ( err ) goto g17;
         CBNZ      V4, ||$C$L99||        ; [] 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1388,column 4,is_stmt,isa 1
-        ; BRANCHCC OCCURS {||$C$L99||}   ; [] |1388| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1550,column 4,is_stmt,isa 1
+        ; BRANCHCC OCCURS {||$C$L99||}   ; [] |1550| 
 ;* --------------------------------------------------------------------------*
-;* 1389	-----------------------    if ( err = ecc_mulmod(K$38, base, K$43, &prime, 1) ) goto g17;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1389,column 8,is_stmt,isa 1
-        MOVS      A1, #1                ; [DPU_3_PIPE] |1389| 
-        STR       A1, [SP, #0]          ; [DPU_3_PIPE] |1389| 
-        MOV       A2, V2                ; [DPU_3_PIPE] |1389| 
-        MOV       A3, V6                ; [DPU_3_PIPE] |1389| 
-        ADD       A4, SP, #8            ; [DPU_3_PIPE] |1389| 
-        MOV       A1, V5                ; [DPU_3_PIPE] |1389| 
+;* 1551	-----------------------    if ( err = ecc_mulmod(K$38, base, K$43, &prime, 1) ) goto g17;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1551,column 8,is_stmt,isa 1
+        MOVS      A1, #1                ; [DPU_3_PIPE] |1551| 
+        STR       A1, [SP, #0]          ; [DPU_3_PIPE] |1551| 
+        MOV       A2, V2                ; [DPU_3_PIPE] |1551| 
+        MOV       A3, V6                ; [DPU_3_PIPE] |1551| 
+        ADD       A4, SP, #8            ; [DPU_3_PIPE] |1551| 
+        MOV       A1, V5                ; [DPU_3_PIPE] |1551| 
 $C$DW$556	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$556, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$556, DW_AT_name("ecc_mulmod")
 	.dwattr $C$DW$556, DW_AT_TI_call
-        BL        ecc_mulmod            ; [DPU_3_PIPE] |1389| 
-        ; CALL OCCURS {ecc_mulmod }      ; [] |1389| 
-        MOV       V4, A1                ; [DPU_3_PIPE] |1389| 
+        BL        ecc_mulmod            ; [DPU_3_PIPE] |1551| 
+        ; CALL OCCURS {ecc_mulmod }      ; [] |1551| 
+        MOV       V4, A1                ; [DPU_3_PIPE] |1551| 
         CBNZ      V4, ||$C$L99||        ; [] 
-        ; BRANCHCC OCCURS {||$C$L99||}   ; [] |1389| 
+        ; BRANCHCC OCCURS {||$C$L99||}   ; [] |1551| 
 ;* --------------------------------------------------------------------------*
-;* 1391	-----------------------    (*key).type = 2;
-;* 1391	-----------------------    goto g18;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1391,column 8,is_stmt,isa 1
-        MOVS      A1, #2                ; [DPU_3_PIPE] |1391| 
-        STR       A1, [V1, #0]          ; [DPU_3_PIPE] |1391| 
-        B         ||$C$L100||           ; [DPU_3_PIPE] |1391| 
-        ; BRANCH OCCURS {||$C$L100||}    ; [] |1391| 
+;* 1553	-----------------------    (*key).type = 2;
+;* 1553	-----------------------    goto g18;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1553,column 8,is_stmt,isa 1
+        MOVS      A1, #2                ; [DPU_3_PIPE] |1553| 
+        STR       A1, [V1, #0]          ; [DPU_3_PIPE] |1553| 
+        B         ||$C$L100||           ; [DPU_3_PIPE] |1553| 
+        ; BRANCH OCCURS {||$C$L100||}    ; [] |1553| 
 ;* --------------------------------------------------------------------------*
 ||$C$L98||:    
 ;**	-----------------------g16:
-;* 1358	-----------------------    err = (-125);
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1358,column 12,is_stmt,isa 1
-        MVN       V4, #124              ; [DPU_3_PIPE] |1358| 
+;* 1520	-----------------------    err = (-125);
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1520,column 12,is_stmt,isa 1
+        MVN       V4, #124              ; [DPU_3_PIPE] |1520| 
 ;* --------------------------------------------------------------------------*
 ||$C$L99||:    
 ;**	-----------------------g17:
-;* 1395	-----------------------    mp_clear((struct $$fake0 *)key+12);
-;* 1396	-----------------------    mp_clear((struct $$fake0 *)key+564);
-;* 1397	-----------------------    mp_clear((struct $$fake0 *)key+1116);
-;* 1398	-----------------------    mp_clear((struct $$fake0 *)key+1668);
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1395,column 8,is_stmt,isa 1
-        ADD       A1, V1, #12           ; [DPU_3_PIPE] |1395| 
+;* 1557	-----------------------    mp_clear((struct $$fake0 *)key+12);
+;* 1558	-----------------------    mp_clear((struct $$fake0 *)key+564);
+;* 1559	-----------------------    mp_clear((struct $$fake0 *)key+1116);
+;* 1560	-----------------------    mp_clear((struct $$fake0 *)key+1668);
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1557,column 8,is_stmt,isa 1
+        ADD       A1, V1, #12           ; [DPU_3_PIPE] |1557| 
 $C$DW$557	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$557, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$557, DW_AT_name("mp_clear")
 	.dwattr $C$DW$557, DW_AT_TI_call
-        BL        mp_clear              ; [DPU_3_PIPE] |1395| 
-        ; CALL OCCURS {mp_clear }        ; [] |1395| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1396,column 8,is_stmt,isa 1
-        ADD       A1, V1, #564          ; [DPU_3_PIPE] |1396| 
+        BL        mp_clear              ; [DPU_3_PIPE] |1557| 
+        ; CALL OCCURS {mp_clear }        ; [] |1557| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1558,column 8,is_stmt,isa 1
+        ADD       A1, V1, #564          ; [DPU_3_PIPE] |1558| 
 $C$DW$558	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$558, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$558, DW_AT_name("mp_clear")
 	.dwattr $C$DW$558, DW_AT_TI_call
-        BL        mp_clear              ; [DPU_3_PIPE] |1396| 
-        ; CALL OCCURS {mp_clear }        ; [] |1396| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1397,column 8,is_stmt,isa 1
-        ADD       A1, V1, #1116         ; [DPU_3_PIPE] |1397| 
+        BL        mp_clear              ; [DPU_3_PIPE] |1558| 
+        ; CALL OCCURS {mp_clear }        ; [] |1558| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1559,column 8,is_stmt,isa 1
+        ADD       A1, V1, #1116         ; [DPU_3_PIPE] |1559| 
 $C$DW$559	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$559, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$559, DW_AT_name("mp_clear")
 	.dwattr $C$DW$559, DW_AT_TI_call
-        BL        mp_clear              ; [DPU_3_PIPE] |1397| 
-        ; CALL OCCURS {mp_clear }        ; [] |1397| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1398,column 8,is_stmt,isa 1
-        ADD       A1, V1, #1668         ; [DPU_3_PIPE] |1398| 
+        BL        mp_clear              ; [DPU_3_PIPE] |1559| 
+        ; CALL OCCURS {mp_clear }        ; [] |1559| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1560,column 8,is_stmt,isa 1
+        ADD       A1, V1, #1668         ; [DPU_3_PIPE] |1560| 
 $C$DW$560	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$560, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$560, DW_AT_name("mp_clear")
 	.dwattr $C$DW$560, DW_AT_TI_call
-        BL        mp_clear              ; [DPU_3_PIPE] |1398| 
-        ; CALL OCCURS {mp_clear }        ; [] |1398| 
+        BL        mp_clear              ; [DPU_3_PIPE] |1560| 
+        ; CALL OCCURS {mp_clear }        ; [] |1560| 
 ;* --------------------------------------------------------------------------*
 ||$C$L100||:    
 ;**	-----------------------g18:
-;* 1400	-----------------------    ecc_del_point(base);
-;* 1401	-----------------------    mp_clear(&prime);
-;* 1402	-----------------------    mp_clear(&order);
-;* 1412	-----------------------    return err;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1400,column 4,is_stmt,isa 1
-        MOV       A1, V2                ; [DPU_3_PIPE] |1400| 
+;* 1562	-----------------------    ecc_del_point(base);
+;* 1563	-----------------------    mp_clear(&prime);
+;* 1564	-----------------------    mp_clear(&order);
+;* 1574	-----------------------    return err;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1562,column 4,is_stmt,isa 1
+        MOV       A1, V2                ; [DPU_3_PIPE] |1562| 
 $C$DW$561	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$561, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$561, DW_AT_name("ecc_del_point")
 	.dwattr $C$DW$561, DW_AT_TI_call
-        BL        ecc_del_point         ; [DPU_3_PIPE] |1400| 
-        ; CALL OCCURS {ecc_del_point }   ; [] |1400| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1401,column 4,is_stmt,isa 1
-        ADD       A1, SP, #8            ; [DPU_3_PIPE] |1401| 
+        BL        ecc_del_point         ; [DPU_3_PIPE] |1562| 
+        ; CALL OCCURS {ecc_del_point }   ; [] |1562| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1563,column 4,is_stmt,isa 1
+        ADD       A1, SP, #8            ; [DPU_3_PIPE] |1563| 
 $C$DW$562	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$562, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$562, DW_AT_name("mp_clear")
 	.dwattr $C$DW$562, DW_AT_TI_call
-        BL        mp_clear              ; [DPU_3_PIPE] |1401| 
-        ; CALL OCCURS {mp_clear }        ; [] |1401| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1402,column 4,is_stmt,isa 1
-        ADD       A1, SP, #560          ; [DPU_3_PIPE] |1402| 
+        BL        mp_clear              ; [DPU_3_PIPE] |1563| 
+        ; CALL OCCURS {mp_clear }        ; [] |1563| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1564,column 4,is_stmt,isa 1
+        ADD       A1, SP, #560          ; [DPU_3_PIPE] |1564| 
 $C$DW$563	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$563, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$563, DW_AT_name("mp_clear")
 	.dwattr $C$DW$563, DW_AT_TI_call
-        BL        mp_clear              ; [DPU_3_PIPE] |1402| 
-        ; CALL OCCURS {mp_clear }        ; [] |1402| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1412,column 4,is_stmt,isa 1
-        MOV       A1, V4                ; [DPU_3_PIPE] |1412| 
+        BL        mp_clear              ; [DPU_3_PIPE] |1564| 
+        ; CALL OCCURS {mp_clear }        ; [] |1564| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1574,column 4,is_stmt,isa 1
+        MOV       A1, V4                ; [DPU_3_PIPE] |1574| 
 ;* --------------------------------------------------------------------------*
 ||$C$L101||:    
         MOVW      A4, #1180             ; [DPU_3_PIPE] 
@@ -6417,7 +6417,7 @@ $C$DW$564	.dwtag  DW_TAG_TI_branch
 	.dwcfi	cfa_offset, 0
         ; BRANCH OCCURS                  ; [] 
 	.dwattr $C$DW$530, DW_AT_TI_end_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$530, DW_AT_TI_end_line(0x585)
+	.dwattr $C$DW$530, DW_AT_TI_end_line(0x627)
 	.dwattr $C$DW$530, DW_AT_TI_end_column(0x01)
 	.dwendentry
 	.dwendtag $C$DW$530
@@ -6434,13 +6434,13 @@ $C$DW$565	.dwtag  DW_TAG_subprogram, DW_AT_name("ecc_free")
 	.dwattr $C$DW$565, DW_AT_TI_symbol_name("ecc_free")
 	.dwattr $C$DW$565, DW_AT_external
 	.dwattr $C$DW$565, DW_AT_TI_begin_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$565, DW_AT_TI_begin_line(0x602)
+	.dwattr $C$DW$565, DW_AT_TI_begin_line(0x6a4)
 	.dwattr $C$DW$565, DW_AT_TI_begin_column(0x06)
 	.dwattr $C$DW$565, DW_AT_decl_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$565, DW_AT_decl_line(0x602)
+	.dwattr $C$DW$565, DW_AT_decl_line(0x6a4)
 	.dwattr $C$DW$565, DW_AT_decl_column(0x06)
 	.dwattr $C$DW$565, DW_AT_TI_max_frame_size(0x08)
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1539,column 1,is_stmt,address ecc_free,isa 1
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1701,column 1,is_stmt,address ecc_free,isa 1
 
 	.dwfde $C$DW$CIE, ecc_free
 $C$DW$566	.dwtag  DW_TAG_formal_parameter, DW_AT_name("key")
@@ -6467,54 +6467,54 @@ $C$DW$567	.dwtag  DW_TAG_variable, DW_AT_name("key")
 	.dwattr $C$DW$567, DW_AT_type(*$C$DW$T$564)
 	.dwattr $C$DW$567, DW_AT_location[DW_OP_reg4]
 	.dwcfi	cfa_offset, 0
-;* 1540	-----------------------    if ( key == NULL ) goto g3;
+;* 1702	-----------------------    if ( key == NULL ) goto g3;
         PUSH      {V1, LR}              ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 8
 	.dwcfi	save_reg_to_mem, 14, -4
 	.dwcfi	save_reg_to_mem, 4, -8
-        MOV       V1, A1                ; [DPU_3_PIPE] |1539| 
+        MOV       V1, A1                ; [DPU_3_PIPE] |1701| 
         CBZ       V1, ||$C$L102||       ; [] 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1540,column 4,is_stmt,isa 1
-        ; BRANCHCC OCCURS {||$C$L102||}  ; [] |1540| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1702,column 4,is_stmt,isa 1
+        ; BRANCHCC OCCURS {||$C$L102||}  ; [] |1702| 
 ;* --------------------------------------------------------------------------*
-;* 1543	-----------------------    mp_clear((struct $$fake0 *)key+12);
-;* 1544	-----------------------    mp_clear((struct $$fake0 *)key+564);
-;* 1545	-----------------------    mp_clear((struct $$fake0 *)key+1116);
-;* 1546	-----------------------    mp_clear((struct $$fake0 *)key+1668);
+;* 1705	-----------------------    mp_clear((struct $$fake0 *)key+12);
+;* 1706	-----------------------    mp_clear((struct $$fake0 *)key+564);
+;* 1707	-----------------------    mp_clear((struct $$fake0 *)key+1116);
+;* 1708	-----------------------    mp_clear((struct $$fake0 *)key+1668);
 ;**	-----------------------g3:
 ;**  	-----------------------    return;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1543,column 4,is_stmt,isa 1
-        ADD       A1, V1, #12           ; [DPU_3_PIPE] |1543| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1705,column 4,is_stmt,isa 1
+        ADD       A1, V1, #12           ; [DPU_3_PIPE] |1705| 
 $C$DW$568	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$568, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$568, DW_AT_name("mp_clear")
 	.dwattr $C$DW$568, DW_AT_TI_call
-        BL        mp_clear              ; [DPU_3_PIPE] |1543| 
-        ; CALL OCCURS {mp_clear }        ; [] |1543| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1544,column 4,is_stmt,isa 1
-        ADD       A1, V1, #564          ; [DPU_3_PIPE] |1544| 
+        BL        mp_clear              ; [DPU_3_PIPE] |1705| 
+        ; CALL OCCURS {mp_clear }        ; [] |1705| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1706,column 4,is_stmt,isa 1
+        ADD       A1, V1, #564          ; [DPU_3_PIPE] |1706| 
 $C$DW$569	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$569, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$569, DW_AT_name("mp_clear")
 	.dwattr $C$DW$569, DW_AT_TI_call
-        BL        mp_clear              ; [DPU_3_PIPE] |1544| 
-        ; CALL OCCURS {mp_clear }        ; [] |1544| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1545,column 4,is_stmt,isa 1
-        ADD       A1, V1, #1116         ; [DPU_3_PIPE] |1545| 
+        BL        mp_clear              ; [DPU_3_PIPE] |1706| 
+        ; CALL OCCURS {mp_clear }        ; [] |1706| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1707,column 4,is_stmt,isa 1
+        ADD       A1, V1, #1116         ; [DPU_3_PIPE] |1707| 
 $C$DW$570	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$570, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$570, DW_AT_name("mp_clear")
 	.dwattr $C$DW$570, DW_AT_TI_call
-        BL        mp_clear              ; [DPU_3_PIPE] |1545| 
-        ; CALL OCCURS {mp_clear }        ; [] |1545| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1546,column 4,is_stmt,isa 1
-        ADD       A1, V1, #1668         ; [DPU_3_PIPE] |1546| 
+        BL        mp_clear              ; [DPU_3_PIPE] |1707| 
+        ; CALL OCCURS {mp_clear }        ; [] |1707| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1708,column 4,is_stmt,isa 1
+        ADD       A1, V1, #1668         ; [DPU_3_PIPE] |1708| 
 $C$DW$571	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$571, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$571, DW_AT_name("mp_clear")
 	.dwattr $C$DW$571, DW_AT_TI_call
-        BL        mp_clear              ; [DPU_3_PIPE] |1546| 
-        ; CALL OCCURS {mp_clear }        ; [] |1546| 
+        BL        mp_clear              ; [DPU_3_PIPE] |1708| 
+        ; CALL OCCURS {mp_clear }        ; [] |1708| 
 ;* --------------------------------------------------------------------------*
 ||$C$L102||:    
 $C$DW$572	.dwtag  DW_TAG_TI_branch
@@ -6524,7 +6524,7 @@ $C$DW$572	.dwtag  DW_TAG_TI_branch
 	.dwcfi	cfa_offset, 0
         ; BRANCH OCCURS                  ; [] 
 	.dwattr $C$DW$565, DW_AT_TI_end_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$565, DW_AT_TI_end_line(0x60b)
+	.dwattr $C$DW$565, DW_AT_TI_end_line(0x6ad)
 	.dwattr $C$DW$565, DW_AT_TI_end_column(0x01)
 	.dwendentry
 	.dwendtag $C$DW$565
@@ -6542,13 +6542,13 @@ $C$DW$573	.dwtag  DW_TAG_subprogram, DW_AT_name("ecc_sign_hash")
 	.dwattr $C$DW$573, DW_AT_external
 	.dwattr $C$DW$573, DW_AT_type(*$C$DW$T$10)
 	.dwattr $C$DW$573, DW_AT_TI_begin_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$573, DW_AT_TI_begin_line(0x59f)
+	.dwattr $C$DW$573, DW_AT_TI_begin_line(0x641)
 	.dwattr $C$DW$573, DW_AT_TI_begin_column(0x05)
 	.dwattr $C$DW$573, DW_AT_decl_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$573, DW_AT_decl_line(0x59f)
+	.dwattr $C$DW$573, DW_AT_decl_line(0x641)
 	.dwattr $C$DW$573, DW_AT_decl_column(0x05)
 	.dwattr $C$DW$573, DW_AT_TI_max_frame_size(0x1178)
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1441,column 1,is_stmt,address ecc_sign_hash,isa 1
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1603,column 1,is_stmt,address ecc_sign_hash,isa 1
 
 	.dwfde $C$DW$CIE, ecc_sign_hash
 $C$DW$574	.dwtag  DW_TAG_formal_parameter, DW_AT_name("in")
@@ -6660,7 +6660,7 @@ $C$DW$594	.dwtag  DW_TAG_variable, DW_AT_name("pubkey")
 	.dwattr $C$DW$594, DW_AT_type(*$C$DW$T$562)
 	.dwattr $C$DW$594, DW_AT_location[DW_OP_breg13 2216]
 	.dwcfi	cfa_offset, 0
-;* 1448	-----------------------    if ( in == NULL || out == NULL || (outlen == NULL || key == NULL) || rng == NULL ) goto g4;
+;* 1610	-----------------------    if ( in == NULL || out == NULL || (outlen == NULL || key == NULL) || rng == NULL ) goto g4;
         PUSH      {V1, V2, V3, V4, V5, V6, V7, V8, LR} ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 36
 	.dwcfi	save_reg_to_mem, 14, -4
@@ -6673,404 +6673,404 @@ $C$DW$594	.dwtag  DW_TAG_variable, DW_AT_name("pubkey")
 	.dwcfi	save_reg_to_mem, 5, -32
 	.dwcfi	save_reg_to_mem, 4, -36
         ADD       V4, SP, #36           ; [DPU_3_PIPE] 
-        LDR       V3, [V4, #0]          ; [DPU_3_PIPE] |1441| 
+        LDR       V3, [V4, #0]          ; [DPU_3_PIPE] |1603| 
         MOVW      V1, #61100            ; [DPU_3_PIPE] 
-        MOV       V6, A1                ; [DPU_3_PIPE] |1441| 
+        MOV       V6, A1                ; [DPU_3_PIPE] |1603| 
         MOVT      V1, #65535            ; [DPU_3_PIPE] 
-        MOV       V5, A3                ; [DPU_3_PIPE] |1441| 
-        MOV       V2, A2                ; [DPU_3_PIPE] |1441| 
+        MOV       V5, A3                ; [DPU_3_PIPE] |1603| 
+        MOV       V2, A2                ; [DPU_3_PIPE] |1603| 
         ADD       SP, V1, SP            ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 4472
-        LDR       V1, [V4, #4]          ; [DPU_3_PIPE] |1441| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1448,column 4,is_stmt,isa 1
-        CMP       V6, #0                ; [DPU_3_PIPE] |1448| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1441,column 1,is_stmt,isa 1
-        MOV       V4, A4                ; [DPU_3_PIPE] |1441| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1448,column 4,is_stmt,isa 1
-        BEQ       ||$C$L103||           ; [DPU_3_PIPE] |1448| 
-        ; BRANCHCC OCCURS {||$C$L103||}  ; [] |1448| 
+        LDR       V1, [V4, #4]          ; [DPU_3_PIPE] |1603| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1610,column 4,is_stmt,isa 1
+        CMP       V6, #0                ; [DPU_3_PIPE] |1610| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1603,column 1,is_stmt,isa 1
+        MOV       V4, A4                ; [DPU_3_PIPE] |1603| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1610,column 4,is_stmt,isa 1
+        BEQ       ||$C$L103||           ; [DPU_3_PIPE] |1610| 
+        ; BRANCHCC OCCURS {||$C$L103||}  ; [] |1610| 
 ;* --------------------------------------------------------------------------*
-        CMP       V5, #0                ; [DPU_3_PIPE] |1448| 
-        BEQ       ||$C$L103||           ; [DPU_3_PIPE] |1448| 
-        ; BRANCHCC OCCURS {||$C$L103||}  ; [] |1448| 
+        CMP       V5, #0                ; [DPU_3_PIPE] |1610| 
+        BEQ       ||$C$L103||           ; [DPU_3_PIPE] |1610| 
+        ; BRANCHCC OCCURS {||$C$L103||}  ; [] |1610| 
 ;* --------------------------------------------------------------------------*
         CBZ       V4, ||$C$L103||       ; [] 
-        ; BRANCHCC OCCURS {||$C$L103||}  ; [] |1448| 
+        ; BRANCHCC OCCURS {||$C$L103||}  ; [] |1610| 
 ;* --------------------------------------------------------------------------*
         CBZ       V1, ||$C$L103||       ; [] 
-        ; BRANCHCC OCCURS {||$C$L103||}  ; [] |1448| 
+        ; BRANCHCC OCCURS {||$C$L103||}  ; [] |1610| 
 ;* --------------------------------------------------------------------------*
         CBZ       V3, ||$C$L103||       ; [] 
-        ; BRANCHCC OCCURS {||$C$L103||}  ; [] |1448| 
+        ; BRANCHCC OCCURS {||$C$L103||}  ; [] |1610| 
 ;* --------------------------------------------------------------------------*
-;* 1452	-----------------------    if ( (*key).type != 2 ) goto g4;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1452,column 4,is_stmt,isa 1
-        LDR       A1, [V1, #0]          ; [DPU_3_PIPE] |1452| 
-        CMP       A1, #2                ; [DPU_3_PIPE] |1452| 
-        BNE       ||$C$L103||           ; [DPU_3_PIPE] |1452| 
-        ; BRANCHCC OCCURS {||$C$L103||}  ; [] |1452| 
+;* 1614	-----------------------    if ( (*key).type != 2 ) goto g4;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1614,column 4,is_stmt,isa 1
+        LDR       A1, [V1, #0]          ; [DPU_3_PIPE] |1614| 
+        CMP       A1, #2                ; [DPU_3_PIPE] |1614| 
+        BNE       ||$C$L103||           ; [DPU_3_PIPE] |1614| 
+        ; BRANCHCC OCCURS {||$C$L103||}  ; [] |1614| 
 ;* --------------------------------------------------------------------------*
-;* 1457	-----------------------    if ( ecc_is_valid_idx((*key).idx) == 1 ) goto g5;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1457,column 4,is_stmt,isa 1
-        LDR       A1, [V1, #4]          ; [DPU_3_PIPE] |1457| 
+;* 1619	-----------------------    if ( ecc_is_valid_idx((*key).idx) == 1 ) goto g5;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1619,column 4,is_stmt,isa 1
+        LDR       A1, [V1, #4]          ; [DPU_3_PIPE] |1619| 
 $C$DW$595	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$595, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$595, DW_AT_name("ecc_is_valid_idx")
 	.dwattr $C$DW$595, DW_AT_TI_call
-        BL        ecc_is_valid_idx      ; [DPU_3_PIPE] |1457| 
-        ; CALL OCCURS {ecc_is_valid_idx }  ; [] |1457| 
-        CMP       A1, #1                ; [DPU_3_PIPE] |1457| 
-        BEQ       ||$C$L104||           ; [DPU_3_PIPE] |1457| 
-        ; BRANCHCC OCCURS {||$C$L104||}  ; [] |1457| 
+        BL        ecc_is_valid_idx      ; [DPU_3_PIPE] |1619| 
+        ; CALL OCCURS {ecc_is_valid_idx }  ; [] |1619| 
+        CMP       A1, #1                ; [DPU_3_PIPE] |1619| 
+        BEQ       ||$C$L104||           ; [DPU_3_PIPE] |1619| 
+        ; BRANCHCC OCCURS {||$C$L104||}  ; [] |1619| 
 ;* --------------------------------------------------------------------------*
 ||$C$L103||:    
 ;**	-----------------------g4:
-;* 1458	-----------------------    return (-170);
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1458,column 7,is_stmt,isa 1
-        MVN       A1, #169              ; [DPU_3_PIPE] |1458| 
-        B         ||$C$L109||           ; [DPU_3_PIPE] |1458| 
-        ; BRANCH OCCURS {||$C$L109||}    ; [] |1458| 
+;* 1620	-----------------------    return (-170);
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1620,column 7,is_stmt,isa 1
+        MVN       A1, #169              ; [DPU_3_PIPE] |1620| 
+        B         ||$C$L109||           ; [DPU_3_PIPE] |1620| 
+        ; BRANCH OCCURS {||$C$L109||}    ; [] |1620| 
 ;* --------------------------------------------------------------------------*
 ||$C$L104||:    
 ;**	-----------------------g5:
-;* 1463	-----------------------    if ( !(err = mp_init_multi(&r, &s, &p, &e, NULL, NULL)) ) goto g7;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1463,column 4,is_stmt,isa 1
-        MOVS      A1, #0                ; [DPU_3_PIPE] |1463| 
-        STR       A1, [SP, #0]          ; [DPU_3_PIPE] |1463| 
-        ADD       A2, SP, #560          ; [DPU_3_PIPE] |1463| 
-        ADD       A3, SP, #1664         ; [DPU_3_PIPE] |1463| 
-        ADD       A4, SP, #1112         ; [DPU_3_PIPE] |1463| 
-        STR       A1, [SP, #4]          ; [DPU_3_PIPE] |1463| 
-        ADD       A1, SP, #8            ; [DPU_3_PIPE] |1463| 
+;* 1625	-----------------------    if ( !(err = mp_init_multi(&r, &s, &p, &e, NULL, NULL)) ) goto g7;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1625,column 4,is_stmt,isa 1
+        MOVS      A1, #0                ; [DPU_3_PIPE] |1625| 
+        STR       A1, [SP, #0]          ; [DPU_3_PIPE] |1625| 
+        ADD       A2, SP, #560          ; [DPU_3_PIPE] |1625| 
+        ADD       A3, SP, #1664         ; [DPU_3_PIPE] |1625| 
+        ADD       A4, SP, #1112         ; [DPU_3_PIPE] |1625| 
+        STR       A1, [SP, #4]          ; [DPU_3_PIPE] |1625| 
+        ADD       A1, SP, #8            ; [DPU_3_PIPE] |1625| 
 $C$DW$596	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$596, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$596, DW_AT_name("mp_init_multi")
 	.dwattr $C$DW$596, DW_AT_TI_call
-        BL        mp_init_multi         ; [DPU_3_PIPE] |1463| 
-        ; CALL OCCURS {mp_init_multi }   ; [] |1463| 
-        CMP       A1, #0                ; [DPU_3_PIPE] |1463| 
-        BNE       ||$C$L109||           ; [DPU_3_PIPE] |1463| 
-        ; BRANCHCC OCCURS {||$C$L109||}  ; [] |1463| 
+        BL        mp_init_multi         ; [DPU_3_PIPE] |1625| 
+        ; CALL OCCURS {mp_init_multi }   ; [] |1625| 
+        CMP       A1, #0                ; [DPU_3_PIPE] |1625| 
+        BNE       ||$C$L109||           ; [DPU_3_PIPE] |1625| 
+        ; BRANCHCC OCCURS {||$C$L109||}  ; [] |1625| 
 ;* --------------------------------------------------------------------------*
-;* 1464	-----------------------    return err;
+;* 1626	-----------------------    return err;
 ;* --------------------------------------------------------------------------*
 ;**	-----------------------g7:
-;* 1466	-----------------------    if ( err = mp_read_radix(&p, (*(*key).dp).order, 16) ) goto g27;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1466,column 4,is_stmt,isa 1
-        LDR       A1, [V1, #8]          ; [DPU_3_PIPE] |1466| 
-        LDR       A2, [A1, #16]         ; [DPU_3_PIPE] |1466| 
-        MOVS      A3, #16               ; [DPU_3_PIPE] |1466| 
-        ADD       A1, SP, #1664         ; [DPU_3_PIPE] |1466| 
+;* 1628	-----------------------    if ( err = mp_read_radix(&p, (*(*key).dp).order, 16) ) goto g27;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1628,column 4,is_stmt,isa 1
+        LDR       A1, [V1, #8]          ; [DPU_3_PIPE] |1628| 
+        LDR       A2, [A1, #16]         ; [DPU_3_PIPE] |1628| 
+        MOVS      A3, #16               ; [DPU_3_PIPE] |1628| 
+        ADD       A1, SP, #1664         ; [DPU_3_PIPE] |1628| 
 $C$DW$597	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$597, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$597, DW_AT_name("mp_read_radix")
 	.dwattr $C$DW$597, DW_AT_TI_call
-        BL        mp_read_radix         ; [DPU_3_PIPE] |1466| 
-        ; CALL OCCURS {mp_read_radix }   ; [] |1466| 
-        MOV       V7, A1                ; [DPU_3_PIPE] |1466| 
-        CMP       V7, #0                ; [DPU_3_PIPE] |1466| 
-        BNE       ||$C$L108||           ; [DPU_3_PIPE] |1466| 
-        ; BRANCHCC OCCURS {||$C$L108||}  ; [] |1466| 
+        BL        mp_read_radix         ; [DPU_3_PIPE] |1628| 
+        ; CALL OCCURS {mp_read_radix }   ; [] |1628| 
+        MOV       V7, A1                ; [DPU_3_PIPE] |1628| 
+        CMP       V7, #0                ; [DPU_3_PIPE] |1628| 
+        BNE       ||$C$L108||           ; [DPU_3_PIPE] |1628| 
+        ; BRANCHCC OCCURS {||$C$L108||}  ; [] |1628| 
 ;* --------------------------------------------------------------------------*
-;* 1470	-----------------------    orderBits = mp_count_bits(&p);
-;* 1473	-----------------------    if ( inlen<<3 <= orderBits ) goto g10;
-;* 1474	-----------------------    inlen = orderBits+7u>>3;
+;* 1632	-----------------------    orderBits = mp_count_bits(&p);
+;* 1635	-----------------------    if ( inlen<<3 <= orderBits ) goto g10;
+;* 1636	-----------------------    inlen = orderBits+7u>>3;
 ;**	-----------------------g10:
-;* 1475	-----------------------    if ( err = mp_read_unsigned_bin(&e, in, (int)inlen) ) goto g27;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1470,column 25,is_stmt,isa 1
-        ADD       A1, SP, #1664         ; [DPU_3_PIPE] |1470| 
+;* 1637	-----------------------    if ( err = mp_read_unsigned_bin(&e, in, (int)inlen) ) goto g27;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1632,column 25,is_stmt,isa 1
+        ADD       A1, SP, #1664         ; [DPU_3_PIPE] |1632| 
 $C$DW$598	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$598, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$598, DW_AT_name("mp_count_bits")
 	.dwattr $C$DW$598, DW_AT_TI_call
-        BL        mp_count_bits         ; [DPU_3_PIPE] |1470| 
-        ; CALL OCCURS {mp_count_bits }   ; [] |1470| 
-        MOV       V8, A1                ; [DPU_3_PIPE] |1470| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1473,column 8,is_stmt,isa 1
-        CMP       V8, V2, LSL #3        ; [DPU_3_PIPE] |1473| 
+        BL        mp_count_bits         ; [DPU_3_PIPE] |1632| 
+        ; CALL OCCURS {mp_count_bits }   ; [] |1632| 
+        MOV       V8, A1                ; [DPU_3_PIPE] |1632| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1635,column 8,is_stmt,isa 1
+        CMP       V8, V2, LSL #3        ; [DPU_3_PIPE] |1635| 
         ITT       CC                    ; [DPU_3_PIPE] 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1474,column 12,is_stmt,isa 1
-        ADDCC     A1, V8, #7            ; [DPU_3_PIPE] |1474| 
-        LSRCC     V2, A1, #3            ; [DPU_3_PIPE] |1474| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1475,column 8,is_stmt,isa 1
-        MOV       A2, V6                ; [DPU_3_PIPE] |1475| 
-        MOV       A3, V2                ; [DPU_3_PIPE] |1475| 
-        ADD       A1, SP, #1112         ; [DPU_3_PIPE] |1475| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1636,column 12,is_stmt,isa 1
+        ADDCC     A1, V8, #7            ; [DPU_3_PIPE] |1636| 
+        LSRCC     V2, A1, #3            ; [DPU_3_PIPE] |1636| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1637,column 8,is_stmt,isa 1
+        MOV       A2, V6                ; [DPU_3_PIPE] |1637| 
+        MOV       A3, V2                ; [DPU_3_PIPE] |1637| 
+        ADD       A1, SP, #1112         ; [DPU_3_PIPE] |1637| 
 $C$DW$599	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$599, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$599, DW_AT_name("mp_read_unsigned_bin")
 	.dwattr $C$DW$599, DW_AT_TI_call
-        BL        mp_read_unsigned_bin  ; [DPU_3_PIPE] |1475| 
-        ; CALL OCCURS {mp_read_unsigned_bin }  ; [] |1475| 
-        MOV       V7, A1                ; [DPU_3_PIPE] |1475| 
-        CMP       V7, #0                ; [DPU_3_PIPE] |1475| 
-        BNE       ||$C$L108||           ; [DPU_3_PIPE] |1475| 
-        ; BRANCHCC OCCURS {||$C$L108||}  ; [] |1475| 
+        BL        mp_read_unsigned_bin  ; [DPU_3_PIPE] |1637| 
+        ; CALL OCCURS {mp_read_unsigned_bin }  ; [] |1637| 
+        MOV       V7, A1                ; [DPU_3_PIPE] |1637| 
+        CMP       V7, #0                ; [DPU_3_PIPE] |1637| 
+        BNE       ||$C$L108||           ; [DPU_3_PIPE] |1637| 
+        ; BRANCHCC OCCURS {||$C$L108||}  ; [] |1637| 
 ;* --------------------------------------------------------------------------*
-;* 1478	-----------------------    if ( inlen<<3 <= orderBits ) goto g13;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1478,column 8,is_stmt,isa 1
-        CMP       V8, V2, LSL #3        ; [DPU_3_PIPE] |1478| 
-        BCS       ||$C$L106||           ; [DPU_3_PIPE] |1478| 
-        ; BRANCHCC OCCURS {||$C$L106||}  ; [] |1478| 
+;* 1640	-----------------------    if ( inlen<<3 <= orderBits ) goto g13;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1640,column 8,is_stmt,isa 1
+        CMP       V8, V2, LSL #3        ; [DPU_3_PIPE] |1640| 
+        BCS       ||$C$L106||           ; [DPU_3_PIPE] |1640| 
+        ; BRANCHCC OCCURS {||$C$L106||}  ; [] |1640| 
 ;* --------------------------------------------------------------------------*
-;* 1479	-----------------------    mp_rshb(&e, (int)(8u-(orderBits&7u)));
+;* 1641	-----------------------    mp_rshb(&e, (int)(8u-(orderBits&7u)));
 ;**	-----------------------g13:
 ;**  	-----------------------    #pragma LOOP_FLAGS(5120u)
 ;**  	-----------------------    goto g15;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1479,column 12,is_stmt,isa 1
-        AND       A2, V8, #7            ; [DPU_3_PIPE] |1479| 
-        ADD       A1, SP, #1112         ; [DPU_3_PIPE] |1479| 
-        RSB       A2, A2, #8            ; [DPU_3_PIPE] |1479| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1641,column 12,is_stmt,isa 1
+        AND       A2, V8, #7            ; [DPU_3_PIPE] |1641| 
+        ADD       A1, SP, #1112         ; [DPU_3_PIPE] |1641| 
+        RSB       A2, A2, #8            ; [DPU_3_PIPE] |1641| 
 $C$DW$600	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$600, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$600, DW_AT_name("mp_rshb")
 	.dwattr $C$DW$600, DW_AT_TI_call
-        BL        mp_rshb               ; [DPU_3_PIPE] |1479| 
-        ; CALL OCCURS {mp_rshb }         ; [] |1479| 
+        BL        mp_rshb               ; [DPU_3_PIPE] |1641| 
+        ; CALL OCCURS {mp_rshb }         ; [] |1641| 
         B         ||$C$L106||           ; [DPU_3_PIPE] 
         ; BRANCH OCCURS {||$C$L106||}    ; [] 
 ;* --------------------------------------------------------------------------*
 ||$C$L105||:    
 ;**	-----------------------g14:
-;* 1495	-----------------------    ecc_free(&pubkey);
+;* 1657	-----------------------    ecc_free(&pubkey);
 ;**	-----------------------g15:
 ;**  	-----------------------    #pragma LOOP_FLAGS(5376u)
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1495,column 16,is_stmt,isa 1
-        ADD       A1, SP, #2216         ; [DPU_3_PIPE] |1495| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1657,column 16,is_stmt,isa 1
+        ADD       A1, SP, #2216         ; [DPU_3_PIPE] |1657| 
 $C$DW$601	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$601, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$601, DW_AT_name("ecc_free")
 	.dwattr $C$DW$601, DW_AT_TI_call
-        BL        ecc_free              ; [DPU_3_PIPE] |1495| 
-        ; CALL OCCURS {ecc_free }        ; [] |1495| 
+        BL        ecc_free              ; [DPU_3_PIPE] |1657| 
+        ; CALL OCCURS {ecc_free }        ; [] |1657| 
 ;* --------------------------------------------------------------------------*
 ;*   BEGIN LOOP ||$C$L106||
 ;* --------------------------------------------------------------------------*
 ||$C$L106||:    
 ;**	-----------------------g16:
-;* 1487	-----------------------    if ( err = ecc_make_key_ex(rng, &pubkey, (*key).dp) ) goto g25;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1487,column 12,is_stmt,isa 1
-        LDR       A3, [V1, #8]          ; [DPU_3_PIPE] |1487| 
-        MOV       A1, V3                ; [DPU_3_PIPE] |1487| 
-        ADD       A2, SP, #2216         ; [DPU_3_PIPE] |1487| 
+;* 1649	-----------------------    if ( err = ecc_make_key_ex(rng, &pubkey, (*key).dp) ) goto g25;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1649,column 12,is_stmt,isa 1
+        LDR       A3, [V1, #8]          ; [DPU_3_PIPE] |1649| 
+        MOV       A1, V3                ; [DPU_3_PIPE] |1649| 
+        ADD       A2, SP, #2216         ; [DPU_3_PIPE] |1649| 
 $C$DW$602	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$602, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$602, DW_AT_name("ecc_make_key_ex")
 	.dwattr $C$DW$602, DW_AT_TI_call
-        BL        ecc_make_key_ex       ; [DPU_3_PIPE] |1487| 
-        ; CALL OCCURS {ecc_make_key_ex }  ; [] |1487| 
-        MOV       V7, A1                ; [DPU_3_PIPE] |1487| 
-        CMP       V7, #0                ; [DPU_3_PIPE] |1487| 
-        BNE       ||$C$L107||           ; [DPU_3_PIPE] |1487| 
-        ; BRANCHCC OCCURS {||$C$L107||}  ; [] |1487| 
+        BL        ecc_make_key_ex       ; [DPU_3_PIPE] |1649| 
+        ; CALL OCCURS {ecc_make_key_ex }  ; [] |1649| 
+        MOV       V7, A1                ; [DPU_3_PIPE] |1649| 
+        CMP       V7, #0                ; [DPU_3_PIPE] |1649| 
+        BNE       ||$C$L107||           ; [DPU_3_PIPE] |1649| 
+        ; BRANCHCC OCCURS {||$C$L107||}  ; [] |1649| 
 ;* --------------------------------------------------------------------------*
-;* 1491	-----------------------    if ( err = mp_mod(&pubkey+12, &p, &r) ) goto g25;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1491,column 12,is_stmt,isa 1
-        ADD       A1, SP, #2228         ; [DPU_3_PIPE] |1491| 
-        ADD       A2, SP, #1664         ; [DPU_3_PIPE] |1491| 
-        ADD       A3, SP, #8            ; [DPU_3_PIPE] |1491| 
+;* 1653	-----------------------    if ( err = mp_mod(&pubkey+12, &p, &r) ) goto g25;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1653,column 12,is_stmt,isa 1
+        ADD       A1, SP, #2228         ; [DPU_3_PIPE] |1653| 
+        ADD       A2, SP, #1664         ; [DPU_3_PIPE] |1653| 
+        ADD       A3, SP, #8            ; [DPU_3_PIPE] |1653| 
 $C$DW$603	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$603, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$603, DW_AT_name("mp_mod")
 	.dwattr $C$DW$603, DW_AT_TI_call
-        BL        mp_mod                ; [DPU_3_PIPE] |1491| 
-        ; CALL OCCURS {mp_mod }          ; [] |1491| 
-        MOV       V7, A1                ; [DPU_3_PIPE] |1491| 
-        CMP       V7, #0                ; [DPU_3_PIPE] |1491| 
-        BNE       ||$C$L107||           ; [DPU_3_PIPE] |1491| 
-        ; BRANCHCC OCCURS {||$C$L107||}  ; [] |1491| 
+        BL        mp_mod                ; [DPU_3_PIPE] |1653| 
+        ; CALL OCCURS {mp_mod }          ; [] |1653| 
+        MOV       V7, A1                ; [DPU_3_PIPE] |1653| 
+        CMP       V7, #0                ; [DPU_3_PIPE] |1653| 
+        BNE       ||$C$L107||           ; [DPU_3_PIPE] |1653| 
+        ; BRANCHCC OCCURS {||$C$L107||}  ; [] |1653| 
 ;* --------------------------------------------------------------------------*
-;* 1494	-----------------------    if ( mp_iszero(&r) == 1 ) goto g14;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1494,column 12,is_stmt,isa 1
-        ADD       A1, SP, #8            ; [DPU_3_PIPE] |1494| 
+;* 1656	-----------------------    if ( mp_iszero(&r) == 1 ) goto g14;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1656,column 12,is_stmt,isa 1
+        ADD       A1, SP, #8            ; [DPU_3_PIPE] |1656| 
 $C$DW$604	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$604, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$604, DW_AT_name("mp_iszero")
 	.dwattr $C$DW$604, DW_AT_TI_call
-        BL        mp_iszero             ; [DPU_3_PIPE] |1494| 
-        ; CALL OCCURS {mp_iszero }       ; [] |1494| 
-        CMP       A1, #1                ; [DPU_3_PIPE] |1494| 
-        BEQ       ||$C$L105||           ; [DPU_3_PIPE] |1494| 
-        ; BRANCHCC OCCURS {||$C$L105||}  ; [] |1494| 
+        BL        mp_iszero             ; [DPU_3_PIPE] |1656| 
+        ; CALL OCCURS {mp_iszero }       ; [] |1656| 
+        CMP       A1, #1                ; [DPU_3_PIPE] |1656| 
+        BEQ       ||$C$L105||           ; [DPU_3_PIPE] |1656| 
+        ; BRANCHCC OCCURS {||$C$L105||}  ; [] |1656| 
 ;* --------------------------------------------------------------------------*
-;* 1498	-----------------------    C$1 = &pubkey+1668;
-;* 1498	-----------------------    if ( err = mp_invmod(C$1, &p, C$1) ) goto g25;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1498,column 16,is_stmt,isa 1
-        ADD       V2, SP, #3884         ; [DPU_3_PIPE] |1498| 
-        ADD       A2, SP, #1664         ; [DPU_3_PIPE] |1498| 
-        MOV       A1, V2                ; [DPU_3_PIPE] |1498| 
-        MOV       A3, A1                ; [DPU_3_PIPE] |1498| 
+;* 1660	-----------------------    C$1 = &pubkey+1668;
+;* 1660	-----------------------    if ( err = mp_invmod(C$1, &p, C$1) ) goto g25;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1660,column 16,is_stmt,isa 1
+        ADD       V2, SP, #3884         ; [DPU_3_PIPE] |1660| 
+        ADD       A2, SP, #1664         ; [DPU_3_PIPE] |1660| 
+        MOV       A1, V2                ; [DPU_3_PIPE] |1660| 
+        MOV       A3, A1                ; [DPU_3_PIPE] |1660| 
 $C$DW$605	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$605, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$605, DW_AT_name("mp_invmod")
 	.dwattr $C$DW$605, DW_AT_TI_call
-        BL        mp_invmod             ; [DPU_3_PIPE] |1498| 
-        ; CALL OCCURS {mp_invmod }       ; [] |1498| 
-        MOV       V7, A1                ; [DPU_3_PIPE] |1498| 
-        CMP       V7, #0                ; [DPU_3_PIPE] |1498| 
-        BNE       ||$C$L107||           ; [DPU_3_PIPE] |1498| 
-        ; BRANCHCC OCCURS {||$C$L107||}  ; [] |1498| 
+        BL        mp_invmod             ; [DPU_3_PIPE] |1660| 
+        ; CALL OCCURS {mp_invmod }       ; [] |1660| 
+        MOV       V7, A1                ; [DPU_3_PIPE] |1660| 
+        CMP       V7, #0                ; [DPU_3_PIPE] |1660| 
+        BNE       ||$C$L107||           ; [DPU_3_PIPE] |1660| 
+        ; BRANCHCC OCCURS {||$C$L107||}  ; [] |1660| 
 ;* --------------------------------------------------------------------------*
-;* 1501	-----------------------    if ( err = mp_mulmod((struct $$fake0 *)key+1668, &r, &p, &s) ) goto g25;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1501,column 16,is_stmt,isa 1
-        ADD       A1, V1, #1668         ; [DPU_3_PIPE] |1501| 
-        ADD       A2, SP, #8            ; [DPU_3_PIPE] |1501| 
-        ADD       A3, SP, #1664         ; [DPU_3_PIPE] |1501| 
-        ADD       A4, SP, #560          ; [DPU_3_PIPE] |1501| 
+;* 1663	-----------------------    if ( err = mp_mulmod((struct $$fake0 *)key+1668, &r, &p, &s) ) goto g25;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1663,column 16,is_stmt,isa 1
+        ADD       A1, V1, #1668         ; [DPU_3_PIPE] |1663| 
+        ADD       A2, SP, #8            ; [DPU_3_PIPE] |1663| 
+        ADD       A3, SP, #1664         ; [DPU_3_PIPE] |1663| 
+        ADD       A4, SP, #560          ; [DPU_3_PIPE] |1663| 
 $C$DW$606	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$606, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$606, DW_AT_name("mp_mulmod")
 	.dwattr $C$DW$606, DW_AT_TI_call
-        BL        mp_mulmod             ; [DPU_3_PIPE] |1501| 
-        ; CALL OCCURS {mp_mulmod }       ; [] |1501| 
-        MOV       V7, A1                ; [DPU_3_PIPE] |1501| 
-        CMP       V7, #0                ; [DPU_3_PIPE] |1501| 
-        BNE       ||$C$L107||           ; [DPU_3_PIPE] |1501| 
-        ; BRANCHCC OCCURS {||$C$L107||}  ; [] |1501| 
+        BL        mp_mulmod             ; [DPU_3_PIPE] |1663| 
+        ; CALL OCCURS {mp_mulmod }       ; [] |1663| 
+        MOV       V7, A1                ; [DPU_3_PIPE] |1663| 
+        CMP       V7, #0                ; [DPU_3_PIPE] |1663| 
+        BNE       ||$C$L107||           ; [DPU_3_PIPE] |1663| 
+        ; BRANCHCC OCCURS {||$C$L107||}  ; [] |1663| 
 ;* --------------------------------------------------------------------------*
-;* 1504	-----------------------    if ( err = mp_add(&e, &s, &s) ) goto g25;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1504,column 16,is_stmt,isa 1
-        ADD       A1, SP, #1112         ; [DPU_3_PIPE] |1504| 
-        ADD       A2, SP, #560          ; [DPU_3_PIPE] |1504| 
-        ADD       A3, SP, #560          ; [DPU_3_PIPE] |1504| 
+;* 1666	-----------------------    if ( err = mp_add(&e, &s, &s) ) goto g25;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1666,column 16,is_stmt,isa 1
+        ADD       A1, SP, #1112         ; [DPU_3_PIPE] |1666| 
+        ADD       A2, SP, #560          ; [DPU_3_PIPE] |1666| 
+        ADD       A3, SP, #560          ; [DPU_3_PIPE] |1666| 
 $C$DW$607	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$607, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$607, DW_AT_name("mp_add")
 	.dwattr $C$DW$607, DW_AT_TI_call
-        BL        mp_add                ; [DPU_3_PIPE] |1504| 
-        ; CALL OCCURS {mp_add }          ; [] |1504| 
-        MOV       V7, A1                ; [DPU_3_PIPE] |1504| 
-        CMP       V7, #0                ; [DPU_3_PIPE] |1504| 
-        BNE       ||$C$L107||           ; [DPU_3_PIPE] |1504| 
-        ; BRANCHCC OCCURS {||$C$L107||}  ; [] |1504| 
+        BL        mp_add                ; [DPU_3_PIPE] |1666| 
+        ; CALL OCCURS {mp_add }          ; [] |1666| 
+        MOV       V7, A1                ; [DPU_3_PIPE] |1666| 
+        CMP       V7, #0                ; [DPU_3_PIPE] |1666| 
+        BNE       ||$C$L107||           ; [DPU_3_PIPE] |1666| 
+        ; BRANCHCC OCCURS {||$C$L107||}  ; [] |1666| 
 ;* --------------------------------------------------------------------------*
-;* 1507	-----------------------    if ( err = mp_mod(&s, &p, &s) ) goto g25;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1507,column 16,is_stmt,isa 1
-        ADD       A1, SP, #560          ; [DPU_3_PIPE] |1507| 
-        ADD       A2, SP, #1664         ; [DPU_3_PIPE] |1507| 
-        ADD       A3, SP, #560          ; [DPU_3_PIPE] |1507| 
+;* 1669	-----------------------    if ( err = mp_mod(&s, &p, &s) ) goto g25;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1669,column 16,is_stmt,isa 1
+        ADD       A1, SP, #560          ; [DPU_3_PIPE] |1669| 
+        ADD       A2, SP, #1664         ; [DPU_3_PIPE] |1669| 
+        ADD       A3, SP, #560          ; [DPU_3_PIPE] |1669| 
 $C$DW$608	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$608, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$608, DW_AT_name("mp_mod")
 	.dwattr $C$DW$608, DW_AT_TI_call
-        BL        mp_mod                ; [DPU_3_PIPE] |1507| 
-        ; CALL OCCURS {mp_mod }          ; [] |1507| 
-        MOV       V7, A1                ; [DPU_3_PIPE] |1507| 
-        CMP       V7, #0                ; [DPU_3_PIPE] |1507| 
-        BNE       ||$C$L107||           ; [DPU_3_PIPE] |1507| 
-        ; BRANCHCC OCCURS {||$C$L107||}  ; [] |1507| 
+        BL        mp_mod                ; [DPU_3_PIPE] |1669| 
+        ; CALL OCCURS {mp_mod }          ; [] |1669| 
+        MOV       V7, A1                ; [DPU_3_PIPE] |1669| 
+        CMP       V7, #0                ; [DPU_3_PIPE] |1669| 
+        BNE       ||$C$L107||           ; [DPU_3_PIPE] |1669| 
+        ; BRANCHCC OCCURS {||$C$L107||}  ; [] |1669| 
 ;* --------------------------------------------------------------------------*
-;* 1510	-----------------------    if ( err = mp_mulmod(&s, C$1, &p, &s) ) goto g25;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1510,column 16,is_stmt,isa 1
-        ADD       A1, SP, #560          ; [DPU_3_PIPE] |1510| 
-        MOV       A2, V2                ; [DPU_3_PIPE] |1510| 
-        ADD       A3, SP, #1664         ; [DPU_3_PIPE] |1510| 
-        ADD       A4, SP, #560          ; [DPU_3_PIPE] |1510| 
+;* 1672	-----------------------    if ( err = mp_mulmod(&s, C$1, &p, &s) ) goto g25;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1672,column 16,is_stmt,isa 1
+        ADD       A1, SP, #560          ; [DPU_3_PIPE] |1672| 
+        MOV       A2, V2                ; [DPU_3_PIPE] |1672| 
+        ADD       A3, SP, #1664         ; [DPU_3_PIPE] |1672| 
+        ADD       A4, SP, #560          ; [DPU_3_PIPE] |1672| 
 $C$DW$609	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$609, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$609, DW_AT_name("mp_mulmod")
 	.dwattr $C$DW$609, DW_AT_TI_call
-        BL        mp_mulmod             ; [DPU_3_PIPE] |1510| 
-        ; CALL OCCURS {mp_mulmod }       ; [] |1510| 
-        MOV       V7, A1                ; [DPU_3_PIPE] |1510| 
-        CMP       V7, #0                ; [DPU_3_PIPE] |1510| 
-        BNE       ||$C$L107||           ; [DPU_3_PIPE] |1510| 
-        ; BRANCHCC OCCURS {||$C$L107||}  ; [] |1510| 
+        BL        mp_mulmod             ; [DPU_3_PIPE] |1672| 
+        ; CALL OCCURS {mp_mulmod }       ; [] |1672| 
+        MOV       V7, A1                ; [DPU_3_PIPE] |1672| 
+        CMP       V7, #0                ; [DPU_3_PIPE] |1672| 
+        BNE       ||$C$L107||           ; [DPU_3_PIPE] |1672| 
+        ; BRANCHCC OCCURS {||$C$L107||}  ; [] |1672| 
 ;* --------------------------------------------------------------------------*
-;* 1513	-----------------------    ecc_free(&pubkey);
-;* 1515	-----------------------    if ( mp_iszero(&s) ) goto g16;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1513,column 16,is_stmt,isa 1
-        ADD       A1, SP, #2216         ; [DPU_3_PIPE] |1513| 
+;* 1675	-----------------------    ecc_free(&pubkey);
+;* 1677	-----------------------    if ( mp_iszero(&s) ) goto g16;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1675,column 16,is_stmt,isa 1
+        ADD       A1, SP, #2216         ; [DPU_3_PIPE] |1675| 
 $C$DW$610	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$610, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$610, DW_AT_name("ecc_free")
 	.dwattr $C$DW$610, DW_AT_TI_call
-        BL        ecc_free              ; [DPU_3_PIPE] |1513| 
-        ; CALL OCCURS {ecc_free }        ; [] |1513| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1515,column 20,is_stmt,isa 1
-        ADD       A1, SP, #560          ; [DPU_3_PIPE] |1515| 
+        BL        ecc_free              ; [DPU_3_PIPE] |1675| 
+        ; CALL OCCURS {ecc_free }        ; [] |1675| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1677,column 20,is_stmt,isa 1
+        ADD       A1, SP, #560          ; [DPU_3_PIPE] |1677| 
 $C$DW$611	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$611, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$611, DW_AT_name("mp_iszero")
 	.dwattr $C$DW$611, DW_AT_TI_call
-        BL        mp_iszero             ; [DPU_3_PIPE] |1515| 
-        ; CALL OCCURS {mp_iszero }       ; [] |1515| 
-        CMP       A1, #0                ; [DPU_3_PIPE] |1515| 
-        BNE       ||$C$L106||           ; [DPU_3_PIPE] |1515| 
-        ; BRANCHCC OCCURS {||$C$L106||}  ; [] |1515| 
+        BL        mp_iszero             ; [DPU_3_PIPE] |1677| 
+        ; CALL OCCURS {mp_iszero }       ; [] |1677| 
+        CMP       A1, #0                ; [DPU_3_PIPE] |1677| 
+        BNE       ||$C$L106||           ; [DPU_3_PIPE] |1677| 
+        ; BRANCHCC OCCURS {||$C$L106||}  ; [] |1677| 
 ;* --------------------------------------------------------------------------*
 ||$C$L107||:    
 ;**	-----------------------g25:
-;* 1518	-----------------------    ecc_free(&pubkey);
-;* 1522	-----------------------    if ( err ) goto g27;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1518,column 8,is_stmt,isa 1
-        ADD       A1, SP, #2216         ; [DPU_3_PIPE] |1518| 
+;* 1680	-----------------------    ecc_free(&pubkey);
+;* 1684	-----------------------    if ( err ) goto g27;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1680,column 8,is_stmt,isa 1
+        ADD       A1, SP, #2216         ; [DPU_3_PIPE] |1680| 
 $C$DW$612	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$612, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$612, DW_AT_name("ecc_free")
 	.dwattr $C$DW$612, DW_AT_TI_call
-        BL        ecc_free              ; [DPU_3_PIPE] |1518| 
-        ; CALL OCCURS {ecc_free }        ; [] |1518| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1522,column 4,is_stmt,isa 1
-        CMP       V7, #0                ; [DPU_3_PIPE] |1522| 
-        BNE       ||$C$L108||           ; [DPU_3_PIPE] |1522| 
-        ; BRANCHCC OCCURS {||$C$L108||}  ; [] |1522| 
+        BL        ecc_free              ; [DPU_3_PIPE] |1680| 
+        ; CALL OCCURS {ecc_free }        ; [] |1680| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1684,column 4,is_stmt,isa 1
+        CMP       V7, #0                ; [DPU_3_PIPE] |1684| 
+        BNE       ||$C$L108||           ; [DPU_3_PIPE] |1684| 
+        ; BRANCHCC OCCURS {||$C$L108||}  ; [] |1684| 
 ;* --------------------------------------------------------------------------*
-;* 1523	-----------------------    err = StoreECC_DSA_Sig(out, outlen, &r, &s);
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1523,column 8,is_stmt,isa 1
-        MOV       A1, V5                ; [DPU_3_PIPE] |1523| 
-        MOV       A2, V4                ; [DPU_3_PIPE] |1523| 
-        ADD       A3, SP, #8            ; [DPU_3_PIPE] |1523| 
-        ADD       A4, SP, #560          ; [DPU_3_PIPE] |1523| 
+;* 1685	-----------------------    err = StoreECC_DSA_Sig(out, outlen, &r, &s);
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1685,column 8,is_stmt,isa 1
+        MOV       A1, V5                ; [DPU_3_PIPE] |1685| 
+        MOV       A2, V4                ; [DPU_3_PIPE] |1685| 
+        ADD       A3, SP, #8            ; [DPU_3_PIPE] |1685| 
+        ADD       A4, SP, #560          ; [DPU_3_PIPE] |1685| 
 $C$DW$613	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$613, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$613, DW_AT_name("StoreECC_DSA_Sig")
 	.dwattr $C$DW$613, DW_AT_TI_call
-        BL        StoreECC_DSA_Sig      ; [DPU_3_PIPE] |1523| 
-        ; CALL OCCURS {StoreECC_DSA_Sig }  ; [] |1523| 
-        MOV       V7, A1                ; [DPU_3_PIPE] |1523| 
+        BL        StoreECC_DSA_Sig      ; [DPU_3_PIPE] |1685| 
+        ; CALL OCCURS {StoreECC_DSA_Sig }  ; [] |1685| 
+        MOV       V7, A1                ; [DPU_3_PIPE] |1685| 
 ;* --------------------------------------------------------------------------*
 ||$C$L108||:    
 ;**	-----------------------g27:
-;* 1525	-----------------------    mp_clear(&r);
-;* 1526	-----------------------    mp_clear(&s);
-;* 1527	-----------------------    mp_clear(&p);
-;* 1528	-----------------------    mp_clear(&e);
-;* 1530	-----------------------    return err;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1525,column 4,is_stmt,isa 1
-        ADD       A1, SP, #8            ; [DPU_3_PIPE] |1525| 
+;* 1687	-----------------------    mp_clear(&r);
+;* 1688	-----------------------    mp_clear(&s);
+;* 1689	-----------------------    mp_clear(&p);
+;* 1690	-----------------------    mp_clear(&e);
+;* 1692	-----------------------    return err;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1687,column 4,is_stmt,isa 1
+        ADD       A1, SP, #8            ; [DPU_3_PIPE] |1687| 
 $C$DW$614	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$614, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$614, DW_AT_name("mp_clear")
 	.dwattr $C$DW$614, DW_AT_TI_call
-        BL        mp_clear              ; [DPU_3_PIPE] |1525| 
-        ; CALL OCCURS {mp_clear }        ; [] |1525| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1526,column 4,is_stmt,isa 1
-        ADD       A1, SP, #560          ; [DPU_3_PIPE] |1526| 
+        BL        mp_clear              ; [DPU_3_PIPE] |1687| 
+        ; CALL OCCURS {mp_clear }        ; [] |1687| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1688,column 4,is_stmt,isa 1
+        ADD       A1, SP, #560          ; [DPU_3_PIPE] |1688| 
 $C$DW$615	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$615, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$615, DW_AT_name("mp_clear")
 	.dwattr $C$DW$615, DW_AT_TI_call
-        BL        mp_clear              ; [DPU_3_PIPE] |1526| 
-        ; CALL OCCURS {mp_clear }        ; [] |1526| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1527,column 4,is_stmt,isa 1
-        ADD       A1, SP, #1664         ; [DPU_3_PIPE] |1527| 
+        BL        mp_clear              ; [DPU_3_PIPE] |1688| 
+        ; CALL OCCURS {mp_clear }        ; [] |1688| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1689,column 4,is_stmt,isa 1
+        ADD       A1, SP, #1664         ; [DPU_3_PIPE] |1689| 
 $C$DW$616	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$616, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$616, DW_AT_name("mp_clear")
 	.dwattr $C$DW$616, DW_AT_TI_call
-        BL        mp_clear              ; [DPU_3_PIPE] |1527| 
-        ; CALL OCCURS {mp_clear }        ; [] |1527| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1528,column 4,is_stmt,isa 1
-        ADD       A1, SP, #1112         ; [DPU_3_PIPE] |1528| 
+        BL        mp_clear              ; [DPU_3_PIPE] |1689| 
+        ; CALL OCCURS {mp_clear }        ; [] |1689| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1690,column 4,is_stmt,isa 1
+        ADD       A1, SP, #1112         ; [DPU_3_PIPE] |1690| 
 $C$DW$617	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$617, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$617, DW_AT_name("mp_clear")
 	.dwattr $C$DW$617, DW_AT_TI_call
-        BL        mp_clear              ; [DPU_3_PIPE] |1528| 
-        ; CALL OCCURS {mp_clear }        ; [] |1528| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1530,column 4,is_stmt,isa 1
-        MOV       A1, V7                ; [DPU_3_PIPE] |1530| 
+        BL        mp_clear              ; [DPU_3_PIPE] |1690| 
+        ; CALL OCCURS {mp_clear }        ; [] |1690| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1692,column 4,is_stmt,isa 1
+        MOV       A1, V7                ; [DPU_3_PIPE] |1692| 
 ;* --------------------------------------------------------------------------*
 ||$C$L109||:    
         MOVW      V1, #4436             ; [DPU_3_PIPE] 
@@ -7084,7 +7084,7 @@ $C$DW$618	.dwtag  DW_TAG_TI_branch
 	.dwcfi	cfa_offset, 0
         ; BRANCH OCCURS                  ; [] 
 	.dwattr $C$DW$573, DW_AT_TI_end_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$573, DW_AT_TI_end_line(0x5fb)
+	.dwattr $C$DW$573, DW_AT_TI_end_line(0x69d)
 	.dwattr $C$DW$573, DW_AT_TI_end_column(0x01)
 	.dwendentry
 	.dwendtag $C$DW$573
@@ -7102,13 +7102,13 @@ $C$DW$619	.dwtag  DW_TAG_subprogram, DW_AT_name("ecc_sig_size")
 	.dwattr $C$DW$619, DW_AT_external
 	.dwattr $C$DW$619, DW_AT_type(*$C$DW$T$10)
 	.dwattr $C$DW$619, DW_AT_TI_begin_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$619, DW_AT_TI_begin_line(0x868)
+	.dwattr $C$DW$619, DW_AT_TI_begin_line(0x90a)
 	.dwattr $C$DW$619, DW_AT_TI_begin_column(0x05)
 	.dwattr $C$DW$619, DW_AT_decl_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$619, DW_AT_decl_line(0x868)
+	.dwattr $C$DW$619, DW_AT_decl_line(0x90a)
 	.dwattr $C$DW$619, DW_AT_decl_column(0x05)
 	.dwattr $C$DW$619, DW_AT_TI_max_frame_size(0x08)
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2153,column 1,is_stmt,address ecc_sig_size,isa 1
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2315,column 1,is_stmt,address ecc_sig_size,isa 1
 
 	.dwfde $C$DW$CIE, ecc_sig_size
 $C$DW$620	.dwtag  DW_TAG_formal_parameter, DW_AT_name("key")
@@ -7136,22 +7136,22 @@ $C$DW$622	.dwtag  DW_TAG_variable, DW_AT_name("key")
 	.dwattr $C$DW$622, DW_AT_type(*$C$DW$T$564)
 	.dwattr $C$DW$622, DW_AT_location[DW_OP_reg0]
 	.dwcfi	cfa_offset, 0
-;* 2156	-----------------------    return ((sz = ecc_size(key)) < 0) ? sz : (sz+5)*2;
+;* 2318	-----------------------    return ((sz = ecc_size(key)) < 0) ? sz : (sz+5)*2;
         PUSH      {A4, LR}              ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 8
 	.dwcfi	save_reg_to_mem, 14, -4
 	.dwcfi	save_reg_to_mem, 3, -8
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2156,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2318,column 9,is_stmt,isa 1
 $C$DW$623	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$623, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$623, DW_AT_name("ecc_size")
 	.dwattr $C$DW$623, DW_AT_TI_call
-        BL        ecc_size              ; [DPU_3_PIPE] |2156| 
-        ; CALL OCCURS {ecc_size }        ; [] |2156| 
-        CMP       A1, #0                ; [DPU_3_PIPE] |2156| 
+        BL        ecc_size              ; [DPU_3_PIPE] |2318| 
+        ; CALL OCCURS {ecc_size }        ; [] |2318| 
+        CMP       A1, #0                ; [DPU_3_PIPE] |2318| 
         ITT       PL                    ; [DPU_3_PIPE] 
-        ADDPL     A1, A1, #5            ; [DPU_3_PIPE] |2156| 
-        LSLPL     A1, A1, #1            ; [DPU_3_PIPE] |2156| 
+        ADDPL     A1, A1, #5            ; [DPU_3_PIPE] |2318| 
+        LSLPL     A1, A1, #1            ; [DPU_3_PIPE] |2318| 
 $C$DW$624	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$624, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$624, DW_AT_TI_return
@@ -7159,7 +7159,7 @@ $C$DW$624	.dwtag  DW_TAG_TI_branch
 	.dwcfi	cfa_offset, 0
         ; BRANCH OCCURS                  ; [] 
 	.dwattr $C$DW$619, DW_AT_TI_end_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$619, DW_AT_TI_end_line(0x86f)
+	.dwattr $C$DW$619, DW_AT_TI_end_line(0x911)
 	.dwattr $C$DW$619, DW_AT_TI_end_column(0x01)
 	.dwendentry
 	.dwendtag $C$DW$619
@@ -7177,13 +7177,13 @@ $C$DW$625	.dwtag  DW_TAG_subprogram, DW_AT_name("ecc_shared_secret")
 	.dwattr $C$DW$625, DW_AT_external
 	.dwattr $C$DW$625, DW_AT_type(*$C$DW$T$10)
 	.dwattr $C$DW$625, DW_AT_TI_begin_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$625, DW_AT_TI_begin_line(0x4cc)
+	.dwattr $C$DW$625, DW_AT_TI_begin_line(0x56e)
 	.dwattr $C$DW$625, DW_AT_TI_begin_column(0x05)
 	.dwattr $C$DW$625, DW_AT_decl_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$625, DW_AT_decl_line(0x4cc)
+	.dwattr $C$DW$625, DW_AT_decl_line(0x56e)
 	.dwattr $C$DW$625, DW_AT_decl_column(0x05)
 	.dwattr $C$DW$625, DW_AT_TI_max_frame_size(0x248)
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1230,column 1,is_stmt,address ecc_shared_secret,isa 1
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1392,column 1,is_stmt,address ecc_shared_secret,isa 1
 
 	.dwfde $C$DW$CIE, ecc_shared_secret
 $C$DW$626	.dwtag  DW_TAG_formal_parameter, DW_AT_name("private_key")
@@ -7281,7 +7281,7 @@ $C$DW$642	.dwtag  DW_TAG_variable, DW_AT_name("prime")
 	.dwattr $C$DW$642, DW_AT_type(*$C$DW$T$128)
 	.dwattr $C$DW$642, DW_AT_location[DW_OP_breg13 4]
 	.dwcfi	cfa_offset, 0
-;* 1236	-----------------------    if ( private_key != NULL && public_key != NULL && (out != NULL && outlen != NULL) ) goto g3;
+;* 1398	-----------------------    if ( private_key != NULL && public_key != NULL && (out != NULL && outlen != NULL) ) goto g3;
         PUSH      {V1, V2, V3, V4, V5, V6, LR} ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 28
 	.dwcfi	save_reg_to_mem, 14, -4
@@ -7291,69 +7291,69 @@ $C$DW$642	.dwtag  DW_TAG_variable, DW_AT_name("prime")
 	.dwcfi	save_reg_to_mem, 6, -20
 	.dwcfi	save_reg_to_mem, 5, -24
 	.dwcfi	save_reg_to_mem, 4, -28
-        MOV       V2, A1                ; [DPU_3_PIPE] |1230| 
-        MOV       V4, A4                ; [DPU_3_PIPE] |1230| 
-        MOV       V5, A3                ; [DPU_3_PIPE] |1230| 
-        MOV       V3, A2                ; [DPU_3_PIPE] |1230| 
+        MOV       V2, A1                ; [DPU_3_PIPE] |1392| 
+        MOV       V4, A4                ; [DPU_3_PIPE] |1392| 
+        MOV       V5, A3                ; [DPU_3_PIPE] |1392| 
+        MOV       V3, A2                ; [DPU_3_PIPE] |1392| 
         SUB       SP, SP, #508          ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 536
         SUB       SP, SP, #48           ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 584
         CBZ       V2, ||$C$L110||       ; [] 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1236,column 4,is_stmt,isa 1
-        ; BRANCHCC OCCURS {||$C$L110||}  ; [] |1236| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1398,column 4,is_stmt,isa 1
+        ; BRANCHCC OCCURS {||$C$L110||}  ; [] |1398| 
 ;* --------------------------------------------------------------------------*
         CBZ       V3, ||$C$L110||       ; [] 
-        ; BRANCHCC OCCURS {||$C$L110||}  ; [] |1236| 
+        ; BRANCHCC OCCURS {||$C$L110||}  ; [] |1398| 
 ;* --------------------------------------------------------------------------*
-        CMP       V5, #0                ; [DPU_3_PIPE] |1236| 
+        CMP       V5, #0                ; [DPU_3_PIPE] |1398| 
         IT        NE                    ; [DPU_3_PIPE] 
-        CMPNE     V4, #0                ; [DPU_3_PIPE] |1236| 
-        BNE       ||$C$L111||           ; [DPU_3_PIPE] |1236| 
-        ; BRANCHCC OCCURS {||$C$L111||}  ; [] |1236| 
+        CMPNE     V4, #0                ; [DPU_3_PIPE] |1398| 
+        BNE       ||$C$L111||           ; [DPU_3_PIPE] |1398| 
+        ; BRANCHCC OCCURS {||$C$L111||}  ; [] |1398| 
 ;* --------------------------------------------------------------------------*
 ||$C$L110||:    
-;* 1238	-----------------------    return (-173);
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1238,column 8,is_stmt,isa 1
-        MVN       A1, #172              ; [DPU_3_PIPE] |1238| 
-        B         ||$C$L118||           ; [DPU_3_PIPE] |1238| 
-        ; BRANCH OCCURS {||$C$L118||}    ; [] |1238| 
+;* 1400	-----------------------    return (-173);
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1400,column 8,is_stmt,isa 1
+        MVN       A1, #172              ; [DPU_3_PIPE] |1400| 
+        B         ||$C$L118||           ; [DPU_3_PIPE] |1400| 
+        ; BRANCH OCCURS {||$C$L118||}    ; [] |1400| 
 ;* --------------------------------------------------------------------------*
 ||$C$L111||:    
 ;**	-----------------------g3:
-;* 1241	-----------------------    if ( (*private_key).type != 2 ) goto g8;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1241,column 4,is_stmt,isa 1
-        LDR       A1, [V2, #0]          ; [DPU_3_PIPE] |1241| 
-        CMP       A1, #2                ; [DPU_3_PIPE] |1241| 
-        BNE       ||$C$L113||           ; [DPU_3_PIPE] |1241| 
-        ; BRANCHCC OCCURS {||$C$L113||}  ; [] |1241| 
+;* 1403	-----------------------    if ( (*private_key).type != 2 ) goto g8;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1403,column 4,is_stmt,isa 1
+        LDR       A1, [V2, #0]          ; [DPU_3_PIPE] |1403| 
+        CMP       A1, #2                ; [DPU_3_PIPE] |1403| 
+        BNE       ||$C$L113||           ; [DPU_3_PIPE] |1403| 
+        ; BRANCHCC OCCURS {||$C$L113||}  ; [] |1403| 
 ;* --------------------------------------------------------------------------*
-;* 1245	-----------------------    if ( !ecc_is_valid_idx((*private_key).idx) ) goto g8;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1245,column 4,is_stmt,isa 1
-        LDR       A1, [V2, #4]          ; [DPU_3_PIPE] |1245| 
+;* 1407	-----------------------    if ( !ecc_is_valid_idx((*private_key).idx) ) goto g8;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1407,column 4,is_stmt,isa 1
+        LDR       A1, [V2, #4]          ; [DPU_3_PIPE] |1407| 
 $C$DW$643	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$643, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$643, DW_AT_name("ecc_is_valid_idx")
 	.dwattr $C$DW$643, DW_AT_TI_call
-        BL        ecc_is_valid_idx      ; [DPU_3_PIPE] |1245| 
-        ; CALL OCCURS {ecc_is_valid_idx }  ; [] |1245| 
+        BL        ecc_is_valid_idx      ; [DPU_3_PIPE] |1407| 
+        ; CALL OCCURS {ecc_is_valid_idx }  ; [] |1407| 
         CBZ       A1, ||$C$L113||       ; [] 
-        ; BRANCHCC OCCURS {||$C$L113||}  ; [] |1245| 
+        ; BRANCHCC OCCURS {||$C$L113||}  ; [] |1407| 
 ;* --------------------------------------------------------------------------*
-;* 1245	-----------------------    if ( !ecc_is_valid_idx((*public_key).idx) ) goto g8;
-        LDR       A1, [V3, #4]          ; [DPU_3_PIPE] |1245| 
+;* 1407	-----------------------    if ( !ecc_is_valid_idx((*public_key).idx) ) goto g8;
+        LDR       A1, [V3, #4]          ; [DPU_3_PIPE] |1407| 
 $C$DW$644	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$644, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$644, DW_AT_name("ecc_is_valid_idx")
 	.dwattr $C$DW$644, DW_AT_TI_call
-        BL        ecc_is_valid_idx      ; [DPU_3_PIPE] |1245| 
-        ; CALL OCCURS {ecc_is_valid_idx }  ; [] |1245| 
+        BL        ecc_is_valid_idx      ; [DPU_3_PIPE] |1407| 
+        ; CALL OCCURS {ecc_is_valid_idx }  ; [] |1407| 
         CBZ       A1, ||$C$L113||       ; [] 
-        ; BRANCHCC OCCURS {||$C$L113||}  ; [] |1245| 
+        ; BRANCHCC OCCURS {||$C$L113||}  ; [] |1407| 
 ;* --------------------------------------------------------------------------*
 ;** 249	-----------------------    s1 = (*(*private_key).dp).name-1;  // [4]
 ;** 250	-----------------------    s2 = (*(*public_key).dp).name-1;  // [4]
-;* 1249	-----------------------    n = 16u;
+;* 1411	-----------------------    n = 16u;
 ;**  	-----------------------    #pragma MUST_ITERATE(1, 16, 1)
 ;**  	-----------------------    #pragma LOOP_FLAGS(256u)
 	.dwpsn	file "c:/ti/ccsv6/tools/compiler/arm_5.1.6/include/string.h",line 249,column 18,is_stmt,isa 1
@@ -7364,8 +7364,8 @@ $C$DW$644	.dwtag  DW_TAG_TI_branch
         LDR       A1, [A1, #4]          ; [DPU_3_PIPE] |249| 
 	.dwpsn	file "c:/ti/ccsv6/tools/compiler/arm_5.1.6/include/string.h",line 250,column 18,is_stmt,isa 1
         LDR       A2, [A2, #4]          ; [DPU_3_PIPE] |250| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1249,column 4,is_stmt,isa 1
-        MOVS      A3, #16               ; [DPU_3_PIPE] |1249| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1411,column 4,is_stmt,isa 1
+        MOVS      A3, #16               ; [DPU_3_PIPE] |1411| 
 	.dwpsn	file "c:/ti/ccsv6/tools/compiler/arm_5.1.6/include/string.h",line 249,column 18,is_stmt,isa 1
         SUBS      A1, A1, #1            ; [DPU_3_PIPE] |249| 
 	.dwpsn	file "c:/ti/ccsv6/tools/compiler/arm_5.1.6/include/string.h",line 250,column 18,is_stmt,isa 1
@@ -7392,11 +7392,11 @@ $C$DW$644	.dwtag  DW_TAG_TI_branch
 ;* --------------------------------------------------------------------------*
 ||$C$L113||:    
 ;**	-----------------------g8:
-;* 1250	-----------------------    return (-170);
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1250,column 7,is_stmt,isa 1
-        MVN       A1, #169              ; [DPU_3_PIPE] |1250| 
-        B         ||$C$L118||           ; [DPU_3_PIPE] |1250| 
-        ; BRANCH OCCURS {||$C$L118||}    ; [] |1250| 
+;* 1412	-----------------------    return (-170);
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1412,column 7,is_stmt,isa 1
+        MVN       A1, #169              ; [DPU_3_PIPE] |1412| 
+        B         ||$C$L118||           ; [DPU_3_PIPE] |1412| 
+        ; BRANCH OCCURS {||$C$L118||}    ; [] |1412| 
 ;* --------------------------------------------------------------------------*
 ||$C$L114||:    
 ;**	-----------------------g9:
@@ -7410,173 +7410,173 @@ $C$DW$644	.dwtag  DW_TAG_TI_branch
         ; BRANCHCC OCCURS {||$C$L112||}  ; [] |257| 
 ;* --------------------------------------------------------------------------*
 ;**	-----------------------g11:
-;* 1253	-----------------------    result = ecc_new_point();
-;* 1254	-----------------------    if ( result ) goto g13;
-;* 1255	-----------------------    return (-125);
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1253,column 4,is_stmt,isa 1
+;* 1415	-----------------------    result = ecc_new_point();
+;* 1416	-----------------------    if ( result ) goto g13;
+;* 1417	-----------------------    return (-125);
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1415,column 4,is_stmt,isa 1
 $C$DW$645	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$645, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$645, DW_AT_name("ecc_new_point")
 	.dwattr $C$DW$645, DW_AT_TI_call
-        BL        ecc_new_point         ; [DPU_3_PIPE] |1253| 
-        ; CALL OCCURS {ecc_new_point }   ; [] |1253| 
-        MOV       V6, A1                ; [DPU_3_PIPE] |1253| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1254,column 4,is_stmt,isa 1
-        CMP       V6, #0                ; [DPU_3_PIPE] |1254| 
+        BL        ecc_new_point         ; [DPU_3_PIPE] |1415| 
+        ; CALL OCCURS {ecc_new_point }   ; [] |1415| 
+        MOV       V6, A1                ; [DPU_3_PIPE] |1415| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1416,column 4,is_stmt,isa 1
+        CMP       V6, #0                ; [DPU_3_PIPE] |1416| 
         IT        EQ                    ; [DPU_3_PIPE] 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1255,column 7,is_stmt,isa 1
-        MVNEQ     A1, #124              ; [DPU_3_PIPE] |1255| 
-        BEQ       ||$C$L118||           ; [DPU_3_PIPE] |1255| 
-        ; BRANCHCC OCCURS {||$C$L118||}  ; [] |1255| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1417,column 7,is_stmt,isa 1
+        MVNEQ     A1, #124              ; [DPU_3_PIPE] |1417| 
+        BEQ       ||$C$L118||           ; [DPU_3_PIPE] |1417| 
+        ; BRANCHCC OCCURS {||$C$L118||}  ; [] |1417| 
 ;* --------------------------------------------------------------------------*
 ;**	-----------------------g13:
-;* 1258	-----------------------    if ( !(err = mp_init(&prime)) ) goto g15;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1258,column 4,is_stmt,isa 1
-        ADD       A1, SP, #4            ; [DPU_3_PIPE] |1258| 
+;* 1420	-----------------------    if ( !(err = mp_init(&prime)) ) goto g15;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1420,column 4,is_stmt,isa 1
+        ADD       A1, SP, #4            ; [DPU_3_PIPE] |1420| 
 $C$DW$646	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$646, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$646, DW_AT_name("mp_init")
 	.dwattr $C$DW$646, DW_AT_TI_call
-        BL        mp_init               ; [DPU_3_PIPE] |1258| 
-        ; CALL OCCURS {mp_init }         ; [] |1258| 
-        MOV       V1, A1                ; [DPU_3_PIPE] |1258| 
+        BL        mp_init               ; [DPU_3_PIPE] |1420| 
+        ; CALL OCCURS {mp_init }         ; [] |1420| 
+        MOV       V1, A1                ; [DPU_3_PIPE] |1420| 
         CBZ       V1, ||$C$L115||       ; [] 
-        ; BRANCHCC OCCURS {||$C$L115||}  ; [] |1258| 
+        ; BRANCHCC OCCURS {||$C$L115||}  ; [] |1420| 
 ;* --------------------------------------------------------------------------*
-;* 1259	-----------------------    ecc_del_point(result);
-;* 1260	-----------------------    return err;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1259,column 7,is_stmt,isa 1
-        MOV       A1, V6                ; [DPU_3_PIPE] |1259| 
+;* 1421	-----------------------    ecc_del_point(result);
+;* 1422	-----------------------    return err;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1421,column 7,is_stmt,isa 1
+        MOV       A1, V6                ; [DPU_3_PIPE] |1421| 
 $C$DW$647	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$647, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$647, DW_AT_name("ecc_del_point")
 	.dwattr $C$DW$647, DW_AT_TI_call
-        BL        ecc_del_point         ; [DPU_3_PIPE] |1259| 
-        ; CALL OCCURS {ecc_del_point }   ; [] |1259| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1260,column 7,is_stmt,isa 1
-        MOV       A1, V1                ; [DPU_3_PIPE] |1260| 
-        B         ||$C$L118||           ; [DPU_3_PIPE] |1260| 
-        ; BRANCH OCCURS {||$C$L118||}    ; [] |1260| 
+        BL        ecc_del_point         ; [DPU_3_PIPE] |1421| 
+        ; CALL OCCURS {ecc_del_point }   ; [] |1421| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1422,column 7,is_stmt,isa 1
+        MOV       A1, V1                ; [DPU_3_PIPE] |1422| 
+        B         ||$C$L118||           ; [DPU_3_PIPE] |1422| 
+        ; BRANCH OCCURS {||$C$L118||}    ; [] |1422| 
 ;* --------------------------------------------------------------------------*
 ||$C$L115||:    
 ;**	-----------------------g15:
-;* 1263	-----------------------    if ( err = mp_read_radix(&prime, (*(*private_key).dp).prime, 16) ) goto g20;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1263,column 4,is_stmt,isa 1
-        LDR       A1, [V2, #8]          ; [DPU_3_PIPE] |1263| 
-        LDR       A2, [A1, #8]          ; [DPU_3_PIPE] |1263| 
-        MOVS      A3, #16               ; [DPU_3_PIPE] |1263| 
-        ADD       A1, SP, #4            ; [DPU_3_PIPE] |1263| 
+;* 1425	-----------------------    if ( err = mp_read_radix(&prime, (*(*private_key).dp).prime, 16) ) goto g20;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1425,column 4,is_stmt,isa 1
+        LDR       A1, [V2, #8]          ; [DPU_3_PIPE] |1425| 
+        LDR       A2, [A1, #8]          ; [DPU_3_PIPE] |1425| 
+        MOVS      A3, #16               ; [DPU_3_PIPE] |1425| 
+        ADD       A1, SP, #4            ; [DPU_3_PIPE] |1425| 
 $C$DW$648	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$648, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$648, DW_AT_name("mp_read_radix")
 	.dwattr $C$DW$648, DW_AT_TI_call
-        BL        mp_read_radix         ; [DPU_3_PIPE] |1263| 
-        ; CALL OCCURS {mp_read_radix }   ; [] |1263| 
-        MOV       V1, A1                ; [DPU_3_PIPE] |1263| 
+        BL        mp_read_radix         ; [DPU_3_PIPE] |1425| 
+        ; CALL OCCURS {mp_read_radix }   ; [] |1425| 
+        MOV       V1, A1                ; [DPU_3_PIPE] |1425| 
         CBNZ      V1, ||$C$L117||       ; [] 
-        ; BRANCHCC OCCURS {||$C$L117||}  ; [] |1263| 
+        ; BRANCHCC OCCURS {||$C$L117||}  ; [] |1425| 
 ;* --------------------------------------------------------------------------*
-;* 1266	-----------------------    if ( err = ecc_mulmod((struct $$fake0 *)private_key+1668, (struct $$fake1 *)public_key+12, result, &prime, 1) ) goto g20;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1266,column 8,is_stmt,isa 1
-        MOVS      A3, #1                ; [DPU_3_PIPE] |1266| 
-        ADD       A1, V2, #1668         ; [DPU_3_PIPE] |1266| 
-        ADD       A2, V3, #12           ; [DPU_3_PIPE] |1266| 
-        STR       A3, [SP, #0]          ; [DPU_3_PIPE] |1266| 
-        ADD       A4, SP, #4            ; [DPU_3_PIPE] |1266| 
-        MOV       A3, V6                ; [DPU_3_PIPE] |1266| 
+;* 1428	-----------------------    if ( err = ecc_mulmod((struct $$fake0 *)private_key+1668, (struct $$fake1 *)public_key+12, result, &prime, 1) ) goto g20;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1428,column 8,is_stmt,isa 1
+        MOVS      A3, #1                ; [DPU_3_PIPE] |1428| 
+        ADD       A1, V2, #1668         ; [DPU_3_PIPE] |1428| 
+        ADD       A2, V3, #12           ; [DPU_3_PIPE] |1428| 
+        STR       A3, [SP, #0]          ; [DPU_3_PIPE] |1428| 
+        ADD       A4, SP, #4            ; [DPU_3_PIPE] |1428| 
+        MOV       A3, V6                ; [DPU_3_PIPE] |1428| 
 $C$DW$649	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$649, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$649, DW_AT_name("ecc_mulmod")
 	.dwattr $C$DW$649, DW_AT_TI_call
-        BL        ecc_mulmod            ; [DPU_3_PIPE] |1266| 
-        ; CALL OCCURS {ecc_mulmod }      ; [] |1266| 
-        MOV       V1, A1                ; [DPU_3_PIPE] |1266| 
+        BL        ecc_mulmod            ; [DPU_3_PIPE] |1428| 
+        ; CALL OCCURS {ecc_mulmod }      ; [] |1428| 
+        MOV       V1, A1                ; [DPU_3_PIPE] |1428| 
         CBNZ      V1, ||$C$L117||       ; [] 
-        ; BRANCHCC OCCURS {||$C$L117||}  ; [] |1266| 
+        ; BRANCHCC OCCURS {||$C$L117||}  ; [] |1428| 
 ;* --------------------------------------------------------------------------*
-;* 1269	-----------------------    x = mp_unsigned_bin_size(&prime);
-;* 1270	-----------------------    if ( *outlen < x ) goto g19;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1269,column 8,is_stmt,isa 1
-        ADD       A1, SP, #4            ; [DPU_3_PIPE] |1269| 
+;* 1431	-----------------------    x = mp_unsigned_bin_size(&prime);
+;* 1432	-----------------------    if ( *outlen < x ) goto g19;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1431,column 8,is_stmt,isa 1
+        ADD       A1, SP, #4            ; [DPU_3_PIPE] |1431| 
 $C$DW$650	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$650, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$650, DW_AT_name("mp_unsigned_bin_size")
 	.dwattr $C$DW$650, DW_AT_TI_call
-        BL        mp_unsigned_bin_size  ; [DPU_3_PIPE] |1269| 
-        ; CALL OCCURS {mp_unsigned_bin_size }  ; [] |1269| 
-        MOV       V2, A1                ; [DPU_3_PIPE] |1269| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1270,column 8,is_stmt,isa 1
-        LDR       A1, [V4, #0]          ; [DPU_3_PIPE] |1270| 
-        CMP       V2, A1                ; [DPU_3_PIPE] |1270| 
-        BHI       ||$C$L116||           ; [DPU_3_PIPE] |1270| 
-        ; BRANCHCC OCCURS {||$C$L116||}  ; [] |1270| 
+        BL        mp_unsigned_bin_size  ; [DPU_3_PIPE] |1431| 
+        ; CALL OCCURS {mp_unsigned_bin_size }  ; [] |1431| 
+        MOV       V2, A1                ; [DPU_3_PIPE] |1431| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1432,column 8,is_stmt,isa 1
+        LDR       A1, [V4, #0]          ; [DPU_3_PIPE] |1432| 
+        CMP       V2, A1                ; [DPU_3_PIPE] |1432| 
+        BHI       ||$C$L116||           ; [DPU_3_PIPE] |1432| 
+        ; BRANCHCC OCCURS {||$C$L116||}  ; [] |1432| 
 ;* --------------------------------------------------------------------------*
-;* 1275	-----------------------    memset((void *)out, 0, x);
-;* 1276	-----------------------    err = mp_to_unsigned_bin((struct $$fake0 *)result, x-(unsigned)mp_unsigned_bin_size((struct $$fake0 *)result)+out);
-;* 1278	-----------------------    *outlen = x;
-;* 1278	-----------------------    goto g20;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1275,column 8,is_stmt,isa 1
-        MOV       A1, V5                ; [DPU_3_PIPE] |1275| 
-        MOVS      A2, #0                ; [DPU_3_PIPE] |1275| 
-        MOV       A3, V2                ; [DPU_3_PIPE] |1275| 
+;* 1437	-----------------------    memset((void *)out, 0, x);
+;* 1438	-----------------------    err = mp_to_unsigned_bin((struct $$fake0 *)result, x-(unsigned)mp_unsigned_bin_size((struct $$fake0 *)result)+out);
+;* 1440	-----------------------    *outlen = x;
+;* 1440	-----------------------    goto g20;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1437,column 8,is_stmt,isa 1
+        MOV       A1, V5                ; [DPU_3_PIPE] |1437| 
+        MOVS      A2, #0                ; [DPU_3_PIPE] |1437| 
+        MOV       A3, V2                ; [DPU_3_PIPE] |1437| 
 $C$DW$651	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$651, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$651, DW_AT_name("memset")
 	.dwattr $C$DW$651, DW_AT_TI_call
-        BL        memset                ; [DPU_3_PIPE] |1275| 
-        ; CALL OCCURS {memset }          ; [] |1275| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1276,column 8,is_stmt,isa 1
-        MOV       A1, V6                ; [DPU_3_PIPE] |1276| 
+        BL        memset                ; [DPU_3_PIPE] |1437| 
+        ; CALL OCCURS {memset }          ; [] |1437| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1438,column 8,is_stmt,isa 1
+        MOV       A1, V6                ; [DPU_3_PIPE] |1438| 
 $C$DW$652	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$652, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$652, DW_AT_name("mp_unsigned_bin_size")
 	.dwattr $C$DW$652, DW_AT_TI_call
-        BL        mp_unsigned_bin_size  ; [DPU_3_PIPE] |1276| 
-        ; CALL OCCURS {mp_unsigned_bin_size }  ; [] |1276| 
-        SUBS      A1, V2, A1            ; [DPU_3_PIPE] |1276| 
-        ADD       A2, V5, A1            ; [DPU_3_PIPE] |1276| 
-        MOV       A1, V6                ; [DPU_3_PIPE] |1276| 
+        BL        mp_unsigned_bin_size  ; [DPU_3_PIPE] |1438| 
+        ; CALL OCCURS {mp_unsigned_bin_size }  ; [] |1438| 
+        SUBS      A1, V2, A1            ; [DPU_3_PIPE] |1438| 
+        ADD       A2, V5, A1            ; [DPU_3_PIPE] |1438| 
+        MOV       A1, V6                ; [DPU_3_PIPE] |1438| 
 $C$DW$653	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$653, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$653, DW_AT_name("mp_to_unsigned_bin")
 	.dwattr $C$DW$653, DW_AT_TI_call
-        BL        mp_to_unsigned_bin    ; [DPU_3_PIPE] |1276| 
-        ; CALL OCCURS {mp_to_unsigned_bin }  ; [] |1276| 
-        MOV       V1, A1                ; [DPU_3_PIPE] |1276| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1278,column 8,is_stmt,isa 1
-        STR       V2, [V4, #0]          ; [DPU_3_PIPE] |1278| 
-        B         ||$C$L117||           ; [DPU_3_PIPE] |1278| 
-        ; BRANCH OCCURS {||$C$L117||}    ; [] |1278| 
+        BL        mp_to_unsigned_bin    ; [DPU_3_PIPE] |1438| 
+        ; CALL OCCURS {mp_to_unsigned_bin }  ; [] |1438| 
+        MOV       V1, A1                ; [DPU_3_PIPE] |1438| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1440,column 8,is_stmt,isa 1
+        STR       V2, [V4, #0]          ; [DPU_3_PIPE] |1440| 
+        B         ||$C$L117||           ; [DPU_3_PIPE] |1440| 
+        ; BRANCH OCCURS {||$C$L117||}    ; [] |1440| 
 ;* --------------------------------------------------------------------------*
 ||$C$L116||:    
 ;**	-----------------------g19:
-;* 1271	-----------------------    err = (-132);
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1271,column 11,is_stmt,isa 1
-        MVN       V1, #131              ; [DPU_3_PIPE] |1271| 
+;* 1433	-----------------------    err = (-132);
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1433,column 11,is_stmt,isa 1
+        MVN       V1, #131              ; [DPU_3_PIPE] |1433| 
 ;* --------------------------------------------------------------------------*
 ||$C$L117||:    
 ;**	-----------------------g20:
-;* 1281	-----------------------    mp_clear(&prime);
-;* 1282	-----------------------    ecc_del_point(result);
-;* 1284	-----------------------    return err;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1281,column 4,is_stmt,isa 1
-        ADD       A1, SP, #4            ; [DPU_3_PIPE] |1281| 
+;* 1443	-----------------------    mp_clear(&prime);
+;* 1444	-----------------------    ecc_del_point(result);
+;* 1446	-----------------------    return err;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1443,column 4,is_stmt,isa 1
+        ADD       A1, SP, #4            ; [DPU_3_PIPE] |1443| 
 $C$DW$654	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$654, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$654, DW_AT_name("mp_clear")
 	.dwattr $C$DW$654, DW_AT_TI_call
-        BL        mp_clear              ; [DPU_3_PIPE] |1281| 
-        ; CALL OCCURS {mp_clear }        ; [] |1281| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1282,column 4,is_stmt,isa 1
-        MOV       A1, V6                ; [DPU_3_PIPE] |1282| 
+        BL        mp_clear              ; [DPU_3_PIPE] |1443| 
+        ; CALL OCCURS {mp_clear }        ; [] |1443| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1444,column 4,is_stmt,isa 1
+        MOV       A1, V6                ; [DPU_3_PIPE] |1444| 
 $C$DW$655	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$655, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$655, DW_AT_name("ecc_del_point")
 	.dwattr $C$DW$655, DW_AT_TI_call
-        BL        ecc_del_point         ; [DPU_3_PIPE] |1282| 
-        ; CALL OCCURS {ecc_del_point }   ; [] |1282| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1284,column 4,is_stmt,isa 1
-        MOV       A1, V1                ; [DPU_3_PIPE] |1284| 
+        BL        ecc_del_point         ; [DPU_3_PIPE] |1444| 
+        ; CALL OCCURS {ecc_del_point }   ; [] |1444| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1446,column 4,is_stmt,isa 1
+        MOV       A1, V1                ; [DPU_3_PIPE] |1446| 
 ;* --------------------------------------------------------------------------*
 ||$C$L118||:    
         ADD       SP, SP, #508          ; [DPU_3_PIPE] 
@@ -7590,7 +7590,7 @@ $C$DW$656	.dwtag  DW_TAG_TI_branch
 	.dwcfi	cfa_offset, 0
         ; BRANCH OCCURS                  ; [] 
 	.dwattr $C$DW$625, DW_AT_TI_end_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$625, DW_AT_TI_end_line(0x505)
+	.dwattr $C$DW$625, DW_AT_TI_end_line(0x5a7)
 	.dwattr $C$DW$625, DW_AT_TI_end_column(0x01)
 	.dwendentry
 	.dwendtag $C$DW$625
@@ -7608,13 +7608,13 @@ $C$DW$657	.dwtag  DW_TAG_subprogram, DW_AT_name("ecc_make_key")
 	.dwattr $C$DW$657, DW_AT_external
 	.dwattr $C$DW$657, DW_AT_type(*$C$DW$T$10)
 	.dwattr $C$DW$657, DW_AT_TI_begin_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$657, DW_AT_TI_begin_line(0x512)
+	.dwattr $C$DW$657, DW_AT_TI_begin_line(0x5b4)
 	.dwattr $C$DW$657, DW_AT_TI_begin_column(0x05)
 	.dwattr $C$DW$657, DW_AT_decl_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$657, DW_AT_decl_line(0x512)
+	.dwattr $C$DW$657, DW_AT_decl_line(0x5b4)
 	.dwattr $C$DW$657, DW_AT_decl_column(0x05)
 	.dwattr $C$DW$657, DW_AT_TI_max_frame_size(0x10)
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1299,column 1,is_stmt,address ecc_make_key,isa 1
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1461,column 1,is_stmt,address ecc_make_key,isa 1
 
 	.dwfde $C$DW$CIE, ecc_make_key
 $C$DW$658	.dwtag  DW_TAG_formal_parameter, DW_AT_name("rng")
@@ -7699,38 +7699,38 @@ $C$DW$671	.dwtag  DW_TAG_variable, DW_AT_name("$O$U20")
 	.dwattr $C$DW$671, DW_AT_type(*$C$DW$T$556)
 	.dwattr $C$DW$671, DW_AT_location[DW_OP_reg6]
 	.dwcfi	cfa_offset, 0
-;* 1302	-----------------------    if ( key != NULL && rng != NULL ) goto g3;
-;* 1303	-----------------------    return (-170);
+;* 1464	-----------------------    if ( key != NULL && rng != NULL ) goto g3;
+;* 1465	-----------------------    return (-170);
         PUSH      {V1, V2, V3, LR}      ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 16
 	.dwcfi	save_reg_to_mem, 14, -4
 	.dwcfi	save_reg_to_mem, 6, -8
 	.dwcfi	save_reg_to_mem, 5, -12
 	.dwcfi	save_reg_to_mem, 4, -16
-        MOV       V2, A3                ; [DPU_3_PIPE] |1299| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1302,column 4,is_stmt,isa 1
-        CMP       V2, #0                ; [DPU_3_PIPE] |1302| 
+        MOV       V2, A3                ; [DPU_3_PIPE] |1461| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1464,column 4,is_stmt,isa 1
+        CMP       V2, #0                ; [DPU_3_PIPE] |1464| 
         ITE       NE                    ; [DPU_3_PIPE] 
-        CMPNE     A1, #0                ; [DPU_3_PIPE] |1302| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1303,column 8,is_stmt,isa 1
-        MVNEQ     A1, #169              ; [DPU_3_PIPE] |1303| 
-        BEQ       ||$C$L122||           ; [DPU_3_PIPE] |1303| 
-        ; BRANCHCC OCCURS {||$C$L122||}  ; [] |1303| 
+        CMPNE     A1, #0                ; [DPU_3_PIPE] |1464| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1465,column 8,is_stmt,isa 1
+        MVNEQ     A1, #169              ; [DPU_3_PIPE] |1465| 
+        BEQ       ||$C$L122||           ; [DPU_3_PIPE] |1465| 
+        ; BRANCHCC OCCURS {||$C$L122||}  ; [] |1465| 
 ;* --------------------------------------------------------------------------*
 ;**	-----------------------g3:
-;* 1306	-----------------------    x = 0;
-;* 1306	-----------------------    C$12 = (*(K$13 = &ecc_sets[0])).size;
-;* 1306	-----------------------    if ( keysize <= C$12 ) goto g7;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1306,column 16,is_stmt,isa 1
-        MOVW      A3, ecc_sets+0        ; [DPU_3_PIPE] |1306| 
-        MOVT      A3, ecc_sets+0        ; [DPU_3_PIPE] |1306| 
-        LDR       A4, [A3, #0]          ; [DPU_3_PIPE] |1306| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1306,column 9,is_stmt,isa 1
-        MOVS      V1, #0                ; [DPU_3_PIPE] |1306| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1306,column 16,is_stmt,isa 1
-        CMP       A4, A2                ; [DPU_3_PIPE] |1306| 
-        BGE       ||$C$L120||           ; [DPU_3_PIPE] |1306| 
-        ; BRANCHCC OCCURS {||$C$L120||}  ; [] |1306| 
+;* 1468	-----------------------    x = 0;
+;* 1468	-----------------------    C$12 = (*(K$13 = &ecc_sets[0])).size;
+;* 1468	-----------------------    if ( keysize <= C$12 ) goto g7;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1468,column 16,is_stmt,isa 1
+        MOVW      A3, ecc_sets+0        ; [DPU_3_PIPE] |1468| 
+        MOVT      A3, ecc_sets+0        ; [DPU_3_PIPE] |1468| 
+        LDR       A4, [A3, #0]          ; [DPU_3_PIPE] |1468| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1468,column 9,is_stmt,isa 1
+        MOVS      V1, #0                ; [DPU_3_PIPE] |1468| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1468,column 16,is_stmt,isa 1
+        CMP       A4, A2                ; [DPU_3_PIPE] |1468| 
+        BGE       ||$C$L120||           ; [DPU_3_PIPE] |1468| 
+        ; BRANCHCC OCCURS {||$C$L120||}  ; [] |1468| 
 ;* --------------------------------------------------------------------------*
 ;**  	-----------------------    U$20 = K$13;
 ;**  	-----------------------    U$22 = C$12;
@@ -7739,57 +7739,57 @@ $C$DW$671	.dwtag  DW_TAG_variable, DW_AT_name("$O$U20")
 ;* --------------------------------------------------------------------------*
 ;*   BEGIN LOOP ||$C$L119||
 ;*
-;*   Loop source line                : 1306
-;*   Loop closing brace source line  : 1307
+;*   Loop source line                : 1468
+;*   Loop closing brace source line  : 1469
 ;*   Known Minimum Trip Count        : 1
 ;*   Known Maximum Trip Count        : 4294967295
 ;*   Known Max Trip Count Factor     : 1
 ;* --------------------------------------------------------------------------*
 ||$C$L119||:    
 ;**	-----------------------g5:
-;* 1306	-----------------------    if ( !U$22 ) goto g7;
+;* 1468	-----------------------    if ( !U$22 ) goto g7;
         CBZ       A4, ||$C$L120||       ; [] 
-        ; BRANCHCC OCCURS {||$C$L120||}  ; [] |1306| 
+        ; BRANCHCC OCCURS {||$C$L120||}  ; [] |1468| 
 ;* --------------------------------------------------------------------------*
-;* 1306	-----------------------    ++x;
-;* 1306	-----------------------    U$22 = (*(U$20 += 28)).size;
-;* 1306	-----------------------    if ( U$22 < keysize ) goto g5;
-        LDR       A4, [V3, #28]!        ; [DPU_3_PIPE] |1306| 
-        ADDS      V1, V1, #1            ; [DPU_3_PIPE] |1306| 
-        CMP       A2, A4                ; [DPU_3_PIPE] |1306| 
-        BGT       ||$C$L119||           ; [DPU_3_PIPE] |1306| 
-        ; BRANCHCC OCCURS {||$C$L119||}  ; [] |1306| 
+;* 1468	-----------------------    ++x;
+;* 1468	-----------------------    U$22 = (*(U$20 += 28)).size;
+;* 1468	-----------------------    if ( U$22 < keysize ) goto g5;
+        LDR       A4, [V3, #28]!        ; [DPU_3_PIPE] |1468| 
+        ADDS      V1, V1, #1            ; [DPU_3_PIPE] |1468| 
+        CMP       A2, A4                ; [DPU_3_PIPE] |1468| 
+        BGT       ||$C$L119||           ; [DPU_3_PIPE] |1468| 
+        ; BRANCHCC OCCURS {||$C$L119||}  ; [] |1468| 
 ;* --------------------------------------------------------------------------*
 ||$C$L120||:    
 ;**	-----------------------g7:
-;* 1310	-----------------------    C$10 = &K$13[x];
-;* 1310	-----------------------    if ( (C$11 = (*C$10).size) > 66 ) goto g10;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1310,column 4,is_stmt,isa 1
-        LSLS      A2, V1, #5            ; [DPU_3_PIPE] |1310| 
-        SUB       A2, A2, V1, LSL #2    ; [DPU_3_PIPE] |1310| 
-        ADDS      A3, A3, A2            ; [DPU_3_PIPE] |1310| 
-        LDR       A2, [A3, #0]          ; [DPU_3_PIPE] |1310| 
-        CMP       A2, #66               ; [DPU_3_PIPE] |1310| 
-        BGT       ||$C$L121||           ; [DPU_3_PIPE] |1310| 
-        ; BRANCHCC OCCURS {||$C$L121||}  ; [] |1310| 
+;* 1472	-----------------------    C$10 = &K$13[x];
+;* 1472	-----------------------    if ( (C$11 = (*C$10).size) > 66 ) goto g10;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1472,column 4,is_stmt,isa 1
+        LSLS      A2, V1, #5            ; [DPU_3_PIPE] |1472| 
+        SUB       A2, A2, V1, LSL #2    ; [DPU_3_PIPE] |1472| 
+        ADDS      A3, A3, A2            ; [DPU_3_PIPE] |1472| 
+        LDR       A2, [A3, #0]          ; [DPU_3_PIPE] |1472| 
+        CMP       A2, #66               ; [DPU_3_PIPE] |1472| 
+        BGT       ||$C$L121||           ; [DPU_3_PIPE] |1472| 
+        ; BRANCHCC OCCURS {||$C$L121||}  ; [] |1472| 
 ;* --------------------------------------------------------------------------*
-;* 1310	-----------------------    if ( !C$11 ) goto g10;
+;* 1472	-----------------------    if ( !C$11 ) goto g10;
         CBZ       A2, ||$C$L121||       ; [] 
-        ; BRANCHCC OCCURS {||$C$L121||}  ; [] |1310| 
+        ; BRANCHCC OCCURS {||$C$L121||}  ; [] |1472| 
 ;* --------------------------------------------------------------------------*
-;* 1313	-----------------------    err = ecc_make_key_ex(rng, key, C$10);
-;* 1314	-----------------------    (*key).idx = x;
-;* 1316	-----------------------    return err;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1313,column 4,is_stmt,isa 1
-        MOV       A2, V2                ; [DPU_3_PIPE] |1313| 
+;* 1475	-----------------------    err = ecc_make_key_ex(rng, key, C$10);
+;* 1476	-----------------------    (*key).idx = x;
+;* 1478	-----------------------    return err;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1475,column 4,is_stmt,isa 1
+        MOV       A2, V2                ; [DPU_3_PIPE] |1475| 
 $C$DW$672	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$672, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$672, DW_AT_name("ecc_make_key_ex")
 	.dwattr $C$DW$672, DW_AT_TI_call
-        BL        ecc_make_key_ex       ; [DPU_3_PIPE] |1313| 
-        ; CALL OCCURS {ecc_make_key_ex }  ; [] |1313| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1314,column 4,is_stmt,isa 1
-        STR       V1, [V2, #4]          ; [DPU_3_PIPE] |1314| 
+        BL        ecc_make_key_ex       ; [DPU_3_PIPE] |1475| 
+        ; CALL OCCURS {ecc_make_key_ex }  ; [] |1475| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1476,column 4,is_stmt,isa 1
+        STR       V1, [V2, #4]          ; [DPU_3_PIPE] |1476| 
 $C$DW$673	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$673, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$673, DW_AT_TI_return
@@ -7802,9 +7802,9 @@ $C$DW$673	.dwtag  DW_TAG_TI_branch
 ;* --------------------------------------------------------------------------*
 ||$C$L121||:    
 ;**	-----------------------g10:
-;* 1311	-----------------------    return (-173);
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1311,column 7,is_stmt,isa 1
-        MVN       A1, #172              ; [DPU_3_PIPE] |1311| 
+;* 1473	-----------------------    return (-173);
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1473,column 7,is_stmt,isa 1
+        MVN       A1, #172              ; [DPU_3_PIPE] |1473| 
 ;* --------------------------------------------------------------------------*
 ||$C$L122||:    
 $C$DW$674	.dwtag  DW_TAG_TI_branch
@@ -7814,7 +7814,7 @@ $C$DW$674	.dwtag  DW_TAG_TI_branch
 	.dwcfi	cfa_offset, 0
         ; BRANCH OCCURS                  ; [] 
 	.dwattr $C$DW$657, DW_AT_TI_end_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$657, DW_AT_TI_end_line(0x525)
+	.dwattr $C$DW$657, DW_AT_TI_end_line(0x5c7)
 	.dwattr $C$DW$657, DW_AT_TI_end_column(0x01)
 	.dwendentry
 	.dwendtag $C$DW$657
@@ -7831,13 +7831,13 @@ $C$DW$675	.dwtag  DW_TAG_subprogram, DW_AT_name("ecc_init")
 	.dwattr $C$DW$675, DW_AT_TI_symbol_name("ecc_init")
 	.dwattr $C$DW$675, DW_AT_external
 	.dwattr $C$DW$675, DW_AT_TI_begin_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$675, DW_AT_TI_begin_line(0x589)
+	.dwattr $C$DW$675, DW_AT_TI_begin_line(0x62b)
 	.dwattr $C$DW$675, DW_AT_TI_begin_column(0x06)
 	.dwattr $C$DW$675, DW_AT_decl_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$675, DW_AT_decl_line(0x589)
+	.dwattr $C$DW$675, DW_AT_decl_line(0x62b)
 	.dwattr $C$DW$675, DW_AT_decl_column(0x06)
 	.dwattr $C$DW$675, DW_AT_TI_max_frame_size(0x00)
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1418,column 1,is_stmt,address ecc_init,isa 1
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1580,column 1,is_stmt,address ecc_init,isa 1
 
 	.dwfde $C$DW$CIE, ecc_init
 $C$DW$676	.dwtag  DW_TAG_formal_parameter, DW_AT_name("key")
@@ -7862,7 +7862,7 @@ $C$DW$677	.dwtag  DW_TAG_TI_branch
         BX        LR                    ; [DPU_3_PIPE] 
         ; BRANCH OCCURS                  ; [] 
 	.dwattr $C$DW$675, DW_AT_TI_end_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$675, DW_AT_TI_end_line(0x593)
+	.dwattr $C$DW$675, DW_AT_TI_end_line(0x635)
 	.dwattr $C$DW$675, DW_AT_TI_end_column(0x01)
 	.dwendentry
 	.dwendtag $C$DW$675
@@ -7880,13 +7880,13 @@ $C$DW$678	.dwtag  DW_TAG_subprogram, DW_AT_name("ecc_import_x963")
 	.dwattr $C$DW$678, DW_AT_external
 	.dwattr $C$DW$678, DW_AT_type(*$C$DW$T$10)
 	.dwattr $C$DW$678, DW_AT_TI_begin_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$678, DW_AT_TI_begin_line(0x7f7)
+	.dwattr $C$DW$678, DW_AT_TI_begin_line(0x899)
 	.dwattr $C$DW$678, DW_AT_TI_begin_column(0x05)
 	.dwattr $C$DW$678, DW_AT_decl_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$678, DW_AT_decl_line(0x7f7)
+	.dwattr $C$DW$678, DW_AT_decl_line(0x899)
 	.dwattr $C$DW$678, DW_AT_decl_column(0x05)
 	.dwattr $C$DW$678, DW_AT_TI_max_frame_size(0x30)
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2040,column 1,is_stmt,address ecc_import_x963,isa 1
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2202,column 1,is_stmt,address ecc_import_x963,isa 1
 
 	.dwfde $C$DW$CIE, ecc_import_x963
 $C$DW$679	.dwtag  DW_TAG_formal_parameter, DW_AT_name("in")
@@ -8006,7 +8006,7 @@ $C$DW$699	.dwtag  DW_TAG_variable, DW_AT_name("$O$K22")
 	.dwattr $C$DW$699, DW_AT_type(*$C$DW$T$539)
 	.dwattr $C$DW$699, DW_AT_location[DW_OP_reg7]
 	.dwcfi	cfa_offset, 0
-;* 2043	-----------------------    if ( in != NULL && (key != NULL && (int)inLen&1) ) goto g3;
+;* 2205	-----------------------    if ( in != NULL && (key != NULL && (int)inLen&1) ) goto g3;
         PUSH      {V1, V2, V3, V4, V5, V6, V7, V8, LR} ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 36
 	.dwcfi	save_reg_to_mem, 14, -4
@@ -8018,245 +8018,245 @@ $C$DW$699	.dwtag  DW_TAG_variable, DW_AT_name("$O$K22")
 	.dwcfi	save_reg_to_mem, 6, -28
 	.dwcfi	save_reg_to_mem, 5, -32
 	.dwcfi	save_reg_to_mem, 4, -36
-        MOV       V3, A1                ; [DPU_3_PIPE] |2040| 
-        MOV       V2, A3                ; [DPU_3_PIPE] |2040| 
-        MOV       V1, A2                ; [DPU_3_PIPE] |2040| 
+        MOV       V3, A1                ; [DPU_3_PIPE] |2202| 
+        MOV       V2, A3                ; [DPU_3_PIPE] |2202| 
+        MOV       V1, A2                ; [DPU_3_PIPE] |2202| 
         SUB       SP, SP, #12           ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 48
         CBZ       V3, ||$C$L123||       ; [] 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2043,column 4,is_stmt,isa 1
-        ; BRANCHCC OCCURS {||$C$L123||}  ; [] |2043| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2205,column 4,is_stmt,isa 1
+        ; BRANCHCC OCCURS {||$C$L123||}  ; [] |2205| 
 ;* --------------------------------------------------------------------------*
         CBZ       V2, ||$C$L123||       ; [] 
-        ; BRANCHCC OCCURS {||$C$L123||}  ; [] |2043| 
+        ; BRANCHCC OCCURS {||$C$L123||}  ; [] |2205| 
 ;* --------------------------------------------------------------------------*
-        LSRS      A1, V1, #1            ; [DPU_3_PIPE] |2043| 
-        BCS       ||$C$L124||           ; [DPU_3_PIPE] |2043| 
-        ; BRANCHCC OCCURS {||$C$L124||}  ; [] |2043| 
+        LSRS      A1, V1, #1            ; [DPU_3_PIPE] |2205| 
+        BCS       ||$C$L124||           ; [DPU_3_PIPE] |2205| 
+        ; BRANCHCC OCCURS {||$C$L124||}  ; [] |2205| 
 ;* --------------------------------------------------------------------------*
 ||$C$L123||:    
-;* 2048	-----------------------    return (-170);
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2048,column 7,is_stmt,isa 1
-        MVN       A1, #169              ; [DPU_3_PIPE] |2048| 
-        B         ||$C$L130||           ; [DPU_3_PIPE] |2048| 
-        ; BRANCH OCCURS {||$C$L130||}    ; [] |2048| 
+;* 2210	-----------------------    return (-170);
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2210,column 7,is_stmt,isa 1
+        MVN       A1, #169              ; [DPU_3_PIPE] |2210| 
+        B         ||$C$L130||           ; [DPU_3_PIPE] |2210| 
+        ; BRANCH OCCURS {||$C$L130||}    ; [] |2210| 
 ;* --------------------------------------------------------------------------*
 ||$C$L124||:    
 ;**	-----------------------g3:
-;* 2052	-----------------------    K$16 = (struct $$fake0 *)key+1668;
-;* 2052	-----------------------    K$18 = (struct $$fake0 *)key+1116;
-;* 2052	-----------------------    K$20 = (struct $$fake0 *)key+564;
-;* 2052	-----------------------    K$22 = (struct $$fake0 *)key+12;
-;* 2052	-----------------------    if ( !mp_init_multi(K$22, K$20, K$18, K$16, NULL, NULL) ) goto g5;
-;* 2054	-----------------------    return (-125);
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2052,column 4,is_stmt,isa 1
-        MOVS      A1, #0                ; [DPU_3_PIPE] |2052| 
-        ADD       V5, V2, #564          ; [DPU_3_PIPE] |2052| 
-        ADD       V6, V2, #1116         ; [DPU_3_PIPE] |2052| 
-        ADD       V7, V2, #1668         ; [DPU_3_PIPE] |2052| 
-        ADD       V4, V2, #12           ; [DPU_3_PIPE] |2052| 
-        STR       A1, [SP, #0]          ; [DPU_3_PIPE] |2052| 
-        MOV       LR, A1                ; [DPU_3_PIPE] |2052| 
-        MOV       A2, V5                ; [DPU_3_PIPE] |2052| 
-        MOV       A3, V6                ; [DPU_3_PIPE] |2052| 
-        MOV       A4, V7                ; [DPU_3_PIPE] |2052| 
-        STR       LR, [SP, #4]          ; [DPU_3_PIPE] |2052| 
-        MOV       A1, V4                ; [DPU_3_PIPE] |2052| 
+;* 2214	-----------------------    K$16 = (struct $$fake0 *)key+1668;
+;* 2214	-----------------------    K$18 = (struct $$fake0 *)key+1116;
+;* 2214	-----------------------    K$20 = (struct $$fake0 *)key+564;
+;* 2214	-----------------------    K$22 = (struct $$fake0 *)key+12;
+;* 2214	-----------------------    if ( !mp_init_multi(K$22, K$20, K$18, K$16, NULL, NULL) ) goto g5;
+;* 2216	-----------------------    return (-125);
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2214,column 4,is_stmt,isa 1
+        MOVS      A1, #0                ; [DPU_3_PIPE] |2214| 
+        ADD       V5, V2, #564          ; [DPU_3_PIPE] |2214| 
+        ADD       V6, V2, #1116         ; [DPU_3_PIPE] |2214| 
+        ADD       V7, V2, #1668         ; [DPU_3_PIPE] |2214| 
+        ADD       V4, V2, #12           ; [DPU_3_PIPE] |2214| 
+        STR       A1, [SP, #0]          ; [DPU_3_PIPE] |2214| 
+        MOV       LR, A1                ; [DPU_3_PIPE] |2214| 
+        MOV       A2, V5                ; [DPU_3_PIPE] |2214| 
+        MOV       A3, V6                ; [DPU_3_PIPE] |2214| 
+        MOV       A4, V7                ; [DPU_3_PIPE] |2214| 
+        STR       LR, [SP, #4]          ; [DPU_3_PIPE] |2214| 
+        MOV       A1, V4                ; [DPU_3_PIPE] |2214| 
 $C$DW$700	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$700, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$700, DW_AT_name("mp_init_multi")
 	.dwattr $C$DW$700, DW_AT_TI_call
-        BL        mp_init_multi         ; [DPU_3_PIPE] |2052| 
-        ; CALL OCCURS {mp_init_multi }   ; [] |2052| 
-        CMP       A1, #0                ; [DPU_3_PIPE] |2052| 
+        BL        mp_init_multi         ; [DPU_3_PIPE] |2214| 
+        ; CALL OCCURS {mp_init_multi }   ; [] |2214| 
+        CMP       A1, #0                ; [DPU_3_PIPE] |2214| 
         IT        NE                    ; [DPU_3_PIPE] 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2054,column 7,is_stmt,isa 1
-        MVNNE     A1, #124              ; [DPU_3_PIPE] |2054| 
-        BNE       ||$C$L130||           ; [DPU_3_PIPE] |2054| 
-        ; BRANCHCC OCCURS {||$C$L130||}  ; [] |2054| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2216,column 7,is_stmt,isa 1
+        MVNNE     A1, #124              ; [DPU_3_PIPE] |2216| 
+        BNE       ||$C$L130||           ; [DPU_3_PIPE] |2216| 
+        ; BRANCHCC OCCURS {||$C$L130||}  ; [] |2216| 
 ;* --------------------------------------------------------------------------*
 ;**	-----------------------g5:
-;* 2059	-----------------------    if ( (C$12 = *in) == 4 ) goto g7;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2059,column 4,is_stmt,isa 1
-        LDRB      A1, [V3, #0]          ; [DPU_3_PIPE] |2059| 
-        CMP       A1, #4                ; [DPU_3_PIPE] |2059| 
-        BEQ       ||$C$L125||           ; [DPU_3_PIPE] |2059| 
-        ; BRANCHCC OCCURS {||$C$L125||}  ; [] |2059| 
+;* 2221	-----------------------    if ( (C$12 = *in) == 4 ) goto g7;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2221,column 4,is_stmt,isa 1
+        LDRB      A1, [V3, #0]          ; [DPU_3_PIPE] |2221| 
+        CMP       A1, #4                ; [DPU_3_PIPE] |2221| 
+        BEQ       ||$C$L125||           ; [DPU_3_PIPE] |2221| 
+        ; BRANCHCC OCCURS {||$C$L125||}  ; [] |2221| 
 ;* --------------------------------------------------------------------------*
-;* 2059	-----------------------    if ( C$12 != 6 && C$12 != 7 ) goto g15;
-        CMP       A1, #6                ; [DPU_3_PIPE] |2059| 
+;* 2221	-----------------------    if ( C$12 != 6 && C$12 != 7 ) goto g15;
+        CMP       A1, #6                ; [DPU_3_PIPE] |2221| 
         IT        NE                    ; [DPU_3_PIPE] 
-        CMPNE     A1, #7                ; [DPU_3_PIPE] |2059| 
-        BNE       ||$C$L128||           ; [DPU_3_PIPE] |2059| 
-        ; BRANCHCC OCCURS {||$C$L128||}  ; [] |2059| 
+        CMPNE     A1, #7                ; [DPU_3_PIPE] |2221| 
+        BNE       ||$C$L128||           ; [DPU_3_PIPE] |2221| 
+        ; BRANCHCC OCCURS {||$C$L128||}  ; [] |2221| 
 ;* --------------------------------------------------------------------------*
 ||$C$L125||:    
 ;**	-----------------------g7:
-;* 2065	-----------------------    K$38 = inLen-1u;
-;* 2065	-----------------------    K$39 = K$38>>1;
-;* 2065	-----------------------    if ( err = mp_read_unsigned_bin(K$22, in+1, K$39) ) goto g16;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2065,column 8,is_stmt,isa 1
-        SUBS      V1, V1, #1            ; [DPU_3_PIPE] |2065| 
-        ADDS      A2, V3, #1            ; [DPU_3_PIPE] |2065| 
-        MOV       A1, V4                ; [DPU_3_PIPE] |2065| 
-        LSRS      V1, V1, #1            ; [DPU_3_PIPE] |2065| 
-        MOV       A3, V1                ; [DPU_3_PIPE] |2065| 
+;* 2227	-----------------------    K$38 = inLen-1u;
+;* 2227	-----------------------    K$39 = K$38>>1;
+;* 2227	-----------------------    if ( err = mp_read_unsigned_bin(K$22, in+1, K$39) ) goto g16;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2227,column 8,is_stmt,isa 1
+        SUBS      V1, V1, #1            ; [DPU_3_PIPE] |2227| 
+        ADDS      A2, V3, #1            ; [DPU_3_PIPE] |2227| 
+        MOV       A1, V4                ; [DPU_3_PIPE] |2227| 
+        LSRS      V1, V1, #1            ; [DPU_3_PIPE] |2227| 
+        MOV       A3, V1                ; [DPU_3_PIPE] |2227| 
 $C$DW$701	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$701, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$701, DW_AT_name("mp_read_unsigned_bin")
 	.dwattr $C$DW$701, DW_AT_TI_call
-        BL        mp_read_unsigned_bin  ; [DPU_3_PIPE] |2065| 
-        ; CALL OCCURS {mp_read_unsigned_bin }  ; [] |2065| 
-        MOV       V8, A1                ; [DPU_3_PIPE] |2065| 
-        CMP       V8, #0                ; [DPU_3_PIPE] |2065| 
-        BNE       ||$C$L129||           ; [DPU_3_PIPE] |2065| 
-        ; BRANCHCC OCCURS {||$C$L129||}  ; [] |2065| 
+        BL        mp_read_unsigned_bin  ; [DPU_3_PIPE] |2227| 
+        ; CALL OCCURS {mp_read_unsigned_bin }  ; [] |2227| 
+        MOV       V8, A1                ; [DPU_3_PIPE] |2227| 
+        CMP       V8, #0                ; [DPU_3_PIPE] |2227| 
+        BNE       ||$C$L129||           ; [DPU_3_PIPE] |2227| 
+        ; BRANCHCC OCCURS {||$C$L129||}  ; [] |2227| 
 ;* --------------------------------------------------------------------------*
-;* 2068	-----------------------    if ( err = mp_read_unsigned_bin(K$20, K$39+in+1, K$39) ) goto g16;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2068,column 8,is_stmt,isa 1
-        ADDS      A2, V3, V1            ; [DPU_3_PIPE] |2068| 
-        MOV       A1, V5                ; [DPU_3_PIPE] |2068| 
-        MOV       A3, V1                ; [DPU_3_PIPE] |2068| 
-        ADDS      A2, A2, #1            ; [DPU_3_PIPE] |2068| 
+;* 2230	-----------------------    if ( err = mp_read_unsigned_bin(K$20, K$39+in+1, K$39) ) goto g16;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2230,column 8,is_stmt,isa 1
+        ADDS      A2, V3, V1            ; [DPU_3_PIPE] |2230| 
+        MOV       A1, V5                ; [DPU_3_PIPE] |2230| 
+        MOV       A3, V1                ; [DPU_3_PIPE] |2230| 
+        ADDS      A2, A2, #1            ; [DPU_3_PIPE] |2230| 
 $C$DW$702	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$702, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$702, DW_AT_name("mp_read_unsigned_bin")
 	.dwattr $C$DW$702, DW_AT_TI_call
-        BL        mp_read_unsigned_bin  ; [DPU_3_PIPE] |2068| 
-        ; CALL OCCURS {mp_read_unsigned_bin }  ; [] |2068| 
-        MOV       V8, A1                ; [DPU_3_PIPE] |2068| 
-        CMP       V8, #0                ; [DPU_3_PIPE] |2068| 
-        BNE       ||$C$L129||           ; [DPU_3_PIPE] |2068| 
-        ; BRANCHCC OCCURS {||$C$L129||}  ; [] |2068| 
+        BL        mp_read_unsigned_bin  ; [DPU_3_PIPE] |2230| 
+        ; CALL OCCURS {mp_read_unsigned_bin }  ; [] |2230| 
+        MOV       V8, A1                ; [DPU_3_PIPE] |2230| 
+        CMP       V8, #0                ; [DPU_3_PIPE] |2230| 
+        BNE       ||$C$L129||           ; [DPU_3_PIPE] |2230| 
+        ; BRANCHCC OCCURS {||$C$L129||}  ; [] |2230| 
 ;* --------------------------------------------------------------------------*
-;* 2072	-----------------------    mp_set(K$18, 1u);
-;* 2076	-----------------------    if ( !(C$10 = (*(C$11 = &ecc_sets[0])).size) ) goto g15;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2072,column 8,is_stmt,isa 1
-        MOV       A1, V6                ; [DPU_3_PIPE] |2072| 
-        MOVS      A2, #1                ; [DPU_3_PIPE] |2072| 
+;* 2234	-----------------------    mp_set(K$18, 1u);
+;* 2238	-----------------------    if ( !(C$10 = (*(C$11 = &ecc_sets[0])).size) ) goto g15;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2234,column 8,is_stmt,isa 1
+        MOV       A1, V6                ; [DPU_3_PIPE] |2234| 
+        MOVS      A2, #1                ; [DPU_3_PIPE] |2234| 
 $C$DW$703	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$703, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$703, DW_AT_name("mp_set")
 	.dwattr $C$DW$703, DW_AT_TI_call
-        BL        mp_set                ; [DPU_3_PIPE] |2072| 
-        ; CALL OCCURS {mp_set }          ; [] |2072| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2076,column 19,is_stmt,isa 1
-        MOVW      A2, ecc_sets+0        ; [DPU_3_PIPE] |2076| 
-        MOVT      A2, ecc_sets+0        ; [DPU_3_PIPE] |2076| 
-        LDR       A1, [A2, #0]          ; [DPU_3_PIPE] |2076| 
+        BL        mp_set                ; [DPU_3_PIPE] |2234| 
+        ; CALL OCCURS {mp_set }          ; [] |2234| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2238,column 19,is_stmt,isa 1
+        MOVW      A2, ecc_sets+0        ; [DPU_3_PIPE] |2238| 
+        MOVT      A2, ecc_sets+0        ; [DPU_3_PIPE] |2238| 
+        LDR       A1, [A2, #0]          ; [DPU_3_PIPE] |2238| 
         CBZ       A1, ||$C$L128||       ; [] 
-        ; BRANCHCC OCCURS {||$C$L128||}  ; [] |2076| 
+        ; BRANCHCC OCCURS {||$C$L128||}  ; [] |2238| 
 ;* --------------------------------------------------------------------------*
 ;**  	-----------------------    K$45 = C$11;
 ;**  	-----------------------    U$53 = K$45;
 ;**  	-----------------------    U$55 = C$10;
 ;**  	-----------------------    K$57 = K$39;
-;* 2076	-----------------------    x = 0;
+;* 2238	-----------------------    x = 0;
 ;**  	-----------------------    #pragma LOOP_FLAGS(4352u)
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2052,column 4,is_stmt,isa 1
-        MOVS      A3, #0                ; [DPU_3_PIPE] |2052| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2214,column 4,is_stmt,isa 1
+        MOVS      A3, #0                ; [DPU_3_PIPE] |2214| 
 ;* --------------------------------------------------------------------------*
 ;*   BEGIN LOOP ||$C$L126||
 ;*
-;*   Loop source line                : 2076
-;*   Loop closing brace source line  : 2080
+;*   Loop source line                : 2238
+;*   Loop closing brace source line  : 2242
 ;*   Known Minimum Trip Count        : 1
 ;*   Known Maximum Trip Count        : 4294967295
 ;*   Known Max Trip Count Factor     : 1
 ;* --------------------------------------------------------------------------*
 ||$C$L126||:    
 ;**	-----------------------g11:
-;* 2078	-----------------------    if ( (unsigned)U$55 >= K$57 ) goto g13;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2078,column 13,is_stmt,isa 1
-        CMP       V1, A1                ; [DPU_3_PIPE] |2078| 
-        BLS       ||$C$L127||           ; [DPU_3_PIPE] |2078| 
-        ; BRANCHCC OCCURS {||$C$L127||}  ; [] |2078| 
+;* 2240	-----------------------    if ( (unsigned)U$55 >= K$57 ) goto g13;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2240,column 13,is_stmt,isa 1
+        CMP       V1, A1                ; [DPU_3_PIPE] |2240| 
+        BLS       ||$C$L127||           ; [DPU_3_PIPE] |2240| 
+        ; BRANCHCC OCCURS {||$C$L127||}  ; [] |2240| 
 ;* --------------------------------------------------------------------------*
-;* 2076	-----------------------    ++x;
-;* 2076	-----------------------    if ( U$55 = (*(U$53 += 28)).size ) goto g11;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2076,column 19,is_stmt,isa 1
-        LDR       A1, [A2, #28]!        ; [DPU_3_PIPE] |2076| 
-        ADDS      A3, A3, #1            ; [DPU_3_PIPE] |2076| 
-        CMP       A1, #0                ; [DPU_3_PIPE] |2076| 
-        BNE       ||$C$L126||           ; [DPU_3_PIPE] |2076| 
-        ; BRANCHCC OCCURS {||$C$L126||}  ; [] |2076| 
+;* 2238	-----------------------    ++x;
+;* 2238	-----------------------    if ( U$55 = (*(U$53 += 28)).size ) goto g11;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2238,column 19,is_stmt,isa 1
+        LDR       A1, [A2, #28]!        ; [DPU_3_PIPE] |2238| 
+        ADDS      A3, A3, #1            ; [DPU_3_PIPE] |2238| 
+        CMP       A1, #0                ; [DPU_3_PIPE] |2238| 
+        BNE       ||$C$L126||           ; [DPU_3_PIPE] |2238| 
+        ; BRANCHCC OCCURS {||$C$L126||}  ; [] |2238| 
 ;* --------------------------------------------------------------------------*
-;* 2076	-----------------------    goto g15;
-        B         ||$C$L128||           ; [DPU_3_PIPE] |2076| 
-        ; BRANCH OCCURS {||$C$L128||}    ; [] |2076| 
+;* 2238	-----------------------    goto g15;
+        B         ||$C$L128||           ; [DPU_3_PIPE] |2238| 
+        ; BRANCH OCCURS {||$C$L128||}    ; [] |2238| 
 ;* --------------------------------------------------------------------------*
 ||$C$L127||:    
 ;**	-----------------------g13:
-;* 2081	-----------------------    if ( !U$55 ) goto g15;
+;* 2243	-----------------------    if ( !U$55 ) goto g15;
         CBZ       A1, ||$C$L128||       ; [] 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2081,column 7,is_stmt,isa 1
-        ; BRANCHCC OCCURS {||$C$L128||}  ; [] |2081| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2243,column 7,is_stmt,isa 1
+        ; BRANCHCC OCCURS {||$C$L128||}  ; [] |2243| 
 ;* --------------------------------------------------------------------------*
-;* 2085	-----------------------    (*key).idx = x;
-;* 2086	-----------------------    (*key).dp = U$53;
-;* 2087	-----------------------    (*key).type = 1;
-;* 2098	-----------------------    return err;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2085,column 11,is_stmt,isa 1
-        STR       A3, [V2, #4]          ; [DPU_3_PIPE] |2085| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2087,column 11,is_stmt,isa 1
-        MOVS      A3, #1                ; [DPU_3_PIPE] |2087| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2086,column 11,is_stmt,isa 1
-        STR       A2, [V2, #8]          ; [DPU_3_PIPE] |2086| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2098,column 4,is_stmt,isa 1
-        MOV       A1, V8                ; [DPU_3_PIPE] |2098| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2087,column 11,is_stmt,isa 1
-        STR       A3, [V2, #0]          ; [DPU_3_PIPE] |2087| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2098,column 4,is_stmt,isa 1
-        B         ||$C$L130||           ; [DPU_3_PIPE] |2098| 
-        ; BRANCH OCCURS {||$C$L130||}    ; [] |2098| 
+;* 2247	-----------------------    (*key).idx = x;
+;* 2248	-----------------------    (*key).dp = U$53;
+;* 2249	-----------------------    (*key).type = 1;
+;* 2260	-----------------------    return err;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2247,column 11,is_stmt,isa 1
+        STR       A3, [V2, #4]          ; [DPU_3_PIPE] |2247| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2249,column 11,is_stmt,isa 1
+        MOVS      A3, #1                ; [DPU_3_PIPE] |2249| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2248,column 11,is_stmt,isa 1
+        STR       A2, [V2, #8]          ; [DPU_3_PIPE] |2248| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2260,column 4,is_stmt,isa 1
+        MOV       A1, V8                ; [DPU_3_PIPE] |2260| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2249,column 11,is_stmt,isa 1
+        STR       A3, [V2, #0]          ; [DPU_3_PIPE] |2249| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2260,column 4,is_stmt,isa 1
+        B         ||$C$L130||           ; [DPU_3_PIPE] |2260| 
+        ; BRANCH OCCURS {||$C$L130||}    ; [] |2260| 
 ;* --------------------------------------------------------------------------*
 ||$C$L128||:    
 ;**	-----------------------g15:
-;* 2060	-----------------------    err = (-140);
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2060,column 7,is_stmt,isa 1
-        MVN       V8, #139              ; [DPU_3_PIPE] |2060| 
+;* 2222	-----------------------    err = (-140);
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2222,column 7,is_stmt,isa 1
+        MVN       V8, #139              ; [DPU_3_PIPE] |2222| 
 ;* --------------------------------------------------------------------------*
 ||$C$L129||:    
 ;**	-----------------------g16:
-;* 2092	-----------------------    mp_clear(K$22);
-;* 2093	-----------------------    mp_clear(K$20);
-;* 2094	-----------------------    mp_clear(K$18);
-;* 2095	-----------------------    mp_clear(K$16);
-;* 2098	-----------------------    return err;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2092,column 8,is_stmt,isa 1
-        MOV       A1, V4                ; [DPU_3_PIPE] |2092| 
+;* 2254	-----------------------    mp_clear(K$22);
+;* 2255	-----------------------    mp_clear(K$20);
+;* 2256	-----------------------    mp_clear(K$18);
+;* 2257	-----------------------    mp_clear(K$16);
+;* 2260	-----------------------    return err;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2254,column 8,is_stmt,isa 1
+        MOV       A1, V4                ; [DPU_3_PIPE] |2254| 
 $C$DW$704	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$704, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$704, DW_AT_name("mp_clear")
 	.dwattr $C$DW$704, DW_AT_TI_call
-        BL        mp_clear              ; [DPU_3_PIPE] |2092| 
-        ; CALL OCCURS {mp_clear }        ; [] |2092| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2093,column 8,is_stmt,isa 1
-        MOV       A1, V5                ; [DPU_3_PIPE] |2093| 
+        BL        mp_clear              ; [DPU_3_PIPE] |2254| 
+        ; CALL OCCURS {mp_clear }        ; [] |2254| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2255,column 8,is_stmt,isa 1
+        MOV       A1, V5                ; [DPU_3_PIPE] |2255| 
 $C$DW$705	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$705, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$705, DW_AT_name("mp_clear")
 	.dwattr $C$DW$705, DW_AT_TI_call
-        BL        mp_clear              ; [DPU_3_PIPE] |2093| 
-        ; CALL OCCURS {mp_clear }        ; [] |2093| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2094,column 8,is_stmt,isa 1
-        MOV       A1, V6                ; [DPU_3_PIPE] |2094| 
+        BL        mp_clear              ; [DPU_3_PIPE] |2255| 
+        ; CALL OCCURS {mp_clear }        ; [] |2255| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2256,column 8,is_stmt,isa 1
+        MOV       A1, V6                ; [DPU_3_PIPE] |2256| 
 $C$DW$706	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$706, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$706, DW_AT_name("mp_clear")
 	.dwattr $C$DW$706, DW_AT_TI_call
-        BL        mp_clear              ; [DPU_3_PIPE] |2094| 
-        ; CALL OCCURS {mp_clear }        ; [] |2094| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2095,column 8,is_stmt,isa 1
-        MOV       A1, V7                ; [DPU_3_PIPE] |2095| 
+        BL        mp_clear              ; [DPU_3_PIPE] |2256| 
+        ; CALL OCCURS {mp_clear }        ; [] |2256| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2257,column 8,is_stmt,isa 1
+        MOV       A1, V7                ; [DPU_3_PIPE] |2257| 
 $C$DW$707	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$707, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$707, DW_AT_name("mp_clear")
 	.dwattr $C$DW$707, DW_AT_TI_call
-        BL        mp_clear              ; [DPU_3_PIPE] |2095| 
-        ; CALL OCCURS {mp_clear }        ; [] |2095| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2098,column 4,is_stmt,isa 1
-        MOV       A1, V8                ; [DPU_3_PIPE] |2098| 
+        BL        mp_clear              ; [DPU_3_PIPE] |2257| 
+        ; CALL OCCURS {mp_clear }        ; [] |2257| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2260,column 4,is_stmt,isa 1
+        MOV       A1, V8                ; [DPU_3_PIPE] |2260| 
 ;* --------------------------------------------------------------------------*
 ||$C$L130||:    
         ADD       SP, SP, #12           ; [DPU_3_PIPE] 
@@ -8268,7 +8268,7 @@ $C$DW$708	.dwtag  DW_TAG_TI_branch
 	.dwcfi	cfa_offset, 0
         ; BRANCH OCCURS                  ; [] 
 	.dwattr $C$DW$678, DW_AT_TI_end_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$678, DW_AT_TI_end_line(0x833)
+	.dwattr $C$DW$678, DW_AT_TI_end_line(0x8d5)
 	.dwattr $C$DW$678, DW_AT_TI_end_column(0x01)
 	.dwendentry
 	.dwendtag $C$DW$678
@@ -8286,13 +8286,13 @@ $C$DW$709	.dwtag  DW_TAG_subprogram, DW_AT_name("ecc_import_private_key")
 	.dwattr $C$DW$709, DW_AT_external
 	.dwattr $C$DW$709, DW_AT_type(*$C$DW$T$10)
 	.dwattr $C$DW$709, DW_AT_TI_begin_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$709, DW_AT_TI_begin_line(0x850)
+	.dwattr $C$DW$709, DW_AT_TI_begin_line(0x8f2)
 	.dwattr $C$DW$709, DW_AT_TI_begin_column(0x05)
 	.dwattr $C$DW$709, DW_AT_decl_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$709, DW_AT_decl_line(0x850)
+	.dwattr $C$DW$709, DW_AT_decl_line(0x8f2)
 	.dwattr $C$DW$709, DW_AT_decl_column(0x05)
 	.dwattr $C$DW$709, DW_AT_TI_max_frame_size(0x10)
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2130,column 1,is_stmt,address ecc_import_private_key,isa 1
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2292,column 1,is_stmt,address ecc_import_private_key,isa 1
 
 	.dwfde $C$DW$CIE, ecc_import_private_key
 $C$DW$710	.dwtag  DW_TAG_formal_parameter, DW_AT_name("priv")
@@ -8360,51 +8360,51 @@ $C$DW$720	.dwtag  DW_TAG_variable, DW_AT_name("priv")
 	.dwattr $C$DW$720, DW_AT_type(*$C$DW$T$906)
 	.dwattr $C$DW$720, DW_AT_location[DW_OP_reg1]
 	.dwcfi	cfa_offset, 0
-;* 2131	-----------------------    if ( !(ret = ecc_import_x963(pub, pubSz, key)) ) goto g3;
+;* 2293	-----------------------    if ( !(ret = ecc_import_x963(pub, pubSz, key)) ) goto g3;
         PUSH      {V1, V2, V3, LR}      ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 16
 	.dwcfi	save_reg_to_mem, 14, -4
 	.dwcfi	save_reg_to_mem, 6, -8
 	.dwcfi	save_reg_to_mem, 5, -12
 	.dwcfi	save_reg_to_mem, 4, -16
-        LDR       V1, [SP, #16]         ; [DPU_3_PIPE] |2130| 
-        MOV       V2, A1                ; [DPU_3_PIPE] |2130| 
-        MOV       V3, A2                ; [DPU_3_PIPE] |2130| 
-        MOV       A1, A3                ; [DPU_3_PIPE] |2130| 
-        MOV       A2, A4                ; [DPU_3_PIPE] |2130| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2131,column 13,is_stmt,isa 1
-        MOV       A3, V1                ; [DPU_3_PIPE] |2131| 
+        LDR       V1, [SP, #16]         ; [DPU_3_PIPE] |2292| 
+        MOV       V2, A1                ; [DPU_3_PIPE] |2292| 
+        MOV       V3, A2                ; [DPU_3_PIPE] |2292| 
+        MOV       A1, A3                ; [DPU_3_PIPE] |2292| 
+        MOV       A2, A4                ; [DPU_3_PIPE] |2292| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2293,column 13,is_stmt,isa 1
+        MOV       A3, V1                ; [DPU_3_PIPE] |2293| 
 $C$DW$721	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$721, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$721, DW_AT_name("ecc_import_x963")
 	.dwattr $C$DW$721, DW_AT_TI_call
-        BL        ecc_import_x963       ; [DPU_3_PIPE] |2131| 
-        ; CALL OCCURS {ecc_import_x963 }  ; [] |2131| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2130,column 1,is_stmt,isa 1
-        MOV       A3, V3                ; [DPU_3_PIPE] |2130| 
-        MOV       A2, V2                ; [DPU_3_PIPE] |2130| 
+        BL        ecc_import_x963       ; [DPU_3_PIPE] |2293| 
+        ; CALL OCCURS {ecc_import_x963 }  ; [] |2293| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2292,column 1,is_stmt,isa 1
+        MOV       A3, V3                ; [DPU_3_PIPE] |2292| 
+        MOV       A2, V2                ; [DPU_3_PIPE] |2292| 
         CBNZ      A1, ||$C$L131||       ; [] 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2131,column 13,is_stmt,isa 1
-        ; BRANCHCC OCCURS {||$C$L131||}  ; [] |2131| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2293,column 13,is_stmt,isa 1
+        ; BRANCHCC OCCURS {||$C$L131||}  ; [] |2293| 
 ;* --------------------------------------------------------------------------*
-;* 2133	-----------------------    return ret;
+;* 2295	-----------------------    return ret;
 ;* --------------------------------------------------------------------------*
 ;**	-----------------------g3:
-;* 2135	-----------------------    (*key).type = 2;
-;* 2137	-----------------------    return mp_read_unsigned_bin((struct $$fake0 *)key+1668, priv, (int)privSz);
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2135,column 5,is_stmt,isa 1
-        MOVS      A4, #2                ; [DPU_3_PIPE] |2135| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2137,column 5,is_stmt,isa 1
-        ADD       A1, V1, #1668         ; [DPU_3_PIPE] |2137| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2135,column 5,is_stmt,isa 1
-        STR       A4, [V1, #0]          ; [DPU_3_PIPE] |2135| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2137,column 5,is_stmt,isa 1
+;* 2297	-----------------------    (*key).type = 2;
+;* 2299	-----------------------    return mp_read_unsigned_bin((struct $$fake0 *)key+1668, priv, (int)privSz);
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2297,column 5,is_stmt,isa 1
+        MOVS      A4, #2                ; [DPU_3_PIPE] |2297| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2299,column 5,is_stmt,isa 1
+        ADD       A1, V1, #1668         ; [DPU_3_PIPE] |2299| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2297,column 5,is_stmt,isa 1
+        STR       A4, [V1, #0]          ; [DPU_3_PIPE] |2297| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2299,column 5,is_stmt,isa 1
 $C$DW$722	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$722, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$722, DW_AT_name("mp_read_unsigned_bin")
 	.dwattr $C$DW$722, DW_AT_TI_call
-        BL        mp_read_unsigned_bin  ; [DPU_3_PIPE] |2137| 
-        ; CALL OCCURS {mp_read_unsigned_bin }  ; [] |2137| 
+        BL        mp_read_unsigned_bin  ; [DPU_3_PIPE] |2299| 
+        ; CALL OCCURS {mp_read_unsigned_bin }  ; [] |2299| 
 ;* --------------------------------------------------------------------------*
 ||$C$L131||:    
 $C$DW$723	.dwtag  DW_TAG_TI_branch
@@ -8414,7 +8414,7 @@ $C$DW$723	.dwtag  DW_TAG_TI_branch
 	.dwcfi	cfa_offset, 0
         ; BRANCH OCCURS                  ; [] 
 	.dwattr $C$DW$709, DW_AT_TI_end_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$709, DW_AT_TI_end_line(0x85a)
+	.dwattr $C$DW$709, DW_AT_TI_end_line(0x8fc)
 	.dwattr $C$DW$709, DW_AT_TI_end_column(0x01)
 	.dwendentry
 	.dwendtag $C$DW$709
@@ -8432,13 +8432,13 @@ $C$DW$724	.dwtag  DW_TAG_subprogram, DW_AT_name("ecc_export_x963")
 	.dwattr $C$DW$724, DW_AT_external
 	.dwattr $C$DW$724, DW_AT_type(*$C$DW$T$10)
 	.dwattr $C$DW$724, DW_AT_TI_begin_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$724, DW_AT_TI_begin_line(0x7ba)
+	.dwattr $C$DW$724, DW_AT_TI_begin_line(0x85c)
 	.dwattr $C$DW$724, DW_AT_TI_begin_column(0x05)
 	.dwattr $C$DW$724, DW_AT_decl_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$724, DW_AT_decl_line(0x7ba)
+	.dwattr $C$DW$724, DW_AT_decl_line(0x85c)
 	.dwattr $C$DW$724, DW_AT_decl_column(0x05)
 	.dwattr $C$DW$724, DW_AT_TI_max_frame_size(0x118)
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1979,column 1,is_stmt,address ecc_export_x963,isa 1
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2141,column 1,is_stmt,address ecc_export_x963,isa 1
 
 	.dwfde $C$DW$CIE, ecc_export_x963
 $C$DW$725	.dwtag  DW_TAG_formal_parameter, DW_AT_name("key")
@@ -8512,7 +8512,7 @@ $C$DW$736	.dwtag  DW_TAG_variable, DW_AT_name("buf")
 	.dwattr $C$DW$736, DW_AT_type(*$C$DW$T$153)
 	.dwattr $C$DW$736, DW_AT_location[DW_OP_breg13 0]
 	.dwcfi	cfa_offset, 0
-;* 1988	-----------------------    if ( key == NULL || out == NULL || outLen == NULL ) goto g3;
+;* 2150	-----------------------    if ( key == NULL || out == NULL || outLen == NULL ) goto g3;
         PUSH      {V1, V2, V3, V4, V5, LR} ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 24
 	.dwcfi	save_reg_to_mem, 14, -4
@@ -8521,177 +8521,177 @@ $C$DW$736	.dwtag  DW_TAG_variable, DW_AT_name("buf")
 	.dwcfi	save_reg_to_mem, 6, -16
 	.dwcfi	save_reg_to_mem, 5, -20
 	.dwcfi	save_reg_to_mem, 4, -24
-        MOV       V1, A1                ; [DPU_3_PIPE] |1979| 
-        MOV       V2, A3                ; [DPU_3_PIPE] |1979| 
-        MOV       V4, A2                ; [DPU_3_PIPE] |1979| 
+        MOV       V1, A1                ; [DPU_3_PIPE] |2141| 
+        MOV       V2, A3                ; [DPU_3_PIPE] |2141| 
+        MOV       V4, A2                ; [DPU_3_PIPE] |2141| 
         SUB       SP, SP, #256          ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 280
         CBZ       V1, ||$C$L132||       ; [] 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1988,column 4,is_stmt,isa 1
-        ; BRANCHCC OCCURS {||$C$L132||}  ; [] |1988| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2150,column 4,is_stmt,isa 1
+        ; BRANCHCC OCCURS {||$C$L132||}  ; [] |2150| 
 ;* --------------------------------------------------------------------------*
         CBZ       V4, ||$C$L132||       ; [] 
-        ; BRANCHCC OCCURS {||$C$L132||}  ; [] |1988| 
+        ; BRANCHCC OCCURS {||$C$L132||}  ; [] |2150| 
 ;* --------------------------------------------------------------------------*
         CBZ       V2, ||$C$L132||       ; [] 
-        ; BRANCHCC OCCURS {||$C$L132||}  ; [] |1988| 
+        ; BRANCHCC OCCURS {||$C$L132||}  ; [] |2150| 
 ;* --------------------------------------------------------------------------*
-;* 1991	-----------------------    if ( ecc_is_valid_idx((*key).idx) ) goto g4;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1991,column 4,is_stmt,isa 1
-        LDR       A1, [V1, #4]          ; [DPU_3_PIPE] |1991| 
+;* 2153	-----------------------    if ( ecc_is_valid_idx((*key).idx) ) goto g4;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2153,column 4,is_stmt,isa 1
+        LDR       A1, [V1, #4]          ; [DPU_3_PIPE] |2153| 
 $C$DW$737	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$737, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$737, DW_AT_name("ecc_is_valid_idx")
 	.dwattr $C$DW$737, DW_AT_TI_call
-        BL        ecc_is_valid_idx      ; [DPU_3_PIPE] |1991| 
-        ; CALL OCCURS {ecc_is_valid_idx }  ; [] |1991| 
+        BL        ecc_is_valid_idx      ; [DPU_3_PIPE] |2153| 
+        ; CALL OCCURS {ecc_is_valid_idx }  ; [] |2153| 
         CBNZ      A1, ||$C$L133||       ; [] 
-        ; BRANCHCC OCCURS {||$C$L133||}  ; [] |1991| 
+        ; BRANCHCC OCCURS {||$C$L133||}  ; [] |2153| 
 ;* --------------------------------------------------------------------------*
 ||$C$L132||:    
 ;**	-----------------------g3:
-;* 1992	-----------------------    return (-170);
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1992,column 7,is_stmt,isa 1
-        MVN       A1, #169              ; [DPU_3_PIPE] |1992| 
-        B         ||$C$L135||           ; [DPU_3_PIPE] |1992| 
-        ; BRANCH OCCURS {||$C$L135||}    ; [] |1992| 
+;* 2154	-----------------------    return (-170);
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2154,column 7,is_stmt,isa 1
+        MVN       A1, #169              ; [DPU_3_PIPE] |2154| 
+        B         ||$C$L135||           ; [DPU_3_PIPE] |2154| 
+        ; BRANCH OCCURS {||$C$L135||}    ; [] |2154| 
 ;* --------------------------------------------------------------------------*
 ||$C$L133||:    
 ;**	-----------------------g4:
-;* 1994	-----------------------    numlen = (*(*key).dp).size;
-;* 1996	-----------------------    C$3 = numlen*2u+1u;
-;* 1996	-----------------------    if ( *outLen >= C$3 ) goto g6;
-;* 1997	-----------------------    *outLen = C$3;
-;* 1998	-----------------------    return (-132);
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1994,column 4,is_stmt,isa 1
-        LDR       A1, [V1, #8]          ; [DPU_3_PIPE] |1994| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1996,column 4,is_stmt,isa 1
-        LDR       A2, [V2, #0]          ; [DPU_3_PIPE] |1996| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1994,column 4,is_stmt,isa 1
-        LDR       V3, [A1, #0]          ; [DPU_3_PIPE] |1994| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1996,column 4,is_stmt,isa 1
-        LSLS      A1, V3, #1            ; [DPU_3_PIPE] |1996| 
-        ADDS      A1, A1, #1            ; [DPU_3_PIPE] |1996| 
-        CMP       A1, A2                ; [DPU_3_PIPE] |1996| 
+;* 2156	-----------------------    numlen = (*(*key).dp).size;
+;* 2158	-----------------------    C$3 = numlen*2u+1u;
+;* 2158	-----------------------    if ( *outLen >= C$3 ) goto g6;
+;* 2159	-----------------------    *outLen = C$3;
+;* 2160	-----------------------    return (-132);
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2156,column 4,is_stmt,isa 1
+        LDR       A1, [V1, #8]          ; [DPU_3_PIPE] |2156| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2158,column 4,is_stmt,isa 1
+        LDR       A2, [V2, #0]          ; [DPU_3_PIPE] |2158| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2156,column 4,is_stmt,isa 1
+        LDR       V3, [A1, #0]          ; [DPU_3_PIPE] |2156| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2158,column 4,is_stmt,isa 1
+        LSLS      A1, V3, #1            ; [DPU_3_PIPE] |2158| 
+        ADDS      A1, A1, #1            ; [DPU_3_PIPE] |2158| 
+        CMP       A1, A2                ; [DPU_3_PIPE] |2158| 
         ITT       HI                    ; [DPU_3_PIPE] 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1997,column 7,is_stmt,isa 1
-        STRHI     A1, [V2, #0]          ; [DPU_3_PIPE] |1997| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 1998,column 7,is_stmt,isa 1
-        MVNHI     A1, #131              ; [DPU_3_PIPE] |1998| 
-        BHI       ||$C$L135||           ; [DPU_3_PIPE] |1998| 
-        ; BRANCHCC OCCURS {||$C$L135||}  ; [] |1998| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2159,column 7,is_stmt,isa 1
+        STRHI     A1, [V2, #0]          ; [DPU_3_PIPE] |2159| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2160,column 7,is_stmt,isa 1
+        MVNHI     A1, #131              ; [DPU_3_PIPE] |2160| 
+        BHI       ||$C$L135||           ; [DPU_3_PIPE] |2160| 
+        ; BRANCHCC OCCURS {||$C$L135||}  ; [] |2160| 
 ;* --------------------------------------------------------------------------*
 ;**	-----------------------g6:
-;* 2002	-----------------------    *out = 4;
-;* 2012	-----------------------    memset(&buf, 0, 256u);
-;* 2013	-----------------------    C$2 = (struct $$fake0 *)key+12;
-;* 2013	-----------------------    if ( ret = mp_to_unsigned_bin(C$2, numlen-(unsigned)mp_unsigned_bin_size(C$2)+&buf) ) goto g9;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2002,column 4,is_stmt,isa 1
-        MOVS      A1, #4                ; [DPU_3_PIPE] |2002| 
-        STRB      A1, [V4, #0]          ; [DPU_3_PIPE] |2002| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2012,column 7,is_stmt,isa 1
-        MOVS      A2, #0                ; [DPU_3_PIPE] |2012| 
-        MOV       A3, #256              ; [DPU_3_PIPE] |2012| 
-        MOV       A1, SP                ; [DPU_3_PIPE] |2012| 
+;* 2164	-----------------------    *out = 4;
+;* 2174	-----------------------    memset(&buf, 0, 256u);
+;* 2175	-----------------------    C$2 = (struct $$fake0 *)key+12;
+;* 2175	-----------------------    if ( ret = mp_to_unsigned_bin(C$2, numlen-(unsigned)mp_unsigned_bin_size(C$2)+&buf) ) goto g9;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2164,column 4,is_stmt,isa 1
+        MOVS      A1, #4                ; [DPU_3_PIPE] |2164| 
+        STRB      A1, [V4, #0]          ; [DPU_3_PIPE] |2164| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2174,column 7,is_stmt,isa 1
+        MOVS      A2, #0                ; [DPU_3_PIPE] |2174| 
+        MOV       A3, #256              ; [DPU_3_PIPE] |2174| 
+        MOV       A1, SP                ; [DPU_3_PIPE] |2174| 
 $C$DW$738	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$738, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$738, DW_AT_name("memset")
 	.dwattr $C$DW$738, DW_AT_TI_call
-        BL        memset                ; [DPU_3_PIPE] |2012| 
-        ; CALL OCCURS {memset }          ; [] |2012| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2013,column 7,is_stmt,isa 1
-        ADD       V5, V1, #12           ; [DPU_3_PIPE] |2013| 
-        MOV       A1, V5                ; [DPU_3_PIPE] |2013| 
+        BL        memset                ; [DPU_3_PIPE] |2174| 
+        ; CALL OCCURS {memset }          ; [] |2174| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2175,column 7,is_stmt,isa 1
+        ADD       V5, V1, #12           ; [DPU_3_PIPE] |2175| 
+        MOV       A1, V5                ; [DPU_3_PIPE] |2175| 
 $C$DW$739	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$739, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$739, DW_AT_name("mp_unsigned_bin_size")
 	.dwattr $C$DW$739, DW_AT_TI_call
-        BL        mp_unsigned_bin_size  ; [DPU_3_PIPE] |2013| 
-        ; CALL OCCURS {mp_unsigned_bin_size }  ; [] |2013| 
-        SUBS      A1, V3, A1            ; [DPU_3_PIPE] |2013| 
-        ADD       A2, SP, A1            ; [DPU_3_PIPE] |2013| 
-        MOV       A1, V5                ; [DPU_3_PIPE] |2013| 
+        BL        mp_unsigned_bin_size  ; [DPU_3_PIPE] |2175| 
+        ; CALL OCCURS {mp_unsigned_bin_size }  ; [] |2175| 
+        SUBS      A1, V3, A1            ; [DPU_3_PIPE] |2175| 
+        ADD       A2, SP, A1            ; [DPU_3_PIPE] |2175| 
+        MOV       A1, V5                ; [DPU_3_PIPE] |2175| 
 $C$DW$740	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$740, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$740, DW_AT_name("mp_to_unsigned_bin")
 	.dwattr $C$DW$740, DW_AT_TI_call
-        BL        mp_to_unsigned_bin    ; [DPU_3_PIPE] |2013| 
-        ; CALL OCCURS {mp_to_unsigned_bin }  ; [] |2013| 
-        MOV       V5, A1                ; [DPU_3_PIPE] |2013| 
-        CMP       V5, #0                ; [DPU_3_PIPE] |2013| 
-        BNE       ||$C$L134||           ; [DPU_3_PIPE] |2013| 
-        ; BRANCHCC OCCURS {||$C$L134||}  ; [] |2013| 
+        BL        mp_to_unsigned_bin    ; [DPU_3_PIPE] |2175| 
+        ; CALL OCCURS {mp_to_unsigned_bin }  ; [] |2175| 
+        MOV       V5, A1                ; [DPU_3_PIPE] |2175| 
+        CMP       V5, #0                ; [DPU_3_PIPE] |2175| 
+        BNE       ||$C$L134||           ; [DPU_3_PIPE] |2175| 
+        ; BRANCHCC OCCURS {||$C$L134||}  ; [] |2175| 
 ;* --------------------------------------------------------------------------*
-;* 2017	-----------------------    memcpy(out+1, &buf, numlen);
-;* 2020	-----------------------    memset(&buf, 0, 256u);
-;* 2021	-----------------------    C$1 = (struct $$fake0 *)key+564;
-;* 2021	-----------------------    if ( ret = mp_to_unsigned_bin(C$1, numlen-(unsigned)mp_unsigned_bin_size(C$1)+&buf) ) goto g9;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2017,column 7,is_stmt,isa 1
-        ADDS      A1, V4, #1            ; [DPU_3_PIPE] |2017| 
-        MOV       A3, V3                ; [DPU_3_PIPE] |2017| 
-        MOV       A2, SP                ; [DPU_3_PIPE] |2017| 
+;* 2179	-----------------------    memcpy(out+1, &buf, numlen);
+;* 2182	-----------------------    memset(&buf, 0, 256u);
+;* 2183	-----------------------    C$1 = (struct $$fake0 *)key+564;
+;* 2183	-----------------------    if ( ret = mp_to_unsigned_bin(C$1, numlen-(unsigned)mp_unsigned_bin_size(C$1)+&buf) ) goto g9;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2179,column 7,is_stmt,isa 1
+        ADDS      A1, V4, #1            ; [DPU_3_PIPE] |2179| 
+        MOV       A3, V3                ; [DPU_3_PIPE] |2179| 
+        MOV       A2, SP                ; [DPU_3_PIPE] |2179| 
 $C$DW$741	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$741, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$741, DW_AT_name("memcpy")
 	.dwattr $C$DW$741, DW_AT_TI_call
-        BL        memcpy                ; [DPU_3_PIPE] |2017| 
-        ; CALL OCCURS {memcpy }          ; [] |2017| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2020,column 7,is_stmt,isa 1
-        MOVS      A2, #0                ; [DPU_3_PIPE] |2020| 
-        MOV       A3, #256              ; [DPU_3_PIPE] |2020| 
+        BL        memcpy                ; [DPU_3_PIPE] |2179| 
+        ; CALL OCCURS {memcpy }          ; [] |2179| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2182,column 7,is_stmt,isa 1
+        MOVS      A2, #0                ; [DPU_3_PIPE] |2182| 
+        MOV       A3, #256              ; [DPU_3_PIPE] |2182| 
         MOV       A1, SP                ; [DPU_3_PIPE] 
 $C$DW$742	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$742, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$742, DW_AT_name("memset")
 	.dwattr $C$DW$742, DW_AT_TI_call
-        BL        memset                ; [DPU_3_PIPE] |2020| 
-        ; CALL OCCURS {memset }          ; [] |2020| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2021,column 7,is_stmt,isa 1
-        ADD       V1, V1, #564          ; [DPU_3_PIPE] |2021| 
-        MOV       A1, V1                ; [DPU_3_PIPE] |2021| 
+        BL        memset                ; [DPU_3_PIPE] |2182| 
+        ; CALL OCCURS {memset }          ; [] |2182| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2183,column 7,is_stmt,isa 1
+        ADD       V1, V1, #564          ; [DPU_3_PIPE] |2183| 
+        MOV       A1, V1                ; [DPU_3_PIPE] |2183| 
 $C$DW$743	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$743, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$743, DW_AT_name("mp_unsigned_bin_size")
 	.dwattr $C$DW$743, DW_AT_TI_call
-        BL        mp_unsigned_bin_size  ; [DPU_3_PIPE] |2021| 
-        ; CALL OCCURS {mp_unsigned_bin_size }  ; [] |2021| 
-        SUBS      A1, V3, A1            ; [DPU_3_PIPE] |2021| 
-        ADD       A2, SP, A1            ; [DPU_3_PIPE] |2021| 
-        MOV       A1, V1                ; [DPU_3_PIPE] |2021| 
+        BL        mp_unsigned_bin_size  ; [DPU_3_PIPE] |2183| 
+        ; CALL OCCURS {mp_unsigned_bin_size }  ; [] |2183| 
+        SUBS      A1, V3, A1            ; [DPU_3_PIPE] |2183| 
+        ADD       A2, SP, A1            ; [DPU_3_PIPE] |2183| 
+        MOV       A1, V1                ; [DPU_3_PIPE] |2183| 
 $C$DW$744	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$744, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$744, DW_AT_name("mp_to_unsigned_bin")
 	.dwattr $C$DW$744, DW_AT_TI_call
-        BL        mp_to_unsigned_bin    ; [DPU_3_PIPE] |2021| 
-        ; CALL OCCURS {mp_to_unsigned_bin }  ; [] |2021| 
-        MOV       V5, A1                ; [DPU_3_PIPE] |2021| 
-        CMP       V5, #0                ; [DPU_3_PIPE] |2021| 
-        BNE       ||$C$L134||           ; [DPU_3_PIPE] |2021| 
-        ; BRANCHCC OCCURS {||$C$L134||}  ; [] |2021| 
+        BL        mp_to_unsigned_bin    ; [DPU_3_PIPE] |2183| 
+        ; CALL OCCURS {mp_to_unsigned_bin }  ; [] |2183| 
+        MOV       V5, A1                ; [DPU_3_PIPE] |2183| 
+        CMP       V5, #0                ; [DPU_3_PIPE] |2183| 
+        BNE       ||$C$L134||           ; [DPU_3_PIPE] |2183| 
+        ; BRANCHCC OCCURS {||$C$L134||}  ; [] |2183| 
 ;* --------------------------------------------------------------------------*
-;* 2025	-----------------------    memcpy(numlen+out+1, &buf, numlen);
-;* 2027	-----------------------    *outLen = numlen*2u+1u;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2025,column 7,is_stmt,isa 1
-        ADDS      A1, V4, V3            ; [DPU_3_PIPE] |2025| 
-        MOV       A2, SP                ; [DPU_3_PIPE] |2025| 
-        MOV       A3, V3                ; [DPU_3_PIPE] |2025| 
-        ADDS      A1, A1, #1            ; [DPU_3_PIPE] |2025| 
+;* 2187	-----------------------    memcpy(numlen+out+1, &buf, numlen);
+;* 2189	-----------------------    *outLen = numlen*2u+1u;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2187,column 7,is_stmt,isa 1
+        ADDS      A1, V4, V3            ; [DPU_3_PIPE] |2187| 
+        MOV       A2, SP                ; [DPU_3_PIPE] |2187| 
+        MOV       A3, V3                ; [DPU_3_PIPE] |2187| 
+        ADDS      A1, A1, #1            ; [DPU_3_PIPE] |2187| 
 $C$DW$745	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$745, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$745, DW_AT_name("memcpy")
 	.dwattr $C$DW$745, DW_AT_TI_call
-        BL        memcpy                ; [DPU_3_PIPE] |2025| 
-        ; CALL OCCURS {memcpy }          ; [] |2025| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2027,column 7,is_stmt,isa 1
-        MOVS      A1, #1                ; [DPU_3_PIPE] |2027| 
-        ADD       A1, A1, V3, LSL #1    ; [DPU_3_PIPE] |2027| 
-        STR       A1, [V2, #0]          ; [DPU_3_PIPE] |2027| 
+        BL        memcpy                ; [DPU_3_PIPE] |2187| 
+        ; CALL OCCURS {memcpy }          ; [] |2187| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2189,column 7,is_stmt,isa 1
+        MOVS      A1, #1                ; [DPU_3_PIPE] |2189| 
+        ADD       A1, A1, V3, LSL #1    ; [DPU_3_PIPE] |2189| 
+        STR       A1, [V2, #0]          ; [DPU_3_PIPE] |2189| 
 ;* --------------------------------------------------------------------------*
 ||$C$L134||:    
 ;**	-----------------------g9:
-;* 2034	-----------------------    return ret;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2034,column 4,is_stmt,isa 1
-        MOV       A1, V5                ; [DPU_3_PIPE] |2034| 
+;* 2196	-----------------------    return ret;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2196,column 4,is_stmt,isa 1
+        MOV       A1, V5                ; [DPU_3_PIPE] |2196| 
 ;* --------------------------------------------------------------------------*
 ||$C$L135||:    
         ADD       SP, SP, #256          ; [DPU_3_PIPE] 
@@ -8703,7 +8703,7 @@ $C$DW$746	.dwtag  DW_TAG_TI_branch
 	.dwcfi	cfa_offset, 0
         ; BRANCH OCCURS                  ; [] 
 	.dwattr $C$DW$724, DW_AT_TI_end_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$724, DW_AT_TI_end_line(0x7f3)
+	.dwattr $C$DW$724, DW_AT_TI_end_line(0x895)
 	.dwattr $C$DW$724, DW_AT_TI_end_column(0x01)
 	.dwendentry
 	.dwendtag $C$DW$724
@@ -8721,13 +8721,13 @@ $C$DW$747	.dwtag  DW_TAG_subprogram, DW_AT_name("ecc_export_private_only")
 	.dwattr $C$DW$747, DW_AT_external
 	.dwattr $C$DW$747, DW_AT_type(*$C$DW$T$10)
 	.dwattr $C$DW$747, DW_AT_TI_begin_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$747, DW_AT_TI_begin_line(0x838)
+	.dwattr $C$DW$747, DW_AT_TI_begin_line(0x8da)
 	.dwattr $C$DW$747, DW_AT_TI_begin_column(0x05)
 	.dwattr $C$DW$747, DW_AT_decl_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$747, DW_AT_decl_line(0x838)
+	.dwattr $C$DW$747, DW_AT_decl_line(0x8da)
 	.dwattr $C$DW$747, DW_AT_decl_column(0x05)
 	.dwattr $C$DW$747, DW_AT_TI_max_frame_size(0x18)
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2105,column 1,is_stmt,address ecc_export_private_only,isa 1
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2267,column 1,is_stmt,address ecc_export_private_only,isa 1
 
 	.dwfde $C$DW$CIE, ecc_export_private_only
 $C$DW$748	.dwtag  DW_TAG_formal_parameter, DW_AT_name("key")
@@ -8782,7 +8782,7 @@ $C$DW$755	.dwtag  DW_TAG_variable, DW_AT_name("key")
 	.dwattr $C$DW$755, DW_AT_type(*$C$DW$T$564)
 	.dwattr $C$DW$755, DW_AT_location[DW_OP_reg6]
 	.dwcfi	cfa_offset, 0
-;* 2108	-----------------------    if ( key == NULL || out == NULL || outLen == NULL ) goto g3;
+;* 2270	-----------------------    if ( key == NULL || out == NULL || outLen == NULL ) goto g3;
         PUSH      {A4, V1, V2, V3, V4, LR} ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 24
 	.dwcfi	save_reg_to_mem, 14, -4
@@ -8791,36 +8791,36 @@ $C$DW$755	.dwtag  DW_TAG_variable, DW_AT_name("key")
 	.dwcfi	save_reg_to_mem, 5, -16
 	.dwcfi	save_reg_to_mem, 4, -20
 	.dwcfi	save_reg_to_mem, 3, -24
-        MOV       V3, A1                ; [DPU_3_PIPE] |2105| 
-        MOV       V4, A3                ; [DPU_3_PIPE] |2105| 
-        MOV       V2, A2                ; [DPU_3_PIPE] |2105| 
+        MOV       V3, A1                ; [DPU_3_PIPE] |2267| 
+        MOV       V4, A3                ; [DPU_3_PIPE] |2267| 
+        MOV       V2, A2                ; [DPU_3_PIPE] |2267| 
         CBZ       V3, ||$C$L136||       ; [] 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2108,column 4,is_stmt,isa 1
-        ; BRANCHCC OCCURS {||$C$L136||}  ; [] |2108| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2270,column 4,is_stmt,isa 1
+        ; BRANCHCC OCCURS {||$C$L136||}  ; [] |2270| 
 ;* --------------------------------------------------------------------------*
         CBZ       V2, ||$C$L136||       ; [] 
-        ; BRANCHCC OCCURS {||$C$L136||}  ; [] |2108| 
+        ; BRANCHCC OCCURS {||$C$L136||}  ; [] |2270| 
 ;* --------------------------------------------------------------------------*
         CBZ       V4, ||$C$L136||       ; [] 
-        ; BRANCHCC OCCURS {||$C$L136||}  ; [] |2108| 
+        ; BRANCHCC OCCURS {||$C$L136||}  ; [] |2270| 
 ;* --------------------------------------------------------------------------*
-;* 2111	-----------------------    if ( ecc_is_valid_idx((*key).idx) ) goto g4;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2111,column 4,is_stmt,isa 1
-        LDR       A1, [V3, #4]          ; [DPU_3_PIPE] |2111| 
+;* 2273	-----------------------    if ( ecc_is_valid_idx((*key).idx) ) goto g4;
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2273,column 4,is_stmt,isa 1
+        LDR       A1, [V3, #4]          ; [DPU_3_PIPE] |2273| 
 $C$DW$756	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$756, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$756, DW_AT_name("ecc_is_valid_idx")
 	.dwattr $C$DW$756, DW_AT_TI_call
-        BL        ecc_is_valid_idx      ; [DPU_3_PIPE] |2111| 
-        ; CALL OCCURS {ecc_is_valid_idx }  ; [] |2111| 
+        BL        ecc_is_valid_idx      ; [DPU_3_PIPE] |2273| 
+        ; CALL OCCURS {ecc_is_valid_idx }  ; [] |2273| 
         CBNZ      A1, ||$C$L137||       ; [] 
-        ; BRANCHCC OCCURS {||$C$L137||}  ; [] |2111| 
+        ; BRANCHCC OCCURS {||$C$L137||}  ; [] |2273| 
 ;* --------------------------------------------------------------------------*
 ||$C$L136||:    
 ;**	-----------------------g3:
-;* 2112	-----------------------    return (-170);
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2112,column 7,is_stmt,isa 1
-        MVN       A1, #169              ; [DPU_3_PIPE] |2112| 
+;* 2274	-----------------------    return (-170);
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2274,column 7,is_stmt,isa 1
+        MVN       A1, #169              ; [DPU_3_PIPE] |2274| 
 $C$DW$757	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$757, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$757, DW_AT_TI_return
@@ -8835,61 +8835,61 @@ $C$DW$757	.dwtag  DW_TAG_TI_branch
 ;* --------------------------------------------------------------------------*
 ||$C$L137||:    
 ;**	-----------------------g4:
-;* 2114	-----------------------    numlen = (*(*key).dp).size;
-;* 2116	-----------------------    if ( *outLen >= numlen ) goto g6;
-;* 2117	-----------------------    *outLen = numlen;
-;* 2118	-----------------------    return (-132);
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2114,column 4,is_stmt,isa 1
-        LDR       A2, [V3, #8]          ; [DPU_3_PIPE] |2114| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2116,column 4,is_stmt,isa 1
-        LDR       A1, [V4, #0]          ; [DPU_3_PIPE] |2116| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2114,column 4,is_stmt,isa 1
-        LDR       V1, [A2, #0]          ; [DPU_3_PIPE] |2114| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2116,column 4,is_stmt,isa 1
-        CMP       V1, A1                ; [DPU_3_PIPE] |2116| 
+;* 2276	-----------------------    numlen = (*(*key).dp).size;
+;* 2278	-----------------------    if ( *outLen >= numlen ) goto g6;
+;* 2279	-----------------------    *outLen = numlen;
+;* 2280	-----------------------    return (-132);
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2276,column 4,is_stmt,isa 1
+        LDR       A2, [V3, #8]          ; [DPU_3_PIPE] |2276| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2278,column 4,is_stmt,isa 1
+        LDR       A1, [V4, #0]          ; [DPU_3_PIPE] |2278| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2276,column 4,is_stmt,isa 1
+        LDR       V1, [A2, #0]          ; [DPU_3_PIPE] |2276| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2278,column 4,is_stmt,isa 1
+        CMP       V1, A1                ; [DPU_3_PIPE] |2278| 
         ITT       HI                    ; [DPU_3_PIPE] 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2117,column 7,is_stmt,isa 1
-        STRHI     V1, [V4, #0]          ; [DPU_3_PIPE] |2117| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2118,column 7,is_stmt,isa 1
-        MVNHI     A1, #131              ; [DPU_3_PIPE] |2118| 
-        BHI       ||$C$L138||           ; [DPU_3_PIPE] |2118| 
-        ; BRANCHCC OCCURS {||$C$L138||}  ; [] |2118| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2279,column 7,is_stmt,isa 1
+        STRHI     V1, [V4, #0]          ; [DPU_3_PIPE] |2279| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2280,column 7,is_stmt,isa 1
+        MVNHI     A1, #131              ; [DPU_3_PIPE] |2280| 
+        BHI       ||$C$L138||           ; [DPU_3_PIPE] |2280| 
+        ; BRANCHCC OCCURS {||$C$L138||}  ; [] |2280| 
 ;* --------------------------------------------------------------------------*
 ;**	-----------------------g6:
-;* 2120	-----------------------    *outLen = numlen;
-;* 2121	-----------------------    memset((void *)out, 0, numlen);
-;* 2122	-----------------------    C$1 = (struct $$fake0 *)key+1668;
-;* 2122	-----------------------    return mp_to_unsigned_bin(C$1, numlen-(unsigned)mp_unsigned_bin_size(C$1)+out);
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2120,column 4,is_stmt,isa 1
-        STR       V1, [V4, #0]          ; [DPU_3_PIPE] |2120| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2121,column 4,is_stmt,isa 1
-        MOV       A1, V2                ; [DPU_3_PIPE] |2121| 
-        MOVS      A2, #0                ; [DPU_3_PIPE] |2121| 
-        MOV       A3, V1                ; [DPU_3_PIPE] |2121| 
+;* 2282	-----------------------    *outLen = numlen;
+;* 2283	-----------------------    memset((void *)out, 0, numlen);
+;* 2284	-----------------------    C$1 = (struct $$fake0 *)key+1668;
+;* 2284	-----------------------    return mp_to_unsigned_bin(C$1, numlen-(unsigned)mp_unsigned_bin_size(C$1)+out);
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2282,column 4,is_stmt,isa 1
+        STR       V1, [V4, #0]          ; [DPU_3_PIPE] |2282| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2283,column 4,is_stmt,isa 1
+        MOV       A1, V2                ; [DPU_3_PIPE] |2283| 
+        MOVS      A2, #0                ; [DPU_3_PIPE] |2283| 
+        MOV       A3, V1                ; [DPU_3_PIPE] |2283| 
 $C$DW$758	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$758, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$758, DW_AT_name("memset")
 	.dwattr $C$DW$758, DW_AT_TI_call
-        BL        memset                ; [DPU_3_PIPE] |2121| 
-        ; CALL OCCURS {memset }          ; [] |2121| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2122,column 4,is_stmt,isa 1
-        ADD       V3, V3, #1668         ; [DPU_3_PIPE] |2122| 
-        MOV       A1, V3                ; [DPU_3_PIPE] |2122| 
+        BL        memset                ; [DPU_3_PIPE] |2283| 
+        ; CALL OCCURS {memset }          ; [] |2283| 
+	.dwpsn	file "C:/cyassl/ctaocrypt/src/ecc.c",line 2284,column 4,is_stmt,isa 1
+        ADD       V3, V3, #1668         ; [DPU_3_PIPE] |2284| 
+        MOV       A1, V3                ; [DPU_3_PIPE] |2284| 
 $C$DW$759	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$759, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$759, DW_AT_name("mp_unsigned_bin_size")
 	.dwattr $C$DW$759, DW_AT_TI_call
-        BL        mp_unsigned_bin_size  ; [DPU_3_PIPE] |2122| 
-        ; CALL OCCURS {mp_unsigned_bin_size }  ; [] |2122| 
-        SUBS      V1, V1, A1            ; [DPU_3_PIPE] |2122| 
-        ADDS      A2, V2, V1            ; [DPU_3_PIPE] |2122| 
-        MOV       A1, V3                ; [DPU_3_PIPE] |2122| 
+        BL        mp_unsigned_bin_size  ; [DPU_3_PIPE] |2284| 
+        ; CALL OCCURS {mp_unsigned_bin_size }  ; [] |2284| 
+        SUBS      V1, V1, A1            ; [DPU_3_PIPE] |2284| 
+        ADDS      A2, V2, V1            ; [DPU_3_PIPE] |2284| 
+        MOV       A1, V3                ; [DPU_3_PIPE] |2284| 
 $C$DW$760	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$760, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$760, DW_AT_name("mp_to_unsigned_bin")
 	.dwattr $C$DW$760, DW_AT_TI_call
-        BL        mp_to_unsigned_bin    ; [DPU_3_PIPE] |2122| 
-        ; CALL OCCURS {mp_to_unsigned_bin }  ; [] |2122| 
+        BL        mp_to_unsigned_bin    ; [DPU_3_PIPE] |2284| 
+        ; CALL OCCURS {mp_to_unsigned_bin }  ; [] |2284| 
 ;* --------------------------------------------------------------------------*
 ||$C$L138||:    
 $C$DW$761	.dwtag  DW_TAG_TI_branch
@@ -8899,7 +8899,7 @@ $C$DW$761	.dwtag  DW_TAG_TI_branch
 	.dwcfi	cfa_offset, 0
         ; BRANCH OCCURS                  ; [] 
 	.dwattr $C$DW$747, DW_AT_TI_end_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$747, DW_AT_TI_end_line(0x84c)
+	.dwattr $C$DW$747, DW_AT_TI_end_line(0x8ee)
 	.dwattr $C$DW$747, DW_AT_TI_end_column(0x01)
 	.dwendentry
 	.dwendtag $C$DW$747
@@ -17506,7 +17506,7 @@ $C$DW$T$1350	.dwtag  DW_TAG_typedef, DW_AT_name("__builtin_va_list")
 	.dwattr $C$DW$T$1350, DW_AT_type(*$C$DW$T$157)
 	.dwattr $C$DW$T$1350, DW_AT_language(DW_LANG_C)
 	.dwattr $C$DW$T$1350, DW_AT_decl_file("C:/cyassl/ctaocrypt/src/ecc.c")
-	.dwattr $C$DW$T$1350, DW_AT_decl_line(0x86f)
+	.dwattr $C$DW$T$1350, DW_AT_decl_line(0x911)
 	.dwattr $C$DW$T$1350, DW_AT_decl_column(0x01)
 $C$DW$T$409	.dwtag  DW_TAG_typedef, DW_AT_name("xdc_String")
 	.dwattr $C$DW$T$409, DW_AT_type(*$C$DW$T$157)

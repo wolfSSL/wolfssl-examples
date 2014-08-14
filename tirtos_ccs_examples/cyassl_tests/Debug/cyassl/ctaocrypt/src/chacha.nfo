@@ -1,0 +1,142 @@
+TI ARM C/C++ Optimizer                  v5.1.6
+Build Number 1OE9R-KDADEMDK-RTARQ-WAR-ZAZE_V_R_W
+
+		======File-level Analysis Summary======
+
+
+extern int Chacha_Process() is called from 0 sites in this file.
+    It appears to be inlineable (size = 15 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	Chacha_encrypt_bytes() (1 times)
+
+extern int Chacha_SetIV() is called from 0 sites in this file.
+    It appears to be inlineable (size = 45 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	memcpy() (1 times)
+	memset() (1 times)
+
+extern int Chacha_SetKey() is called from 0 sites in this file.
+    It appears to be inlineable (size = 98 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+static void Chacha_encrypt_bytes() is called from 1 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	Chacha_wordtobyte() (1 times)
+
+static void Chacha_wordtobyte() is called from 1 sites in this file.
+    It appears to be inlineable (size = 812 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	rotlFixed() (32 times)
+
+static unsigned rotlFixed() is called from 32 sites in this file.
+    It appears to be inlineable (size = 10 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+
+Results of interprocedural value propagation:
+
+   static unsigned rotlFixed() has these parameter attributes:
+      unsigned y :        y <= 16u;  y >= 7u;
+Inlineable function will be suppressed: rotlFixed()
+Inlineable function will be suppressed: Chacha_wordtobyte()
+
+These external functions are called but not defined here:
+	memset()
+	memcpy()
+
+
+The following variables will be grouped together to share a common
+base address.  References in the source interlisting will look like
+"1$$.tau", "K$1->tau", "C$1->tau", "&1$$+16", and "C$1+16".
+
+     --offset--    --size--	--variable--
+
+          0           16	static const unsigned sigma[4]
+         16           16	static const unsigned tau[4]
+
+
+		======= End file-level Analysis =======
+
+
+==============================================================================
+
+extern int Chacha_SetKey() is called from 0 sites in this file.
+    It appears to be inlineable (size = 98 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+There are 24 memory accesses with 144 dependences.
+
+
+==============================================================================
+
+extern int Chacha_SetIV() is called from 0 sites in this file.
+    It appears to be inlineable (size = 45 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+There are 7 memory accesses with 0 dependences.
+
+
+==============================================================================
+
+static void Chacha_encrypt_bytes() is called from 1 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	Chacha_wordtobyte() (1 times)
+
+ADVICE: In function Chacha_encrypt_bytes() in C:/cyassl/ctaocrypt/src/chacha.c
+	in the 'for' loop with loop variable 'i' at lines C:/cyassl/ctaocrypt/src/chacha.c:227-229
+	for the statement c[i] = m[i]^((unsigned char *)temp)[i]; at line 228
+
+	Consider declaring 'm' as const unsigned char * restrict m
+	or declaring 'c' as  unsigned char * restrict c
+	to assert that 'm' in the address of m[i];
+	and            'c' in the address of c[i];
+	do not access the same object in memory.
+
+ADVICE: In function Chacha_encrypt_bytes() in C:/cyassl/ctaocrypt/src/chacha.c
+	in the 'for' loop with loop variable 'i' at lines C:/cyassl/ctaocrypt/src/chacha.c:222-224
+	for the statement c[i] = m[i]^((unsigned char *)temp)[i]; at line 223
+
+	Consider declaring 'm' as const unsigned char * restrict m
+	or declaring 'c' as  unsigned char * restrict c
+	to assert that 'm' in the address of m[i];
+	and            'c' in the address of c[i];
+	do not access the same object in memory.
+Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/chacha.c:181-183 completely by factor 16.
+Estimated speedup: 2.22x, code size increase: 8.00x (4:->32)
+Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/chacha.c:196-198 completely by factor 16.
+Estimated speedup: 1.81x, code size increase: 10.50x (6:->63)
+Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/chacha.c:200-202 completely by factor 16.
+Estimated speedup: 2.22x, code size increase: 8.00x (4:->32)
+Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/chacha.c:227-229 by factor 4.
+Estimated speedup: 1.26x, code size increase: 3.00x (6:->18)
+Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/chacha.c:222-224 by factor 2.
+Estimated speedup: 1.16x, code size increase: 1.67x (6:->10)
+
+There are 54 memory accesses with 476 dependences.
+
+
+==============================================================================
+
+extern int Chacha_Process() is called from 0 sites in this file.
+    It appears to be inlineable (size = 15 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	Chacha_encrypt_bytes() (1 times)
+
+There are 0 memory accesses with 0 dependences.
+
+
+== END OF INFO OUTPUT==

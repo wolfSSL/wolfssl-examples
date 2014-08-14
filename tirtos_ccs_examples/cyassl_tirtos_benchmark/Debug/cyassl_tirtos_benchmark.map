@@ -1,7 +1,7 @@
 ******************************************************************************
                   TI ARM Linker PC v5.1.6                      
 ******************************************************************************
->> Linked Wed Aug 13 10:20:50 2014
+>> Linked Thu Aug 14 09:06:22 2014
 
 OUTPUT FILE NAME:   <cyassl_tirtos_benchmark.out>
 ENTRY POINT SYMBOL: "_c_int00"  address: 000210ad
@@ -46,8 +46,8 @@ section   page    origin      length       input sections
 *          0    00000000    0000003c     
                   00000000    0000003c     cyassl_tirtos_benchmark_pem4f.oem4f (.resetVecs)
 
-xdc.meta   0    00000000    00000101     COPY SECTION
-                  00000000    00000101     cyassl_tirtos_benchmark_pem4f.oem4f (xdc.meta)
+xdc.meta   0    00000000    00000128     COPY SECTION
+                  00000000    00000128     cyassl_tirtos_benchmark_pem4f.oem4f (xdc.meta)
 
 .init_array 
 *          0    00000000    00000000     UNINITIALIZED
@@ -1830,12 +1830,12 @@ UNDEFED    SHT$$INIT_ARRAY$$Limit
 200245c8   _Zero
 00000000   __ASM__
 20022760   __CIOBUF_
-0000007f   __ISA__
-00000092   __PLAT__
+000000a6   __ISA__
+000000b9   __PLAT__
 20025464   __STACK_END
 00000800   __STACK_SIZE
 20024e64   __STACK_TOP
-000000b3   __TARG__
+000000da   __TARG__
 0002e1c0   __TI_CINIT_Base
 0002e1d8   __TI_CINIT_Limit
 0002e1a4   __TI_Handler_Table_Base
@@ -1858,7 +1858,7 @@ UNDEFED    SHT$$INIT_ARRAY$$Limit
 000205d5   __TI_writemsg
 0001c465   __TI_wrt_ok
 00025693   __TI_zero_init
-000000d9   __TRDR__
+00000100   __TRDR__
 0001dcd3   __aeabi_cdcmpeq
 0001dcd3   __aeabi_cdcmple
 0001dd59   __aeabi_cdrcmple
@@ -2766,10 +2766,10 @@ address    name
 00000001   __TI_args_main
 00000001   xdc_runtime_Startup__EXECFXN__C
 00000001   xdc_runtime_Startup__RESETFXN__C
-0000007f   __ISA__
-00000092   __PLAT__
-000000b3   __TARG__
-000000d9   __TRDR__
+000000a6   __ISA__
+000000b9   __PLAT__
+000000da   __TARG__
+00000100   __TRDR__
 00000800   __STACK_SIZE
 0000660f   __TI_printfi
 00008305   TcpInput

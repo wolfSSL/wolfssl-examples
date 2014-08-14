@@ -1,0 +1,334 @@
+TI ARM C/C++ Optimizer                  v5.1.6
+Build Number 1OE9R-KDADEMDK-RTARQ-WAR-ZAZE_V_R_W
+
+		======File-level Analysis Summary======
+
+
+extern void CamelliaCbcDecrypt() is called from 0 sites in this file.
+    It appears to be inlineable (size = 48 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	xorbuf() (1 times)
+	Camellia_DecryptBlock() (1 times)
+	memcpy() (2 times)
+
+extern void CamelliaCbcEncrypt() is called from 0 sites in this file.
+    It appears to be inlineable (size = 44 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	memcpy() (1 times)
+	Camellia_EncryptBlock() (1 times)
+	xorbuf() (1 times)
+
+extern void CamelliaDecryptDirect() is called from 0 sites in this file.
+    It appears to be inlineable (size = 12 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	Camellia_DecryptBlock() (1 times)
+
+extern void CamelliaEncryptDirect() is called from 0 sites in this file.
+    It appears to be inlineable (size = 12 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	Camellia_EncryptBlock() (1 times)
+
+extern int CamelliaSetIV() is called from 1 sites in this file.
+    It appears to be inlineable (size = 23 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	memset() (1 times)
+	memcpy() (1 times)
+
+extern int CamelliaSetKey() is called from 0 sites in this file.
+    It appears to be inlineable (size = 54 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	CamelliaSetIV() (1 times)
+	camellia_setup128() (1 times)
+	camellia_setup192() (1 times)
+	camellia_setup256() (1 times)
+	memset() (1 times)
+
+static void Camellia_DecryptBlock() is called from 2 sites in this file.
+    It appears to be inlineable (size = 256 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	camellia_decrypt128() (1 times)
+	camellia_decrypt256() (1 times)
+
+static void Camellia_EncryptBlock() is called from 2 sites in this file.
+    It appears to be inlineable (size = 256 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	camellia_encrypt128() (1 times)
+	camellia_encrypt256() (1 times)
+
+static void XorWords() is called from 1 sites in this file.
+    It appears to be inlineable (size = 26 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+static void camellia_decrypt128() is called from 1 sites in this file.
+    It appears to be inlineable (size = 2481 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+static void camellia_decrypt256() is called from 1 sites in this file.
+    It appears to be inlineable (size = 3309 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+static void camellia_encrypt128() is called from 1 sites in this file.
+    It appears to be inlineable (size = 2481 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+static void camellia_encrypt256() is called from 1 sites in this file.
+    It appears to be inlineable (size = 3309 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+static int camellia_setup128() is called from 1 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+static int camellia_setup192() is called from 1 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	camellia_setup256() (1 times)
+	memcpy() (5 times)
+
+static int camellia_setup256() is called from 2 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+static void xorbuf() is called from 2 sites in this file.
+    It appears to be inlineable (size = 34 units)
+    It has 4 non-trivial scope blocks nested 4 deep.
+    It calls these functions:
+	XorWords() (1 times)
+
+
+Function xorbuf() will be specialized on these parameters:
+	[3] count == 16u;
+
+Results of interprocedural value propagation:
+
+   static void xorbuf() has these parameter attributes:
+      unsigned count :    count == 16u;
+
+Function XorWords() will be specialized on these parameters:
+	[3] n == 4u;
+
+Results of interprocedural value propagation:
+
+   static void XorWords() has these parameter attributes:
+      unsigned n :        n == 4u;
+Inlineable function will be suppressed: xorbuf()
+Inlineable function will be suppressed: XorWords()
+
+These external functions are called but not defined here:
+	memset()
+	memcpy()
+
+
+The following variables will be grouped together to share a common
+base address.  References in the source interlisting will look like
+"1$$.camellia_sp0222", "K$1->camellia_sp0222", "C$1->camellia_sp0222", "&1$$+1024", and "C$1+1024".
+
+     --offset--    --size--	--variable--
+
+          0         1024	static const unsigned camellia_sp1110[256]
+       1024         1024	static const unsigned camellia_sp0222[256]
+       2048         1024	static const unsigned camellia_sp3033[256]
+       3072         1024	static const unsigned camellia_sp4404[256]
+
+
+		======= End file-level Analysis =======
+
+
+==============================================================================
+
+static int camellia_setup256() is called from 2 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+There are 260 memory accesses with 9008 dependences.
+
+
+==============================================================================
+
+static int camellia_setup192() is called from 1 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	camellia_setup256() (1 times)
+
+There are 4 memory accesses with 0 dependences.
+
+
+==============================================================================
+
+static int camellia_setup128() is called from 1 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+There are 184 memory accesses with 4068 dependences.
+
+
+==============================================================================
+
+extern int CamelliaSetIV() is called from 1 sites in this file.
+    It appears to be inlineable (size = 23 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+There are 0 memory accesses with 0 dependences.
+
+
+==============================================================================
+
+extern int CamelliaSetKey() is called from 0 sites in this file.
+    It appears to be inlineable (size = 54 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	camellia_setup256() (1 times)
+	camellia_setup192() (1 times)
+	camellia_setup128() (1 times)
+	CamelliaSetIV() (1 times)
+
+There are 1 memory accesses with 0 dependences.
+
+
+==============================================================================
+
+static void camellia_encrypt256() is called from 1 sites in this file.
+    It appears to be inlineable (size = 3309 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+There are 324 memory accesses with 544 dependences.
+
+
+==============================================================================
+
+static void camellia_encrypt128() is called from 1 sites in this file.
+    It appears to be inlineable (size = 2481 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+There are 244 memory accesses with 312 dependences.
+
+
+==============================================================================
+
+static void Camellia_EncryptBlock() is called from 2 sites in this file.
+    It appears to be inlineable (size = 256 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	camellia_encrypt256() (1 times)
+	camellia_encrypt128() (1 times)
+
+There are 52 memory accesses with 272 dependences.
+
+
+==============================================================================
+
+extern void CamelliaEncryptDirect() is called from 0 sites in this file.
+    It appears to be inlineable (size = 12 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	Camellia_EncryptBlock() (1 times)
+
+There are 1 memory accesses with 0 dependences.
+
+
+==============================================================================
+
+static void camellia_decrypt256() is called from 1 sites in this file.
+    It appears to be inlineable (size = 3309 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+There are 324 memory accesses with 544 dependences.
+
+
+==============================================================================
+
+static void camellia_decrypt128() is called from 1 sites in this file.
+    It appears to be inlineable (size = 2481 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+There are 244 memory accesses with 312 dependences.
+
+
+==============================================================================
+
+static void Camellia_DecryptBlock() is called from 2 sites in this file.
+    It appears to be inlineable (size = 256 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	camellia_decrypt256() (1 times)
+	camellia_decrypt128() (1 times)
+
+There are 52 memory accesses with 272 dependences.
+
+
+==============================================================================
+
+extern void CamelliaDecryptDirect() is called from 0 sites in this file.
+    It appears to be inlineable (size = 12 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	Camellia_DecryptBlock() (1 times)
+
+There are 1 memory accesses with 0 dependences.
+
+
+==============================================================================
+
+extern void CamelliaCbcEncrypt() is called from 0 sites in this file.
+    It appears to be inlineable (size = 44 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	xorbuf() (1 times)
+	Camellia_EncryptBlock() (1 times)
+Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/misc.c:155-155 completely by factor 4.
+Estimated speedup: 1.76x, code size increase: 2.67x (6:->16)
+Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/misc.c:168-168 completely by factor 16.
+Estimated speedup: 1.81x, code size increase: 10.67x (6:->64)
+
+There are 41 memory accesses with 1220 dependences.
+
+
+==============================================================================
+
+extern void CamelliaCbcDecrypt() is called from 0 sites in this file.
+    It appears to be inlineable (size = 48 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	Camellia_DecryptBlock() (1 times)
+	xorbuf() (1 times)
+Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/misc.c:155-155 completely by factor 4.
+Estimated speedup: 1.76x, code size increase: 2.67x (6:->16)
+Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/misc.c:168-168 completely by factor 16.
+Estimated speedup: 1.81x, code size increase: 10.67x (6:->64)
+
+There are 41 memory accesses with 1224 dependences.
+
+
+== END OF INFO OUTPUT==

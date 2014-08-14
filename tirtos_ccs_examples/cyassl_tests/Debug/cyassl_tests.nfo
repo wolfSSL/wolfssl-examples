@@ -1,0 +1,71 @@
+TI ARM C/C++ Optimizer                  v5.1.6
+Build Number 1OE9R-KDADEMDK-RTARQ-WAR-ZAZE_V_R_W
+
+		======File-level Analysis Summary======
+
+
+extern int main() is called from 0 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	xdc_runtime_System_printf__E() (1 times)
+	ti_sysbios_BIOS_start__E() (1 times)
+	ti_sysbios_knl_Task_create() (1 times)
+	ti_sysbios_knl_Task_Params_init() (1 times)
+
+extern void testCtaocrypt() is called from 0 sites in this file.
+    It appears to be inlineable (size = 11 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	ti_sysbios_BIOS_exit__E() (1 times)
+	ctaocrypt_test() (1 times)
+	xdc_runtime_System_flush__E() (1 times)
+	xdc_runtime_System_printf__E() (2 times)
+
+static void ti_sysbios_knl_Task_Params_init() is called from 1 sites in this file.
+    It appears to be inlineable (size = 10 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	ti_sysbios_knl_Task_Params__init__S() (1 times)
+
+
+These functions may be recursive:
+	main()
+	ti_sysbios_knl_Task_Params_init()
+	testCtaocrypt()
+Inlineable function will be suppressed: ti_sysbios_knl_Task_Params_init()
+
+These external functions are called but not defined here:
+	ti_sysbios_knl_Task_Params__init__S()
+	xdc_runtime_System_flush__E()
+	ctaocrypt_test()
+	ti_sysbios_BIOS_exit__E()
+	ti_sysbios_knl_Task_create()
+	ti_sysbios_BIOS_start__E()
+	xdc_runtime_System_printf__E()
+
+
+		======= End file-level Analysis =======
+
+
+==============================================================================
+
+extern void testCtaocrypt() is called from 0 sites in this file.
+    It appears to be inlineable (size = 11 units)
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	<NONE>
+
+There are 0 memory accesses with 0 dependences.
+
+
+==============================================================================
+
+extern int main() is called from 0 sites in this file.
+    It has 3 non-trivial scope blocks nested 3 deep.
+    It calls these functions:
+	ti_sysbios_knl_Task_Params_init() (1 times)
+
+There are 4 memory accesses with 0 dependences.
+
+
+== END OF INFO OUTPUT==
