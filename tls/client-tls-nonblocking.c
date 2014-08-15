@@ -22,7 +22,6 @@
 #include    <stdlib.h>                  
 #include    <string.h>
 #include    <errno.h>
-#include    <sys/select.h>
 #include    <arpa/inet.h>
 #include    <cyassl/ssl.h>          /* CyaSSL security library */
 #include    <fcntl.h>               /* nonblocking I/O library */
@@ -113,6 +112,7 @@ int ClientGreet(CYASSL* ssl)
     /* data to send to the server, data recieved from the server */
     char sendBuff[MAXDATASIZE], rcvBuff[MAXDATASIZE] = {0};
     int ret = 0;
+int count = 0;
 
     printf("Message for server:\t");
     fgets(sendBuff, MAXDATASIZE, stdin);
@@ -129,9 +129,11 @@ int ClientGreet(CYASSL* ssl)
         /* the server failed to send data, or error trying */
         ret = CyaSSL_get_error(ssl, 0);
         while (ret == SSL_ERROR_WANT_READ) {
+count++;
             ret = CyaSSL_read(ssl, rcvBuff, MAXDATASIZE);
             ret = CyaSSL_get_error(ssl, 0);
         }
+printf("counter %d\n", count);
         if (ret < 0) {
             ret = CyaSSL_get_error(ssl, 0);
             printf("Read error. Error: %d\n", ret);
