@@ -212,7 +212,6 @@ Void tcpHandler(UArg arg0, UArg arg1) {
 				}
 			}
 			/* success */
-//			buffer[sizeof(buffer)] = 0;
 			System_printf("Heard: \"%s\".\n", buffer);
 			CyaSSL_free(ssl);
 			fdClose((SOCKET) sockfd);
