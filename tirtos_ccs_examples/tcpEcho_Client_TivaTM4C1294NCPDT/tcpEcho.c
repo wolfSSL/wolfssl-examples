@@ -83,7 +83,12 @@
 #define TCPPACKETSIZE 1024
 #define TCPPORT 11111
 #define NUMTCPWORKERS 3
-#define IP_ADDR "192.168.1.103"
+
+/* Set to the IP of the computer running the cyassl command from the 
+ * cyassl_root directory: "./examples/server/server -b" 
+ * the "-b" tells the server to bind to any interface, not just 127.0.0.1
+ */
+#define IP_ADDR "xxx.xxx.x.xxx"
 
 void exitApp(CYASSL_CTX* ctx);
 
