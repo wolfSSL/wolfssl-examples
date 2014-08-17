@@ -683,7 +683,7 @@ printf("Client left return to idle state\n");
 ```
 This concludes Section 1 of Chapter 2 on “Layering DTLS onto a UDP Server”. Secition 2 will now cover Layering DTLS onto a UDP Client.
 
-###Section 2: Leah
+###Section 2:
 
 ####2.1. Enable DTLS
 As stated in chapter 4 of the CyaSSL manual, DTLS is enabled by using the --enable-dtls build option when building CyaSSL. If you have not done so, this should be your first step.  
