@@ -544,6 +544,7 @@ if (CyaSSL_CTX_use_PrivateKey_file(ctx,"../certs/server-key.pem",
                                      "please check the file.\n");
     exit(EXIT_FAILURE);
 }
+```
 
 #####1.5.4 Call AwaitDGram() and add cleanup conditional
 To finish our main() method we will call our method that handles client connections and add a 
