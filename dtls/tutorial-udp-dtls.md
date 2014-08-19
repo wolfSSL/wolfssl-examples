@@ -24,12 +24,12 @@ All 16 bit words are summed using “one`s complement arithmetic”. The sum is 
 Figure 1.1 Check Sum Example
 EXAMPLE: you have two 16 bit words as follows :
 
-ONE`s COMPLEMENT OF WORD1:     1 0 0 1 1 1 1 0 0 1 1 0 0 0 1 0
-ONE`s COMPLEMENT OF WORD2:     0 1 0 1 0 0 0 1 0 1 0 0 1 1 0 1
+    ONE`s COMPLEMENT OF WORD1:     1 0 0 1 1 1 1 0 0 1 1 0 0 0 1 0
+    ONE`s COMPLEMENT OF WORD2:     0 1 0 1 0 0 0 1 0 1 0 0 1 1 0 1
 
-SUM:     1 1 1 0 1 1 1 1 1 0 1 0 1 1 1 1
-
-ONE`s COMPLEMENT OF SUM:   0 0 0 1 0 0 0 0 0 1 0 1 0 0 0 0
+                          SUM:     1 1 1 0 1 1 1 1 1 0 1 0 1 1 1 1
+                                   -------------------------------
+      ONE`s COMPLEMENT OF SUM:     0 0 0 1 0 0 0 0 0 1 0 1 0 0 0 0
 
 The final value would be placed in the Checksum Field.
 
