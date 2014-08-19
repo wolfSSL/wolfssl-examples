@@ -59,7 +59,7 @@ int sockfd = socket(domain, type, protocol);
 Let`s briefly discuss those parameters domain, type, and protocol.
 
 1. Domain
-    *The domain can also be referred to as the address family. It is the communication domain in which the socket should be created. Below you will see some of the examples domains or address families that we  could work with. At the end will be a description of what we will choose specifically for a UDP server.
+    The domain can also be referred to as the address family. It is the communication domain in which the socket should be created. Below you will see some of the examples domains or address families that we  could work with. At the end will be a description of what we will choose specifically for a UDP server.
 
 ```c
 AF_INET:     Internet Protocol (IP)
@@ -69,7 +69,7 @@ AF_ISO:      “In Search Of” (ISO) protocols
 AF_NS:       Xerox Network Systems protocols
 ```
 2. Type
-    *This is the type of service we will be providing with our UDP server. This is selected based on the requirements of the application, and will likely aid in determining which Domain (above) you will select ultimately.
+    This is the type of service we will be providing with our UDP server. This is selected based on the requirements of the application, and will likely aid in determining which Domain (above) you will select ultimately.
 ```c
 SOCK_STREAM:     a virtual circuit service
 SOCK_DGRAM:      a datagram service
@@ -136,7 +136,7 @@ Figure 1.6
 Before calling bind, we need to fill this struct. The three key parts we need to set are:
 
 1. sin_family
-    *The address family we used in STEP 1 (AF_INET).
+    The address family we used in STEP 1 (AF_INET).
 
 2. sin_port
     The port number (transport address). This can either be explicitly declared, or you can allow the OS to assign one. Since we are creating a server, ideally we would want to explicitly declare a well known port so that clients know where to address their messages. However for this particular tutorial we will use the generic 11111 (five ones). This will be defined directly beneath the include section of our code.(figure 1.1.7)
@@ -156,13 +156,13 @@ We can then call SERV_PORT where it is needed and if you, the client, are alread
 
 
     4.2 “htonl”
-        *host to network - long : convert a number into a 32-bit network representation. This is commonly used to store an IP address into a sockaddr structure.
+        host to network - long : convert a number into a 32-bit network representation. This is commonly used to store an IP address into a sockaddr structure.
 
     4.3 “ntohs”
-        *network to host - short : convert a 16-bit number from a network representation into the local processor`s format. This is commonly used to read a port number from a sockaddr structure.
+        network to host - short : convert a 16-bit number from a network representation into the local processor`s format. This is commonly used to read a port number from a sockaddr structure.
 
     4.4 “ntohl”
-        *network to host - long : convert a 32-bit number from a network representation into the local processor`s format. This is commonly used to read an IP address from a sockaddr structure.
+        network to host - long : convert a 32-bit number from a network representation into the local processor`s format. This is commonly used to read an IP address from a sockaddr structure.
 
         Using any of the above 4.4 macros will guarantee that your code remains portable regardless 
         of the architecture you use in compilation.
