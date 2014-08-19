@@ -76,9 +76,9 @@ SOCK_DGRAM:      a datagram service
 SOCK_RAW:        a direct IP service
 ```
 3. Protocol
-    *A protocol supports the sockets operation. This parameter is optional but is helpful in cases where the domain (family) supports multiple protocols. In these cases we can specify which protocol to use for said family. If the family supports only one type of protocol this value will be zero.
+    A protocol supports the sockets operation. This parameter is optional but is helpful in cases where the domain (family) supports multiple protocols. In these cases we can specify which protocol to use for said family. If the family supports only one type of protocol this value will be zero.
 
-    *For this tutorial we want to select domain (domain = AF_NET) and the datagram service (type = SOCK_DGRAM). There is only one form of datagram service therefore we do not need to specify a protocol for a UDP/IP server  (protocol = 0).
+    For this tutorial we want to select domain (domain = AF_NET) and the datagram service (type = SOCK_DGRAM). There is only one form of datagram service therefore we do not need to specify a protocol for a UDP/IP server  (protocol = 0).
     Defined:
 
 Figure 1.3 Setting Protocol
@@ -267,8 +267,9 @@ This function will send a message to the server and then loop back. The function
 
 Within this function, we will read in user input (fgets) from the client and loop while this input is valid. This loop will send the input to the server using the sendto() function. It will then read back the server’s echo with recvfrom() and print this echo(fputs). Our function:
 
-Figure 1.13        
-    ```c
+Figure 1.13
+
+```c
 void DatagramClient (FILE* clientInput, CYASSL* ssl) {
 
     int  n = 0;
@@ -291,20 +292,21 @@ void DatagramClient (FILE* clientInput, CYASSL* ssl) {
     fputs(recvLine, stdout);
 }
 ```
-**This function can be accomplished within main without creating an additional function. 
+
+This function can be accomplished within main without creating an additional function. 
 
 ####2.3. Main Function
 #####2.3.1. Create a socket
 The socket should be of type int in the form:
 
 
-Figure 1.14    
+Figure 1.14
 ```c
 int yourSocket = socket(domain, type, protocol);
 ```
 Example Code:
 
-Figure 1.15        
+Figure 1.15
 ```c
 if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
     err_sys("cannot create a socket.");
@@ -334,7 +336,7 @@ sin_family: the address family we used when setting up the socket, in our case, 
 sin_port: the port number. This can be assigned or you can allow the operating system to assign one. Specifying the port to 0 allows the OS to pick any available port number.
 sin_addr: the address for the socket(i.e., your machine’s IP address).
 
-Figure 1.19        
+Figure 1.19
 ```c
 memset(&servAddr, 0, sizeof(servAddr));
 servAddr.sin_family = AF_INET;
