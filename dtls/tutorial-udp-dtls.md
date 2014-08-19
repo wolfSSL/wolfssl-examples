@@ -24,12 +24,14 @@ All 16 bit words are summed using “one`s complement arithmetic”. The sum is 
 Figure 1.1 Check Sum Example
 EXAMPLE: you have two 16 bit words as follows :
 
+```c
     ONE`s COMPLEMENT OF WORD1:     1 0 0 1 1 1 1 0 0 1 1 0 0 0 1 0
     ONE`s COMPLEMENT OF WORD2:     0 1 0 1 0 0 0 1 0 1 0 0 1 1 0 1
 
                           SUM:     1 1 1 0 1 1 1 1 1 0 1 0 1 1 1 1
                                    -------------------------------
       ONE`s COMPLEMENT OF SUM:     0 0 0 1 0 0 0 0 0 1 0 1 0 0 0 0
+```
 
 The final value would be placed in the Checksum Field.
 
@@ -37,13 +39,15 @@ The final value would be placed in the Checksum Field.
 ####1.2. Creating a UDP/IP Server
 There are five initial steps to creating a UDP/IP Server.
 
+```c
 1. Create the socket
 2. Identify the socket (IE give it a name)
-    *<Begin a loop>
+    <Begin a loop>
 3. On the server wait for a message
 4. Send a response to the client once message is received
 5. Close the socket (in our case, just return to looking for packets arriving).
-    *<End of loop>
+    <End of loop>
+```
 
 ####1.3.  STEP 1: CREATE THE SOCKET
 
@@ -61,15 +65,15 @@ Let`s briefly discuss those parameters domain, type, and protocol.
 AF_INET:     Internet Protocol (IP)
 AF_INET6:    IP version 6 (IPv6)
 AF_UNIX:     local channel, similar to pipes
-AF_ISO:     “In Search Of” (ISO) protocols
-AF_NS:    Xerox Network Systems protocols
+AF_ISO:      “In Search Of” (ISO) protocols
+AF_NS:       Xerox Network Systems protocols
 ```
 2. Type
     *This is the type of service we will be providing with our UDP server. This is selected based on the requirements of the application, and will likely aid in determining which Domain (above) you will select ultimately.
 ```c
 SOCK_STREAM:     a virtual circuit service
-SOCK_DGRAM:     a datagram service
-SOCK_RAW:     a direct IP service
+SOCK_DGRAM:      a datagram service
+SOCK_RAW:        a direct IP service
 ```
 3. Protocol
     *A protocol supports the sockets operation. This parameter is optional but is helpful in cases where the domain (family) supports multiple protocols. In these cases we can specify which protocol to use for said family. If the family supports only one type of protocol this value will be zero.
@@ -159,7 +163,8 @@ We can then call SERV_PORT where it is needed and if you, the client, are alread
     *4.4 “ntohl”
         *network to host - long : convert a 32-bit number from a network representation into the local processor`s format. This is commonly used to read an IP address from a sockaddr structure.
 
-        *Using any of the above 4.4 macros will guarantee that your code remains portable regardless of the architecture you use in compilation.
+        *Using any of the above 4.4 macros will guarantee that your code remains portable regardless 
+        of the architecture you use in compilation.
 
 ####1.5. <BEGIN LOOP>:
 WAIT FOR A MESSAGE
@@ -177,13 +182,18 @@ int recvfrom(int socket, void* restrict buffer, size_t length,
 
     *5.1 PARAMETERS DEFINED
         *5.1.1 “ int socket ”
-            *The first parameter “socket” is the socket we created and bound in STEPS 1 & 2. The port number assigned to that socket via the “bind” tells us what port recvfrom will “watch” while awaiting incoming data transmissions.
+            *The first parameter “socket” is the socket we created and bound in STEPS 1 & 2. The port number 
+            assigned to that socket via the “bind” tells us what port recvfrom will “watch” while awaiting 
+            incoming data transmissions.
         *5.1.2 “ void* restrict buffer ”
             *The incoming data will be placed into memory at buffer.
         *5.1.3 “ size_t length “
             *No more than length bytes will be transferred (that`s the size of your buffer).
         *5.1.4 “ int socklen_t *restrict *src_len “
-            *For this tutorial we can ignore this last flags. However this parameter will allow us to “peek” at an incoming message without removing it from the queue or block until the request is fully satisfied. To ignore these flags, simply place a zero in as the parameter. See the man page for recvfrom to see an  in-depth description of the last parameter.
+            *For this tutorial we can ignore this last flags. However this parameter will allow us to “peek” 
+            at an incoming message without removing it from the queue or block until the request is fully 
+            satisfied. To ignore these flags, simply place a zero in as the parameter. See the man page for 
+            recvfrom to see an  in-depth description of the last parameter.
 Defined:
 
 Figure 1.9 Looping Receive
@@ -207,7 +217,9 @@ for (;;) {
 
 ####1.6. REPLY TO MESSAGE
 
-Now we are able to receive messages from our clients but how do we let clients know their messages are being received? We have no connection to the server and we don’t know their IP address. Fortunately the recvfrom call gave us the address, and it was placed in remaddr:
+Now we are able to receive messages from our clients but how do we let clients know their messages are 
+being received? We have no connection to the server and we don’t know their IP address. Fortunately the 
+recvfrom call gave us the address, and it was placed in remaddr:
 Defined:
 
 Figure 1.10
@@ -528,7 +540,9 @@ if (CyaSSL_CTX_use_PrivateKey_file(ctx,"../certs/server-key.pem",
 }
 
 #####1.5.4 Call AwaitDGram() and add cleanup conditional
-To finish our main() method we will call our method that handles client connections and add a conditional statement that will free up any allocated memory at the termination of our program. Last, add a return method for main().
+To finish our main() method we will call our method that handles client connections and add a 
+conditional statement that will free up any allocated memory at the termination of our program. 
+Last, add a return method for main().
 
 Figure 2.10
 ```c
