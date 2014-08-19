@@ -116,6 +116,7 @@ Defined:
 
 
 Figure 1.5 Explain address family
+
 ```c
 struct sockaddr_in{
     __uint8_t        sin_len;
@@ -138,7 +139,7 @@ Before calling bind, we need to fill this struct. The three key parts we need to
     *The address family we used in STEP 1 (AF_INET).
 
 2. sin_port
-    *The port number (transport address). This can either be explicitly declared, or you can allow the OS to assign one. Since we are creating a server, ideally we would want to explicitly declare a well known port so that clients know where to address their messages. However for this particular tutorial we will use the generic 11111 (five ones). This will be defined directly beneath the include section of our code.(figure 1.1.7)
+    The port number (transport address). This can either be explicitly declared, or you can allow the OS to assign one. Since we are creating a server, ideally we would want to explicitly declare a well known port so that clients know where to address their messages. However for this particular tutorial we will use the generic 11111 (five ones). This will be defined directly beneath the include section of our code.(figure 1.1.7)
 
 Figure 1.7
 `#define SERV_PORT  11111`
@@ -146,24 +147,24 @@ Figure 1.7
 We can then call SERV_PORT where it is needed and if you, the client, are already using port 11111 for any particular reason, you can then easily redefine it as needed for this tutorial. Additionally if you use #define SERV_PORT 0, your system will use any available port.
 
 3. sin_addr
-    *The address for our socket (your server machines IP address). With UDP/IP our server will have one IP address for each network interface. Since the address can vary based on transport methods and we are using a client computer to simulate a server, we will use the INADDR_ANY.
+    The address for our socket (your server machines IP address). With UDP/IP our server will have one IP address for each network interface. Since the address can vary based on transport methods and we are using a client computer to simulate a server, we will use the INADDR_ANY.
 
 4. Descriptions of number conversions utilized in Networking
-    *4.1 “htons”
+    4.1 “htons”
     host to network - short : convert a number into a 16-bit network representation. This is commonly used to store a port number into a sockaddr structure.
 
 
 
-    *4.2 “htonl”
+    4.2 “htonl”
         *host to network - long : convert a number into a 32-bit network representation. This is commonly used to store an IP address into a sockaddr structure.
 
-    *4.3 “ntohs”
+    4.3 “ntohs”
         *network to host - short : convert a 16-bit number from a network representation into the local processor`s format. This is commonly used to read a port number from a sockaddr structure.
 
-    *4.4 “ntohl”
+    4.4 “ntohl”
         *network to host - long : convert a 32-bit number from a network representation into the local processor`s format. This is commonly used to read an IP address from a sockaddr structure.
 
-        *Using any of the above 4.4 macros will guarantee that your code remains portable regardless 
+        Using any of the above 4.4 macros will guarantee that your code remains portable regardless 
         of the architecture you use in compilation.
 
 ####1.5. <BEGIN LOOP>:
@@ -175,29 +176,31 @@ The recvfrom call is included with the #include <sys/socket.h> therefore we do n
 Defined:
 
 Figure 1.8 “recvfrom”
+
 ```c
 int recvfrom(int socket, void* restrict buffer, size_t length,
              int socklen_t *restrict *src_len)
 ```
 
-    *5.1 PARAMETERS DEFINED
-        *5.1.1 “ int socket ”
-            *The first parameter “socket” is the socket we created and bound in STEPS 1 & 2. The port number 
+    5.1 PARAMETERS DEFINED
+        5.1.1 “ int socket ”
+            The first parameter “socket” is the socket we created and bound in STEPS 1 & 2. The port number 
             assigned to that socket via the “bind” tells us what port recvfrom will “watch” while awaiting 
             incoming data transmissions.
-        *5.1.2 “ void* restrict buffer ”
-            *The incoming data will be placed into memory at buffer.
-        *5.1.3 “ size_t length “
-            *No more than length bytes will be transferred (that`s the size of your buffer).
-        *5.1.4 “ int socklen_t *restrict *src_len “
-            *For this tutorial we can ignore this last flags. However this parameter will allow us to “peek” 
+        5.1.2 “ void* restrict buffer ”
+            The incoming data will be placed into memory at buffer.
+        5.1.3 “ size_t length “
+            No more than length bytes will be transferred (that`s the size of your buffer).
+        5.1.4 “ int socklen_t *restrict *src_len “
+            For this tutorial we can ignore this last flags. However this parameter will allow us to “peek” 
             at an incoming message without removing it from the queue or block until the request is fully 
             satisfied. To ignore these flags, simply place a zero in as the parameter. See the man page for 
             recvfrom to see an  in-depth description of the last parameter.
 Defined:
 
 Figure 1.9 Looping Receive
-    ```c
+    
+```c
 for (;;) {
     printf("waiting for client message on port %d\n", SERV_PORT);
 
@@ -223,6 +226,7 @@ recvfrom call gave us the address, and it was placed in remaddr:
 Defined:
 
 Figure 1.10
+
 ```c
 recvlen = recvfrom(sockfd, buf, MSGLEN, 0, (struct sockaddr *)&cliaddr, &addrlen);
 ```
