@@ -551,6 +551,7 @@ conditional statement that will free up any allocated memory at the termination 
 Last, add a return method for main().
 
 Figure 2.10
+
 ```c
 AwaitDGram();
 if (cleanup == 1)
