@@ -46,7 +46,7 @@ int main (int argc, char** argv)
     struct  	sockaddr_in servAddr;
     CYASSL* 	ssl = 0;
     CYASSL_CTX* ctx = 0;
-    char        cert_array[]  = "../cyassl/certs/ca-cert.pem";
+    char        cert_array[]  = "../certs/ca-cert.pem";
     char*       certs = cert_array;
 
     if (argc != 2) { 
