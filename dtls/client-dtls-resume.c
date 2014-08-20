@@ -49,7 +49,7 @@ int main (int argc, char** argv)
     CYASSL* 		sslResume = 0;
     CYASSL_SESSION*	session = 0;
     char*    		srTest = "testing session resume";
-    char            cert_array[] = "../cyassl/certs/ca-cert.pem";
+    char            cert_array[] = "../certs/ca-cert.pem";
     char*           certs = cert_array;
     if (argc != 2) { 
         printf("usage: udpcli <IP address>\n");
