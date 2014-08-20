@@ -123,7 +123,7 @@ int main (int argc, char** argv)
     CYASSL_CTX* 	ctx = 0;
     CYASSL* 		sslResume = 0;
     CYASSL_SESSION*	session = 0;
-    char            cert_array[] = "../cyassl/certs/ca-cert.pem";
+    char            cert_array[] = "../certs/ca-cert.pem";
     char*           certs = cert_array;
     char*           srTest = "testing session resume";
     
