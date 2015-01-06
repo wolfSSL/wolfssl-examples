@@ -24,12 +24,14 @@ All 16 bit words are summed using “one`s complement arithmetic”. The sum is 
 Figure 1.1 Check Sum Example
 EXAMPLE: you have two 16 bit words as follows :
 
-ONE`s COMPLEMENT OF WORD1:     1 0 0 1 1 1 1 0 0 1 1 0 0 0 1 0
-ONE`s COMPLEMENT OF WORD2:     0 1 0 1 0 0 0 1 0 1 0 0 1 1 0 1
+```c
+    ONE`s COMPLEMENT OF WORD1:     1 0 0 1 1 1 1 0 0 1 1 0 0 0 1 0
+    ONE`s COMPLEMENT OF WORD2:     0 1 0 1 0 0 0 1 0 1 0 0 1 1 0 1
 
-SUM:     1 1 1 0 1 1 1 1 1 0 1 0 1 1 1 1
-
-ONE`s COMPLEMENT OF SUM:   0 0 0 1 0 0 0 0 0 1 0 1 0 0 0 0
+                          SUM:     1 1 1 0 1 1 1 1 1 0 1 0 1 1 1 1
+                                   -------------------------------
+      ONE`s COMPLEMENT OF SUM:     0 0 0 1 0 0 0 0 0 1 0 1 0 0 0 0
+```
 
 The final value would be placed in the Checksum Field.
 
@@ -37,13 +39,15 @@ The final value would be placed in the Checksum Field.
 ####1.2. Creating a UDP/IP Server
 There are five initial steps to creating a UDP/IP Server.
 
+```c
 1. Create the socket
 2. Identify the socket (IE give it a name)
-    *<Begin a loop>
+    <Begin a loop>
 3. On the server wait for a message
 4. Send a response to the client once message is received
 5. Close the socket (in our case, just return to looking for packets arriving).
-    *<End of loop>
+    <End of loop>
+```
 
 ####1.3.  STEP 1: CREATE THE SOCKET
 
@@ -55,26 +59,26 @@ int sockfd = socket(domain, type, protocol);
 Let`s briefly discuss those parameters domain, type, and protocol.
 
 1. Domain
-    *The domain can also be referred to as the address family. It is the communication domain in which the socket should be created. Below you will see some of the examples domains or address families that we  could work with. At the end will be a description of what we will choose specifically for a UDP server.
+    The domain can also be referred to as the address family. It is the communication domain in which the socket should be created. Below you will see some of the examples domains or address families that we  could work with. At the end will be a description of what we will choose specifically for a UDP server.
 
 ```c
 AF_INET:     Internet Protocol (IP)
 AF_INET6:    IP version 6 (IPv6)
 AF_UNIX:     local channel, similar to pipes
-AF_ISO:     “In Search Of” (ISO) protocols
-AF_NS:    Xerox Network Systems protocols
+AF_ISO:      “In Search Of” (ISO) protocols
+AF_NS:       Xerox Network Systems protocols
 ```
 2. Type
-    *This is the type of service we will be providing with our UDP server. This is selected based on the requirements of the application, and will likely aid in determining which Domain (above) you will select ultimately.
+    This is the type of service we will be providing with our UDP server. This is selected based on the requirements of the application, and will likely aid in determining which Domain (above) you will select ultimately.
 ```c
 SOCK_STREAM:     a virtual circuit service
-SOCK_DGRAM:     a datagram service
-SOCK_RAW:     a direct IP service
+SOCK_DGRAM:      a datagram service
+SOCK_RAW:        a direct IP service
 ```
 3. Protocol
-    *A protocol supports the sockets operation. This parameter is optional but is helpful in cases where the domain (family) supports multiple protocols. In these cases we can specify which protocol to use for said family. If the family supports only one type of protocol this value will be zero.
+    A protocol supports the sockets operation. This parameter is optional but is helpful in cases where the domain (family) supports multiple protocols. In these cases we can specify which protocol to use for said family. If the family supports only one type of protocol this value will be zero.
 
-    *For this tutorial we want to select domain (domain = AF_NET) and the datagram service (type = SOCK_DGRAM). There is only one form of datagram service therefore we do not need to specify a protocol for a UDP/IP server  (protocol = 0).
+    For this tutorial we want to select domain (domain = AF_NET) and the datagram service (type = SOCK_DGRAM). There is only one form of datagram service therefore we do not need to specify a protocol for a UDP/IP server  (protocol = 0).
     Defined:
 
 Figure 1.3 Setting Protocol
@@ -112,6 +116,7 @@ Defined:
 
 
 Figure 1.5 Explain address family
+
 ```c
 struct sockaddr_in{
     __uint8_t        sin_len;
@@ -131,10 +136,10 @@ Figure 1.6
 Before calling bind, we need to fill this struct. The three key parts we need to set are:
 
 1. sin_family
-    *The address family we used in STEP 1 (AF_INET).
+    The address family we used in STEP 1 (AF_INET).
 
 2. sin_port
-    *The port number (transport address). This can either be explicitly declared, or you can allow the OS to assign one. Since we are creating a server, ideally we would want to explicitly declare a well known port so that clients know where to address their messages. However for this particular tutorial we will use the generic 11111 (five ones). This will be defined directly beneath the include section of our code.(figure 1.1.7)
+    The port number (transport address). This can either be explicitly declared, or you can allow the OS to assign one. Since we are creating a server, ideally we would want to explicitly declare a well known port so that clients know where to address their messages. However for this particular tutorial we will use the generic 11111 (five ones). This will be defined directly beneath the include section of our code.(figure 1.1.7)
 
 Figure 1.7
 `#define SERV_PORT  11111`
@@ -142,24 +147,25 @@ Figure 1.7
 We can then call SERV_PORT where it is needed and if you, the client, are already using port 11111 for any particular reason, you can then easily redefine it as needed for this tutorial. Additionally if you use #define SERV_PORT 0, your system will use any available port.
 
 3. sin_addr
-    *The address for our socket (your server machines IP address). With UDP/IP our server will have one IP address for each network interface. Since the address can vary based on transport methods and we are using a client computer to simulate a server, we will use the INADDR_ANY.
+    The address for our socket (your server machines IP address). With UDP/IP our server will have one IP address for each network interface. Since the address can vary based on transport methods and we are using a client computer to simulate a server, we will use the INADDR_ANY.
 
 4. Descriptions of number conversions utilized in Networking
-    *4.1 “htons”
+    4.1 “htons”
     host to network - short : convert a number into a 16-bit network representation. This is commonly used to store a port number into a sockaddr structure.
 
 
 
-    *4.2 “htonl”
-        *host to network - long : convert a number into a 32-bit network representation. This is commonly used to store an IP address into a sockaddr structure.
+    4.2 “htonl”
+        host to network - long : convert a number into a 32-bit network representation. This is commonly used to store an IP address into a sockaddr structure.
 
-    *4.3 “ntohs”
-        *network to host - short : convert a 16-bit number from a network representation into the local processor`s format. This is commonly used to read a port number from a sockaddr structure.
+    4.3 “ntohs”
+        network to host - short : convert a 16-bit number from a network representation into the local processor`s format. This is commonly used to read a port number from a sockaddr structure.
 
-    *4.4 “ntohl”
-        *network to host - long : convert a 32-bit number from a network representation into the local processor`s format. This is commonly used to read an IP address from a sockaddr structure.
+    4.4 “ntohl”
+        network to host - long : convert a 32-bit number from a network representation into the local processor`s format. This is commonly used to read an IP address from a sockaddr structure.
 
-        *Using any of the above 4.4 macros will guarantee that your code remains portable regardless of the architecture you use in compilation.
+        Using any of the above 4.4 macros will guarantee that your code remains portable regardless 
+        of the architecture you use in compilation.
 
 ####1.5. <BEGIN LOOP>:
 WAIT FOR A MESSAGE
@@ -170,24 +176,31 @@ The recvfrom call is included with the #include <sys/socket.h> therefore we do n
 Defined:
 
 Figure 1.8 “recvfrom”
+
 ```c
 int recvfrom(int socket, void* restrict buffer, size_t length,
              int socklen_t *restrict *src_len)
 ```
 
-    *5.1 PARAMETERS DEFINED
-        *5.1.1 “ int socket ”
-            *The first parameter “socket” is the socket we created and bound in STEPS 1 & 2. The port number assigned to that socket via the “bind” tells us what port recvfrom will “watch” while awaiting incoming data transmissions.
-        *5.1.2 “ void* restrict buffer ”
-            *The incoming data will be placed into memory at buffer.
-        *5.1.3 “ size_t length “
-            *No more than length bytes will be transferred (that`s the size of your buffer).
-        *5.1.4 “ int socklen_t *restrict *src_len “
-            *For this tutorial we can ignore this last flags. However this parameter will allow us to “peek” at an incoming message without removing it from the queue or block until the request is fully satisfied. To ignore these flags, simply place a zero in as the parameter. See the man page for recvfrom to see an  in-depth description of the last parameter.
+    5.1 PARAMETERS DEFINED
+        5.1.1 “ int socket ”
+            The first parameter “socket” is the socket we created and bound in STEPS 1 & 2. The port number 
+            assigned to that socket via the “bind” tells us what port recvfrom will “watch” while awaiting 
+            incoming data transmissions.
+        5.1.2 “ void* restrict buffer ”
+            The incoming data will be placed into memory at buffer.
+        5.1.3 “ size_t length “
+            No more than length bytes will be transferred (that`s the size of your buffer).
+        5.1.4 “ int socklen_t *restrict *src_len “
+            For this tutorial we can ignore this last flags. However this parameter will allow us to “peek” 
+            at an incoming message without removing it from the queue or block until the request is fully 
+            satisfied. To ignore these flags, simply place a zero in as the parameter. See the man page for 
+            recvfrom to see an  in-depth description of the last parameter.
 Defined:
 
 Figure 1.9 Looping Receive
-    ```c
+    
+```c
 for (;;) {
     printf("waiting for client message on port %d\n", SERV_PORT);
 
@@ -207,10 +220,13 @@ for (;;) {
 
 ####1.6. REPLY TO MESSAGE
 
-Now we are able to receive messages from our clients but how do we let clients know their messages are being received? We have no connection to the server and we don’t know their IP address. Fortunately the recvfrom call gave us the address, and it was placed in remaddr:
+Now we are able to receive messages from our clients but how do we let clients know their messages are 
+being received? We have no connection to the server and we don’t know their IP address. Fortunately the 
+recvfrom call gave us the address, and it was placed in remaddr:
 Defined:
 
 Figure 1.10
+
 ```c
 recvlen = recvfrom(sockfd, buf, MSGLEN, 0, (struct sockaddr *)&cliaddr, &addrlen);
 ```
@@ -251,8 +267,9 @@ This function will send a message to the server and then loop back. The function
 
 Within this function, we will read in user input (fgets) from the client and loop while this input is valid. This loop will send the input to the server using the sendto() function. It will then read back the server’s echo with recvfrom() and print this echo(fputs). Our function:
 
-Figure 1.13        
-    ```c
+Figure 1.13
+
+```c
 void DatagramClient (FILE* clientInput, CYASSL* ssl) {
 
     int  n = 0;
@@ -275,20 +292,21 @@ void DatagramClient (FILE* clientInput, CYASSL* ssl) {
     fputs(recvLine, stdout);
 }
 ```
-**This function can be accomplished within main without creating an additional function. 
+
+This function can be accomplished within main without creating an additional function. 
 
 ####2.3. Main Function
 #####2.3.1. Create a socket
 The socket should be of type int in the form:
 
 
-Figure 1.14    
+Figure 1.14
 ```c
 int yourSocket = socket(domain, type, protocol);
 ```
 Example Code:
 
-Figure 1.15        
+Figure 1.15
 ```c
 if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
     err_sys("cannot create a socket.");
@@ -318,7 +336,7 @@ sin_family: the address family we used when setting up the socket, in our case, 
 sin_port: the port number. This can be assigned or you can allow the operating system to assign one. Specifying the port to 0 allows the OS to pick any available port number.
 sin_addr: the address for the socket(i.e., your machine’s IP address).
 
-Figure 1.19        
+Figure 1.19
 ```c
 memset(&servAddr, 0, sizeof(servAddr));
 servAddr.sin_family = AF_INET;
@@ -526,11 +544,15 @@ if (CyaSSL_CTX_use_PrivateKey_file(ctx,"../certs/server-key.pem",
                                      "please check the file.\n");
     exit(EXIT_FAILURE);
 }
+```
 
 #####1.5.4 Call AwaitDGram() and add cleanup conditional
-To finish our main() method we will call our method that handles client connections and add a conditional statement that will free up any allocated memory at the termination of our program. Last, add a return method for main().
+To finish our main() method we will call our method that handles client connections and add a 
+conditional statement that will free up any allocated memory at the termination of our program. 
+Last, add a return method for main().
 
 Figure 2.10
+
 ```c
 AwaitDGram();
 if (cleanup == 1)
