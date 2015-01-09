@@ -25,6 +25,7 @@
 #include    <arpa/inet.h>
 #include    <cyassl/ssl.h>          /* CyaSSL security library */
 #include    <fcntl.h>               /* nonblocking I/O library */
+#include    <sys/select.h>
 
 #define MAXDATASIZE  4096           /* maximum acceptable amount of data */
 #define SERV_PORT    11111          /* define default port number */

@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-Wall
-LIBS=-lcyassl
+LIBS=-lwolfssl
 
 all: client-tcp client-psk client-psk-nonblocking client-psk-resume server-tcp server-psk server-psk-nonblocking server-psk-threaded
 

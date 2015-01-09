@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-Wall
-LIBS=-lcyassl
+LIBS=-lwolfssl
 
 all: client-tcp client-tls client-tls-nonblocking client-tls-resume client-callback server-tcp server-tls server-tls-nonblocking server-tls-threaded server-callback
 

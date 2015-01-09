@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-Wall
-LIBS= -lcyassl
+LIBS= -lwolfssl
 
 camellia-encrypt: camellia-encrypt.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS) 
