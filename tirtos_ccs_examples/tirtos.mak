@@ -8,7 +8,7 @@
 #
 CCS_BUILD ?= true
 DEFAULT_INSTALLATION_DIR ?= c:/ti
-ti.targets.arm.elf.M4F   ?= $(DEFAULT_INSTALLATION_DIR)/ccsv6/tools/compiler/arm_5.1.5
+ti.targets.arm.elf.M4F   ?= $(DEFAULT_INSTALLATION_DIR)/ccsv6/tools/compiler/arm_5.1.6
 
 #
 # Enable TI-RTOS to build for IAR.
@@ -29,21 +29,21 @@ gnu.targets.arm.M4F  ?= $(GCC_INSTALLATION_DIR)
 #
 # TI-RTOS and XDCTools settings
 #
-XDCTOOLS_INSTALLATION_DIR ?= $(DEFAULT_INSTALLATION_DIR)/xdctools_3_30_01_25_core
+XDCTOOLS_INSTALLATION_DIR ?= $(DEFAULT_INSTALLATION_DIR)/xdctools_3_30_03_47_core
 export XDCTOOLS_JAVA_HOME ?= $(DEFAULT_INSTALLATION_DIR)/ccsv6/eclipse/jre
 
-TIRTOS_INSTALLATION_DIR   ?= $(DEFAULT_INSTALLATION_DIR)/tirtos_tivac_2_00_02_36
-BIOS_INSTALLATION_DIR     ?= $(TIRTOS_INSTALLATION_DIR)/products/bios_6_40_02_27
-UIA_INSTALLATION_DIR      ?= $(TIRTOS_INSTALLATION_DIR)/products/uia_2_00_01_34
-NDK_INSTALLATION_DIR      ?= $(DEFAULT_INSTALLATION_DIR)/ndk_2_24_00_05_eng
+TIRTOS_INSTALLATION_DIR   ?= $(DEFAULT_INSTALLATION_DIR)/tirtos_tivac_2_10_01_38
+BIOS_INSTALLATION_DIR     ?= $(TIRTOS_INSTALLATION_DIR)/products/bios_6_41_00_26
+UIA_INSTALLATION_DIR      ?= $(TIRTOS_INSTALLATION_DIR)/products/uia_2_00_02_39
+NDK_INSTALLATION_DIR      ?= $(TIRTOS_INSTALLATION_DIR)/products/ndk_2_24_01_18
 TIVAWARE_INSTALLATION_DIR ?= $(TIRTOS_INSTALLATION_DIR)/products/TivaWare_C_Series-2.1.0.12573c
 
 # Setting this variable to 1 causes only NDK base stack libraries to be built
 BUILDMINSTACK_CONFIG     := BUILDMINSTACK=1
 
-# CyaSSL settings
-CYASSL_INSTALLATION_DIR ?= C:/cyassl
-CYASSL_TIRTOS_DIR = $(CYASSL_INSTALLATION_DIR)/tirtos
+# wolfSSL settings
+WOLFSSL_INSTALLATION_DIR ?= C:/wolfssl
+WOLFSSL_TIRTOS_DIR = $(WOLFSSL_INSTALLATION_DIR)/tirtos
 
 #
 # Set XDCARGS to some of the variables above.  XDCARGS are passed
@@ -60,6 +60,7 @@ CYASSL_TIRTOS_DIR = $(CYASSL_INSTALLATION_DIR)/tirtos
 #     http://rtsc.eclipse.org/docs-tip/Command_-_xdc#Environment_Variables
 #
 XDCARGS= \
+    profile='release' \
     TivaWareDir='$(TIVAWARE_INSTALLATION_DIR)'
 
 ifeq ("$(CCS_BUILD)", "true")
@@ -175,25 +176,25 @@ clean-uia:
 	  NDK_INSTALL_DIR=$(NDK_INSTALLATION_DIR) \
 	  -C $(UIA_INSTALLATION_DIR) clean
 
-cyassl:
-	@ echo building cyassl ...
-	@ $(XDCTOOLS_INSTALLATION_DIR)/gmake -f $(CYASSL_TIRTOS_DIR)/cyassl.mak \
+wolfssl:
+	@ echo building wolfssl ...
+	@ $(XDCTOOLS_INSTALLATION_DIR)/gmake -f $(WOLFSSL_TIRTOS_DIR)/wolfssl.mak \
 	  XDC_INSTALL_DIR=$(XDCTOOLS_INSTALLATION_DIR) \
 	  SYSBIOS_INSTALL_DIR=$(BIOS_INSTALLATION_DIR) \
 	  NDK_INSTALL_DIR=$(NDK_INSTALLATION_DIR) \
-	  CYASSL_INSTALL_DIR=$(CYASSL_INSTALLATION_DIR) \
+	  WOLFSSL_INSTALL_DIR=$(WOLFSSL_INSTALLATION_DIR) \
 	  TIRTOS_INSTALLATION_DIR=$(TIRTOS_INSTALLATION_DIR) \
-	  $(XDCARGS) -C $(CYASSL_TIRTOS_DIR)
+	  $(XDCARGS) -C $(WOLFSSL_TIRTOS_DIR)
 
-clean-cyassl:
-	@ echo cleaning cyassl ...
-	@ $(XDCTOOLS_INSTALLATION_DIR)/gmake -f $(CYASSL_TIRTOS_DIR)/cyassl.mak \
+clean-wolfssl:
+	@ echo cleaning wolfssl ...
+	@ $(XDCTOOLS_INSTALLATION_DIR)/gmake -f $(WOLFSSL_TIRTOS_DIR)/wolfssl.mak \
 	  XDC_INSTALL_DIR=$(XDCTOOLS_INSTALLATION_DIR) \
 	  SYSBIOS_INSTALL_DIR=$(BIOS_INSTALLATION_DIR) \
 	  NDK_INSTALL_DIR=$(NDK_INSTALLATION_DIR) \
-	  CYASSL_INSTALL_DIR=$(CYASSL_INSTALLATION_DIR) \
+	  WOLFSSL_INSTALL_DIR=$(WOLFSSL_INSTALLATION_DIR) \
 	  TIRTOS_INSTALLATION_DIR=$(TIRTOS_INSTALLATION_DIR) \
-	  -C $(CYASSL_TIRTOS_DIR) clean
+	  -C $(WOLFSSL_TIRTOS_DIR) clean
 
 examplesgen:
 ifneq ("$(DEST)","")
@@ -208,7 +209,6 @@ ifeq ("$(CCS_BUILD)", "true")
 		--bios="$(BIOS_INSTALLATION_DIR)" \
 		--uia="$(UIA_INSTALLATION_DIR)" \
 		--ndk="$(NDK_INSTALLATION_DIR)" \
-		--cyassl="$(CYASSL_TIRTOS_DIR)" \
 		--tivaware="$(TIVAWARE_INSTALLATION_DIR)" \
 		--toolChaindir="$(ti.targets.arm.elf.M4F)"
 endif
@@ -222,7 +222,6 @@ ifeq ("$(IAR_BUILD)", "true")
 		--bios="$(BIOS_INSTALLATION_DIR)" \
 		--uia="$(UIA_INSTALLATION_DIR)" \
 		--ndk="$(NDK_INSTALLATION_DIR)" \
-		--cyassl="$(CYASSL_TIRTOS_DIR)" \
 		--tivaware="$(TIVAWARE_INSTALLATION_DIR)" \
 		--toolChaindir="$(iar.targets.arm.M4F)"
 endif
@@ -236,7 +235,6 @@ ifeq ("$(GCC_BUILD)", "true")
 		--bios="$(BIOS_INSTALLATION_DIR)" \
 		--uia="$(UIA_INSTALLATION_DIR)" \
 		--ndk="$(NDK_INSTALLATION_DIR)" \
-		--cyassl="$(CYASSL_TIRTOS_DIR)" \
 		--tivaware="$(TIVAWARE_INSTALLATION_DIR)" \
 		--toolChaindir="$(gnu.targets.arm.M4F)"
 endif
