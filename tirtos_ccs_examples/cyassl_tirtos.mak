@@ -41,9 +41,9 @@ TIVAWARE_INSTALLATION_DIR ?= $(TIRTOS_INSTALLATION_DIR)/products/TivaWare_C_Seri
 # Setting this variable to 1 causes only NDK base stack libraries to be built
 BUILDMINSTACK_CONFIG     := BUILDMINSTACK=1
 
-# wolfSSL settings
-WOLFSSL_INSTALLATION_DIR ?= C:/wolfssl
-WOLFSSL_TIRTOS_DIR = $(WOLFSSL_INSTALLATION_DIR)/tirtos
+# CyaSSL settings
+CYASSL_INSTALLATION_DIR ?= C:/cyassl
+CYASSL_TIRTOS_DIR = $(CYASSL_INSTALLATION_DIR)/tirtos
 
 #
 # Set XDCARGS to some of the variables above.  XDCARGS are passed
@@ -175,25 +175,25 @@ clean-uia:
 	  NDK_INSTALL_DIR=$(NDK_INSTALLATION_DIR) \
 	  -C $(UIA_INSTALLATION_DIR) clean
 
-wolfssl:
-	@ echo building wolfssl ...
-	@ $(XDCTOOLS_INSTALLATION_DIR)/gmake -f $(WOLFSSL_TIRTOS_DIR)/wolfssl.mak \
+cyassl:
+	@ echo building cyassl ...
+	@ $(XDCTOOLS_INSTALLATION_DIR)/gmake -f $(CYASSL_TIRTOS_DIR)/cyassl.mak \
 	  XDC_INSTALL_DIR=$(XDCTOOLS_INSTALLATION_DIR) \
 	  SYSBIOS_INSTALL_DIR=$(BIOS_INSTALLATION_DIR) \
 	  NDK_INSTALL_DIR=$(NDK_INSTALLATION_DIR) \
-	  WOLFSSL_INSTALL_DIR=$(WOLFSSL_INSTALLATION_DIR) \
+	  CYASSL_INSTALL_DIR=$(CYASSL_INSTALLATION_DIR) \
 	  TIRTOS_INSTALLATION_DIR=$(TIRTOS_INSTALLATION_DIR) \
-	  $(XDCARGS) -C $(WOLFSSL_TIRTOS_DIR)
+	  $(XDCARGS) -C $(CYASSL_TIRTOS_DIR)
 
-clean-wolfssl:
-	@ echo cleaning wolfssl ...
-	@ $(XDCTOOLS_INSTALLATION_DIR)/gmake -f $(WOLFSSL_TIRTOS_DIR)/wolfssl.mak \
+clean-cyassl:
+	@ echo cleaning cyassl ...
+	@ $(XDCTOOLS_INSTALLATION_DIR)/gmake -f $(CYASSL_TIRTOS_DIR)/cyassl.mak \
 	  XDC_INSTALL_DIR=$(XDCTOOLS_INSTALLATION_DIR) \
 	  SYSBIOS_INSTALL_DIR=$(BIOS_INSTALLATION_DIR) \
 	  NDK_INSTALL_DIR=$(NDK_INSTALLATION_DIR) \
-	  WOLFSSL_INSTALL_DIR=$(WOLFSSL_INSTALLATION_DIR) \
+	  CYASSL_INSTALL_DIR=$(CYASSL_INSTALLATION_DIR) \
 	  TIRTOS_INSTALLATION_DIR=$(TIRTOS_INSTALLATION_DIR) \
-	  -C $(WOLFSSL_TIRTOS_DIR) clean
+	  -C $(CYASSL_TIRTOS_DIR) clean
 
 examplesgen:
 ifneq ("$(DEST)","")
@@ -208,7 +208,7 @@ ifeq ("$(CCS_BUILD)", "true")
 		--bios="$(BIOS_INSTALLATION_DIR)" \
 		--uia="$(UIA_INSTALLATION_DIR)" \
 		--ndk="$(NDK_INSTALLATION_DIR)" \
-		--wolfssl="$(WOLFSSL_TIRTOS_DIR)" \
+		--cyassl="$(CYASSL_TIRTOS_DIR)" \
 		--tivaware="$(TIVAWARE_INSTALLATION_DIR)" \
 		--toolChaindir="$(ti.targets.arm.elf.M4F)"
 endif
@@ -222,7 +222,7 @@ ifeq ("$(IAR_BUILD)", "true")
 		--bios="$(BIOS_INSTALLATION_DIR)" \
 		--uia="$(UIA_INSTALLATION_DIR)" \
 		--ndk="$(NDK_INSTALLATION_DIR)" \
-		--wolfssl="$(WOLFSSL_TIRTOS_DIR)" \
+		--cyassl="$(CYASSL_TIRTOS_DIR)" \
 		--tivaware="$(TIVAWARE_INSTALLATION_DIR)" \
 		--toolChaindir="$(iar.targets.arm.M4F)"
 endif
@@ -236,7 +236,7 @@ ifeq ("$(GCC_BUILD)", "true")
 		--bios="$(BIOS_INSTALLATION_DIR)" \
 		--uia="$(UIA_INSTALLATION_DIR)" \
 		--ndk="$(NDK_INSTALLATION_DIR)" \
-		--wolfssl="$(WOLFSSL_TIRTOS_DIR)" \
+		--cyassl="$(CYASSL_TIRTOS_DIR)" \
 		--tivaware="$(TIVAWARE_INSTALLATION_DIR)" \
 		--toolChaindir="$(gnu.targets.arm.M4F)"
 endif
