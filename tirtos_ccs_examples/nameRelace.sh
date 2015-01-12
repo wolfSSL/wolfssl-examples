@@ -25,6 +25,13 @@
 #find . -name '*' -type f -exec sed -i 's/old-word/new-word/g' {} \;
 #######################################################################
 
+find . -name '*' -type f -exec sed -i 's/cya/wolf/g' {} \;
+find . -name '*' -type f -exec sed -i 's/Cya/wolf/g' {} \;
+find . -name '*' -type f -exec sed -i 's/CYA/WOLF/g' {} \;
+find . -name '*' -type f -exec sed -i 's/ctao/wolf/g' {} \;
+find . -name '*' -type f -exec sed -i 's/Ctao/wolf/g' {} \;
+find . -name '*' -type f -exec sed -i 's/CTao/wc_/g' {} \;
+find . -name '*' -type f -exec sed -i 's/CTAO/WOLF/g' {} \;
 ################################ MAC ###################################
 #grep -ilr 'old-word' * | xargs -I@ sed -i '' 's/old-word/new-word/g' @
 ########################################################################
