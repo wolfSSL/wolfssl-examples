@@ -161,10 +161,10 @@ in the source interlisting will look like "O$1.s3_1.l3_2" or "&$O$O1+0".
 
     --offset--    --reference--			 --variable--
 
-          0	  O$1.s3_1.l3_2                  struct $$fake0 tmpb  [C:/wolfssl/ctaocrypt/src/rsa.c:220]
-        552	  O$1.s3_1.l3_3                  struct $$fake0 tmpa  [C:/wolfssl/ctaocrypt/src/rsa.c:220]
+          0	  O$1.s3_1.l3_2                  struct $$fake0 tmpb  [C:/wolfssl/wolfcrypt/src/rsa.c:220]
+        552	  O$1.s3_1.l3_3                  struct $$fake0 tmpa  [C:/wolfssl/wolfcrypt/src/rsa.c:220]
 
-Unrolling 'while' loop on 'len' at lines C:/wolfssl/ctaocrypt/src/rsa.c:274-277 by factor 4.
+Unrolling 'while' loop on 'len' at lines C:/wolfssl/wolfcrypt/src/rsa.c:274-277 by factor 4.
 Estimated speedup: 1.20x, code size increase: 4.00x (3:->12)
 
 There are 6 memory accesses with 1 dependences.
@@ -211,7 +211,7 @@ static int RsaPad() is called from 2 sites in this file.
     It has 4 non-trivial scope blocks nested 4 deep.
     It calls these functions:
 	<NONE>
-Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/rsa.c:149-150 by factor 2.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/wolfcrypt/src/rsa.c:149-150 by factor 2.
 Estimated speedup: 1.14x, code size increase: 1.67x (6:->10)
 
 There are 9 memory accesses with 30 dependences.

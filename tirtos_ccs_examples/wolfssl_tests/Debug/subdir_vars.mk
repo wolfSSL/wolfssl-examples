@@ -12,7 +12,7 @@ CFG_SRCS += \
 C_SRCS += \
 ../EK_TM4C1294XL.c \
 ../wolfssl_tests.c \
-C:/wolfssl/ctaocrypt/test/test.c 
+C:/wolfssl/wolfcrypt/test/test.c 
 
 OBJS += \
 ./EK_TM4C1294XL.obj \
@@ -57,7 +57,7 @@ OBJS__QUOTED += \
 C_SRCS__QUOTED += \
 "../EK_TM4C1294XL.c" \
 "../wolfssl_tests.c" \
-"C:/wolfssl/ctaocrypt/test/test.c" 
+"C:/wolfssl/wolfcrypt/test/test.c" 
 
 GEN_CMDS__FLAG += \
 -l"./configPkg/linker.cmd" 

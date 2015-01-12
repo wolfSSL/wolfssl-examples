@@ -89,9 +89,9 @@ static void RABBIT_next_state() is called from 4 sites in this file.
     It calls these functions:
 	RABBIT_g_func() (1 times)
 	rotlFixed() (12 times)
-Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:76-77 completely by factor 8.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:76-77 completely by factor 8.
 Estimated speedup: 2.18x, code size increase: 4.00x (4:->16)
-Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:91-92 by factor 4.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:91-92 by factor 4.
 Estimated speedup: 1.18x, code size increase: 3.67x (18:->66)
 
 There are 74 memory accesses with 69 dependences.
@@ -152,11 +152,11 @@ static int DoKey() is called from 1 sites in this file.
 	rotlFixed() (4 times)
 	RABBIT_next_state() (1 times)
 	RabbitSetIV() (1 times)
-Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:185-186 completely by factor 8.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:185-186 completely by factor 8.
 Estimated speedup: 1.80x, code size increase: 5.33x (6:->32)
-Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:189-192 completely by factor 8.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:189-192 completely by factor 8.
 Estimated speedup: 1.80x, code size increase: 5.33x (6:->32)
-Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:135-136 completely by factor 8.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:135-136 completely by factor 8.
 Estimated speedup: 2.18x, code size increase: 4.00x (4:->16)
 
 There are 91 memory accesses with 295 dependences.
@@ -170,8 +170,8 @@ static int DoProcess() is called from 1 sites in this file.
     It calls these functions:
 	RABBIT_next_state() (2 times)
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
 
 	Consider declaring 'ctx' as struct Rabbit * const restrict ctx
@@ -180,8 +180,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'output' in the address of *output;
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
 	and the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
 
@@ -191,8 +191,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'output' in the address of ((unsigned *)output)[1];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
 	and the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
 
@@ -202,8 +202,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'output' in the address of ((unsigned *)output)[2];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
 	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
 
@@ -213,8 +213,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'output' in the address of ((unsigned *)output)[3];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
 
 	Consider declaring 'ctx' as struct Rabbit * const restrict ctx
@@ -223,8 +223,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'output' in the address of *output;
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
 	and the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
 
@@ -234,8 +234,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'output' in the address of ((unsigned *)output)[1];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
 	and the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
 
@@ -245,8 +245,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'output' in the address of ((unsigned *)output)[2];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
 	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
 
@@ -256,8 +256,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'output' in the address of ((unsigned *)output)[3];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
 
 	Consider declaring 'ctx' as struct Rabbit * const restrict ctx
@@ -266,8 +266,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'output' in the address of *output;
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
 	and the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
 
@@ -277,8 +277,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'output' in the address of ((unsigned *)output)[1];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
 	and the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
 
@@ -288,8 +288,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'output' in the address of ((unsigned *)output)[2];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
 	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
 
@@ -299,8 +299,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'output' in the address of ((unsigned *)output)[3];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
 
 	Consider declaring 'input' as const unsigned char * restrict input
@@ -309,8 +309,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'output' in the address of *output;
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
 	and the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
 
@@ -320,8 +320,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'output' in the address of ((unsigned *)output)[1];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
 	and the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
 
@@ -331,8 +331,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'output' in the address of ((unsigned *)output)[2];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
 	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
 
@@ -342,8 +342,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'output' in the address of ((unsigned *)output)[3];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
 	and the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
 
@@ -353,8 +353,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'ctx' in the address of ((unsigned *)ctx)[22];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
 	and the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
 
@@ -364,8 +364,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'ctx' in the address of ((unsigned *)ctx)[24];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
 	and the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
 
@@ -375,8 +375,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'ctx' in the address of ((unsigned *)ctx)[19];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
 	and the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
 
@@ -386,8 +386,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'input' in the address of ((unsigned *)input)[1];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
 	and the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
 
@@ -397,8 +397,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'ctx' in the address of ((unsigned *)ctx)[24];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
 	and the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
 
@@ -408,8 +408,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'ctx' in the address of ((unsigned *)ctx)[18];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
 	and the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
 
@@ -419,8 +419,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'ctx' in the address of ((unsigned *)ctx)[21];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
 	and the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
 
@@ -430,8 +430,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'input' in the address of ((unsigned *)input)[2];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
 	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
 
@@ -441,8 +441,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'ctx' in the address of ((unsigned *)ctx)[18];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
 	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
 
@@ -452,8 +452,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'ctx' in the address of ((unsigned *)ctx)[20];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
 	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
 
@@ -463,8 +463,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'ctx' in the address of ((unsigned *)ctx)[23];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement *output = *input^((unsigned *)ctx)[17]^((unsigned *)ctx)[22]>>16^((unsigned *)ctx)[20]*65536u; at line 231
 	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
 
@@ -474,8 +474,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'input' in the address of ((unsigned *)input)[3];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
 
 	Consider declaring 'ctx' as struct Rabbit * const restrict ctx
@@ -484,8 +484,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'output' in the address of ((unsigned *)output)[1];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
 	and the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
 
@@ -495,8 +495,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'output' in the address of ((unsigned *)output)[2];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
 	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
 
@@ -506,8 +506,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'output' in the address of ((unsigned *)output)[3];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
 
 	Consider declaring 'ctx' as struct Rabbit * const restrict ctx
@@ -516,8 +516,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'output' in the address of ((unsigned *)output)[1];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
 	and the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
 
@@ -527,8 +527,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'output' in the address of ((unsigned *)output)[2];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
 	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
 
@@ -538,8 +538,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'output' in the address of ((unsigned *)output)[3];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
 
 	Consider declaring 'ctx' as struct Rabbit * const restrict ctx
@@ -548,8 +548,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'output' in the address of ((unsigned *)output)[1];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
 	and the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
 
@@ -559,8 +559,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'output' in the address of ((unsigned *)output)[2];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
 	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
 
@@ -570,8 +570,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'output' in the address of ((unsigned *)output)[3];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
 
 	Consider declaring 'input' as const unsigned char * restrict input
@@ -580,8 +580,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'output' in the address of ((unsigned *)output)[1];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
 	and the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
 
@@ -591,8 +591,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'output' in the address of ((unsigned *)output)[2];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
 	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
 
@@ -602,8 +602,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'output' in the address of ((unsigned *)output)[3];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
 	and the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
 
@@ -613,8 +613,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'ctx' in the address of ((unsigned *)ctx)[24];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
 	and the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
 
@@ -624,8 +624,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'ctx' in the address of ((unsigned *)ctx)[18];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
 	and the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
 
@@ -635,8 +635,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'ctx' in the address of ((unsigned *)ctx)[21];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
 	and the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
 
@@ -646,8 +646,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'input' in the address of ((unsigned *)input)[2];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
 	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
 
@@ -657,8 +657,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'ctx' in the address of ((unsigned *)ctx)[18];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
 	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
 
@@ -668,8 +668,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'ctx' in the address of ((unsigned *)ctx)[20];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
 	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
 
@@ -679,8 +679,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'ctx' in the address of ((unsigned *)ctx)[23];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement ((unsigned *)output)[1] = ((unsigned *)input)[1]^((unsigned *)ctx)[19]^((unsigned *)ctx)[24]>>16^((unsigned *)ctx)[22]*65536u; at line 234
 	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
 
@@ -690,8 +690,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'input' in the address of ((unsigned *)input)[3];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
 
 	Consider declaring 'ctx' as struct Rabbit * const restrict ctx
@@ -700,8 +700,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'output' in the address of ((unsigned *)output)[2];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
 	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
 
@@ -711,8 +711,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'output' in the address of ((unsigned *)output)[3];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
 
 	Consider declaring 'ctx' as struct Rabbit * const restrict ctx
@@ -721,8 +721,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'output' in the address of ((unsigned *)output)[2];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
 	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
 
@@ -732,8 +732,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'output' in the address of ((unsigned *)output)[3];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
 
 	Consider declaring 'ctx' as struct Rabbit * const restrict ctx
@@ -742,8 +742,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'output' in the address of ((unsigned *)output)[2];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
 	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
 
@@ -753,8 +753,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'output' in the address of ((unsigned *)output)[3];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
 
 	Consider declaring 'input' as const unsigned char * restrict input
@@ -763,8 +763,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'output' in the address of ((unsigned *)output)[2];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
 	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
 
@@ -774,8 +774,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'output' in the address of ((unsigned *)output)[3];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
 	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
 
@@ -785,8 +785,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'ctx' in the address of ((unsigned *)ctx)[18];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
 	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
 
@@ -796,8 +796,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'ctx' in the address of ((unsigned *)ctx)[20];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
 	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
 
@@ -807,8 +807,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'ctx' in the address of ((unsigned *)ctx)[23];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement ((unsigned *)output)[2] = ((unsigned *)input)[2]^((unsigned *)ctx)[21]^((unsigned *)ctx)[18]>>16^((unsigned *)ctx)[24]*65536u; at line 237
 	and the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
 
@@ -818,8 +818,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'input' in the address of ((unsigned *)input)[3];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
 
 	Consider declaring 'ctx' as struct Rabbit * const restrict ctx
@@ -828,8 +828,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'output' in the address of ((unsigned *)output)[3];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
 
 	Consider declaring 'ctx' as struct Rabbit * const restrict ctx
@@ -838,8 +838,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'output' in the address of ((unsigned *)output)[3];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
 
 	Consider declaring 'ctx' as struct Rabbit * const restrict ctx
@@ -848,8 +848,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'output' in the address of ((unsigned *)output)[3];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:226-248
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'while' loop with loop variable 'msglen' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:226-248
 	for the statement ((unsigned *)output)[3] = ((unsigned *)input)[3]^((unsigned *)ctx)[23]^((unsigned *)ctx)[20]>>16^((unsigned *)ctx)[18]*65536u; at line 240
 
 	Consider declaring 'input' as const unsigned char * restrict input
@@ -858,8 +858,8 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	and            'output' in the address of ((unsigned *)output)[3];
 	do not access the same object in memory.
 
-ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
-	in the 'for' loop with loop variable 'i' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:273-274
+ADVICE: In function DoProcess() in C:/wolfssl/wolfcrypt/src/rabbit.c
+	in the 'for' loop with loop variable 'i' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:273-274
 	for the statement output[i] = input[i]^((unsigned char *)tmp)[i]; at line 274
 
 	Consider declaring 'input' as const unsigned char * restrict input
@@ -867,7 +867,7 @@ ADVICE: In function DoProcess() in C:/wolfssl/ctaocrypt/src/rabbit.c
 	to assert that 'input' in the address of input[i];
 	and            'output' in the address of output[i];
 	do not access the same object in memory.
-Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/rabbit.c:273-274 by factor 2.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/wolfcrypt/src/rabbit.c:273-274 by factor 2.
 Estimated speedup: 1.16x, code size increase: 1.67x (6:->10)
 
 There are 41 memory accesses with 283 dependences.

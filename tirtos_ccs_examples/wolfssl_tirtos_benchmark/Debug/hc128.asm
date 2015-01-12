@@ -6,11 +6,11 @@
 	.thumb
 
 $C$DW$CU	.dwtag  DW_TAG_compile_unit
-	.dwattr $C$DW$CU, DW_AT_name("C:/wolfssl/ctaocrypt/src/hc128.c")
+	.dwattr $C$DW$CU, DW_AT_name("C:/wolfssl/wolfcrypt/src/hc128.c")
 	.dwattr $C$DW$CU, DW_AT_producer("TI TI ARM C/C++ Codegen PC v5.1.6 Copyright (c) 1996-2014 Texas Instruments Incorporated")
 	.dwattr $C$DW$CU, DW_AT_TI_version(0x01)
 	.dwattr $C$DW$CU, DW_AT_comp_dir("C:\Users\khimes\Documents\GitHub\wolfssl-examples\tirtos_ccs_examples\wolfssl_tirtos_benchmark\Debug")
-;	c:\ti\ccsv6\tools\compiler\arm_5.1.6\bin\armopt.exe --call_assumptions=3 --gen_opt_info=2 C:\\Users\\khimes\\AppData\\Local\\Temp\\008282 C:\\Users\\khimes\\AppData\\Local\\Temp\\008284 --opt_info_filename=wolfssl/ctaocrypt/src/hc128.nfo 
+;	c:\ti\ccsv6\tools\compiler\arm_5.1.6\bin\armopt.exe --call_assumptions=3 --gen_opt_info=2 C:\\Users\\khimes\\AppData\\Local\\Temp\\008282 C:\\Users\\khimes\\AppData\\Local\\Temp\\008284 --opt_info_filename=wolfssl/wolfcrypt/src/hc128.nfo 
 
 ;******************************************************************************
 ;* BUILD ATTRIBUTES                                                           *
@@ -720,7 +720,7 @@ $C$DW$T$123	.dwtag  DW_TAG_pointer_type
 $C$DW$T$124	.dwtag  DW_TAG_typedef, DW_AT_name("__builtin_va_list")
 	.dwattr $C$DW$T$124, DW_AT_type(*$C$DW$T$123)
 	.dwattr $C$DW$T$124, DW_AT_language(DW_LANG_C)
-	.dwattr $C$DW$T$124, DW_AT_decl_file("C:/wolfssl/ctaocrypt/src/hc128.c")
+	.dwattr $C$DW$T$124, DW_AT_decl_file("C:/wolfssl/wolfcrypt/src/hc128.c")
 	.dwattr $C$DW$T$124, DW_AT_decl_line(0x01)
 	.dwattr $C$DW$T$124, DW_AT_decl_column(0x00)
 $C$DW$T$125	.dwtag  DW_TAG_typedef, DW_AT_name("xdc_String")

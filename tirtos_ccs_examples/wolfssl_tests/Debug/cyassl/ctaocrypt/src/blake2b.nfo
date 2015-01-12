@@ -190,19 +190,19 @@ static int blake2b_compress() is called from 3 sites in this file.
 	load64() (1 times)
 	rotr64() (384 times)
 
-ADVICE: In function blake2b_compress() in C:/wolfssl/ctaocrypt/src/blake2b.c
-	in the 'for' loop with loop variable 'i' at lines C:/wolfssl/ctaocrypt/src/blake2b.c:263-264
+ADVICE: In function blake2b_compress() in C:/wolfssl/wolfcrypt/src/blake2b.c
+	in the 'for' loop with loop variable 'i' at lines C:/wolfssl/wolfcrypt/src/blake2b.c:263-264
 	for the statement (*S).h[i] ^= v[i]^v[i+8]; at line 264
 
 	Consider declaring 'S' as struct __blake2b_state * const restrict S
 	to assert that lvalues (*S).h;
 	and                    (*S).h[i];
 	do not access the same object in memory.
-Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/blake2b.c:214-215 completely by factor 16.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/wolfcrypt/src/blake2b.c:214-215 completely by factor 16.
 Estimated speedup: 4.89x, code size increase: 5.33x (6:->32)
-Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/blake2b.c:217-218 completely by factor 8.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/wolfcrypt/src/blake2b.c:217-218 completely by factor 8.
 Estimated speedup: 3.29x, code size increase: 4.00x (4:->16)
-Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/blake2b.c:263-264 completely by factor 8.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/wolfcrypt/src/blake2b.c:263-264 completely by factor 8.
 Estimated speedup: 1.80x, code size increase: 5.00x (8:->40)
 
 There are 464 memory accesses with 3408 dependences.
@@ -228,17 +228,17 @@ extern int blake2b_init_param() is called from 2 sites in this file.
 	blake2b_init0() (1 times)
 	load64() (1 times)
 
-ADVICE: In function blake2b_init_param() in C:/wolfssl/ctaocrypt/src/blake2b.c
-	in the 'for' loop with loop variable 'i' at lines C:/wolfssl/ctaocrypt/src/blake2b.c:113-114
+ADVICE: In function blake2b_init_param() in C:/wolfssl/wolfcrypt/src/blake2b.c
+	in the 'for' loop with loop variable 'i' at lines C:/wolfssl/wolfcrypt/src/blake2b.c:113-114
 	for the statement (*S).h[i] ^= R$1; at line 114
 
 	Consider declaring 'S' as struct __blake2b_state * const restrict S
 	to assert that lvalues (*S).h;
 	and                    (*S).h[i];
 	do not access the same object in memory.
-Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/blake2b.c:100-100 completely by factor 8.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/wolfcrypt/src/blake2b.c:100-100 completely by factor 8.
 Estimated speedup: 3.29x, code size increase: 4.00x (4:->16)
-Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/blake2b.c:113-114 completely by factor 8.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/wolfcrypt/src/blake2b.c:113-114 completely by factor 8.
 Estimated speedup: 2.42x, code size increase: 4.00x (8:->32)
 
 There are 48 memory accesses with 536 dependences.
@@ -254,7 +254,7 @@ extern int blake2b_init_key() is called from 1 sites in this file.
 	blake2b_init_param() (1 times)
 	blake2b_update() (1 times)
 	secure_zero_memory() (1 times)
-Unrolling 'while' loop on 'n' at lines C:/wolfssl/wolfssl/ctaocrypt/blake2-impl.h:150-150 by factor 2.
+Unrolling 'while' loop on 'n' at lines C:/wolfssl/wolfssl/wolfcrypt/blake2-impl.h:150-150 by factor 2.
 Estimated speedup: 1.18x, code size increase: 1.50x (2:->3)
 
 There are 13 memory accesses with 0 dependences.
@@ -281,7 +281,7 @@ extern int blake2b_final() is called from 2 sites in this file.
 	blake2b_compress() (2 times)
 	blake2b_set_lastblock() (1 times)
 	store64() (1 times)
-Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/blake2b.c:333-334 completely by factor 8.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/wolfcrypt/src/blake2b.c:333-334 completely by factor 8.
 Estimated speedup: 4.73x, code size increase: 2.43x (7:->17)
 
 There are 51 memory accesses with 44 dependences.

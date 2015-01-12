@@ -1,6 +1,6 @@
 eclipse.preferences.version=1
-encoding//Debug/wolfssl/ctaocrypt/src/subdir_rules.mk=UTF-8
-encoding//Debug/wolfssl/ctaocrypt/src/subdir_vars.mk=UTF-8
+encoding//Debug/wolfssl/wolfcrypt/src/subdir_rules.mk=UTF-8
+encoding//Debug/wolfssl/wolfcrypt/src/subdir_vars.mk=UTF-8
 encoding//Debug/makefile=UTF-8
 encoding//Debug/objects.mk=UTF-8
 encoding//Debug/optimizerAssistant/opt_for_speed__0/makefile=UTF-8

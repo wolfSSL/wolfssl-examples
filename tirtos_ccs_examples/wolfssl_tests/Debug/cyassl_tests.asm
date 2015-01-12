@@ -88,8 +88,8 @@ $C$DW$16	.dwtag  DW_TAG_unspecified_parameters
 	.dwendtag $C$DW$14
 
 
-$C$DW$17	.dwtag  DW_TAG_subprogram, DW_AT_name("ctaocrypt_test")
-	.dwattr $C$DW$17, DW_AT_TI_symbol_name("ctaocrypt_test")
+$C$DW$17	.dwtag  DW_TAG_subprogram, DW_AT_name("wolfcrypt_test")
+	.dwattr $C$DW$17, DW_AT_TI_symbol_name("wolfcrypt_test")
 	.dwattr $C$DW$17, DW_AT_declaration
 	.dwattr $C$DW$17, DW_AT_external
 	.dwattr $C$DW$17, DW_AT_decl_file("../wolfssl_tests.c")
@@ -149,9 +149,9 @@ $C$DW$22	.dwtag  DW_TAG_variable, DW_AT_name("arg0")
 	.dwattr $C$DW$22, DW_AT_type(*$C$DW$T$1101)
 	.dwattr $C$DW$22, DW_AT_location[DW_OP_reg0]
 	.dwcfi	cfa_offset, 0
-;** 76	-----------------------    xdc_runtime_System_printf__E((const unsigned char *)"Running ctaocrypt tests...\n");
+;** 76	-----------------------    xdc_runtime_System_printf__E((const unsigned char *)"Running wolfcrypt tests...\n");
 ;** 77	-----------------------    xdc_runtime_System_flush__E();
-;** 78	-----------------------    ctaocrypt_test((void *)arg0);
+;** 78	-----------------------    wolfcrypt_test((void *)arg0);
 ;** 79	-----------------------    xdc_runtime_System_printf__E((const unsigned char *)"Tests completed.\n");
 ;** 81	-----------------------    ti_sysbios_BIOS_exit__E(0);
 ;**  	-----------------------    return;
@@ -179,10 +179,10 @@ $C$DW$24	.dwtag  DW_TAG_TI_branch
         MOV       A1, V1                ; [DPU_3_PIPE] |78| 
 $C$DW$25	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$25, DW_AT_low_pc(0x00)
-	.dwattr $C$DW$25, DW_AT_name("ctaocrypt_test")
+	.dwattr $C$DW$25, DW_AT_name("wolfcrypt_test")
 	.dwattr $C$DW$25, DW_AT_TI_call
-        BL        ctaocrypt_test        ; [DPU_3_PIPE] |78| 
-        ; CALL OCCURS {ctaocrypt_test }  ; [] |78| 
+        BL        wolfcrypt_test        ; [DPU_3_PIPE] |78| 
+        ; CALL OCCURS {wolfcrypt_test }  ; [] |78| 
 	.dwpsn	file "../wolfssl_tests.c",line 79,column 5,is_stmt,isa 1
         ADR       A1, $C$SL2            ; [DPU_3_PIPE] |79| 
 $C$DW$26	.dwtag  DW_TAG_TI_branch
@@ -382,7 +382,7 @@ $C$DW$41	.dwtag  DW_TAG_TI_branch
 ;******************************************************************************
 	.sect	".text:testCtaocrypt"
 	.align	4
-||$C$SL1||:	.string	"Running ctaocrypt tests...",10,0
+||$C$SL1||:	.string	"Running wolfcrypt tests...",10,0
 	.align	4
 ||$C$SL2||:	.string	"Tests completed.",10,0
 ;******************************************************************************
@@ -400,7 +400,7 @@ $C$DW$41	.dwtag  DW_TAG_TI_branch
 	.global	ti_sysbios_knl_Task_Params__init__S
 	.global	xdc_runtime_System_flush__E
 	.global	xdc_runtime_System_printf__E
-	.global	ctaocrypt_test
+	.global	wolfcrypt_test
 
 ;******************************************************************************
 ;* BUILD ATTRIBUTES                                                           *

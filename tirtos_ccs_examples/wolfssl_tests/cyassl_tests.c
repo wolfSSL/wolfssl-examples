@@ -65,7 +65,7 @@ typedef struct func_args {
     int    return_code;
 } func_args;
 
-extern void ctaocrypt_test(void* args);
+extern void wolfcrypt_test(void* args);
 
 /*
  *  ======== testCtaocrypt ========
@@ -73,9 +73,9 @@ extern void ctaocrypt_test(void* args);
  */
 void testCtaocrypt(UArg arg0, UArg arg1)
 {
-    System_printf("Running ctaocrypt tests...\n");
+    System_printf("Running wolfcrypt tests...\n");
     System_flush();
-    ctaocrypt_test((void *)arg0);
+    wolfcrypt_test((void *)arg0);
     System_printf("Tests completed.\n");
 
     BIOS_exit(0);

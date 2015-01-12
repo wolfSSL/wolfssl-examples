@@ -161,7 +161,7 @@ extern int AesSetKey() is called from 0 sites in this file.
     It has 3 non-trivial scope blocks nested 3 deep.
     It calls these functions:
 	AesSetKeyLocal() (1 times)
-Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/misc.c:102-103 completely by factor 8.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/wolfcrypt/src/misc.c:102-103 completely by factor 8.
 Estimated speedup: 1.20x, code size increase: 7.14x (14:->100)
 
 There are 134 memory accesses with 4183 dependences.
@@ -175,9 +175,9 @@ extern int AesCbcEncrypt() is called from 0 sites in this file.
     It calls these functions:
 	xorbuf() (1 times)
 	AesEncrypt() (1 times)
-Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/misc.c:155-155 completely by factor 4.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/wolfcrypt/src/misc.c:155-155 completely by factor 4.
 Estimated speedup: 1.76x, code size increase: 2.67x (6:->16)
-Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/misc.c:168-168 completely by factor 16.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/wolfcrypt/src/misc.c:168-168 completely by factor 16.
 Estimated speedup: 1.81x, code size increase: 10.67x (6:->64)
 
 		====== Unroll-and-jam Result Summary ======
@@ -198,9 +198,9 @@ extern int AesCbcDecrypt() is called from 0 sites in this file.
     It calls these functions:
 	AesDecrypt() (1 times)
 	xorbuf() (1 times)
-Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/misc.c:155-155 completely by factor 4.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/wolfcrypt/src/misc.c:155-155 completely by factor 4.
 Estimated speedup: 1.76x, code size increase: 2.67x (6:->16)
-Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/misc.c:168-168 completely by factor 16.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/wolfcrypt/src/misc.c:168-168 completely by factor 16.
 Estimated speedup: 1.81x, code size increase: 10.67x (6:->64)
 
 		====== Unroll-and-jam Result Summary ======

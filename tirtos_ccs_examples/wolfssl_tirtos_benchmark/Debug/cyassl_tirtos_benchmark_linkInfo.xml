@@ -17,121 +17,121 @@
          <name>wolfssl_tirtos_benchmark_pem4f.oem4f</name>
       </input_file>
       <input_file id="fl-18">
-         <path>.\wolfssl\ctaocrypt\src\</path>
+         <path>.\wolfssl\wolfcrypt\src\</path>
          <kind>object</kind>
          <file>tfm.obj</file>
          <name>tfm.obj</name>
       </input_file>
       <input_file id="fl-19">
-         <path>.\wolfssl\ctaocrypt\src\</path>
+         <path>.\wolfssl\wolfcrypt\src\</path>
          <kind>object</kind>
          <file>sha512.obj</file>
          <name>sha512.obj</name>
       </input_file>
       <input_file id="fl-1a">
-         <path>.\wolfssl\ctaocrypt\src\</path>
+         <path>.\wolfssl\wolfcrypt\src\</path>
          <kind>object</kind>
          <file>sha256.obj</file>
          <name>sha256.obj</name>
       </input_file>
       <input_file id="fl-1b">
-         <path>.\wolfssl\ctaocrypt\src\</path>
+         <path>.\wolfssl\wolfcrypt\src\</path>
          <kind>object</kind>
          <file>sha.obj</file>
          <name>sha.obj</name>
       </input_file>
       <input_file id="fl-1c">
-         <path>.\wolfssl\ctaocrypt\src\</path>
+         <path>.\wolfssl\wolfcrypt\src\</path>
          <kind>object</kind>
          <file>rsa.obj</file>
          <name>rsa.obj</name>
       </input_file>
       <input_file id="fl-1d">
-         <path>.\wolfssl\ctaocrypt\src\</path>
+         <path>.\wolfssl\wolfcrypt\src\</path>
          <kind>object</kind>
          <file>rabbit.obj</file>
          <name>rabbit.obj</name>
       </input_file>
       <input_file id="fl-1e">
-         <path>.\wolfssl\ctaocrypt\src\</path>
+         <path>.\wolfssl\wolfcrypt\src\</path>
          <kind>object</kind>
          <file>poly1305.obj</file>
          <name>poly1305.obj</name>
       </input_file>
       <input_file id="fl-1f">
-         <path>.\wolfssl\ctaocrypt\src\</path>
+         <path>.\wolfssl\wolfcrypt\src\</path>
          <kind>object</kind>
          <file>md5.obj</file>
          <name>md5.obj</name>
       </input_file>
       <input_file id="fl-20">
-         <path>.\wolfssl\ctaocrypt\src\</path>
+         <path>.\wolfssl\wolfcrypt\src\</path>
          <kind>object</kind>
          <file>integer.obj</file>
          <name>integer.obj</name>
       </input_file>
       <input_file id="fl-21">
-         <path>.\wolfssl\ctaocrypt\src\</path>
+         <path>.\wolfssl\wolfcrypt\src\</path>
          <kind>object</kind>
          <file>hc128.obj</file>
          <name>hc128.obj</name>
       </input_file>
       <input_file id="fl-22">
-         <path>.\wolfssl\ctaocrypt\src\</path>
+         <path>.\wolfssl\wolfcrypt\src\</path>
          <kind>object</kind>
          <file>ecc.obj</file>
          <name>ecc.obj</name>
       </input_file>
       <input_file id="fl-23">
-         <path>.\wolfssl\ctaocrypt\src\</path>
+         <path>.\wolfssl\wolfcrypt\src\</path>
          <kind>object</kind>
          <file>dh.obj</file>
          <name>dh.obj</name>
       </input_file>
       <input_file id="fl-24">
-         <path>.\wolfssl\ctaocrypt\src\</path>
+         <path>.\wolfssl\wolfcrypt\src\</path>
          <kind>object</kind>
          <file>des3.obj</file>
          <name>des3.obj</name>
       </input_file>
       <input_file id="fl-25">
-         <path>.\wolfssl\ctaocrypt\src\</path>
+         <path>.\wolfssl\wolfcrypt\src\</path>
          <kind>object</kind>
          <file>chacha.obj</file>
          <name>chacha.obj</name>
       </input_file>
       <input_file id="fl-26">
-         <path>.\wolfssl\ctaocrypt\src\</path>
+         <path>.\wolfssl\wolfcrypt\src\</path>
          <kind>object</kind>
          <file>camellia.obj</file>
          <name>camellia.obj</name>
       </input_file>
       <input_file id="fl-27">
-         <path>.\wolfssl\ctaocrypt\src\</path>
+         <path>.\wolfssl\wolfcrypt\src\</path>
          <kind>object</kind>
          <file>blake2b.obj</file>
          <name>blake2b.obj</name>
       </input_file>
       <input_file id="fl-28">
-         <path>.\wolfssl\ctaocrypt\src\</path>
+         <path>.\wolfssl\wolfcrypt\src\</path>
          <kind>object</kind>
          <file>asn.obj</file>
          <name>asn.obj</name>
       </input_file>
       <input_file id="fl-29">
-         <path>.\wolfssl\ctaocrypt\src\</path>
+         <path>.\wolfssl\wolfcrypt\src\</path>
          <kind>object</kind>
          <file>asm.obj</file>
          <name>asm.obj</name>
       </input_file>
       <input_file id="fl-2a">
-         <path>.\wolfssl\ctaocrypt\src\</path>
+         <path>.\wolfssl\wolfcrypt\src\</path>
          <kind>object</kind>
          <file>arc4.obj</file>
          <name>arc4.obj</name>
       </input_file>
       <input_file id="fl-2b">
-         <path>.\wolfssl\ctaocrypt\src\</path>
+         <path>.\wolfssl\wolfcrypt\src\</path>
          <kind>object</kind>
          <file>aes.obj</file>
          <name>aes.obj</name>

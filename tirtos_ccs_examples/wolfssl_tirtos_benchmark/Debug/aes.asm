@@ -6,7 +6,7 @@
 	.thumb
 
 $C$DW$CU	.dwtag  DW_TAG_compile_unit
-	.dwattr $C$DW$CU, DW_AT_name("C:/wolfssl/ctaocrypt/src/aes.c")
+	.dwattr $C$DW$CU, DW_AT_name("C:/wolfssl/wolfcrypt/src/aes.c")
 	.dwattr $C$DW$CU, DW_AT_producer("TI TI ARM C/C++ Codegen PC v5.1.6 Copyright (c) 1996-2014 Texas Instruments Incorporated")
 	.dwattr $C$DW$CU, DW_AT_TI_version(0x01)
 	.dwattr $C$DW$CU, DW_AT_comp_dir("C:\Users\khimes\Documents\GitHub\wolfssl-examples\tirtos_ccs_examples\wolfssl_tirtos_benchmark\Debug")
@@ -2628,7 +2628,7 @@ $C$DW$9	.dwtag  DW_TAG_variable, DW_AT_name("rcon")
 	.dwattr $C$DW$9, DW_AT_TI_symbol_name("rcon")
 	.dwattr $C$DW$9, DW_AT_type(*$C$DW$T$1135)
 	.dwattr $C$DW$9, DW_AT_location[DW_OP_addr rcon]
-	.dwattr $C$DW$9, DW_AT_decl_file("C:/wolfssl/ctaocrypt/src/aes.c")
+	.dwattr $C$DW$9, DW_AT_decl_file("C:/wolfssl/wolfcrypt/src/aes.c")
 	.dwattr $C$DW$9, DW_AT_decl_line(0x371)
 	.dwattr $C$DW$9, DW_AT_decl_column(0x15)
 Te:	.set	||$O1$$||+40
@@ -2636,7 +2636,7 @@ $C$DW$10	.dwtag  DW_TAG_variable, DW_AT_name("Te")
 	.dwattr $C$DW$10, DW_AT_TI_symbol_name("Te")
 	.dwattr $C$DW$10, DW_AT_type(*$C$DW$T$1137)
 	.dwattr $C$DW$10, DW_AT_location[DW_OP_addr Te]
-	.dwattr $C$DW$10, DW_AT_decl_file("C:/wolfssl/ctaocrypt/src/aes.c")
+	.dwattr $C$DW$10, DW_AT_decl_file("C:/wolfssl/wolfcrypt/src/aes.c")
 	.dwattr $C$DW$10, DW_AT_decl_line(0x379)
 	.dwattr $C$DW$10, DW_AT_decl_column(0x15)
 Td:	.set	||$O1$$||+5160
@@ -2644,10 +2644,10 @@ $C$DW$11	.dwtag  DW_TAG_variable, DW_AT_name("Td")
 	.dwattr $C$DW$11, DW_AT_TI_symbol_name("Td")
 	.dwattr $C$DW$11, DW_AT_type(*$C$DW$T$1137)
 	.dwattr $C$DW$11, DW_AT_location[DW_OP_addr Td]
-	.dwattr $C$DW$11, DW_AT_decl_file("C:/wolfssl/ctaocrypt/src/aes.c")
+	.dwattr $C$DW$11, DW_AT_decl_file("C:/wolfssl/wolfcrypt/src/aes.c")
 	.dwattr $C$DW$11, DW_AT_decl_line(0x4c7)
 	.dwattr $C$DW$11, DW_AT_decl_column(0x15)
-;	c:\ti\ccsv6\tools\compiler\arm_5.1.6\bin\armopt.exe --call_assumptions=3 --gen_opt_info=2 C:\\Users\\khimes\\AppData\\Local\\Temp\\021042 C:\\Users\\khimes\\AppData\\Local\\Temp\\021044 --opt_info_filename=wolfssl/ctaocrypt/src/aes.nfo 
+;	c:\ti\ccsv6\tools\compiler\arm_5.1.6\bin\armopt.exe --call_assumptions=3 --gen_opt_info=2 C:\\Users\\khimes\\AppData\\Local\\Temp\\021042 C:\\Users\\khimes\\AppData\\Local\\Temp\\021044 --opt_info_filename=wolfssl/wolfcrypt/src/aes.nfo 
 ;
 
 ; The following variables will be grouped together to share a common
@@ -2672,14 +2672,14 @@ $C$DW$12	.dwtag  DW_TAG_subprogram, DW_AT_name("AesSetIV")
 	.dwattr $C$DW$12, DW_AT_TI_symbol_name("AesSetIV")
 	.dwattr $C$DW$12, DW_AT_external
 	.dwattr $C$DW$12, DW_AT_type(*$C$DW$T$10)
-	.dwattr $C$DW$12, DW_AT_TI_begin_file("C:/wolfssl/ctaocrypt/src/aes.c")
+	.dwattr $C$DW$12, DW_AT_TI_begin_file("C:/wolfssl/wolfcrypt/src/aes.c")
 	.dwattr $C$DW$12, DW_AT_TI_begin_line(0xd54)
 	.dwattr $C$DW$12, DW_AT_TI_begin_column(0x05)
-	.dwattr $C$DW$12, DW_AT_decl_file("C:/wolfssl/ctaocrypt/src/aes.c")
+	.dwattr $C$DW$12, DW_AT_decl_file("C:/wolfssl/wolfcrypt/src/aes.c")
 	.dwattr $C$DW$12, DW_AT_decl_line(0xd54)
 	.dwattr $C$DW$12, DW_AT_decl_column(0x05)
 	.dwattr $C$DW$12, DW_AT_TI_max_frame_size(0x08)
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 3413,column 1,is_stmt,address AesSetIV,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 3413,column 1,is_stmt,address AesSetIV,isa 1
 
 	.dwfde $C$DW$CIE, AesSetIV
 $C$DW$13	.dwtag  DW_TAG_formal_parameter, DW_AT_name("aes")
@@ -2721,10 +2721,10 @@ $C$DW$16	.dwtag  DW_TAG_variable, DW_AT_name("aes")
 	.dwcfi	cfa_offset, 8
 	.dwcfi	save_reg_to_mem, 14, -4
 	.dwcfi	save_reg_to_mem, 3, -8
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 3414,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 3414,column 5,is_stmt,isa 1
         CMP       A1, #0                ; [DPU_3_PIPE] |3414| 
         IT        EQ                    ; [DPU_3_PIPE] 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 3415,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 3415,column 9,is_stmt,isa 1
         MVNEQ     A1, #172              ; [DPU_3_PIPE] |3415| 
         BEQ       ||$C$L2||             ; [DPU_3_PIPE] |3415| 
         ; BRANCHCC OCCURS {||$C$L2||}    ; [] |3415| 
@@ -2732,12 +2732,12 @@ $C$DW$16	.dwtag  DW_TAG_variable, DW_AT_name("aes")
 ;**	-----------------------g3:
 ;* 3417	-----------------------    if ( iv == NULL ) goto g5;
         CBZ       A2, ||$C$L1||         ; [] 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 3417,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 3417,column 5,is_stmt,isa 1
         ; BRANCHCC OCCURS {||$C$L1||}    ; [] |3417| 
 ;* --------------------------------------------------------------------------*
 ;* 3418	-----------------------    memcpy((unsigned *)aes+244, (const void *)iv, 16u);
 ;* 3422	-----------------------    return 0;
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 3418,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 3418,column 9,is_stmt,isa 1
         ADDS      A1, A1, #244          ; [DPU_3_PIPE] |3418| 
         MOVS      A3, #16               ; [DPU_3_PIPE] |3418| 
 $C$DW$17	.dwtag  DW_TAG_TI_branch
@@ -2746,7 +2746,7 @@ $C$DW$17	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$17, DW_AT_TI_call
         BL        memcpy                ; [DPU_3_PIPE] |3418| 
         ; CALL OCCURS {memcpy }          ; [] |3418| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 3422,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 3422,column 5,is_stmt,isa 1
         MOVS      A1, #0                ; [DPU_3_PIPE] |3422| 
 $C$DW$18	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$18, DW_AT_low_pc(0x00)
@@ -2760,7 +2760,7 @@ $C$DW$18	.dwtag  DW_TAG_TI_branch
 ;**	-----------------------g5:
 ;* 3420	-----------------------    memset((unsigned *)aes+244, 0, 16u);
 ;* 3422	-----------------------    return 0;
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 3420,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 3420,column 9,is_stmt,isa 1
         ADDS      A1, A1, #244          ; [DPU_3_PIPE] |3420| 
         MOVS      A2, #0                ; [DPU_3_PIPE] |3420| 
         MOVS      A3, #16               ; [DPU_3_PIPE] |3420| 
@@ -2770,7 +2770,7 @@ $C$DW$19	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$19, DW_AT_TI_call
         BL        memset                ; [DPU_3_PIPE] |3420| 
         ; CALL OCCURS {memset }          ; [] |3420| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 3422,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 3422,column 5,is_stmt,isa 1
         MOVS      A1, #0                ; [DPU_3_PIPE] |3422| 
 ;* --------------------------------------------------------------------------*
 ||$C$L2||:    
@@ -2780,7 +2780,7 @@ $C$DW$20	.dwtag  DW_TAG_TI_branch
         POP       {A4, PC}              ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 0
         ; BRANCH OCCURS                  ; [] 
-	.dwattr $C$DW$12, DW_AT_TI_end_file("C:/wolfssl/ctaocrypt/src/aes.c")
+	.dwattr $C$DW$12, DW_AT_TI_end_file("C:/wolfssl/wolfcrypt/src/aes.c")
 	.dwattr $C$DW$12, DW_AT_TI_end_line(0xd5f)
 	.dwattr $C$DW$12, DW_AT_TI_end_column(0x01)
 	.dwendentry
@@ -2798,14 +2798,14 @@ $C$DW$21	.dwtag  DW_TAG_subprogram, DW_AT_name("AesSetKey")
 	.dwattr $C$DW$21, DW_AT_TI_symbol_name("AesSetKey")
 	.dwattr $C$DW$21, DW_AT_external
 	.dwattr $C$DW$21, DW_AT_type(*$C$DW$T$10)
-	.dwattr $C$DW$21, DW_AT_TI_begin_file("C:/wolfssl/ctaocrypt/src/aes.c")
+	.dwattr $C$DW$21, DW_AT_TI_begin_file("C:/wolfssl/wolfcrypt/src/aes.c")
 	.dwattr $C$DW$21, DW_AT_TI_begin_line(0x740)
 	.dwattr $C$DW$21, DW_AT_TI_begin_column(0x05)
-	.dwattr $C$DW$21, DW_AT_decl_file("C:/wolfssl/ctaocrypt/src/aes.c")
+	.dwattr $C$DW$21, DW_AT_decl_file("C:/wolfssl/wolfcrypt/src/aes.c")
 	.dwattr $C$DW$21, DW_AT_decl_line(0x740)
 	.dwattr $C$DW$21, DW_AT_decl_column(0x05)
 	.dwattr $C$DW$21, DW_AT_TI_max_frame_size(0x28)
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1858,column 1,is_stmt,address AesSetKey,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1858,column 1,is_stmt,address AesSetKey,isa 1
 
 	.dwfde $C$DW$CIE, AesSetKey
 $C$DW$22	.dwtag  DW_TAG_formal_parameter, DW_AT_name("aes")
@@ -3197,11 +3197,11 @@ $C$DW$94	.dwtag  DW_TAG_variable, DW_AT_name("$O$U163")
 	.dwcfi	save_reg_to_mem, 3, -40
         MOV       V2, A3                ; [DPU_3_PIPE] |1858| 
         MOV       V1, A1                ; [DPU_3_PIPE] |1858| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1860,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1860,column 5,is_stmt,isa 1
         CMP       V2, #16               ; [DPU_3_PIPE] |1860| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1858,column 1,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1858,column 1,is_stmt,isa 1
         STR       A4, [SP, #0]          ; [DPU_3_PIPE] |1858| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1860,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1860,column 5,is_stmt,isa 1
         BEQ       ||$C$L3||             ; [DPU_3_PIPE] |1860| 
         ; BRANCHCC OCCURS {||$C$L3||}    ; [] |1860| 
 ;* --------------------------------------------------------------------------*
@@ -3231,11 +3231,11 @@ $C$DW$94	.dwtag  DW_TAG_variable, DW_AT_name("$O$U163")
 ;** 102	-----------------------    K$17 = C$46;  // [4]
 ;* 1709	-----------------------    i = 0u;  // [7]
 ;** 102	-----------------------    if ( K$17 <= 4u ) goto g5;  // [4]
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1718,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1718,column 5,is_stmt,isa 1
         LSRS      V3, V2, #2            ; [DPU_3_PIPE] |1718| 
         ADDS      A1, V3, #6            ; [DPU_3_PIPE] |1718| 
         STR       A1, [V1, #240]        ; [DPU_3_PIPE] |1718| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1720,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1720,column 5,is_stmt,isa 1
         MOV       A1, V1                ; [DPU_3_PIPE] |1720| 
 $C$DW$95	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$95, DW_AT_low_pc(0x00)
@@ -3243,58 +3243,58 @@ $C$DW$95	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$95, DW_AT_TI_call
         BL        memcpy                ; [DPU_3_PIPE] |1720| 
         ; CALL OCCURS {memcpy }          ; [] |1720| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
         LDR       A1, [V1, #0]          ; [DPU_3_PIPE] |66| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 103,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 103,column 9,is_stmt,isa 1
         LDR       A4, [V1, #12]         ; [DPU_3_PIPE] |103| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
         LDR       A2, [V1, #4]          ; [DPU_3_PIPE] |66| 
         LDR       A3, [V1, #8]          ; [DPU_3_PIPE] |66| 
         LSR       V5, A1, #8            ; [DPU_3_PIPE] |66| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 103,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 103,column 9,is_stmt,isa 1
         LSRS      V4, A4, #8            ; [DPU_3_PIPE] |103| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
         LSR       LR, A2, #8            ; [DPU_3_PIPE] |66| 
         LSR       V9, A3, #8            ; [DPU_3_PIPE] |66| 
         AND       V5, V5, #16711935     ; [DPU_3_PIPE] |66| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 103,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 103,column 9,is_stmt,isa 1
         AND       V4, V4, #16711935     ; [DPU_3_PIPE] |103| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
         AND       A1, A1, #16711935     ; [DPU_3_PIPE] |66| 
         AND       LR, LR, #16711935     ; [DPU_3_PIPE] |66| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 103,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 103,column 9,is_stmt,isa 1
         AND       A4, A4, #16711935     ; [DPU_3_PIPE] |103| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
         AND       V9, V9, #16711935     ; [DPU_3_PIPE] |66| 
         AND       A2, A2, #16711935     ; [DPU_3_PIPE] |66| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 102,column 17,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 102,column 17,is_stmt,isa 1
         CMP       V3, #4                ; [DPU_3_PIPE] |102| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
         AND       A3, A3, #16711935     ; [DPU_3_PIPE] |66| 
         ORR       V5, V5, A1, LSL #8    ; [DPU_3_PIPE] |66| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 103,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 103,column 9,is_stmt,isa 1
         ORR       V4, V4, A4, LSL #8    ; [DPU_3_PIPE] |103| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
         ORR       LR, LR, A2, LSL #8    ; [DPU_3_PIPE] |66| 
         ORR       V9, V9, A3, LSL #8    ; [DPU_3_PIPE] |66| 
         ROR       A4, V5, #16           ; [DPU_3_PIPE] |66| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 103,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 103,column 9,is_stmt,isa 1
         ROR       A1, V4, #16           ; [DPU_3_PIPE] |103| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
         ROR       A3, LR, #16           ; [DPU_3_PIPE] |66| 
         STR       A4, [V1, #0]          ; [DPU_3_PIPE] |66| 
         ROR       A2, V9, #16           ; [DPU_3_PIPE] |66| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 103,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 103,column 9,is_stmt,isa 1
         STR       A1, [V1, #12]         ; [DPU_3_PIPE] |103| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1708,column 22,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1708,column 22,is_stmt,isa 1
         MOV       V4, V1                ; [DPU_3_PIPE] |1708| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
         STR       A3, [V1, #4]          ; [DPU_3_PIPE] |66| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1709,column 20,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1709,column 20,is_stmt,isa 1
         MOV       V9, #0                ; [DPU_3_PIPE] |1709| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
         STR       A2, [V1, #8]          ; [DPU_3_PIPE] |66| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 102,column 17,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 102,column 17,is_stmt,isa 1
         BLS       ||$C$L4||             ; [DPU_3_PIPE] |102| 
         ; BRANCHCC OCCURS {||$C$L4||}    ; [] |102| 
 ;* --------------------------------------------------------------------------*
@@ -3305,35 +3305,35 @@ $C$DW$95	.dwtag  DW_TAG_TI_branch
 ;** 103	-----------------------    C$42 = C$43>>8&0xff00ffu|(C$43&0xff00ffu)<<8;  // [4]
 ;** 103	-----------------------    *((unsigned *)aes+20) = C$42<<16|C$42>>16u;  // [4]
 ;** 102	-----------------------    if ( K$17 <= 6u ) goto g5;  // [4]
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
         LDR       A3, [V1, #16]         ; [DPU_3_PIPE] |66| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 103,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 103,column 9,is_stmt,isa 1
         LDR       A1, [V1, #20]         ; [DPU_3_PIPE] |103| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
         LSRS      A4, A3, #8            ; [DPU_3_PIPE] |66| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 103,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 103,column 9,is_stmt,isa 1
         LSRS      A2, A1, #8            ; [DPU_3_PIPE] |103| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 102,column 17,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 102,column 17,is_stmt,isa 1
         CMP       V3, #6                ; [DPU_3_PIPE] |102| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
         AND       A4, A4, #16711935     ; [DPU_3_PIPE] |66| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 103,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 103,column 9,is_stmt,isa 1
         AND       A2, A2, #16711935     ; [DPU_3_PIPE] |103| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
         AND       A3, A3, #16711935     ; [DPU_3_PIPE] |66| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 103,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 103,column 9,is_stmt,isa 1
         AND       A1, A1, #16711935     ; [DPU_3_PIPE] |103| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
         ORR       A4, A4, A3, LSL #8    ; [DPU_3_PIPE] |66| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 103,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 103,column 9,is_stmt,isa 1
         ORR       A2, A2, A1, LSL #8    ; [DPU_3_PIPE] |103| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
         ROR       A3, A4, #16           ; [DPU_3_PIPE] |66| 
         STR       A3, [V1, #16]         ; [DPU_3_PIPE] |66| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 103,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 103,column 9,is_stmt,isa 1
         ROR       A1, A2, #16           ; [DPU_3_PIPE] |103| 
         STR       A1, [V1, #20]         ; [DPU_3_PIPE] |103| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 102,column 17,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 102,column 17,is_stmt,isa 1
         BLS       ||$C$L4||             ; [DPU_3_PIPE] |102| 
         ; BRANCHCC OCCURS {||$C$L4||}    ; [] |102| 
 ;* --------------------------------------------------------------------------*
@@ -3343,37 +3343,37 @@ $C$DW$95	.dwtag  DW_TAG_TI_branch
 ;** 103	-----------------------    C$39 = *((unsigned *)aes+28);  // [4]
 ;** 103	-----------------------    C$38 = C$39>>8&0xff00ffu|(C$39&0xff00ffu)<<8;  // [4]
 ;** 103	-----------------------    *((unsigned *)aes+28) = C$38<<16|C$38>>16u;  // [4]
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
         LDR       A3, [V1, #24]         ; [DPU_3_PIPE] |66| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 103,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 103,column 9,is_stmt,isa 1
         LDR       A1, [V1, #28]         ; [DPU_3_PIPE] |103| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
         LSRS      A4, A3, #8            ; [DPU_3_PIPE] |66| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 103,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 103,column 9,is_stmt,isa 1
         LSRS      A2, A1, #8            ; [DPU_3_PIPE] |103| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
         AND       A4, A4, #16711935     ; [DPU_3_PIPE] |66| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 103,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 103,column 9,is_stmt,isa 1
         AND       A2, A2, #16711935     ; [DPU_3_PIPE] |103| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
         AND       A3, A3, #16711935     ; [DPU_3_PIPE] |66| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 103,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 103,column 9,is_stmt,isa 1
         AND       A1, A1, #16711935     ; [DPU_3_PIPE] |103| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
         ORR       A4, A4, A3, LSL #8    ; [DPU_3_PIPE] |66| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 103,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 103,column 9,is_stmt,isa 1
         ORR       A2, A2, A1, LSL #8    ; [DPU_3_PIPE] |103| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
         ROR       A3, A4, #16           ; [DPU_3_PIPE] |66| 
         STR       A3, [V1, #24]         ; [DPU_3_PIPE] |66| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 103,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 103,column 9,is_stmt,isa 1
         ROR       A1, A2, #16           ; [DPU_3_PIPE] |103| 
         STR       A1, [V1, #28]         ; [DPU_3_PIPE] |103| 
 ;* --------------------------------------------------------------------------*
 ||$C$L4||:    
 ;**	-----------------------g5:
 ;* 1738	-----------------------    switch ( keylen ) {case 16u: goto g13;, case 24u: goto g10;, case 32u: goto g7;, DEFAULT goto g6};  // [7]
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1738,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1738,column 5,is_stmt,isa 1
         SUBS      V2, V2, #16           ; [DPU_3_PIPE] |1738| 
         BEQ       ||$C$L10||            ; [DPU_3_PIPE] |1738| 
         ; BRANCHCC OCCURS {||$C$L10||}   ; [] |1738| 
@@ -3389,7 +3389,7 @@ $C$DW$95	.dwtag  DW_TAG_TI_branch
 ||$C$L5||:    
 ;**	-----------------------g6:
 ;* 1884	-----------------------    return (-173);
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1884,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1884,column 5,is_stmt,isa 1
         MVN       A1, #172              ; [DPU_3_PIPE] |1884| 
 $C$DW$96	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$96, DW_AT_low_pc(0x00)
@@ -3434,7 +3434,7 @@ $C$DW$96	.dwtag  DW_TAG_TI_branch
 ;* 1791	-----------------------    rk[10] = C$33 = rk[2]^C$34;  // [7]
 ;* 1792	-----------------------    rk[11] = C$32 = rk[3]^C$33;  // [7]
 ;* 1794	-----------------------    if ( (++i) == 7u ) goto g16;  // [7]
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1784,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1784,column 13,is_stmt,isa 1
         LDR       V2, [V4, #28]         ; [DPU_3_PIPE] |1784| 
         LDR       V8, [V4, #0]          ; [DPU_3_PIPE] |1784| 
         UXTB      A2, V2, ROR #16       ; [DPU_3_PIPE] |1784| 
@@ -3444,23 +3444,23 @@ $C$DW$96	.dwtag  DW_TAG_TI_branch
         UXTB      A4, V2                ; [DPU_3_PIPE] |1784| 
         LDR       A4, [A1, +A4, LSL #2] ; [DPU_3_PIPE] |1784| 
         LDR       V3, [LR, #0]          ; [DPU_3_PIPE] |1784| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1790,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1790,column 13,is_stmt,isa 1
         LDR       V7, [V4, #4]          ; [DPU_3_PIPE] |1790| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1791,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1791,column 13,is_stmt,isa 1
         LDR       V6, [V4, #8]          ; [DPU_3_PIPE] |1791| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1792,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1792,column 13,is_stmt,isa 1
         LDR       V5, [V4, #12]         ; [DPU_3_PIPE] |1792| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1794,column 17,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1794,column 17,is_stmt,isa 1
         ADD       V9, V9, #1            ; [DPU_3_PIPE] |1794| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1784,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1784,column 13,is_stmt,isa 1
         LSRS      V2, V2, #24           ; [DPU_3_PIPE] |1784| 
         AND       A2, A2, #-16777216    ; [DPU_3_PIPE] |1784| 
         AND       A3, A3, #16711680     ; [DPU_3_PIPE] |1784| 
         AND       A4, A4, #65280        ; [DPU_3_PIPE] |1784| 
         LDR       V2, [A1, +V2, LSL #2] ; [DPU_3_PIPE] |1784| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1794,column 17,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1794,column 17,is_stmt,isa 1
         CMP       V9, #7                ; [DPU_3_PIPE] |1794| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1784,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1784,column 13,is_stmt,isa 1
         EOR       A2, A2, V8            ; [DPU_3_PIPE] |1784| 
         AND       V2, V2, #255          ; [DPU_3_PIPE] |1784| 
         EOR       A3, A3, A2            ; [DPU_3_PIPE] |1784| 
@@ -3468,16 +3468,16 @@ $C$DW$96	.dwtag  DW_TAG_TI_branch
         EOR       V2, V2, A4            ; [DPU_3_PIPE] |1784| 
         EOR       V3, V3, V2            ; [DPU_3_PIPE] |1784| 
         STR       V3, [V4, #32]         ; [DPU_3_PIPE] |1784| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1790,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1790,column 13,is_stmt,isa 1
         EOR       A2, V3, V7            ; [DPU_3_PIPE] |1790| 
         STR       A2, [V4, #36]         ; [DPU_3_PIPE] |1790| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1791,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1791,column 13,is_stmt,isa 1
         EOR       A3, A2, V6            ; [DPU_3_PIPE] |1791| 
         STR       A3, [V4, #40]         ; [DPU_3_PIPE] |1791| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1792,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1792,column 13,is_stmt,isa 1
         EOR       V2, A3, V5            ; [DPU_3_PIPE] |1792| 
         STR       V2, [V4, #44]         ; [DPU_3_PIPE] |1792| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1794,column 17,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1794,column 17,is_stmt,isa 1
         BEQ       ||$C$L13||            ; [DPU_3_PIPE] |1794| 
         ; BRANCHCC OCCURS {||$C$L13||}   ; [] |1794| 
 ;* --------------------------------------------------------------------------*
@@ -3488,7 +3488,7 @@ $C$DW$96	.dwtag  DW_TAG_TI_branch
 ;* 1805	-----------------------    rk += 8;  // [7]
 ;* 1794	-----------------------    ++U$163;  // [7]
 ;* 1781	-----------------------    goto g8;  // [7]
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1796,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1796,column 13,is_stmt,isa 1
         LSRS      A2, V2, #24           ; [DPU_3_PIPE] |1796| 
         LDR       A2, [A1, +A2, LSL #2] ; [DPU_3_PIPE] |1796| 
         UXTB      A3, V2, ROR #16       ; [DPU_3_PIPE] |1796| 
@@ -3498,37 +3498,37 @@ $C$DW$96	.dwtag  DW_TAG_TI_branch
         LDR       A4, [A1, +A4, LSL #2] ; [DPU_3_PIPE] |1796| 
         UXTB      V2, V2                ; [DPU_3_PIPE] |1796| 
         LDR       V2, [A1, +V2, LSL #2] ; [DPU_3_PIPE] |1796| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1801,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1801,column 13,is_stmt,isa 1
         LDR       V6, [V4, #20]         ; [DPU_3_PIPE] |1801| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1802,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1802,column 13,is_stmt,isa 1
         LDR       V5, [V4, #24]         ; [DPU_3_PIPE] |1802| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1803,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1803,column 13,is_stmt,isa 1
         LDR       V3, [V4, #28]         ; [DPU_3_PIPE] |1803| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1796,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1796,column 13,is_stmt,isa 1
         AND       A2, A2, #-16777216    ; [DPU_3_PIPE] |1796| 
         AND       A3, A3, #16711680     ; [DPU_3_PIPE] |1796| 
         AND       A4, A4, #65280        ; [DPU_3_PIPE] |1796| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1794,column 17,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1794,column 17,is_stmt,isa 1
         ADD       LR, LR, #4            ; [DPU_3_PIPE] |1794| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1796,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1796,column 13,is_stmt,isa 1
         AND       V2, V2, #255          ; [DPU_3_PIPE] |1796| 
         EOR       A2, A2, V7            ; [DPU_3_PIPE] |1796| 
         EORS      A3, A3, A2            ; [DPU_3_PIPE] |1796| 
         EORS      A4, A4, A3            ; [DPU_3_PIPE] |1796| 
         EORS      V2, V2, A4            ; [DPU_3_PIPE] |1796| 
         STR       V2, [V4, #48]         ; [DPU_3_PIPE] |1796| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1801,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1801,column 13,is_stmt,isa 1
         EOR       V2, V2, V6            ; [DPU_3_PIPE] |1801| 
         STR       V2, [V4, #52]         ; [DPU_3_PIPE] |1801| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1802,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1802,column 13,is_stmt,isa 1
         EOR       V2, V2, V5            ; [DPU_3_PIPE] |1802| 
         STR       V2, [V4, #56]         ; [DPU_3_PIPE] |1802| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1803,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1803,column 13,is_stmt,isa 1
         EORS      V2, V2, V3            ; [DPU_3_PIPE] |1803| 
         STR       V2, [V4, #60]         ; [DPU_3_PIPE] |1803| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1805,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1805,column 13,is_stmt,isa 1
         ADDS      V4, V4, #32           ; [DPU_3_PIPE] |1805| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1781,column 16,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1781,column 16,is_stmt,isa 1
         B         ||$C$L7||             ; [DPU_3_PIPE] |1781| 
         ; BRANCH OCCURS {||$C$L7||}      ; [] |1781| 
 ;* --------------------------------------------------------------------------*
@@ -3559,7 +3559,7 @@ $C$DW$96	.dwtag  DW_TAG_TI_branch
 ;* 1770	-----------------------    rk[8] = C$24 = rk[2]^C$25;  // [7]
 ;* 1771	-----------------------    rk[9] = C$23 = rk[3]^C$24;  // [7]
 ;* 1773	-----------------------    if ( (++i) == 8u ) goto g16;  // [7]
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1763,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1763,column 13,is_stmt,isa 1
         LDR       V2, [V4, #20]         ; [DPU_3_PIPE] |1763| 
         LDR       V8, [V4, #0]          ; [DPU_3_PIPE] |1763| 
         UXTB      A2, V2, ROR #16       ; [DPU_3_PIPE] |1763| 
@@ -3569,23 +3569,23 @@ $C$DW$96	.dwtag  DW_TAG_TI_branch
         UXTB      A4, V2                ; [DPU_3_PIPE] |1763| 
         LDR       A4, [A1, +A4, LSL #2] ; [DPU_3_PIPE] |1763| 
         LDR       V3, [LR, #0]          ; [DPU_3_PIPE] |1763| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1769,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1769,column 13,is_stmt,isa 1
         LDR       V7, [V4, #4]          ; [DPU_3_PIPE] |1769| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1770,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1770,column 13,is_stmt,isa 1
         LDR       V6, [V4, #8]          ; [DPU_3_PIPE] |1770| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1771,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1771,column 13,is_stmt,isa 1
         LDR       V5, [V4, #12]         ; [DPU_3_PIPE] |1771| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1773,column 17,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1773,column 17,is_stmt,isa 1
         ADD       V9, V9, #1            ; [DPU_3_PIPE] |1773| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1763,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1763,column 13,is_stmt,isa 1
         LSRS      V2, V2, #24           ; [DPU_3_PIPE] |1763| 
         AND       A2, A2, #-16777216    ; [DPU_3_PIPE] |1763| 
         AND       A3, A3, #16711680     ; [DPU_3_PIPE] |1763| 
         AND       A4, A4, #65280        ; [DPU_3_PIPE] |1763| 
         LDR       V2, [A1, +V2, LSL #2] ; [DPU_3_PIPE] |1763| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1773,column 17,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1773,column 17,is_stmt,isa 1
         CMP       V9, #8                ; [DPU_3_PIPE] |1773| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1763,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1763,column 13,is_stmt,isa 1
         EOR       A2, A2, V8            ; [DPU_3_PIPE] |1763| 
         AND       V2, V2, #255          ; [DPU_3_PIPE] |1763| 
         EOR       A3, A3, A2            ; [DPU_3_PIPE] |1763| 
@@ -3593,16 +3593,16 @@ $C$DW$96	.dwtag  DW_TAG_TI_branch
         EOR       V2, V2, A4            ; [DPU_3_PIPE] |1763| 
         EOR       V3, V3, V2            ; [DPU_3_PIPE] |1763| 
         STR       V3, [V4, #24]         ; [DPU_3_PIPE] |1763| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1769,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1769,column 13,is_stmt,isa 1
         EOR       A2, V3, V7            ; [DPU_3_PIPE] |1769| 
         STR       A2, [V4, #28]         ; [DPU_3_PIPE] |1769| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1770,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1770,column 13,is_stmt,isa 1
         EOR       A3, A2, V6            ; [DPU_3_PIPE] |1770| 
         STR       A3, [V4, #32]         ; [DPU_3_PIPE] |1770| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1771,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1771,column 13,is_stmt,isa 1
         EOR       A2, A3, V5            ; [DPU_3_PIPE] |1771| 
         STR       A2, [V4, #36]         ; [DPU_3_PIPE] |1771| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1773,column 17,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1773,column 17,is_stmt,isa 1
         BEQ       ||$C$L13||            ; [DPU_3_PIPE] |1773| 
         ; BRANCHCC OCCURS {||$C$L13||}   ; [] |1773| 
 ;* --------------------------------------------------------------------------*
@@ -3611,22 +3611,22 @@ $C$DW$96	.dwtag  DW_TAG_TI_branch
 ;* 1776	-----------------------    rk += 6;  // [7]
 ;* 1773	-----------------------    ++U$163;  // [7]
 ;* 1760	-----------------------    goto g11;  // [7]
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1774,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1774,column 13,is_stmt,isa 1
         LDR       A4, [V4, #16]         ; [DPU_3_PIPE] |1774| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1775,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1775,column 13,is_stmt,isa 1
         LDR       A3, [V4, #20]         ; [DPU_3_PIPE] |1775| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1774,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1774,column 13,is_stmt,isa 1
         EORS      A2, A2, A4            ; [DPU_3_PIPE] |1774| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1773,column 17,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1773,column 17,is_stmt,isa 1
         ADD       LR, LR, #4            ; [DPU_3_PIPE] |1773| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1774,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1774,column 13,is_stmt,isa 1
         STR       A2, [V4, #40]         ; [DPU_3_PIPE] |1774| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1775,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1775,column 13,is_stmt,isa 1
         EORS      A2, A2, A3            ; [DPU_3_PIPE] |1775| 
         STR       A2, [V4, #44]         ; [DPU_3_PIPE] |1775| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1776,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1776,column 13,is_stmt,isa 1
         ADDS      V4, V4, #24           ; [DPU_3_PIPE] |1776| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1760,column 16,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1760,column 16,is_stmt,isa 1
         B         ||$C$L9||             ; [DPU_3_PIPE] |1760| 
         ; BRANCH OCCURS {||$C$L9||}      ; [] |1760| 
 ;* --------------------------------------------------------------------------*
@@ -3648,9 +3648,9 @@ $C$DW$96	.dwtag  DW_TAG_TI_branch
 ;**	-----------------------g14:
 ;* 1755	-----------------------    rk += 4;  // [7]
 ;* 1754	-----------------------    ++U$163;  // [7]
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1755,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1755,column 13,is_stmt,isa 1
         ADDS      V4, V4, #16           ; [DPU_3_PIPE] |1755| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1754,column 17,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1754,column 17,is_stmt,isa 1
         ADD       LR, LR, #4            ; [DPU_3_PIPE] |1754| 
 ;* --------------------------------------------------------------------------*
 ;*   BEGIN LOOP ||$C$L12||
@@ -3663,7 +3663,7 @@ $C$DW$96	.dwtag  DW_TAG_TI_branch
 ;* 1751	-----------------------    rk[6] = C$17 = rk[2]^C$18;  // [7]
 ;* 1752	-----------------------    rk[7] = rk[3]^C$17;  // [7]
 ;* 1754	-----------------------    if ( (++i) != 10u ) goto g14;  // [7]
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1744,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1744,column 13,is_stmt,isa 1
         LDR       V2, [V4, #12]         ; [DPU_3_PIPE] |1744| 
         LDR       V8, [V4, #0]          ; [DPU_3_PIPE] |1744| 
         UXTB      A2, V2, ROR #16       ; [DPU_3_PIPE] |1744| 
@@ -3673,23 +3673,23 @@ $C$DW$96	.dwtag  DW_TAG_TI_branch
         UXTB      A4, V2                ; [DPU_3_PIPE] |1744| 
         LDR       A4, [A1, +A4, LSL #2] ; [DPU_3_PIPE] |1744| 
         LDR       V3, [LR, #0]          ; [DPU_3_PIPE] |1744| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1750,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1750,column 13,is_stmt,isa 1
         LDR       V7, [V4, #4]          ; [DPU_3_PIPE] |1750| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1751,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1751,column 13,is_stmt,isa 1
         LDR       V6, [V4, #8]          ; [DPU_3_PIPE] |1751| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1752,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1752,column 13,is_stmt,isa 1
         LDR       V5, [V4, #12]         ; [DPU_3_PIPE] |1752| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1754,column 17,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1754,column 17,is_stmt,isa 1
         ADD       V9, V9, #1            ; [DPU_3_PIPE] |1754| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1744,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1744,column 13,is_stmt,isa 1
         LSRS      V2, V2, #24           ; [DPU_3_PIPE] |1744| 
         AND       A2, A2, #-16777216    ; [DPU_3_PIPE] |1744| 
         AND       A3, A3, #16711680     ; [DPU_3_PIPE] |1744| 
         AND       A4, A4, #65280        ; [DPU_3_PIPE] |1744| 
         LDR       V2, [A1, +V2, LSL #2] ; [DPU_3_PIPE] |1744| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1754,column 17,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1754,column 17,is_stmt,isa 1
         CMP       V9, #10               ; [DPU_3_PIPE] |1754| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1744,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1744,column 13,is_stmt,isa 1
         EOR       A2, A2, V8            ; [DPU_3_PIPE] |1744| 
         AND       V2, V2, #255          ; [DPU_3_PIPE] |1744| 
         EOR       A3, A3, A2            ; [DPU_3_PIPE] |1744| 
@@ -3697,23 +3697,23 @@ $C$DW$96	.dwtag  DW_TAG_TI_branch
         EOR       V2, V2, A4            ; [DPU_3_PIPE] |1744| 
         EOR       V3, V3, V2            ; [DPU_3_PIPE] |1744| 
         STR       V3, [V4, #16]         ; [DPU_3_PIPE] |1744| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1750,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1750,column 13,is_stmt,isa 1
         EOR       A2, V3, V7            ; [DPU_3_PIPE] |1750| 
         STR       A2, [V4, #20]         ; [DPU_3_PIPE] |1750| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1751,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1751,column 13,is_stmt,isa 1
         EOR       A3, A2, V6            ; [DPU_3_PIPE] |1751| 
         STR       A3, [V4, #24]         ; [DPU_3_PIPE] |1751| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1752,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1752,column 13,is_stmt,isa 1
         EOR       A2, A3, V5            ; [DPU_3_PIPE] |1752| 
         STR       A2, [V4, #28]         ; [DPU_3_PIPE] |1752| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1754,column 17,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1754,column 17,is_stmt,isa 1
         BNE       ||$C$L11||            ; [DPU_3_PIPE] |1754| 
         ; BRANCHCC OCCURS {||$C$L11||}   ; [] |1754| 
 ;* --------------------------------------------------------------------------*
 ||$C$L13||:    
 ;**	-----------------------g16:
 ;* 1813	-----------------------    if ( dir != 1 ) goto g23;  // [7]
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1813,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1813,column 5,is_stmt,isa 1
         LDR       A2, [SP, #40]         ; [DPU_3_PIPE] |1813| 
         CMP       A2, #1                ; [DPU_3_PIPE] |1813| 
         BNE       ||$C$L17||            ; [DPU_3_PIPE] |1813| 
@@ -3722,11 +3722,11 @@ $C$DW$96	.dwtag  DW_TAG_TI_branch
 ;* 1816	-----------------------    rk = aes;  // [7]
 ;* 1819	-----------------------    C$16 = *((unsigned *)aes+240);  // [7]
 ;* 1819	-----------------------    if ( !(j = C$16*4u) ) goto g20;  // [7]
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1819,column 14,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1819,column 14,is_stmt,isa 1
         LDR       A3, [V1, #240]        ; [DPU_3_PIPE] |1819| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1816,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1816,column 9,is_stmt,isa 1
         MOV       V3, V1                ; [DPU_3_PIPE] |1816| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1819,column 14,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1819,column 14,is_stmt,isa 1
         LSLS      A4, A3, #2            ; [DPU_3_PIPE] |1819| 
         BEQ       ||$C$L15||            ; [DPU_3_PIPE] |1819| 
         ; BRANCHCC OCCURS {||$C$L15||}   ; [] |1819| 
@@ -3773,52 +3773,52 @@ $C$DW$96	.dwtag  DW_TAG_TI_branch
 ;* 1823	-----------------------    U$317[3] = *U$349;  // [7]
 ;* 1823	-----------------------    *U$349--{4} = temp;  // [7]
 ;* 1819	-----------------------    if ( (i += 4u) < (j -= 4u) ) goto g19;  // [7]
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1820,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1820,column 13,is_stmt,isa 1
         LDR       V6, [A3, #16]!        ; [DPU_3_PIPE] |1820| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1820,column 31,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1820,column 31,is_stmt,isa 1
         LDR       V5, [LR, #0]          ; [DPU_3_PIPE] |1820| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1821,column 31,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1821,column 31,is_stmt,isa 1
         LDR       V7, [V9, #0]          ; [DPU_3_PIPE] |1821| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1821,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1821,column 13,is_stmt,isa 1
         LDR       V8, [A3, #4]          ; [DPU_3_PIPE] |1821| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1820,column 31,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1820,column 31,is_stmt,isa 1
         STR       V5, [A3, #0]          ; [DPU_3_PIPE] |1820| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1821,column 31,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1821,column 31,is_stmt,isa 1
         STR       V7, [A3, #4]          ; [DPU_3_PIPE] |1821| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1822,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1822,column 13,is_stmt,isa 1
         LDR       V7, [A3, #8]          ; [DPU_3_PIPE] |1822| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1820,column 54,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1820,column 54,is_stmt,isa 1
         STR       V6, [LR], #-16        ; [DPU_3_PIPE] |1820| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1822,column 31,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1822,column 31,is_stmt,isa 1
         LDR       V6, [V4, #0]          ; [DPU_3_PIPE] |1822| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1821,column 54,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1821,column 54,is_stmt,isa 1
         STR       V8, [V9], #-16        ; [DPU_3_PIPE] |1821| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1823,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1823,column 13,is_stmt,isa 1
         LDR       V8, [A3, #12]         ; [DPU_3_PIPE] |1823| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1822,column 31,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1822,column 31,is_stmt,isa 1
         STR       V6, [A3, #8]          ; [DPU_3_PIPE] |1822| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1823,column 31,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1823,column 31,is_stmt,isa 1
         LDR       V6, [A2, #0]          ; [DPU_3_PIPE] |1823| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1819,column 41,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1819,column 41,is_stmt,isa 1
         SUBS      A4, A4, #4            ; [DPU_3_PIPE] |1819| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1822,column 54,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1822,column 54,is_stmt,isa 1
         STR       V7, [V4], #-16        ; [DPU_3_PIPE] |1822| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1819,column 41,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1819,column 41,is_stmt,isa 1
         ADDS      V2, V2, #4            ; [DPU_3_PIPE] |1819| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1823,column 31,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1823,column 31,is_stmt,isa 1
         STR       V6, [A3, #12]         ; [DPU_3_PIPE] |1823| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1819,column 41,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1819,column 41,is_stmt,isa 1
         CMP       A4, V2                ; [DPU_3_PIPE] |1819| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1823,column 54,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1823,column 54,is_stmt,isa 1
         STR       V8, [A2], #-16        ; [DPU_3_PIPE] |1823| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1819,column 41,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1819,column 41,is_stmt,isa 1
         BHI       ||$C$L14||            ; [DPU_3_PIPE] |1819| 
         ; BRANCHCC OCCURS {||$C$L14||}   ; [] |1819| 
 ;* --------------------------------------------------------------------------*
 ||$C$L15||:    
 ;**	-----------------------g20:
 ;* 1827	-----------------------    if ( *((unsigned *)aes+240) <= 1u ) goto g23;  // [7]
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1827,column 21,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1827,column 21,is_stmt,isa 1
         LDR       A2, [V1, #240]        ; [DPU_3_PIPE] |1827| 
         CMP       A2, #1                ; [DPU_3_PIPE] |1827| 
         BLS       ||$C$L17||            ; [DPU_3_PIPE] |1827| 
@@ -3828,7 +3828,7 @@ $C$DW$96	.dwtag  DW_TAG_TI_branch
 ;* 1827	-----------------------    i = 1u;  // [7]
 ;**  	-----------------------    #pragma LOOP_FLAGS(4096u)
         MOVW      V4, ||$O1$$||+5160    ; [DPU_3_PIPE] 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1827,column 14,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1827,column 14,is_stmt,isa 1
         MOV       V9, #1                ; [DPU_3_PIPE] |1827| 
         MOVT      V4, ||$O1$$||+5160    ; [DPU_3_PIPE] 
 ;* --------------------------------------------------------------------------*
@@ -3851,7 +3851,7 @@ $C$DW$96	.dwtag  DW_TAG_TI_branch
 ;* 1844	-----------------------    C$12 = rk[3];  // [7]
 ;* 1844	-----------------------    rk[3] = K$372[((int)K$125[(unsigned char)(C$12>>24)]&0xff)]^K$372[((int)K$125[(unsigned char)(C$12>>16)]&0xff)+256]^K$372[((int)K$125[(unsigned char)(C$12>>8)]&0xff)+512]^K$372[((int)K$125[(unsigned char)C$12]&0xff)+768];  // [7]
 ;* 1827	-----------------------    if ( *((unsigned *)aes+240) > (++i) ) goto g22;  // [7]
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1829,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1829,column 13,is_stmt,isa 1
         LDR       V2, [V3, #16]!        ; [DPU_3_PIPE] |1829| 
         LSRS      A2, V2, #24           ; [DPU_3_PIPE] |1829| 
         LDR       A2, [A1, +A2, LSL #2] ; [DPU_3_PIPE] |1829| 
@@ -3859,9 +3859,9 @@ $C$DW$96	.dwtag  DW_TAG_TI_branch
         LDR       A3, [A1, +A3, LSL #2] ; [DPU_3_PIPE] |1829| 
         UXTB      A4, V2, ROR #8        ; [DPU_3_PIPE] |1829| 
         LDR       A4, [A1, +A4, LSL #2] ; [DPU_3_PIPE] |1829| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1834,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1834,column 13,is_stmt,isa 1
         LDR       V8, [V3, #4]          ; [DPU_3_PIPE] |1834| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1829,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1829,column 13,is_stmt,isa 1
         AND       A2, A2, #255          ; [DPU_3_PIPE] |1829| 
         LDR       LR, [V4, +A2, LSL #2] ; [DPU_3_PIPE] |1829| 
         UXTB      V2, V2                ; [DPU_3_PIPE] |1829| 
@@ -3875,14 +3875,14 @@ $C$DW$96	.dwtag  DW_TAG_TI_branch
         AND       V2, V2, #255          ; [DPU_3_PIPE] |1829| 
         ADD       A4, V4, V2, LSL #2    ; [DPU_3_PIPE] |1829| 
         LDR       A4, [A4, #3072]       ; [DPU_3_PIPE] |1829| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1834,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1834,column 13,is_stmt,isa 1
         LSR       V7, V8, #24           ; [DPU_3_PIPE] |1834| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1829,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1829,column 13,is_stmt,isa 1
         EOR       A2, A2, LR            ; [DPU_3_PIPE] |1829| 
         EORS      A3, A3, A2            ; [DPU_3_PIPE] |1829| 
         EORS      A4, A4, A3            ; [DPU_3_PIPE] |1829| 
         STR       A4, [V3, #0]          ; [DPU_3_PIPE] |1829| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1834,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1834,column 13,is_stmt,isa 1
         LDR       A2, [A1, +V7, LSL #2] ; [DPU_3_PIPE] |1834| 
         UXTB      V6, V8, ROR #16       ; [DPU_3_PIPE] |1834| 
         LDR       A3, [A1, +V6, LSL #2] ; [DPU_3_PIPE] |1834| 
@@ -3890,9 +3890,9 @@ $C$DW$96	.dwtag  DW_TAG_TI_branch
         LDR       A4, [A1, +V5, LSL #2] ; [DPU_3_PIPE] |1834| 
         AND       A2, A2, #255          ; [DPU_3_PIPE] |1834| 
         LDR       LR, [V4, +A2, LSL #2] ; [DPU_3_PIPE] |1834| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1839,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1839,column 13,is_stmt,isa 1
         LDR       V6, [V3, #8]          ; [DPU_3_PIPE] |1839| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1834,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1834,column 13,is_stmt,isa 1
         UXTB      V7, V8                ; [DPU_3_PIPE] |1834| 
         LDR       V2, [A1, +V7, LSL #2] ; [DPU_3_PIPE] |1834| 
         AND       A3, A3, #255          ; [DPU_3_PIPE] |1834| 
@@ -3904,14 +3904,14 @@ $C$DW$96	.dwtag  DW_TAG_TI_branch
         AND       V2, V2, #255          ; [DPU_3_PIPE] |1834| 
         ADD       A4, V4, V2, LSL #2    ; [DPU_3_PIPE] |1834| 
         LDR       A4, [A4, #3072]       ; [DPU_3_PIPE] |1834| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1839,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1839,column 13,is_stmt,isa 1
         LSR       V5, V6, #24           ; [DPU_3_PIPE] |1839| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1834,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1834,column 13,is_stmt,isa 1
         EOR       A2, A2, LR            ; [DPU_3_PIPE] |1834| 
         EORS      A3, A3, A2            ; [DPU_3_PIPE] |1834| 
         EORS      A4, A4, A3            ; [DPU_3_PIPE] |1834| 
         STR       A4, [V3, #4]          ; [DPU_3_PIPE] |1834| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1839,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1839,column 13,is_stmt,isa 1
         LDR       A2, [A1, +V5, LSL #2] ; [DPU_3_PIPE] |1839| 
         UXTB      V8, V6, ROR #16       ; [DPU_3_PIPE] |1839| 
         LDR       A3, [A1, +V8, LSL #2] ; [DPU_3_PIPE] |1839| 
@@ -3919,9 +3919,9 @@ $C$DW$96	.dwtag  DW_TAG_TI_branch
         LDR       A4, [A1, +V7, LSL #2] ; [DPU_3_PIPE] |1839| 
         AND       A2, A2, #255          ; [DPU_3_PIPE] |1839| 
         LDR       LR, [V4, +A2, LSL #2] ; [DPU_3_PIPE] |1839| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1844,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1844,column 13,is_stmt,isa 1
         LDR       V8, [V3, #12]         ; [DPU_3_PIPE] |1844| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1839,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1839,column 13,is_stmt,isa 1
         UXTB      V5, V6                ; [DPU_3_PIPE] |1839| 
         LDR       V2, [A1, +V5, LSL #2] ; [DPU_3_PIPE] |1839| 
         AND       A3, A3, #255          ; [DPU_3_PIPE] |1839| 
@@ -3933,14 +3933,14 @@ $C$DW$96	.dwtag  DW_TAG_TI_branch
         AND       V2, V2, #255          ; [DPU_3_PIPE] |1839| 
         ADD       A4, V4, V2, LSL #2    ; [DPU_3_PIPE] |1839| 
         LDR       A4, [A4, #3072]       ; [DPU_3_PIPE] |1839| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1844,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1844,column 13,is_stmt,isa 1
         LSR       V7, V8, #24           ; [DPU_3_PIPE] |1844| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1839,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1839,column 13,is_stmt,isa 1
         EOR       A2, A2, LR            ; [DPU_3_PIPE] |1839| 
         EORS      A3, A3, A2            ; [DPU_3_PIPE] |1839| 
         EORS      A4, A4, A3            ; [DPU_3_PIPE] |1839| 
         STR       A4, [V3, #8]          ; [DPU_3_PIPE] |1839| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1844,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1844,column 13,is_stmt,isa 1
         LDR       A2, [A1, +V7, LSL #2] ; [DPU_3_PIPE] |1844| 
         UXTB      V6, V8, ROR #16       ; [DPU_3_PIPE] |1844| 
         LDR       A3, [A1, +V6, LSL #2] ; [DPU_3_PIPE] |1844| 
@@ -3963,7 +3963,7 @@ $C$DW$96	.dwtag  DW_TAG_TI_branch
         EORS      A3, A3, A2            ; [DPU_3_PIPE] |1844| 
         EORS      A4, A4, A3            ; [DPU_3_PIPE] |1844| 
         STR       A4, [V3, #12]         ; [DPU_3_PIPE] |1844| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1827,column 21,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1827,column 21,is_stmt,isa 1
         LDR       A2, [V1, #240]        ; [DPU_3_PIPE] |1827| 
         ADD       V9, V9, #1            ; [DPU_3_PIPE] |1827| 
         CMP       V9, A2                ; [DPU_3_PIPE] |1827| 
@@ -3973,7 +3973,7 @@ $C$DW$96	.dwtag  DW_TAG_TI_branch
 ||$C$L17||:    
 ;**	-----------------------g23:
 ;* 1852	-----------------------    return AesSetIV(aes, iv);  // [7]
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1852,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1852,column 5,is_stmt,isa 1
         LDR       A2, [SP, #0]          ; [DPU_3_PIPE] |1852| 
         MOV       A1, V1                ; [DPU_3_PIPE] |1852| 
 $C$DW$97	.dwtag  DW_TAG_TI_branch
@@ -3989,7 +3989,7 @@ $C$DW$98	.dwtag  DW_TAG_TI_branch
         POP       {A4, V1, V2, V3, V4, V5, V6, V7, V8, PC} ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 0
         ; BRANCH OCCURS                  ; [] 
-	.dwattr $C$DW$21, DW_AT_TI_end_file("C:/wolfssl/ctaocrypt/src/aes.c")
+	.dwattr $C$DW$21, DW_AT_TI_end_file("C:/wolfssl/wolfcrypt/src/aes.c")
 	.dwattr $C$DW$21, DW_AT_TI_end_line(0x75d)
 	.dwattr $C$DW$21, DW_AT_TI_end_column(0x01)
 	.dwendentry
@@ -4007,14 +4007,14 @@ $C$DW$99	.dwtag  DW_TAG_subprogram, DW_AT_name("AesCbcEncrypt")
 	.dwattr $C$DW$99, DW_AT_TI_symbol_name("AesCbcEncrypt")
 	.dwattr $C$DW$99, DW_AT_external
 	.dwattr $C$DW$99, DW_AT_type(*$C$DW$T$10)
-	.dwattr $C$DW$99, DW_AT_TI_begin_file("C:/wolfssl/ctaocrypt/src/aes.c")
+	.dwattr $C$DW$99, DW_AT_TI_begin_file("C:/wolfssl/wolfcrypt/src/aes.c")
 	.dwattr $C$DW$99, DW_AT_TI_begin_line(0x8b4)
 	.dwattr $C$DW$99, DW_AT_TI_begin_column(0x05)
-	.dwattr $C$DW$99, DW_AT_decl_file("C:/wolfssl/ctaocrypt/src/aes.c")
+	.dwattr $C$DW$99, DW_AT_decl_file("C:/wolfssl/wolfcrypt/src/aes.c")
 	.dwattr $C$DW$99, DW_AT_decl_line(0x8b4)
 	.dwattr $C$DW$99, DW_AT_decl_column(0x05)
 	.dwattr $C$DW$99, DW_AT_TI_max_frame_size(0x58)
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2229,column 1,is_stmt,address AesCbcEncrypt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2229,column 1,is_stmt,address AesCbcEncrypt,isa 1
 
 	.dwfde $C$DW$CIE, AesCbcEncrypt
 $C$DW$100	.dwtag  DW_TAG_formal_parameter, DW_AT_name("aes")
@@ -4224,7 +4224,7 @@ $C$DW$137	.dwtag  DW_TAG_variable, DW_AT_name("$O$K11")
         STR       A3, [SP, #24]         ; [DPU_3_PIPE] |2229| 
         STR       A2, [SP, #20]         ; [DPU_3_PIPE] |2229| 
         STR       A1, [SP, #16]         ; [DPU_3_PIPE] |2229| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2230,column 19,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2230,column 19,is_stmt,isa 1
         LSRS      A4, A4, #4            ; [DPU_3_PIPE] |2230| 
         STR       A4, [SP, #28]         ; [DPU_3_PIPE] |2230| 
         BEQ       ||$C$L24||            ; [DPU_3_PIPE] |2230| 
@@ -4254,9 +4254,9 @@ $C$DW$137	.dwtag  DW_TAG_variable, DW_AT_name("$O$K11")
 ;* 2280	-----------------------    mask = (const void *)in;
 ;** 161	-----------------------    if ( ((unsigned)mask|K$14)&3u ) goto g5;  // [6]
         LDR       A3, [SP, #24]         ; [DPU_3_PIPE] 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2280,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2280,column 9,is_stmt,isa 1
         LDR       A4, [SP, #36]         ; [DPU_3_PIPE] |2280| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 161,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 161,column 5,is_stmt,isa 1
         LDR       A1, [SP, #40]         ; [DPU_3_PIPE] |161| 
         ORRS      A4, A4, A3            ; [DPU_3_PIPE] |161| 
         TST       A4, #3                ; [DPU_3_PIPE] |161| 
@@ -4268,7 +4268,7 @@ $C$DW$137	.dwtag  DW_TAG_variable, DW_AT_name("$O$K11")
 ;** 155	-----------------------    *((unsigned *)aes+252) ^= *((unsigned *)in+8);  // [5]
 ;** 155	-----------------------    *((unsigned *)aes+256) ^= *((unsigned *)in+12);  // [5]
 ;** 155	-----------------------    goto g6;  // [5]
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 155,column 29,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 155,column 29,is_stmt,isa 1
         LDR       V1, [SP, #16]         ; [DPU_3_PIPE] |155| 
         LDR       V3, [A1, #0]          ; [DPU_3_PIPE] |155| 
         MOV       A4, A3                ; [DPU_3_PIPE] 
@@ -4287,7 +4287,7 @@ $C$DW$137	.dwtag  DW_TAG_variable, DW_AT_name("$O$K11")
         LDR       A1, [A4, #12]         ; [DPU_3_PIPE] |155| 
         EOR       A1, A1, V9            ; [DPU_3_PIPE] |155| 
         STR       A1, [V1, #256]        ; [DPU_3_PIPE] |155| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 155,column 17,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 155,column 17,is_stmt,isa 1
         B         ||$C$L20||            ; [DPU_3_PIPE] |155| 
         ; BRANCH OCCURS {||$C$L20||}     ; [] |155| 
 ;* --------------------------------------------------------------------------*
@@ -4309,7 +4309,7 @@ $C$DW$137	.dwtag  DW_TAG_variable, DW_AT_name("$O$K11")
 ;** 168	-----------------------    *((unsigned char *)buf+13u) ^= *((unsigned char *)mask+13u);  // [6]
 ;** 168	-----------------------    *((unsigned char *)buf+14u) ^= *((unsigned char *)mask+14u);  // [6]
 ;** 168	-----------------------    *((unsigned char *)buf+15u) ^= *((unsigned char *)mask+15u);  // [6]
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 168,column 37,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 168,column 37,is_stmt,isa 1
         LDRB      V1, [A1, #0]          ; [DPU_3_PIPE] |168| 
         LDRB      A4, [A3, #0]          ; [DPU_3_PIPE] |168| 
         EORS      A4, A4, V1            ; [DPU_3_PIPE] |168| 
@@ -4383,21 +4383,21 @@ $C$DW$137	.dwtag  DW_TAG_variable, DW_AT_name("$O$K11")
 ;* 2279	-----------------------    --blocks;
 ;* 1895	-----------------------    if ( r > 7u || r == 0u ) goto g11;  // [9]
         LDR       A1, [SP, #16]         ; [DPU_3_PIPE] 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1892,column 14,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1892,column 14,is_stmt,isa 1
         LDR       LR, [SP, #40]         ; [DPU_3_PIPE] |1892| 
         LDR       A3, [A1, #240]        ; [DPU_3_PIPE] |1892| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1894,column 22,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1894,column 22,is_stmt,isa 1
         LDR       V9, [SP, #28]         ; [DPU_3_PIPE] |1894| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1892,column 14,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1892,column 14,is_stmt,isa 1
         LSR       V7, A3, #1            ; [DPU_3_PIPE] |1892| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2281,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2281,column 9,is_stmt,isa 1
         STR       LR, [SP, #32]         ; [DPU_3_PIPE] |2281| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1895,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1895,column 5,is_stmt,isa 1
         CMP       V7, #7                ; [DPU_3_PIPE] |1895| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2279,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2279,column 5,is_stmt,isa 1
         SUB       A3, V9, #1            ; [DPU_3_PIPE] |2279| 
         STR       A3, [SP, #28]         ; [DPU_3_PIPE] |2279| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1895,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1895,column 5,is_stmt,isa 1
         BHI       ||$C$L23||            ; [DPU_3_PIPE] |1895| 
         ; BRANCHCC OCCURS {||$C$L23||}   ; [] |1895| 
 ;* --------------------------------------------------------------------------*
@@ -4421,90 +4421,90 @@ $C$DW$137	.dwtag  DW_TAG_variable, DW_AT_name("$O$K11")
 ;**  	-----------------------    #pragma LOOP_FLAGS(4352u)
 ;**  	-----------------------    goto g9;
         MOV       A3, LR                ; [DPU_3_PIPE] 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1945,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1945,column 5,is_stmt,isa 1
         LDR       V2, [A3, #0]          ; [DPU_3_PIPE] |1945| 
         ADD       V1, SP, #12           ; [DPU_3_PIPE] |1945| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1946,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1946,column 5,is_stmt,isa 1
         ADDS      A4, A3, #4            ; [DPU_3_PIPE] |1946| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1945,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1945,column 5,is_stmt,isa 1
         STR       V2, [V1, #0]          ; [DPU_3_PIPE] |1945| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1946,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1946,column 5,is_stmt,isa 1
         LDR       V2, [A4, #0]          ; [DPU_3_PIPE] |1946| 
         ADD       LR, SP, #8            ; [DPU_3_PIPE] |1946| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1947,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1947,column 5,is_stmt,isa 1
         ADD       V9, A3, #8            ; [DPU_3_PIPE] |1947| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1946,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1946,column 5,is_stmt,isa 1
         STR       V2, [LR, #0]          ; [DPU_3_PIPE] |1946| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1947,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1947,column 5,is_stmt,isa 1
         LDR       V1, [V9, #0]          ; [DPU_3_PIPE] |1947| 
         ADD       V8, SP, #4            ; [DPU_3_PIPE] |1947| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1948,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1948,column 5,is_stmt,isa 1
         ADD       V6, A3, #12           ; [DPU_3_PIPE] |1948| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1947,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1947,column 5,is_stmt,isa 1
         STR       V1, [V8, #0]          ; [DPU_3_PIPE] |1947| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1948,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1948,column 5,is_stmt,isa 1
         LDR       A4, [V6, #0]          ; [DPU_3_PIPE] |1948| 
         MOV       V4, SP                ; [DPU_3_PIPE] |1948| 
         STR       V4, [SP, #44]         ; [DPU_3_PIPE] |1948| 
         MOV       V3, A1                ; [DPU_3_PIPE] |1948| 
         STR       A4, [V4, #0]          ; [DPU_3_PIPE] |1948| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1957,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1957,column 5,is_stmt,isa 1
         LDR       V4, [V3, #0]          ; [DPU_3_PIPE] |1957| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1958,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1958,column 5,is_stmt,isa 1
         LDR       V1, [SP, #8]          ; [DPU_3_PIPE] |1958| 
         LDR       V9, [V3, #4]          ; [DPU_3_PIPE] |1958| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1959,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1959,column 5,is_stmt,isa 1
         LDR       A4, [SP, #4]          ; [DPU_3_PIPE] |1959| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1957,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1957,column 5,is_stmt,isa 1
         LDR       V2, [SP, #12]         ; [DPU_3_PIPE] |1957| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1960,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1960,column 5,is_stmt,isa 1
         LDR       A3, [SP, #0]          ; [DPU_3_PIPE] |1960| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1957,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1957,column 5,is_stmt,isa 1
         STR       V4, [SP, #48]         ; [DPU_3_PIPE] |1957| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1959,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1959,column 5,is_stmt,isa 1
         LDR       V4, [V3, #8]          ; [DPU_3_PIPE] |1959| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1958,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1958,column 5,is_stmt,isa 1
         LSR       LR, V1, #8            ; [DPU_3_PIPE] |1958| 
         AND       LR, LR, #16711935     ; [DPU_3_PIPE] |1958| 
         AND       V1, V1, #16711935     ; [DPU_3_PIPE] |1958| 
         ORR       LR, LR, V1, LSL #8    ; [DPU_3_PIPE] |1958| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1960,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1960,column 5,is_stmt,isa 1
         LDR       V1, [SP, #48]         ; [DPU_3_PIPE] |1960| 
         LDR       V3, [V3, #12]         ; [DPU_3_PIPE] |1960| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1959,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1959,column 5,is_stmt,isa 1
         LSR       V8, A4, #8            ; [DPU_3_PIPE] |1959| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1957,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1957,column 5,is_stmt,isa 1
         LSR       V6, V2, #8            ; [DPU_3_PIPE] |1957| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1960,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1960,column 5,is_stmt,isa 1
         LSRS      A2, A3, #8            ; [DPU_3_PIPE] |1960| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1959,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1959,column 5,is_stmt,isa 1
         AND       V8, V8, #16711935     ; [DPU_3_PIPE] |1959| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1957,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1957,column 5,is_stmt,isa 1
         AND       V6, V6, #16711935     ; [DPU_3_PIPE] |1957| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1960,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1960,column 5,is_stmt,isa 1
         AND       A2, A2, #16711935     ; [DPU_3_PIPE] |1960| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1959,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1959,column 5,is_stmt,isa 1
         AND       A4, A4, #16711935     ; [DPU_3_PIPE] |1959| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1957,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1957,column 5,is_stmt,isa 1
         AND       V2, V2, #16711935     ; [DPU_3_PIPE] |1957| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1960,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1960,column 5,is_stmt,isa 1
         AND       A3, A3, #16711935     ; [DPU_3_PIPE] |1960| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1959,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1959,column 5,is_stmt,isa 1
         ORR       V8, V8, A4, LSL #8    ; [DPU_3_PIPE] |1959| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1957,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1957,column 5,is_stmt,isa 1
         ORR       V6, V6, V2, LSL #8    ; [DPU_3_PIPE] |1957| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1960,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1960,column 5,is_stmt,isa 1
         ORR       A2, A2, A3, LSL #8    ; [DPU_3_PIPE] |1960| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1958,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1958,column 5,is_stmt,isa 1
         EOR       V9, V9, LR, ROR #16   ; [DPU_3_PIPE] |1958| 
         STR       V9, [SP, #8]          ; [DPU_3_PIPE] |1958| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1959,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1959,column 5,is_stmt,isa 1
         EOR       V4, V4, V8, ROR #16   ; [DPU_3_PIPE] |1959| 
         STR       V4, [SP, #4]          ; [DPU_3_PIPE] |1959| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1957,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1957,column 5,is_stmt,isa 1
         EOR       V1, V1, V6, ROR #16   ; [DPU_3_PIPE] |1957| 
         STR       V1, [SP, #12]         ; [DPU_3_PIPE] |1957| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1960,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1960,column 5,is_stmt,isa 1
         EOR       V3, V3, A2, ROR #16   ; [DPU_3_PIPE] |1960| 
         ADD       A2, V5, #4096         ; [DPU_3_PIPE] 
         STR       V3, [SP, #0]          ; [DPU_3_PIPE] |1960| 
@@ -4517,34 +4517,34 @@ $C$DW$137	.dwtag  DW_TAG_variable, DW_AT_name("$O$K11")
 ;* 2003	-----------------------    s1 = K$193[(unsigned char)(t1>>24)]^K$193[(unsigned char)(t2>>16)+256]^K$193[(unsigned char)(t3>>8)+512]^K$193[(unsigned char)t0+768]^rk[1];  // [9]
 ;* 2009	-----------------------    s2 = K$193[(unsigned char)(t2>>24)]^K$193[(unsigned char)(t3>>16)+256]^K$193[(unsigned char)(t0>>8)+512]^K$193[(unsigned char)t1+768]^rk[2];  // [9]
 ;* 2015	-----------------------    s3 = K$193[(unsigned char)(t3>>24)]^K$193[(unsigned char)(t0>>16)+256]^K$193[(unsigned char)(t1>>8)+512]^K$193[(unsigned char)t2+768]^rk[3];  // [9]
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1997,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1997,column 9,is_stmt,isa 1
         LSRS      V3, A3, #24           ; [DPU_3_PIPE] |1997| 
         LDR       V3, [V5, +V3, LSL #2] ; [DPU_3_PIPE] |1997| 
         UXTB      V4, A4, ROR #16       ; [DPU_3_PIPE] |1997| 
         ADD       V4, V5, V4, LSL #2    ; [DPU_3_PIPE] |1997| 
         LDR       V4, [V4, #1024]       ; [DPU_3_PIPE] |1997| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2009,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2009,column 9,is_stmt,isa 1
         UXTB      V9, V2, ROR #16       ; [DPU_3_PIPE] |2009| 
         ADD       V9, V5, V9, LSL #2    ; [DPU_3_PIPE] |2009| 
         LDR       LR, [V9, #1024]       ; [DPU_3_PIPE] |2009| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1997,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1997,column 9,is_stmt,isa 1
         UXTB      V8, V1, ROR #8        ; [DPU_3_PIPE] |1997| 
         EORS      V4, V4, V3            ; [DPU_3_PIPE] |1997| 
         ADD       V3, V5, V8, LSL #2    ; [DPU_3_PIPE] |1997| 
         LDR       V3, [V3, #2048]       ; [DPU_3_PIPE] |1997| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2009,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2009,column 9,is_stmt,isa 1
         LSR       V6, V1, #24           ; [DPU_3_PIPE] |2009| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1997,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1997,column 9,is_stmt,isa 1
         EORS      V3, V3, V4            ; [DPU_3_PIPE] |1997| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2009,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2009,column 9,is_stmt,isa 1
         LDR       V4, [V5, +V6, LSL #2] ; [DPU_3_PIPE] |2009| 
         EOR       LR, LR, V4            ; [DPU_3_PIPE] |2009| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2003,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2003,column 9,is_stmt,isa 1
         LSRS      V4, A4, #24           ; [DPU_3_PIPE] |2003| 
         LDR       V9, [V5, +V4, LSL #2] ; [DPU_3_PIPE] |2003| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1997,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1997,column 9,is_stmt,isa 1
         LDR       V8, [A1, #0]          ; [DPU_3_PIPE] |1997| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2003,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2003,column 9,is_stmt,isa 1
         UXTB      V4, V1, ROR #16       ; [DPU_3_PIPE] |2003| 
         ADD       V4, V5, V4, LSL #2    ; [DPU_3_PIPE] |2003| 
         LDR       V4, [V4, #1024]       ; [DPU_3_PIPE] |2003| 
@@ -4554,62 +4554,62 @@ $C$DW$137	.dwtag  DW_TAG_variable, DW_AT_name("$O$K11")
         ADD       V9, V5, V9, LSL #2    ; [DPU_3_PIPE] |2003| 
         LDR       V9, [V9, #2048]       ; [DPU_3_PIPE] |2003| 
         EOR       V9, V9, V4            ; [DPU_3_PIPE] |2003| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1997,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1997,column 9,is_stmt,isa 1
         UXTB      V4, V2                ; [DPU_3_PIPE] |1997| 
         ADD       V4, V5, V4, LSL #2    ; [DPU_3_PIPE] |1997| 
         LDR       V4, [V4, #3072]       ; [DPU_3_PIPE] |1997| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2015,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2015,column 9,is_stmt,isa 1
         UXTB      V1, V1                ; [DPU_3_PIPE] |2015| 
         ADD       V1, V5, V1, LSL #2    ; [DPU_3_PIPE] |2015| 
         LDR       V1, [V1, #3072]       ; [DPU_3_PIPE] |2015| 
         LSRS      V2, V2, #24           ; [DPU_3_PIPE] |2015| 
         LDR       V2, [V5, +V2, LSL #2] ; [DPU_3_PIPE] |2015| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1997,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1997,column 9,is_stmt,isa 1
         EORS      V4, V4, V3            ; [DPU_3_PIPE] |1997| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2009,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2009,column 9,is_stmt,isa 1
         UXTB      V3, A3, ROR #8        ; [DPU_3_PIPE] |2009| 
         ADD       V3, V5, V3, LSL #2    ; [DPU_3_PIPE] |2009| 
         LDR       V3, [V3, #2048]       ; [DPU_3_PIPE] |2009| 
         EOR       V3, V3, LR            ; [DPU_3_PIPE] |2009| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2003,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2003,column 9,is_stmt,isa 1
         UXTB      LR, A3                ; [DPU_3_PIPE] |2003| 
         ADD       LR, V5, LR, LSL #2    ; [DPU_3_PIPE] |2003| 
         LDR       LR, [LR, #3072]       ; [DPU_3_PIPE] |2003| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2015,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2015,column 9,is_stmt,isa 1
         UXTB      A3, A3, ROR #16       ; [DPU_3_PIPE] |2015| 
         ADD       A3, V5, A3, LSL #2    ; [DPU_3_PIPE] |2015| 
         LDR       A3, [A3, #1024]       ; [DPU_3_PIPE] |2015| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2003,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2003,column 9,is_stmt,isa 1
         EOR       LR, LR, V9            ; [DPU_3_PIPE] |2003| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2009,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2009,column 9,is_stmt,isa 1
         LDR       V9, [A1, #8]          ; [DPU_3_PIPE] |2009| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1997,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1997,column 9,is_stmt,isa 1
         EOR       V8, V8, V4            ; [DPU_3_PIPE] |1997| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2009,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2009,column 9,is_stmt,isa 1
         UXTB      V4, A4                ; [DPU_3_PIPE] |2009| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2015,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2015,column 9,is_stmt,isa 1
         EORS      A3, A3, V2            ; [DPU_3_PIPE] |2015| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2009,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2009,column 9,is_stmt,isa 1
         ADD       V2, V5, V4, LSL #2    ; [DPU_3_PIPE] |2009| 
         LDR       V4, [V2, #3072]       ; [DPU_3_PIPE] |2009| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2015,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2015,column 9,is_stmt,isa 1
         UXTB      V2, A4, ROR #8        ; [DPU_3_PIPE] |2015| 
         ADD       A4, V5, V2, LSL #2    ; [DPU_3_PIPE] |2015| 
         LDR       A4, [A4, #2048]       ; [DPU_3_PIPE] |2015| 
         LDR       V2, [A1, #12]         ; [DPU_3_PIPE] |2015| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1997,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1997,column 9,is_stmt,isa 1
         STR       V8, [SP, #12]         ; [DPU_3_PIPE] |1997| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2003,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2003,column 9,is_stmt,isa 1
         EOR       V6, V6, LR            ; [DPU_3_PIPE] |2003| 
         STR       V6, [SP, #8]          ; [DPU_3_PIPE] |2003| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2009,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2009,column 9,is_stmt,isa 1
         EORS      V4, V4, V3            ; [DPU_3_PIPE] |2009| 
         EOR       V9, V9, V4            ; [DPU_3_PIPE] |2009| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2015,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2015,column 9,is_stmt,isa 1
         EORS      A4, A4, A3            ; [DPU_3_PIPE] |2015| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2009,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2009,column 9,is_stmt,isa 1
         STR       V9, [SP, #4]          ; [DPU_3_PIPE] |2009| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2015,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2015,column 9,is_stmt,isa 1
         EORS      V1, V1, A4            ; [DPU_3_PIPE] |2015| 
         EORS      V2, V2, V1            ; [DPU_3_PIPE] |2015| 
         STR       V2, [SP, #0]          ; [DPU_3_PIPE] |2015| 
@@ -4624,119 +4624,119 @@ $C$DW$137	.dwtag  DW_TAG_variable, DW_AT_name("$O$K11")
 ;* 1985	-----------------------    t3 = K$193[(unsigned char)(s3>>24)]^K$193[(unsigned char)(s0>>16)+256]^K$193[(unsigned char)(s1>>8)+512]^K$193[(unsigned char)s2+768]^rk[7];  // [9]
 ;* 1992	-----------------------    rk += 8;  // [9]
 ;* 1994	-----------------------    if ( --r ) goto g8;  // [9]
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1967,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1967,column 9,is_stmt,isa 1
         LDR       A3, [SP, #4]          ; [DPU_3_PIPE] |1967| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1973,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1973,column 9,is_stmt,isa 1
         LDR       V8, [SP, #0]          ; [DPU_3_PIPE] |1973| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1967,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1967,column 9,is_stmt,isa 1
         LDR       V2, [SP, #8]          ; [DPU_3_PIPE] |1967| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1973,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1973,column 9,is_stmt,isa 1
         UXTB      V1, A3, ROR #16       ; [DPU_3_PIPE] |1973| 
         ADD       V1, V5, V1, LSL #2    ; [DPU_3_PIPE] |1973| 
         LDR       V3, [V1, #1024]       ; [DPU_3_PIPE] |1973| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1979,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1979,column 9,is_stmt,isa 1
         UXTB      V4, V8, ROR #16       ; [DPU_3_PIPE] |1979| 
         ADD       V4, V5, V4, LSL #2    ; [DPU_3_PIPE] |1979| 
         LDR       V9, [V4, #1024]       ; [DPU_3_PIPE] |1979| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1973,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1973,column 9,is_stmt,isa 1
         LSRS      A4, V2, #24           ; [DPU_3_PIPE] |1973| 
         LDR       A4, [V5, +A4, LSL #2] ; [DPU_3_PIPE] |1973| 
         MOV       LR, A3                ; [DPU_3_PIPE] 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1979,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1979,column 9,is_stmt,isa 1
         LSR       V1, LR, #24           ; [DPU_3_PIPE] |1979| 
         LDR       V1, [V5, +V1, LSL #2] ; [DPU_3_PIPE] |1979| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1967,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1967,column 9,is_stmt,isa 1
         UXTB      V6, V2, ROR #16       ; [DPU_3_PIPE] |1967| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1985,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1985,column 9,is_stmt,isa 1
         UXTB      V2, V2, ROR #8        ; [DPU_3_PIPE] |1985| 
         ADD       V2, V5, V2, LSL #2    ; [DPU_3_PIPE] |1985| 
         LDR       V2, [V2, #2048]       ; [DPU_3_PIPE] |1985| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1979,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1979,column 9,is_stmt,isa 1
         EOR       V9, V9, V1            ; [DPU_3_PIPE] |1979| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1967,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1967,column 9,is_stmt,isa 1
         LDR       V1, [SP, #12]         ; [DPU_3_PIPE] |1967| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1973,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1973,column 9,is_stmt,isa 1
         UXTB      V4, V8, ROR #8        ; [DPU_3_PIPE] |1973| 
         EORS      V3, V3, A4            ; [DPU_3_PIPE] |1973| 
         MOV       A4, V8                ; [DPU_3_PIPE] 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1985,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1985,column 9,is_stmt,isa 1
         LSR       LR, A4, #24           ; [DPU_3_PIPE] |1985| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1973,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1973,column 9,is_stmt,isa 1
         ADD       A4, V5, V4, LSL #2    ; [DPU_3_PIPE] |1973| 
         LDR       A4, [A4, #2048]       ; [DPU_3_PIPE] |1973| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1967,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1967,column 9,is_stmt,isa 1
         ADD       V6, V5, V6, LSL #2    ; [DPU_3_PIPE] |1967| 
         LDR       V6, [V6, #1024]       ; [DPU_3_PIPE] |1967| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1985,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1985,column 9,is_stmt,isa 1
         LDR       LR, [V5, +LR, LSL #2] ; [DPU_3_PIPE] |1985| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1973,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1973,column 9,is_stmt,isa 1
         EORS      A4, A4, V3            ; [DPU_3_PIPE] |1973| 
         LDRB      V3, [SP, #12]         ; [DPU_3_PIPE] |1973| 
         ADD       V3, V5, V3, LSL #2    ; [DPU_3_PIPE] |1973| 
         LDR       V3, [V3, #3072]       ; [DPU_3_PIPE] |1973| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1967,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1967,column 9,is_stmt,isa 1
         UXTB      V4, A3, ROR #8        ; [DPU_3_PIPE] |1967| 
         ADD       A3, V5, V4, LSL #2    ; [DPU_3_PIPE] |1967| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1985,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1985,column 9,is_stmt,isa 1
         MOV       V4, V1                ; [DPU_3_PIPE] |1985| 
         UXTB      V4, V4, ROR #16       ; [DPU_3_PIPE] |1985| 
         ADD       V4, V5, V4, LSL #2    ; [DPU_3_PIPE] |1985| 
         LDR       V4, [V4, #1024]       ; [DPU_3_PIPE] |1985| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1967,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1967,column 9,is_stmt,isa 1
         LDR       A3, [A3, #2048]       ; [DPU_3_PIPE] |1967| 
         LSR       V8, V1, #24           ; [DPU_3_PIPE] |1967| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1985,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1985,column 9,is_stmt,isa 1
         EOR       V4, V4, LR            ; [DPU_3_PIPE] |1985| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1967,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1967,column 9,is_stmt,isa 1
         LDR       LR, [V5, +V8, LSL #2] ; [DPU_3_PIPE] |1967| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1985,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1985,column 9,is_stmt,isa 1
         EORS      V2, V2, V4            ; [DPU_3_PIPE] |1985| 
         LDRB      V4, [SP, #4]          ; [DPU_3_PIPE] |1985| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1973,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1973,column 9,is_stmt,isa 1
         EORS      V3, V3, A4            ; [DPU_3_PIPE] |1973| 
         LDR       A4, [A1, #20]         ; [DPU_3_PIPE] |1973| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1979,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1979,column 9,is_stmt,isa 1
         UXTB      V8, V1, ROR #8        ; [DPU_3_PIPE] |1979| 
         ADD       V1, V5, V8, LSL #2    ; [DPU_3_PIPE] |1979| 
         LDR       V1, [V1, #2048]       ; [DPU_3_PIPE] |1979| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1985,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1985,column 9,is_stmt,isa 1
         ADD       V4, V5, V4, LSL #2    ; [DPU_3_PIPE] |1985| 
         LDR       V4, [V4, #3072]       ; [DPU_3_PIPE] |1985| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1967,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1967,column 9,is_stmt,isa 1
         LDRB      V8, [SP, #0]          ; [DPU_3_PIPE] |1967| 
         EOR       V6, V6, LR            ; [DPU_3_PIPE] |1967| 
         EOR       A3, A3, V6            ; [DPU_3_PIPE] |1967| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1979,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1979,column 9,is_stmt,isa 1
         LDR       V6, [A1, #24]         ; [DPU_3_PIPE] |1979| 
         EOR       V1, V1, V9            ; [DPU_3_PIPE] |1979| 
         LDRB      V9, [SP, #8]          ; [DPU_3_PIPE] |1979| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1985,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1985,column 9,is_stmt,isa 1
         EORS      V4, V4, V2            ; [DPU_3_PIPE] |1985| 
         LDR       V2, [A1, #28]         ; [DPU_3_PIPE] |1985| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1967,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1967,column 9,is_stmt,isa 1
         ADD       LR, V5, V8, LSL #2    ; [DPU_3_PIPE] |1967| 
         LDR       V8, [A1, #16]         ; [DPU_3_PIPE] |1967| 
         LDR       LR, [LR, #3072]       ; [DPU_3_PIPE] |1967| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1979,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1979,column 9,is_stmt,isa 1
         ADD       V9, V5, V9, LSL #2    ; [DPU_3_PIPE] |1979| 
         LDR       V9, [V9, #3072]       ; [DPU_3_PIPE] |1979| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1994,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1994,column 13,is_stmt,isa 1
         SUBS      V7, V7, #1            ; [DPU_3_PIPE] |1994| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1973,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1973,column 9,is_stmt,isa 1
         EOR       A4, A4, V3            ; [DPU_3_PIPE] |1973| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1992,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1992,column 9,is_stmt,isa 1
         ADD       A1, A1, #32           ; [DPU_3_PIPE] |1992| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1967,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1967,column 9,is_stmt,isa 1
         EOR       LR, LR, A3            ; [DPU_3_PIPE] |1967| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1985,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1985,column 9,is_stmt,isa 1
         EOR       V2, V2, V4            ; [DPU_3_PIPE] |1985| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1979,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1979,column 9,is_stmt,isa 1
         EOR       V9, V9, V1            ; [DPU_3_PIPE] |1979| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1967,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1967,column 9,is_stmt,isa 1
         EOR       A3, V8, LR            ; [DPU_3_PIPE] |1967| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1979,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1979,column 9,is_stmt,isa 1
         EOR       V1, V6, V9            ; [DPU_3_PIPE] |1979| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 1994,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 1994,column 13,is_stmt,isa 1
         BNE       ||$C$L21||            ; [DPU_3_PIPE] |1994| 
         ; BRANCHCC OCCURS {||$C$L21||}   ; [] |1994| 
 ;* --------------------------------------------------------------------------*
@@ -4757,7 +4757,7 @@ $C$DW$137	.dwtag  DW_TAG_variable, DW_AT_name("$O$K11")
 ;* 2062	-----------------------    memcpy(outBlock+4, &s1, 4u);  // [9]
 ;* 2063	-----------------------    memcpy(outBlock+8, &s2, 4u);  // [9]
 ;* 2064	-----------------------    memcpy(outBlock+12, &s3, 4u);  // [9]
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2034,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2034,column 5,is_stmt,isa 1
         UXTB      V3, V2, ROR #8        ; [DPU_3_PIPE] |2034| 
         LDR       V9, [A2, +V3, LSL #2] ; [DPU_3_PIPE] |2034| 
         UXTB      V4, V1, ROR #16       ; [DPU_3_PIPE] |2034| 
@@ -4769,107 +4769,107 @@ $C$DW$137	.dwtag  DW_TAG_variable, DW_AT_name("$O$K11")
         LDR       V3, [A2, +V7, LSL #2] ; [DPU_3_PIPE] |2034| 
         AND       V4, V4, #16711680     ; [DPU_3_PIPE] |2034| 
         AND       V9, V9, #65280        ; [DPU_3_PIPE] |2034| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2046,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2046,column 5,is_stmt,isa 1
         LSR       V8, V2, #24           ; [DPU_3_PIPE] |2046| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2034,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2034,column 5,is_stmt,isa 1
         AND       LR, LR, #255          ; [DPU_3_PIPE] |2034| 
         AND       V3, V3, #-16777216    ; [DPU_3_PIPE] |2034| 
         EORS      V4, V4, V3            ; [DPU_3_PIPE] |2034| 
         EOR       V9, V9, V4            ; [DPU_3_PIPE] |2034| 
         EOR       LR, LR, V9            ; [DPU_3_PIPE] |2034| 
         EOR       V3, V6, LR            ; [DPU_3_PIPE] |2034| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2046,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2046,column 5,is_stmt,isa 1
         LDR       LR, [A2, +V8, LSL #2] ; [DPU_3_PIPE] |2046| 
         UXTB      V7, A3, ROR #16       ; [DPU_3_PIPE] |2046| 
         LDR       V6, [A2, +V7, LSL #2] ; [DPU_3_PIPE] |2046| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
         UXTB      V8, V2                ; [DPU_3_PIPE] |91| 
         LDR       V9, [A2, +V8, LSL #2] ; [DPU_3_PIPE] |91| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2046,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2046,column 5,is_stmt,isa 1
         UXTB      V8, A4, ROR #8        ; [DPU_3_PIPE] |2046| 
         LDR       V7, [A2, +V8, LSL #2] ; [DPU_3_PIPE] |2046| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2040,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2040,column 5,is_stmt,isa 1
         UXTB      V4, A4                ; [DPU_3_PIPE] |2040| 
         LDR       V8, [A2, +V4, LSL #2] ; [DPU_3_PIPE] |2040| 
         UXTB      V4, V2, ROR #16       ; [DPU_3_PIPE] |2040| 
         LDR       V2, [A2, +V4, LSL #2] ; [DPU_3_PIPE] |2040| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
         UXTB      V4, A4, ROR #16       ; [DPU_3_PIPE] |91| 
         LDR       A4, [A2, +V4, LSL #2] ; [DPU_3_PIPE] |91| 
         LSRS      V4, A3, #24           ; [DPU_3_PIPE] |91| 
         LDR       V4, [A2, +V4, LSL #2] ; [DPU_3_PIPE] |91| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2040,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2040,column 5,is_stmt,isa 1
         UXTB      A3, A3, ROR #8        ; [DPU_3_PIPE] |2040| 
         LDR       A3, [A2, +A3, LSL #2] ; [DPU_3_PIPE] |2040| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
         AND       A4, A4, #16711680     ; [DPU_3_PIPE] |91| 
         AND       V4, V4, #-16777216    ; [DPU_3_PIPE] |91| 
         EORS      A4, A4, V4            ; [DPU_3_PIPE] |91| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2040,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2040,column 5,is_stmt,isa 1
         LSRS      V4, V1, #24           ; [DPU_3_PIPE] |2040| 
         LDR       V4, [A2, +V4, LSL #2] ; [DPU_3_PIPE] |2040| 
         AND       V2, V2, #16711680     ; [DPU_3_PIPE] |2040| 
         AND       V4, V4, #-16777216    ; [DPU_3_PIPE] |2040| 
         EORS      V4, V2, V4            ; [DPU_3_PIPE] |2040| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
         UXTB      V2, V1, ROR #8        ; [DPU_3_PIPE] |91| 
         LDR       V2, [A2, +V2, LSL #2] ; [DPU_3_PIPE] |91| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2040,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2040,column 5,is_stmt,isa 1
         AND       A3, A3, #65280        ; [DPU_3_PIPE] |2040| 
         EORS      A3, A3, V4            ; [DPU_3_PIPE] |2040| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
         LDR       V4, [A1, #0]          ; [DPU_3_PIPE] |91| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2040,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2040,column 5,is_stmt,isa 1
         AND       V8, V8, #255          ; [DPU_3_PIPE] |2040| 
         EOR       V8, V8, A3            ; [DPU_3_PIPE] |2040| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2046,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2046,column 5,is_stmt,isa 1
         UXTB      A3, V1                ; [DPU_3_PIPE] |2046| 
         LDR       V1, [A2, +A3, LSL #2] ; [DPU_3_PIPE] |2046| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
         AND       V2, V2, #65280        ; [DPU_3_PIPE] |91| 
         EORS      V2, V2, A4            ; [DPU_3_PIPE] |91| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2046,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2046,column 5,is_stmt,isa 1
         LDR       A4, [A1, #12]         ; [DPU_3_PIPE] |2046| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2040,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2040,column 5,is_stmt,isa 1
         LDR       A2, [A1, #8]          ; [DPU_3_PIPE] |2040| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2046,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2046,column 5,is_stmt,isa 1
         AND       LR, LR, #-16777216    ; [DPU_3_PIPE] |2046| 
         AND       V6, V6, #16711680     ; [DPU_3_PIPE] |2046| 
         EOR       V6, V6, LR            ; [DPU_3_PIPE] |2046| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
         AND       V9, V9, #255          ; [DPU_3_PIPE] |91| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2046,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2046,column 5,is_stmt,isa 1
         AND       V7, V7, #65280        ; [DPU_3_PIPE] |2046| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
         LSR       LR, V3, #8            ; [DPU_3_PIPE] |66| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2046,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2046,column 5,is_stmt,isa 1
         EOR       V7, V7, V6            ; [DPU_3_PIPE] |2046| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
         EOR       V9, V9, V2            ; [DPU_3_PIPE] |91| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2046,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2046,column 5,is_stmt,isa 1
         AND       V1, V1, #255          ; [DPU_3_PIPE] |2046| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
         EOR       A3, V4, V9            ; [DPU_3_PIPE] |91| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2046,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2046,column 5,is_stmt,isa 1
         EOR       V1, V1, V7            ; [DPU_3_PIPE] |2046| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
         AND       V2, LR, #16711935     ; [DPU_3_PIPE] |66| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
         LSRS      V4, A3, #8            ; [DPU_3_PIPE] |91| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2046,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2046,column 5,is_stmt,isa 1
         EORS      A4, A4, V1            ; [DPU_3_PIPE] |2046| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
         AND       V4, V4, #16711935     ; [DPU_3_PIPE] |91| 
         AND       A3, A3, #16711935     ; [DPU_3_PIPE] |91| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2040,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2040,column 5,is_stmt,isa 1
         EOR       A1, A2, V8            ; [DPU_3_PIPE] |2040| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
         LSR       V9, A4, #8            ; [DPU_3_PIPE] |66| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2061,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2061,column 5,is_stmt,isa 1
         ADD       LR, SP, #12           ; [DPU_3_PIPE] |2061| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
         ORR       V4, V4, A3, LSL #8    ; [DPU_3_PIPE] |91| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
         AND       V8, V3, #16711935     ; [DPU_3_PIPE] |66| 
         LSR       V6, A1, #8            ; [DPU_3_PIPE] |66| 
         AND       V9, V9, #16711935     ; [DPU_3_PIPE] |66| 
@@ -4887,26 +4887,26 @@ $C$DW$137	.dwtag  DW_TAG_variable, DW_AT_name("$O$K11")
         STR       A4, [SP, #4]          ; [DPU_3_PIPE] |66| 
         ROR       A3, V9, #16           ; [DPU_3_PIPE] |66| 
         STR       A3, [SP, #0]          ; [DPU_3_PIPE] |66| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2061,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2061,column 5,is_stmt,isa 1
         LDR       A4, [LR, #0]          ; [DPU_3_PIPE] |2061| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2062,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2062,column 5,is_stmt,isa 1
         LDR       A1, [SP, #32]         ; [DPU_3_PIPE] |2062| 
         ADD       V3, SP, #8            ; [DPU_3_PIPE] |2062| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2061,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2061,column 5,is_stmt,isa 1
         STR       A4, [A1, #0]          ; [DPU_3_PIPE] |2061| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2062,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2062,column 5,is_stmt,isa 1
         LDR       V1, [V3, #0]          ; [DPU_3_PIPE] |2062| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2063,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2063,column 5,is_stmt,isa 1
         ADD       V8, SP, #4            ; [DPU_3_PIPE] |2063| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2062,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2062,column 5,is_stmt,isa 1
         ADDS      A4, A1, #4            ; [DPU_3_PIPE] |2062| 
         STR       V1, [A4, #0]          ; [DPU_3_PIPE] |2062| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2063,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2063,column 5,is_stmt,isa 1
         LDR       V1, [V8, #0]          ; [DPU_3_PIPE] |2063| 
         ADD       V6, A1, #8            ; [DPU_3_PIPE] |2063| 
         MOV       A4, SP                ; [DPU_3_PIPE] |2063| 
         STR       V1, [V6, #0]          ; [DPU_3_PIPE] |2063| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2064,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2064,column 5,is_stmt,isa 1
         LDR       A3, [A4, #0]          ; [DPU_3_PIPE] |2064| 
         ADD       V2, A1, #12           ; [DPU_3_PIPE] |2064| 
         STR       A3, [V2, #0]          ; [DPU_3_PIPE] |2064| 
@@ -4918,7 +4918,7 @@ $C$DW$137	.dwtag  DW_TAG_variable, DW_AT_name("$O$K11")
 ;* 2285	-----------------------    in += 16;
 ;* 2279	-----------------------    if ( blocks ) goto g3;
         LDR       V1, [SP, #20]         ; [DPU_3_PIPE] 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2282,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2282,column 9,is_stmt,isa 1
         LDR       A2, [SP, #40]         ; [DPU_3_PIPE] |2282| 
         MOVS      A3, #16               ; [DPU_3_PIPE] |2282| 
         MOV       A1, V1                ; [DPU_3_PIPE] |2282| 
@@ -4928,19 +4928,19 @@ $C$DW$138	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$138, DW_AT_TI_call
         BL        memcpy                ; [DPU_3_PIPE] |2282| 
         ; CALL OCCURS {memcpy }          ; [] |2282| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2284,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2284,column 9,is_stmt,isa 1
         LDR       V8, [SP, #28]         ; [DPU_3_PIPE] |2284| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2282,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2282,column 9,is_stmt,isa 1
         LDR       A1, [SP, #24]         ; [DPU_3_PIPE] |2282| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2284,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2284,column 9,is_stmt,isa 1
         ADDS      V1, V1, #16           ; [DPU_3_PIPE] |2284| 
         STR       V1, [SP, #20]         ; [DPU_3_PIPE] |2284| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2279,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2279,column 5,is_stmt,isa 1
         CMP       V8, #0                ; [DPU_3_PIPE] |2279| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2285,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2285,column 9,is_stmt,isa 1
         ADD       A1, A1, #16           ; [DPU_3_PIPE] |2285| 
         STR       A1, [SP, #24]         ; [DPU_3_PIPE] |2285| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2279,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2279,column 5,is_stmt,isa 1
         BNE       ||$C$L18||            ; [DPU_3_PIPE] |2279| 
         ; BRANCHCC OCCURS {||$C$L18||}   ; [] |2279| 
 ;* --------------------------------------------------------------------------*
@@ -4949,7 +4949,7 @@ $C$DW$138	.dwtag  DW_TAG_TI_branch
 ;* 2288	-----------------------    return 0;
         ADD       SP, SP, #52           ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 36
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2288,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2288,column 5,is_stmt,isa 1
         MOVS      A1, #0                ; [DPU_3_PIPE] |2288| 
 $C$DW$139	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$139, DW_AT_low_pc(0x00)
@@ -4957,7 +4957,7 @@ $C$DW$139	.dwtag  DW_TAG_TI_branch
         POP       {V1, V2, V3, V4, V5, V6, V7, V8, PC} ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 0
         ; BRANCH OCCURS                  ; [] 
-	.dwattr $C$DW$99, DW_AT_TI_end_file("C:/wolfssl/ctaocrypt/src/aes.c")
+	.dwattr $C$DW$99, DW_AT_TI_end_file("C:/wolfssl/wolfcrypt/src/aes.c")
 	.dwattr $C$DW$99, DW_AT_TI_end_line(0x8f1)
 	.dwattr $C$DW$99, DW_AT_TI_end_column(0x01)
 	.dwendentry
@@ -4975,14 +4975,14 @@ $C$DW$140	.dwtag  DW_TAG_subprogram, DW_AT_name("AesCbcDecrypt")
 	.dwattr $C$DW$140, DW_AT_TI_symbol_name("AesCbcDecrypt")
 	.dwattr $C$DW$140, DW_AT_external
 	.dwattr $C$DW$140, DW_AT_type(*$C$DW$T$10)
-	.dwattr $C$DW$140, DW_AT_TI_begin_file("C:/wolfssl/ctaocrypt/src/aes.c")
+	.dwattr $C$DW$140, DW_AT_TI_begin_file("C:/wolfssl/wolfcrypt/src/aes.c")
 	.dwattr $C$DW$140, DW_AT_TI_begin_line(0x8f4)
 	.dwattr $C$DW$140, DW_AT_TI_begin_column(0x05)
-	.dwattr $C$DW$140, DW_AT_decl_file("C:/wolfssl/ctaocrypt/src/aes.c")
+	.dwattr $C$DW$140, DW_AT_decl_file("C:/wolfssl/wolfcrypt/src/aes.c")
 	.dwattr $C$DW$140, DW_AT_decl_line(0x8f4)
 	.dwattr $C$DW$140, DW_AT_decl_column(0x05)
 	.dwattr $C$DW$140, DW_AT_TI_max_frame_size(0x58)
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2293,column 1,is_stmt,address AesCbcDecrypt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2293,column 1,is_stmt,address AesCbcDecrypt,isa 1
 
 	.dwfde $C$DW$CIE, AesCbcDecrypt
 $C$DW$141	.dwtag  DW_TAG_formal_parameter, DW_AT_name("aes")
@@ -5196,12 +5196,12 @@ $C$DW$179	.dwtag  DW_TAG_variable, DW_AT_name("$O$K13")
         SUB       SP, SP, #52           ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 88
         STR       A3, [SP, #20]         ; [DPU_3_PIPE] |2293| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2294,column 19,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2294,column 19,is_stmt,isa 1
         LSRS      A4, A4, #4            ; [DPU_3_PIPE] |2294| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2293,column 1,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2293,column 1,is_stmt,isa 1
         STR       A1, [SP, #16]         ; [DPU_3_PIPE] |2293| 
         MOV       V1, A2                ; [DPU_3_PIPE] |2293| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2294,column 19,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2294,column 19,is_stmt,isa 1
         STR       A4, [SP, #24]         ; [DPU_3_PIPE] |2294| 
         BEQ       ||$C$L31||            ; [DPU_3_PIPE] |2294| 
         ; BRANCHCC OCCURS {||$C$L31||}   ; [] |2294| 
@@ -5237,7 +5237,7 @@ $C$DW$179	.dwtag  DW_TAG_variable, DW_AT_name("$O$K13")
 ;* 2074	-----------------------    rk = aes;  // [10]
 ;* 2075	-----------------------    if ( r > 7u || r == 0u ) goto g8;  // [10]
         LDR       A1, [SP, #32]         ; [DPU_3_PIPE] 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2324,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2324,column 9,is_stmt,isa 1
         LDR       A2, [SP, #20]         ; [DPU_3_PIPE] |2324| 
         MOVS      A3, #16               ; [DPU_3_PIPE] |2324| 
         ADDS      A1, A1, #16           ; [DPU_3_PIPE] |2324| 
@@ -5248,16 +5248,16 @@ $C$DW$180	.dwtag  DW_TAG_TI_branch
         BL        memcpy                ; [DPU_3_PIPE] |2324| 
         ; CALL OCCURS {memcpy }          ; [] |2324| 
         LDR       A1, [SP, #16]         ; [DPU_3_PIPE] |2324| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2072,column 14,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2072,column 14,is_stmt,isa 1
         LDR       V7, [SP, #24]         ; [DPU_3_PIPE] |2072| 
         LDR       A2, [A1, #240]        ; [DPU_3_PIPE] |2072| 
         LSR       V8, A2, #1            ; [DPU_3_PIPE] |2072| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2075,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2075,column 5,is_stmt,isa 1
         CMP       V8, #7                ; [DPU_3_PIPE] |2075| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2323,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2323,column 5,is_stmt,isa 1
         SUB       A2, V7, #1            ; [DPU_3_PIPE] |2323| 
         STR       A2, [SP, #24]         ; [DPU_3_PIPE] |2323| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2075,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2075,column 5,is_stmt,isa 1
         BHI       ||$C$L28||            ; [DPU_3_PIPE] |2075| 
         ; BRANCHCC OCCURS {||$C$L28||}   ; [] |2075| 
 ;* --------------------------------------------------------------------------*
@@ -5281,98 +5281,98 @@ $C$DW$180	.dwtag  DW_TAG_TI_branch
 ;**  	-----------------------    #pragma LOOP_FLAGS(4352u)
 ;**  	-----------------------    goto g6;
         LDR       A2, [SP, #36]         ; [DPU_3_PIPE] 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2107,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2107,column 5,is_stmt,isa 1
         LDR       V2, [A2, #0]          ; [DPU_3_PIPE] |2107| 
         ADD       A4, SP, #12           ; [DPU_3_PIPE] |2107| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2108,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2108,column 5,is_stmt,isa 1
         ADDS      A3, A2, #4            ; [DPU_3_PIPE] |2108| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2107,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2107,column 5,is_stmt,isa 1
         STR       V2, [A4, #0]          ; [DPU_3_PIPE] |2107| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2108,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2108,column 5,is_stmt,isa 1
         LDR       V2, [A3, #0]          ; [DPU_3_PIPE] |2108| 
         ADD       LR, SP, #8            ; [DPU_3_PIPE] |2108| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2109,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2109,column 5,is_stmt,isa 1
         ADD       V9, A2, #8            ; [DPU_3_PIPE] |2109| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2108,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2108,column 5,is_stmt,isa 1
         STR       V2, [LR, #0]          ; [DPU_3_PIPE] |2108| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2109,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2109,column 5,is_stmt,isa 1
         LDR       A4, [V9, #0]          ; [DPU_3_PIPE] |2109| 
         ADD       V7, SP, #4            ; [DPU_3_PIPE] |2109| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2110,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2110,column 5,is_stmt,isa 1
         ADD       V6, A2, #12           ; [DPU_3_PIPE] |2110| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2109,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2109,column 5,is_stmt,isa 1
         STR       A4, [V7, #0]          ; [DPU_3_PIPE] |2109| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2110,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2110,column 5,is_stmt,isa 1
         LDR       A3, [V6, #0]          ; [DPU_3_PIPE] |2110| 
         MOV       V5, SP                ; [DPU_3_PIPE] |2110| 
         STR       V5, [SP, #40]         ; [DPU_3_PIPE] |2110| 
         STR       A3, [V5, #0]          ; [DPU_3_PIPE] |2110| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2120,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2120,column 5,is_stmt,isa 1
         LDR       A4, [SP, #8]          ; [DPU_3_PIPE] |2120| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2110,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2110,column 5,is_stmt,isa 1
         MOV       V3, A1                ; [DPU_3_PIPE] |2110| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2119,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2119,column 5,is_stmt,isa 1
         LDR       V9, [V3, #0]          ; [DPU_3_PIPE] |2119| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2120,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2120,column 5,is_stmt,isa 1
         LDR       V7, [V3, #4]          ; [DPU_3_PIPE] |2120| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2121,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2121,column 5,is_stmt,isa 1
         LDR       A3, [SP, #4]          ; [DPU_3_PIPE] |2121| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2119,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2119,column 5,is_stmt,isa 1
         LDR       V2, [SP, #12]         ; [DPU_3_PIPE] |2119| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2122,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2122,column 5,is_stmt,isa 1
         LDR       A2, [SP, #0]          ; [DPU_3_PIPE] |2122| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2120,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2120,column 5,is_stmt,isa 1
         LSR       LR, A4, #8            ; [DPU_3_PIPE] |2120| 
         AND       LR, LR, #16711935     ; [DPU_3_PIPE] |2120| 
         AND       A4, A4, #16711935     ; [DPU_3_PIPE] |2120| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2119,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2119,column 5,is_stmt,isa 1
         STR       V9, [SP, #44]         ; [DPU_3_PIPE] |2119| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2120,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2120,column 5,is_stmt,isa 1
         ORR       LR, LR, A4, LSL #8    ; [DPU_3_PIPE] |2120| 
         MOV       A4, V9                ; [DPU_3_PIPE] |2120| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2121,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2121,column 5,is_stmt,isa 1
         LDR       V9, [V3, #8]          ; [DPU_3_PIPE] |2121| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2122,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2122,column 5,is_stmt,isa 1
         LDR       V3, [V3, #12]         ; [DPU_3_PIPE] |2122| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2121,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2121,column 5,is_stmt,isa 1
         LSR       V6, A3, #8            ; [DPU_3_PIPE] |2121| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2119,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2119,column 5,is_stmt,isa 1
         LSR       V5, V2, #8            ; [DPU_3_PIPE] |2119| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2121,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2121,column 5,is_stmt,isa 1
         AND       V6, V6, #16711935     ; [DPU_3_PIPE] |2121| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2119,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2119,column 5,is_stmt,isa 1
         AND       V5, V5, #16711935     ; [DPU_3_PIPE] |2119| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2121,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2121,column 5,is_stmt,isa 1
         AND       A3, A3, #16711935     ; [DPU_3_PIPE] |2121| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2119,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2119,column 5,is_stmt,isa 1
         AND       V2, V2, #16711935     ; [DPU_3_PIPE] |2119| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2120,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2120,column 5,is_stmt,isa 1
         STR       V7, [SP, #48]         ; [DPU_3_PIPE] |2120| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2121,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2121,column 5,is_stmt,isa 1
         ORR       V6, V6, A3, LSL #8    ; [DPU_3_PIPE] |2121| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2119,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2119,column 5,is_stmt,isa 1
         ORR       V5, V5, V2, LSL #8    ; [DPU_3_PIPE] |2119| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2121,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2121,column 5,is_stmt,isa 1
         MOV       A3, V7                ; [DPU_3_PIPE] |2121| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2122,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2122,column 5,is_stmt,isa 1
         LSR       V7, A2, #8            ; [DPU_3_PIPE] |2122| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2119,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2119,column 5,is_stmt,isa 1
         EOR       A4, A4, V5, ROR #16   ; [DPU_3_PIPE] |2119| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2120,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2120,column 5,is_stmt,isa 1
         EOR       A3, A3, LR, ROR #16   ; [DPU_3_PIPE] |2120| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2122,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2122,column 5,is_stmt,isa 1
         AND       V7, V7, #16711935     ; [DPU_3_PIPE] |2122| 
         AND       A2, A2, #16711935     ; [DPU_3_PIPE] |2122| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2119,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2119,column 5,is_stmt,isa 1
         STR       A4, [SP, #12]         ; [DPU_3_PIPE] |2119| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2122,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2122,column 5,is_stmt,isa 1
         ORR       V7, V7, A2, LSL #8    ; [DPU_3_PIPE] |2122| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2120,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2120,column 5,is_stmt,isa 1
         STR       A3, [SP, #8]          ; [DPU_3_PIPE] |2120| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2121,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2121,column 5,is_stmt,isa 1
         EOR       V9, V9, V6, ROR #16   ; [DPU_3_PIPE] |2121| 
         STR       V9, [SP, #4]          ; [DPU_3_PIPE] |2121| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2122,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2122,column 5,is_stmt,isa 1
         EOR       V3, V3, V7, ROR #16   ; [DPU_3_PIPE] |2122| 
         ADD       V7, V4, #4096         ; [DPU_3_PIPE] 
         STR       V3, [SP, #0]          ; [DPU_3_PIPE] |2122| 
@@ -5385,29 +5385,29 @@ $C$DW$180	.dwtag  DW_TAG_TI_branch
 ;* 2165	-----------------------    s1 = K$97[(unsigned char)(t1>>24)]^K$97[(unsigned char)(t0>>16)+256]^K$97[(unsigned char)(t3>>8)+512]^K$97[(unsigned char)t2+768]^rk[1];  // [10]
 ;* 2171	-----------------------    s2 = K$97[(unsigned char)(t2>>24)]^K$97[(unsigned char)(t1>>16)+256]^K$97[(unsigned char)(t0>>8)+512]^K$97[(unsigned char)t3+768]^rk[2];  // [10]
 ;* 2177	-----------------------    s3 = K$97[(unsigned char)(t3>>24)]^K$97[(unsigned char)(t2>>16)+256]^K$97[(unsigned char)(t1>>8)+512]^K$97[(unsigned char)t0+768]^rk[3];  // [10]
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2159,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2159,column 9,is_stmt,isa 1
         LSRS      V3, A4, #24           ; [DPU_3_PIPE] |2159| 
         LDR       V3, [V4, +V3, LSL #2] ; [DPU_3_PIPE] |2159| 
         UXTB      V9, V2, ROR #16       ; [DPU_3_PIPE] |2159| 
         ADD       V9, V4, V9, LSL #2    ; [DPU_3_PIPE] |2159| 
         LDR       V9, [V9, #1024]       ; [DPU_3_PIPE] |2159| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2171,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2171,column 9,is_stmt,isa 1
         UXTB      LR, A3, ROR #16       ; [DPU_3_PIPE] |2171| 
         ADD       LR, V4, LR, LSL #2    ; [DPU_3_PIPE] |2171| 
         LDR       V5, [LR, #1024]       ; [DPU_3_PIPE] |2171| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2159,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2159,column 9,is_stmt,isa 1
         UXTB      V6, A2, ROR #8        ; [DPU_3_PIPE] |2159| 
         EOR       V9, V9, V3            ; [DPU_3_PIPE] |2159| 
         ADD       V3, V4, V6, LSL #2    ; [DPU_3_PIPE] |2159| 
         LDR       V3, [V3, #2048]       ; [DPU_3_PIPE] |2159| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2171,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2171,column 9,is_stmt,isa 1
         LSR       LR, A2, #24           ; [DPU_3_PIPE] |2171| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2159,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2159,column 9,is_stmt,isa 1
         EOR       V3, V3, V9            ; [DPU_3_PIPE] |2159| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2171,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2171,column 9,is_stmt,isa 1
         LDR       V9, [V4, +LR, LSL #2] ; [DPU_3_PIPE] |2171| 
         EOR       V5, V5, V9            ; [DPU_3_PIPE] |2171| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2165,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2165,column 9,is_stmt,isa 1
         LSR       V9, A3, #24           ; [DPU_3_PIPE] |2165| 
         LDR       LR, [V4, +V9, LSL #2] ; [DPU_3_PIPE] |2165| 
         UXTB      V9, A4, ROR #16       ; [DPU_3_PIPE] |2165| 
@@ -5419,69 +5419,69 @@ $C$DW$180	.dwtag  DW_TAG_TI_branch
         ADD       LR, V4, LR, LSL #2    ; [DPU_3_PIPE] |2165| 
         LDR       LR, [LR, #2048]       ; [DPU_3_PIPE] |2165| 
         EOR       LR, LR, V9            ; [DPU_3_PIPE] |2165| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2159,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2159,column 9,is_stmt,isa 1
         UXTB      V9, A3                ; [DPU_3_PIPE] |2159| 
         ADD       V9, V4, V9, LSL #2    ; [DPU_3_PIPE] |2159| 
         LDR       V9, [V9, #3072]       ; [DPU_3_PIPE] |2159| 
         EOR       V9, V9, V3            ; [DPU_3_PIPE] |2159| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2171,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2171,column 9,is_stmt,isa 1
         UXTB      V3, A4, ROR #8        ; [DPU_3_PIPE] |2171| 
         ADD       V3, V4, V3, LSL #2    ; [DPU_3_PIPE] |2171| 
         LDR       V3, [V3, #2048]       ; [DPU_3_PIPE] |2171| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2177,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2177,column 9,is_stmt,isa 1
         UXTB      A3, A3, ROR #8        ; [DPU_3_PIPE] |2177| 
         ADD       A3, V4, A3, LSL #2    ; [DPU_3_PIPE] |2177| 
         LDR       A3, [A3, #2048]       ; [DPU_3_PIPE] |2177| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2171,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2171,column 9,is_stmt,isa 1
         EOR       V3, V3, V5            ; [DPU_3_PIPE] |2171| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2165,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2165,column 9,is_stmt,isa 1
         UXTB      V5, A2                ; [DPU_3_PIPE] |2165| 
         ADD       V5, V4, V5, LSL #2    ; [DPU_3_PIPE] |2165| 
         LDR       V5, [V5, #3072]       ; [DPU_3_PIPE] |2165| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2177,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2177,column 9,is_stmt,isa 1
         UXTB      A4, A4                ; [DPU_3_PIPE] |2177| 
         ADD       A4, V4, A4, LSL #2    ; [DPU_3_PIPE] |2177| 
         LDR       A4, [A4, #3072]       ; [DPU_3_PIPE] |2177| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2165,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2165,column 9,is_stmt,isa 1
         EOR       V5, V5, LR            ; [DPU_3_PIPE] |2165| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2159,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2159,column 9,is_stmt,isa 1
         LDR       LR, [A1, #0]          ; [DPU_3_PIPE] |2159| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2177,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2177,column 9,is_stmt,isa 1
         UXTB      A2, A2, ROR #16       ; [DPU_3_PIPE] |2177| 
         ADD       A2, V4, A2, LSL #2    ; [DPU_3_PIPE] |2177| 
         LDR       A2, [A2, #1024]       ; [DPU_3_PIPE] |2177| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2159,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2159,column 9,is_stmt,isa 1
         EOR       LR, LR, V9            ; [DPU_3_PIPE] |2159| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2177,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2177,column 9,is_stmt,isa 1
         LSR       V9, V2, #24           ; [DPU_3_PIPE] |2177| 
         LDR       V9, [V4, +V9, LSL #2] ; [DPU_3_PIPE] |2177| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2159,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2159,column 9,is_stmt,isa 1
         STR       LR, [SP, #44]         ; [DPU_3_PIPE] |2159| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2171,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2171,column 9,is_stmt,isa 1
         LDR       LR, [A1, #8]          ; [DPU_3_PIPE] |2171| 
         UXTB      V2, V2                ; [DPU_3_PIPE] |2171| 
         ADD       V2, V4, V2, LSL #2    ; [DPU_3_PIPE] |2171| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2177,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2177,column 9,is_stmt,isa 1
         EOR       A2, A2, V9            ; [DPU_3_PIPE] |2177| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2171,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2171,column 9,is_stmt,isa 1
         LDR       V9, [V2, #3072]       ; [DPU_3_PIPE] |2171| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2177,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2177,column 9,is_stmt,isa 1
         LDR       V2, [A1, #12]         ; [DPU_3_PIPE] |2177| 
         EORS      A3, A3, A2            ; [DPU_3_PIPE] |2177| 
         LDR       A2, [SP, #44]         ; [DPU_3_PIPE] |2177| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2165,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2165,column 9,is_stmt,isa 1
         EOR       V6, V6, V5            ; [DPU_3_PIPE] |2165| 
         STR       V6, [SP, #8]          ; [DPU_3_PIPE] |2165| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2171,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2171,column 9,is_stmt,isa 1
         EOR       V9, V9, V3            ; [DPU_3_PIPE] |2171| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2177,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2177,column 9,is_stmt,isa 1
         EORS      A4, A4, A3            ; [DPU_3_PIPE] |2177| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2159,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2159,column 9,is_stmt,isa 1
         STR       A2, [SP, #12]         ; [DPU_3_PIPE] |2159| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2171,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2171,column 9,is_stmt,isa 1
         EOR       LR, LR, V9            ; [DPU_3_PIPE] |2171| 
         STR       LR, [SP, #4]          ; [DPU_3_PIPE] |2171| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2177,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2177,column 9,is_stmt,isa 1
         EORS      V2, V2, A4            ; [DPU_3_PIPE] |2177| 
         STR       V2, [SP, #0]          ; [DPU_3_PIPE] |2177| 
 ;* --------------------------------------------------------------------------*
@@ -5495,116 +5495,116 @@ $C$DW$180	.dwtag  DW_TAG_TI_branch
 ;* 2147	-----------------------    t3 = K$97[(unsigned char)(s3>>24)]^K$97[(unsigned char)(s2>>16)+256]^K$97[(unsigned char)(s1>>8)+512]^K$97[(unsigned char)s0+768]^rk[7];  // [10]
 ;* 2154	-----------------------    rk += 8;  // [10]
 ;* 2156	-----------------------    if ( --r ) goto g5;  // [10]
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2135,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2135,column 9,is_stmt,isa 1
         LDR       V3, [SP, #8]          ; [DPU_3_PIPE] |2135| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2129,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2129,column 9,is_stmt,isa 1
         LDR       A2, [SP, #12]         ; [DPU_3_PIPE] |2129| 
         LDR       V2, [SP, #4]          ; [DPU_3_PIPE] |2129| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2135,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2135,column 9,is_stmt,isa 1
         LSRS      A4, V3, #24           ; [DPU_3_PIPE] |2135| 
         LDR       A4, [V4, +A4, LSL #2] ; [DPU_3_PIPE] |2135| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2141,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2141,column 9,is_stmt,isa 1
         UXTB      LR, V3, ROR #16       ; [DPU_3_PIPE] |2141| 
         ADD       V9, V4, LR, LSL #2    ; [DPU_3_PIPE] |2141| 
         LDR       LR, [V9, #1024]       ; [DPU_3_PIPE] |2141| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2135,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2135,column 9,is_stmt,isa 1
         UXTB      A3, A2, ROR #16       ; [DPU_3_PIPE] |2135| 
         ADD       A3, V4, A3, LSL #2    ; [DPU_3_PIPE] |2135| 
         LDR       A3, [A3, #1024]       ; [DPU_3_PIPE] |2135| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2129,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2129,column 9,is_stmt,isa 1
         LDR       V9, [SP, #0]          ; [DPU_3_PIPE] |2129| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2141,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2141,column 9,is_stmt,isa 1
         LSR       V6, V2, #24           ; [DPU_3_PIPE] |2141| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2135,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2135,column 9,is_stmt,isa 1
         EORS      A3, A3, A4            ; [DPU_3_PIPE] |2135| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2141,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2141,column 9,is_stmt,isa 1
         LDR       A4, [V4, +V6, LSL #2] ; [DPU_3_PIPE] |2141| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2129,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2129,column 9,is_stmt,isa 1
         LSR       V6, A2, #24           ; [DPU_3_PIPE] |2129| 
         LDR       V5, [V4, +V6, LSL #2] ; [DPU_3_PIPE] |2129| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2141,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2141,column 9,is_stmt,isa 1
         EOR       LR, LR, A4            ; [DPU_3_PIPE] |2141| 
         UXTB      A4, A2, ROR #8        ; [DPU_3_PIPE] |2141| 
         ADD       A2, V4, A4, LSL #2    ; [DPU_3_PIPE] |2141| 
         LDR       A2, [A2, #2048]       ; [DPU_3_PIPE] |2141| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2129,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2129,column 9,is_stmt,isa 1
         UXTB      V6, V9, ROR #16       ; [DPU_3_PIPE] |2129| 
         ADD       A4, V4, V6, LSL #2    ; [DPU_3_PIPE] |2129| 
         LDR       A4, [A4, #1024]       ; [DPU_3_PIPE] |2129| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2141,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2141,column 9,is_stmt,isa 1
         EOR       A2, A2, LR            ; [DPU_3_PIPE] |2141| 
         LDRB      LR, [SP, #0]          ; [DPU_3_PIPE] |2141| 
         ADD       LR, V4, LR, LSL #2    ; [DPU_3_PIPE] |2141| 
         LDR       LR, [LR, #3072]       ; [DPU_3_PIPE] |2141| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2147,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2147,column 9,is_stmt,isa 1
         UXTB      V6, V3, ROR #8        ; [DPU_3_PIPE] |2147| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2129,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2129,column 9,is_stmt,isa 1
         EOR       A4, A4, V5            ; [DPU_3_PIPE] |2129| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2147,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2147,column 9,is_stmt,isa 1
         ADD       V3, V4, V6, LSL #2    ; [DPU_3_PIPE] |2147| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2129,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2129,column 9,is_stmt,isa 1
         UXTB      V6, V2, ROR #8        ; [DPU_3_PIPE] |2129| 
         ADD       V5, V4, V6, LSL #2    ; [DPU_3_PIPE] |2129| 
         LDR       V5, [V5, #2048]       ; [DPU_3_PIPE] |2129| 
         LDRB      V6, [SP, #8]          ; [DPU_3_PIPE] |2129| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2147,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2147,column 9,is_stmt,isa 1
         LDR       V3, [V3, #2048]       ; [DPU_3_PIPE] |2147| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2129,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2129,column 9,is_stmt,isa 1
         EOR       V5, V5, A4            ; [DPU_3_PIPE] |2129| 
         ADD       A4, V4, V6, LSL #2    ; [DPU_3_PIPE] |2129| 
         LDR       A4, [A4, #3072]       ; [DPU_3_PIPE] |2129| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2141,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2141,column 9,is_stmt,isa 1
         EOR       LR, LR, A2            ; [DPU_3_PIPE] |2141| 
         LDR       A2, [A1, #24]         ; [DPU_3_PIPE] |2141| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2147,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2147,column 9,is_stmt,isa 1
         UXTB      V6, V2, ROR #16       ; [DPU_3_PIPE] |2147| 
         ADD       V2, V4, V6, LSL #2    ; [DPU_3_PIPE] |2147| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2129,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2129,column 9,is_stmt,isa 1
         LDR       V6, [A1, #16]         ; [DPU_3_PIPE] |2129| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2147,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2147,column 9,is_stmt,isa 1
         LDR       V2, [V2, #1024]       ; [DPU_3_PIPE] |2147| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2129,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2129,column 9,is_stmt,isa 1
         EOR       A4, A4, V5            ; [DPU_3_PIPE] |2129| 
         EOR       A4, V6, A4            ; [DPU_3_PIPE] |2129| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2135,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2135,column 9,is_stmt,isa 1
         UXTB      V6, V9, ROR #8        ; [DPU_3_PIPE] |2135| 
         ADD       V5, V4, V6, LSL #2    ; [DPU_3_PIPE] |2135| 
         LDR       V5, [V5, #2048]       ; [DPU_3_PIPE] |2135| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2147,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2147,column 9,is_stmt,isa 1
         LSR       V6, V9, #24           ; [DPU_3_PIPE] |2147| 
         LDR       V9, [V4, +V6, LSL #2] ; [DPU_3_PIPE] |2147| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2135,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2135,column 9,is_stmt,isa 1
         LDRB      V6, [SP, #4]          ; [DPU_3_PIPE] |2135| 
         EOR       V5, V5, A3            ; [DPU_3_PIPE] |2135| 
         ADD       A3, V4, V6, LSL #2    ; [DPU_3_PIPE] |2135| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2147,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2147,column 9,is_stmt,isa 1
         LDRB      V6, [SP, #12]         ; [DPU_3_PIPE] |2147| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2135,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2135,column 9,is_stmt,isa 1
         LDR       A3, [A3, #3072]       ; [DPU_3_PIPE] |2135| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2147,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2147,column 9,is_stmt,isa 1
         EOR       V2, V2, V9            ; [DPU_3_PIPE] |2147| 
         LDR       V9, [A1, #28]         ; [DPU_3_PIPE] |2147| 
         EORS      V3, V3, V2            ; [DPU_3_PIPE] |2147| 
         ADD       V2, V4, V6, LSL #2    ; [DPU_3_PIPE] |2147| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2135,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2135,column 9,is_stmt,isa 1
         LDR       V6, [A1, #20]         ; [DPU_3_PIPE] |2135| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2147,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2147,column 9,is_stmt,isa 1
         LDR       V2, [V2, #3072]       ; [DPU_3_PIPE] |2147| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2156,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2156,column 13,is_stmt,isa 1
         SUBS      V8, V8, #1            ; [DPU_3_PIPE] |2156| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2141,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2141,column 9,is_stmt,isa 1
         EOR       A2, A2, LR            ; [DPU_3_PIPE] |2141| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2135,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2135,column 9,is_stmt,isa 1
         EOR       A3, A3, V5            ; [DPU_3_PIPE] |2135| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2154,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2154,column 9,is_stmt,isa 1
         ADD       A1, A1, #32           ; [DPU_3_PIPE] |2154| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2147,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2147,column 9,is_stmt,isa 1
         EOR       V2, V2, V3            ; [DPU_3_PIPE] |2147| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2135,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2135,column 9,is_stmt,isa 1
         EOR       A3, V6, A3            ; [DPU_3_PIPE] |2135| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2147,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2147,column 9,is_stmt,isa 1
         EOR       V2, V9, V2            ; [DPU_3_PIPE] |2147| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2156,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2156,column 13,is_stmt,isa 1
         BNE       ||$C$L26||            ; [DPU_3_PIPE] |2156| 
         ; BRANCHCC OCCURS {||$C$L26||}   ; [] |2156| 
 ;* --------------------------------------------------------------------------*
@@ -5625,7 +5625,7 @@ $C$DW$180	.dwtag  DW_TAG_TI_branch
 ;* 2222	-----------------------    memcpy(outBlock+4, &s1, 4u);  // [10]
 ;* 2223	-----------------------    memcpy(outBlock+8, &s2, 4u);  // [10]
 ;* 2224	-----------------------    memcpy(outBlock+12, &s3, 4u);  // [10]
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2194,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2194,column 5,is_stmt,isa 1
         LSRS      V3, A3, #24           ; [DPU_3_PIPE] |2194| 
         LDR       V3, [V7, +V3, LSL #2] ; [DPU_3_PIPE] |2194| 
         UXTB      V9, A4, ROR #16       ; [DPU_3_PIPE] |2194| 
@@ -5635,9 +5635,9 @@ $C$DW$180	.dwtag  DW_TAG_TI_branch
         UXTB      V5, A2                ; [DPU_3_PIPE] |2194| 
         LDR       V5, [V7, +V5, LSL #2] ; [DPU_3_PIPE] |2194| 
         LDR       V8, [A1, #4]          ; [DPU_3_PIPE] |2194| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2206,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2206,column 5,is_stmt,isa 1
         LSR       V6, V2, #24           ; [DPU_3_PIPE] |2206| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2194,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2194,column 5,is_stmt,isa 1
         AND       V3, V3, #-16777216    ; [DPU_3_PIPE] |2194| 
         AND       V9, V9, #16711680     ; [DPU_3_PIPE] |2194| 
         AND       LR, LR, #65280        ; [DPU_3_PIPE] |2194| 
@@ -5646,104 +5646,104 @@ $C$DW$180	.dwtag  DW_TAG_TI_branch
         EOR       LR, LR, V9            ; [DPU_3_PIPE] |2194| 
         EOR       V5, V5, LR            ; [DPU_3_PIPE] |2194| 
         EOR       V3, V8, V5            ; [DPU_3_PIPE] |2194| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2206,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2206,column 5,is_stmt,isa 1
         LDR       V5, [V7, +V6, LSL #2] ; [DPU_3_PIPE] |2206| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
         UXTB      V8, A3                ; [DPU_3_PIPE] |91| 
         LDR       LR, [V7, +V8, LSL #2] ; [DPU_3_PIPE] |91| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2206,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2206,column 5,is_stmt,isa 1
         UXTB      V8, A3, ROR #8        ; [DPU_3_PIPE] |2206| 
         LDR       V6, [V7, +V8, LSL #2] ; [DPU_3_PIPE] |2206| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2200,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2200,column 5,is_stmt,isa 1
         UXTB      V9, V2                ; [DPU_3_PIPE] |2200| 
         LDR       V8, [V7, +V9, LSL #2] ; [DPU_3_PIPE] |2200| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
         UXTB      V9, V2, ROR #16       ; [DPU_3_PIPE] |91| 
         LDR       V2, [V7, +V9, LSL #2] ; [DPU_3_PIPE] |91| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2200,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2200,column 5,is_stmt,isa 1
         UXTB      V9, A3, ROR #16       ; [DPU_3_PIPE] |2200| 
         LDR       A3, [V7, +V9, LSL #2] ; [DPU_3_PIPE] |2200| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
         LSR       V9, A4, #24           ; [DPU_3_PIPE] |91| 
         LDR       V9, [V7, +V9, LSL #2] ; [DPU_3_PIPE] |91| 
         AND       V2, V2, #16711680     ; [DPU_3_PIPE] |91| 
         AND       V9, V9, #-16777216    ; [DPU_3_PIPE] |91| 
         EOR       V2, V2, V9            ; [DPU_3_PIPE] |91| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2200,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2200,column 5,is_stmt,isa 1
         LSR       V9, A2, #24           ; [DPU_3_PIPE] |2200| 
         LDR       V9, [V7, +V9, LSL #2] ; [DPU_3_PIPE] |2200| 
         AND       A3, A3, #16711680     ; [DPU_3_PIPE] |2200| 
         AND       V9, V9, #-16777216    ; [DPU_3_PIPE] |2200| 
         EOR       V9, A3, V9            ; [DPU_3_PIPE] |2200| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
         UXTB      A3, A2, ROR #8        ; [DPU_3_PIPE] |91| 
         LDR       A3, [V7, +A3, LSL #2] ; [DPU_3_PIPE] |91| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2206,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2206,column 5,is_stmt,isa 1
         UXTB      A2, A2, ROR #16       ; [DPU_3_PIPE] |2206| 
         LDR       A2, [V7, +A2, LSL #2] ; [DPU_3_PIPE] |2206| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
         AND       A3, A3, #65280        ; [DPU_3_PIPE] |91| 
         EORS      A3, A3, V2            ; [DPU_3_PIPE] |91| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2200,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2200,column 5,is_stmt,isa 1
         UXTB      V2, A4, ROR #8        ; [DPU_3_PIPE] |2200| 
         LDR       V2, [V7, +V2, LSL #2] ; [DPU_3_PIPE] |2200| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
         AND       LR, LR, #255          ; [DPU_3_PIPE] |91| 
         EOR       LR, LR, A3            ; [DPU_3_PIPE] |91| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2206,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2206,column 5,is_stmt,isa 1
         UXTB      A3, A4                ; [DPU_3_PIPE] |2206| 
         LDR       A4, [V7, +A3, LSL #2] ; [DPU_3_PIPE] |2206| 
         AND       V5, V5, #-16777216    ; [DPU_3_PIPE] |2206| 
         AND       A2, A2, #16711680     ; [DPU_3_PIPE] |2206| 
         EOR       A2, A2, V5            ; [DPU_3_PIPE] |2206| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2200,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2200,column 5,is_stmt,isa 1
         LDR       V5, [A1, #8]          ; [DPU_3_PIPE] |2200| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2206,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2206,column 5,is_stmt,isa 1
         LDR       A3, [A1, #12]         ; [DPU_3_PIPE] |2206| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
         LDR       V7, [A1, #0]          ; [DPU_3_PIPE] |91| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2206,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2206,column 5,is_stmt,isa 1
         AND       V6, V6, #65280        ; [DPU_3_PIPE] |2206| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2200,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2200,column 5,is_stmt,isa 1
         AND       V8, V8, #255          ; [DPU_3_PIPE] |2200| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2206,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2206,column 5,is_stmt,isa 1
         EOR       V6, V6, A2            ; [DPU_3_PIPE] |2206| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2200,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2200,column 5,is_stmt,isa 1
         AND       V2, V2, #65280        ; [DPU_3_PIPE] |2200| 
         EOR       V2, V2, V9            ; [DPU_3_PIPE] |2200| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2206,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2206,column 5,is_stmt,isa 1
         AND       A4, A4, #255          ; [DPU_3_PIPE] |2206| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2200,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2200,column 5,is_stmt,isa 1
         EOR       V8, V8, V2            ; [DPU_3_PIPE] |2200| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2206,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2206,column 5,is_stmt,isa 1
         EOR       A4, A4, V6            ; [DPU_3_PIPE] |2206| 
         EORS      A3, A3, A4            ; [DPU_3_PIPE] |2206| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
         EOR       A2, V7, LR            ; [DPU_3_PIPE] |91| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2200,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2200,column 5,is_stmt,isa 1
         EOR       A1, V5, V8            ; [DPU_3_PIPE] |2200| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
         AND       V6, V3, #16711935     ; [DPU_3_PIPE] |66| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
         LSR       V9, A2, #8            ; [DPU_3_PIPE] |91| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
         LSR       LR, A3, #8            ; [DPU_3_PIPE] |66| 
         LSR       V7, V3, #8            ; [DPU_3_PIPE] |66| 
         LSRS      A4, A1, #8            ; [DPU_3_PIPE] |66| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
         AND       V9, V9, #16711935     ; [DPU_3_PIPE] |91| 
         AND       A2, A2, #16711935     ; [DPU_3_PIPE] |91| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
         AND       LR, LR, #16711935     ; [DPU_3_PIPE] |66| 
         AND       A3, A3, #16711935     ; [DPU_3_PIPE] |66| 
         AND       V2, V7, #16711935     ; [DPU_3_PIPE] |66| 
         AND       A4, A4, #16711935     ; [DPU_3_PIPE] |66| 
         AND       A1, A1, #16711935     ; [DPU_3_PIPE] |66| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2221,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2221,column 5,is_stmt,isa 1
         ADD       V5, SP, #12           ; [DPU_3_PIPE] |2221| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 91,column 5,is_stmt,isa 1
         ORR       V9, V9, A2, LSL #8    ; [DPU_3_PIPE] |91| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
         ORR       LR, LR, A3, LSL #8    ; [DPU_3_PIPE] |66| 
         ORR       V2, V2, V6, LSL #8    ; [DPU_3_PIPE] |66| 
         ROR       V8, V9, #16           ; [DPU_3_PIPE] |66| 
@@ -5755,26 +5755,26 @@ $C$DW$180	.dwtag  DW_TAG_TI_branch
         STR       A2, [SP, #8]          ; [DPU_3_PIPE] |66| 
         ROR       A3, A4, #16           ; [DPU_3_PIPE] |66| 
         STR       A3, [SP, #4]          ; [DPU_3_PIPE] |66| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2221,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2221,column 5,is_stmt,isa 1
         LDR       A3, [V5, #0]          ; [DPU_3_PIPE] |2221| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2222,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2222,column 5,is_stmt,isa 1
         ADD       V3, SP, #8            ; [DPU_3_PIPE] |2222| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2221,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2221,column 5,is_stmt,isa 1
         MOV       A1, V1                ; [DPU_3_PIPE] |2221| 
         STR       A3, [A1, #0]          ; [DPU_3_PIPE] |2221| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2222,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2222,column 5,is_stmt,isa 1
         LDR       A3, [V3, #0]          ; [DPU_3_PIPE] |2222| 
         ADD       V6, V1, #4            ; [DPU_3_PIPE] |2222| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2223,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2223,column 5,is_stmt,isa 1
         ADD       V9, SP, #4            ; [DPU_3_PIPE] |2223| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2222,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2222,column 5,is_stmt,isa 1
         STR       A3, [V6, #0]          ; [DPU_3_PIPE] |2222| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2223,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2223,column 5,is_stmt,isa 1
         LDR       A3, [V9, #0]          ; [DPU_3_PIPE] |2223| 
         ADD       V8, V1, #8            ; [DPU_3_PIPE] |2223| 
         MOV       A2, SP                ; [DPU_3_PIPE] |2223| 
         STR       A3, [V8, #0]          ; [DPU_3_PIPE] |2223| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2224,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2224,column 5,is_stmt,isa 1
         LDR       A2, [A2, #0]          ; [DPU_3_PIPE] |2224| 
         ADD       V2, V1, #12           ; [DPU_3_PIPE] |2224| 
         STR       A2, [V2, #0]          ; [DPU_3_PIPE] |2224| 
@@ -5784,9 +5784,9 @@ $C$DW$180	.dwtag  DW_TAG_TI_branch
 ;* 2326	-----------------------    buf = (void *)out;
 ;* 2326	-----------------------    mask = K$439;
 ;** 161	-----------------------    if ( ((unsigned)buf|K$442)&3u ) goto g10;  // [6]
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2326,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2326,column 9,is_stmt,isa 1
         LDR       A2, [SP, #28]         ; [DPU_3_PIPE] |2326| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 161,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 161,column 5,is_stmt,isa 1
         LDR       A1, [SP, #32]         ; [DPU_3_PIPE] |161| 
         ORRS      A2, A2, V1            ; [DPU_3_PIPE] |161| 
         TST       A2, #3                ; [DPU_3_PIPE] |161| 
@@ -5798,7 +5798,7 @@ $C$DW$180	.dwtag  DW_TAG_TI_branch
 ;** 155	-----------------------    *((unsigned *)out+8) ^= *((unsigned *)aes+252);  // [5]
 ;** 155	-----------------------    *((unsigned *)out+12) ^= *((unsigned *)aes+256);  // [5]
 ;** 155	-----------------------    goto g11;  // [5]
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 155,column 29,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 155,column 29,is_stmt,isa 1
         LDR       A2, [V1, #0]          ; [DPU_3_PIPE] |155| 
         LDR       A1, [A1, #0]          ; [DPU_3_PIPE] |155| 
         LDR       LR, [SP, #16]         ; [DPU_3_PIPE] |155| 
@@ -5816,7 +5816,7 @@ $C$DW$180	.dwtag  DW_TAG_TI_branch
         LDR       A1, [LR, #256]        ; [DPU_3_PIPE] |155| 
         EOR       A1, A1, V9            ; [DPU_3_PIPE] |155| 
         STR       A1, [V1, #12]         ; [DPU_3_PIPE] |155| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 155,column 17,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 155,column 17,is_stmt,isa 1
         B         ||$C$L30||            ; [DPU_3_PIPE] |155| 
         ; BRANCH OCCURS {||$C$L30||}     ; [] |155| 
 ;* --------------------------------------------------------------------------*
@@ -5838,7 +5838,7 @@ $C$DW$180	.dwtag  DW_TAG_TI_branch
 ;** 168	-----------------------    *((unsigned char *)buf+13u) ^= *((unsigned char *)mask+13u);  // [6]
 ;** 168	-----------------------    *((unsigned char *)buf+14u) ^= *((unsigned char *)mask+14u);  // [6]
 ;** 168	-----------------------    *((unsigned char *)buf+15u) ^= *((unsigned char *)mask+15u);  // [6]
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 168,column 37,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/misc.c",line 168,column 37,is_stmt,isa 1
         LDRB      A3, [V1, #0]          ; [DPU_3_PIPE] |168| 
         LDRB      A2, [A1, #0]          ; [DPU_3_PIPE] |168| 
         EORS      A2, A2, A3            ; [DPU_3_PIPE] |168| 
@@ -5911,7 +5911,7 @@ $C$DW$180	.dwtag  DW_TAG_TI_branch
 ;* 2330	-----------------------    in += 16;
 ;* 2323	-----------------------    if ( blocks ) goto g3;
         LDR       A1, [SP, #32]         ; [DPU_3_PIPE] 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2327,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2327,column 9,is_stmt,isa 1
         LDR       A2, [SP, #36]         ; [DPU_3_PIPE] |2327| 
         MOVS      A3, #16               ; [DPU_3_PIPE] |2327| 
 $C$DW$181	.dwtag  DW_TAG_TI_branch
@@ -5920,17 +5920,17 @@ $C$DW$181	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$181, DW_AT_TI_call
         BL        memcpy                ; [DPU_3_PIPE] |2327| 
         ; CALL OCCURS {memcpy }          ; [] |2327| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2330,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2330,column 9,is_stmt,isa 1
         LDR       V8, [SP, #24]         ; [DPU_3_PIPE] |2330| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2329,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2329,column 9,is_stmt,isa 1
         ADDS      V1, V1, #16           ; [DPU_3_PIPE] |2329| 
         LDR       A1, [SP, #20]         ; [DPU_3_PIPE] |2329| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2323,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2323,column 5,is_stmt,isa 1
         CMP       V8, #0                ; [DPU_3_PIPE] |2323| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2330,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2330,column 9,is_stmt,isa 1
         ADD       A1, A1, #16           ; [DPU_3_PIPE] |2330| 
         STR       A1, [SP, #20]         ; [DPU_3_PIPE] |2330| 
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2323,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2323,column 5,is_stmt,isa 1
         BNE       ||$C$L25||            ; [DPU_3_PIPE] |2323| 
         ; BRANCHCC OCCURS {||$C$L25||}   ; [] |2323| 
 ;* --------------------------------------------------------------------------*
@@ -5939,7 +5939,7 @@ $C$DW$181	.dwtag  DW_TAG_TI_branch
 ;* 2333	-----------------------    return 0;
         ADD       SP, SP, #52           ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 36
-	.dwpsn	file "C:/wolfssl/ctaocrypt/src/aes.c",line 2333,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/wolfcrypt/src/aes.c",line 2333,column 5,is_stmt,isa 1
         MOVS      A1, #0                ; [DPU_3_PIPE] |2333| 
 $C$DW$182	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$182, DW_AT_low_pc(0x00)
@@ -5947,7 +5947,7 @@ $C$DW$182	.dwtag  DW_TAG_TI_branch
         POP       {V1, V2, V3, V4, V5, V6, V7, V8, PC} ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 0
         ; BRANCH OCCURS                  ; [] 
-	.dwattr $C$DW$140, DW_AT_TI_end_file("C:/wolfssl/ctaocrypt/src/aes.c")
+	.dwattr $C$DW$140, DW_AT_TI_end_file("C:/wolfssl/wolfcrypt/src/aes.c")
 	.dwattr $C$DW$140, DW_AT_TI_end_line(0x91e)
 	.dwattr $C$DW$140, DW_AT_TI_end_column(0x01)
 	.dwendentry
@@ -5989,604 +5989,604 @@ $C$DW$182	.dwtag  DW_TAG_TI_branch
 $C$DW$T$489	.dwtag  DW_TAG_enumeration_type
 	.dwattr $C$DW$T$489, DW_AT_byte_size(0x01)
 $C$DW$183	.dwtag  DW_TAG_enumerator, DW_AT_name("WOLFSSL_WORD_SIZE"), DW_AT_const_value(0x04)
-	.dwattr $C$DW$183, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$183, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$183, DW_AT_decl_line(0x65)
 	.dwattr $C$DW$183, DW_AT_decl_column(0x05)
 $C$DW$184	.dwtag  DW_TAG_enumerator, DW_AT_name("WOLFSSL_BIT_SIZE"), DW_AT_const_value(0x08)
-	.dwattr $C$DW$184, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$184, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$184, DW_AT_decl_line(0x66)
 	.dwattr $C$DW$184, DW_AT_decl_column(0x05)
 $C$DW$185	.dwtag  DW_TAG_enumerator, DW_AT_name("WOLFSSL_WORD_BITS"), DW_AT_const_value(0x20)
-	.dwattr $C$DW$185, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$185, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$185, DW_AT_decl_line(0x67)
 	.dwattr $C$DW$185, DW_AT_decl_column(0x05)
 	.dwendtag $C$DW$T$489
 
-	.dwattr $C$DW$T$489, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$T$489, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$T$489, DW_AT_decl_line(0x64)
 	.dwattr $C$DW$T$489, DW_AT_decl_column(0x06)
 
 $C$DW$T$490	.dwtag  DW_TAG_enumeration_type
 	.dwattr $C$DW$T$490, DW_AT_byte_size(0x01)
 $C$DW$186	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_CA"), DW_AT_const_value(0x01)
-	.dwattr $C$DW$186, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$186, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$186, DW_AT_decl_line(0xe7)
 	.dwattr $C$DW$186, DW_AT_decl_column(0x05)
 $C$DW$187	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_CERT"), DW_AT_const_value(0x02)
-	.dwattr $C$DW$187, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$187, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$187, DW_AT_decl_line(0xe8)
 	.dwattr $C$DW$187, DW_AT_decl_column(0x05)
 $C$DW$188	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_KEY"), DW_AT_const_value(0x03)
-	.dwattr $C$DW$188, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$188, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$188, DW_AT_decl_line(0xe9)
 	.dwattr $C$DW$188, DW_AT_decl_column(0x05)
 $C$DW$189	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_FILE"), DW_AT_const_value(0x04)
-	.dwattr $C$DW$189, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$189, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$189, DW_AT_decl_line(0xea)
 	.dwattr $C$DW$189, DW_AT_decl_column(0x05)
 $C$DW$190	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_SUBJECT_CN"), DW_AT_const_value(0x05)
-	.dwattr $C$DW$190, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$190, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$190, DW_AT_decl_line(0xeb)
 	.dwattr $C$DW$190, DW_AT_decl_column(0x05)
 $C$DW$191	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_PUBLIC_KEY"), DW_AT_const_value(0x06)
-	.dwattr $C$DW$191, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$191, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$191, DW_AT_decl_line(0xec)
 	.dwattr $C$DW$191, DW_AT_decl_column(0x05)
 $C$DW$192	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_SIGNER"), DW_AT_const_value(0x07)
-	.dwattr $C$DW$192, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$192, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$192, DW_AT_decl_line(0xed)
 	.dwattr $C$DW$192, DW_AT_decl_column(0x05)
 $C$DW$193	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_NONE"), DW_AT_const_value(0x08)
-	.dwattr $C$DW$193, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$193, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$193, DW_AT_decl_line(0xee)
 	.dwattr $C$DW$193, DW_AT_decl_column(0x05)
 $C$DW$194	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_BIGINT"), DW_AT_const_value(0x09)
-	.dwattr $C$DW$194, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$194, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$194, DW_AT_decl_line(0xef)
 	.dwattr $C$DW$194, DW_AT_decl_column(0x05)
 $C$DW$195	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_RSA"), DW_AT_const_value(0x0a)
-	.dwattr $C$DW$195, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$195, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$195, DW_AT_decl_line(0xf0)
 	.dwattr $C$DW$195, DW_AT_decl_column(0x05)
 $C$DW$196	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_METHOD"), DW_AT_const_value(0x0b)
-	.dwattr $C$DW$196, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$196, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$196, DW_AT_decl_line(0xf1)
 	.dwattr $C$DW$196, DW_AT_decl_column(0x05)
 $C$DW$197	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_OUT_BUFFER"), DW_AT_const_value(0x0c)
-	.dwattr $C$DW$197, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$197, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$197, DW_AT_decl_line(0xf2)
 	.dwattr $C$DW$197, DW_AT_decl_column(0x05)
 $C$DW$198	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_IN_BUFFER"), DW_AT_const_value(0x0d)
-	.dwattr $C$DW$198, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$198, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$198, DW_AT_decl_line(0xf3)
 	.dwattr $C$DW$198, DW_AT_decl_column(0x05)
 $C$DW$199	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_INFO"), DW_AT_const_value(0x0e)
-	.dwattr $C$DW$199, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$199, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$199, DW_AT_decl_line(0xf4)
 	.dwattr $C$DW$199, DW_AT_decl_column(0x05)
 $C$DW$200	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_DH"), DW_AT_const_value(0x0f)
-	.dwattr $C$DW$200, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$200, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$200, DW_AT_decl_line(0xf5)
 	.dwattr $C$DW$200, DW_AT_decl_column(0x05)
 $C$DW$201	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_DOMAIN"), DW_AT_const_value(0x10)
-	.dwattr $C$DW$201, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$201, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$201, DW_AT_decl_line(0xf6)
 	.dwattr $C$DW$201, DW_AT_decl_column(0x05)
 $C$DW$202	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_SSL"), DW_AT_const_value(0x11)
-	.dwattr $C$DW$202, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$202, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$202, DW_AT_decl_line(0xf7)
 	.dwattr $C$DW$202, DW_AT_decl_column(0x05)
 $C$DW$203	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_CTX"), DW_AT_const_value(0x12)
-	.dwattr $C$DW$203, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$203, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$203, DW_AT_decl_line(0xf8)
 	.dwattr $C$DW$203, DW_AT_decl_column(0x05)
 $C$DW$204	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_WRITEV"), DW_AT_const_value(0x13)
-	.dwattr $C$DW$204, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$204, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$204, DW_AT_decl_line(0xf9)
 	.dwattr $C$DW$204, DW_AT_decl_column(0x05)
 $C$DW$205	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_OPENSSL"), DW_AT_const_value(0x14)
-	.dwattr $C$DW$205, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$205, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$205, DW_AT_decl_line(0xfa)
 	.dwattr $C$DW$205, DW_AT_decl_column(0x05)
 $C$DW$206	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_DSA"), DW_AT_const_value(0x15)
-	.dwattr $C$DW$206, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$206, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$206, DW_AT_decl_line(0xfb)
 	.dwattr $C$DW$206, DW_AT_decl_column(0x05)
 $C$DW$207	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_CRL"), DW_AT_const_value(0x16)
-	.dwattr $C$DW$207, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$207, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$207, DW_AT_decl_line(0xfc)
 	.dwattr $C$DW$207, DW_AT_decl_column(0x05)
 $C$DW$208	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_REVOKED"), DW_AT_const_value(0x17)
-	.dwattr $C$DW$208, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$208, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$208, DW_AT_decl_line(0xfd)
 	.dwattr $C$DW$208, DW_AT_decl_column(0x05)
 $C$DW$209	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_CRL_ENTRY"), DW_AT_const_value(0x18)
-	.dwattr $C$DW$209, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$209, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$209, DW_AT_decl_line(0xfe)
 	.dwattr $C$DW$209, DW_AT_decl_column(0x05)
 $C$DW$210	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_CERT_MANAGER"), DW_AT_const_value(0x19)
-	.dwattr $C$DW$210, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$210, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$210, DW_AT_decl_line(0xff)
 	.dwattr $C$DW$210, DW_AT_decl_column(0x05)
 $C$DW$211	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_CRL_MONITOR"), DW_AT_const_value(0x1a)
-	.dwattr $C$DW$211, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$211, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$211, DW_AT_decl_line(0x100)
 	.dwattr $C$DW$211, DW_AT_decl_column(0x05)
 $C$DW$212	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_OCSP_STATUS"), DW_AT_const_value(0x1b)
-	.dwattr $C$DW$212, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$212, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$212, DW_AT_decl_line(0x101)
 	.dwattr $C$DW$212, DW_AT_decl_column(0x05)
 $C$DW$213	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_OCSP_ENTRY"), DW_AT_const_value(0x1c)
-	.dwattr $C$DW$213, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$213, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$213, DW_AT_decl_line(0x102)
 	.dwattr $C$DW$213, DW_AT_decl_column(0x05)
 $C$DW$214	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_ALTNAME"), DW_AT_const_value(0x1d)
-	.dwattr $C$DW$214, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$214, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$214, DW_AT_decl_line(0x103)
 	.dwattr $C$DW$214, DW_AT_decl_column(0x05)
 $C$DW$215	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_SUITES"), DW_AT_const_value(0x1e)
-	.dwattr $C$DW$215, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$215, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$215, DW_AT_decl_line(0x104)
 	.dwattr $C$DW$215, DW_AT_decl_column(0x05)
 $C$DW$216	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_CIPHER"), DW_AT_const_value(0x1f)
-	.dwattr $C$DW$216, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$216, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$216, DW_AT_decl_line(0x105)
 	.dwattr $C$DW$216, DW_AT_decl_column(0x05)
 $C$DW$217	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_RNG"), DW_AT_const_value(0x20)
-	.dwattr $C$DW$217, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$217, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$217, DW_AT_decl_line(0x106)
 	.dwattr $C$DW$217, DW_AT_decl_column(0x05)
 $C$DW$218	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_ARRAYS"), DW_AT_const_value(0x21)
-	.dwattr $C$DW$218, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$218, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$218, DW_AT_decl_line(0x107)
 	.dwattr $C$DW$218, DW_AT_decl_column(0x05)
 $C$DW$219	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_DTLS_POOL"), DW_AT_const_value(0x22)
-	.dwattr $C$DW$219, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$219, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$219, DW_AT_decl_line(0x108)
 	.dwattr $C$DW$219, DW_AT_decl_column(0x05)
 $C$DW$220	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_SOCKADDR"), DW_AT_const_value(0x23)
-	.dwattr $C$DW$220, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$220, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$220, DW_AT_decl_line(0x109)
 	.dwattr $C$DW$220, DW_AT_decl_column(0x05)
 $C$DW$221	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_LIBZ"), DW_AT_const_value(0x24)
-	.dwattr $C$DW$221, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$221, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$221, DW_AT_decl_line(0x10a)
 	.dwattr $C$DW$221, DW_AT_decl_column(0x05)
 $C$DW$222	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_ECC"), DW_AT_const_value(0x25)
-	.dwattr $C$DW$222, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$222, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$222, DW_AT_decl_line(0x10b)
 	.dwattr $C$DW$222, DW_AT_decl_column(0x05)
 $C$DW$223	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_TMP_BUFFER"), DW_AT_const_value(0x26)
-	.dwattr $C$DW$223, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$223, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$223, DW_AT_decl_line(0x10c)
 	.dwattr $C$DW$223, DW_AT_decl_column(0x05)
 $C$DW$224	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_DTLS_MSG"), DW_AT_const_value(0x27)
-	.dwattr $C$DW$224, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$224, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$224, DW_AT_decl_line(0x10d)
 	.dwattr $C$DW$224, DW_AT_decl_column(0x05)
 $C$DW$225	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_CAVIUM_TMP"), DW_AT_const_value(0x28)
-	.dwattr $C$DW$225, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$225, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$225, DW_AT_decl_line(0x10e)
 	.dwattr $C$DW$225, DW_AT_decl_column(0x05)
 $C$DW$226	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_CAVIUM_RSA"), DW_AT_const_value(0x29)
-	.dwattr $C$DW$226, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$226, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$226, DW_AT_decl_line(0x10f)
 	.dwattr $C$DW$226, DW_AT_decl_column(0x05)
 $C$DW$227	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_X509"), DW_AT_const_value(0x2a)
-	.dwattr $C$DW$227, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$227, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$227, DW_AT_decl_line(0x110)
 	.dwattr $C$DW$227, DW_AT_decl_column(0x05)
 $C$DW$228	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_TLSX"), DW_AT_const_value(0x2b)
-	.dwattr $C$DW$228, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$228, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$228, DW_AT_decl_line(0x111)
 	.dwattr $C$DW$228, DW_AT_decl_column(0x05)
 $C$DW$229	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_OCSP"), DW_AT_const_value(0x2c)
-	.dwattr $C$DW$229, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$229, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$229, DW_AT_decl_line(0x112)
 	.dwattr $C$DW$229, DW_AT_decl_column(0x05)
 $C$DW$230	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_SIGNATURE"), DW_AT_const_value(0x2d)
-	.dwattr $C$DW$230, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$230, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$230, DW_AT_decl_line(0x113)
 	.dwattr $C$DW$230, DW_AT_decl_column(0x05)
 	.dwendtag $C$DW$T$490
 
-	.dwattr $C$DW$T$490, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$T$490, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$T$490, DW_AT_decl_line(0xe6)
 	.dwattr $C$DW$T$490, DW_AT_decl_column(0x06)
 
 $C$DW$T$491	.dwtag  DW_TAG_enumeration_type
 	.dwattr $C$DW$T$491, DW_AT_byte_size(0x01)
 $C$DW$231	.dwtag  DW_TAG_enumerator, DW_AT_name("WOLFSSL_MAX_ERROR_SZ"), DW_AT_const_value(0x50)
-	.dwattr $C$DW$231, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$231, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$231, DW_AT_decl_line(0x118)
 	.dwattr $C$DW$231, DW_AT_decl_column(0x05)
 	.dwendtag $C$DW$T$491
 
-	.dwattr $C$DW$T$491, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$T$491, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$T$491, DW_AT_decl_line(0x117)
 	.dwattr $C$DW$T$491, DW_AT_decl_column(0x06)
 
 $C$DW$T$492	.dwtag  DW_TAG_enumeration_type
 	.dwattr $C$DW$T$492, DW_AT_byte_size(0x01)
 $C$DW$232	.dwtag  DW_TAG_enumerator, DW_AT_name("MIN_STACK_BUFFER"), DW_AT_const_value(0x08)
-	.dwattr $C$DW$232, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$232, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$232, DW_AT_decl_line(0x11d)
 	.dwattr $C$DW$232, DW_AT_decl_column(0x05)
 	.dwendtag $C$DW$T$492
 
-	.dwattr $C$DW$T$492, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$T$492, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$T$492, DW_AT_decl_line(0x11c)
 	.dwattr $C$DW$T$492, DW_AT_decl_column(0x06)
 
 $C$DW$T$493	.dwtag  DW_TAG_enumeration_type
 	.dwattr $C$DW$T$493, DW_AT_byte_size(0x01)
 $C$DW$233	.dwtag  DW_TAG_enumerator, DW_AT_name("CTC_SETTINGS"), DW_AT_const_value(0x20)
-	.dwattr $C$DW$233, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$233, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$233, DW_AT_decl_line(0x131)
 	.dwattr $C$DW$233, DW_AT_decl_column(0x05)
 	.dwendtag $C$DW$T$493
 
-	.dwattr $C$DW$T$493, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$T$493, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$T$493, DW_AT_decl_line(0x123)
 	.dwattr $C$DW$T$493, DW_AT_decl_column(0x06)
 
 $C$DW$T$494	.dwtag  DW_TAG_enumeration_type
 	.dwattr $C$DW$T$494, DW_AT_byte_size(0x01)
 $C$DW$234	.dwtag  DW_TAG_enumerator, DW_AT_name("AES_ENC_TYPE"), DW_AT_const_value(0x01)
-	.dwattr $C$DW$234, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/aes.h")
+	.dwattr $C$DW$234, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/aes.h")
 	.dwattr $C$DW$234, DW_AT_decl_line(0x42)
 	.dwattr $C$DW$234, DW_AT_decl_column(0x05)
 $C$DW$235	.dwtag  DW_TAG_enumerator, DW_AT_name("AES_ENCRYPTION"), DW_AT_const_value(0x00)
-	.dwattr $C$DW$235, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/aes.h")
+	.dwattr $C$DW$235, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/aes.h")
 	.dwattr $C$DW$235, DW_AT_decl_line(0x43)
 	.dwattr $C$DW$235, DW_AT_decl_column(0x05)
 $C$DW$236	.dwtag  DW_TAG_enumerator, DW_AT_name("AES_DECRYPTION"), DW_AT_const_value(0x01)
-	.dwattr $C$DW$236, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/aes.h")
+	.dwattr $C$DW$236, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/aes.h")
 	.dwattr $C$DW$236, DW_AT_decl_line(0x44)
 	.dwattr $C$DW$236, DW_AT_decl_column(0x05)
 $C$DW$237	.dwtag  DW_TAG_enumerator, DW_AT_name("AES_BLOCK_SIZE"), DW_AT_const_value(0x10)
-	.dwattr $C$DW$237, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/aes.h")
+	.dwattr $C$DW$237, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/aes.h")
 	.dwattr $C$DW$237, DW_AT_decl_line(0x45)
 	.dwattr $C$DW$237, DW_AT_decl_column(0x05)
 	.dwendtag $C$DW$T$494
 
-	.dwattr $C$DW$T$494, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/aes.h")
+	.dwattr $C$DW$T$494, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/aes.h")
 	.dwattr $C$DW$T$494, DW_AT_decl_line(0x41)
 	.dwattr $C$DW$T$494, DW_AT_decl_column(0x06)
 
 $C$DW$T$495	.dwtag  DW_TAG_enumeration_type
 	.dwattr $C$DW$T$495, DW_AT_byte_size(0x02)
 $C$DW$238	.dwtag  DW_TAG_enumerator, DW_AT_name("MAX_CODE_E"), DW_AT_const_value(-100)
-	.dwattr $C$DW$238, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$238, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$238, DW_AT_decl_line(0x24)
 	.dwattr $C$DW$238, DW_AT_decl_column(0x05)
 $C$DW$239	.dwtag  DW_TAG_enumerator, DW_AT_name("OPEN_RAN_E"), DW_AT_const_value(-101)
-	.dwattr $C$DW$239, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$239, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$239, DW_AT_decl_line(0x25)
 	.dwattr $C$DW$239, DW_AT_decl_column(0x05)
 $C$DW$240	.dwtag  DW_TAG_enumerator, DW_AT_name("READ_RAN_E"), DW_AT_const_value(-102)
-	.dwattr $C$DW$240, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$240, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$240, DW_AT_decl_line(0x26)
 	.dwattr $C$DW$240, DW_AT_decl_column(0x05)
 $C$DW$241	.dwtag  DW_TAG_enumerator, DW_AT_name("WINCRYPT_E"), DW_AT_const_value(-103)
-	.dwattr $C$DW$241, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$241, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$241, DW_AT_decl_line(0x27)
 	.dwattr $C$DW$241, DW_AT_decl_column(0x05)
 $C$DW$242	.dwtag  DW_TAG_enumerator, DW_AT_name("CRYPTGEN_E"), DW_AT_const_value(-104)
-	.dwattr $C$DW$242, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$242, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$242, DW_AT_decl_line(0x28)
 	.dwattr $C$DW$242, DW_AT_decl_column(0x05)
 $C$DW$243	.dwtag  DW_TAG_enumerator, DW_AT_name("RAN_BLOCK_E"), DW_AT_const_value(-105)
-	.dwattr $C$DW$243, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$243, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$243, DW_AT_decl_line(0x29)
 	.dwattr $C$DW$243, DW_AT_decl_column(0x05)
 $C$DW$244	.dwtag  DW_TAG_enumerator, DW_AT_name("BAD_MUTEX_E"), DW_AT_const_value(-106)
-	.dwattr $C$DW$244, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$244, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$244, DW_AT_decl_line(0x2a)
 	.dwattr $C$DW$244, DW_AT_decl_column(0x05)
 $C$DW$245	.dwtag  DW_TAG_enumerator, DW_AT_name("MP_INIT_E"), DW_AT_const_value(-110)
-	.dwattr $C$DW$245, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$245, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$245, DW_AT_decl_line(0x2c)
 	.dwattr $C$DW$245, DW_AT_decl_column(0x05)
 $C$DW$246	.dwtag  DW_TAG_enumerator, DW_AT_name("MP_READ_E"), DW_AT_const_value(-111)
-	.dwattr $C$DW$246, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$246, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$246, DW_AT_decl_line(0x2d)
 	.dwattr $C$DW$246, DW_AT_decl_column(0x05)
 $C$DW$247	.dwtag  DW_TAG_enumerator, DW_AT_name("MP_EXPTMOD_E"), DW_AT_const_value(-112)
-	.dwattr $C$DW$247, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$247, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$247, DW_AT_decl_line(0x2e)
 	.dwattr $C$DW$247, DW_AT_decl_column(0x05)
 $C$DW$248	.dwtag  DW_TAG_enumerator, DW_AT_name("MP_TO_E"), DW_AT_const_value(-113)
-	.dwattr $C$DW$248, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$248, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$248, DW_AT_decl_line(0x2f)
 	.dwattr $C$DW$248, DW_AT_decl_column(0x05)
 $C$DW$249	.dwtag  DW_TAG_enumerator, DW_AT_name("MP_SUB_E"), DW_AT_const_value(-114)
-	.dwattr $C$DW$249, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$249, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$249, DW_AT_decl_line(0x30)
 	.dwattr $C$DW$249, DW_AT_decl_column(0x05)
 $C$DW$250	.dwtag  DW_TAG_enumerator, DW_AT_name("MP_ADD_E"), DW_AT_const_value(-115)
-	.dwattr $C$DW$250, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$250, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$250, DW_AT_decl_line(0x31)
 	.dwattr $C$DW$250, DW_AT_decl_column(0x05)
 $C$DW$251	.dwtag  DW_TAG_enumerator, DW_AT_name("MP_MUL_E"), DW_AT_const_value(-116)
-	.dwattr $C$DW$251, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$251, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$251, DW_AT_decl_line(0x32)
 	.dwattr $C$DW$251, DW_AT_decl_column(0x05)
 $C$DW$252	.dwtag  DW_TAG_enumerator, DW_AT_name("MP_MULMOD_E"), DW_AT_const_value(-117)
-	.dwattr $C$DW$252, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$252, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$252, DW_AT_decl_line(0x33)
 	.dwattr $C$DW$252, DW_AT_decl_column(0x05)
 $C$DW$253	.dwtag  DW_TAG_enumerator, DW_AT_name("MP_MOD_E"), DW_AT_const_value(-118)
-	.dwattr $C$DW$253, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$253, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$253, DW_AT_decl_line(0x34)
 	.dwattr $C$DW$253, DW_AT_decl_column(0x05)
 $C$DW$254	.dwtag  DW_TAG_enumerator, DW_AT_name("MP_INVMOD_E"), DW_AT_const_value(-119)
-	.dwattr $C$DW$254, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$254, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$254, DW_AT_decl_line(0x35)
 	.dwattr $C$DW$254, DW_AT_decl_column(0x05)
 $C$DW$255	.dwtag  DW_TAG_enumerator, DW_AT_name("MP_CMP_E"), DW_AT_const_value(-120)
-	.dwattr $C$DW$255, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$255, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$255, DW_AT_decl_line(0x36)
 	.dwattr $C$DW$255, DW_AT_decl_column(0x05)
 $C$DW$256	.dwtag  DW_TAG_enumerator, DW_AT_name("MP_ZERO_E"), DW_AT_const_value(-121)
-	.dwattr $C$DW$256, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$256, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$256, DW_AT_decl_line(0x37)
 	.dwattr $C$DW$256, DW_AT_decl_column(0x05)
 $C$DW$257	.dwtag  DW_TAG_enumerator, DW_AT_name("MEMORY_E"), DW_AT_const_value(-125)
-	.dwattr $C$DW$257, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$257, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$257, DW_AT_decl_line(0x39)
 	.dwattr $C$DW$257, DW_AT_decl_column(0x05)
 $C$DW$258	.dwtag  DW_TAG_enumerator, DW_AT_name("RSA_WRONG_TYPE_E"), DW_AT_const_value(-130)
-	.dwattr $C$DW$258, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$258, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$258, DW_AT_decl_line(0x3b)
 	.dwattr $C$DW$258, DW_AT_decl_column(0x05)
 $C$DW$259	.dwtag  DW_TAG_enumerator, DW_AT_name("RSA_BUFFER_E"), DW_AT_const_value(-131)
-	.dwattr $C$DW$259, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$259, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$259, DW_AT_decl_line(0x3c)
 	.dwattr $C$DW$259, DW_AT_decl_column(0x05)
 $C$DW$260	.dwtag  DW_TAG_enumerator, DW_AT_name("BUFFER_E"), DW_AT_const_value(-132)
-	.dwattr $C$DW$260, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$260, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$260, DW_AT_decl_line(0x3e)
 	.dwattr $C$DW$260, DW_AT_decl_column(0x05)
 $C$DW$261	.dwtag  DW_TAG_enumerator, DW_AT_name("ALGO_ID_E"), DW_AT_const_value(-133)
-	.dwattr $C$DW$261, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$261, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$261, DW_AT_decl_line(0x3f)
 	.dwattr $C$DW$261, DW_AT_decl_column(0x05)
 $C$DW$262	.dwtag  DW_TAG_enumerator, DW_AT_name("PUBLIC_KEY_E"), DW_AT_const_value(-134)
-	.dwattr $C$DW$262, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$262, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$262, DW_AT_decl_line(0x40)
 	.dwattr $C$DW$262, DW_AT_decl_column(0x05)
 $C$DW$263	.dwtag  DW_TAG_enumerator, DW_AT_name("DATE_E"), DW_AT_const_value(-135)
-	.dwattr $C$DW$263, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$263, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$263, DW_AT_decl_line(0x41)
 	.dwattr $C$DW$263, DW_AT_decl_column(0x05)
 $C$DW$264	.dwtag  DW_TAG_enumerator, DW_AT_name("SUBJECT_E"), DW_AT_const_value(-136)
-	.dwattr $C$DW$264, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$264, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$264, DW_AT_decl_line(0x42)
 	.dwattr $C$DW$264, DW_AT_decl_column(0x05)
 $C$DW$265	.dwtag  DW_TAG_enumerator, DW_AT_name("ISSUER_E"), DW_AT_const_value(-137)
-	.dwattr $C$DW$265, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$265, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$265, DW_AT_decl_line(0x43)
 	.dwattr $C$DW$265, DW_AT_decl_column(0x05)
 $C$DW$266	.dwtag  DW_TAG_enumerator, DW_AT_name("CA_TRUE_E"), DW_AT_const_value(-138)
-	.dwattr $C$DW$266, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$266, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$266, DW_AT_decl_line(0x44)
 	.dwattr $C$DW$266, DW_AT_decl_column(0x05)
 $C$DW$267	.dwtag  DW_TAG_enumerator, DW_AT_name("EXTENSIONS_E"), DW_AT_const_value(-139)
-	.dwattr $C$DW$267, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$267, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$267, DW_AT_decl_line(0x45)
 	.dwattr $C$DW$267, DW_AT_decl_column(0x05)
 $C$DW$268	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_PARSE_E"), DW_AT_const_value(-140)
-	.dwattr $C$DW$268, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$268, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$268, DW_AT_decl_line(0x47)
 	.dwattr $C$DW$268, DW_AT_decl_column(0x05)
 $C$DW$269	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_VERSION_E"), DW_AT_const_value(-141)
-	.dwattr $C$DW$269, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$269, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$269, DW_AT_decl_line(0x48)
 	.dwattr $C$DW$269, DW_AT_decl_column(0x05)
 $C$DW$270	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_GETINT_E"), DW_AT_const_value(-142)
-	.dwattr $C$DW$270, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$270, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$270, DW_AT_decl_line(0x49)
 	.dwattr $C$DW$270, DW_AT_decl_column(0x05)
 $C$DW$271	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_RSA_KEY_E"), DW_AT_const_value(-143)
-	.dwattr $C$DW$271, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$271, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$271, DW_AT_decl_line(0x4a)
 	.dwattr $C$DW$271, DW_AT_decl_column(0x05)
 $C$DW$272	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_OBJECT_ID_E"), DW_AT_const_value(-144)
-	.dwattr $C$DW$272, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$272, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$272, DW_AT_decl_line(0x4b)
 	.dwattr $C$DW$272, DW_AT_decl_column(0x05)
 $C$DW$273	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_TAG_NULL_E"), DW_AT_const_value(-145)
-	.dwattr $C$DW$273, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$273, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$273, DW_AT_decl_line(0x4c)
 	.dwattr $C$DW$273, DW_AT_decl_column(0x05)
 $C$DW$274	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_EXPECT_0_E"), DW_AT_const_value(-146)
-	.dwattr $C$DW$274, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$274, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$274, DW_AT_decl_line(0x4d)
 	.dwattr $C$DW$274, DW_AT_decl_column(0x05)
 $C$DW$275	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_BITSTR_E"), DW_AT_const_value(-147)
-	.dwattr $C$DW$275, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$275, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$275, DW_AT_decl_line(0x4e)
 	.dwattr $C$DW$275, DW_AT_decl_column(0x05)
 $C$DW$276	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_UNKNOWN_OID_E"), DW_AT_const_value(-148)
-	.dwattr $C$DW$276, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$276, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$276, DW_AT_decl_line(0x4f)
 	.dwattr $C$DW$276, DW_AT_decl_column(0x05)
 $C$DW$277	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_DATE_SZ_E"), DW_AT_const_value(-149)
-	.dwattr $C$DW$277, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$277, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$277, DW_AT_decl_line(0x50)
 	.dwattr $C$DW$277, DW_AT_decl_column(0x05)
 $C$DW$278	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_BEFORE_DATE_E"), DW_AT_const_value(-150)
-	.dwattr $C$DW$278, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$278, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$278, DW_AT_decl_line(0x51)
 	.dwattr $C$DW$278, DW_AT_decl_column(0x05)
 $C$DW$279	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_AFTER_DATE_E"), DW_AT_const_value(-151)
-	.dwattr $C$DW$279, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$279, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$279, DW_AT_decl_line(0x52)
 	.dwattr $C$DW$279, DW_AT_decl_column(0x05)
 $C$DW$280	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_SIG_OID_E"), DW_AT_const_value(-152)
-	.dwattr $C$DW$280, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$280, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$280, DW_AT_decl_line(0x53)
 	.dwattr $C$DW$280, DW_AT_decl_column(0x05)
 $C$DW$281	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_TIME_E"), DW_AT_const_value(-153)
-	.dwattr $C$DW$281, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$281, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$281, DW_AT_decl_line(0x54)
 	.dwattr $C$DW$281, DW_AT_decl_column(0x05)
 $C$DW$282	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_INPUT_E"), DW_AT_const_value(-154)
-	.dwattr $C$DW$282, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$282, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$282, DW_AT_decl_line(0x55)
 	.dwattr $C$DW$282, DW_AT_decl_column(0x05)
 $C$DW$283	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_SIG_CONFIRM_E"), DW_AT_const_value(-155)
-	.dwattr $C$DW$283, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$283, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$283, DW_AT_decl_line(0x56)
 	.dwattr $C$DW$283, DW_AT_decl_column(0x05)
 $C$DW$284	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_SIG_HASH_E"), DW_AT_const_value(-156)
-	.dwattr $C$DW$284, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$284, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$284, DW_AT_decl_line(0x57)
 	.dwattr $C$DW$284, DW_AT_decl_column(0x05)
 $C$DW$285	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_SIG_KEY_E"), DW_AT_const_value(-157)
-	.dwattr $C$DW$285, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$285, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$285, DW_AT_decl_line(0x58)
 	.dwattr $C$DW$285, DW_AT_decl_column(0x05)
 $C$DW$286	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_DH_KEY_E"), DW_AT_const_value(-158)
-	.dwattr $C$DW$286, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$286, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$286, DW_AT_decl_line(0x59)
 	.dwattr $C$DW$286, DW_AT_decl_column(0x05)
 $C$DW$287	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_NTRU_KEY_E"), DW_AT_const_value(-159)
-	.dwattr $C$DW$287, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$287, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$287, DW_AT_decl_line(0x5a)
 	.dwattr $C$DW$287, DW_AT_decl_column(0x05)
 $C$DW$288	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_CRIT_EXT_E"), DW_AT_const_value(-160)
-	.dwattr $C$DW$288, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$288, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$288, DW_AT_decl_line(0x5b)
 	.dwattr $C$DW$288, DW_AT_decl_column(0x05)
 $C$DW$289	.dwtag  DW_TAG_enumerator, DW_AT_name("ECC_BAD_ARG_E"), DW_AT_const_value(-170)
-	.dwattr $C$DW$289, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$289, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$289, DW_AT_decl_line(0x5d)
 	.dwattr $C$DW$289, DW_AT_decl_column(0x05)
 $C$DW$290	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_ECC_KEY_E"), DW_AT_const_value(-171)
-	.dwattr $C$DW$290, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$290, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$290, DW_AT_decl_line(0x5e)
 	.dwattr $C$DW$290, DW_AT_decl_column(0x05)
 $C$DW$291	.dwtag  DW_TAG_enumerator, DW_AT_name("ECC_CURVE_OID_E"), DW_AT_const_value(-172)
-	.dwattr $C$DW$291, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$291, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$291, DW_AT_decl_line(0x5f)
 	.dwattr $C$DW$291, DW_AT_decl_column(0x05)
 $C$DW$292	.dwtag  DW_TAG_enumerator, DW_AT_name("BAD_FUNC_ARG"), DW_AT_const_value(-173)
-	.dwattr $C$DW$292, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$292, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$292, DW_AT_decl_line(0x60)
 	.dwattr $C$DW$292, DW_AT_decl_column(0x05)
 $C$DW$293	.dwtag  DW_TAG_enumerator, DW_AT_name("NOT_COMPILED_IN"), DW_AT_const_value(-174)
-	.dwattr $C$DW$293, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$293, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$293, DW_AT_decl_line(0x61)
 	.dwattr $C$DW$293, DW_AT_decl_column(0x05)
 $C$DW$294	.dwtag  DW_TAG_enumerator, DW_AT_name("UNICODE_SIZE_E"), DW_AT_const_value(-175)
-	.dwattr $C$DW$294, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$294, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$294, DW_AT_decl_line(0x62)
 	.dwattr $C$DW$294, DW_AT_decl_column(0x05)
 $C$DW$295	.dwtag  DW_TAG_enumerator, DW_AT_name("NO_PASSWORD"), DW_AT_const_value(-176)
-	.dwattr $C$DW$295, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$295, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$295, DW_AT_decl_line(0x63)
 	.dwattr $C$DW$295, DW_AT_decl_column(0x05)
 $C$DW$296	.dwtag  DW_TAG_enumerator, DW_AT_name("ALT_NAME_E"), DW_AT_const_value(-177)
-	.dwattr $C$DW$296, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$296, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$296, DW_AT_decl_line(0x64)
 	.dwattr $C$DW$296, DW_AT_decl_column(0x05)
 $C$DW$297	.dwtag  DW_TAG_enumerator, DW_AT_name("AES_GCM_AUTH_E"), DW_AT_const_value(-180)
-	.dwattr $C$DW$297, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$297, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$297, DW_AT_decl_line(0x66)
 	.dwattr $C$DW$297, DW_AT_decl_column(0x05)
 $C$DW$298	.dwtag  DW_TAG_enumerator, DW_AT_name("AES_CCM_AUTH_E"), DW_AT_const_value(-181)
-	.dwattr $C$DW$298, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$298, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$298, DW_AT_decl_line(0x67)
 	.dwattr $C$DW$298, DW_AT_decl_column(0x05)
 $C$DW$299	.dwtag  DW_TAG_enumerator, DW_AT_name("CAVIUM_INIT_E"), DW_AT_const_value(-182)
-	.dwattr $C$DW$299, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$299, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$299, DW_AT_decl_line(0x69)
 	.dwattr $C$DW$299, DW_AT_decl_column(0x05)
 $C$DW$300	.dwtag  DW_TAG_enumerator, DW_AT_name("COMPRESS_INIT_E"), DW_AT_const_value(-183)
-	.dwattr $C$DW$300, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$300, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$300, DW_AT_decl_line(0x6b)
 	.dwattr $C$DW$300, DW_AT_decl_column(0x05)
 $C$DW$301	.dwtag  DW_TAG_enumerator, DW_AT_name("COMPRESS_E"), DW_AT_const_value(-184)
-	.dwattr $C$DW$301, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$301, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$301, DW_AT_decl_line(0x6c)
 	.dwattr $C$DW$301, DW_AT_decl_column(0x05)
 $C$DW$302	.dwtag  DW_TAG_enumerator, DW_AT_name("DECOMPRESS_INIT_E"), DW_AT_const_value(-185)
-	.dwattr $C$DW$302, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$302, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$302, DW_AT_decl_line(0x6d)
 	.dwattr $C$DW$302, DW_AT_decl_column(0x05)
 $C$DW$303	.dwtag  DW_TAG_enumerator, DW_AT_name("DECOMPRESS_E"), DW_AT_const_value(-186)
-	.dwattr $C$DW$303, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$303, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$303, DW_AT_decl_line(0x6e)
 	.dwattr $C$DW$303, DW_AT_decl_column(0x05)
 $C$DW$304	.dwtag  DW_TAG_enumerator, DW_AT_name("BAD_ALIGN_E"), DW_AT_const_value(-187)
-	.dwattr $C$DW$304, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$304, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$304, DW_AT_decl_line(0x70)
 	.dwattr $C$DW$304, DW_AT_decl_column(0x05)
 $C$DW$305	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_NO_SIGNER_E"), DW_AT_const_value(-188)
-	.dwattr $C$DW$305, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$305, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$305, DW_AT_decl_line(0x71)
 	.dwattr $C$DW$305, DW_AT_decl_column(0x05)
 $C$DW$306	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_CRL_CONFIRM_E"), DW_AT_const_value(-189)
-	.dwattr $C$DW$306, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$306, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$306, DW_AT_decl_line(0x72)
 	.dwattr $C$DW$306, DW_AT_decl_column(0x05)
 $C$DW$307	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_CRL_NO_SIGNER_E"), DW_AT_const_value(-190)
-	.dwattr $C$DW$307, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$307, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$307, DW_AT_decl_line(0x73)
 	.dwattr $C$DW$307, DW_AT_decl_column(0x05)
 $C$DW$308	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_OCSP_CONFIRM_E"), DW_AT_const_value(-191)
-	.dwattr $C$DW$308, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$308, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$308, DW_AT_decl_line(0x74)
 	.dwattr $C$DW$308, DW_AT_decl_column(0x05)
 $C$DW$309	.dwtag  DW_TAG_enumerator, DW_AT_name("BAD_ENC_STATE_E"), DW_AT_const_value(-192)
-	.dwattr $C$DW$309, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$309, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$309, DW_AT_decl_line(0x76)
 	.dwattr $C$DW$309, DW_AT_decl_column(0x05)
 $C$DW$310	.dwtag  DW_TAG_enumerator, DW_AT_name("BAD_PADDING_E"), DW_AT_const_value(-193)
-	.dwattr $C$DW$310, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$310, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$310, DW_AT_decl_line(0x77)
 	.dwattr $C$DW$310, DW_AT_decl_column(0x05)
 $C$DW$311	.dwtag  DW_TAG_enumerator, DW_AT_name("REQ_ATTRIBUTE_E"), DW_AT_const_value(-194)
-	.dwattr $C$DW$311, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$311, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$311, DW_AT_decl_line(0x79)
 	.dwattr $C$DW$311, DW_AT_decl_column(0x05)
 $C$DW$312	.dwtag  DW_TAG_enumerator, DW_AT_name("PKCS7_OID_E"), DW_AT_const_value(-195)
-	.dwattr $C$DW$312, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$312, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$312, DW_AT_decl_line(0x7b)
 	.dwattr $C$DW$312, DW_AT_decl_column(0x05)
 $C$DW$313	.dwtag  DW_TAG_enumerator, DW_AT_name("PKCS7_RECIP_E"), DW_AT_const_value(-196)
-	.dwattr $C$DW$313, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$313, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$313, DW_AT_decl_line(0x7c)
 	.dwattr $C$DW$313, DW_AT_decl_column(0x05)
 $C$DW$314	.dwtag  DW_TAG_enumerator, DW_AT_name("FIPS_NOT_ALLOWED_E"), DW_AT_const_value(-197)
-	.dwattr $C$DW$314, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$314, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$314, DW_AT_decl_line(0x7d)
 	.dwattr $C$DW$314, DW_AT_decl_column(0x05)
 $C$DW$315	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_NAME_INVALID_E"), DW_AT_const_value(-198)
-	.dwattr $C$DW$315, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$315, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$315, DW_AT_decl_line(0x7e)
 	.dwattr $C$DW$315, DW_AT_decl_column(0x05)
 $C$DW$316	.dwtag  DW_TAG_enumerator, DW_AT_name("RNG_FAILURE_E"), DW_AT_const_value(-199)
-	.dwattr $C$DW$316, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$316, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$316, DW_AT_decl_line(0x80)
 	.dwattr $C$DW$316, DW_AT_decl_column(0x05)
 $C$DW$317	.dwtag  DW_TAG_enumerator, DW_AT_name("HMAC_MIN_KEYLEN_E"), DW_AT_const_value(-200)
-	.dwattr $C$DW$317, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$317, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$317, DW_AT_decl_line(0x81)
 	.dwattr $C$DW$317, DW_AT_decl_column(0x05)
 $C$DW$318	.dwtag  DW_TAG_enumerator, DW_AT_name("RSA_PAD_E"), DW_AT_const_value(-201)
-	.dwattr $C$DW$318, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$318, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$318, DW_AT_decl_line(0x82)
 	.dwattr $C$DW$318, DW_AT_decl_column(0x05)
 $C$DW$319	.dwtag  DW_TAG_enumerator, DW_AT_name("MIN_CODE_E"), DW_AT_const_value(-300)
-	.dwattr $C$DW$319, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$319, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$319, DW_AT_decl_line(0x84)
 	.dwattr $C$DW$319, DW_AT_decl_column(0x05)
 	.dwendtag $C$DW$T$495
 
-	.dwattr $C$DW$T$495, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$T$495, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/error-crypt.h")
 	.dwattr $C$DW$T$495, DW_AT_decl_line(0x23)
 	.dwattr $C$DW$T$495, DW_AT_decl_column(0x06)
 
@@ -6839,7 +6839,7 @@ $C$DW$335	.dwtag  DW_TAG_member
 	.dwattr $C$DW$335, DW_AT_TI_symbol_name("key")
 	.dwattr $C$DW$335, DW_AT_data_member_location[DW_OP_plus_uconst 0x0]
 	.dwattr $C$DW$335, DW_AT_accessibility(DW_ACCESS_public)
-	.dwattr $C$DW$335, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/aes.h")
+	.dwattr $C$DW$335, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/aes.h")
 	.dwattr $C$DW$335, DW_AT_decl_line(0x4b)
 	.dwattr $C$DW$335, DW_AT_decl_column(0x14)
 $C$DW$336	.dwtag  DW_TAG_member
@@ -6848,7 +6848,7 @@ $C$DW$336	.dwtag  DW_TAG_member
 	.dwattr $C$DW$336, DW_AT_TI_symbol_name("rounds")
 	.dwattr $C$DW$336, DW_AT_data_member_location[DW_OP_plus_uconst 0xf0]
 	.dwattr $C$DW$336, DW_AT_accessibility(DW_ACCESS_public)
-	.dwattr $C$DW$336, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/aes.h")
+	.dwattr $C$DW$336, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/aes.h")
 	.dwattr $C$DW$336, DW_AT_decl_line(0x4c)
 	.dwattr $C$DW$336, DW_AT_decl_column(0x0d)
 $C$DW$337	.dwtag  DW_TAG_member
@@ -6857,7 +6857,7 @@ $C$DW$337	.dwtag  DW_TAG_member
 	.dwattr $C$DW$337, DW_AT_TI_symbol_name("reg")
 	.dwattr $C$DW$337, DW_AT_data_member_location[DW_OP_plus_uconst 0xf4]
 	.dwattr $C$DW$337, DW_AT_accessibility(DW_ACCESS_public)
-	.dwattr $C$DW$337, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/aes.h")
+	.dwattr $C$DW$337, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/aes.h")
 	.dwattr $C$DW$337, DW_AT_decl_line(0x4e)
 	.dwattr $C$DW$337, DW_AT_decl_column(0x14)
 $C$DW$338	.dwtag  DW_TAG_member
@@ -6866,18 +6866,18 @@ $C$DW$338	.dwtag  DW_TAG_member
 	.dwattr $C$DW$338, DW_AT_TI_symbol_name("tmp")
 	.dwattr $C$DW$338, DW_AT_data_member_location[DW_OP_plus_uconst 0x104]
 	.dwattr $C$DW$338, DW_AT_accessibility(DW_ACCESS_public)
-	.dwattr $C$DW$338, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/aes.h")
+	.dwattr $C$DW$338, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/aes.h")
 	.dwattr $C$DW$338, DW_AT_decl_line(0x4f)
 	.dwattr $C$DW$338, DW_AT_decl_column(0x14)
 	.dwendtag $C$DW$T$143
 
-	.dwattr $C$DW$T$143, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/aes.h")
+	.dwattr $C$DW$T$143, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/aes.h")
 	.dwattr $C$DW$T$143, DW_AT_decl_line(0x49)
 	.dwattr $C$DW$T$143, DW_AT_decl_column(0x10)
 $C$DW$T$508	.dwtag  DW_TAG_typedef, DW_AT_name("Aes")
 	.dwattr $C$DW$T$508, DW_AT_type(*$C$DW$T$143)
 	.dwattr $C$DW$T$508, DW_AT_language(DW_LANG_C)
-	.dwattr $C$DW$T$508, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/aes.h")
+	.dwattr $C$DW$T$508, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/aes.h")
 	.dwattr $C$DW$T$508, DW_AT_decl_line(0x69)
 	.dwattr $C$DW$T$508, DW_AT_decl_column(0x03)
 $C$DW$T$509	.dwtag  DW_TAG_pointer_type
@@ -6890,28 +6890,28 @@ $C$DW$T$513	.dwtag  DW_TAG_enumeration_type
 	.dwattr $C$DW$T$513, DW_AT_name("WOLF_Log_Levels")
 	.dwattr $C$DW$T$513, DW_AT_byte_size(0x01)
 $C$DW$339	.dwtag  DW_TAG_enumerator, DW_AT_name("ERROR_LOG"), DW_AT_const_value(0x00)
-	.dwattr $C$DW$339, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/logging.h")
+	.dwattr $C$DW$339, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/logging.h")
 	.dwattr $C$DW$339, DW_AT_decl_line(0x23)
 	.dwattr $C$DW$339, DW_AT_decl_column(0x05)
 $C$DW$340	.dwtag  DW_TAG_enumerator, DW_AT_name("INFO_LOG"), DW_AT_const_value(0x01)
-	.dwattr $C$DW$340, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/logging.h")
+	.dwattr $C$DW$340, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/logging.h")
 	.dwattr $C$DW$340, DW_AT_decl_line(0x24)
 	.dwattr $C$DW$340, DW_AT_decl_column(0x05)
 $C$DW$341	.dwtag  DW_TAG_enumerator, DW_AT_name("ENTER_LOG"), DW_AT_const_value(0x02)
-	.dwattr $C$DW$341, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/logging.h")
+	.dwattr $C$DW$341, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/logging.h")
 	.dwattr $C$DW$341, DW_AT_decl_line(0x25)
 	.dwattr $C$DW$341, DW_AT_decl_column(0x05)
 $C$DW$342	.dwtag  DW_TAG_enumerator, DW_AT_name("LEAVE_LOG"), DW_AT_const_value(0x03)
-	.dwattr $C$DW$342, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/logging.h")
+	.dwattr $C$DW$342, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/logging.h")
 	.dwattr $C$DW$342, DW_AT_decl_line(0x26)
 	.dwattr $C$DW$342, DW_AT_decl_column(0x05)
 $C$DW$343	.dwtag  DW_TAG_enumerator, DW_AT_name("OTHER_LOG"), DW_AT_const_value(0x04)
-	.dwattr $C$DW$343, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/logging.h")
+	.dwattr $C$DW$343, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/logging.h")
 	.dwattr $C$DW$343, DW_AT_decl_line(0x27)
 	.dwattr $C$DW$343, DW_AT_decl_column(0x05)
 	.dwendtag $C$DW$T$513
 
-	.dwattr $C$DW$T$513, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/logging.h")
+	.dwattr $C$DW$T$513, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/logging.h")
 	.dwattr $C$DW$T$513, DW_AT_decl_line(0x22)
 	.dwattr $C$DW$T$513, DW_AT_decl_column(0x07)
 $C$DW$T$2	.dwtag  DW_TAG_unspecified_type
@@ -6933,7 +6933,7 @@ $C$DW$T$518	.dwtag  DW_TAG_pointer_type
 $C$DW$T$519	.dwtag  DW_TAG_typedef, DW_AT_name("wolfSSL_Malloc_cb")
 	.dwattr $C$DW$T$519, DW_AT_type(*$C$DW$T$518)
 	.dwattr $C$DW$T$519, DW_AT_language(DW_LANG_C)
-	.dwattr $C$DW$T$519, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/memory.h")
+	.dwattr $C$DW$T$519, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/memory.h")
 	.dwattr $C$DW$T$519, DW_AT_decl_line(0x23)
 	.dwattr $C$DW$T$519, DW_AT_decl_column(0x11)
 
@@ -6952,7 +6952,7 @@ $C$DW$T$521	.dwtag  DW_TAG_pointer_type
 $C$DW$T$522	.dwtag  DW_TAG_typedef, DW_AT_name("wolfSSL_Realloc_cb")
 	.dwattr $C$DW$T$522, DW_AT_type(*$C$DW$T$521)
 	.dwattr $C$DW$T$522, DW_AT_language(DW_LANG_C)
-	.dwattr $C$DW$T$522, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/memory.h")
+	.dwattr $C$DW$T$522, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/memory.h")
 	.dwattr $C$DW$T$522, DW_AT_decl_line(0x25)
 	.dwattr $C$DW$T$522, DW_AT_decl_column(0x11)
 $C$DW$T$180	.dwtag  DW_TAG_typedef, DW_AT_name("xdc_Ptr")
@@ -7803,7 +7803,7 @@ $C$DW$T$222	.dwtag  DW_TAG_pointer_type
 $C$DW$T$624	.dwtag  DW_TAG_typedef, DW_AT_name("wolfSSL_Free_cb")
 	.dwattr $C$DW$T$624, DW_AT_type(*$C$DW$T$222)
 	.dwattr $C$DW$T$624, DW_AT_language(DW_LANG_C)
-	.dwattr $C$DW$T$624, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/memory.h")
+	.dwattr $C$DW$T$624, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/memory.h")
 	.dwattr $C$DW$T$624, DW_AT_decl_line(0x24)
 	.dwattr $C$DW$T$624, DW_AT_decl_column(0x10)
 $C$DW$T$625	.dwtag  DW_TAG_typedef, DW_AT_name("ti_sysbios_interfaces_ITimer_start_FxnT")
@@ -9019,7 +9019,7 @@ $C$DW$T$798	.dwtag  DW_TAG_pointer_type
 $C$DW$T$799	.dwtag  DW_TAG_typedef, DW_AT_name("wolfSSL_Logging_cb")
 	.dwattr $C$DW$T$799, DW_AT_type(*$C$DW$T$798)
 	.dwattr $C$DW$T$799, DW_AT_language(DW_LANG_C)
-	.dwattr $C$DW$T$799, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/logging.h")
+	.dwattr $C$DW$T$799, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/logging.h")
 	.dwattr $C$DW$T$799, DW_AT_decl_line(0x2a)
 	.dwattr $C$DW$T$799, DW_AT_decl_column(0x10)
 $C$DW$T$4	.dwtag  DW_TAG_base_type
@@ -9061,7 +9061,7 @@ $C$DW$T$6	.dwtag  DW_TAG_base_type
 $C$DW$T$643	.dwtag  DW_TAG_typedef, DW_AT_name("byte")
 	.dwattr $C$DW$T$643, DW_AT_type(*$C$DW$T$6)
 	.dwattr $C$DW$T$643, DW_AT_language(DW_LANG_C)
-	.dwattr $C$DW$T$643, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$T$643, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$T$643, DW_AT_decl_line(0x2c)
 	.dwattr $C$DW$T$643, DW_AT_decl_column(0x20)
 $C$DW$T$646	.dwtag  DW_TAG_pointer_type
@@ -9546,7 +9546,7 @@ $C$DW$T$873	.dwtag  DW_TAG_typedef, DW_AT_name("wchar_t")
 $C$DW$T$874	.dwtag  DW_TAG_typedef, DW_AT_name("word16")
 	.dwattr $C$DW$T$874, DW_AT_type(*$C$DW$T$9)
 	.dwattr $C$DW$T$874, DW_AT_language(DW_LANG_C)
-	.dwattr $C$DW$T$874, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$T$874, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$T$874, DW_AT_decl_line(0x2e)
 	.dwattr $C$DW$T$874, DW_AT_decl_column(0x1c)
 $C$DW$T$150	.dwtag  DW_TAG_typedef, DW_AT_name("xdc_Bool")
@@ -11477,7 +11477,7 @@ $C$DW$T$448	.dwtag  DW_TAG_typedef, DW_AT_name("xdc_runtime_Memory_Size")
 $C$DW$T$140	.dwtag  DW_TAG_typedef, DW_AT_name("word32")
 	.dwattr $C$DW$T$140, DW_AT_type(*$C$DW$T$11)
 	.dwattr $C$DW$T$140, DW_AT_language(DW_LANG_C)
-	.dwattr $C$DW$T$140, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$T$140, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$T$140, DW_AT_decl_line(0x2f)
 	.dwattr $C$DW$T$140, DW_AT_decl_column(0x1c)
 
@@ -11504,7 +11504,7 @@ $C$DW$T$633	.dwtag  DW_TAG_pointer_type
 $C$DW$T$637	.dwtag  DW_TAG_typedef, DW_AT_name("word")
 	.dwattr $C$DW$T$637, DW_AT_type(*$C$DW$T$140)
 	.dwattr $C$DW$T$637, DW_AT_language(DW_LANG_C)
-	.dwattr $C$DW$T$637, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$T$637, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$T$637, DW_AT_decl_line(0x5d)
 	.dwattr $C$DW$T$637, DW_AT_decl_column(0x14)
 $C$DW$T$634	.dwtag  DW_TAG_const_type
@@ -11800,7 +11800,7 @@ $C$DW$T$1175	.dwtag  DW_TAG_typedef, DW_AT_name("uintmax_t")
 $C$DW$T$1176	.dwtag  DW_TAG_typedef, DW_AT_name("word64")
 	.dwattr $C$DW$T$1176, DW_AT_type(*$C$DW$T$15)
 	.dwattr $C$DW$T$1176, DW_AT_language(DW_LANG_C)
-	.dwattr $C$DW$T$1176, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
+	.dwattr $C$DW$T$1176, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/types.h")
 	.dwattr $C$DW$T$1176, DW_AT_decl_line(0x4d)
 	.dwattr $C$DW$T$1176, DW_AT_decl_column(0x20)
 $C$DW$T$1177	.dwtag  DW_TAG_typedef, DW_AT_name("xdc_ULLong")
@@ -11869,7 +11869,7 @@ $C$DW$T$369	.dwtag  DW_TAG_pointer_type
 $C$DW$T$1184	.dwtag  DW_TAG_typedef, DW_AT_name("__builtin_va_list")
 	.dwattr $C$DW$T$1184, DW_AT_type(*$C$DW$T$369)
 	.dwattr $C$DW$T$1184, DW_AT_language(DW_LANG_C)
-	.dwattr $C$DW$T$1184, DW_AT_decl_file("C:/wolfssl/ctaocrypt/src/aes.c")
+	.dwattr $C$DW$T$1184, DW_AT_decl_file("C:/wolfssl/wolfcrypt/src/aes.c")
 	.dwattr $C$DW$T$1184, DW_AT_decl_line(0xd5f)
 	.dwattr $C$DW$T$1184, DW_AT_decl_column(0x01)
 $C$DW$T$370	.dwtag  DW_TAG_typedef, DW_AT_name("xdc_String")
@@ -14726,7 +14726,7 @@ $C$DW$T$1322	.dwtag  DW_TAG_typedef, DW_AT_name("ti_sysbios_knl_Semaphore_Handle
 $C$DW$T$1323	.dwtag  DW_TAG_typedef, DW_AT_name("wolfSSL_Mutex")
 	.dwattr $C$DW$T$1323, DW_AT_type(*$C$DW$T$1322)
 	.dwattr $C$DW$T$1323, DW_AT_language(DW_LANG_C)
-	.dwattr $C$DW$T$1323, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/wc_port.h")
+	.dwattr $C$DW$T$1323, DW_AT_decl_file("C:/wolfssl/wolfssl/wolfcrypt/wc_port.h")
 	.dwattr $C$DW$T$1323, DW_AT_decl_line(0x6f)
 	.dwattr $C$DW$T$1323, DW_AT_decl_column(0x31)
 $C$DW$T$1324	.dwtag  DW_TAG_typedef, DW_AT_name("ti_sysbios_knl_Semaphore_Instance")

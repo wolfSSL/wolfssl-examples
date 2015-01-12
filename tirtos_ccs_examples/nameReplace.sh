@@ -28,7 +28,7 @@
 #find . -name '*' -type f -exec sed -i 's/wolf/wolf/g' {} \;
 #find . -name '*' -type f -exec sed -i 's/wolf/wolf/g' {} \;
 #find . -name '*' -type f -exec sed -i 's/WOLF/WOLF/g' {} \;
-#find . -name '*' -type f -exec sed -i 's/ctao/wolf/g' {} \;
+#find . -name '*' -type f -exec sed -i 's/wolf/wolf/g' {} \;
 #find . -name '*' -type f -exec sed -i 's/Ctao/wolf/g' {} \;
 #find . -name '*' -type f -exec sed -i 's/CTao/wc_/g' {} \;
 #find . -name '*' -type f -exec sed -i 's/CTAO/WOLF/g' {} \;
@@ -40,7 +40,7 @@
 #grep -ilr 'cya' * | xargs -I@ sed -i '' 's/cya/wolf/g' @
 #grep -ilr 'Cya' * | xargs -I@ sed -i '' 's/Cya/wolf/g' @
 #grep -ilr 'CYA' * | xargs -I@ sed -i '' 's/CYA/WOLF/g' @
-#grep -ilr 'ctao' * | xargs -I@ sed -i '' 's/ctao/wolf/g' @
+grep -ilr 'ctao' * | xargs -I@ sed -i '' 's/ctao/wolf/g' @
 #grep -ilr 'Ctao' * | xargs -I@ sed -i '' 's/Ctao/wolf/g' @
 #grep -ilr 'CTao' * | xargs -I@ sed -i '' 's/CTao/wc_/g' @
 #grep -ilr 'CTAO' * | xargs -I@ sed -i '' 's/CTAO/WOLF/g' @

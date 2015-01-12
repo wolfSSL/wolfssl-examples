@@ -8,26 +8,26 @@ CG_TOOL_ROOT := c:/ti/ccsv6/tools/compiler/arm_5.1.6
 
 ORDERED_OBJS += \
 $(GEN_CMDS__FLAG) \
-"./wolfssl/ctaocrypt/src/tfm.obj" \
-"./wolfssl/ctaocrypt/src/sha512.obj" \
-"./wolfssl/ctaocrypt/src/sha256.obj" \
-"./wolfssl/ctaocrypt/src/sha.obj" \
-"./wolfssl/ctaocrypt/src/rsa.obj" \
-"./wolfssl/ctaocrypt/src/rabbit.obj" \
-"./wolfssl/ctaocrypt/src/poly1305.obj" \
-"./wolfssl/ctaocrypt/src/md5.obj" \
-"./wolfssl/ctaocrypt/src/integer.obj" \
-"./wolfssl/ctaocrypt/src/hc128.obj" \
-"./wolfssl/ctaocrypt/src/ecc.obj" \
-"./wolfssl/ctaocrypt/src/dh.obj" \
-"./wolfssl/ctaocrypt/src/des3.obj" \
-"./wolfssl/ctaocrypt/src/chacha.obj" \
-"./wolfssl/ctaocrypt/src/camellia.obj" \
-"./wolfssl/ctaocrypt/src/blake2b.obj" \
-"./wolfssl/ctaocrypt/src/asn.obj" \
-"./wolfssl/ctaocrypt/src/asm.obj" \
-"./wolfssl/ctaocrypt/src/arc4.obj" \
-"./wolfssl/ctaocrypt/src/aes.obj" \
+"./wolfssl/wolfcrypt/src/tfm.obj" \
+"./wolfssl/wolfcrypt/src/sha512.obj" \
+"./wolfssl/wolfcrypt/src/sha256.obj" \
+"./wolfssl/wolfcrypt/src/sha.obj" \
+"./wolfssl/wolfcrypt/src/rsa.obj" \
+"./wolfssl/wolfcrypt/src/rabbit.obj" \
+"./wolfssl/wolfcrypt/src/poly1305.obj" \
+"./wolfssl/wolfcrypt/src/md5.obj" \
+"./wolfssl/wolfcrypt/src/integer.obj" \
+"./wolfssl/wolfcrypt/src/hc128.obj" \
+"./wolfssl/wolfcrypt/src/ecc.obj" \
+"./wolfssl/wolfcrypt/src/dh.obj" \
+"./wolfssl/wolfcrypt/src/des3.obj" \
+"./wolfssl/wolfcrypt/src/chacha.obj" \
+"./wolfssl/wolfcrypt/src/camellia.obj" \
+"./wolfssl/wolfcrypt/src/blake2b.obj" \
+"./wolfssl/wolfcrypt/src/asn.obj" \
+"./wolfssl/wolfcrypt/src/asm.obj" \
+"./wolfssl/wolfcrypt/src/arc4.obj" \
+"./wolfssl/wolfcrypt/src/aes.obj" \
 "./wolfssl_tirtos_benchmark.obj" \
 "./benchmark.obj" \
 "./EK_TM4C1294XL.obj" \
@@ -44,9 +44,9 @@ RMDIR := RMDIR /S/Q
 # All of the sources participating in the build are defined here
 -include sources.mk
 -include subdir_vars.mk
--include wolfssl/ctaocrypt/src/subdir_vars.mk
+-include wolfssl/wolfcrypt/src/subdir_vars.mk
 -include subdir_rules.mk
--include wolfssl/ctaocrypt/src/subdir_rules.mk
+-include wolfssl/wolfcrypt/src/subdir_rules.mk
 -include objects.mk
 
 ifneq ($(MAKECMDGOALS),clean)
@@ -167,8 +167,8 @@ wolfssl_tirtos_benchmark.hex: $(EXE_OUTPUTS)
 clean:
 	-$(RM) $(GEN_MISC_FILES__QUOTED)$(EXE_OUTPUTS__QUOTED)$(GEN_FILES__QUOTED)$(BIN_OUTPUTS__QUOTED)$(GEN_OPTS__QUOTED)$(GEN_CMDS__QUOTED)
 	-$(RMDIR) $(GEN_MISC_DIRS__QUOTED)
-	-$(RM) "EK_TM4C1294XL.pp" "benchmark.pp" "wolfssl_tirtos_benchmark.pp" "wolfssl\ctaocrypt\src\aes.pp" "wolfssl\ctaocrypt\src\arc4.pp" "wolfssl\ctaocrypt\src\asm.pp" "wolfssl\ctaocrypt\src\asn.pp" "wolfssl\ctaocrypt\src\blake2b.pp" "wolfssl\ctaocrypt\src\camellia.pp" "wolfssl\ctaocrypt\src\chacha.pp" "wolfssl\ctaocrypt\src\des3.pp" "wolfssl\ctaocrypt\src\dh.pp" "wolfssl\ctaocrypt\src\ecc.pp" "wolfssl\ctaocrypt\src\hc128.pp" "wolfssl\ctaocrypt\src\integer.pp" "wolfssl\ctaocrypt\src\md5.pp" "wolfssl\ctaocrypt\src\poly1305.pp" "wolfssl\ctaocrypt\src\rabbit.pp" "wolfssl\ctaocrypt\src\rsa.pp" "wolfssl\ctaocrypt\src\sha.pp" "wolfssl\ctaocrypt\src\sha256.pp" "wolfssl\ctaocrypt\src\sha512.pp" "wolfssl\ctaocrypt\src\tfm.pp" 
-	-$(RM) "EK_TM4C1294XL.obj" "benchmark.obj" "wolfssl_tirtos_benchmark.obj" "wolfssl\ctaocrypt\src\aes.obj" "wolfssl\ctaocrypt\src\arc4.obj" "wolfssl\ctaocrypt\src\asm.obj" "wolfssl\ctaocrypt\src\asn.obj" "wolfssl\ctaocrypt\src\blake2b.obj" "wolfssl\ctaocrypt\src\camellia.obj" "wolfssl\ctaocrypt\src\chacha.obj" "wolfssl\ctaocrypt\src\des3.obj" "wolfssl\ctaocrypt\src\dh.obj" "wolfssl\ctaocrypt\src\ecc.obj" "wolfssl\ctaocrypt\src\hc128.obj" "wolfssl\ctaocrypt\src\integer.obj" "wolfssl\ctaocrypt\src\md5.obj" "wolfssl\ctaocrypt\src\poly1305.obj" "wolfssl\ctaocrypt\src\rabbit.obj" "wolfssl\ctaocrypt\src\rsa.obj" "wolfssl\ctaocrypt\src\sha.obj" "wolfssl\ctaocrypt\src\sha256.obj" "wolfssl\ctaocrypt\src\sha512.obj" "wolfssl\ctaocrypt\src\tfm.obj" 
+	-$(RM) "EK_TM4C1294XL.pp" "benchmark.pp" "wolfssl_tirtos_benchmark.pp" "wolfssl\wolfcrypt\src\aes.pp" "wolfssl\wolfcrypt\src\arc4.pp" "wolfssl\wolfcrypt\src\asm.pp" "wolfssl\wolfcrypt\src\asn.pp" "wolfssl\wolfcrypt\src\blake2b.pp" "wolfssl\wolfcrypt\src\camellia.pp" "wolfssl\wolfcrypt\src\chacha.pp" "wolfssl\wolfcrypt\src\des3.pp" "wolfssl\wolfcrypt\src\dh.pp" "wolfssl\wolfcrypt\src\ecc.pp" "wolfssl\wolfcrypt\src\hc128.pp" "wolfssl\wolfcrypt\src\integer.pp" "wolfssl\wolfcrypt\src\md5.pp" "wolfssl\wolfcrypt\src\poly1305.pp" "wolfssl\wolfcrypt\src\rabbit.pp" "wolfssl\wolfcrypt\src\rsa.pp" "wolfssl\wolfcrypt\src\sha.pp" "wolfssl\wolfcrypt\src\sha256.pp" "wolfssl\wolfcrypt\src\sha512.pp" "wolfssl\wolfcrypt\src\tfm.pp" 
+	-$(RM) "EK_TM4C1294XL.obj" "benchmark.obj" "wolfssl_tirtos_benchmark.obj" "wolfssl\wolfcrypt\src\aes.obj" "wolfssl\wolfcrypt\src\arc4.obj" "wolfssl\wolfcrypt\src\asm.obj" "wolfssl\wolfcrypt\src\asn.obj" "wolfssl\wolfcrypt\src\blake2b.obj" "wolfssl\wolfcrypt\src\camellia.obj" "wolfssl\wolfcrypt\src\chacha.obj" "wolfssl\wolfcrypt\src\des3.obj" "wolfssl\wolfcrypt\src\dh.obj" "wolfssl\wolfcrypt\src\ecc.obj" "wolfssl\wolfcrypt\src\hc128.obj" "wolfssl\wolfcrypt\src\integer.obj" "wolfssl\wolfcrypt\src\md5.obj" "wolfssl\wolfcrypt\src\poly1305.obj" "wolfssl\wolfcrypt\src\rabbit.obj" "wolfssl\wolfcrypt\src\rsa.obj" "wolfssl\wolfcrypt\src\sha.obj" "wolfssl\wolfcrypt\src\sha256.obj" "wolfssl\wolfcrypt\src\sha512.obj" "wolfssl\wolfcrypt\src\tfm.obj" 
 	-@echo 'Finished clean'
 	-@echo ' '
 

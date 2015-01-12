@@ -219,13 +219,13 @@ static int DesSetKey() is called from 4 sites in this file.
     It has 5 non-trivial scope blocks nested 5 deep.
     It calls these functions:
 	<NONE>
-Unrolling 'for' loop on 'j' at lines C:/wolfssl/ctaocrypt/src/des3.c:1102-1108 by factor 4.
+Unrolling 'for' loop on 'j' at lines C:/wolfssl/wolfcrypt/src/des3.c:1102-1108 by factor 4.
 Estimated speedup: 1.33x, code size increase: 3.10x (10:->31)
-Unrolling 'for' loop on 'j' at lines C:/wolfssl/ctaocrypt/src/des3.c:1113-1115 by factor 4.
+Unrolling 'for' loop on 'j' at lines C:/wolfssl/wolfcrypt/src/des3.c:1113-1115 by factor 4.
 Estimated speedup: 1.45x, code size increase: 2.64x (11:->29)
-Unrolling 'for' loop on 'j' at lines C:/wolfssl/ctaocrypt/src/des3.c:1118-1123 by factor 4.
+Unrolling 'for' loop on 'j' at lines C:/wolfssl/wolfcrypt/src/des3.c:1118-1123 by factor 4.
 Estimated speedup: 1.18x, code size increase: 3.40x (10:->34)
-Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/des3.c:1139-1147 completely by factor 8.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/wolfcrypt/src/des3.c:1139-1147 completely by factor 8.
 Estimated speedup: 1.48x, code size increase: 6.40x (10:->64)
 
 There are 115 memory accesses with 808 dependences.
@@ -250,7 +250,7 @@ static void DesRawProcessBlock() is called from 4 sites in this file.
     It has 4 non-trivial scope blocks nested 4 deep.
     It calls these functions:
 	rotrFixed() (2 times)
-Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/des3.c:1202-1225 by factor 2.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/wolfcrypt/src/des3.c:1202-1225 by factor 2.
 Estimated speedup: 1.06x, code size increase: 1.96x (48:->94)
 
 There are 44 memory accesses with 5 dependences.
@@ -278,9 +278,9 @@ extern int Des_CbcEncrypt() is called from 0 sites in this file.
     It calls these functions:
 	xorbuf() (1 times)
 	DesProcessBlock() (1 times)
-Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/misc.c:155-155 completely by factor 2.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/wolfcrypt/src/misc.c:155-155 completely by factor 2.
 Estimated speedup: 1.69x, code size increase: 1.33x (6:->8)
-Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/misc.c:168-168 completely by factor 8.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/wolfcrypt/src/misc.c:168-168 completely by factor 8.
 Estimated speedup: 1.80x, code size increase: 5.33x (6:->32)
 
 There are 20 memory accesses with 226 dependences.
@@ -294,9 +294,9 @@ extern int Des_CbcDecrypt() is called from 0 sites in this file.
     It calls these functions:
 	DesProcessBlock() (1 times)
 	xorbuf() (1 times)
-Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/misc.c:155-155 completely by factor 2.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/wolfcrypt/src/misc.c:155-155 completely by factor 2.
 Estimated speedup: 1.69x, code size increase: 1.33x (6:->8)
-Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/misc.c:168-168 completely by factor 8.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/wolfcrypt/src/misc.c:168-168 completely by factor 8.
 Estimated speedup: 1.80x, code size increase: 5.33x (6:->32)
 
 There are 20 memory accesses with 296 dependences.
@@ -348,9 +348,9 @@ extern int Des3_CbcEncrypt() is called from 0 sites in this file.
     It calls these functions:
 	xorbuf() (1 times)
 	Des3ProcessBlock() (1 times)
-Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/misc.c:155-155 completely by factor 2.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/wolfcrypt/src/misc.c:155-155 completely by factor 2.
 Estimated speedup: 1.69x, code size increase: 1.33x (6:->8)
-Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/misc.c:168-168 completely by factor 8.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/wolfcrypt/src/misc.c:168-168 completely by factor 8.
 Estimated speedup: 1.80x, code size increase: 5.33x (6:->32)
 
 There are 20 memory accesses with 298 dependences.
@@ -364,9 +364,9 @@ extern int Des3_CbcDecrypt() is called from 0 sites in this file.
     It calls these functions:
 	Des3ProcessBlock() (1 times)
 	xorbuf() (1 times)
-Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/misc.c:155-155 completely by factor 2.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/wolfcrypt/src/misc.c:155-155 completely by factor 2.
 Estimated speedup: 1.69x, code size increase: 1.33x (6:->8)
-Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/misc.c:168-168 completely by factor 8.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/wolfcrypt/src/misc.c:168-168 completely by factor 8.
 Estimated speedup: 1.80x, code size increase: 5.33x (6:->32)
 
 There are 20 memory accesses with 296 dependences.

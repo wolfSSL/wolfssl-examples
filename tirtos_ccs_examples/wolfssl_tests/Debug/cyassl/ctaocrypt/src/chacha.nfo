@@ -95,8 +95,8 @@ static void Chacha_encrypt_bytes() is called from 1 sites in this file.
     It calls these functions:
 	Chacha_wordtobyte() (1 times)
 
-ADVICE: In function Chacha_encrypt_bytes() in C:/wolfssl/ctaocrypt/src/chacha.c
-	in the 'for' loop with loop variable 'i' at lines C:/wolfssl/ctaocrypt/src/chacha.c:227-229
+ADVICE: In function Chacha_encrypt_bytes() in C:/wolfssl/wolfcrypt/src/chacha.c
+	in the 'for' loop with loop variable 'i' at lines C:/wolfssl/wolfcrypt/src/chacha.c:227-229
 	for the statement c[i] = m[i]^((unsigned char *)temp)[i]; at line 228
 
 	Consider declaring 'm' as const unsigned char * restrict m
@@ -105,8 +105,8 @@ ADVICE: In function Chacha_encrypt_bytes() in C:/wolfssl/ctaocrypt/src/chacha.c
 	and            'c' in the address of c[i];
 	do not access the same object in memory.
 
-ADVICE: In function Chacha_encrypt_bytes() in C:/wolfssl/ctaocrypt/src/chacha.c
-	in the 'for' loop with loop variable 'i' at lines C:/wolfssl/ctaocrypt/src/chacha.c:222-224
+ADVICE: In function Chacha_encrypt_bytes() in C:/wolfssl/wolfcrypt/src/chacha.c
+	in the 'for' loop with loop variable 'i' at lines C:/wolfssl/wolfcrypt/src/chacha.c:222-224
 	for the statement c[i] = m[i]^((unsigned char *)temp)[i]; at line 223
 
 	Consider declaring 'm' as const unsigned char * restrict m
@@ -114,15 +114,15 @@ ADVICE: In function Chacha_encrypt_bytes() in C:/wolfssl/ctaocrypt/src/chacha.c
 	to assert that 'm' in the address of m[i];
 	and            'c' in the address of c[i];
 	do not access the same object in memory.
-Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/chacha.c:181-183 completely by factor 16.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/wolfcrypt/src/chacha.c:181-183 completely by factor 16.
 Estimated speedup: 2.22x, code size increase: 8.00x (4:->32)
-Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/chacha.c:196-198 completely by factor 16.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/wolfcrypt/src/chacha.c:196-198 completely by factor 16.
 Estimated speedup: 1.81x, code size increase: 10.50x (6:->63)
-Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/chacha.c:200-202 completely by factor 16.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/wolfcrypt/src/chacha.c:200-202 completely by factor 16.
 Estimated speedup: 2.22x, code size increase: 8.00x (4:->32)
-Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/chacha.c:227-229 by factor 4.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/wolfcrypt/src/chacha.c:227-229 by factor 4.
 Estimated speedup: 1.26x, code size increase: 3.00x (6:->18)
-Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/chacha.c:222-224 by factor 2.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/wolfcrypt/src/chacha.c:222-224 by factor 2.
 Estimated speedup: 1.16x, code size increase: 1.67x (6:->10)
 
 There are 54 memory accesses with 476 dependences.

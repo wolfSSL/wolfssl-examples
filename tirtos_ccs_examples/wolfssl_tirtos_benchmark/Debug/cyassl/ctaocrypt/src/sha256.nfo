@@ -118,13 +118,13 @@ static int Transform() is called from 3 sites in this file.
     It has 3 non-trivial scope blocks nested 3 deep.
     It calls these functions:
 	rotrFixed() (52 times)
-Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/sha256.c:151-152 completely by factor 8.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/wolfcrypt/src/sha256.c:151-152 completely by factor 8.
 Estimated speedup: 3.29x, code size increase: 4.00x (4:->16)
-Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/sha256.c:154-155 completely by factor 16.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/wolfcrypt/src/sha256.c:154-155 completely by factor 16.
 Estimated speedup: 3.39x, code size increase: 8.00x (4:->32)
-Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/sha256.c:157-158 by factor 2.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/wolfcrypt/src/sha256.c:157-158 by factor 2.
 Estimated speedup: 1.05x, code size increase: 1.94x (32:->62)
-Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/sha256.c:172-174 completely by factor 8.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/wolfcrypt/src/sha256.c:172-174 completely by factor 8.
 Estimated speedup: 2.18x, code size increase: 5.17x (6:->31)
 
 There are 74 memory accesses with 80 dependences.
@@ -140,7 +140,7 @@ extern int Sha256Update() is called from 1 sites in this file.
 	ByteReverseWords() (1 times)
 	Transform() (1 times)
 	AddLength() (1 times)
-Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/misc.c:102-103 by factor 4.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/wolfcrypt/src/misc.c:102-103 by factor 4.
 Estimated speedup: 1.19x, code size increase: 3.57x (14:->50)
 
 There are 15 memory accesses with 116 dependences.
@@ -167,11 +167,11 @@ extern int Sha256Final() is called from 1 sites in this file.
 	ByteReverseWords() (3 times)
 	Transform() (2 times)
 	InitSha256() (1 times)
-Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/misc.c:102-103 by factor 4.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/wolfcrypt/src/misc.c:102-103 by factor 4.
 Estimated speedup: 1.19x, code size increase: 3.57x (14:->50)
-Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/misc.c:102-103 by factor 4.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/wolfcrypt/src/misc.c:102-103 by factor 4.
 Estimated speedup: 1.19x, code size increase: 3.57x (14:->50)
-Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/misc.c:102-103 completely by factor 8.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/wolfcrypt/src/misc.c:102-103 completely by factor 8.
 Estimated speedup: 1.40x, code size increase: 6.86x (14:->96)
 
 There are 45 memory accesses with 241 dependences.

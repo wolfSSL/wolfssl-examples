@@ -4,135 +4,135 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
-C:/wolfssl/ctaocrypt/src/aes.c \
-C:/wolfssl/ctaocrypt/src/arc4.c \
-C:/wolfssl/ctaocrypt/src/asm.c \
-C:/wolfssl/ctaocrypt/src/asn.c \
-C:/wolfssl/ctaocrypt/src/blake2b.c \
-C:/wolfssl/ctaocrypt/src/camellia.c \
-C:/wolfssl/ctaocrypt/src/chacha.c \
-C:/wolfssl/ctaocrypt/src/des3.c \
-C:/wolfssl/ctaocrypt/src/dh.c \
-C:/wolfssl/ctaocrypt/src/ecc.c \
-C:/wolfssl/ctaocrypt/src/hc128.c \
-C:/wolfssl/ctaocrypt/src/integer.c \
-C:/wolfssl/ctaocrypt/src/md5.c \
-C:/wolfssl/ctaocrypt/src/poly1305.c \
-C:/wolfssl/ctaocrypt/src/rabbit.c \
-C:/wolfssl/ctaocrypt/src/rsa.c \
-C:/wolfssl/ctaocrypt/src/sha.c \
-C:/wolfssl/ctaocrypt/src/sha256.c \
-C:/wolfssl/ctaocrypt/src/sha512.c \
-C:/wolfssl/ctaocrypt/src/tfm.c 
+C:/wolfssl/wolfcrypt/src/aes.c \
+C:/wolfssl/wolfcrypt/src/arc4.c \
+C:/wolfssl/wolfcrypt/src/asm.c \
+C:/wolfssl/wolfcrypt/src/asn.c \
+C:/wolfssl/wolfcrypt/src/blake2b.c \
+C:/wolfssl/wolfcrypt/src/camellia.c \
+C:/wolfssl/wolfcrypt/src/chacha.c \
+C:/wolfssl/wolfcrypt/src/des3.c \
+C:/wolfssl/wolfcrypt/src/dh.c \
+C:/wolfssl/wolfcrypt/src/ecc.c \
+C:/wolfssl/wolfcrypt/src/hc128.c \
+C:/wolfssl/wolfcrypt/src/integer.c \
+C:/wolfssl/wolfcrypt/src/md5.c \
+C:/wolfssl/wolfcrypt/src/poly1305.c \
+C:/wolfssl/wolfcrypt/src/rabbit.c \
+C:/wolfssl/wolfcrypt/src/rsa.c \
+C:/wolfssl/wolfcrypt/src/sha.c \
+C:/wolfssl/wolfcrypt/src/sha256.c \
+C:/wolfssl/wolfcrypt/src/sha512.c \
+C:/wolfssl/wolfcrypt/src/tfm.c 
 
 OBJS += \
-./wolfssl/ctaocrypt/src/aes.obj \
-./wolfssl/ctaocrypt/src/arc4.obj \
-./wolfssl/ctaocrypt/src/asm.obj \
-./wolfssl/ctaocrypt/src/asn.obj \
-./wolfssl/ctaocrypt/src/blake2b.obj \
-./wolfssl/ctaocrypt/src/camellia.obj \
-./wolfssl/ctaocrypt/src/chacha.obj \
-./wolfssl/ctaocrypt/src/des3.obj \
-./wolfssl/ctaocrypt/src/dh.obj \
-./wolfssl/ctaocrypt/src/ecc.obj \
-./wolfssl/ctaocrypt/src/hc128.obj \
-./wolfssl/ctaocrypt/src/integer.obj \
-./wolfssl/ctaocrypt/src/md5.obj \
-./wolfssl/ctaocrypt/src/poly1305.obj \
-./wolfssl/ctaocrypt/src/rabbit.obj \
-./wolfssl/ctaocrypt/src/rsa.obj \
-./wolfssl/ctaocrypt/src/sha.obj \
-./wolfssl/ctaocrypt/src/sha256.obj \
-./wolfssl/ctaocrypt/src/sha512.obj \
-./wolfssl/ctaocrypt/src/tfm.obj 
+./wolfssl/wolfcrypt/src/aes.obj \
+./wolfssl/wolfcrypt/src/arc4.obj \
+./wolfssl/wolfcrypt/src/asm.obj \
+./wolfssl/wolfcrypt/src/asn.obj \
+./wolfssl/wolfcrypt/src/blake2b.obj \
+./wolfssl/wolfcrypt/src/camellia.obj \
+./wolfssl/wolfcrypt/src/chacha.obj \
+./wolfssl/wolfcrypt/src/des3.obj \
+./wolfssl/wolfcrypt/src/dh.obj \
+./wolfssl/wolfcrypt/src/ecc.obj \
+./wolfssl/wolfcrypt/src/hc128.obj \
+./wolfssl/wolfcrypt/src/integer.obj \
+./wolfssl/wolfcrypt/src/md5.obj \
+./wolfssl/wolfcrypt/src/poly1305.obj \
+./wolfssl/wolfcrypt/src/rabbit.obj \
+./wolfssl/wolfcrypt/src/rsa.obj \
+./wolfssl/wolfcrypt/src/sha.obj \
+./wolfssl/wolfcrypt/src/sha256.obj \
+./wolfssl/wolfcrypt/src/sha512.obj \
+./wolfssl/wolfcrypt/src/tfm.obj 
 
 C_DEPS += \
-./wolfssl/ctaocrypt/src/aes.pp \
-./wolfssl/ctaocrypt/src/arc4.pp \
-./wolfssl/ctaocrypt/src/asm.pp \
-./wolfssl/ctaocrypt/src/asn.pp \
-./wolfssl/ctaocrypt/src/blake2b.pp \
-./wolfssl/ctaocrypt/src/camellia.pp \
-./wolfssl/ctaocrypt/src/chacha.pp \
-./wolfssl/ctaocrypt/src/des3.pp \
-./wolfssl/ctaocrypt/src/dh.pp \
-./wolfssl/ctaocrypt/src/ecc.pp \
-./wolfssl/ctaocrypt/src/hc128.pp \
-./wolfssl/ctaocrypt/src/integer.pp \
-./wolfssl/ctaocrypt/src/md5.pp \
-./wolfssl/ctaocrypt/src/poly1305.pp \
-./wolfssl/ctaocrypt/src/rabbit.pp \
-./wolfssl/ctaocrypt/src/rsa.pp \
-./wolfssl/ctaocrypt/src/sha.pp \
-./wolfssl/ctaocrypt/src/sha256.pp \
-./wolfssl/ctaocrypt/src/sha512.pp \
-./wolfssl/ctaocrypt/src/tfm.pp 
+./wolfssl/wolfcrypt/src/aes.pp \
+./wolfssl/wolfcrypt/src/arc4.pp \
+./wolfssl/wolfcrypt/src/asm.pp \
+./wolfssl/wolfcrypt/src/asn.pp \
+./wolfssl/wolfcrypt/src/blake2b.pp \
+./wolfssl/wolfcrypt/src/camellia.pp \
+./wolfssl/wolfcrypt/src/chacha.pp \
+./wolfssl/wolfcrypt/src/des3.pp \
+./wolfssl/wolfcrypt/src/dh.pp \
+./wolfssl/wolfcrypt/src/ecc.pp \
+./wolfssl/wolfcrypt/src/hc128.pp \
+./wolfssl/wolfcrypt/src/integer.pp \
+./wolfssl/wolfcrypt/src/md5.pp \
+./wolfssl/wolfcrypt/src/poly1305.pp \
+./wolfssl/wolfcrypt/src/rabbit.pp \
+./wolfssl/wolfcrypt/src/rsa.pp \
+./wolfssl/wolfcrypt/src/sha.pp \
+./wolfssl/wolfcrypt/src/sha256.pp \
+./wolfssl/wolfcrypt/src/sha512.pp \
+./wolfssl/wolfcrypt/src/tfm.pp 
 
 C_DEPS__QUOTED += \
-"wolfssl\ctaocrypt\src\aes.pp" \
-"wolfssl\ctaocrypt\src\arc4.pp" \
-"wolfssl\ctaocrypt\src\asm.pp" \
-"wolfssl\ctaocrypt\src\asn.pp" \
-"wolfssl\ctaocrypt\src\blake2b.pp" \
-"wolfssl\ctaocrypt\src\camellia.pp" \
-"wolfssl\ctaocrypt\src\chacha.pp" \
-"wolfssl\ctaocrypt\src\des3.pp" \
-"wolfssl\ctaocrypt\src\dh.pp" \
-"wolfssl\ctaocrypt\src\ecc.pp" \
-"wolfssl\ctaocrypt\src\hc128.pp" \
-"wolfssl\ctaocrypt\src\integer.pp" \
-"wolfssl\ctaocrypt\src\md5.pp" \
-"wolfssl\ctaocrypt\src\poly1305.pp" \
-"wolfssl\ctaocrypt\src\rabbit.pp" \
-"wolfssl\ctaocrypt\src\rsa.pp" \
-"wolfssl\ctaocrypt\src\sha.pp" \
-"wolfssl\ctaocrypt\src\sha256.pp" \
-"wolfssl\ctaocrypt\src\sha512.pp" \
-"wolfssl\ctaocrypt\src\tfm.pp" 
+"wolfssl\wolfcrypt\src\aes.pp" \
+"wolfssl\wolfcrypt\src\arc4.pp" \
+"wolfssl\wolfcrypt\src\asm.pp" \
+"wolfssl\wolfcrypt\src\asn.pp" \
+"wolfssl\wolfcrypt\src\blake2b.pp" \
+"wolfssl\wolfcrypt\src\camellia.pp" \
+"wolfssl\wolfcrypt\src\chacha.pp" \
+"wolfssl\wolfcrypt\src\des3.pp" \
+"wolfssl\wolfcrypt\src\dh.pp" \
+"wolfssl\wolfcrypt\src\ecc.pp" \
+"wolfssl\wolfcrypt\src\hc128.pp" \
+"wolfssl\wolfcrypt\src\integer.pp" \
+"wolfssl\wolfcrypt\src\md5.pp" \
+"wolfssl\wolfcrypt\src\poly1305.pp" \
+"wolfssl\wolfcrypt\src\rabbit.pp" \
+"wolfssl\wolfcrypt\src\rsa.pp" \
+"wolfssl\wolfcrypt\src\sha.pp" \
+"wolfssl\wolfcrypt\src\sha256.pp" \
+"wolfssl\wolfcrypt\src\sha512.pp" \
+"wolfssl\wolfcrypt\src\tfm.pp" 
 
 OBJS__QUOTED += \
-"wolfssl\ctaocrypt\src\aes.obj" \
-"wolfssl\ctaocrypt\src\arc4.obj" \
-"wolfssl\ctaocrypt\src\asm.obj" \
-"wolfssl\ctaocrypt\src\asn.obj" \
-"wolfssl\ctaocrypt\src\blake2b.obj" \
-"wolfssl\ctaocrypt\src\camellia.obj" \
-"wolfssl\ctaocrypt\src\chacha.obj" \
-"wolfssl\ctaocrypt\src\des3.obj" \
-"wolfssl\ctaocrypt\src\dh.obj" \
-"wolfssl\ctaocrypt\src\ecc.obj" \
-"wolfssl\ctaocrypt\src\hc128.obj" \
-"wolfssl\ctaocrypt\src\integer.obj" \
-"wolfssl\ctaocrypt\src\md5.obj" \
-"wolfssl\ctaocrypt\src\poly1305.obj" \
-"wolfssl\ctaocrypt\src\rabbit.obj" \
-"wolfssl\ctaocrypt\src\rsa.obj" \
-"wolfssl\ctaocrypt\src\sha.obj" \
-"wolfssl\ctaocrypt\src\sha256.obj" \
-"wolfssl\ctaocrypt\src\sha512.obj" \
-"wolfssl\ctaocrypt\src\tfm.obj" 
+"wolfssl\wolfcrypt\src\aes.obj" \
+"wolfssl\wolfcrypt\src\arc4.obj" \
+"wolfssl\wolfcrypt\src\asm.obj" \
+"wolfssl\wolfcrypt\src\asn.obj" \
+"wolfssl\wolfcrypt\src\blake2b.obj" \
+"wolfssl\wolfcrypt\src\camellia.obj" \
+"wolfssl\wolfcrypt\src\chacha.obj" \
+"wolfssl\wolfcrypt\src\des3.obj" \
+"wolfssl\wolfcrypt\src\dh.obj" \
+"wolfssl\wolfcrypt\src\ecc.obj" \
+"wolfssl\wolfcrypt\src\hc128.obj" \
+"wolfssl\wolfcrypt\src\integer.obj" \
+"wolfssl\wolfcrypt\src\md5.obj" \
+"wolfssl\wolfcrypt\src\poly1305.obj" \
+"wolfssl\wolfcrypt\src\rabbit.obj" \
+"wolfssl\wolfcrypt\src\rsa.obj" \
+"wolfssl\wolfcrypt\src\sha.obj" \
+"wolfssl\wolfcrypt\src\sha256.obj" \
+"wolfssl\wolfcrypt\src\sha512.obj" \
+"wolfssl\wolfcrypt\src\tfm.obj" 
 
 C_SRCS__QUOTED += \
-"C:/wolfssl/ctaocrypt/src/aes.c" \
-"C:/wolfssl/ctaocrypt/src/arc4.c" \
-"C:/wolfssl/ctaocrypt/src/asm.c" \
-"C:/wolfssl/ctaocrypt/src/asn.c" \
-"C:/wolfssl/ctaocrypt/src/blake2b.c" \
-"C:/wolfssl/ctaocrypt/src/camellia.c" \
-"C:/wolfssl/ctaocrypt/src/chacha.c" \
-"C:/wolfssl/ctaocrypt/src/des3.c" \
-"C:/wolfssl/ctaocrypt/src/dh.c" \
-"C:/wolfssl/ctaocrypt/src/ecc.c" \
-"C:/wolfssl/ctaocrypt/src/hc128.c" \
-"C:/wolfssl/ctaocrypt/src/integer.c" \
-"C:/wolfssl/ctaocrypt/src/md5.c" \
-"C:/wolfssl/ctaocrypt/src/poly1305.c" \
-"C:/wolfssl/ctaocrypt/src/rabbit.c" \
-"C:/wolfssl/ctaocrypt/src/rsa.c" \
-"C:/wolfssl/ctaocrypt/src/sha.c" \
-"C:/wolfssl/ctaocrypt/src/sha256.c" \
-"C:/wolfssl/ctaocrypt/src/sha512.c" \
-"C:/wolfssl/ctaocrypt/src/tfm.c" 
+"C:/wolfssl/wolfcrypt/src/aes.c" \
+"C:/wolfssl/wolfcrypt/src/arc4.c" \
+"C:/wolfssl/wolfcrypt/src/asm.c" \
+"C:/wolfssl/wolfcrypt/src/asn.c" \
+"C:/wolfssl/wolfcrypt/src/blake2b.c" \
+"C:/wolfssl/wolfcrypt/src/camellia.c" \
+"C:/wolfssl/wolfcrypt/src/chacha.c" \
+"C:/wolfssl/wolfcrypt/src/des3.c" \
+"C:/wolfssl/wolfcrypt/src/dh.c" \
+"C:/wolfssl/wolfcrypt/src/ecc.c" \
+"C:/wolfssl/wolfcrypt/src/hc128.c" \
+"C:/wolfssl/wolfcrypt/src/integer.c" \
+"C:/wolfssl/wolfcrypt/src/md5.c" \
+"C:/wolfssl/wolfcrypt/src/poly1305.c" \
+"C:/wolfssl/wolfcrypt/src/rabbit.c" \
+"C:/wolfssl/wolfcrypt/src/rsa.c" \
+"C:/wolfssl/wolfcrypt/src/sha.c" \
+"C:/wolfssl/wolfcrypt/src/sha256.c" \
+"C:/wolfssl/wolfcrypt/src/sha512.c" \
+"C:/wolfssl/wolfcrypt/src/tfm.c" 
 
 

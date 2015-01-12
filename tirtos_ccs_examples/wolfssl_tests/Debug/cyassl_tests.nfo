@@ -17,7 +17,7 @@ extern void testCtaocrypt() is called from 0 sites in this file.
     It has 3 non-trivial scope blocks nested 3 deep.
     It calls these functions:
 	ti_sysbios_BIOS_exit__E() (1 times)
-	ctaocrypt_test() (1 times)
+	wolfcrypt_test() (1 times)
 	xdc_runtime_System_flush__E() (1 times)
 	xdc_runtime_System_printf__E() (2 times)
 
@@ -37,7 +37,7 @@ Inlineable function will be suppressed: ti_sysbios_knl_Task_Params_init()
 These external functions are called but not defined here:
 	ti_sysbios_knl_Task_Params__init__S()
 	xdc_runtime_System_flush__E()
-	ctaocrypt_test()
+	wolfcrypt_test()
 	ti_sysbios_BIOS_exit__E()
 	ti_sysbios_knl_Task_create()
 	ti_sysbios_BIOS_start__E()
