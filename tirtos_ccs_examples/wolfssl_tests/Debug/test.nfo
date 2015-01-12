@@ -614,8 +614,8 @@ in the source interlisting will look like "O$1.s3_1.l3_2" or "&$O$O1+0".
 
     --offset--    --reference--			 --variable--
 
-          0	  O$1.s3_1.l3_2                  struct Rabbit dec  [C:/cyassl/ctaocrypt/test/test.c:1807]
-        136	  O$1.s3_1.l3_3                  struct Rabbit enc  [C:/cyassl/ctaocrypt/test/test.c:1806]
+          0	  O$1.s3_1.l3_2                  struct Rabbit dec  [C:/wolfssl/ctaocrypt/test/test.c:1807]
+        136	  O$1.s3_1.l3_3                  struct Rabbit enc  [C:/wolfssl/ctaocrypt/test/test.c:1806]
 
 Unrolling 'while' loop on 'n' at lines c:/ti/ccsv6/tools/compiler/arm_5.1.6/include/string.h:272-272 by factor 2.
 Estimated speedup: 1.13x, code size increase: 1.80x (5:->9)
@@ -802,7 +802,7 @@ Unrolling 'while' loop on 'n' at lines c:/ti/ccsv6/tools/compiler/arm_5.1.6/incl
 Estimated speedup: 1.13x, code size increase: 1.80x (5:->9)
 Unrolling 'while' loop on 'n' at lines c:/ti/ccsv6/tools/compiler/arm_5.1.6/include/string.h:272-272 by factor 2.
 Estimated speedup: 1.13x, code size increase: 1.80x (5:->9)
-Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/test/test.c:4478-4479 completely by factor 20.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/test/test.c:4478-4479 completely by factor 20.
 Estimated speedup: 6.67x, code size increase: 5.00x (4:->20)
 
 There are 52 memory accesses with 39 dependences.
@@ -875,7 +875,7 @@ extern int blake2b_test() is called from 1 sites in this file.
     It has 3 non-trivial scope blocks nested 3 deep.
     It calls these functions:
 	memcmp() (1 times)
-Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/test/test.c:942-943 by factor 4.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/test/test.c:942-943 by factor 4.
 Estimated speedup: 1.47x, code size increase: 2.50x (4:->10)
 Unrolling 'while' loop on 'n' at lines c:/ti/ccsv6/tools/compiler/arm_5.1.6/include/string.h:272-272 by factor 2.
 Estimated speedup: 1.13x, code size increase: 1.80x (5:->9)
@@ -896,8 +896,8 @@ in the source interlisting will look like "O$1.s3_1.l3_2" or "&$O$O1+0".
 
     --offset--    --reference--			 --variable--
 
-          0	  O$1.s3_1.l3_2                  struct Arc4 dec  [C:/cyassl/ctaocrypt/test/test.c:1644]
-        260	  O$1.s3_1.l3_3                  struct Arc4 enc  [C:/cyassl/ctaocrypt/test/test.c:1643]
+          0	  O$1.s3_1.l3_2                  struct Arc4 dec  [C:/wolfssl/ctaocrypt/test/test.c:1644]
+        260	  O$1.s3_1.l3_3                  struct Arc4 enc  [C:/wolfssl/ctaocrypt/test/test.c:1643]
 
 Unrolling 'while' loop on 'n' at lines c:/ti/ccsv6/tools/compiler/arm_5.1.6/include/string.h:272-272 by factor 2.
 Estimated speedup: 1.13x, code size increase: 1.80x (5:->9)

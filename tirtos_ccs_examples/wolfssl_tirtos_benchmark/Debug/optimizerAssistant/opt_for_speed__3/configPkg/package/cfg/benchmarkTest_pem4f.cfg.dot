@@ -173,7 +173,7 @@ digraph configuration {
     }
     subgraph cluster21 {
         label="";
-        ti_net_cyassl__top [shape=box,label="ti.net.cyassl\n", color=white];
+        ti_net_wolfssl__top [shape=box,label="ti.net.wolfssl\n", color=white];
     }
     subgraph cluster22 {
         label="";
@@ -428,7 +428,7 @@ digraph configuration {
     ti_targets_arm_elf_M4F__1_0_5__1_5 [shape=record,label="ti.targets.arm.elf.M4F|1,0,5.1,5",style=filled, fillcolor=lightgrey];
     ti_targets_arm_rtsarm__bot -> ti_targets_arm_elf_M4F__1_0_5__1_5 [ltail=cluster15];
     ti_targets_arm_elf_M4F__1_0_5__1_5 [shape=record,label="ti.targets.arm.elf.M4F|1,0,5.1,5",style=filled, fillcolor=lightgrey];
-    ti_net_cyassl__top -> ti_targets_arm_elf_M4F__1_0_5__1_5 [ltail=cluster21];
+    ti_net_wolfssl__top -> ti_targets_arm_elf_M4F__1_0_5__1_5 [ltail=cluster21];
     ti_targets_arm_elf_M4F__1_0_5__1_5 [shape=record,label="ti.targets.arm.elf.M4F|1,0,5.1,5",style=filled, fillcolor=lightgrey];
     ti_catalog_arm_cortexm4_tiva_ce__bot -> ti_targets_arm_elf_M4F__1_0_5__1_5 [ltail=cluster31];
     ti_targets_arm_elf_M4F__1_0_5__1_5 [shape=record,label="ti.targets.arm.elf.M4F|1,0,5.1,5",style=filled, fillcolor=lightgrey];

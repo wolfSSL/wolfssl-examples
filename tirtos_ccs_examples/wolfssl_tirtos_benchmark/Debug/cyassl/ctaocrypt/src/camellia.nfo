@@ -275,9 +275,9 @@ extern void CamelliaCbcEncrypt() is called from 0 sites in this file.
     It calls these functions:
 	xorbuf() (1 times)
 	Camellia_EncryptBlock() (1 times)
-Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/misc.c:155-155 completely by factor 4.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/misc.c:155-155 completely by factor 4.
 Estimated speedup: 1.76x, code size increase: 2.67x (6:->16)
-Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/misc.c:168-168 completely by factor 16.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/misc.c:168-168 completely by factor 16.
 Estimated speedup: 1.81x, code size increase: 10.67x (6:->64)
 
 There are 41 memory accesses with 1220 dependences.
@@ -291,9 +291,9 @@ extern void CamelliaCbcDecrypt() is called from 0 sites in this file.
     It calls these functions:
 	Camellia_DecryptBlock() (1 times)
 	xorbuf() (1 times)
-Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/misc.c:155-155 completely by factor 4.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/misc.c:155-155 completely by factor 4.
 Estimated speedup: 1.76x, code size increase: 2.67x (6:->16)
-Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/misc.c:168-168 completely by factor 16.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/misc.c:168-168 completely by factor 16.
 Estimated speedup: 1.81x, code size increase: 10.67x (6:->64)
 
 There are 41 memory accesses with 1224 dependences.

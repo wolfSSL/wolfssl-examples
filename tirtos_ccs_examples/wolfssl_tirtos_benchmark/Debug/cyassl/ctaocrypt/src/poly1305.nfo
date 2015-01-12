@@ -74,8 +74,8 @@ extern int Poly1305Update() is called from 0 sites in this file.
     It calls these functions:
 	poly1305_blocks() (2 times)
 
-ADVICE: In function Poly1305Update() in C:/cyassl/ctaocrypt/src/poly1305.c
-	in the 'for' loop with loop variable 'i' at lines C:/cyassl/ctaocrypt/src/poly1305.c:526-527
+ADVICE: In function Poly1305Update() in C:/wolfssl/ctaocrypt/src/poly1305.c
+	in the 'for' loop with loop variable 'i' at lines C:/wolfssl/ctaocrypt/src/poly1305.c:526-527
 	for the statement ((unsigned char *)ctx)[(int)(*ctx).leftover+(int)i+60] = m[i]; at line 527
 
 	Consider declaring 'm' as const unsigned char * restrict m
@@ -84,8 +84,8 @@ ADVICE: In function Poly1305Update() in C:/cyassl/ctaocrypt/src/poly1305.c
 	and            'ctx' in the address of ((unsigned char *)ctx)[(int)(*ctx).leftover+(int)i+60];
 	do not access the same object in memory.
 
-ADVICE: In function Poly1305Update() in C:/cyassl/ctaocrypt/src/poly1305.c
-	in the 'for' loop with loop variable 'i' at lines C:/cyassl/ctaocrypt/src/poly1305.c:547-548
+ADVICE: In function Poly1305Update() in C:/wolfssl/ctaocrypt/src/poly1305.c
+	in the 'for' loop with loop variable 'i' at lines C:/wolfssl/ctaocrypt/src/poly1305.c:547-548
 	for the statement ((unsigned char *)ctx)[(int)(*ctx).leftover+(int)i+60] = m[i]; at line 548
 
 	Consider declaring 'm' as const unsigned char * restrict m
@@ -93,9 +93,9 @@ ADVICE: In function Poly1305Update() in C:/cyassl/ctaocrypt/src/poly1305.c
 	to assert that 'm' in the address of m[i];
 	and            'ctx' in the address of ((unsigned char *)ctx)[(int)(*ctx).leftover+(int)i+60];
 	do not access the same object in memory.
-Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/poly1305.c:526-527 by factor 2.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/poly1305.c:526-527 by factor 2.
 Estimated speedup: 1.20x, code size increase: 1.50x (4:->6)
-Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/poly1305.c:547-548 by factor 2.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/poly1305.c:547-548 by factor 2.
 Estimated speedup: 1.20x, code size increase: 1.50x (4:->6)
 
 There are 23 memory accesses with 186 dependences.
@@ -131,7 +131,7 @@ extern int Poly1305Final() is called from 0 sites in this file.
     It calls these functions:
 	poly1305_blocks() (1 times)
 	U32TO8() (4 times)
-Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/poly1305.c:423-424 by factor 2.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/poly1305.c:423-424 by factor 2.
 Estimated speedup: 1.23x, code size increase: 1.33x (3:->4)
 
 There are 29 memory accesses with 114 dependences.

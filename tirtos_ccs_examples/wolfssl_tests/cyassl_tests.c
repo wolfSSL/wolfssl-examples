@@ -50,7 +50,7 @@
  */
 
 /*
- *  ======== cyasslTest.c ========
+ *  ======== wolfsslTest.c ========
  */
 
 /* XDCtools Header files */

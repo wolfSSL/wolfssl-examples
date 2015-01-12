@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>cyassl_tests</name>
+	<name>wolfssl_tests</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -32,47 +32,47 @@
 			<locationURI>CYASSL_DIR/ctaocrypt/test/test.c</locationURI>
 		</link>
 		<link>
-			<name>cyassl/ctaocrypt/src/asn.c</name>
+			<name>wolfssl/ctaocrypt/src/asn.c</name>
 			<type>1</type>
 			<locationURI>CYASSL_DIR/ctaocrypt/src/asn.c</locationURI>
 		</link>
 		<link>
-			<name>cyassl/ctaocrypt/src/blake2b.c</name>
+			<name>wolfssl/ctaocrypt/src/blake2b.c</name>
 			<type>1</type>
 			<locationURI>CYASSL_DIR/ctaocrypt/src/blake2b.c</locationURI>
 		</link>
 		<link>
-			<name>cyassl/ctaocrypt/src/camellia.c</name>
+			<name>wolfssl/ctaocrypt/src/camellia.c</name>
 			<type>1</type>
 			<locationURI>CYASSL_DIR/ctaocrypt/src/camellia.c</locationURI>
 		</link>
 		<link>
-			<name>cyassl/ctaocrypt/src/chacha.c</name>
+			<name>wolfssl/ctaocrypt/src/chacha.c</name>
 			<type>1</type>
 			<locationURI>CYASSL_DIR/ctaocrypt/src/chacha.c</locationURI>
 		</link>
 		<link>
-			<name>cyassl/ctaocrypt/src/ecc.c</name>
+			<name>wolfssl/ctaocrypt/src/ecc.c</name>
 			<type>1</type>
 			<locationURI>CYASSL_DIR/ctaocrypt/src/ecc.c</locationURI>
 		</link>
 		<link>
-			<name>cyassl/ctaocrypt/src/integer.c</name>
+			<name>wolfssl/ctaocrypt/src/integer.c</name>
 			<type>1</type>
 			<locationURI>CYASSL_DIR/ctaocrypt/src/integer.c</locationURI>
 		</link>
 		<link>
-			<name>cyassl/ctaocrypt/src/poly1305.c</name>
+			<name>wolfssl/ctaocrypt/src/poly1305.c</name>
 			<type>1</type>
 			<locationURI>CYASSL_DIR/ctaocrypt/src/poly1305.c</locationURI>
 		</link>
 		<link>
-			<name>cyassl/ctaocrypt/src/sha512.c</name>
+			<name>wolfssl/ctaocrypt/src/sha512.c</name>
 			<type>1</type>
 			<locationURI>CYASSL_DIR/ctaocrypt/src/sha512.c</locationURI>
 		</link>
 		<link>
-			<name>cyassl/ctaocrypt/src/tfm.c</name>
+			<name>wolfssl/ctaocrypt/src/tfm.c</name>
 			<type>1</type>
 			<locationURI>CYASSL_DIR/ctaocrypt/src/tfm.c</locationURI>
 		</link>
@@ -80,7 +80,7 @@
 	<variableList>
 		<variable>
 			<name>CYASSL_DIR</name>
-			<value>file:/C:/cyassl</value>
+			<value>file:/C:/wolfssl</value>
 		</variable>
 	</variableList>
 </projectDescription>

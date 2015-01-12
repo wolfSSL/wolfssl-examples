@@ -6,10 +6,10 @@
 	.thumb
 
 $C$DW$CU	.dwtag  DW_TAG_compile_unit
-	.dwattr $C$DW$CU, DW_AT_name("../cyassl_tests.c")
+	.dwattr $C$DW$CU, DW_AT_name("../wolfssl_tests.c")
 	.dwattr $C$DW$CU, DW_AT_producer("TI TI ARM C/C++ Codegen PC v5.1.6 Copyright (c) 1996-2014 Texas Instruments Incorporated")
 	.dwattr $C$DW$CU, DW_AT_TI_version(0x01)
-	.dwattr $C$DW$CU, DW_AT_comp_dir("C:\Users\khimes\workspace_v6_0\cyassl_tests\Debug")
+	.dwattr $C$DW$CU, DW_AT_comp_dir("C:\Users\khimes\workspace_v6_0\wolfssl_tests\Debug")
 
 $C$DW$1	.dwtag  DW_TAG_subprogram, DW_AT_name("ti_sysbios_BIOS_start__E")
 	.dwattr $C$DW$1, DW_AT_TI_symbol_name("ti_sysbios_BIOS_start__E")
@@ -92,14 +92,14 @@ $C$DW$17	.dwtag  DW_TAG_subprogram, DW_AT_name("ctaocrypt_test")
 	.dwattr $C$DW$17, DW_AT_TI_symbol_name("ctaocrypt_test")
 	.dwattr $C$DW$17, DW_AT_declaration
 	.dwattr $C$DW$17, DW_AT_external
-	.dwattr $C$DW$17, DW_AT_decl_file("../cyassl_tests.c")
+	.dwattr $C$DW$17, DW_AT_decl_file("../wolfssl_tests.c")
 	.dwattr $C$DW$17, DW_AT_decl_line(0x44)
 	.dwattr $C$DW$17, DW_AT_decl_column(0x0d)
 $C$DW$18	.dwtag  DW_TAG_formal_parameter
 	.dwattr $C$DW$18, DW_AT_type(*$C$DW$T$3)
 	.dwendtag $C$DW$17
 
-;	c:\ti\ccsv6\tools\compiler\arm_5.1.6\bin\armopt.exe --call_assumptions=3 --gen_opt_info=2 C:\\Users\\khimes\\AppData\\Local\\Temp\\039082 C:\\Users\\khimes\\AppData\\Local\\Temp\\039084 --opt_info_filename=cyassl_tests.nfo 
+;	c:\ti\ccsv6\tools\compiler\arm_5.1.6\bin\armopt.exe --call_assumptions=3 --gen_opt_info=2 C:\\Users\\khimes\\AppData\\Local\\Temp\\039082 C:\\Users\\khimes\\AppData\\Local\\Temp\\039084 --opt_info_filename=wolfssl_tests.nfo 
 	.sect	".text:testCtaocrypt"
 	.clink
 	.thumbfunc testCtaocrypt
@@ -111,14 +111,14 @@ $C$DW$19	.dwtag  DW_TAG_subprogram, DW_AT_name("testCtaocrypt")
 	.dwattr $C$DW$19, DW_AT_high_pc(0x00)
 	.dwattr $C$DW$19, DW_AT_TI_symbol_name("testCtaocrypt")
 	.dwattr $C$DW$19, DW_AT_external
-	.dwattr $C$DW$19, DW_AT_TI_begin_file("../cyassl_tests.c")
+	.dwattr $C$DW$19, DW_AT_TI_begin_file("../wolfssl_tests.c")
 	.dwattr $C$DW$19, DW_AT_TI_begin_line(0x4a)
 	.dwattr $C$DW$19, DW_AT_TI_begin_column(0x06)
-	.dwattr $C$DW$19, DW_AT_decl_file("../cyassl_tests.c")
+	.dwattr $C$DW$19, DW_AT_decl_file("../wolfssl_tests.c")
 	.dwattr $C$DW$19, DW_AT_decl_line(0x4a)
 	.dwattr $C$DW$19, DW_AT_decl_column(0x06)
 	.dwattr $C$DW$19, DW_AT_TI_max_frame_size(0x08)
-	.dwpsn	file "../cyassl_tests.c",line 75,column 1,is_stmt,address testCtaocrypt,isa 1
+	.dwpsn	file "../wolfssl_tests.c",line 75,column 1,is_stmt,address testCtaocrypt,isa 1
 
 	.dwfde $C$DW$CIE, testCtaocrypt
 $C$DW$20	.dwtag  DW_TAG_formal_parameter, DW_AT_name("arg0")
@@ -160,7 +160,7 @@ $C$DW$22	.dwtag  DW_TAG_variable, DW_AT_name("arg0")
 	.dwcfi	save_reg_to_mem, 14, -4
 	.dwcfi	save_reg_to_mem, 4, -8
         MOV       V1, A1                ; [DPU_3_PIPE] |75| 
-	.dwpsn	file "../cyassl_tests.c",line 76,column 5,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tests.c",line 76,column 5,is_stmt,isa 1
         ADR       A1, $C$SL1            ; [DPU_3_PIPE] |76| 
 $C$DW$23	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$23, DW_AT_low_pc(0x00)
@@ -168,14 +168,14 @@ $C$DW$23	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$23, DW_AT_TI_call
         BL        xdc_runtime_System_printf__E ; [DPU_3_PIPE] |76| 
         ; CALL OCCURS {xdc_runtime_System_printf__E }  ; [] |76| 
-	.dwpsn	file "../cyassl_tests.c",line 77,column 5,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tests.c",line 77,column 5,is_stmt,isa 1
 $C$DW$24	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$24, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$24, DW_AT_name("xdc_runtime_System_flush__E")
 	.dwattr $C$DW$24, DW_AT_TI_call
         BL        xdc_runtime_System_flush__E ; [DPU_3_PIPE] |77| 
         ; CALL OCCURS {xdc_runtime_System_flush__E }  ; [] |77| 
-	.dwpsn	file "../cyassl_tests.c",line 78,column 5,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tests.c",line 78,column 5,is_stmt,isa 1
         MOV       A1, V1                ; [DPU_3_PIPE] |78| 
 $C$DW$25	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$25, DW_AT_low_pc(0x00)
@@ -183,7 +183,7 @@ $C$DW$25	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$25, DW_AT_TI_call
         BL        ctaocrypt_test        ; [DPU_3_PIPE] |78| 
         ; CALL OCCURS {ctaocrypt_test }  ; [] |78| 
-	.dwpsn	file "../cyassl_tests.c",line 79,column 5,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tests.c",line 79,column 5,is_stmt,isa 1
         ADR       A1, $C$SL2            ; [DPU_3_PIPE] |79| 
 $C$DW$26	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$26, DW_AT_low_pc(0x00)
@@ -191,7 +191,7 @@ $C$DW$26	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$26, DW_AT_TI_call
         BL        xdc_runtime_System_printf__E ; [DPU_3_PIPE] |79| 
         ; CALL OCCURS {xdc_runtime_System_printf__E }  ; [] |79| 
-	.dwpsn	file "../cyassl_tests.c",line 81,column 5,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tests.c",line 81,column 5,is_stmt,isa 1
         MOVS      A1, #0                ; [DPU_3_PIPE] |81| 
 $C$DW$27	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$27, DW_AT_low_pc(0x00)
@@ -205,7 +205,7 @@ $C$DW$28	.dwtag  DW_TAG_TI_branch
         POP       {V1, PC}              ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 0
         ; BRANCH OCCURS                  ; [] 
-	.dwattr $C$DW$19, DW_AT_TI_end_file("../cyassl_tests.c")
+	.dwattr $C$DW$19, DW_AT_TI_end_file("../wolfssl_tests.c")
 	.dwattr $C$DW$19, DW_AT_TI_end_line(0x52)
 	.dwattr $C$DW$19, DW_AT_TI_end_column(0x01)
 	.dwendentry
@@ -223,14 +223,14 @@ $C$DW$29	.dwtag  DW_TAG_subprogram, DW_AT_name("main")
 	.dwattr $C$DW$29, DW_AT_TI_symbol_name("main")
 	.dwattr $C$DW$29, DW_AT_external
 	.dwattr $C$DW$29, DW_AT_type(*$C$DW$T$10)
-	.dwattr $C$DW$29, DW_AT_TI_begin_file("../cyassl_tests.c")
+	.dwattr $C$DW$29, DW_AT_TI_begin_file("../wolfssl_tests.c")
 	.dwattr $C$DW$29, DW_AT_TI_begin_line(0x57)
 	.dwattr $C$DW$29, DW_AT_TI_begin_column(0x05)
-	.dwattr $C$DW$29, DW_AT_decl_file("../cyassl_tests.c")
+	.dwattr $C$DW$29, DW_AT_decl_file("../wolfssl_tests.c")
 	.dwattr $C$DW$29, DW_AT_decl_line(0x57)
 	.dwattr $C$DW$29, DW_AT_decl_column(0x05)
 	.dwattr $C$DW$29, DW_AT_TI_max_frame_size(0x50)
-	.dwpsn	file "../cyassl_tests.c",line 88,column 1,is_stmt,address main,isa 1
+	.dwpsn	file "../wolfssl_tests.c",line 88,column 1,is_stmt,address main,isa 1
 
 	.dwfde $C$DW$CIE, main
 $C$DW$30	.dwtag  DW_TAG_formal_parameter, DW_AT_name("argc")
@@ -293,11 +293,11 @@ $C$DW$36	.dwtag  DW_TAG_variable, DW_AT_name("taskParams")
 	.dwcfi	cfa_offset, 80
 	.dwpsn	file "C:/ti/tirtos_tivac_2_00_02_36/products/bios_6_40_02_27/packages/ti/sysbios/knl/Task.h",line 911,column 9,is_stmt,isa 1
         MOVS      A3, #60               ; [DPU_3_PIPE] |911| 
-	.dwpsn	file "../cyassl_tests.c",line 91,column 5,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tests.c",line 91,column 5,is_stmt,isa 1
         STR       A2, [SP, #4]          ; [DPU_3_PIPE] |91| 
 	.dwpsn	file "C:/ti/tirtos_tivac_2_00_02_36/products/bios_6_40_02_27/packages/ti/sysbios/knl/Task.h",line 911,column 9,is_stmt,isa 1
         MOVS      A4, #8                ; [DPU_3_PIPE] |911| 
-	.dwpsn	file "../cyassl_tests.c",line 90,column 5,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tests.c",line 90,column 5,is_stmt,isa 1
         STR       A1, [SP, #0]          ; [DPU_3_PIPE] |90| 
 	.dwpsn	file "C:/ti/tirtos_tivac_2_00_02_36/products/bios_6_40_02_27/packages/ti/sysbios/knl/Task.h",line 911,column 9,is_stmt,isa 1
         MOVS      A2, #0                ; [DPU_3_PIPE] |911| 
@@ -308,17 +308,17 @@ $C$DW$37	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$37, DW_AT_TI_call
         BL        ti_sysbios_knl_Task_Params__init__S ; [DPU_3_PIPE] |911| 
         ; CALL OCCURS {ti_sysbios_knl_Task_Params__init__S }  ; [] |911| 
-	.dwpsn	file "../cyassl_tests.c",line 97,column 5,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tests.c",line 97,column 5,is_stmt,isa 1
         MOV       A1, #32768            ; [DPU_3_PIPE] |97| 
-	.dwpsn	file "../cyassl_tests.c",line 98,column 5,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tests.c",line 98,column 5,is_stmt,isa 1
         MOVS      A3, #0                ; [DPU_3_PIPE] |98| 
-	.dwpsn	file "../cyassl_tests.c",line 96,column 5,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tests.c",line 96,column 5,is_stmt,isa 1
         STR       SP, [SP, #28]         ; [DPU_3_PIPE] |96| 
-	.dwpsn	file "../cyassl_tests.c",line 98,column 5,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tests.c",line 98,column 5,is_stmt,isa 1
         ADD       A2, SP, #12           ; [DPU_3_PIPE] |98| 
-	.dwpsn	file "../cyassl_tests.c",line 97,column 5,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tests.c",line 97,column 5,is_stmt,isa 1
         STR       A1, [SP, #44]         ; [DPU_3_PIPE] |97| 
-	.dwpsn	file "../cyassl_tests.c",line 98,column 5,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tests.c",line 98,column 5,is_stmt,isa 1
         MOVW      A1, testCtaocrypt+0   ; [DPU_3_PIPE] |98| 
         MOVT      A1, testCtaocrypt+0   ; [DPU_3_PIPE] |98| 
 $C$DW$38	.dwtag  DW_TAG_TI_branch
@@ -328,19 +328,19 @@ $C$DW$38	.dwtag  DW_TAG_TI_branch
         BL        ti_sysbios_knl_Task_create ; [DPU_3_PIPE] |98| 
         ; CALL OCCURS {ti_sysbios_knl_Task_create }  ; [] |98| 
         CBZ       A1, ||$C$L1||         ; [] 
-	.dwpsn	file "../cyassl_tests.c",line 99,column 5,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tests.c",line 99,column 5,is_stmt,isa 1
         ; BRANCHCC OCCURS {||$C$L1||}    ; [] |99| 
 ;* --------------------------------------------------------------------------*
 ;** 104	-----------------------    ti_sysbios_BIOS_start__E();
 ;** 105	-----------------------    return 0;
-	.dwpsn	file "../cyassl_tests.c",line 104,column 5,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tests.c",line 104,column 5,is_stmt,isa 1
 $C$DW$39	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$39, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$39, DW_AT_name("ti_sysbios_BIOS_start__E")
 	.dwattr $C$DW$39, DW_AT_TI_call
         BL        ti_sysbios_BIOS_start__E ; [DPU_3_PIPE] |104| 
         ; CALL OCCURS {ti_sysbios_BIOS_start__E }  ; [] |104| 
-	.dwpsn	file "../cyassl_tests.c",line 105,column 1,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tests.c",line 105,column 1,is_stmt,isa 1
         MOVS      A1, #0                ; [DPU_3_PIPE] |105| 
         B         ||$C$L2||             ; [DPU_3_PIPE] |105| 
         ; BRANCH OCCURS {||$C$L2||}      ; [] |105| 
@@ -349,7 +349,7 @@ $C$DW$39	.dwtag  DW_TAG_TI_branch
 ;**	-----------------------g3:
 ;** 100	-----------------------    xdc_runtime_System_printf__E((const unsigned char *)"main: Failed to create new Task.\n");
 ;** 101	-----------------------    return (-1);
-	.dwpsn	file "../cyassl_tests.c",line 100,column 9,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tests.c",line 100,column 9,is_stmt,isa 1
         ADR       A1, $C$SL3            ; [DPU_3_PIPE] |100| 
 $C$DW$40	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$40, DW_AT_low_pc(0x00)
@@ -357,7 +357,7 @@ $C$DW$40	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$40, DW_AT_TI_call
         BL        xdc_runtime_System_printf__E ; [DPU_3_PIPE] |100| 
         ; CALL OCCURS {xdc_runtime_System_printf__E }  ; [] |100| 
-	.dwpsn	file "../cyassl_tests.c",line 101,column 9,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tests.c",line 101,column 9,is_stmt,isa 1
         MOV       A1, #-1               ; [DPU_3_PIPE] |101| 
 ;* --------------------------------------------------------------------------*
 ||$C$L2||:    
@@ -369,7 +369,7 @@ $C$DW$41	.dwtag  DW_TAG_TI_branch
         POP       {PC}                  ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 0
         ; BRANCH OCCURS                  ; [] 
-	.dwattr $C$DW$29, DW_AT_TI_end_file("../cyassl_tests.c")
+	.dwattr $C$DW$29, DW_AT_TI_end_file("../wolfssl_tests.c")
 	.dwattr $C$DW$29, DW_AT_TI_end_line(0x69)
 	.dwattr $C$DW$29, DW_AT_TI_end_column(0x01)
 	.dwendentry
@@ -5409,7 +5409,7 @@ $C$DW$T$1148	.dwtag  DW_TAG_const_type
 $C$DW$T$1149	.dwtag  DW_TAG_typedef, DW_AT_name("__builtin_va_list")
 	.dwattr $C$DW$T$1149, DW_AT_type(*$C$DW$T$135)
 	.dwattr $C$DW$T$1149, DW_AT_language(DW_LANG_C)
-	.dwattr $C$DW$T$1149, DW_AT_decl_file("../cyassl_tests.c")
+	.dwattr $C$DW$T$1149, DW_AT_decl_file("../wolfssl_tests.c")
 	.dwattr $C$DW$T$1149, DW_AT_decl_line(0x69)
 	.dwattr $C$DW$T$1149, DW_AT_decl_column(0x01)
 $C$DW$T$342	.dwtag  DW_TAG_typedef, DW_AT_name("xdc_String")
@@ -5580,7 +5580,7 @@ $C$DW$208	.dwtag  DW_TAG_member
 	.dwattr $C$DW$208, DW_AT_TI_symbol_name("argc")
 	.dwattr $C$DW$208, DW_AT_data_member_location[DW_OP_plus_uconst 0x0]
 	.dwattr $C$DW$208, DW_AT_accessibility(DW_ACCESS_public)
-	.dwattr $C$DW$208, DW_AT_decl_file("../cyassl_tests.c")
+	.dwattr $C$DW$208, DW_AT_decl_file("../wolfssl_tests.c")
 	.dwattr $C$DW$208, DW_AT_decl_line(0x3f)
 	.dwattr $C$DW$208, DW_AT_decl_column(0x0c)
 $C$DW$209	.dwtag  DW_TAG_member
@@ -5589,7 +5589,7 @@ $C$DW$209	.dwtag  DW_TAG_member
 	.dwattr $C$DW$209, DW_AT_TI_symbol_name("argv")
 	.dwattr $C$DW$209, DW_AT_data_member_location[DW_OP_plus_uconst 0x4]
 	.dwattr $C$DW$209, DW_AT_accessibility(DW_ACCESS_public)
-	.dwattr $C$DW$209, DW_AT_decl_file("../cyassl_tests.c")
+	.dwattr $C$DW$209, DW_AT_decl_file("../wolfssl_tests.c")
 	.dwattr $C$DW$209, DW_AT_decl_line(0x40)
 	.dwattr $C$DW$209, DW_AT_decl_column(0x0c)
 $C$DW$210	.dwtag  DW_TAG_member
@@ -5598,18 +5598,18 @@ $C$DW$210	.dwtag  DW_TAG_member
 	.dwattr $C$DW$210, DW_AT_TI_symbol_name("return_code")
 	.dwattr $C$DW$210, DW_AT_data_member_location[DW_OP_plus_uconst 0x8]
 	.dwattr $C$DW$210, DW_AT_accessibility(DW_ACCESS_public)
-	.dwattr $C$DW$210, DW_AT_decl_file("../cyassl_tests.c")
+	.dwattr $C$DW$210, DW_AT_decl_file("../wolfssl_tests.c")
 	.dwattr $C$DW$210, DW_AT_decl_line(0x41)
 	.dwattr $C$DW$210, DW_AT_decl_column(0x0c)
 	.dwendtag $C$DW$T$137
 
-	.dwattr $C$DW$T$137, DW_AT_decl_file("../cyassl_tests.c")
+	.dwattr $C$DW$T$137, DW_AT_decl_file("../wolfssl_tests.c")
 	.dwattr $C$DW$T$137, DW_AT_decl_line(0x3e)
 	.dwattr $C$DW$T$137, DW_AT_decl_column(0x10)
 $C$DW$T$1164	.dwtag  DW_TAG_typedef, DW_AT_name("func_args")
 	.dwattr $C$DW$T$1164, DW_AT_type(*$C$DW$T$137)
 	.dwattr $C$DW$T$1164, DW_AT_language(DW_LANG_C)
-	.dwattr $C$DW$T$1164, DW_AT_decl_file("../cyassl_tests.c")
+	.dwattr $C$DW$T$1164, DW_AT_decl_file("../wolfssl_tests.c")
 	.dwattr $C$DW$T$1164, DW_AT_decl_line(0x42)
 	.dwattr $C$DW$T$1164, DW_AT_decl_column(0x03)
 

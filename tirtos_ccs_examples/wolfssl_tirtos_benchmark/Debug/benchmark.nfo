@@ -428,7 +428,7 @@ extern void bench_eccKeyAgree() is called from 1 sites in this file.
     It has 4 non-trivial scope blocks nested 4 deep.
     It calls these functions:
 	<NONE>
-Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/benchmark/benchmark.c:1396-1397 completely by factor 32.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/benchmark/benchmark.c:1396-1397 completely by factor 32.
 Estimated speedup: 6.79x, code size increase: 8.00x (4:->32)
 
 There are 37 memory accesses with 6 dependences.

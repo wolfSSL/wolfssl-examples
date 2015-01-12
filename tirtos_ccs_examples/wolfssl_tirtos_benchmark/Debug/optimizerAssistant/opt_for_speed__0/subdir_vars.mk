@@ -11,7 +11,7 @@ CFG_SRCS += \
 
 C_SRCS += \
 ../EK_TM4C1294XL.c \
-C:/cyassl/ctaocrypt/benchmark/benchmark.c \
+C:/wolfssl/ctaocrypt/benchmark/benchmark.c \
 ../benchmarkTest.c 
 
 OBJS += \
@@ -56,7 +56,7 @@ OBJS__QUOTED += \
 
 C_SRCS__QUOTED += \
 "../EK_TM4C1294XL.c" \
-"C:/cyassl/ctaocrypt/benchmark/benchmark.c" \
+"C:/wolfssl/ctaocrypt/benchmark/benchmark.c" \
 "../benchmarkTest.c" 
 
 GEN_CMDS__FLAG += \

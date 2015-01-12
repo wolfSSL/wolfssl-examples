@@ -117,7 +117,7 @@ extern int ShaUpdate() is called from 1 sites in this file.
 	ByteReverseWords() (1 times)
 	Transform() (1 times)
 	AddLength() (1 times)
-Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/misc.c:102-103 by factor 4.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/misc.c:102-103 by factor 4.
 Estimated speedup: 1.19x, code size increase: 3.57x (14:->50)
 
 		====== Unroll-and-jam Result Summary ======
@@ -151,11 +151,11 @@ extern int ShaFinal() is called from 1 sites in this file.
 	ByteReverseWords() (3 times)
 	Transform() (2 times)
 	InitSha() (1 times)
-Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/misc.c:102-103 by factor 4.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/misc.c:102-103 by factor 4.
 Estimated speedup: 1.19x, code size increase: 3.57x (14:->50)
-Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/misc.c:102-103 by factor 4.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/misc.c:102-103 by factor 4.
 Estimated speedup: 1.19x, code size increase: 3.57x (14:->50)
-Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/misc.c:102-103 completely by factor 5.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/misc.c:102-103 completely by factor 5.
 Estimated speedup: 1.39x, code size increase: 4.29x (14:->60)
 
 There are 39 memory accesses with 232 dependences.

@@ -141,7 +141,7 @@ extern int Sha512Update() is called from 1 sites in this file.
 	ByteReverseWords64() (1 times)
 	Transform() (1 times)
 	AddLength() (1 times)
-Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/misc.c:143-144 by factor 2.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/misc.c:143-144 by factor 2.
 Estimated speedup: 1.09x, code size increase: 1.93x (27:->52)
 
 There are 15 memory accesses with 106 dependences.
@@ -168,11 +168,11 @@ extern int Sha512Final() is called from 1 sites in this file.
 	ByteReverseWords64() (3 times)
 	Transform() (2 times)
 	InitSha512() (1 times)
-Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/misc.c:143-144 by factor 2.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/misc.c:143-144 by factor 2.
 Estimated speedup: 1.09x, code size increase: 1.93x (27:->52)
-Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/misc.c:143-144 by factor 2.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/misc.c:143-144 by factor 2.
 Estimated speedup: 1.09x, code size increase: 1.93x (27:->52)
-Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/misc.c:143-144 by factor 2.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/misc.c:143-144 by factor 2.
 Estimated speedup: 1.09x, code size increase: 1.93x (27:->52)
 
 There are 41 memory accesses with 339 dependences.

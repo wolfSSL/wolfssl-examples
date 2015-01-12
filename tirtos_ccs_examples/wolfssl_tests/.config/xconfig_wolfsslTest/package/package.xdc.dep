@@ -1,16 +1,16 @@
 clean::
-	$(RM) package/xconfig_cyasslTest.sch
+	$(RM) package/xconfig_wolfsslTest.sch
 	$(RM) package/.vers_g180
 	$(RM) package/.vers_r170
 	$(RM) package/.vers_b160
 	$(RM) package/.xdc-A32
-	$(RM) package/xconfig_cyasslTest.java
-	$(RM) package/xconfig_cyasslTest.class
-	$(RM) package/package_xconfig_cyasslTest.c
+	$(RM) package/xconfig_wolfsslTest.java
+	$(RM) package/xconfig_wolfsslTest.class
+	$(RM) package/package_xconfig_wolfsslTest.c
 	$(RM) package/package.defs.h
-	$(RM) package/xconfig_cyasslTest.ccs
+	$(RM) package/xconfig_wolfsslTest.ccs
 
-.interfaces: package/xconfig_cyasslTest.sch package/.vers_g180 package/.vers_r170 package/.vers_b160 package/.xdc-A32 package/xconfig_cyasslTest.java package/package_xconfig_cyasslTest.c package/package.defs.h package/xconfig_cyasslTest.ccs 
+.interfaces: package/xconfig_wolfsslTest.sch package/.vers_g180 package/.vers_r170 package/.vers_b160 package/.xdc-A32 package/xconfig_wolfsslTest.java package/package_xconfig_wolfsslTest.c package/package.defs.h package/xconfig_wolfsslTest.ccs 
 package/package.xdc.inc: package/.vers_g180
 package/.vers_g180:
 package/package.xdc.inc: package/.vers_r170

@@ -9,7 +9,7 @@ import org.mozilla.javascript.*;
 import xdc.services.intern.xsr.*;
 import xdc.services.spec.Session;
 
-public class xconfig_cyasslTest
+public class xconfig_wolfsslTest
 {
     static final String VERS = "@(#) xdc-A32\n";
 
@@ -64,46 +64,46 @@ public class xconfig_cyasslTest
 
     void $$OBJECTS()
     {
-        pkgP = (Proto.Obj)om.bind("xconfig_cyasslTest.Package", new Proto.Obj());
-        pkgV = (Value.Obj)om.bind("xconfig_cyasslTest", new Value.Obj("xconfig_cyasslTest", pkgP));
+        pkgP = (Proto.Obj)om.bind("xconfig_wolfsslTest.Package", new Proto.Obj());
+        pkgV = (Value.Obj)om.bind("xconfig_wolfsslTest", new Value.Obj("xconfig_wolfsslTest", pkgP));
     }
 
     void $$SINGLETONS()
     {
-        pkgP.init("xconfig_cyasslTest.Package", (Proto.Obj)om.findStrict("xdc.IPackage.Module", "xconfig_cyasslTest"));
-        Scriptable cap = (Scriptable)Global.callFxn("loadCapsule", xdcO, "xconfig_cyasslTest/package.xs");
+        pkgP.init("xconfig_wolfsslTest.Package", (Proto.Obj)om.findStrict("xdc.IPackage.Module", "xconfig_wolfsslTest"));
+        Scriptable cap = (Scriptable)Global.callFxn("loadCapsule", xdcO, "xconfig_wolfsslTest/package.xs");
         om.bind("xdc.IPackage$$capsule", cap);
         Object fxn;
                 fxn = Global.get(cap, "init");
-                if (fxn != null) pkgP.addFxn("init", (Proto.Fxn)om.findStrict("xdc.IPackage$$init", "xconfig_cyasslTest"), fxn);
+                if (fxn != null) pkgP.addFxn("init", (Proto.Fxn)om.findStrict("xdc.IPackage$$init", "xconfig_wolfsslTest"), fxn);
                 fxn = Global.get(cap, "close");
-                if (fxn != null) pkgP.addFxn("close", (Proto.Fxn)om.findStrict("xdc.IPackage$$close", "xconfig_cyasslTest"), fxn);
+                if (fxn != null) pkgP.addFxn("close", (Proto.Fxn)om.findStrict("xdc.IPackage$$close", "xconfig_wolfsslTest"), fxn);
                 fxn = Global.get(cap, "validate");
-                if (fxn != null) pkgP.addFxn("validate", (Proto.Fxn)om.findStrict("xdc.IPackage$$validate", "xconfig_cyasslTest"), fxn);
+                if (fxn != null) pkgP.addFxn("validate", (Proto.Fxn)om.findStrict("xdc.IPackage$$validate", "xconfig_wolfsslTest"), fxn);
                 fxn = Global.get(cap, "exit");
-                if (fxn != null) pkgP.addFxn("exit", (Proto.Fxn)om.findStrict("xdc.IPackage$$exit", "xconfig_cyasslTest"), fxn);
+                if (fxn != null) pkgP.addFxn("exit", (Proto.Fxn)om.findStrict("xdc.IPackage$$exit", "xconfig_wolfsslTest"), fxn);
                 fxn = Global.get(cap, "getLibs");
-                if (fxn != null) pkgP.addFxn("getLibs", (Proto.Fxn)om.findStrict("xdc.IPackage$$getLibs", "xconfig_cyasslTest"), fxn);
+                if (fxn != null) pkgP.addFxn("getLibs", (Proto.Fxn)om.findStrict("xdc.IPackage$$getLibs", "xconfig_wolfsslTest"), fxn);
                 fxn = Global.get(cap, "getSects");
-                if (fxn != null) pkgP.addFxn("getSects", (Proto.Fxn)om.findStrict("xdc.IPackage$$getSects", "xconfig_cyasslTest"), fxn);
+                if (fxn != null) pkgP.addFxn("getSects", (Proto.Fxn)om.findStrict("xdc.IPackage$$getSects", "xconfig_wolfsslTest"), fxn);
         pkgP.bind("$capsule", cap);
-        pkgV.init2(pkgP, "xconfig_cyasslTest", Value.DEFAULT, false);
-        pkgV.bind("$name", "xconfig_cyasslTest");
+        pkgV.init2(pkgP, "xconfig_wolfsslTest", Value.DEFAULT, false);
+        pkgV.bind("$name", "xconfig_wolfsslTest");
         pkgV.bind("$category", "Package");
-        pkgV.bind("$$qn", "xconfig_cyasslTest.");
+        pkgV.bind("$$qn", "xconfig_wolfsslTest.");
         pkgV.bind("$vers", Global.newArray());
         Value.Map atmap = (Value.Map)pkgV.getv("$attr");
         atmap.seal("length");
         imports.clear();
         pkgV.bind("$imports", imports);
         StringBuilder sb = new StringBuilder();
-        sb.append("var pkg = xdc.om['xconfig_cyasslTest'];\n");
+        sb.append("var pkg = xdc.om['xconfig_wolfsslTest'];\n");
         sb.append("if (pkg.$vers.length >= 3) {\n");
             sb.append("pkg.$vers.push(Packages.xdc.services.global.Vers.getDate(xdc.csd() + '/..'));\n");
         sb.append("}\n");
-        sb.append("if ('xconfig_cyasslTest$$stat$base' in xdc.om) {\n");
-            sb.append("pkg.packageBase = xdc.om['xconfig_cyasslTest$$stat$base'];\n");
-            sb.append("pkg.packageRepository = xdc.om['xconfig_cyasslTest$$stat$root'];\n");
+        sb.append("if ('xconfig_wolfsslTest$$stat$base' in xdc.om) {\n");
+            sb.append("pkg.packageBase = xdc.om['xconfig_wolfsslTest$$stat$base'];\n");
+            sb.append("pkg.packageRepository = xdc.om['xconfig_wolfsslTest$$stat$root'];\n");
         sb.append("}\n");
         sb.append("pkg.build.libraries = [\n");
         sb.append("];\n");
@@ -119,7 +119,7 @@ public class xconfig_cyasslTest
         if (isCFG) {
         }//isCFG
         Global.callFxn("init", pkgV);
-        ((Value.Arr)om.findStrict("$packages", "xconfig_cyasslTest")).add(pkgV);
+        ((Value.Arr)om.findStrict("$packages", "xconfig_wolfsslTest")).add(pkgV);
     }
 
     public void exec( Scriptable xdcO, Session ses )

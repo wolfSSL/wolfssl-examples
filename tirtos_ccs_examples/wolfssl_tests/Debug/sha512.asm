@@ -6,10 +6,10 @@
 	.thumb
 
 $C$DW$CU	.dwtag  DW_TAG_compile_unit
-	.dwattr $C$DW$CU, DW_AT_name("C:/cyassl/ctaocrypt/src/sha512.c")
+	.dwattr $C$DW$CU, DW_AT_name("C:/wolfssl/ctaocrypt/src/sha512.c")
 	.dwattr $C$DW$CU, DW_AT_producer("TI TI ARM C/C++ Codegen PC v5.1.6 Copyright (c) 1996-2014 Texas Instruments Incorporated")
 	.dwattr $C$DW$CU, DW_AT_TI_version(0x01)
-	.dwattr $C$DW$CU, DW_AT_comp_dir("C:\Users\khimes\workspace_v6_0\cyassl_tests\Debug")
+	.dwattr $C$DW$CU, DW_AT_comp_dir("C:\Users\khimes\workspace_v6_0\wolfssl_tests\Debug")
 
 $C$DW$1	.dwtag  DW_TAG_subprogram, DW_AT_name("memcpy")
 	.dwattr $C$DW$1, DW_AT_TI_symbol_name("memcpy")
@@ -214,10 +214,10 @@ $C$DW$9	.dwtag  DW_TAG_variable, DW_AT_name("K512")
 	.dwattr $C$DW$9, DW_AT_TI_symbol_name("K512")
 	.dwattr $C$DW$9, DW_AT_type(*$C$DW$T$1175)
 	.dwattr $C$DW$9, DW_AT_location[DW_OP_addr K512]
-	.dwattr $C$DW$9, DW_AT_decl_file("C:/cyassl/ctaocrypt/src/sha512.c")
+	.dwattr $C$DW$9, DW_AT_decl_file("C:/wolfssl/ctaocrypt/src/sha512.c")
 	.dwattr $C$DW$9, DW_AT_decl_line(0x4b)
 	.dwattr $C$DW$9, DW_AT_decl_column(0x15)
-;	c:\ti\ccsv6\tools\compiler\arm_5.1.6\bin\armopt.exe --call_assumptions=3 --gen_opt_info=2 C:\\Users\\khimes\\AppData\\Local\\Temp\\044522 C:\\Users\\khimes\\AppData\\Local\\Temp\\044524 --opt_info_filename=cyassl/ctaocrypt/src/sha512.nfo 
+;	c:\ti\ccsv6\tools\compiler\arm_5.1.6\bin\armopt.exe --call_assumptions=3 --gen_opt_info=2 C:\\Users\\khimes\\AppData\\Local\\Temp\\044522 C:\\Users\\khimes\\AppData\\Local\\Temp\\044524 --opt_info_filename=wolfssl/ctaocrypt/src/sha512.nfo 
 	.sect	".text:Transform"
 	.clink
 	.thumbfunc Transform
@@ -228,14 +228,14 @@ $C$DW$10	.dwtag  DW_TAG_subprogram, DW_AT_name("Transform")
 	.dwattr $C$DW$10, DW_AT_high_pc(0x00)
 	.dwattr $C$DW$10, DW_AT_TI_symbol_name("Transform")
 	.dwattr $C$DW$10, DW_AT_type(*$C$DW$T$10)
-	.dwattr $C$DW$10, DW_AT_TI_begin_file("C:/cyassl/ctaocrypt/src/sha512.c")
+	.dwattr $C$DW$10, DW_AT_TI_begin_file("C:/wolfssl/ctaocrypt/src/sha512.c")
 	.dwattr $C$DW$10, DW_AT_TI_begin_line(0x94)
 	.dwattr $C$DW$10, DW_AT_TI_begin_column(0x0c)
-	.dwattr $C$DW$10, DW_AT_decl_file("C:/cyassl/ctaocrypt/src/sha512.c")
+	.dwattr $C$DW$10, DW_AT_decl_file("C:/wolfssl/ctaocrypt/src/sha512.c")
 	.dwattr $C$DW$10, DW_AT_decl_line(0x94)
 	.dwattr $C$DW$10, DW_AT_decl_column(0x0c)
 	.dwattr $C$DW$10, DW_AT_TI_max_frame_size(0xe8)
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 149,column 1,is_stmt,address Transform,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 149,column 1,is_stmt,address Transform,isa 1
 
 	.dwfde $C$DW$CIE, Transform
 $C$DW$11	.dwtag  DW_TAG_formal_parameter, DW_AT_name("sha512")
@@ -542,7 +542,7 @@ $C$DW$65	.dwtag  DW_TAG_variable, DW_AT_name("W")
 	.dwcfi	save_reg_to_mem, 5, -32
 	.dwcfi	save_reg_to_mem, 4, -36
         MOV       V1, A1                ; [DPU_3_PIPE] |149| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 166,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 166,column 5,is_stmt,isa 1
         MOVS      A3, #64               ; [DPU_3_PIPE] |166| 
         SUB       SP, SP, #196          ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 232
@@ -554,12 +554,12 @@ $C$DW$66	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$66, DW_AT_TI_call
         BL        memcpy                ; [DPU_3_PIPE] |166| 
         ; CALL OCCURS {memcpy }          ; [] |166| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 180,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 180,column 9,is_stmt,isa 1
         MOV       V8, #0                ; [DPU_3_PIPE] |180| 
         MOVW      LR, K512+0            ; [DPU_3_PIPE] 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 179,column 10,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 179,column 10,is_stmt,isa 1
         MOV       V9, #0                ; [DPU_3_PIPE] |179| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 166,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 166,column 5,is_stmt,isa 1
         ADD       A1, V1, #16           ; [DPU_3_PIPE] |166| 
         MOVT      LR, K512+0            ; [DPU_3_PIPE] 
         STR       A1, [SP, #192]        ; [DPU_3_PIPE] |166| 
@@ -575,7 +575,7 @@ $C$DW$66	.dwtag  DW_TAG_TI_branch
 ||$C$L1||:    
 ;**	-----------------------g2:
 ;** 180	-----------------------    if ( j ) goto g4;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 180,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 180,column 9,is_stmt,isa 1
         CMP       V9, #0                ; [DPU_3_PIPE] |180| 
         BNE       ||$C$L2||             ; [DPU_3_PIPE] |180| 
         ; BRANCHCC OCCURS {||$C$L2||}    ; [] |180| 
@@ -804,11 +804,11 @@ $C$DW$66	.dwtag  DW_TAG_TI_branch
         ADC       V5, V5, A4            ; [DPU_3_PIPE] |180| 
         ADDS      V4, V4, A1            ; [DPU_3_PIPE] |180| 
         ADC       V5, V5, A2            ; [DPU_3_PIPE] |180| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 180,column 16,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 180,column 16,is_stmt,isa 1
         CMP       V9, #0                ; [DPU_3_PIPE] |180| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 180,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 180,column 9,is_stmt,isa 1
         STMIA     V6, {V4,V5}           ; [DPU_3_PIPE] |180| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 180,column 16,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 180,column 16,is_stmt,isa 1
         BNE       ||$C$L4||             ; [DPU_3_PIPE] |180| 
         ; BRANCHCC OCCURS {||$C$L4||}    ; [] |180| 
 ;* --------------------------------------------------------------------------*
@@ -1046,11 +1046,11 @@ $C$DW$66	.dwtag  DW_TAG_TI_branch
         ADC       V5, V5, A4            ; [DPU_3_PIPE] |180| 
         ADDS      V4, V4, A1            ; [DPU_3_PIPE] |180| 
         ADC       V5, V5, A2            ; [DPU_3_PIPE] |180| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 180,column 23,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 180,column 23,is_stmt,isa 1
         CMP       V9, #0                ; [DPU_3_PIPE] |180| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 180,column 16,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 180,column 16,is_stmt,isa 1
         STMIA     V6, {V4,V5}           ; [DPU_3_PIPE] |180| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 180,column 23,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 180,column 23,is_stmt,isa 1
         BNE       ||$C$L6||             ; [DPU_3_PIPE] |180| 
         ; BRANCHCC OCCURS {||$C$L6||}    ; [] |180| 
 ;* --------------------------------------------------------------------------*
@@ -1289,11 +1289,11 @@ $C$DW$66	.dwtag  DW_TAG_TI_branch
         ADC       V5, V5, A4            ; [DPU_3_PIPE] |180| 
         ADDS      V4, V4, A1            ; [DPU_3_PIPE] |180| 
         ADC       V5, V5, A2            ; [DPU_3_PIPE] |180| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 180,column 30,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 180,column 30,is_stmt,isa 1
         CMP       V9, #0                ; [DPU_3_PIPE] |180| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 180,column 23,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 180,column 23,is_stmt,isa 1
         STMIA     V6, {V4,V5}           ; [DPU_3_PIPE] |180| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 180,column 30,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 180,column 30,is_stmt,isa 1
         BNE       ||$C$L8||             ; [DPU_3_PIPE] |180| 
         ; BRANCHCC OCCURS {||$C$L8||}    ; [] |180| 
 ;* --------------------------------------------------------------------------*
@@ -1531,11 +1531,11 @@ $C$DW$66	.dwtag  DW_TAG_TI_branch
         ADC       V5, V5, A4            ; [DPU_3_PIPE] |180| 
         ADDS      V4, V4, A1            ; [DPU_3_PIPE] |180| 
         ADC       V5, V5, A2            ; [DPU_3_PIPE] |180| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 181,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 181,column 9,is_stmt,isa 1
         CMP       V9, #0                ; [DPU_3_PIPE] |181| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 180,column 30,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 180,column 30,is_stmt,isa 1
         STMIA     V6, {V4,V5}           ; [DPU_3_PIPE] |180| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 181,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 181,column 9,is_stmt,isa 1
         BNE       ||$C$L10||            ; [DPU_3_PIPE] |181| 
         ; BRANCHCC OCCURS {||$C$L10||}   ; [] |181| 
 ;* --------------------------------------------------------------------------*
@@ -1765,11 +1765,11 @@ $C$DW$66	.dwtag  DW_TAG_TI_branch
         ADC       V5, V5, A4            ; [DPU_3_PIPE] |181| 
         ADDS      V4, V4, A1            ; [DPU_3_PIPE] |181| 
         ADC       V5, V5, A2            ; [DPU_3_PIPE] |181| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 181,column 16,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 181,column 16,is_stmt,isa 1
         CMP       V9, #0                ; [DPU_3_PIPE] |181| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 181,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 181,column 9,is_stmt,isa 1
         STMIA     V6, {V4,V5}           ; [DPU_3_PIPE] |181| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 181,column 16,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 181,column 16,is_stmt,isa 1
         BNE       ||$C$L12||            ; [DPU_3_PIPE] |181| 
         ; BRANCHCC OCCURS {||$C$L12||}   ; [] |181| 
 ;* --------------------------------------------------------------------------*
@@ -2008,11 +2008,11 @@ $C$DW$66	.dwtag  DW_TAG_TI_branch
         ADC       V5, V5, A4            ; [DPU_3_PIPE] |181| 
         ADDS      V4, V4, A1            ; [DPU_3_PIPE] |181| 
         ADC       V5, V5, A2            ; [DPU_3_PIPE] |181| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 181,column 23,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 181,column 23,is_stmt,isa 1
         CMP       V9, #0                ; [DPU_3_PIPE] |181| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 181,column 16,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 181,column 16,is_stmt,isa 1
         STMIA     V6, {V4,V5}           ; [DPU_3_PIPE] |181| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 181,column 23,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 181,column 23,is_stmt,isa 1
         BNE       ||$C$L14||            ; [DPU_3_PIPE] |181| 
         ; BRANCHCC OCCURS {||$C$L14||}   ; [] |181| 
 ;* --------------------------------------------------------------------------*
@@ -2250,11 +2250,11 @@ $C$DW$66	.dwtag  DW_TAG_TI_branch
         ADC       V5, V5, A4            ; [DPU_3_PIPE] |181| 
         ADDS      V4, V4, A1            ; [DPU_3_PIPE] |181| 
         ADC       V5, V5, A2            ; [DPU_3_PIPE] |181| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 181,column 30,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 181,column 30,is_stmt,isa 1
         CMP       V9, #0                ; [DPU_3_PIPE] |181| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 181,column 23,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 181,column 23,is_stmt,isa 1
         STMIA     V6, {V4,V5}           ; [DPU_3_PIPE] |181| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 181,column 30,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 181,column 30,is_stmt,isa 1
         BNE       ||$C$L16||            ; [DPU_3_PIPE] |181| 
         ; BRANCHCC OCCURS {||$C$L16||}   ; [] |181| 
 ;* --------------------------------------------------------------------------*
@@ -2492,11 +2492,11 @@ $C$DW$66	.dwtag  DW_TAG_TI_branch
         ADC       V5, V5, A4            ; [DPU_3_PIPE] |181| 
         ADDS      V4, V4, A1            ; [DPU_3_PIPE] |181| 
         ADC       V5, V5, A2            ; [DPU_3_PIPE] |181| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 182,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 182,column 9,is_stmt,isa 1
         CMP       V9, #0                ; [DPU_3_PIPE] |182| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 181,column 30,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 181,column 30,is_stmt,isa 1
         STMIA     SP, {V4,V5}           ; [DPU_3_PIPE] |181| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 182,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 182,column 9,is_stmt,isa 1
         BNE       ||$C$L18||            ; [DPU_3_PIPE] |182| 
         ; BRANCHCC OCCURS {||$C$L18||}   ; [] |182| 
 ;* --------------------------------------------------------------------------*
@@ -2725,11 +2725,11 @@ $C$DW$66	.dwtag  DW_TAG_TI_branch
         ADC       V5, V5, A4            ; [DPU_3_PIPE] |182| 
         ADDS      V4, V4, A1            ; [DPU_3_PIPE] |182| 
         ADC       V5, V5, A2            ; [DPU_3_PIPE] |182| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 182,column 16,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 182,column 16,is_stmt,isa 1
         CMP       V9, #0                ; [DPU_3_PIPE] |182| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 182,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 182,column 9,is_stmt,isa 1
         STMIA     V6, {V4,V5}           ; [DPU_3_PIPE] |182| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 182,column 16,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 182,column 16,is_stmt,isa 1
         BNE       ||$C$L20||            ; [DPU_3_PIPE] |182| 
         ; BRANCHCC OCCURS {||$C$L20||}   ; [] |182| 
 ;* --------------------------------------------------------------------------*
@@ -2967,11 +2967,11 @@ $C$DW$66	.dwtag  DW_TAG_TI_branch
         ADC       V5, V5, A4            ; [DPU_3_PIPE] |182| 
         ADDS      V4, V4, A1            ; [DPU_3_PIPE] |182| 
         ADC       V5, V5, A2            ; [DPU_3_PIPE] |182| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 182,column 23,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 182,column 23,is_stmt,isa 1
         CMP       V9, #0                ; [DPU_3_PIPE] |182| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 182,column 16,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 182,column 16,is_stmt,isa 1
         STMIA     V6, {V4,V5}           ; [DPU_3_PIPE] |182| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 182,column 23,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 182,column 23,is_stmt,isa 1
         BNE       ||$C$L22||            ; [DPU_3_PIPE] |182| 
         ; BRANCHCC OCCURS {||$C$L22||}   ; [] |182| 
 ;* --------------------------------------------------------------------------*
@@ -3210,11 +3210,11 @@ $C$DW$66	.dwtag  DW_TAG_TI_branch
         ADC       V5, V5, A4            ; [DPU_3_PIPE] |182| 
         ADDS      V4, V4, A1            ; [DPU_3_PIPE] |182| 
         ADC       V5, V5, A2            ; [DPU_3_PIPE] |182| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 182,column 30,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 182,column 30,is_stmt,isa 1
         CMP       V9, #0                ; [DPU_3_PIPE] |182| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 182,column 23,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 182,column 23,is_stmt,isa 1
         STMIA     V6, {V4,V5}           ; [DPU_3_PIPE] |182| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 182,column 30,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 182,column 30,is_stmt,isa 1
         BNE       ||$C$L24||            ; [DPU_3_PIPE] |182| 
         ; BRANCHCC OCCURS {||$C$L24||}   ; [] |182| 
 ;* --------------------------------------------------------------------------*
@@ -3452,11 +3452,11 @@ $C$DW$66	.dwtag  DW_TAG_TI_branch
         ADC       V5, V5, A4            ; [DPU_3_PIPE] |182| 
         ADDS      V4, V4, A1            ; [DPU_3_PIPE] |182| 
         ADC       V5, V5, A2            ; [DPU_3_PIPE] |182| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 183,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 183,column 9,is_stmt,isa 1
         CMP       V9, #0                ; [DPU_3_PIPE] |183| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 182,column 30,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 182,column 30,is_stmt,isa 1
         STMIA     V6, {V4,V5}           ; [DPU_3_PIPE] |182| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 183,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 183,column 9,is_stmt,isa 1
         BNE       ||$C$L26||            ; [DPU_3_PIPE] |183| 
         ; BRANCHCC OCCURS {||$C$L26||}   ; [] |183| 
 ;* --------------------------------------------------------------------------*
@@ -3686,11 +3686,11 @@ $C$DW$66	.dwtag  DW_TAG_TI_branch
         ADC       V5, V5, A4            ; [DPU_3_PIPE] |183| 
         ADDS      V4, V4, A1            ; [DPU_3_PIPE] |183| 
         ADC       V5, V5, A2            ; [DPU_3_PIPE] |183| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 183,column 16,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 183,column 16,is_stmt,isa 1
         CMP       V9, #0                ; [DPU_3_PIPE] |183| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 183,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 183,column 9,is_stmt,isa 1
         STMIA     V6, {V4,V5}           ; [DPU_3_PIPE] |183| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 183,column 16,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 183,column 16,is_stmt,isa 1
         BNE       ||$C$L28||            ; [DPU_3_PIPE] |183| 
         ; BRANCHCC OCCURS {||$C$L28||}   ; [] |183| 
 ;* --------------------------------------------------------------------------*
@@ -3929,11 +3929,11 @@ $C$DW$66	.dwtag  DW_TAG_TI_branch
         ADC       V5, V5, A4            ; [DPU_3_PIPE] |183| 
         ADDS      V4, V4, A1            ; [DPU_3_PIPE] |183| 
         ADC       V5, V5, A2            ; [DPU_3_PIPE] |183| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 183,column 23,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 183,column 23,is_stmt,isa 1
         CMP       V9, #0                ; [DPU_3_PIPE] |183| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 183,column 16,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 183,column 16,is_stmt,isa 1
         STMIA     V6, {V4,V5}           ; [DPU_3_PIPE] |183| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 183,column 23,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 183,column 23,is_stmt,isa 1
         BNE       ||$C$L30||            ; [DPU_3_PIPE] |183| 
         ; BRANCHCC OCCURS {||$C$L30||}   ; [] |183| 
 ;* --------------------------------------------------------------------------*
@@ -4171,11 +4171,11 @@ $C$DW$66	.dwtag  DW_TAG_TI_branch
         ADC       V5, V5, A4            ; [DPU_3_PIPE] |183| 
         ADDS      V4, V4, A1            ; [DPU_3_PIPE] |183| 
         ADC       V5, V5, A2            ; [DPU_3_PIPE] |183| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 183,column 30,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 183,column 30,is_stmt,isa 1
         CMP       V9, #0                ; [DPU_3_PIPE] |183| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 183,column 23,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 183,column 23,is_stmt,isa 1
         STMIA     V6, {V4,V5}           ; [DPU_3_PIPE] |183| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 183,column 30,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 183,column 30,is_stmt,isa 1
         BNE       ||$C$L32||            ; [DPU_3_PIPE] |183| 
         ; BRANCHCC OCCURS {||$C$L32||}   ; [] |183| 
 ;* --------------------------------------------------------------------------*
@@ -4406,10 +4406,10 @@ $C$DW$66	.dwtag  DW_TAG_TI_branch
         ORR       V5, V5, V7            ; [DPU_3_PIPE] |183| 
         ADD       V6, SP, #24           ; [DPU_3_PIPE] |183| 
         LDMIA     V6, {V6,V7}           ; [DPU_3_PIPE] |183| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 179,column 17,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 179,column 17,is_stmt,isa 1
         ADD       V9, V9, #16           ; [DPU_3_PIPE] |179| 
         ADD       LR, LR, #128          ; [DPU_3_PIPE] |179| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 183,column 30,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 183,column 30,is_stmt,isa 1
         AND       V4, V4, V6            ; [DPU_3_PIPE] |183| 
         AND       V5, V5, V7            ; [DPU_3_PIPE] |183| 
         ORRS      V4, V4, V2            ; [DPU_3_PIPE] |183| 
@@ -4418,11 +4418,11 @@ $C$DW$66	.dwtag  DW_TAG_TI_branch
         ADC       V5, V5, A4            ; [DPU_3_PIPE] |183| 
         ADDS      V4, V4, A1            ; [DPU_3_PIPE] |183| 
         ADC       V5, V5, A2            ; [DPU_3_PIPE] |183| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 179,column 17,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 179,column 17,is_stmt,isa 1
         CMP       V9, #80               ; [DPU_3_PIPE] |179| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 183,column 30,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 183,column 30,is_stmt,isa 1
         STMIA     SP, {V4,V5}           ; [DPU_3_PIPE] |183| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 179,column 17,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 179,column 17,is_stmt,isa 1
         BCC       ||$C$L1||             ; [DPU_3_PIPE] |179| 
         ; BRANCHCC OCCURS {||$C$L1||}    ; [] |179| 
 ;* --------------------------------------------------------------------------*
@@ -4437,117 +4437,117 @@ $C$DW$66	.dwtag  DW_TAG_TI_branch
 ;** 200	-----------------------    memset(&T, 0, 64u);
 ;** 206	-----------------------    return 0;
         LDR       A1, [SP, #192]        ; [DPU_3_PIPE] 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 189,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 189,column 5,is_stmt,isa 1
         LDMIA     SP, {A2,A3}           ; [DPU_3_PIPE] |189| 
         LDMIA     A1, {V2,V3}           ; [DPU_3_PIPE] |189| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 190,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 190,column 5,is_stmt,isa 1
         ADD       LR, V1, #24           ; [DPU_3_PIPE] |190| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 189,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 189,column 5,is_stmt,isa 1
         ADDS      A2, A2, V2            ; [DPU_3_PIPE] |189| 
         ADC       A3, A3, V3            ; [DPU_3_PIPE] |189| 
         STMIA     A1, {A2,A3}           ; [DPU_3_PIPE] |189| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 190,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 190,column 5,is_stmt,isa 1
         LDMIA     LR, {A3,A4}           ; [DPU_3_PIPE] |190| 
         ADD       V9, SP, #8            ; [DPU_3_PIPE] |190| 
         LDMIA     V9, {A1,A2}           ; [DPU_3_PIPE] |190| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 191,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 191,column 5,is_stmt,isa 1
         ADD       V7, V1, #32           ; [DPU_3_PIPE] |191| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 190,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 190,column 5,is_stmt,isa 1
         ADDS      A1, A1, A3            ; [DPU_3_PIPE] |190| 
         ADC       A2, A2, A4            ; [DPU_3_PIPE] |190| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 191,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 191,column 5,is_stmt,isa 1
         LDMIA     V7, {A3,A4}           ; [DPU_3_PIPE] |191| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 190,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 190,column 5,is_stmt,isa 1
         ADD       V8, V1, #24           ; [DPU_3_PIPE] |190| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 191,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 191,column 5,is_stmt,isa 1
         ADD       V6, SP, #16           ; [DPU_3_PIPE] |191| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 190,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 190,column 5,is_stmt,isa 1
         STMIA     V8, {A1,A2}           ; [DPU_3_PIPE] |190| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 191,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 191,column 5,is_stmt,isa 1
         LDMIA     V6, {A1,A2}           ; [DPU_3_PIPE] |191| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 192,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 192,column 5,is_stmt,isa 1
         ADD       V4, V1, #40           ; [DPU_3_PIPE] |192| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 191,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 191,column 5,is_stmt,isa 1
         ADDS      A1, A1, A3            ; [DPU_3_PIPE] |191| 
         ADC       A2, A2, A4            ; [DPU_3_PIPE] |191| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 192,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 192,column 5,is_stmt,isa 1
         LDMIA     V4, {A3,A4}           ; [DPU_3_PIPE] |192| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 191,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 191,column 5,is_stmt,isa 1
         ADD       V5, V1, #32           ; [DPU_3_PIPE] |191| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 192,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 192,column 5,is_stmt,isa 1
         ADD       V2, SP, #24           ; [DPU_3_PIPE] |192| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 191,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 191,column 5,is_stmt,isa 1
         STMIA     V5, {A1,A2}           ; [DPU_3_PIPE] |191| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 192,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 192,column 5,is_stmt,isa 1
         LDMIA     V2, {A1,A2}           ; [DPU_3_PIPE] |192| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 193,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 193,column 5,is_stmt,isa 1
         ADD       LR, V1, #48           ; [DPU_3_PIPE] |193| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 192,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 192,column 5,is_stmt,isa 1
         ADDS      A1, A1, A3            ; [DPU_3_PIPE] |192| 
         ADC       A2, A2, A4            ; [DPU_3_PIPE] |192| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 193,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 193,column 5,is_stmt,isa 1
         LDMIA     LR, {A3,A4}           ; [DPU_3_PIPE] |193| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 192,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 192,column 5,is_stmt,isa 1
         ADD       V3, V1, #40           ; [DPU_3_PIPE] |192| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 193,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 193,column 5,is_stmt,isa 1
         ADD       V9, SP, #32           ; [DPU_3_PIPE] |193| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 192,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 192,column 5,is_stmt,isa 1
         STMIA     V3, {A1,A2}           ; [DPU_3_PIPE] |192| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 193,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 193,column 5,is_stmt,isa 1
         LDMIA     V9, {A1,A2}           ; [DPU_3_PIPE] |193| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 194,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 194,column 5,is_stmt,isa 1
         ADD       V7, V1, #56           ; [DPU_3_PIPE] |194| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 193,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 193,column 5,is_stmt,isa 1
         ADDS      A1, A1, A3            ; [DPU_3_PIPE] |193| 
         ADC       A2, A2, A4            ; [DPU_3_PIPE] |193| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 194,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 194,column 5,is_stmt,isa 1
         LDMIA     V7, {A3,A4}           ; [DPU_3_PIPE] |194| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 193,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 193,column 5,is_stmt,isa 1
         ADD       V8, V1, #48           ; [DPU_3_PIPE] |193| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 194,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 194,column 5,is_stmt,isa 1
         ADD       V6, SP, #40           ; [DPU_3_PIPE] |194| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 193,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 193,column 5,is_stmt,isa 1
         STMIA     V8, {A1,A2}           ; [DPU_3_PIPE] |193| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 194,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 194,column 5,is_stmt,isa 1
         LDMIA     V6, {A1,A2}           ; [DPU_3_PIPE] |194| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 195,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 195,column 5,is_stmt,isa 1
         ADD       V4, V1, #64           ; [DPU_3_PIPE] |195| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 194,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 194,column 5,is_stmt,isa 1
         ADDS      A1, A1, A3            ; [DPU_3_PIPE] |194| 
         ADC       A2, A2, A4            ; [DPU_3_PIPE] |194| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 195,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 195,column 5,is_stmt,isa 1
         LDMIA     V4, {A3,A4}           ; [DPU_3_PIPE] |195| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 194,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 194,column 5,is_stmt,isa 1
         ADD       V5, V1, #56           ; [DPU_3_PIPE] |194| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 195,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 195,column 5,is_stmt,isa 1
         ADD       V2, SP, #48           ; [DPU_3_PIPE] |195| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 194,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 194,column 5,is_stmt,isa 1
         STMIA     V5, {A1,A2}           ; [DPU_3_PIPE] |194| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 195,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 195,column 5,is_stmt,isa 1
         LDMIA     V2, {A1,A2}           ; [DPU_3_PIPE] |195| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 196,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 196,column 5,is_stmt,isa 1
         ADD       LR, V1, #72           ; [DPU_3_PIPE] |196| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 195,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 195,column 5,is_stmt,isa 1
         ADDS      A1, A1, A3            ; [DPU_3_PIPE] |195| 
         ADC       A2, A2, A4            ; [DPU_3_PIPE] |195| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 196,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 196,column 5,is_stmt,isa 1
         LDMIA     LR, {A3,A4}           ; [DPU_3_PIPE] |196| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 195,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 195,column 5,is_stmt,isa 1
         ADD       V3, V1, #64           ; [DPU_3_PIPE] |195| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 196,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 196,column 5,is_stmt,isa 1
         ADD       V9, SP, #56           ; [DPU_3_PIPE] |196| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 195,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 195,column 5,is_stmt,isa 1
         STMIA     V3, {A1,A2}           ; [DPU_3_PIPE] |195| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 196,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 196,column 5,is_stmt,isa 1
         LDMIA     V9, {A1,A2}           ; [DPU_3_PIPE] |196| 
         ADD       V8, V1, #72           ; [DPU_3_PIPE] |196| 
         ADDS      A1, A1, A3            ; [DPU_3_PIPE] |196| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 199,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 199,column 5,is_stmt,isa 1
         MOV       A3, #128              ; [DPU_3_PIPE] |199| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 196,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 196,column 5,is_stmt,isa 1
         ADC       A2, A2, A4            ; [DPU_3_PIPE] |196| 
         STMIA     V8, {A1,A2}           ; [DPU_3_PIPE] |196| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 199,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 199,column 5,is_stmt,isa 1
         ADD       A1, SP, #64           ; [DPU_3_PIPE] |199| 
         MOVS      A2, #0                ; [DPU_3_PIPE] |199| 
 $C$DW$67	.dwtag  DW_TAG_TI_branch
@@ -4556,7 +4556,7 @@ $C$DW$67	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$67, DW_AT_TI_call
         BL        memset                ; [DPU_3_PIPE] |199| 
         ; CALL OCCURS {memset }          ; [] |199| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 200,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 200,column 5,is_stmt,isa 1
         MOV       A1, SP                ; [DPU_3_PIPE] |200| 
         MOVS      A2, #0                ; [DPU_3_PIPE] |200| 
         MOVS      A3, #64               ; [DPU_3_PIPE] |200| 
@@ -4566,7 +4566,7 @@ $C$DW$68	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$68, DW_AT_TI_call
         BL        memset                ; [DPU_3_PIPE] |200| 
         ; CALL OCCURS {memset }          ; [] |200| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 206,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 206,column 5,is_stmt,isa 1
         MOVS      A1, #0                ; [DPU_3_PIPE] |206| 
         ADD       SP, SP, #196          ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 36
@@ -4576,7 +4576,7 @@ $C$DW$69	.dwtag  DW_TAG_TI_branch
         POP       {V1, V2, V3, V4, V5, V6, V7, V8, PC} ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 0
         ; BRANCH OCCURS                  ; [] 
-	.dwattr $C$DW$10, DW_AT_TI_end_file("C:/cyassl/ctaocrypt/src/sha512.c")
+	.dwattr $C$DW$10, DW_AT_TI_end_file("C:/wolfssl/ctaocrypt/src/sha512.c")
 	.dwattr $C$DW$10, DW_AT_TI_end_line(0xcf)
 	.dwattr $C$DW$10, DW_AT_TI_end_column(0x01)
 	.dwendentry
@@ -4594,14 +4594,14 @@ $C$DW$70	.dwtag  DW_TAG_subprogram, DW_AT_name("Sha512Update")
 	.dwattr $C$DW$70, DW_AT_TI_symbol_name("Sha512Update")
 	.dwattr $C$DW$70, DW_AT_external
 	.dwattr $C$DW$70, DW_AT_type(*$C$DW$T$10)
-	.dwattr $C$DW$70, DW_AT_TI_begin_file("C:/cyassl/ctaocrypt/src/sha512.c")
+	.dwattr $C$DW$70, DW_AT_TI_begin_file("C:/wolfssl/ctaocrypt/src/sha512.c")
 	.dwattr $C$DW$70, DW_AT_TI_begin_line(0xda)
 	.dwattr $C$DW$70, DW_AT_TI_begin_column(0x05)
-	.dwattr $C$DW$70, DW_AT_decl_file("C:/cyassl/ctaocrypt/src/sha512.c")
+	.dwattr $C$DW$70, DW_AT_decl_file("C:/wolfssl/ctaocrypt/src/sha512.c")
 	.dwattr $C$DW$70, DW_AT_decl_line(0xda)
 	.dwattr $C$DW$70, DW_AT_decl_column(0x05)
 	.dwattr $C$DW$70, DW_AT_TI_max_frame_size(0x28)
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 219,column 1,is_stmt,address Sha512Update,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 219,column 1,is_stmt,address Sha512Update,isa 1
 
 	.dwfde $C$DW$CIE, Sha512Update
 $C$DW$71	.dwtag  DW_TAG_formal_parameter, DW_AT_name("sha512")
@@ -4757,15 +4757,15 @@ $C$DW$95	.dwtag  DW_TAG_variable, DW_AT_name("$O$U12")
 	.dwcfi	save_reg_to_mem, 5, -32
 	.dwcfi	save_reg_to_mem, 4, -36
 	.dwcfi	save_reg_to_mem, 3, -40
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
         MOV       V5, #0                ; [DPU_3_PIPE] |66| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 219,column 1,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 219,column 1,is_stmt,isa 1
         MOV       V1, A1                ; [DPU_3_PIPE] |219| 
         MOV       V2, A3                ; [DPU_3_PIPE] |219| 
         MOV       V6, A2                ; [DPU_3_PIPE] |219| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
         MOV       V4, V5                ; [DPU_3_PIPE] |66| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 221,column 17,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 221,column 17,is_stmt,isa 1
         ADD       V8, V1, #80           ; [DPU_3_PIPE] |221| 
         ADD       V7, V1, #80           ; [DPU_3_PIPE] |221| 
         B         ||$C$L36||            ; [DPU_3_PIPE] 
@@ -4778,9 +4778,9 @@ $C$DW$95	.dwtag  DW_TAG_variable, DW_AT_name("$O$U12")
 ;** 213	-----------------------    (*sha512).loLen = T$4;  // [10]
 ;**  	-----------------------    K$77 = 0u;
 ;** 213	-----------------------    if ( T$4 >= tmp ) goto g4;  // [10]
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 212,column 16,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 212,column 16,is_stmt,isa 1
         LDR       A1, [V1, #4]          ; [DPU_3_PIPE] |212| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 213,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 213,column 5,is_stmt,isa 1
         ADD       A2, A1, #128          ; [DPU_3_PIPE] |213| 
         STR       A2, [V1, #4]          ; [DPU_3_PIPE] |213| 
         CMP       A1, A2                ; [DPU_3_PIPE] |213| 
@@ -4788,7 +4788,7 @@ $C$DW$95	.dwtag  DW_TAG_variable, DW_AT_name("$O$U12")
         ; BRANCHCC OCCURS {||$C$L35||}   ; [] |213| 
 ;* --------------------------------------------------------------------------*
 ;** 214	-----------------------    ++(*sha512).hiLen;  // [10]
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 214,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 214,column 9,is_stmt,isa 1
         LDR       A1, [V1, #8]          ; [DPU_3_PIPE] |214| 
         ADDS      A1, A1, #1            ; [DPU_3_PIPE] |214| 
         STR       A1, [V1, #8]          ; [DPU_3_PIPE] |214| 
@@ -4799,7 +4799,7 @@ $C$DW$95	.dwtag  DW_TAG_variable, DW_AT_name("$O$U12")
 ;**	-----------------------g5:
 ;**  	-----------------------    #pragma LOOP_FLAGS(4352u)
         MOVS      A1, #0                ; [DPU_3_PIPE] 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 243,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 243,column 13,is_stmt,isa 1
         STR       A1, [V1, #0]          ; [DPU_3_PIPE] |243| 
 ;* --------------------------------------------------------------------------*
 ;*   BEGIN LOOP ||$C$L36||
@@ -4808,11 +4808,11 @@ $C$DW$95	.dwtag  DW_TAG_variable, DW_AT_name("$O$U12")
 ;**	-----------------------g6:
 ;** 223	-----------------------    if ( len ) goto g8;
 ;** 246	-----------------------    return 0;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 223,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 223,column 5,is_stmt,isa 1
         CMP       V2, #0                ; [DPU_3_PIPE] |223| 
         IT        EQ                    ; [DPU_3_PIPE] 
         MOVEQ     A1, #0                ; [DPU_3_PIPE] 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 246,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 246,column 5,is_stmt,isa 1
         BEQ       ||$C$L38||            ; [DPU_3_PIPE] |246| 
         ; BRANCHCC OCCURS {||$C$L38||}   ; [] |246| 
 ;* --------------------------------------------------------------------------*
@@ -4826,18 +4826,18 @@ $C$DW$95	.dwtag  DW_TAG_variable, DW_AT_name("$O$U12")
 ;** 228	-----------------------    data += add;
 ;** 229	-----------------------    len -= add;
 ;** 231	-----------------------    if ( (*sha512).buffLen != 128u ) goto g6;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 224,column 20,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 224,column 20,is_stmt,isa 1
         LDR       V3, [V1, #0]          ; [DPU_3_PIPE] |224| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 50,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 50,column 9,is_stmt,isa 1
         MOV       A1, V3                ; [DPU_3_PIPE] |50| 
         RSB       A2, A1, #128          ; [DPU_3_PIPE] |50| 
         CMP       A2, V2                ; [DPU_3_PIPE] |50| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 224,column 20,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 224,column 20,is_stmt,isa 1
         RSB       V3, V3, #128          ; [DPU_3_PIPE] |224| 
         IT        CS                    ; [DPU_3_PIPE] 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 50,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 50,column 9,is_stmt,isa 1
         MOVCS     V3, V2                ; [DPU_3_PIPE] |50| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 225,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 225,column 9,is_stmt,isa 1
         MOV       A2, V6                ; [DPU_3_PIPE] |225| 
         MOV       A3, V3                ; [DPU_3_PIPE] |225| 
         ADD       A1, V7, A1            ; [DPU_3_PIPE] |225| 
@@ -4847,17 +4847,17 @@ $C$DW$96	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$96, DW_AT_TI_call
         BL        memcpy                ; [DPU_3_PIPE] |225| 
         ; CALL OCCURS {memcpy }          ; [] |225| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 227,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 227,column 9,is_stmt,isa 1
         LDR       A1, [V1, #0]          ; [DPU_3_PIPE] |227| 
         ADDS      A1, V3, A1            ; [DPU_3_PIPE] |227| 
         STR       A1, [V1, #0]          ; [DPU_3_PIPE] |227| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 231,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 231,column 9,is_stmt,isa 1
         LDR       A1, [V1, #0]          ; [DPU_3_PIPE] |231| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 228,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 228,column 9,is_stmt,isa 1
         ADD       V6, V3, V6            ; [DPU_3_PIPE] |228| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 229,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 229,column 9,is_stmt,isa 1
         SUBS      V2, V2, V3            ; [DPU_3_PIPE] |229| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 231,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 231,column 9,is_stmt,isa 1
         CMP       A1, #128              ; [DPU_3_PIPE] |231| 
         BNE       ||$C$L36||            ; [DPU_3_PIPE] |231| 
         ; BRANCHCC OCCURS {||$C$L36||}   ; [] |231| 
@@ -4870,7 +4870,7 @@ $C$DW$96	.dwtag  DW_TAG_TI_branch
 ;**  	-----------------------    // LOOP BELOW UNROLLED BY FACTOR(2)
 ;**  	-----------------------    #pragma LOOP_FLAGS(4098u)
         MOV       A3, V8                ; [DPU_3_PIPE] 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/misc.c",line 143,column 17,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 143,column 17,is_stmt,isa 1
         MOVS      V3, #8                ; [DPU_3_PIPE] |143| 
         MOV       A4, V8                ; [DPU_3_PIPE] |143| 
 ;* --------------------------------------------------------------------------*
@@ -4895,7 +4895,7 @@ $C$DW$96	.dwtag  DW_TAG_TI_branch
 ;** 144	-----------------------    *U$58++ = (unsigned long long)(C$5<<16|C$5>>16u)<<32|(unsigned long long)(C$7<<16|C$7>>16u);  // [6]
 ;** 143	-----------------------    if ( --L$1 ) goto g10;  // [6]
 ;** 238	-----------------------    if ( !(ret = Transform(sha512)) ) goto g2;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
         LDMIA     A3, {A1,A2}           ; [DPU_3_PIPE] |66| 
         MOV       V9, A2                ; [DPU_3_PIPE] |66| 
         LDMIA     A3, {A1,A2}           ; [DPU_3_PIPE] |66| 
@@ -4915,14 +4915,14 @@ $C$DW$96	.dwtag  DW_TAG_TI_branch
         ORR       A1, LR, V4            ; [DPU_3_PIPE] |66| 
         ORR       A2, V4, V9            ; [DPU_3_PIPE] |66| 
         STMIA     A4!, {A1,A2}          ; [DPU_3_PIPE] |66| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/misc.c",line 144,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 144,column 9,is_stmt,isa 1
         LDMIA     A3, {A1,A2}           ; [DPU_3_PIPE] |144| 
         MOV       V9, A2                ; [DPU_3_PIPE] |144| 
         LDMIA     A3, {A1,A2}           ; [DPU_3_PIPE] |144| 
         LDR       LR, [A3], #8          ; [DPU_3_PIPE] |144| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/misc.c",line 143,column 17,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 143,column 17,is_stmt,isa 1
         SUBS      V3, V3, #1            ; [DPU_3_PIPE] |143| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/misc.c",line 144,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 144,column 9,is_stmt,isa 1
         AND       V9, V9, #16711935     ; [DPU_3_PIPE] |144| 
         MOV       A1, A2                ; [DPU_3_PIPE] |144| 
         LSR       A2, A1, #8            ; [DPU_3_PIPE] |144| 
@@ -4938,11 +4938,11 @@ $C$DW$96	.dwtag  DW_TAG_TI_branch
         ORR       A1, LR, V5            ; [DPU_3_PIPE] |144| 
         ORR       A2, V5, V9            ; [DPU_3_PIPE] |144| 
         STMIA     A4!, {A1,A2}          ; [DPU_3_PIPE] |144| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/misc.c",line 143,column 17,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 143,column 17,is_stmt,isa 1
         BNE       ||$C$L37||            ; [DPU_3_PIPE] |143| 
         ; BRANCHCC OCCURS {||$C$L37||}   ; [] |143| 
 ;* --------------------------------------------------------------------------*
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 238,column 13,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 238,column 13,is_stmt,isa 1
         MOV       A1, V1                ; [DPU_3_PIPE] |238| 
 $C$DW$97	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$97, DW_AT_low_pc(0x00)
@@ -4963,7 +4963,7 @@ $C$DW$98	.dwtag  DW_TAG_TI_branch
         POP       {A4, V1, V2, V3, V4, V5, V6, V7, V8, PC} ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 0
         ; BRANCH OCCURS                  ; [] 
-	.dwattr $C$DW$70, DW_AT_TI_end_file("C:/cyassl/ctaocrypt/src/sha512.c")
+	.dwattr $C$DW$70, DW_AT_TI_end_file("C:/wolfssl/ctaocrypt/src/sha512.c")
 	.dwattr $C$DW$70, DW_AT_TI_end_line(0xf7)
 	.dwattr $C$DW$70, DW_AT_TI_end_column(0x01)
 	.dwendentry
@@ -4981,14 +4981,14 @@ $C$DW$99	.dwtag  DW_TAG_subprogram, DW_AT_name("InitSha512")
 	.dwattr $C$DW$99, DW_AT_TI_symbol_name("InitSha512")
 	.dwattr $C$DW$99, DW_AT_external
 	.dwattr $C$DW$99, DW_AT_type(*$C$DW$T$10)
-	.dwattr $C$DW$99, DW_AT_TI_begin_file("C:/cyassl/ctaocrypt/src/sha512.c")
+	.dwattr $C$DW$99, DW_AT_TI_begin_file("C:/wolfssl/ctaocrypt/src/sha512.c")
 	.dwattr $C$DW$99, DW_AT_TI_begin_line(0x38)
 	.dwattr $C$DW$99, DW_AT_TI_begin_column(0x05)
-	.dwattr $C$DW$99, DW_AT_decl_file("C:/cyassl/ctaocrypt/src/sha512.c")
+	.dwattr $C$DW$99, DW_AT_decl_file("C:/wolfssl/ctaocrypt/src/sha512.c")
 	.dwattr $C$DW$99, DW_AT_decl_line(0x38)
 	.dwattr $C$DW$99, DW_AT_decl_column(0x05)
 	.dwattr $C$DW$99, DW_AT_TI_max_frame_size(0x00)
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 57,column 1,is_stmt,address InitSha512,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 57,column 1,is_stmt,address InitSha512,isa 1
 
 	.dwfde $C$DW$CIE, InitSha512
 $C$DW$100	.dwtag  DW_TAG_formal_parameter, DW_AT_name("sha512")
@@ -5028,52 +5028,52 @@ $C$DW$102	.dwtag  DW_TAG_variable, DW_AT_name("sha512")
 ;** 68	-----------------------    (*sha512).loLen = C$1;
 ;** 69	-----------------------    (*sha512).hiLen = C$1;
 ;** 71	-----------------------    return 0;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 58,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 58,column 5,is_stmt,isa 1
         ADR       A2, $C$LL1            ; [DPU_3_PIPE] |58| 
         LDMIA     A2, {A2,A3}           ; [DPU_3_PIPE] |58| 
         ADD       A4, A1, #16           ; [DPU_3_PIPE] |58| 
         STMIA     A4, {A2,A3}           ; [DPU_3_PIPE] |58| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 59,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 59,column 5,is_stmt,isa 1
         ADR       A2, $C$LL2            ; [DPU_3_PIPE] |59| 
         LDMIA     A2, {A2,A3}           ; [DPU_3_PIPE] |59| 
         ADD       A4, A1, #24           ; [DPU_3_PIPE] |59| 
         STMIA     A4, {A2,A3}           ; [DPU_3_PIPE] |59| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 60,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 60,column 5,is_stmt,isa 1
         ADR       A2, $C$LL3            ; [DPU_3_PIPE] |60| 
         LDMIA     A2, {A2,A3}           ; [DPU_3_PIPE] |60| 
         ADD       A4, A1, #32           ; [DPU_3_PIPE] |60| 
         STMIA     A4, {A2,A3}           ; [DPU_3_PIPE] |60| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 61,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 61,column 5,is_stmt,isa 1
         ADR       A2, $C$LL4            ; [DPU_3_PIPE] |61| 
         LDMIA     A2, {A2,A3}           ; [DPU_3_PIPE] |61| 
         ADD       A4, A1, #40           ; [DPU_3_PIPE] |61| 
         STMIA     A4, {A2,A3}           ; [DPU_3_PIPE] |61| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 62,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 62,column 5,is_stmt,isa 1
         ADR       A2, $C$LL5            ; [DPU_3_PIPE] |62| 
         LDMIA     A2, {A2,A3}           ; [DPU_3_PIPE] |62| 
         ADD       A4, A1, #48           ; [DPU_3_PIPE] |62| 
         STMIA     A4, {A2,A3}           ; [DPU_3_PIPE] |62| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 63,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 63,column 5,is_stmt,isa 1
         ADR       A2, $C$LL6            ; [DPU_3_PIPE] |63| 
         LDMIA     A2, {A2,A3}           ; [DPU_3_PIPE] |63| 
         ADD       A4, A1, #56           ; [DPU_3_PIPE] |63| 
         STMIA     A4, {A2,A3}           ; [DPU_3_PIPE] |63| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 64,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 64,column 5,is_stmt,isa 1
         ADR       A2, $C$LL7            ; [DPU_3_PIPE] |64| 
         LDMIA     A2, {A2,A3}           ; [DPU_3_PIPE] |64| 
         ADD       A4, A1, #64           ; [DPU_3_PIPE] |64| 
         STMIA     A4, {A2,A3}           ; [DPU_3_PIPE] |64| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 65,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 65,column 5,is_stmt,isa 1
         ADR       A2, $C$LL8            ; [DPU_3_PIPE] |65| 
         LDMIA     A2, {A2,A3}           ; [DPU_3_PIPE] |65| 
         ADD       A4, A1, #72           ; [DPU_3_PIPE] |65| 
         STMIA     A4, {A2,A3}           ; [DPU_3_PIPE] |65| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 67,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 67,column 5,is_stmt,isa 1
         MOVS      A2, #0                ; [DPU_3_PIPE] |67| 
         STR       A2, [A1, #0]          ; [DPU_3_PIPE] |67| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 68,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 68,column 5,is_stmt,isa 1
         STR       A2, [A1, #4]          ; [DPU_3_PIPE] |68| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 69,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 69,column 5,is_stmt,isa 1
         STR       A2, [A1, #8]          ; [DPU_3_PIPE] |69| 
         MOV       A1, A2                ; [DPU_3_PIPE] 
 $C$DW$103	.dwtag  DW_TAG_TI_branch
@@ -5081,7 +5081,7 @@ $C$DW$103	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$103, DW_AT_TI_return
         BX        LR                    ; [DPU_3_PIPE] 
         ; BRANCH OCCURS                  ; [] 
-	.dwattr $C$DW$99, DW_AT_TI_end_file("C:/cyassl/ctaocrypt/src/sha512.c")
+	.dwattr $C$DW$99, DW_AT_TI_end_file("C:/wolfssl/ctaocrypt/src/sha512.c")
 	.dwattr $C$DW$99, DW_AT_TI_end_line(0x48)
 	.dwattr $C$DW$99, DW_AT_TI_end_column(0x01)
 	.dwendentry
@@ -5099,14 +5099,14 @@ $C$DW$104	.dwtag  DW_TAG_subprogram, DW_AT_name("Sha512Final")
 	.dwattr $C$DW$104, DW_AT_TI_symbol_name("Sha512Final")
 	.dwattr $C$DW$104, DW_AT_external
 	.dwattr $C$DW$104, DW_AT_type(*$C$DW$T$10)
-	.dwattr $C$DW$104, DW_AT_TI_begin_file("C:/cyassl/ctaocrypt/src/sha512.c")
+	.dwattr $C$DW$104, DW_AT_TI_begin_file("C:/wolfssl/ctaocrypt/src/sha512.c")
 	.dwattr $C$DW$104, DW_AT_TI_begin_line(0xfa)
 	.dwattr $C$DW$104, DW_AT_TI_begin_column(0x05)
-	.dwattr $C$DW$104, DW_AT_decl_file("C:/cyassl/ctaocrypt/src/sha512.c")
+	.dwattr $C$DW$104, DW_AT_decl_file("C:/wolfssl/ctaocrypt/src/sha512.c")
 	.dwattr $C$DW$104, DW_AT_decl_line(0xfa)
 	.dwattr $C$DW$104, DW_AT_decl_column(0x05)
 	.dwattr $C$DW$104, DW_AT_TI_max_frame_size(0x20)
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 251,column 1,is_stmt,address Sha512Final,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 251,column 1,is_stmt,address Sha512Final,isa 1
 
 	.dwfde $C$DW$CIE, Sha512Final
 $C$DW$105	.dwtag  DW_TAG_formal_parameter, DW_AT_name("sha512")
@@ -5346,18 +5346,18 @@ $C$DW$145	.dwtag  DW_TAG_variable, DW_AT_name("ret")
 	.dwcfi	save_reg_to_mem, 4, -28
 	.dwcfi	save_reg_to_mem, 3, -32
         MOV       V1, A1                ; [DPU_3_PIPE] |251| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 213,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 213,column 5,is_stmt,isa 1
         LDR       A3, [V1, #0]          ; [DPU_3_PIPE] |213| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 251,column 1,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 251,column 1,is_stmt,isa 1
         MOV       V5, A2                ; [DPU_3_PIPE] |251| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 212,column 16,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 212,column 16,is_stmt,isa 1
         LDR       A2, [V1, #4]          ; [DPU_3_PIPE] |212| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 213,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 213,column 5,is_stmt,isa 1
         MOV       A1, A3                ; [DPU_3_PIPE] |213| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 252,column 17,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 252,column 17,is_stmt,isa 1
         ADD       V4, V1, #80           ; [DPU_3_PIPE] |252| 
         ADD       V2, V1, #80           ; [DPU_3_PIPE] |252| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 213,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 213,column 5,is_stmt,isa 1
         ADDS      A4, A1, A2            ; [DPU_3_PIPE] |213| 
         ADDS      A3, A3, A2            ; [DPU_3_PIPE] |213| 
         STR       A4, [V1, #4]          ; [DPU_3_PIPE] |213| 
@@ -5366,7 +5366,7 @@ $C$DW$145	.dwtag  DW_TAG_variable, DW_AT_name("ret")
         ; BRANCHCC OCCURS {||$C$L39||}   ; [] |213| 
 ;* --------------------------------------------------------------------------*
 ;** 214	-----------------------    ++(*sha512).hiLen;  // [10]
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 214,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 214,column 9,is_stmt,isa 1
         LDR       A2, [V1, #8]          ; [DPU_3_PIPE] |214| 
         ADDS      A2, A2, #1            ; [DPU_3_PIPE] |214| 
         STR       A2, [V1, #8]          ; [DPU_3_PIPE] |214| 
@@ -5376,13 +5376,13 @@ $C$DW$145	.dwtag  DW_TAG_variable, DW_AT_name("ret")
 ;** 257	-----------------------    ++(*sha512).buffLen;
 ;** 257	-----------------------    local[U$10] = 128;
 ;** 260	-----------------------    if ( (U$10 = (*sha512).buffLen) <= 112u ) goto g9;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 257,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 257,column 5,is_stmt,isa 1
         LDR       A2, [V1, #0]          ; [DPU_3_PIPE] |257| 
         ADDS      A2, A2, #1            ; [DPU_3_PIPE] |257| 
         STR       A2, [V1, #0]          ; [DPU_3_PIPE] |257| 
         MOVS      V3, #128              ; [DPU_3_PIPE] |257| 
         STRB      V3, [V2, +A1]         ; [DPU_3_PIPE] |257| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 260,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 260,column 5,is_stmt,isa 1
         LDR       A3, [V1, #0]          ; [DPU_3_PIPE] |260| 
         CMP       A3, #112              ; [DPU_3_PIPE] |260| 
         BLS       ||$C$L41||            ; [DPU_3_PIPE] |260| 
@@ -5396,7 +5396,7 @@ $C$DW$145	.dwtag  DW_TAG_variable, DW_AT_name("ret")
 ;**  	-----------------------    #pragma MUST_ITERATE(8, 8, 8)
 ;**  	-----------------------    // LOOP BELOW UNROLLED BY FACTOR(2)
 ;**  	-----------------------    #pragma LOOP_FLAGS(4098u)
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 261,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 261,column 9,is_stmt,isa 1
         ADDS      A1, V2, A3            ; [DPU_3_PIPE] |261| 
         MOVS      A2, #0                ; [DPU_3_PIPE] |261| 
         RSB       A3, A3, #128          ; [DPU_3_PIPE] |261| 
@@ -5407,15 +5407,15 @@ $C$DW$146	.dwtag  DW_TAG_TI_branch
         BL        memset                ; [DPU_3_PIPE] |261| 
         ; CALL OCCURS {memset }          ; [] |261| 
         MOV       A1, V3                ; [DPU_3_PIPE] 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
         MOV       V9, #0                ; [DPU_3_PIPE] |66| 
         MOV       A3, V4                ; [DPU_3_PIPE] 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/misc.c",line 143,column 17,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 143,column 17,is_stmt,isa 1
         MOV       A4, V4                ; [DPU_3_PIPE] |143| 
         MOVS      V3, #8                ; [DPU_3_PIPE] |143| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
         MOV       LR, V9                ; [DPU_3_PIPE] |66| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 262,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 262,column 9,is_stmt,isa 1
         STR       A1, [V1, #0]          ; [DPU_3_PIPE] |262| 
 ;* --------------------------------------------------------------------------*
 ;*   BEGIN LOOP ||$C$L40||
@@ -5439,7 +5439,7 @@ $C$DW$146	.dwtag  DW_TAG_TI_branch
 ;** 144	-----------------------    *U$68++ = (unsigned long long)(C$24<<16|C$24>>16u)<<32|(unsigned long long)(C$26<<16|C$26>>16u);  // [6]
 ;** 143	-----------------------    if ( --L$1 ) goto g5;  // [6]
 ;** 267	-----------------------    if ( !(ret = Transform(sha512)) ) goto g8;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
         LDMIA     A3, {A1,A2}           ; [DPU_3_PIPE] |66| 
         MOV       V6, A2                ; [DPU_3_PIPE] |66| 
         LDMIA     A3, {A1,A2}           ; [DPU_3_PIPE] |66| 
@@ -5459,16 +5459,16 @@ $C$DW$146	.dwtag  DW_TAG_TI_branch
         ORR       A1, A1, V9            ; [DPU_3_PIPE] |66| 
         ORR       A2, V9, V6            ; [DPU_3_PIPE] |66| 
         STMIA     A4!, {A1,A2}          ; [DPU_3_PIPE] |66| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/misc.c",line 144,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 144,column 9,is_stmt,isa 1
         LDMIA     A3, {A1,A2}           ; [DPU_3_PIPE] |144| 
         MOV       V6, A2                ; [DPU_3_PIPE] |144| 
         LDMIA     A3, {A1,A2}           ; [DPU_3_PIPE] |144| 
         MOVS      A1, A2                ; [DPU_3_PIPE] |144| 
         LSRS      A2, A1, #8            ; [DPU_3_PIPE] |144| 
         LDR       A1, [A3], #8          ; [DPU_3_PIPE] |144| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/misc.c",line 143,column 17,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 143,column 17,is_stmt,isa 1
         SUBS      V3, V3, #1            ; [DPU_3_PIPE] |143| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/misc.c",line 144,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 144,column 9,is_stmt,isa 1
         AND       V6, V6, #16711935     ; [DPU_3_PIPE] |144| 
         AND       A2, A2, #16711935     ; [DPU_3_PIPE] |144| 
         ORR       A2, A2, V6, LSL #8    ; [DPU_3_PIPE] |144| 
@@ -5482,11 +5482,11 @@ $C$DW$146	.dwtag  DW_TAG_TI_branch
         ORR       A1, A1, LR            ; [DPU_3_PIPE] |144| 
         ORR       A2, LR, V6            ; [DPU_3_PIPE] |144| 
         STMIA     A4!, {A1,A2}          ; [DPU_3_PIPE] |144| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/misc.c",line 143,column 17,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 143,column 17,is_stmt,isa 1
         BNE       ||$C$L40||            ; [DPU_3_PIPE] |143| 
         ; BRANCHCC OCCURS {||$C$L40||}   ; [] |143| 
 ;* --------------------------------------------------------------------------*
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 267,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 267,column 9,is_stmt,isa 1
         MOV       A1, V1                ; [DPU_3_PIPE] |267| 
 $C$DW$147	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$147, DW_AT_low_pc(0x00)
@@ -5503,7 +5503,7 @@ $C$DW$147	.dwtag  DW_TAG_TI_branch
 ;**	-----------------------g8:
 ;** 271	-----------------------    (*sha512).buffLen = 0u;
 ;**  	-----------------------    U$10 = 0u;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 271,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 271,column 9,is_stmt,isa 1
         MOVS      A3, #0                ; [DPU_3_PIPE] |271| 
         STR       A3, [V1, #0]          ; [DPU_3_PIPE] |271| 
 ;* --------------------------------------------------------------------------*
@@ -5518,7 +5518,7 @@ $C$DW$147	.dwtag  DW_TAG_TI_branch
 ;**  	-----------------------    #pragma MUST_ITERATE(7, 7, 7)
 ;**  	-----------------------    // LOOP BELOW UNROLLED BY FACTOR(2)
 ;**  	-----------------------    #pragma LOOP_FLAGS(4098u)
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 273,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 273,column 5,is_stmt,isa 1
         ADDS      A1, V2, A3            ; [DPU_3_PIPE] |273| 
         MOVS      A2, #0                ; [DPU_3_PIPE] |273| 
         RSB       A3, A3, #112          ; [DPU_3_PIPE] |273| 
@@ -5528,28 +5528,28 @@ $C$DW$148	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$148, DW_AT_TI_call
         BL        memset                ; [DPU_3_PIPE] |273| 
         ; CALL OCCURS {memset }          ; [] |273| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 276,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 276,column 5,is_stmt,isa 1
         LDR       A1, [V1, #8]          ; [DPU_3_PIPE] |276| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 278,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 278,column 5,is_stmt,isa 1
         LDR       A2, [V1, #4]          ; [DPU_3_PIPE] |278| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 276,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 276,column 5,is_stmt,isa 1
         LDR       A4, [V1, #4]          ; [DPU_3_PIPE] |276| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/misc.c",line 143,column 17,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 143,column 17,is_stmt,isa 1
         MOVS      V2, #7                ; [DPU_3_PIPE] |143| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
         MOVS      A3, #0                ; [DPU_3_PIPE] |66| 
         MOV       V9, A3                ; [DPU_3_PIPE] |66| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 276,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 276,column 5,is_stmt,isa 1
         LSLS      A1, A1, #3            ; [DPU_3_PIPE] |276| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 278,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 278,column 5,is_stmt,isa 1
         LSLS      A2, A2, #3            ; [DPU_3_PIPE] |278| 
         MOV       V3, V9                ; [DPU_3_PIPE] |278| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 276,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 276,column 5,is_stmt,isa 1
         ADD       A1, A1, A4, LSR #29   ; [DPU_3_PIPE] |276| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 278,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 278,column 5,is_stmt,isa 1
         STR       A2, [V1, #4]          ; [DPU_3_PIPE] |278| 
         MOV       A4, V4                ; [DPU_3_PIPE] 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 276,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 276,column 5,is_stmt,isa 1
         STR       A1, [V1, #8]          ; [DPU_3_PIPE] |276| 
 ;* --------------------------------------------------------------------------*
 ;*   BEGIN LOOP ||$C$L42||
@@ -5573,7 +5573,7 @@ $C$DW$148	.dwtag  DW_TAG_TI_branch
 ;** 144	-----------------------    *U$112++ = (unsigned long long)(C$18<<16|C$18>>16u)<<32|(unsigned long long)(C$20<<16|C$20>>16u);  // [6]
 ;** 143	-----------------------    if ( --L$2 ) goto g10;  // [6]
 ;** 285	-----------------------    *((unsigned long long *)sha512+192) = (*sha512).hiLen;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
         LDMIA     V4, {A1,A2}           ; [DPU_3_PIPE] |66| 
         MOV       LR, A2                ; [DPU_3_PIPE] |66| 
         LDMIA     V4, {A1,A2}           ; [DPU_3_PIPE] |66| 
@@ -5593,14 +5593,14 @@ $C$DW$148	.dwtag  DW_TAG_TI_branch
         ORR       A1, V6, A3            ; [DPU_3_PIPE] |66| 
         ORR       A2, V9, LR            ; [DPU_3_PIPE] |66| 
         STMIA     A4!, {A1,A2}          ; [DPU_3_PIPE] |66| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/misc.c",line 144,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 144,column 9,is_stmt,isa 1
         LDMIA     V4, {A1,A2}           ; [DPU_3_PIPE] |144| 
         MOV       LR, A2                ; [DPU_3_PIPE] |144| 
         LDMIA     V4, {A1,A2}           ; [DPU_3_PIPE] |144| 
         LDR       V6, [V4], #8          ; [DPU_3_PIPE] |144| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/misc.c",line 143,column 17,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 143,column 17,is_stmt,isa 1
         SUBS      V2, V2, #1            ; [DPU_3_PIPE] |143| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/misc.c",line 144,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 144,column 9,is_stmt,isa 1
         AND       LR, LR, #16711935     ; [DPU_3_PIPE] |144| 
         MOV       A1, A2                ; [DPU_3_PIPE] |144| 
         LSR       A2, A1, #8            ; [DPU_3_PIPE] |144| 
@@ -5616,23 +5616,23 @@ $C$DW$148	.dwtag  DW_TAG_TI_branch
         ORR       A1, V6, A3            ; [DPU_3_PIPE] |144| 
         ORR       A2, V3, LR            ; [DPU_3_PIPE] |144| 
         STMIA     A4!, {A1,A2}          ; [DPU_3_PIPE] |144| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/misc.c",line 143,column 17,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 143,column 17,is_stmt,isa 1
         BNE       ||$C$L42||            ; [DPU_3_PIPE] |143| 
         ; BRANCHCC OCCURS {||$C$L42||}   ; [] |143| 
 ;* --------------------------------------------------------------------------*
 ;** 286	-----------------------    *((unsigned long long *)sha512+200) = (*sha512).loLen;
 ;** 288	-----------------------    if ( !(ret = Transform(sha512)) ) goto g13;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 285,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 285,column 5,is_stmt,isa 1
         LDR       A2, [V1, #8]          ; [DPU_3_PIPE] |285| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 286,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 286,column 5,is_stmt,isa 1
         LDR       V2, [V1, #4]          ; [DPU_3_PIPE] |286| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 285,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 285,column 5,is_stmt,isa 1
         ADD       A1, V1, #192          ; [DPU_3_PIPE] |285| 
         STMIA     A1, {A2,A3}           ; [DPU_3_PIPE] |285| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 286,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 286,column 5,is_stmt,isa 1
         ADD       LR, V1, #200          ; [DPU_3_PIPE] |286| 
         STMIA     LR, {V2,V3}           ; [DPU_3_PIPE] |286| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 288,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 288,column 5,is_stmt,isa 1
         MOV       A1, V1                ; [DPU_3_PIPE] |288| 
 $C$DW$149	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$149, DW_AT_low_pc(0x00)
@@ -5657,9 +5657,9 @@ $C$DW$149	.dwtag  DW_TAG_TI_branch
         MOV       A1, V3                ; [DPU_3_PIPE] 
         ADD       V2, V1, #16           ; [DPU_3_PIPE] 
         MOV       V9, V3                ; [DPU_3_PIPE] 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 293,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 293,column 9,is_stmt,isa 1
         ADD       A2, V1, #16           ; [DPU_3_PIPE] |293| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/misc.c",line 143,column 17,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 143,column 17,is_stmt,isa 1
         MOVS      V4, #4                ; [DPU_3_PIPE] |143| 
         MOV       V3, V2                ; [DPU_3_PIPE] 
 ;* --------------------------------------------------------------------------*
@@ -5684,7 +5684,7 @@ $C$DW$149	.dwtag  DW_TAG_TI_branch
 ;** 144	-----------------------    *U$155++ = (unsigned long long)(C$12<<16|C$12>>16u)<<32|(unsigned long long)(C$14<<16|C$14>>16u);  // [6]
 ;** 143	-----------------------    if ( --L$3 ) goto g14;  // [6]
 ;** 295	-----------------------    memcpy((void *)hash, K$125, 64u);
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 66,column 9,is_stmt,isa 1
         LDMIA     V2, {A3,A4}           ; [DPU_3_PIPE] |66| 
         MOV       LR, A4                ; [DPU_3_PIPE] |66| 
         LDMIA     V2, {A3,A4}           ; [DPU_3_PIPE] |66| 
@@ -5704,14 +5704,14 @@ $C$DW$149	.dwtag  DW_TAG_TI_branch
         ORR       A3, V6, A1            ; [DPU_3_PIPE] |66| 
         ORR       A4, A1, LR            ; [DPU_3_PIPE] |66| 
         STMIA     V3!, {A3,A4}          ; [DPU_3_PIPE] |66| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/misc.c",line 144,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 144,column 9,is_stmt,isa 1
         LDMIA     V2, {A3,A4}           ; [DPU_3_PIPE] |144| 
         MOV       LR, A4                ; [DPU_3_PIPE] |144| 
         LDMIA     V2, {A3,A4}           ; [DPU_3_PIPE] |144| 
         LDR       V6, [V2], #8          ; [DPU_3_PIPE] |144| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/misc.c",line 143,column 17,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 143,column 17,is_stmt,isa 1
         SUBS      V4, V4, #1            ; [DPU_3_PIPE] |143| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/misc.c",line 144,column 9,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 144,column 9,is_stmt,isa 1
         AND       LR, LR, #16711935     ; [DPU_3_PIPE] |144| 
         MOV       A3, A4                ; [DPU_3_PIPE] |144| 
         LSR       A4, A3, #8            ; [DPU_3_PIPE] |144| 
@@ -5727,12 +5727,12 @@ $C$DW$149	.dwtag  DW_TAG_TI_branch
         ORR       A3, V6, V9            ; [DPU_3_PIPE] |144| 
         ORR       A4, V9, LR            ; [DPU_3_PIPE] |144| 
         STMIA     V3!, {A3,A4}          ; [DPU_3_PIPE] |144| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/misc.c",line 143,column 17,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/misc.c",line 143,column 17,is_stmt,isa 1
         BNE       ||$C$L43||            ; [DPU_3_PIPE] |143| 
         ; BRANCHCC OCCURS {||$C$L43||}   ; [] |143| 
 ;* --------------------------------------------------------------------------*
 ;** 297	-----------------------    return InitSha512(sha512);
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 295,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 295,column 5,is_stmt,isa 1
         MOV       A1, V5                ; [DPU_3_PIPE] |295| 
         MOVS      A3, #64               ; [DPU_3_PIPE] |295| 
 $C$DW$150	.dwtag  DW_TAG_TI_branch
@@ -5741,7 +5741,7 @@ $C$DW$150	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$150, DW_AT_TI_call
         BL        memcpy                ; [DPU_3_PIPE] |295| 
         ; CALL OCCURS {memcpy }          ; [] |295| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 297,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 297,column 5,is_stmt,isa 1
         MOV       A1, V1                ; [DPU_3_PIPE] |297| 
 $C$DW$151	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$151, DW_AT_low_pc(0x00)
@@ -5757,7 +5757,7 @@ $C$DW$152	.dwtag  DW_TAG_TI_branch
         POP       {A4, V1, V2, V3, V4, V5, V6, PC} ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 0
         ; BRANCH OCCURS                  ; [] 
-	.dwattr $C$DW$104, DW_AT_TI_end_file("C:/cyassl/ctaocrypt/src/sha512.c")
+	.dwattr $C$DW$104, DW_AT_TI_end_file("C:/wolfssl/ctaocrypt/src/sha512.c")
 	.dwattr $C$DW$104, DW_AT_TI_end_line(0x12a)
 	.dwattr $C$DW$104, DW_AT_TI_end_column(0x01)
 	.dwendentry
@@ -5775,14 +5775,14 @@ $C$DW$153	.dwtag  DW_TAG_subprogram, DW_AT_name("Sha512Hash")
 	.dwattr $C$DW$153, DW_AT_TI_symbol_name("Sha512Hash")
 	.dwattr $C$DW$153, DW_AT_external
 	.dwattr $C$DW$153, DW_AT_type(*$C$DW$T$10)
-	.dwattr $C$DW$153, DW_AT_TI_begin_file("C:/cyassl/ctaocrypt/src/sha512.c")
+	.dwattr $C$DW$153, DW_AT_TI_begin_file("C:/wolfssl/ctaocrypt/src/sha512.c")
 	.dwattr $C$DW$153, DW_AT_TI_begin_line(0x12d)
 	.dwattr $C$DW$153, DW_AT_TI_begin_column(0x05)
-	.dwattr $C$DW$153, DW_AT_decl_file("C:/cyassl/ctaocrypt/src/sha512.c")
+	.dwattr $C$DW$153, DW_AT_decl_file("C:/wolfssl/ctaocrypt/src/sha512.c")
 	.dwattr $C$DW$153, DW_AT_decl_line(0x12d)
 	.dwattr $C$DW$153, DW_AT_decl_column(0x05)
 	.dwattr $C$DW$153, DW_AT_TI_max_frame_size(0xe0)
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 302,column 1,is_stmt,address Sha512Hash,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 302,column 1,is_stmt,address Sha512Hash,isa 1
 
 	.dwfde $C$DW$CIE, Sha512Hash
 $C$DW$154	.dwtag  DW_TAG_formal_parameter, DW_AT_name("data")
@@ -5848,7 +5848,7 @@ $C$DW$161	.dwtag  DW_TAG_variable, DW_AT_name("sha512")
         MOV       V3, A2                ; [DPU_3_PIPE] |302| 
         SUB       SP, SP, #208          ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 224
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 318,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 318,column 5,is_stmt,isa 1
         MOV       A1, SP                ; [DPU_3_PIPE] |318| 
 $C$DW$162	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$162, DW_AT_low_pc(0x00)
@@ -5856,15 +5856,15 @@ $C$DW$162	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$162, DW_AT_TI_call
         BL        InitSha512            ; [DPU_3_PIPE] |318| 
         ; CALL OCCURS {InitSha512 }      ; [] |318| 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 302,column 1,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 302,column 1,is_stmt,isa 1
         MOV       A3, V3                ; [DPU_3_PIPE] |302| 
         MOV       A2, V2                ; [DPU_3_PIPE] |302| 
         CBNZ      A1, ||$C$L45||        ; [] 
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 318,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 318,column 5,is_stmt,isa 1
         ; BRANCHCC OCCURS {||$C$L45||}   ; [] |318| 
 ;* --------------------------------------------------------------------------*
 ;** 321	-----------------------    if ( ret = Sha512Update(&sha512, data, len) ) goto g4;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 321,column 5,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 321,column 5,is_stmt,isa 1
         MOV       A1, SP                ; [DPU_3_PIPE] |321| 
 $C$DW$163	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$163, DW_AT_low_pc(0x00)
@@ -5878,7 +5878,7 @@ $C$DW$163	.dwtag  DW_TAG_TI_branch
 ;** 322	-----------------------    ret = Sha512Final(&sha512, hash);
 ;**	-----------------------g4:
 ;** 330	-----------------------    return ret;
-	.dwpsn	file "C:/cyassl/ctaocrypt/src/sha512.c",line 322,column 10,is_stmt,isa 1
+	.dwpsn	file "C:/wolfssl/ctaocrypt/src/sha512.c",line 322,column 10,is_stmt,isa 1
         MOV       A1, SP                ; [DPU_3_PIPE] |322| 
         MOV       A2, V1                ; [DPU_3_PIPE] |322| 
 $C$DW$164	.dwtag  DW_TAG_TI_branch
@@ -5897,7 +5897,7 @@ $C$DW$165	.dwtag  DW_TAG_TI_branch
         POP       {V1, V2, V3, PC}      ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 0
         ; BRANCH OCCURS                  ; [] 
-	.dwattr $C$DW$153, DW_AT_TI_end_file("C:/cyassl/ctaocrypt/src/sha512.c")
+	.dwattr $C$DW$153, DW_AT_TI_end_file("C:/wolfssl/ctaocrypt/src/sha512.c")
 	.dwattr $C$DW$153, DW_AT_TI_end_line(0x14b)
 	.dwattr $C$DW$153, DW_AT_TI_end_column(0x01)
 	.dwendentry
@@ -5963,604 +5963,604 @@ $C$DW$165	.dwtag  DW_TAG_TI_branch
 $C$DW$T$485	.dwtag  DW_TAG_enumeration_type
 	.dwattr $C$DW$T$485, DW_AT_byte_size(0x01)
 $C$DW$166	.dwtag  DW_TAG_enumerator, DW_AT_name("CYASSL_WORD_SIZE"), DW_AT_const_value(0x04)
-	.dwattr $C$DW$166, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$166, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$166, DW_AT_decl_line(0x65)
 	.dwattr $C$DW$166, DW_AT_decl_column(0x05)
 $C$DW$167	.dwtag  DW_TAG_enumerator, DW_AT_name("CYASSL_BIT_SIZE"), DW_AT_const_value(0x08)
-	.dwattr $C$DW$167, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$167, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$167, DW_AT_decl_line(0x66)
 	.dwattr $C$DW$167, DW_AT_decl_column(0x05)
 $C$DW$168	.dwtag  DW_TAG_enumerator, DW_AT_name("CYASSL_WORD_BITS"), DW_AT_const_value(0x20)
-	.dwattr $C$DW$168, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$168, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$168, DW_AT_decl_line(0x67)
 	.dwattr $C$DW$168, DW_AT_decl_column(0x05)
 	.dwendtag $C$DW$T$485
 
-	.dwattr $C$DW$T$485, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$T$485, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$T$485, DW_AT_decl_line(0x64)
 	.dwattr $C$DW$T$485, DW_AT_decl_column(0x06)
 
 $C$DW$T$486	.dwtag  DW_TAG_enumeration_type
 	.dwattr $C$DW$T$486, DW_AT_byte_size(0x01)
 $C$DW$169	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_CA"), DW_AT_const_value(0x01)
-	.dwattr $C$DW$169, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$169, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$169, DW_AT_decl_line(0xe7)
 	.dwattr $C$DW$169, DW_AT_decl_column(0x05)
 $C$DW$170	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_CERT"), DW_AT_const_value(0x02)
-	.dwattr $C$DW$170, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$170, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$170, DW_AT_decl_line(0xe8)
 	.dwattr $C$DW$170, DW_AT_decl_column(0x05)
 $C$DW$171	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_KEY"), DW_AT_const_value(0x03)
-	.dwattr $C$DW$171, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$171, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$171, DW_AT_decl_line(0xe9)
 	.dwattr $C$DW$171, DW_AT_decl_column(0x05)
 $C$DW$172	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_FILE"), DW_AT_const_value(0x04)
-	.dwattr $C$DW$172, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$172, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$172, DW_AT_decl_line(0xea)
 	.dwattr $C$DW$172, DW_AT_decl_column(0x05)
 $C$DW$173	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_SUBJECT_CN"), DW_AT_const_value(0x05)
-	.dwattr $C$DW$173, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$173, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$173, DW_AT_decl_line(0xeb)
 	.dwattr $C$DW$173, DW_AT_decl_column(0x05)
 $C$DW$174	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_PUBLIC_KEY"), DW_AT_const_value(0x06)
-	.dwattr $C$DW$174, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$174, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$174, DW_AT_decl_line(0xec)
 	.dwattr $C$DW$174, DW_AT_decl_column(0x05)
 $C$DW$175	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_SIGNER"), DW_AT_const_value(0x07)
-	.dwattr $C$DW$175, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$175, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$175, DW_AT_decl_line(0xed)
 	.dwattr $C$DW$175, DW_AT_decl_column(0x05)
 $C$DW$176	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_NONE"), DW_AT_const_value(0x08)
-	.dwattr $C$DW$176, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$176, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$176, DW_AT_decl_line(0xee)
 	.dwattr $C$DW$176, DW_AT_decl_column(0x05)
 $C$DW$177	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_BIGINT"), DW_AT_const_value(0x09)
-	.dwattr $C$DW$177, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$177, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$177, DW_AT_decl_line(0xef)
 	.dwattr $C$DW$177, DW_AT_decl_column(0x05)
 $C$DW$178	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_RSA"), DW_AT_const_value(0x0a)
-	.dwattr $C$DW$178, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$178, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$178, DW_AT_decl_line(0xf0)
 	.dwattr $C$DW$178, DW_AT_decl_column(0x05)
 $C$DW$179	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_METHOD"), DW_AT_const_value(0x0b)
-	.dwattr $C$DW$179, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$179, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$179, DW_AT_decl_line(0xf1)
 	.dwattr $C$DW$179, DW_AT_decl_column(0x05)
 $C$DW$180	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_OUT_BUFFER"), DW_AT_const_value(0x0c)
-	.dwattr $C$DW$180, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$180, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$180, DW_AT_decl_line(0xf2)
 	.dwattr $C$DW$180, DW_AT_decl_column(0x05)
 $C$DW$181	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_IN_BUFFER"), DW_AT_const_value(0x0d)
-	.dwattr $C$DW$181, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$181, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$181, DW_AT_decl_line(0xf3)
 	.dwattr $C$DW$181, DW_AT_decl_column(0x05)
 $C$DW$182	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_INFO"), DW_AT_const_value(0x0e)
-	.dwattr $C$DW$182, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$182, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$182, DW_AT_decl_line(0xf4)
 	.dwattr $C$DW$182, DW_AT_decl_column(0x05)
 $C$DW$183	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_DH"), DW_AT_const_value(0x0f)
-	.dwattr $C$DW$183, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$183, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$183, DW_AT_decl_line(0xf5)
 	.dwattr $C$DW$183, DW_AT_decl_column(0x05)
 $C$DW$184	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_DOMAIN"), DW_AT_const_value(0x10)
-	.dwattr $C$DW$184, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$184, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$184, DW_AT_decl_line(0xf6)
 	.dwattr $C$DW$184, DW_AT_decl_column(0x05)
 $C$DW$185	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_SSL"), DW_AT_const_value(0x11)
-	.dwattr $C$DW$185, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$185, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$185, DW_AT_decl_line(0xf7)
 	.dwattr $C$DW$185, DW_AT_decl_column(0x05)
 $C$DW$186	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_CTX"), DW_AT_const_value(0x12)
-	.dwattr $C$DW$186, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$186, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$186, DW_AT_decl_line(0xf8)
 	.dwattr $C$DW$186, DW_AT_decl_column(0x05)
 $C$DW$187	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_WRITEV"), DW_AT_const_value(0x13)
-	.dwattr $C$DW$187, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$187, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$187, DW_AT_decl_line(0xf9)
 	.dwattr $C$DW$187, DW_AT_decl_column(0x05)
 $C$DW$188	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_OPENSSL"), DW_AT_const_value(0x14)
-	.dwattr $C$DW$188, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$188, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$188, DW_AT_decl_line(0xfa)
 	.dwattr $C$DW$188, DW_AT_decl_column(0x05)
 $C$DW$189	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_DSA"), DW_AT_const_value(0x15)
-	.dwattr $C$DW$189, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$189, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$189, DW_AT_decl_line(0xfb)
 	.dwattr $C$DW$189, DW_AT_decl_column(0x05)
 $C$DW$190	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_CRL"), DW_AT_const_value(0x16)
-	.dwattr $C$DW$190, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$190, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$190, DW_AT_decl_line(0xfc)
 	.dwattr $C$DW$190, DW_AT_decl_column(0x05)
 $C$DW$191	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_REVOKED"), DW_AT_const_value(0x17)
-	.dwattr $C$DW$191, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$191, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$191, DW_AT_decl_line(0xfd)
 	.dwattr $C$DW$191, DW_AT_decl_column(0x05)
 $C$DW$192	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_CRL_ENTRY"), DW_AT_const_value(0x18)
-	.dwattr $C$DW$192, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$192, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$192, DW_AT_decl_line(0xfe)
 	.dwattr $C$DW$192, DW_AT_decl_column(0x05)
 $C$DW$193	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_CERT_MANAGER"), DW_AT_const_value(0x19)
-	.dwattr $C$DW$193, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$193, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$193, DW_AT_decl_line(0xff)
 	.dwattr $C$DW$193, DW_AT_decl_column(0x05)
 $C$DW$194	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_CRL_MONITOR"), DW_AT_const_value(0x1a)
-	.dwattr $C$DW$194, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$194, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$194, DW_AT_decl_line(0x100)
 	.dwattr $C$DW$194, DW_AT_decl_column(0x05)
 $C$DW$195	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_OCSP_STATUS"), DW_AT_const_value(0x1b)
-	.dwattr $C$DW$195, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$195, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$195, DW_AT_decl_line(0x101)
 	.dwattr $C$DW$195, DW_AT_decl_column(0x05)
 $C$DW$196	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_OCSP_ENTRY"), DW_AT_const_value(0x1c)
-	.dwattr $C$DW$196, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$196, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$196, DW_AT_decl_line(0x102)
 	.dwattr $C$DW$196, DW_AT_decl_column(0x05)
 $C$DW$197	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_ALTNAME"), DW_AT_const_value(0x1d)
-	.dwattr $C$DW$197, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$197, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$197, DW_AT_decl_line(0x103)
 	.dwattr $C$DW$197, DW_AT_decl_column(0x05)
 $C$DW$198	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_SUITES"), DW_AT_const_value(0x1e)
-	.dwattr $C$DW$198, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$198, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$198, DW_AT_decl_line(0x104)
 	.dwattr $C$DW$198, DW_AT_decl_column(0x05)
 $C$DW$199	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_CIPHER"), DW_AT_const_value(0x1f)
-	.dwattr $C$DW$199, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$199, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$199, DW_AT_decl_line(0x105)
 	.dwattr $C$DW$199, DW_AT_decl_column(0x05)
 $C$DW$200	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_RNG"), DW_AT_const_value(0x20)
-	.dwattr $C$DW$200, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$200, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$200, DW_AT_decl_line(0x106)
 	.dwattr $C$DW$200, DW_AT_decl_column(0x05)
 $C$DW$201	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_ARRAYS"), DW_AT_const_value(0x21)
-	.dwattr $C$DW$201, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$201, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$201, DW_AT_decl_line(0x107)
 	.dwattr $C$DW$201, DW_AT_decl_column(0x05)
 $C$DW$202	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_DTLS_POOL"), DW_AT_const_value(0x22)
-	.dwattr $C$DW$202, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$202, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$202, DW_AT_decl_line(0x108)
 	.dwattr $C$DW$202, DW_AT_decl_column(0x05)
 $C$DW$203	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_SOCKADDR"), DW_AT_const_value(0x23)
-	.dwattr $C$DW$203, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$203, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$203, DW_AT_decl_line(0x109)
 	.dwattr $C$DW$203, DW_AT_decl_column(0x05)
 $C$DW$204	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_LIBZ"), DW_AT_const_value(0x24)
-	.dwattr $C$DW$204, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$204, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$204, DW_AT_decl_line(0x10a)
 	.dwattr $C$DW$204, DW_AT_decl_column(0x05)
 $C$DW$205	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_ECC"), DW_AT_const_value(0x25)
-	.dwattr $C$DW$205, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$205, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$205, DW_AT_decl_line(0x10b)
 	.dwattr $C$DW$205, DW_AT_decl_column(0x05)
 $C$DW$206	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_TMP_BUFFER"), DW_AT_const_value(0x26)
-	.dwattr $C$DW$206, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$206, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$206, DW_AT_decl_line(0x10c)
 	.dwattr $C$DW$206, DW_AT_decl_column(0x05)
 $C$DW$207	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_DTLS_MSG"), DW_AT_const_value(0x27)
-	.dwattr $C$DW$207, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$207, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$207, DW_AT_decl_line(0x10d)
 	.dwattr $C$DW$207, DW_AT_decl_column(0x05)
 $C$DW$208	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_CAVIUM_TMP"), DW_AT_const_value(0x28)
-	.dwattr $C$DW$208, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$208, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$208, DW_AT_decl_line(0x10e)
 	.dwattr $C$DW$208, DW_AT_decl_column(0x05)
 $C$DW$209	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_CAVIUM_RSA"), DW_AT_const_value(0x29)
-	.dwattr $C$DW$209, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$209, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$209, DW_AT_decl_line(0x10f)
 	.dwattr $C$DW$209, DW_AT_decl_column(0x05)
 $C$DW$210	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_X509"), DW_AT_const_value(0x2a)
-	.dwattr $C$DW$210, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$210, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$210, DW_AT_decl_line(0x110)
 	.dwattr $C$DW$210, DW_AT_decl_column(0x05)
 $C$DW$211	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_TLSX"), DW_AT_const_value(0x2b)
-	.dwattr $C$DW$211, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$211, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$211, DW_AT_decl_line(0x111)
 	.dwattr $C$DW$211, DW_AT_decl_column(0x05)
 $C$DW$212	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_OCSP"), DW_AT_const_value(0x2c)
-	.dwattr $C$DW$212, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$212, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$212, DW_AT_decl_line(0x112)
 	.dwattr $C$DW$212, DW_AT_decl_column(0x05)
 $C$DW$213	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_SIGNATURE"), DW_AT_const_value(0x2d)
-	.dwattr $C$DW$213, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$213, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$213, DW_AT_decl_line(0x113)
 	.dwattr $C$DW$213, DW_AT_decl_column(0x05)
 	.dwendtag $C$DW$T$486
 
-	.dwattr $C$DW$T$486, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$T$486, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$T$486, DW_AT_decl_line(0xe6)
 	.dwattr $C$DW$T$486, DW_AT_decl_column(0x06)
 
 $C$DW$T$487	.dwtag  DW_TAG_enumeration_type
 	.dwattr $C$DW$T$487, DW_AT_byte_size(0x01)
 $C$DW$214	.dwtag  DW_TAG_enumerator, DW_AT_name("CYASSL_MAX_ERROR_SZ"), DW_AT_const_value(0x50)
-	.dwattr $C$DW$214, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$214, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$214, DW_AT_decl_line(0x118)
 	.dwattr $C$DW$214, DW_AT_decl_column(0x05)
 	.dwendtag $C$DW$T$487
 
-	.dwattr $C$DW$T$487, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$T$487, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$T$487, DW_AT_decl_line(0x117)
 	.dwattr $C$DW$T$487, DW_AT_decl_column(0x06)
 
 $C$DW$T$488	.dwtag  DW_TAG_enumeration_type
 	.dwattr $C$DW$T$488, DW_AT_byte_size(0x01)
 $C$DW$215	.dwtag  DW_TAG_enumerator, DW_AT_name("MIN_STACK_BUFFER"), DW_AT_const_value(0x08)
-	.dwattr $C$DW$215, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$215, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$215, DW_AT_decl_line(0x11d)
 	.dwattr $C$DW$215, DW_AT_decl_column(0x05)
 	.dwendtag $C$DW$T$488
 
-	.dwattr $C$DW$T$488, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$T$488, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$T$488, DW_AT_decl_line(0x11c)
 	.dwattr $C$DW$T$488, DW_AT_decl_column(0x06)
 
 $C$DW$T$489	.dwtag  DW_TAG_enumeration_type
 	.dwattr $C$DW$T$489, DW_AT_byte_size(0x01)
 $C$DW$216	.dwtag  DW_TAG_enumerator, DW_AT_name("CTC_SETTINGS"), DW_AT_const_value(0x20)
-	.dwattr $C$DW$216, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$216, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$216, DW_AT_decl_line(0x131)
 	.dwattr $C$DW$216, DW_AT_decl_column(0x05)
 	.dwendtag $C$DW$T$489
 
-	.dwattr $C$DW$T$489, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$T$489, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$T$489, DW_AT_decl_line(0x123)
 	.dwattr $C$DW$T$489, DW_AT_decl_column(0x06)
 
 $C$DW$T$490	.dwtag  DW_TAG_enumeration_type
 	.dwattr $C$DW$T$490, DW_AT_byte_size(0x01)
 $C$DW$217	.dwtag  DW_TAG_enumerator, DW_AT_name("SHA512"), DW_AT_const_value(0x04)
-	.dwattr $C$DW$217, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/sha512.h")
+	.dwattr $C$DW$217, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/sha512.h")
 	.dwattr $C$DW$217, DW_AT_decl_line(0x25)
 	.dwattr $C$DW$217, DW_AT_decl_column(0x05)
 $C$DW$218	.dwtag  DW_TAG_enumerator, DW_AT_name("SHA512_BLOCK_SIZE"), DW_AT_const_value(0x80)
-	.dwattr $C$DW$218, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/sha512.h")
+	.dwattr $C$DW$218, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/sha512.h")
 	.dwattr $C$DW$218, DW_AT_decl_line(0x26)
 	.dwattr $C$DW$218, DW_AT_decl_column(0x05)
 $C$DW$219	.dwtag  DW_TAG_enumerator, DW_AT_name("SHA512_DIGEST_SIZE"), DW_AT_const_value(0x40)
-	.dwattr $C$DW$219, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/sha512.h")
+	.dwattr $C$DW$219, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/sha512.h")
 	.dwattr $C$DW$219, DW_AT_decl_line(0x27)
 	.dwattr $C$DW$219, DW_AT_decl_column(0x05)
 $C$DW$220	.dwtag  DW_TAG_enumerator, DW_AT_name("SHA512_PAD_SIZE"), DW_AT_const_value(0x70)
-	.dwattr $C$DW$220, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/sha512.h")
+	.dwattr $C$DW$220, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/sha512.h")
 	.dwattr $C$DW$220, DW_AT_decl_line(0x28)
 	.dwattr $C$DW$220, DW_AT_decl_column(0x05)
 	.dwendtag $C$DW$T$490
 
-	.dwattr $C$DW$T$490, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/sha512.h")
+	.dwattr $C$DW$T$490, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/sha512.h")
 	.dwattr $C$DW$T$490, DW_AT_decl_line(0x24)
 	.dwattr $C$DW$T$490, DW_AT_decl_column(0x06)
 
 $C$DW$T$491	.dwtag  DW_TAG_enumeration_type
 	.dwattr $C$DW$T$491, DW_AT_byte_size(0x02)
 $C$DW$221	.dwtag  DW_TAG_enumerator, DW_AT_name("MAX_CODE_E"), DW_AT_const_value(-100)
-	.dwattr $C$DW$221, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$221, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$221, DW_AT_decl_line(0x24)
 	.dwattr $C$DW$221, DW_AT_decl_column(0x05)
 $C$DW$222	.dwtag  DW_TAG_enumerator, DW_AT_name("OPEN_RAN_E"), DW_AT_const_value(-101)
-	.dwattr $C$DW$222, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$222, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$222, DW_AT_decl_line(0x25)
 	.dwattr $C$DW$222, DW_AT_decl_column(0x05)
 $C$DW$223	.dwtag  DW_TAG_enumerator, DW_AT_name("READ_RAN_E"), DW_AT_const_value(-102)
-	.dwattr $C$DW$223, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$223, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$223, DW_AT_decl_line(0x26)
 	.dwattr $C$DW$223, DW_AT_decl_column(0x05)
 $C$DW$224	.dwtag  DW_TAG_enumerator, DW_AT_name("WINCRYPT_E"), DW_AT_const_value(-103)
-	.dwattr $C$DW$224, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$224, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$224, DW_AT_decl_line(0x27)
 	.dwattr $C$DW$224, DW_AT_decl_column(0x05)
 $C$DW$225	.dwtag  DW_TAG_enumerator, DW_AT_name("CRYPTGEN_E"), DW_AT_const_value(-104)
-	.dwattr $C$DW$225, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$225, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$225, DW_AT_decl_line(0x28)
 	.dwattr $C$DW$225, DW_AT_decl_column(0x05)
 $C$DW$226	.dwtag  DW_TAG_enumerator, DW_AT_name("RAN_BLOCK_E"), DW_AT_const_value(-105)
-	.dwattr $C$DW$226, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$226, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$226, DW_AT_decl_line(0x29)
 	.dwattr $C$DW$226, DW_AT_decl_column(0x05)
 $C$DW$227	.dwtag  DW_TAG_enumerator, DW_AT_name("BAD_MUTEX_E"), DW_AT_const_value(-106)
-	.dwattr $C$DW$227, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$227, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$227, DW_AT_decl_line(0x2a)
 	.dwattr $C$DW$227, DW_AT_decl_column(0x05)
 $C$DW$228	.dwtag  DW_TAG_enumerator, DW_AT_name("MP_INIT_E"), DW_AT_const_value(-110)
-	.dwattr $C$DW$228, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$228, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$228, DW_AT_decl_line(0x2c)
 	.dwattr $C$DW$228, DW_AT_decl_column(0x05)
 $C$DW$229	.dwtag  DW_TAG_enumerator, DW_AT_name("MP_READ_E"), DW_AT_const_value(-111)
-	.dwattr $C$DW$229, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$229, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$229, DW_AT_decl_line(0x2d)
 	.dwattr $C$DW$229, DW_AT_decl_column(0x05)
 $C$DW$230	.dwtag  DW_TAG_enumerator, DW_AT_name("MP_EXPTMOD_E"), DW_AT_const_value(-112)
-	.dwattr $C$DW$230, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$230, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$230, DW_AT_decl_line(0x2e)
 	.dwattr $C$DW$230, DW_AT_decl_column(0x05)
 $C$DW$231	.dwtag  DW_TAG_enumerator, DW_AT_name("MP_TO_E"), DW_AT_const_value(-113)
-	.dwattr $C$DW$231, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$231, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$231, DW_AT_decl_line(0x2f)
 	.dwattr $C$DW$231, DW_AT_decl_column(0x05)
 $C$DW$232	.dwtag  DW_TAG_enumerator, DW_AT_name("MP_SUB_E"), DW_AT_const_value(-114)
-	.dwattr $C$DW$232, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$232, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$232, DW_AT_decl_line(0x30)
 	.dwattr $C$DW$232, DW_AT_decl_column(0x05)
 $C$DW$233	.dwtag  DW_TAG_enumerator, DW_AT_name("MP_ADD_E"), DW_AT_const_value(-115)
-	.dwattr $C$DW$233, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$233, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$233, DW_AT_decl_line(0x31)
 	.dwattr $C$DW$233, DW_AT_decl_column(0x05)
 $C$DW$234	.dwtag  DW_TAG_enumerator, DW_AT_name("MP_MUL_E"), DW_AT_const_value(-116)
-	.dwattr $C$DW$234, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$234, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$234, DW_AT_decl_line(0x32)
 	.dwattr $C$DW$234, DW_AT_decl_column(0x05)
 $C$DW$235	.dwtag  DW_TAG_enumerator, DW_AT_name("MP_MULMOD_E"), DW_AT_const_value(-117)
-	.dwattr $C$DW$235, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$235, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$235, DW_AT_decl_line(0x33)
 	.dwattr $C$DW$235, DW_AT_decl_column(0x05)
 $C$DW$236	.dwtag  DW_TAG_enumerator, DW_AT_name("MP_MOD_E"), DW_AT_const_value(-118)
-	.dwattr $C$DW$236, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$236, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$236, DW_AT_decl_line(0x34)
 	.dwattr $C$DW$236, DW_AT_decl_column(0x05)
 $C$DW$237	.dwtag  DW_TAG_enumerator, DW_AT_name("MP_INVMOD_E"), DW_AT_const_value(-119)
-	.dwattr $C$DW$237, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$237, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$237, DW_AT_decl_line(0x35)
 	.dwattr $C$DW$237, DW_AT_decl_column(0x05)
 $C$DW$238	.dwtag  DW_TAG_enumerator, DW_AT_name("MP_CMP_E"), DW_AT_const_value(-120)
-	.dwattr $C$DW$238, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$238, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$238, DW_AT_decl_line(0x36)
 	.dwattr $C$DW$238, DW_AT_decl_column(0x05)
 $C$DW$239	.dwtag  DW_TAG_enumerator, DW_AT_name("MP_ZERO_E"), DW_AT_const_value(-121)
-	.dwattr $C$DW$239, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$239, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$239, DW_AT_decl_line(0x37)
 	.dwattr $C$DW$239, DW_AT_decl_column(0x05)
 $C$DW$240	.dwtag  DW_TAG_enumerator, DW_AT_name("MEMORY_E"), DW_AT_const_value(-125)
-	.dwattr $C$DW$240, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$240, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$240, DW_AT_decl_line(0x39)
 	.dwattr $C$DW$240, DW_AT_decl_column(0x05)
 $C$DW$241	.dwtag  DW_TAG_enumerator, DW_AT_name("RSA_WRONG_TYPE_E"), DW_AT_const_value(-130)
-	.dwattr $C$DW$241, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$241, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$241, DW_AT_decl_line(0x3b)
 	.dwattr $C$DW$241, DW_AT_decl_column(0x05)
 $C$DW$242	.dwtag  DW_TAG_enumerator, DW_AT_name("RSA_BUFFER_E"), DW_AT_const_value(-131)
-	.dwattr $C$DW$242, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$242, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$242, DW_AT_decl_line(0x3c)
 	.dwattr $C$DW$242, DW_AT_decl_column(0x05)
 $C$DW$243	.dwtag  DW_TAG_enumerator, DW_AT_name("BUFFER_E"), DW_AT_const_value(-132)
-	.dwattr $C$DW$243, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$243, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$243, DW_AT_decl_line(0x3e)
 	.dwattr $C$DW$243, DW_AT_decl_column(0x05)
 $C$DW$244	.dwtag  DW_TAG_enumerator, DW_AT_name("ALGO_ID_E"), DW_AT_const_value(-133)
-	.dwattr $C$DW$244, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$244, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$244, DW_AT_decl_line(0x3f)
 	.dwattr $C$DW$244, DW_AT_decl_column(0x05)
 $C$DW$245	.dwtag  DW_TAG_enumerator, DW_AT_name("PUBLIC_KEY_E"), DW_AT_const_value(-134)
-	.dwattr $C$DW$245, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$245, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$245, DW_AT_decl_line(0x40)
 	.dwattr $C$DW$245, DW_AT_decl_column(0x05)
 $C$DW$246	.dwtag  DW_TAG_enumerator, DW_AT_name("DATE_E"), DW_AT_const_value(-135)
-	.dwattr $C$DW$246, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$246, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$246, DW_AT_decl_line(0x41)
 	.dwattr $C$DW$246, DW_AT_decl_column(0x05)
 $C$DW$247	.dwtag  DW_TAG_enumerator, DW_AT_name("SUBJECT_E"), DW_AT_const_value(-136)
-	.dwattr $C$DW$247, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$247, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$247, DW_AT_decl_line(0x42)
 	.dwattr $C$DW$247, DW_AT_decl_column(0x05)
 $C$DW$248	.dwtag  DW_TAG_enumerator, DW_AT_name("ISSUER_E"), DW_AT_const_value(-137)
-	.dwattr $C$DW$248, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$248, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$248, DW_AT_decl_line(0x43)
 	.dwattr $C$DW$248, DW_AT_decl_column(0x05)
 $C$DW$249	.dwtag  DW_TAG_enumerator, DW_AT_name("CA_TRUE_E"), DW_AT_const_value(-138)
-	.dwattr $C$DW$249, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$249, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$249, DW_AT_decl_line(0x44)
 	.dwattr $C$DW$249, DW_AT_decl_column(0x05)
 $C$DW$250	.dwtag  DW_TAG_enumerator, DW_AT_name("EXTENSIONS_E"), DW_AT_const_value(-139)
-	.dwattr $C$DW$250, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$250, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$250, DW_AT_decl_line(0x45)
 	.dwattr $C$DW$250, DW_AT_decl_column(0x05)
 $C$DW$251	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_PARSE_E"), DW_AT_const_value(-140)
-	.dwattr $C$DW$251, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$251, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$251, DW_AT_decl_line(0x47)
 	.dwattr $C$DW$251, DW_AT_decl_column(0x05)
 $C$DW$252	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_VERSION_E"), DW_AT_const_value(-141)
-	.dwattr $C$DW$252, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$252, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$252, DW_AT_decl_line(0x48)
 	.dwattr $C$DW$252, DW_AT_decl_column(0x05)
 $C$DW$253	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_GETINT_E"), DW_AT_const_value(-142)
-	.dwattr $C$DW$253, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$253, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$253, DW_AT_decl_line(0x49)
 	.dwattr $C$DW$253, DW_AT_decl_column(0x05)
 $C$DW$254	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_RSA_KEY_E"), DW_AT_const_value(-143)
-	.dwattr $C$DW$254, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$254, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$254, DW_AT_decl_line(0x4a)
 	.dwattr $C$DW$254, DW_AT_decl_column(0x05)
 $C$DW$255	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_OBJECT_ID_E"), DW_AT_const_value(-144)
-	.dwattr $C$DW$255, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$255, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$255, DW_AT_decl_line(0x4b)
 	.dwattr $C$DW$255, DW_AT_decl_column(0x05)
 $C$DW$256	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_TAG_NULL_E"), DW_AT_const_value(-145)
-	.dwattr $C$DW$256, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$256, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$256, DW_AT_decl_line(0x4c)
 	.dwattr $C$DW$256, DW_AT_decl_column(0x05)
 $C$DW$257	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_EXPECT_0_E"), DW_AT_const_value(-146)
-	.dwattr $C$DW$257, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$257, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$257, DW_AT_decl_line(0x4d)
 	.dwattr $C$DW$257, DW_AT_decl_column(0x05)
 $C$DW$258	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_BITSTR_E"), DW_AT_const_value(-147)
-	.dwattr $C$DW$258, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$258, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$258, DW_AT_decl_line(0x4e)
 	.dwattr $C$DW$258, DW_AT_decl_column(0x05)
 $C$DW$259	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_UNKNOWN_OID_E"), DW_AT_const_value(-148)
-	.dwattr $C$DW$259, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$259, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$259, DW_AT_decl_line(0x4f)
 	.dwattr $C$DW$259, DW_AT_decl_column(0x05)
 $C$DW$260	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_DATE_SZ_E"), DW_AT_const_value(-149)
-	.dwattr $C$DW$260, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$260, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$260, DW_AT_decl_line(0x50)
 	.dwattr $C$DW$260, DW_AT_decl_column(0x05)
 $C$DW$261	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_BEFORE_DATE_E"), DW_AT_const_value(-150)
-	.dwattr $C$DW$261, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$261, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$261, DW_AT_decl_line(0x51)
 	.dwattr $C$DW$261, DW_AT_decl_column(0x05)
 $C$DW$262	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_AFTER_DATE_E"), DW_AT_const_value(-151)
-	.dwattr $C$DW$262, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$262, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$262, DW_AT_decl_line(0x52)
 	.dwattr $C$DW$262, DW_AT_decl_column(0x05)
 $C$DW$263	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_SIG_OID_E"), DW_AT_const_value(-152)
-	.dwattr $C$DW$263, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$263, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$263, DW_AT_decl_line(0x53)
 	.dwattr $C$DW$263, DW_AT_decl_column(0x05)
 $C$DW$264	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_TIME_E"), DW_AT_const_value(-153)
-	.dwattr $C$DW$264, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$264, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$264, DW_AT_decl_line(0x54)
 	.dwattr $C$DW$264, DW_AT_decl_column(0x05)
 $C$DW$265	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_INPUT_E"), DW_AT_const_value(-154)
-	.dwattr $C$DW$265, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$265, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$265, DW_AT_decl_line(0x55)
 	.dwattr $C$DW$265, DW_AT_decl_column(0x05)
 $C$DW$266	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_SIG_CONFIRM_E"), DW_AT_const_value(-155)
-	.dwattr $C$DW$266, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$266, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$266, DW_AT_decl_line(0x56)
 	.dwattr $C$DW$266, DW_AT_decl_column(0x05)
 $C$DW$267	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_SIG_HASH_E"), DW_AT_const_value(-156)
-	.dwattr $C$DW$267, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$267, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$267, DW_AT_decl_line(0x57)
 	.dwattr $C$DW$267, DW_AT_decl_column(0x05)
 $C$DW$268	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_SIG_KEY_E"), DW_AT_const_value(-157)
-	.dwattr $C$DW$268, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$268, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$268, DW_AT_decl_line(0x58)
 	.dwattr $C$DW$268, DW_AT_decl_column(0x05)
 $C$DW$269	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_DH_KEY_E"), DW_AT_const_value(-158)
-	.dwattr $C$DW$269, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$269, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$269, DW_AT_decl_line(0x59)
 	.dwattr $C$DW$269, DW_AT_decl_column(0x05)
 $C$DW$270	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_NTRU_KEY_E"), DW_AT_const_value(-159)
-	.dwattr $C$DW$270, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$270, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$270, DW_AT_decl_line(0x5a)
 	.dwattr $C$DW$270, DW_AT_decl_column(0x05)
 $C$DW$271	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_CRIT_EXT_E"), DW_AT_const_value(-160)
-	.dwattr $C$DW$271, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$271, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$271, DW_AT_decl_line(0x5b)
 	.dwattr $C$DW$271, DW_AT_decl_column(0x05)
 $C$DW$272	.dwtag  DW_TAG_enumerator, DW_AT_name("ECC_BAD_ARG_E"), DW_AT_const_value(-170)
-	.dwattr $C$DW$272, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$272, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$272, DW_AT_decl_line(0x5d)
 	.dwattr $C$DW$272, DW_AT_decl_column(0x05)
 $C$DW$273	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_ECC_KEY_E"), DW_AT_const_value(-171)
-	.dwattr $C$DW$273, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$273, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$273, DW_AT_decl_line(0x5e)
 	.dwattr $C$DW$273, DW_AT_decl_column(0x05)
 $C$DW$274	.dwtag  DW_TAG_enumerator, DW_AT_name("ECC_CURVE_OID_E"), DW_AT_const_value(-172)
-	.dwattr $C$DW$274, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$274, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$274, DW_AT_decl_line(0x5f)
 	.dwattr $C$DW$274, DW_AT_decl_column(0x05)
 $C$DW$275	.dwtag  DW_TAG_enumerator, DW_AT_name("BAD_FUNC_ARG"), DW_AT_const_value(-173)
-	.dwattr $C$DW$275, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$275, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$275, DW_AT_decl_line(0x60)
 	.dwattr $C$DW$275, DW_AT_decl_column(0x05)
 $C$DW$276	.dwtag  DW_TAG_enumerator, DW_AT_name("NOT_COMPILED_IN"), DW_AT_const_value(-174)
-	.dwattr $C$DW$276, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$276, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$276, DW_AT_decl_line(0x61)
 	.dwattr $C$DW$276, DW_AT_decl_column(0x05)
 $C$DW$277	.dwtag  DW_TAG_enumerator, DW_AT_name("UNICODE_SIZE_E"), DW_AT_const_value(-175)
-	.dwattr $C$DW$277, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$277, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$277, DW_AT_decl_line(0x62)
 	.dwattr $C$DW$277, DW_AT_decl_column(0x05)
 $C$DW$278	.dwtag  DW_TAG_enumerator, DW_AT_name("NO_PASSWORD"), DW_AT_const_value(-176)
-	.dwattr $C$DW$278, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$278, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$278, DW_AT_decl_line(0x63)
 	.dwattr $C$DW$278, DW_AT_decl_column(0x05)
 $C$DW$279	.dwtag  DW_TAG_enumerator, DW_AT_name("ALT_NAME_E"), DW_AT_const_value(-177)
-	.dwattr $C$DW$279, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$279, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$279, DW_AT_decl_line(0x64)
 	.dwattr $C$DW$279, DW_AT_decl_column(0x05)
 $C$DW$280	.dwtag  DW_TAG_enumerator, DW_AT_name("AES_GCM_AUTH_E"), DW_AT_const_value(-180)
-	.dwattr $C$DW$280, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$280, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$280, DW_AT_decl_line(0x66)
 	.dwattr $C$DW$280, DW_AT_decl_column(0x05)
 $C$DW$281	.dwtag  DW_TAG_enumerator, DW_AT_name("AES_CCM_AUTH_E"), DW_AT_const_value(-181)
-	.dwattr $C$DW$281, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$281, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$281, DW_AT_decl_line(0x67)
 	.dwattr $C$DW$281, DW_AT_decl_column(0x05)
 $C$DW$282	.dwtag  DW_TAG_enumerator, DW_AT_name("CAVIUM_INIT_E"), DW_AT_const_value(-182)
-	.dwattr $C$DW$282, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$282, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$282, DW_AT_decl_line(0x69)
 	.dwattr $C$DW$282, DW_AT_decl_column(0x05)
 $C$DW$283	.dwtag  DW_TAG_enumerator, DW_AT_name("COMPRESS_INIT_E"), DW_AT_const_value(-183)
-	.dwattr $C$DW$283, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$283, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$283, DW_AT_decl_line(0x6b)
 	.dwattr $C$DW$283, DW_AT_decl_column(0x05)
 $C$DW$284	.dwtag  DW_TAG_enumerator, DW_AT_name("COMPRESS_E"), DW_AT_const_value(-184)
-	.dwattr $C$DW$284, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$284, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$284, DW_AT_decl_line(0x6c)
 	.dwattr $C$DW$284, DW_AT_decl_column(0x05)
 $C$DW$285	.dwtag  DW_TAG_enumerator, DW_AT_name("DECOMPRESS_INIT_E"), DW_AT_const_value(-185)
-	.dwattr $C$DW$285, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$285, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$285, DW_AT_decl_line(0x6d)
 	.dwattr $C$DW$285, DW_AT_decl_column(0x05)
 $C$DW$286	.dwtag  DW_TAG_enumerator, DW_AT_name("DECOMPRESS_E"), DW_AT_const_value(-186)
-	.dwattr $C$DW$286, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$286, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$286, DW_AT_decl_line(0x6e)
 	.dwattr $C$DW$286, DW_AT_decl_column(0x05)
 $C$DW$287	.dwtag  DW_TAG_enumerator, DW_AT_name("BAD_ALIGN_E"), DW_AT_const_value(-187)
-	.dwattr $C$DW$287, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$287, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$287, DW_AT_decl_line(0x70)
 	.dwattr $C$DW$287, DW_AT_decl_column(0x05)
 $C$DW$288	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_NO_SIGNER_E"), DW_AT_const_value(-188)
-	.dwattr $C$DW$288, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$288, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$288, DW_AT_decl_line(0x71)
 	.dwattr $C$DW$288, DW_AT_decl_column(0x05)
 $C$DW$289	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_CRL_CONFIRM_E"), DW_AT_const_value(-189)
-	.dwattr $C$DW$289, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$289, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$289, DW_AT_decl_line(0x72)
 	.dwattr $C$DW$289, DW_AT_decl_column(0x05)
 $C$DW$290	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_CRL_NO_SIGNER_E"), DW_AT_const_value(-190)
-	.dwattr $C$DW$290, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$290, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$290, DW_AT_decl_line(0x73)
 	.dwattr $C$DW$290, DW_AT_decl_column(0x05)
 $C$DW$291	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_OCSP_CONFIRM_E"), DW_AT_const_value(-191)
-	.dwattr $C$DW$291, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$291, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$291, DW_AT_decl_line(0x74)
 	.dwattr $C$DW$291, DW_AT_decl_column(0x05)
 $C$DW$292	.dwtag  DW_TAG_enumerator, DW_AT_name("BAD_ENC_STATE_E"), DW_AT_const_value(-192)
-	.dwattr $C$DW$292, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$292, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$292, DW_AT_decl_line(0x76)
 	.dwattr $C$DW$292, DW_AT_decl_column(0x05)
 $C$DW$293	.dwtag  DW_TAG_enumerator, DW_AT_name("BAD_PADDING_E"), DW_AT_const_value(-193)
-	.dwattr $C$DW$293, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$293, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$293, DW_AT_decl_line(0x77)
 	.dwattr $C$DW$293, DW_AT_decl_column(0x05)
 $C$DW$294	.dwtag  DW_TAG_enumerator, DW_AT_name("REQ_ATTRIBUTE_E"), DW_AT_const_value(-194)
-	.dwattr $C$DW$294, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$294, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$294, DW_AT_decl_line(0x79)
 	.dwattr $C$DW$294, DW_AT_decl_column(0x05)
 $C$DW$295	.dwtag  DW_TAG_enumerator, DW_AT_name("PKCS7_OID_E"), DW_AT_const_value(-195)
-	.dwattr $C$DW$295, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$295, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$295, DW_AT_decl_line(0x7b)
 	.dwattr $C$DW$295, DW_AT_decl_column(0x05)
 $C$DW$296	.dwtag  DW_TAG_enumerator, DW_AT_name("PKCS7_RECIP_E"), DW_AT_const_value(-196)
-	.dwattr $C$DW$296, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$296, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$296, DW_AT_decl_line(0x7c)
 	.dwattr $C$DW$296, DW_AT_decl_column(0x05)
 $C$DW$297	.dwtag  DW_TAG_enumerator, DW_AT_name("FIPS_NOT_ALLOWED_E"), DW_AT_const_value(-197)
-	.dwattr $C$DW$297, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$297, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$297, DW_AT_decl_line(0x7d)
 	.dwattr $C$DW$297, DW_AT_decl_column(0x05)
 $C$DW$298	.dwtag  DW_TAG_enumerator, DW_AT_name("ASN_NAME_INVALID_E"), DW_AT_const_value(-198)
-	.dwattr $C$DW$298, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$298, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$298, DW_AT_decl_line(0x7e)
 	.dwattr $C$DW$298, DW_AT_decl_column(0x05)
 $C$DW$299	.dwtag  DW_TAG_enumerator, DW_AT_name("RNG_FAILURE_E"), DW_AT_const_value(-199)
-	.dwattr $C$DW$299, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$299, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$299, DW_AT_decl_line(0x80)
 	.dwattr $C$DW$299, DW_AT_decl_column(0x05)
 $C$DW$300	.dwtag  DW_TAG_enumerator, DW_AT_name("HMAC_MIN_KEYLEN_E"), DW_AT_const_value(-200)
-	.dwattr $C$DW$300, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$300, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$300, DW_AT_decl_line(0x81)
 	.dwattr $C$DW$300, DW_AT_decl_column(0x05)
 $C$DW$301	.dwtag  DW_TAG_enumerator, DW_AT_name("RSA_PAD_E"), DW_AT_const_value(-201)
-	.dwattr $C$DW$301, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$301, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$301, DW_AT_decl_line(0x82)
 	.dwattr $C$DW$301, DW_AT_decl_column(0x05)
 $C$DW$302	.dwtag  DW_TAG_enumerator, DW_AT_name("MIN_CODE_E"), DW_AT_const_value(-300)
-	.dwattr $C$DW$302, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$302, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$302, DW_AT_decl_line(0x84)
 	.dwattr $C$DW$302, DW_AT_decl_column(0x05)
 	.dwendtag $C$DW$T$491
 
-	.dwattr $C$DW$T$491, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/error-crypt.h")
+	.dwattr $C$DW$T$491, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/error-crypt.h")
 	.dwattr $C$DW$T$491, DW_AT_decl_line(0x23)
 	.dwattr $C$DW$T$491, DW_AT_decl_column(0x06)
 
@@ -6784,28 +6784,28 @@ $C$DW$T$502	.dwtag  DW_TAG_enumeration_type
 	.dwattr $C$DW$T$502, DW_AT_name("CYA_Log_Levels")
 	.dwattr $C$DW$T$502, DW_AT_byte_size(0x01)
 $C$DW$315	.dwtag  DW_TAG_enumerator, DW_AT_name("ERROR_LOG"), DW_AT_const_value(0x00)
-	.dwattr $C$DW$315, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/logging.h")
+	.dwattr $C$DW$315, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/logging.h")
 	.dwattr $C$DW$315, DW_AT_decl_line(0x23)
 	.dwattr $C$DW$315, DW_AT_decl_column(0x05)
 $C$DW$316	.dwtag  DW_TAG_enumerator, DW_AT_name("INFO_LOG"), DW_AT_const_value(0x01)
-	.dwattr $C$DW$316, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/logging.h")
+	.dwattr $C$DW$316, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/logging.h")
 	.dwattr $C$DW$316, DW_AT_decl_line(0x24)
 	.dwattr $C$DW$316, DW_AT_decl_column(0x05)
 $C$DW$317	.dwtag  DW_TAG_enumerator, DW_AT_name("ENTER_LOG"), DW_AT_const_value(0x02)
-	.dwattr $C$DW$317, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/logging.h")
+	.dwattr $C$DW$317, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/logging.h")
 	.dwattr $C$DW$317, DW_AT_decl_line(0x25)
 	.dwattr $C$DW$317, DW_AT_decl_column(0x05)
 $C$DW$318	.dwtag  DW_TAG_enumerator, DW_AT_name("LEAVE_LOG"), DW_AT_const_value(0x03)
-	.dwattr $C$DW$318, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/logging.h")
+	.dwattr $C$DW$318, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/logging.h")
 	.dwattr $C$DW$318, DW_AT_decl_line(0x26)
 	.dwattr $C$DW$318, DW_AT_decl_column(0x05)
 $C$DW$319	.dwtag  DW_TAG_enumerator, DW_AT_name("OTHER_LOG"), DW_AT_const_value(0x04)
-	.dwattr $C$DW$319, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/logging.h")
+	.dwattr $C$DW$319, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/logging.h")
 	.dwattr $C$DW$319, DW_AT_decl_line(0x27)
 	.dwattr $C$DW$319, DW_AT_decl_column(0x05)
 	.dwendtag $C$DW$T$502
 
-	.dwattr $C$DW$T$502, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/logging.h")
+	.dwattr $C$DW$T$502, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/logging.h")
 	.dwattr $C$DW$T$502, DW_AT_decl_line(0x22)
 	.dwattr $C$DW$T$502, DW_AT_decl_column(0x07)
 
@@ -6818,7 +6818,7 @@ $C$DW$320	.dwtag  DW_TAG_member
 	.dwattr $C$DW$320, DW_AT_TI_symbol_name("buffLen")
 	.dwattr $C$DW$320, DW_AT_data_member_location[DW_OP_plus_uconst 0x0]
 	.dwattr $C$DW$320, DW_AT_accessibility(DW_ACCESS_public)
-	.dwattr $C$DW$320, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/sha512.h")
+	.dwattr $C$DW$320, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/sha512.h")
 	.dwattr $C$DW$320, DW_AT_decl_line(0x2e)
 	.dwattr $C$DW$320, DW_AT_decl_column(0x0d)
 $C$DW$321	.dwtag  DW_TAG_member
@@ -6827,7 +6827,7 @@ $C$DW$321	.dwtag  DW_TAG_member
 	.dwattr $C$DW$321, DW_AT_TI_symbol_name("loLen")
 	.dwattr $C$DW$321, DW_AT_data_member_location[DW_OP_plus_uconst 0x4]
 	.dwattr $C$DW$321, DW_AT_accessibility(DW_ACCESS_public)
-	.dwattr $C$DW$321, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/sha512.h")
+	.dwattr $C$DW$321, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/sha512.h")
 	.dwattr $C$DW$321, DW_AT_decl_line(0x2f)
 	.dwattr $C$DW$321, DW_AT_decl_column(0x0d)
 $C$DW$322	.dwtag  DW_TAG_member
@@ -6836,7 +6836,7 @@ $C$DW$322	.dwtag  DW_TAG_member
 	.dwattr $C$DW$322, DW_AT_TI_symbol_name("hiLen")
 	.dwattr $C$DW$322, DW_AT_data_member_location[DW_OP_plus_uconst 0x8]
 	.dwattr $C$DW$322, DW_AT_accessibility(DW_ACCESS_public)
-	.dwattr $C$DW$322, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/sha512.h")
+	.dwattr $C$DW$322, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/sha512.h")
 	.dwattr $C$DW$322, DW_AT_decl_line(0x30)
 	.dwattr $C$DW$322, DW_AT_decl_column(0x0d)
 $C$DW$323	.dwtag  DW_TAG_member
@@ -6845,7 +6845,7 @@ $C$DW$323	.dwtag  DW_TAG_member
 	.dwattr $C$DW$323, DW_AT_TI_symbol_name("digest")
 	.dwattr $C$DW$323, DW_AT_data_member_location[DW_OP_plus_uconst 0x10]
 	.dwattr $C$DW$323, DW_AT_accessibility(DW_ACCESS_public)
-	.dwattr $C$DW$323, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/sha512.h")
+	.dwattr $C$DW$323, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/sha512.h")
 	.dwattr $C$DW$323, DW_AT_decl_line(0x31)
 	.dwattr $C$DW$323, DW_AT_decl_column(0x0d)
 $C$DW$324	.dwtag  DW_TAG_member
@@ -6854,18 +6854,18 @@ $C$DW$324	.dwtag  DW_TAG_member
 	.dwattr $C$DW$324, DW_AT_TI_symbol_name("buffer")
 	.dwattr $C$DW$324, DW_AT_data_member_location[DW_OP_plus_uconst 0x50]
 	.dwattr $C$DW$324, DW_AT_accessibility(DW_ACCESS_public)
-	.dwattr $C$DW$324, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/sha512.h")
+	.dwattr $C$DW$324, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/sha512.h")
 	.dwattr $C$DW$324, DW_AT_decl_line(0x32)
 	.dwattr $C$DW$324, DW_AT_decl_column(0x0d)
 	.dwendtag $C$DW$T$139
 
-	.dwattr $C$DW$T$139, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/sha512.h")
+	.dwattr $C$DW$T$139, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/sha512.h")
 	.dwattr $C$DW$T$139, DW_AT_decl_line(0x2d)
 	.dwattr $C$DW$T$139, DW_AT_decl_column(0x10)
 $C$DW$T$503	.dwtag  DW_TAG_typedef, DW_AT_name("Sha512")
 	.dwattr $C$DW$T$503, DW_AT_type(*$C$DW$T$139)
 	.dwattr $C$DW$T$503, DW_AT_language(DW_LANG_C)
-	.dwattr $C$DW$T$503, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/sha512.h")
+	.dwattr $C$DW$T$503, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/sha512.h")
 	.dwattr $C$DW$T$503, DW_AT_decl_line(0x33)
 	.dwattr $C$DW$T$503, DW_AT_decl_column(0x03)
 $C$DW$T$504	.dwtag  DW_TAG_pointer_type
@@ -6901,7 +6901,7 @@ $C$DW$T$514	.dwtag  DW_TAG_pointer_type
 $C$DW$T$515	.dwtag  DW_TAG_typedef, DW_AT_name("CyaSSL_Malloc_cb")
 	.dwattr $C$DW$T$515, DW_AT_type(*$C$DW$T$514)
 	.dwattr $C$DW$T$515, DW_AT_language(DW_LANG_C)
-	.dwattr $C$DW$T$515, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/memory.h")
+	.dwattr $C$DW$T$515, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/memory.h")
 	.dwattr $C$DW$T$515, DW_AT_decl_line(0x23)
 	.dwattr $C$DW$T$515, DW_AT_decl_column(0x11)
 
@@ -6920,7 +6920,7 @@ $C$DW$T$517	.dwtag  DW_TAG_pointer_type
 $C$DW$T$518	.dwtag  DW_TAG_typedef, DW_AT_name("CyaSSL_Realloc_cb")
 	.dwattr $C$DW$T$518, DW_AT_type(*$C$DW$T$517)
 	.dwattr $C$DW$T$518, DW_AT_language(DW_LANG_C)
-	.dwattr $C$DW$T$518, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/memory.h")
+	.dwattr $C$DW$T$518, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/memory.h")
 	.dwattr $C$DW$T$518, DW_AT_decl_line(0x25)
 	.dwattr $C$DW$T$518, DW_AT_decl_column(0x11)
 $C$DW$T$176	.dwtag  DW_TAG_typedef, DW_AT_name("xdc_Ptr")
@@ -7771,7 +7771,7 @@ $C$DW$T$218	.dwtag  DW_TAG_pointer_type
 $C$DW$T$620	.dwtag  DW_TAG_typedef, DW_AT_name("CyaSSL_Free_cb")
 	.dwattr $C$DW$T$620, DW_AT_type(*$C$DW$T$218)
 	.dwattr $C$DW$T$620, DW_AT_language(DW_LANG_C)
-	.dwattr $C$DW$T$620, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/memory.h")
+	.dwattr $C$DW$T$620, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/memory.h")
 	.dwattr $C$DW$T$620, DW_AT_decl_line(0x24)
 	.dwattr $C$DW$T$620, DW_AT_decl_column(0x10)
 $C$DW$T$621	.dwtag  DW_TAG_typedef, DW_AT_name("ti_sysbios_interfaces_ITimer_start_FxnT")
@@ -8987,7 +8987,7 @@ $C$DW$T$784	.dwtag  DW_TAG_pointer_type
 $C$DW$T$785	.dwtag  DW_TAG_typedef, DW_AT_name("CyaSSL_Logging_cb")
 	.dwattr $C$DW$T$785, DW_AT_type(*$C$DW$T$784)
 	.dwattr $C$DW$T$785, DW_AT_language(DW_LANG_C)
-	.dwattr $C$DW$T$785, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/logging.h")
+	.dwattr $C$DW$T$785, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/logging.h")
 	.dwattr $C$DW$T$785, DW_AT_decl_line(0x2a)
 	.dwattr $C$DW$T$785, DW_AT_decl_column(0x10)
 $C$DW$T$4	.dwtag  DW_TAG_base_type
@@ -9029,7 +9029,7 @@ $C$DW$T$6	.dwtag  DW_TAG_base_type
 $C$DW$T$795	.dwtag  DW_TAG_typedef, DW_AT_name("byte")
 	.dwattr $C$DW$T$795, DW_AT_type(*$C$DW$T$6)
 	.dwattr $C$DW$T$795, DW_AT_language(DW_LANG_C)
-	.dwattr $C$DW$T$795, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$T$795, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$T$795, DW_AT_decl_line(0x2c)
 	.dwattr $C$DW$T$795, DW_AT_decl_column(0x20)
 $C$DW$T$796	.dwtag  DW_TAG_pointer_type
@@ -9516,7 +9516,7 @@ $C$DW$T$865	.dwtag  DW_TAG_typedef, DW_AT_name("wchar_t")
 $C$DW$T$866	.dwtag  DW_TAG_typedef, DW_AT_name("word16")
 	.dwattr $C$DW$T$866, DW_AT_type(*$C$DW$T$9)
 	.dwattr $C$DW$T$866, DW_AT_language(DW_LANG_C)
-	.dwattr $C$DW$T$866, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$T$866, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$T$866, DW_AT_decl_line(0x2e)
 	.dwattr $C$DW$T$866, DW_AT_decl_column(0x1c)
 $C$DW$T$146	.dwtag  DW_TAG_typedef, DW_AT_name("xdc_Bool")
@@ -11404,13 +11404,13 @@ $C$DW$T$444	.dwtag  DW_TAG_typedef, DW_AT_name("xdc_runtime_Memory_Size")
 $C$DW$T$135	.dwtag  DW_TAG_typedef, DW_AT_name("word32")
 	.dwattr $C$DW$T$135, DW_AT_type(*$C$DW$T$11)
 	.dwattr $C$DW$T$135, DW_AT_language(DW_LANG_C)
-	.dwattr $C$DW$T$135, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$T$135, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$T$135, DW_AT_decl_line(0x2f)
 	.dwattr $C$DW$T$135, DW_AT_decl_column(0x1c)
 $C$DW$T$1126	.dwtag  DW_TAG_typedef, DW_AT_name("word")
 	.dwattr $C$DW$T$1126, DW_AT_type(*$C$DW$T$135)
 	.dwattr $C$DW$T$1126, DW_AT_language(DW_LANG_C)
-	.dwattr $C$DW$T$1126, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$T$1126, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$T$1126, DW_AT_decl_line(0x5d)
 	.dwattr $C$DW$T$1126, DW_AT_decl_column(0x14)
 $C$DW$T$1127	.dwtag  DW_TAG_const_type
@@ -11682,7 +11682,7 @@ $C$DW$T$1172	.dwtag  DW_TAG_typedef, DW_AT_name("uintmax_t")
 $C$DW$T$136	.dwtag  DW_TAG_typedef, DW_AT_name("word64")
 	.dwattr $C$DW$T$136, DW_AT_type(*$C$DW$T$15)
 	.dwattr $C$DW$T$136, DW_AT_language(DW_LANG_C)
-	.dwattr $C$DW$T$136, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/types.h")
+	.dwattr $C$DW$T$136, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$T$136, DW_AT_decl_line(0x4d)
 	.dwattr $C$DW$T$136, DW_AT_decl_column(0x20)
 
@@ -11780,7 +11780,7 @@ $C$DW$T$365	.dwtag  DW_TAG_pointer_type
 $C$DW$T$1183	.dwtag  DW_TAG_typedef, DW_AT_name("__builtin_va_list")
 	.dwattr $C$DW$T$1183, DW_AT_type(*$C$DW$T$365)
 	.dwattr $C$DW$T$1183, DW_AT_language(DW_LANG_C)
-	.dwattr $C$DW$T$1183, DW_AT_decl_file("C:/cyassl/ctaocrypt/src/sha512.c")
+	.dwattr $C$DW$T$1183, DW_AT_decl_file("C:/wolfssl/ctaocrypt/src/sha512.c")
 	.dwattr $C$DW$T$1183, DW_AT_decl_line(0x14b)
 	.dwattr $C$DW$T$1183, DW_AT_decl_column(0x01)
 $C$DW$T$366	.dwtag  DW_TAG_typedef, DW_AT_name("xdc_String")
@@ -14637,7 +14637,7 @@ $C$DW$T$1321	.dwtag  DW_TAG_typedef, DW_AT_name("ti_sysbios_knl_Semaphore_Handle
 $C$DW$T$1322	.dwtag  DW_TAG_typedef, DW_AT_name("CyaSSL_Mutex")
 	.dwattr $C$DW$T$1322, DW_AT_type(*$C$DW$T$1321)
 	.dwattr $C$DW$T$1322, DW_AT_language(DW_LANG_C)
-	.dwattr $C$DW$T$1322, DW_AT_decl_file("C:/cyassl/cyassl/ctaocrypt/wc_port.h")
+	.dwattr $C$DW$T$1322, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/wc_port.h")
 	.dwattr $C$DW$T$1322, DW_AT_decl_line(0x6f)
 	.dwattr $C$DW$T$1322, DW_AT_decl_column(0x31)
 $C$DW$T$1323	.dwtag  DW_TAG_typedef, DW_AT_name("ti_sysbios_knl_Semaphore_Instance")

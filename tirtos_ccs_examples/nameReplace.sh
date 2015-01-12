@@ -25,16 +25,29 @@
 #find . -name '*' -type f -exec sed -i 's/old-word/new-word/g' {} \;
 #######################################################################
 
-find . -name '*' -type f -exec sed -i 's/cya/wolf/g' {} \;
-find . -name '*' -type f -exec sed -i 's/Cya/wolf/g' {} \;
-find . -name '*' -type f -exec sed -i 's/CYA/WOLF/g' {} \;
-find . -name '*' -type f -exec sed -i 's/ctao/wolf/g' {} \;
-find . -name '*' -type f -exec sed -i 's/Ctao/wolf/g' {} \;
-find . -name '*' -type f -exec sed -i 's/CTao/wc_/g' {} \;
-find . -name '*' -type f -exec sed -i 's/CTAO/WOLF/g' {} \;
+#find . -name '*' -type f -exec sed -i 's/wolf/wolf/g' {} \;
+#find . -name '*' -type f -exec sed -i 's/Cya/wolf/g' {} \;
+#find . -name '*' -type f -exec sed -i 's/CYA/WOLF/g' {} \;
+#find . -name '*' -type f -exec sed -i 's/ctao/wolf/g' {} \;
+#find . -name '*' -type f -exec sed -i 's/Ctao/wolf/g' {} \;
+#find . -name '*' -type f -exec sed -i 's/CTao/wc_/g' {} \;
+#find . -name '*' -type f -exec sed -i 's/CTAO/WOLF/g' {} \;
+
 ################################ MAC ###################################
 #grep -ilr 'old-word' * | xargs -I@ sed -i '' 's/old-word/new-word/g' @
 ########################################################################
+
+grep -ilr 'wolf' * | xargs -I@ sed -i '' 's/wolf/wolf/g' @
+#grep -ilr 'Cya' * | xargs -I@ sed -i '' 's/Cya/wolf/g' @
+#grep -ilr 'CYA' * | xargs -I@ sed -i '' 's/CYA/WOLF/g' @
+#grep -ilr 'ctao' * | xargs -I@ sed -i '' 's/ctao/wolf/g' @
+#grep -ilr 'Ctao' * | xargs -I@ sed -i '' 's/Ctao/wolf/g' @
+#grep -ilr 'CTao' * | xargs -I@ sed -i '' 's/CTao/wc_/g' @
+#grep -ilr 'CTAO' * | xargs -I@ sed -i '' 's/CTAO/WOLF/g' @
+
+
+
+
 
 #grep -ilr 'This file is part of wolfSSL. (formerly known as CyaSSL)' * | xargs -I@ sed -i '' 's/This file is part of wolfSSL. (formerly known as CyaSSL)/This file is part of wolfSSL. (formerly known as CyaSSL)/g' @
 #grep -ilr 'wolfSSL is free' * | xargs -I@ sed -i '' 's/wolfSSL is free/wolfSSL is free/g' @

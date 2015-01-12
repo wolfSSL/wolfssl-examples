@@ -17,7 +17,7 @@
             usedby="ti.targets.arm.rtsarm"/>
     <target name="ti.targets.arm.elf.M4F"
             version="1,0,5.1,5"
-            usedby="ti.net.cyassl"/>
+            usedby="ti.net.wolfssl"/>
     <target name="ti.targets.arm.elf.M4F"
             version="1,0,5.1,5"
             usedby="ti.catalog.arm.cortexm4.tiva.ce"/>
@@ -2957,7 +2957,7 @@
                 uses="">
         </module>
     </package>
-    <package name="ti.net.cyassl" version="" repository="C:/cyassl/tirtos/packages/">
+    <package name="ti.net.wolfssl" version="" repository="C:/wolfssl/tirtos/packages/">
     </package>
     <package name="ti.sysbios.rts" version="2, 0, 0, 0" repository="C:/ti/tirtos_tivac_2_00_02_36/products/bios_6_40_02_27/packages/">
         <module name="ti.sysbios.rts.MemAlloc"

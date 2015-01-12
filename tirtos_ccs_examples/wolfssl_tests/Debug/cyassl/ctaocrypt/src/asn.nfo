@@ -862,7 +862,7 @@ extern int GetLength() is called from 45 sites in this file.
     It has 4 non-trivial scope blocks nested 4 deep.
     It calls these functions:
 	<NONE>
-Unrolling 'while' loop on 'bytes' at lines C:/cyassl/ctaocrypt/src/asn.c:434-437 by factor 4.
+Unrolling 'while' loop on 'bytes' at lines C:/wolfssl/ctaocrypt/src/asn.c:434-437 by factor 4.
 Estimated speedup: 1.19x, code size increase: 4.00x (4:->16)
 
 There are 8 memory accesses with 13 dependences.
@@ -888,8 +888,8 @@ extern int GetAlgoId() is called from 7 sites in this file.
 	GetSequence() (1 times)
 	GetLength() (1 times)
 
-ADVICE: In function GetAlgoId() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:629-633
+ADVICE: In function GetAlgoId() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:629-633
 	for the statement V$0 += input[*&i]; at line 631
 	and the statement *oid = V$0; at line 631
 
@@ -915,12 +915,12 @@ in the source interlisting will look like "O$1.s3_1.l3_2" or "&$O$O1+0".
 
     --offset--    --reference--			 --variable--
 
-          0	  O$1.s3_1.l3_2                  struct Arc4 dec  [C:/cyassl/ctaocrypt/src/asn.c:992]
-          0	  O$1.s3_3.l3_4                  struct Des3 dec  [C:/cyassl/ctaocrypt/src/asn.c:967]
-          0	  O$1.s3_5.l3_6                  struct Des dec  [C:/cyassl/ctaocrypt/src/asn.c:947]
-          0	  O$1.s3_7.l3_8                  unsigned char unicodePasswd[256]  [C:/cyassl/ctaocrypt/src/asn.c:906]
+          0	  O$1.s3_1.l3_2                  struct Arc4 dec  [C:/wolfssl/ctaocrypt/src/asn.c:992]
+          0	  O$1.s3_3.l3_4                  struct Des3 dec  [C:/wolfssl/ctaocrypt/src/asn.c:967]
+          0	  O$1.s3_5.l3_6                  struct Des dec  [C:/wolfssl/ctaocrypt/src/asn.c:947]
+          0	  O$1.s3_7.l3_8                  unsigned char unicodePasswd[256]  [C:/wolfssl/ctaocrypt/src/asn.c:906]
 
-Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/asn.c:915-918 by factor 2.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/asn.c:915-918 by factor 2.
 Estimated speedup: 1.18x, code size increase: 1.60x (5:->8)
 
 There are 11 memory accesses with 22 dependences.
@@ -964,7 +964,7 @@ extern int ToTraditionalEnc() is called from 0 sites in this file.
 	CheckAlgoV2() (1 times)
 	DecryptKey() (1 times)
 	ToTraditional() (1 times)
-Unrolling 'while' loop on 'len' at lines C:/cyassl/ctaocrypt/src/asn.c:524-526 completely by factor 4.
+Unrolling 'while' loop on 'len' at lines C:/wolfssl/ctaocrypt/src/asn.c:524-526 completely by factor 4.
 Estimated speedup: 1.33x, code size increase: 3.25x (4:->13)
 
 There are 41 memory accesses with 98 dependences.
@@ -977,11 +977,11 @@ extern unsigned SetLength() is called from 8 sites in this file.
     It has 3 non-trivial scope blocks nested 3 deep.
     It calls these functions:
 	BytePrecision() (2 times)
-Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/asn.c:2487-2489 completely by factor 4.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/asn.c:2487-2489 completely by factor 4.
 Estimated speedup: 1.21x, code size increase: 2.60x (5:->13)
-Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/asn.c:2487-2489 completely by factor 4.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/asn.c:2487-2489 completely by factor 4.
 Estimated speedup: 1.21x, code size increase: 2.60x (5:->13)
-Unrolling 'for' loop on 'j' at lines C:/cyassl/ctaocrypt/src/asn.c:2504-2507 by factor 2.
+Unrolling 'for' loop on 'j' at lines C:/wolfssl/ctaocrypt/src/asn.c:2504-2507 by factor 2.
 Estimated speedup: 1.13x, code size increase: 1.80x (5:->9)
 
 There are 5 memory accesses with 9 dependences.
@@ -1156,8 +1156,8 @@ static int GetName() is called from 2 sites in this file.
 	GetSequence() (2 times)
 	GetSet() (1 times)
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement (*cert).srcIdx = T$1+1u; at line 1860
 	and the statement b = (*cert).source[T$1]; at line 1860
 
@@ -1166,8 +1166,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*cert).source[T$1];
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement (*emailName).name = CyaSSL_Malloc((unsigned)*&adv+1u); at line 2085
 	and the statement memcpy((*emailName).name, (*cert).source+(*cert).srcIdx, (unsigned)*&adv); at line 2091
 
@@ -1177,8 +1177,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'cert' in the address of (*cert).srcIdx;
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement (*emailName).name = CyaSSL_Malloc((unsigned)*&adv+1u); at line 2085
 	and the statement memcpy((*emailName).name, (*cert).source+(*cert).srcIdx, (unsigned)*&adv); at line 2091
 
@@ -1188,8 +1188,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'cert' in the address of (*cert).source;
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement (*emailName).name = CyaSSL_Malloc((unsigned)*&adv+1u); at line 2085
 	and the statement (*emailName).name[*&adv] = 0u; at line 2093
 
@@ -1198,8 +1198,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*emailName).name[*&adv];
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement (*emailName).name = CyaSSL_Malloc((unsigned)*&adv+1u); at line 2085
 	and the statement (*emailName).next = (*cert).altEmailNames; at line 2095
 
@@ -1209,8 +1209,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'cert' in the address of (*cert).altEmailNames;
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement (*emailName).name = CyaSSL_Malloc((unsigned)*&adv+1u); at line 2085
 	and the statement (*cert).altEmailNames = emailName; at line 2096
 
@@ -1220,8 +1220,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'cert' in the address of (*cert).altEmailNames;
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement (*emailName).name = CyaSSL_Malloc((unsigned)*&adv+1u); at line 2085
 	and the statement memcpy(idx+full, (*cert).source+(*cert).srcIdx, (unsigned)*&adv); at line 2100
 
@@ -1231,8 +1231,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'cert' in the address of (*cert).srcIdx;
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement (*emailName).name = CyaSSL_Malloc((unsigned)*&adv+1u); at line 2085
 	and the statement memcpy(idx+full, (*cert).source+(*cert).srcIdx, (unsigned)*&adv); at line 2100
 
@@ -1242,8 +1242,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'cert' in the address of (*cert).source;
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement if ( (*emailName).name ) goto g46; else goto g45; at line 2087
 	and the statement (*emailName).name[*&adv] = 0u; at line 2093
 
@@ -1252,8 +1252,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*emailName).name[*&adv];
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement if ( (*emailName).name ) goto g46; else goto g45; at line 2087
 	and the statement (*cert).altEmailNames = emailName; at line 2096
 
@@ -1263,8 +1263,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'cert' in the address of (*cert).altEmailNames;
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement memcpy((*emailName).name, (*cert).source+(*cert).srcIdx, (unsigned)*&adv); at line 2091
 	and the statement (*emailName).name[*&adv] = 0u; at line 2093
 
@@ -1273,8 +1273,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*emailName).name[*&adv];
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement memcpy((*emailName).name, (*cert).source+(*cert).srcIdx, (unsigned)*&adv); at line 2091
 	and the statement (*emailName).next = (*cert).altEmailNames; at line 2095
 
@@ -1284,8 +1284,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'emailName' in the address of (*emailName).next;
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement memcpy((*emailName).name, (*cert).source+(*cert).srcIdx, (unsigned)*&adv); at line 2091
 	and the statement (*emailName).name[*&adv] = 0u; at line 2093
 
@@ -1294,8 +1294,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*emailName).name[*&adv];
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement memcpy((*emailName).name, (*cert).source+(*cert).srcIdx, (unsigned)*&adv); at line 2091
 	and the statement (*emailName).next = (*cert).altEmailNames; at line 2095
 
@@ -1305,8 +1305,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'emailName' in the address of (*emailName).next;
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement memcpy((*emailName).name, (*cert).source+(*cert).srcIdx, (unsigned)*&adv); at line 2091
 	and the statement (*emailName).name[*&adv] = 0u; at line 2093
 
@@ -1315,8 +1315,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*emailName).name[*&adv];
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement memcpy((*emailName).name, (*cert).source+(*cert).srcIdx, (unsigned)*&adv); at line 2091
 	and the statement (*cert).altEmailNames = emailName; at line 2096
 
@@ -1326,8 +1326,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'cert' in the address of (*cert).altEmailNames;
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement (*emailName).name[*&adv] = 0u; at line 2093
 
 	Consider declaring 'emailName' as struct DNS_entry * restrict emailName
@@ -1335,8 +1335,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*emailName).name[*&adv];
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement (*emailName).next = (*cert).altEmailNames; at line 2095
 	and the statement (*emailName).name[*&adv] = 0u; at line 2093
 
@@ -1345,8 +1345,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*emailName).name[*&adv];
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement (*emailName).next = (*cert).altEmailNames; at line 2095
 	and the statement (*emailName).name[*&adv] = 0u; at line 2093
 
@@ -1355,8 +1355,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*emailName).name[*&adv];
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement (*cert).altEmailNames = emailName; at line 2096
 	and the statement (*emailName).name[*&adv] = 0u; at line 2093
 
@@ -1365,8 +1365,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*emailName).name[*&adv];
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement memcpy(idx+full, (*cert).source+(*cert).srcIdx, (unsigned)*&adv); at line 2100
 	and the statement (*emailName).name[*&adv] = 0u; at line 2093
 
@@ -1375,8 +1375,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*emailName).name[*&adv];
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement memcpy(idx+full, (*cert).source+(*cert).srcIdx, (unsigned)*&adv); at line 2100
 	and the statement (*emailName).name[*&adv] = 0u; at line 2093
 
@@ -1385,8 +1385,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*emailName).name[*&adv];
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement memcpy(idx+full, (*cert).source+(*cert).srcIdx, (unsigned)*&adv); at line 2114
 	and the statement (*emailName).name[*&adv] = 0u; at line 2093
 
@@ -1395,8 +1395,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*emailName).name[*&adv];
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement memcpy(idx+full, (*cert).source+(*cert).srcIdx, (unsigned)*&adv); at line 2114
 	and the statement (*emailName).name[*&adv] = 0u; at line 2093
 
@@ -1405,8 +1405,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*emailName).name[*&adv];
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement (*emailName).name[*&adv] = 0u; at line 2093
 	and the statement (*emailName).next = (*cert).altEmailNames; at line 2095
 
@@ -1416,8 +1416,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'cert' in the address of (*cert).altEmailNames;
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement (*emailName).name[*&adv] = 0u; at line 2093
 	and the statement (*cert).altEmailNames = emailName; at line 2096
 
@@ -1427,8 +1427,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'cert' in the address of (*cert).altEmailNames;
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement (*emailName).name[*&adv] = 0u; at line 2093
 	and the statement memcpy(idx+full, (*cert).source+(*cert).srcIdx, (unsigned)*&adv); at line 2100
 
@@ -1438,8 +1438,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'cert' in the address of (*cert).srcIdx;
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement (*emailName).name[*&adv] = 0u; at line 2093
 	and the statement memcpy(idx+full, (*cert).source+(*cert).srcIdx, (unsigned)*&adv); at line 2100
 
@@ -1449,8 +1449,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'cert' in the address of (*cert).source;
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement (*emailName).name[*&adv] = 0u; at line 2093
 	and the statement memcpy(idx+full, (*cert).source+(*cert).srcIdx, (unsigned)*&adv); at line 2114
 
@@ -1460,8 +1460,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'cert' in the address of (*cert).srcIdx;
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement (*emailName).name[*&adv] = 0u; at line 2093
 	and the statement memcpy(idx+full, (*cert).source+(*cert).srcIdx, (unsigned)*&adv); at line 2114
 
@@ -1471,8 +1471,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'cert' in the address of (*cert).source;
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement (*emailName).next = (*cert).altEmailNames; at line 2095
 
 	Consider declaring 'cert' as struct DecodedCert * const restrict cert
@@ -1481,8 +1481,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'emailName' in the address of (*emailName).next;
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement (*emailName).next = (*cert).altEmailNames; at line 2095
 	and the statement (*cert).altEmailNames = emailName; at line 2096
 
@@ -1492,8 +1492,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'cert' in the address of (*cert).altEmailNames;
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement (*emailName).next = (*cert).altEmailNames; at line 2095
 	and the statement memcpy(idx+full, (*cert).source+(*cert).srcIdx, (unsigned)*&adv); at line 2100
 
@@ -1503,8 +1503,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'cert' in the address of (*cert).srcIdx;
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement (*emailName).next = (*cert).altEmailNames; at line 2095
 	and the statement memcpy(idx+full, (*cert).source+(*cert).srcIdx, (unsigned)*&adv); at line 2100
 
@@ -1514,8 +1514,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'cert' in the address of (*cert).source;
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement (*emailName).next = (*cert).altEmailNames; at line 2095
 	and the statement memcpy(idx+full, (*cert).source+(*cert).srcIdx, (unsigned)*&adv); at line 2114
 
@@ -1525,8 +1525,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'cert' in the address of (*cert).srcIdx;
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement (*emailName).next = (*cert).altEmailNames; at line 2095
 	and the statement memcpy(idx+full, (*cert).source+(*cert).srcIdx, (unsigned)*&adv); at line 2114
 
@@ -1536,8 +1536,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'cert' in the address of (*cert).source;
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement (*cert).srcIdx += *&adv; at line 2123
 	and the statement id = (*cert).source[T$3]; at line 1876
 
@@ -1546,8 +1546,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*cert).source[T$3];
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement (*cert).srcIdx += *&adv; at line 2123
 	and the statement b = (*cert).source[T$2]; at line 1877
 
@@ -1556,8 +1556,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*cert).source[T$2];
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement (*cert).srcIdx += 2u; at line 1875
 	and the statement id = (*cert).source[T$3]; at line 1876
 
@@ -1566,8 +1566,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*cert).source[T$3];
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement (*cert).srcIdx += 2u; at line 1875
 	and the statement b = (*cert).source[T$2]; at line 1877
 
@@ -1576,8 +1576,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*cert).source[T$2];
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement (*cert).srcIdx = T$3+1u; at line 1876
 	and the statement id = (*cert).source[T$3]; at line 1876
 
@@ -1586,8 +1586,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*cert).source[T$3];
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement (*cert).srcIdx = T$3+1u; at line 1876
 	and the statement b = (*cert).source[T$2]; at line 1877
 
@@ -1596,8 +1596,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*cert).source[T$2];
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement (*cert).srcIdx = T$2+1u; at line 1877
 	and the statement id = (*cert).source[T$3]; at line 1876
 
@@ -1606,8 +1606,8 @@ ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*cert).source[T$3];
 	do not access the same object in memory.
 
-ADVICE: In function GetName() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:1847-2125
+ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
 	for the statement (*cert).srcIdx = T$2+1u; at line 1877
 	and the statement b = (*cert).source[T$2]; at line 1877
 
@@ -1652,7 +1652,7 @@ extern int DecodeToKey() is called from 1 sites in this file.
 	GetName() (2 times)
 	GetValidity() (1 times)
 	GetKey() (1 times)
-Unrolling 'while' loop on 'recvd' at lines C:/cyassl/ctaocrypt/src/asn.c:1615-1616 by factor 2.
+Unrolling 'while' loop on 'recvd' at lines C:/wolfssl/ctaocrypt/src/asn.c:1615-1616 by factor 2.
 Estimated speedup: 1.20x, code size increase: 1.00x (1:->1)
 
 There are 68 memory accesses with 250 dependences.
@@ -1689,8 +1689,8 @@ static int DecodeAltNames() is called from 1 sites in this file.
 	GetSequence() (1 times)
 	GetLength() (3 times)
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement b = input[*&idx]; at line 3283
 	and the statement (*emailEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3343
 
@@ -1700,8 +1700,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'emailEntry' in the address of (*emailEntry).name;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*emailEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3343
 	and the statement (*emailEntry).name[*&strLen] = 0u; at line 3352
 
@@ -1710,8 +1710,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*emailEntry).name[*&strLen];
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*emailEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3343
 	and the statement (*emailEntry).next = (*cert).altEmailNames; at line 3354
 
@@ -1721,8 +1721,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'cert' in the address of (*cert).altEmailNames;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*emailEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3343
 	and the statement (*cert).altEmailNames = emailEntry; at line 3355
 
@@ -1732,8 +1732,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'cert' in the address of (*cert).altEmailNames;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*emailEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3343
 	and the statement (*dnsEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3307
 
@@ -1743,8 +1743,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'dnsEntry' in the address of (*dnsEntry).name;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*emailEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3343
 	and the statement if ( (*dnsEntry).name ) goto g27; else goto g24; at line 3309
 
@@ -1754,8 +1754,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'dnsEntry' in the address of (*dnsEntry).name;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*emailEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3343
 	and the statement memcpy((*dnsEntry).name, *&idx+input, (unsigned)*&strLen); at line 3315
 
@@ -1765,8 +1765,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'dnsEntry' in the address of (*dnsEntry).name;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*emailEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3343
 	and the statement (*dnsEntry).name[*&strLen] = 0u; at line 3316
 
@@ -1775,8 +1775,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*dnsEntry).name[*&strLen];
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*emailEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3343
 	and the statement (*dnsEntry).name[*&strLen] = 0u; at line 3316
 
@@ -1786,8 +1786,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'dnsEntry' in the address of (*dnsEntry).name;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*emailEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3343
 	and the statement (*dnsEntry).next = (*cert).altNames; at line 3318
 
@@ -1797,8 +1797,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'cert' in the address of (*cert).altNames;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*emailEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3343
 	and the statement (*dnsEntry).next = (*cert).altNames; at line 3318
 
@@ -1808,8 +1808,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'dnsEntry' in the address of (*dnsEntry).next;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*emailEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3343
 	and the statement (*cert).altNames = dnsEntry; at line 3319
 
@@ -1819,8 +1819,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'cert' in the address of (*cert).altNames;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement if ( (*emailEntry).name ) goto g18; else goto g15; at line 3345
 	and the statement (*emailEntry).name[*&strLen] = 0u; at line 3352
 
@@ -1829,8 +1829,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*emailEntry).name[*&strLen];
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement if ( (*emailEntry).name ) goto g18; else goto g15; at line 3345
 	and the statement (*cert).altEmailNames = emailEntry; at line 3355
 
@@ -1840,8 +1840,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'cert' in the address of (*cert).altEmailNames;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement if ( (*emailEntry).name ) goto g18; else goto g15; at line 3345
 	and the statement (*dnsEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3307
 
@@ -1851,8 +1851,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'dnsEntry' in the address of (*dnsEntry).name;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement if ( (*emailEntry).name ) goto g18; else goto g15; at line 3345
 	and the statement (*dnsEntry).name[*&strLen] = 0u; at line 3316
 
@@ -1861,8 +1861,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*dnsEntry).name[*&strLen];
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement if ( (*emailEntry).name ) goto g18; else goto g15; at line 3345
 	and the statement (*dnsEntry).next = (*cert).altNames; at line 3318
 
@@ -1872,8 +1872,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'dnsEntry' in the address of (*dnsEntry).next;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement if ( (*emailEntry).name ) goto g18; else goto g15; at line 3345
 	and the statement (*cert).altNames = dnsEntry; at line 3319
 
@@ -1883,8 +1883,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'cert' in the address of (*cert).altNames;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement memcpy((*emailEntry).name, *&idx+input, (unsigned)*&strLen); at line 3351
 	and the statement (*emailEntry).name[*&strLen] = 0u; at line 3352
 
@@ -1893,8 +1893,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*emailEntry).name[*&strLen];
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement memcpy((*emailEntry).name, *&idx+input, (unsigned)*&strLen); at line 3351
 	and the statement (*cert).altEmailNames = emailEntry; at line 3355
 
@@ -1904,8 +1904,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'cert' in the address of (*cert).altEmailNames;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement memcpy((*emailEntry).name, *&idx+input, (unsigned)*&strLen); at line 3351
 	and the statement (*dnsEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3307
 
@@ -1915,8 +1915,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'dnsEntry' in the address of (*dnsEntry).name;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement memcpy((*emailEntry).name, *&idx+input, (unsigned)*&strLen); at line 3351
 	and the statement (*dnsEntry).name[*&strLen] = 0u; at line 3316
 
@@ -1925,8 +1925,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*dnsEntry).name[*&strLen];
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement memcpy((*emailEntry).name, *&idx+input, (unsigned)*&strLen); at line 3351
 	and the statement (*dnsEntry).next = (*cert).altNames; at line 3318
 
@@ -1936,8 +1936,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'dnsEntry' in the address of (*dnsEntry).next;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement memcpy((*emailEntry).name, *&idx+input, (unsigned)*&strLen); at line 3351
 	and the statement (*cert).altNames = dnsEntry; at line 3319
 
@@ -1947,8 +1947,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'cert' in the address of (*cert).altNames;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*emailEntry).name[*&strLen] = 0u; at line 3352
 
 	Consider declaring 'emailEntry' as struct DNS_entry * restrict emailEntry
@@ -1956,8 +1956,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*emailEntry).name[*&strLen];
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*emailEntry).next = (*cert).altEmailNames; at line 3354
 	and the statement (*emailEntry).name[*&strLen] = 0u; at line 3352
 
@@ -1966,8 +1966,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*emailEntry).name[*&strLen];
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*emailEntry).next = (*cert).altEmailNames; at line 3354
 	and the statement (*emailEntry).name[*&strLen] = 0u; at line 3352
 
@@ -1976,8 +1976,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*emailEntry).name[*&strLen];
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*cert).altEmailNames = emailEntry; at line 3355
 	and the statement (*emailEntry).name[*&strLen] = 0u; at line 3352
 
@@ -1986,8 +1986,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*emailEntry).name[*&strLen];
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*dnsEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3307
 	and the statement (*emailEntry).name[*&strLen] = 0u; at line 3352
 
@@ -1996,8 +1996,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*emailEntry).name[*&strLen];
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement if ( (*dnsEntry).name ) goto g27; else goto g24; at line 3309
 	and the statement (*emailEntry).name[*&strLen] = 0u; at line 3352
 
@@ -2006,8 +2006,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*emailEntry).name[*&strLen];
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement memcpy((*dnsEntry).name, *&idx+input, (unsigned)*&strLen); at line 3315
 	and the statement (*emailEntry).name[*&strLen] = 0u; at line 3352
 
@@ -2016,8 +2016,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*emailEntry).name[*&strLen];
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*dnsEntry).name[*&strLen] = 0u; at line 3316
 	and the statement (*emailEntry).name[*&strLen] = 0u; at line 3352
 
@@ -2026,8 +2026,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*emailEntry).name[*&strLen];
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*dnsEntry).next = (*cert).altNames; at line 3318
 	and the statement (*emailEntry).name[*&strLen] = 0u; at line 3352
 
@@ -2036,8 +2036,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*emailEntry).name[*&strLen];
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*dnsEntry).next = (*cert).altNames; at line 3318
 	and the statement (*emailEntry).name[*&strLen] = 0u; at line 3352
 
@@ -2046,8 +2046,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*emailEntry).name[*&strLen];
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*cert).altNames = dnsEntry; at line 3319
 	and the statement (*emailEntry).name[*&strLen] = 0u; at line 3352
 
@@ -2056,8 +2056,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*emailEntry).name[*&strLen];
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*emailEntry).name[*&strLen] = 0u; at line 3352
 	and the statement (*emailEntry).next = (*cert).altEmailNames; at line 3354
 
@@ -2067,8 +2067,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'cert' in the address of (*cert).altEmailNames;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*emailEntry).name[*&strLen] = 0u; at line 3352
 	and the statement (*cert).altEmailNames = emailEntry; at line 3355
 
@@ -2078,8 +2078,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'cert' in the address of (*cert).altEmailNames;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*emailEntry).name[*&strLen] = 0u; at line 3352
 	and the statement (*dnsEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3307
 
@@ -2089,8 +2089,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'dnsEntry' in the address of (*dnsEntry).name;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*emailEntry).name[*&strLen] = 0u; at line 3352
 	and the statement if ( (*dnsEntry).name ) goto g27; else goto g24; at line 3309
 
@@ -2100,8 +2100,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'dnsEntry' in the address of (*dnsEntry).name;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*emailEntry).name[*&strLen] = 0u; at line 3352
 	and the statement memcpy((*dnsEntry).name, *&idx+input, (unsigned)*&strLen); at line 3315
 
@@ -2111,8 +2111,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'dnsEntry' in the address of (*dnsEntry).name;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*emailEntry).name[*&strLen] = 0u; at line 3352
 	and the statement (*dnsEntry).name[*&strLen] = 0u; at line 3316
 
@@ -2121,8 +2121,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*dnsEntry).name[*&strLen];
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*emailEntry).name[*&strLen] = 0u; at line 3352
 	and the statement (*dnsEntry).name[*&strLen] = 0u; at line 3316
 
@@ -2132,8 +2132,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'dnsEntry' in the address of (*dnsEntry).name;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*emailEntry).name[*&strLen] = 0u; at line 3352
 	and the statement (*dnsEntry).next = (*cert).altNames; at line 3318
 
@@ -2143,8 +2143,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'cert' in the address of (*cert).altNames;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*emailEntry).name[*&strLen] = 0u; at line 3352
 	and the statement (*dnsEntry).next = (*cert).altNames; at line 3318
 
@@ -2154,8 +2154,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'dnsEntry' in the address of (*dnsEntry).next;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*emailEntry).name[*&strLen] = 0u; at line 3352
 	and the statement (*cert).altNames = dnsEntry; at line 3319
 
@@ -2165,8 +2165,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'cert' in the address of (*cert).altNames;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*emailEntry).next = (*cert).altEmailNames; at line 3354
 
 	Consider declaring 'cert' as struct DecodedCert * const restrict cert
@@ -2175,8 +2175,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'emailEntry' in the address of (*emailEntry).next;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*emailEntry).next = (*cert).altEmailNames; at line 3354
 	and the statement (*dnsEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3307
 
@@ -2186,8 +2186,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'dnsEntry' in the address of (*dnsEntry).name;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*emailEntry).next = (*cert).altEmailNames; at line 3354
 	and the statement (*dnsEntry).name[*&strLen] = 0u; at line 3316
 
@@ -2196,8 +2196,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*dnsEntry).name[*&strLen];
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*emailEntry).next = (*cert).altEmailNames; at line 3354
 	and the statement (*dnsEntry).next = (*cert).altNames; at line 3318
 
@@ -2207,8 +2207,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'dnsEntry' in the address of (*dnsEntry).next;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*emailEntry).next = (*cert).altEmailNames; at line 3354
 	and the statement (*cert).altEmailNames = emailEntry; at line 3355
 
@@ -2218,8 +2218,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'cert' in the address of (*cert).altEmailNames;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*emailEntry).next = (*cert).altEmailNames; at line 3354
 	and the statement (*dnsEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3307
 
@@ -2229,8 +2229,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'dnsEntry' in the address of (*dnsEntry).name;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*emailEntry).next = (*cert).altEmailNames; at line 3354
 	and the statement if ( (*dnsEntry).name ) goto g27; else goto g24; at line 3309
 
@@ -2240,8 +2240,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'dnsEntry' in the address of (*dnsEntry).name;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*emailEntry).next = (*cert).altEmailNames; at line 3354
 	and the statement memcpy((*dnsEntry).name, *&idx+input, (unsigned)*&strLen); at line 3315
 
@@ -2251,8 +2251,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'dnsEntry' in the address of (*dnsEntry).name;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*emailEntry).next = (*cert).altEmailNames; at line 3354
 	and the statement (*dnsEntry).name[*&strLen] = 0u; at line 3316
 
@@ -2261,8 +2261,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*dnsEntry).name[*&strLen];
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*emailEntry).next = (*cert).altEmailNames; at line 3354
 	and the statement (*dnsEntry).name[*&strLen] = 0u; at line 3316
 
@@ -2272,8 +2272,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'dnsEntry' in the address of (*dnsEntry).name;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*emailEntry).next = (*cert).altEmailNames; at line 3354
 	and the statement (*dnsEntry).next = (*cert).altNames; at line 3318
 
@@ -2283,8 +2283,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'cert' in the address of (*cert).altNames;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*emailEntry).next = (*cert).altEmailNames; at line 3354
 	and the statement (*dnsEntry).next = (*cert).altNames; at line 3318
 
@@ -2294,8 +2294,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'dnsEntry' in the address of (*dnsEntry).next;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*emailEntry).next = (*cert).altEmailNames; at line 3354
 	and the statement (*cert).altNames = dnsEntry; at line 3319
 
@@ -2305,8 +2305,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'cert' in the address of (*cert).altNames;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*cert).altEmailNames = emailEntry; at line 3355
 	and the statement (*dnsEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3307
 
@@ -2316,8 +2316,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'dnsEntry' in the address of (*dnsEntry).name;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*cert).altEmailNames = emailEntry; at line 3355
 	and the statement if ( (*dnsEntry).name ) goto g27; else goto g24; at line 3309
 
@@ -2327,8 +2327,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'dnsEntry' in the address of (*dnsEntry).name;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*cert).altEmailNames = emailEntry; at line 3355
 	and the statement memcpy((*dnsEntry).name, *&idx+input, (unsigned)*&strLen); at line 3315
 
@@ -2338,8 +2338,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'dnsEntry' in the address of (*dnsEntry).name;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*cert).altEmailNames = emailEntry; at line 3355
 	and the statement (*dnsEntry).name[*&strLen] = 0u; at line 3316
 
@@ -2348,8 +2348,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*dnsEntry).name[*&strLen];
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*cert).altEmailNames = emailEntry; at line 3355
 	and the statement (*dnsEntry).name[*&strLen] = 0u; at line 3316
 
@@ -2359,8 +2359,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'dnsEntry' in the address of (*dnsEntry).name;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*cert).altEmailNames = emailEntry; at line 3355
 	and the statement (*dnsEntry).next = (*cert).altNames; at line 3318
 
@@ -2370,8 +2370,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'dnsEntry' in the address of (*dnsEntry).next;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*dnsEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3307
 	and the statement (*dnsEntry).name[*&strLen] = 0u; at line 3316
 
@@ -2380,8 +2380,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*dnsEntry).name[*&strLen];
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*dnsEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3307
 	and the statement (*dnsEntry).next = (*cert).altNames; at line 3318
 
@@ -2391,8 +2391,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'cert' in the address of (*cert).altNames;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*dnsEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3307
 	and the statement (*cert).altNames = dnsEntry; at line 3319
 
@@ -2402,8 +2402,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'cert' in the address of (*cert).altNames;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement if ( (*dnsEntry).name ) goto g27; else goto g24; at line 3309
 	and the statement (*dnsEntry).name[*&strLen] = 0u; at line 3316
 
@@ -2412,8 +2412,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*dnsEntry).name[*&strLen];
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement if ( (*dnsEntry).name ) goto g27; else goto g24; at line 3309
 	and the statement (*cert).altNames = dnsEntry; at line 3319
 
@@ -2423,8 +2423,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'cert' in the address of (*cert).altNames;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement memcpy((*dnsEntry).name, *&idx+input, (unsigned)*&strLen); at line 3315
 	and the statement (*dnsEntry).name[*&strLen] = 0u; at line 3316
 
@@ -2433,8 +2433,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*dnsEntry).name[*&strLen];
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement memcpy((*dnsEntry).name, *&idx+input, (unsigned)*&strLen); at line 3315
 	and the statement (*cert).altNames = dnsEntry; at line 3319
 
@@ -2444,8 +2444,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'cert' in the address of (*cert).altNames;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*dnsEntry).name[*&strLen] = 0u; at line 3316
 
 	Consider declaring 'dnsEntry' as struct DNS_entry * restrict dnsEntry
@@ -2453,8 +2453,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*dnsEntry).name[*&strLen];
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*dnsEntry).next = (*cert).altNames; at line 3318
 	and the statement (*dnsEntry).name[*&strLen] = 0u; at line 3316
 
@@ -2463,8 +2463,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*dnsEntry).name[*&strLen];
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*dnsEntry).next = (*cert).altNames; at line 3318
 	and the statement (*dnsEntry).name[*&strLen] = 0u; at line 3316
 
@@ -2473,8 +2473,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*dnsEntry).name[*&strLen];
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*cert).altNames = dnsEntry; at line 3319
 	and the statement (*dnsEntry).name[*&strLen] = 0u; at line 3316
 
@@ -2483,8 +2483,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and                    (*dnsEntry).name[*&strLen];
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*dnsEntry).name[*&strLen] = 0u; at line 3316
 	and the statement (*dnsEntry).next = (*cert).altNames; at line 3318
 
@@ -2494,8 +2494,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'cert' in the address of (*cert).altNames;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*dnsEntry).name[*&strLen] = 0u; at line 3316
 	and the statement (*cert).altNames = dnsEntry; at line 3319
 
@@ -2505,8 +2505,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'cert' in the address of (*cert).altNames;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*dnsEntry).next = (*cert).altNames; at line 3318
 
 	Consider declaring 'cert' as struct DecodedCert * const restrict cert
@@ -2515,8 +2515,8 @@ ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
 	and            'dnsEntry' in the address of (*dnsEntry).next;
 	do not access the same object in memory.
 
-ADVICE: In function DecodeAltNames() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3282-3455
+ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*dnsEntry).next = (*cert).altNames; at line 3318
 	and the statement (*cert).altNames = dnsEntry; at line 3319
 
@@ -2558,8 +2558,8 @@ static int DecodeCertExtensions() is called from 1 sites in this file.
 	DecodeSubjKeyId() (1 times)
 	DecodeAuthInfo() (1 times)
 
-ADVICE: In function DecodeCertExtensions() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:3973-4111
+ADVICE: In function DecodeCertExtensions() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3973-4111
 	for the statement if ( input[y$218+4294967295] != 4 ) goto g22; else goto g23; at line 3999
 	and the statement (*cert).extExtKeyUsageSet = 1u; at line 4078
 
@@ -2599,10 +2599,10 @@ in the source interlisting will look like "O$1.s3_1.l3_2" or "&$O$O1+0".
 
     --offset--    --reference--			 --variable--
 
-          0	  O$1.s3_1.l3_2                  struct $$fake3 pubKey[1]  [C:/cyassl/ctaocrypt/src/asn.c:3058]
-          0	  O$1.s3_3.l3_4                  unsigned char encodedSig[512]  [C:/cyassl/ctaocrypt/src/asn.c:2960]
-        512	  O$1.s3_3.l3_5                  unsigned char plain[512]  [C:/cyassl/ctaocrypt/src/asn.c:2959]
-       1024	  O$1.s3_3.l3_6                  struct RsaKey pubKey[1]  [C:/cyassl/ctaocrypt/src/asn.c:2958]
+          0	  O$1.s3_1.l3_2                  struct $$fake3 pubKey[1]  [C:/wolfssl/ctaocrypt/src/asn.c:3058]
+          0	  O$1.s3_3.l3_4                  unsigned char encodedSig[512]  [C:/wolfssl/ctaocrypt/src/asn.c:2960]
+        512	  O$1.s3_3.l3_5                  unsigned char plain[512]  [C:/wolfssl/ctaocrypt/src/asn.c:2959]
+       1024	  O$1.s3_3.l3_6                  struct RsaKey pubKey[1]  [C:/wolfssl/ctaocrypt/src/asn.c:2958]
 
 Unrolling 'while' loop on 'n' at lines c:/ti/ccsv6/tools/compiler/arm_5.1.6/include/string.h:272-272 by factor 2.
 Estimated speedup: 1.13x, code size increase: 1.80x (5:->9)
@@ -2617,9 +2617,9 @@ static int MatchBaseName() is called from 4 sites in this file.
     It has 5 non-trivial scope blocks nested 4 deep.
     It calls these functions:
 	tolower() (2 times)
-Unrolling 'while' loop on 'count' at lines C:/cyassl/ctaocrypt/src/asn.c:3123-3126 by factor 2.
+Unrolling 'while' loop on 'count' at lines C:/wolfssl/ctaocrypt/src/asn.c:3123-3126 by factor 2.
 Estimated speedup: 1.20x, code size increase: 1.60x (5:->8)
-Unrolling 'while' loop on 'count' at lines C:/cyassl/ctaocrypt/src/asn.c:3138-3141 by factor 4.
+Unrolling 'while' loop on 'count' at lines C:/wolfssl/ctaocrypt/src/asn.c:3138-3141 by factor 4.
 Estimated speedup: 1.14x, code size increase: 4.00x (5:->20)
 
 There are 13 memory accesses with 0 dependences.
@@ -2782,8 +2782,8 @@ extern int EccPrivateKeyDecode() is called from 0 sites in this file.
 	GetLength() (5 times)
 	CheckCurve() (1 times)
 
-ADVICE: In function EccPrivateKeyDecode() in C:/cyassl/ctaocrypt/src/asn.c
-	in the 'while' loop at lines C:/cyassl/ctaocrypt/src/asn.c:6495-6498
+ADVICE: In function EccPrivateKeyDecode() in C:/wolfssl/ctaocrypt/src/asn.c
+	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:6495-6498
 	for the statement oid += input[V$0]; at line 6496
 	and the statement *inOutIdx = V$0; at line 6497
 

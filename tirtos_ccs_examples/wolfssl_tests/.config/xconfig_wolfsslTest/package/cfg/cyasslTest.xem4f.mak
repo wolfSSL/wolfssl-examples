@@ -5,7 +5,7 @@
 #
 #  target compatibility key = ti.targets.arm.elf.M4F{1,0,5.1,6
 #
-cyasslTest.xem4f: package/cfg/cyasslTest.xem4f.mak
+wolfsslTest.xem4f: package/cfg/wolfsslTest.xem4f.mak
 
 clean::
-	-$(RM) package/cfg/cyasslTest.xem4f.mak
+	-$(RM) package/cfg/wolfsslTest.xem4f.mak

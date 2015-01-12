@@ -7,11 +7,11 @@
 
 #include <xdc/std.h>
 
-__FAR__ char xconfig_cyasslTest__dummy__;
+__FAR__ char xconfig_wolfsslTest__dummy__;
 
 #define __xdc_PKGVERS null
-#define __xdc_PKGNAME xconfig_cyasslTest
-#define __xdc_PKGPREFIX xconfig_cyasslTest_
+#define __xdc_PKGNAME xconfig_wolfsslTest
+#define __xdc_PKGPREFIX xconfig_wolfsslTest_
 
 #ifdef __xdc_bld_pkg_c__
 #define __stringify(a) #a

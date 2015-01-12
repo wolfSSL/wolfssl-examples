@@ -6,11 +6,11 @@
 	.thumb
 
 $C$DW$CU	.dwtag  DW_TAG_compile_unit
-	.dwattr $C$DW$CU, DW_AT_name("C:/cyassl/ctaocrypt/src/ecc_fp.c")
+	.dwattr $C$DW$CU, DW_AT_name("C:/wolfssl/ctaocrypt/src/ecc_fp.c")
 	.dwattr $C$DW$CU, DW_AT_producer("TI TI ARM C/C++ Codegen PC v5.1.6 Copyright (c) 1996-2014 Texas Instruments Incorporated")
 	.dwattr $C$DW$CU, DW_AT_TI_version(0x01)
-	.dwattr $C$DW$CU, DW_AT_comp_dir("C:\cyassl\tirtos\ccs_examples\benchmarkTest\Debug")
-;	c:\ti\ccsv6\tools\compiler\arm_5.1.6\bin\armopt.exe --call_assumptions=3 --gen_opt_info=2 C:\\Users\\khimes\\AppData\\Local\\Temp\\023162 C:\\Users\\khimes\\AppData\\Local\\Temp\\023164 --opt_info_filename=cyassl/ctaocrypt/src/ecc_fp.nfo 
+	.dwattr $C$DW$CU, DW_AT_comp_dir("C:\wolfssl\tirtos\ccs_examples\benchmarkTest\Debug")
+;	c:\ti\ccsv6\tools\compiler\arm_5.1.6\bin\armopt.exe --call_assumptions=3 --gen_opt_info=2 C:\\Users\\khimes\\AppData\\Local\\Temp\\023162 C:\\Users\\khimes\\AppData\\Local\\Temp\\023164 --opt_info_filename=wolfssl/ctaocrypt/src/ecc_fp.nfo 
 
 ;******************************************************************************
 ;* BUILD ATTRIBUTES                                                           *
@@ -97,7 +97,7 @@ $C$DW$T$20	.dwtag  DW_TAG_pointer_type
 $C$DW$T$21	.dwtag  DW_TAG_typedef, DW_AT_name("__builtin_va_list")
 	.dwattr $C$DW$T$21, DW_AT_type(*$C$DW$T$20)
 	.dwattr $C$DW$T$21, DW_AT_language(DW_LANG_C)
-	.dwattr $C$DW$T$21, DW_AT_decl_file("C:/cyassl/ctaocrypt/src/ecc_fp.c")
+	.dwattr $C$DW$T$21, DW_AT_decl_file("C:/wolfssl/ctaocrypt/src/ecc_fp.c")
 	.dwattr $C$DW$T$21, DW_AT_decl_line(0x01)
 	.dwattr $C$DW$T$21, DW_AT_decl_column(0x00)
 	.dwattr $C$DW$CU, DW_AT_language(DW_LANG_C)

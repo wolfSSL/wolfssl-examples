@@ -5,9 +5,9 @@
  * @(#) xdc-A32
  */
 
-#ifndef xconfig_cyasslTest__
-#define xconfig_cyasslTest__
+#ifndef xconfig_wolfsslTest__
+#define xconfig_wolfsslTest__
 
 
 
-#endif /* xconfig_cyasslTest__ */ 
+#endif /* xconfig_wolfsslTest__ */ 

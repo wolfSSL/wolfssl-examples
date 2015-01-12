@@ -575,8 +575,8 @@ extern void s_fp_sub() is called from 6 sites in this file.
     It calls these functions:
 	<NONE>
 
-ADVICE: In function s_fp_sub() in C:/cyassl/ctaocrypt/src/tfm.c
-	in the 'for' loop with loop variable 'x' at lines C:/cyassl/ctaocrypt/src/tfm.c:164-168
+ADVICE: In function s_fp_sub() in C:/wolfssl/ctaocrypt/src/tfm.c
+	in the 'for' loop with loop variable 'x' at lines C:/wolfssl/ctaocrypt/src/tfm.c:164-168
 	for the statement t = (unsigned long long)((unsigned *)a)[x]-(unsigned long long)((unsigned *)b)[x]-t; at line 165
 	and the statement ((unsigned *)c)[x] = t; at line 166
 
@@ -586,8 +586,8 @@ ADVICE: In function s_fp_sub() in C:/cyassl/ctaocrypt/src/tfm.c
 	and            'c' in the address of ((unsigned *)c)[x];
 	do not access the same object in memory.
 
-ADVICE: In function s_fp_sub() in C:/cyassl/ctaocrypt/src/tfm.c
-	in the 'for' loop with loop variable 'x' at lines C:/cyassl/ctaocrypt/src/tfm.c:164-168
+ADVICE: In function s_fp_sub() in C:/wolfssl/ctaocrypt/src/tfm.c
+	in the 'for' loop with loop variable 'x' at lines C:/wolfssl/ctaocrypt/src/tfm.c:164-168
 	for the statement t = (unsigned long long)((unsigned *)a)[x]-(unsigned long long)((unsigned *)b)[x]-t; at line 165
 	and the statement ((unsigned *)c)[x] = t; at line 166
 
@@ -597,8 +597,8 @@ ADVICE: In function s_fp_sub() in C:/cyassl/ctaocrypt/src/tfm.c
 	and            'c' in the address of ((unsigned *)c)[x];
 	do not access the same object in memory.
 
-ADVICE: In function s_fp_sub() in C:/cyassl/ctaocrypt/src/tfm.c
-	in the 'for' loop at lines C:/cyassl/ctaocrypt/src/tfm.c:169-173
+ADVICE: In function s_fp_sub() in C:/wolfssl/ctaocrypt/src/tfm.c
+	in the 'for' loop at lines C:/wolfssl/ctaocrypt/src/tfm.c:169-173
 	for the statement t = (unsigned long long)((unsigned *)a)[x]-t; at line 170
 	and the statement ((unsigned *)c)[x] = t; at line 171
 
@@ -608,8 +608,8 @@ ADVICE: In function s_fp_sub() in C:/cyassl/ctaocrypt/src/tfm.c
 	and            'c' in the address of ((unsigned *)c)[x];
 	do not access the same object in memory.
 
-ADVICE: In function s_fp_sub() in C:/cyassl/ctaocrypt/src/tfm.c
-	in the 'for' loop at lines C:/cyassl/ctaocrypt/src/tfm.c:169-173
+ADVICE: In function s_fp_sub() in C:/wolfssl/ctaocrypt/src/tfm.c
+	in the 'for' loop at lines C:/wolfssl/ctaocrypt/src/tfm.c:169-173
 	for the statement ((unsigned *)c)[x] = t; at line 171
 	and the statement if ( x < (*a).used ) goto g7; else goto g8; at line 169
 
@@ -618,11 +618,11 @@ ADVICE: In function s_fp_sub() in C:/cyassl/ctaocrypt/src/tfm.c
 	to assert that 'c' in the address of ((unsigned *)c)[x];
 	and            'a' in the address of (*a).used;
 	do not access the same object in memory.
-Unrolling 'for' loop on 'x' at lines C:/cyassl/ctaocrypt/src/tfm.c:164-168 by factor 2.
+Unrolling 'for' loop on 'x' at lines C:/wolfssl/ctaocrypt/src/tfm.c:164-168 by factor 2.
 Estimated speedup: 1.14x, code size increase: 1.80x (10:->18)
-Unrolling 'for' loop on 'x' at lines C:/cyassl/ctaocrypt/src/tfm.c:174-176 by factor 2.
+Unrolling 'for' loop on 'x' at lines C:/wolfssl/ctaocrypt/src/tfm.c:174-176 by factor 2.
 Estimated speedup: 1.33x, code size increase: 1.33x (3:->4)
-Unrolling 'while' loop on 'V$0' at lines C:/cyassl/ctaocrypt/src/tfm.c:177-177 by factor 2.
+Unrolling 'while' loop on 'V$0' at lines C:/wolfssl/ctaocrypt/src/tfm.c:177-177 by factor 2.
 Estimated speedup: 1.14x, code size increase: 1.75x (4:->7)
 
 There are 29 memory accesses with 278 dependences.
@@ -636,8 +636,8 @@ extern void s_fp_add() is called from 2 sites in this file.
     It calls these functions:
 	<NONE>
 
-ADVICE: In function s_fp_add() in C:/cyassl/ctaocrypt/src/tfm.c
-	in the 'for' loop with loop variable 'x' at lines C:/cyassl/ctaocrypt/src/tfm.c:102-106
+ADVICE: In function s_fp_add() in C:/wolfssl/ctaocrypt/src/tfm.c
+	in the 'for' loop with loop variable 'x' at lines C:/wolfssl/ctaocrypt/src/tfm.c:102-106
 	for the statement t += (unsigned long long)((unsigned *)a)[x]+(unsigned long long)((unsigned *)b)[x]; at line 103
 	and the statement ((unsigned *)c)[x] = t; at line 104
 
@@ -647,8 +647,8 @@ ADVICE: In function s_fp_add() in C:/cyassl/ctaocrypt/src/tfm.c
 	and            'c' in the address of ((unsigned *)c)[x];
 	do not access the same object in memory.
 
-ADVICE: In function s_fp_add() in C:/cyassl/ctaocrypt/src/tfm.c
-	in the 'for' loop with loop variable 'x' at lines C:/cyassl/ctaocrypt/src/tfm.c:102-106
+ADVICE: In function s_fp_add() in C:/wolfssl/ctaocrypt/src/tfm.c
+	in the 'for' loop with loop variable 'x' at lines C:/wolfssl/ctaocrypt/src/tfm.c:102-106
 	for the statement t += (unsigned long long)((unsigned *)a)[x]+(unsigned long long)((unsigned *)b)[x]; at line 103
 	and the statement ((unsigned *)c)[x] = t; at line 104
 
@@ -657,11 +657,11 @@ ADVICE: In function s_fp_add() in C:/cyassl/ctaocrypt/src/tfm.c
 	to assert that 'a' in the address of ((unsigned *)a)[x];
 	and            'c' in the address of ((unsigned *)c)[x];
 	do not access the same object in memory.
-Unrolling 'for' loop on 'x' at lines C:/cyassl/ctaocrypt/src/tfm.c:102-106 by factor 2.
+Unrolling 'for' loop on 'x' at lines C:/wolfssl/ctaocrypt/src/tfm.c:102-106 by factor 2.
 Estimated speedup: 1.15x, code size increase: 1.78x (9:->16)
-Unrolling 'for' loop on 'x' at lines C:/cyassl/ctaocrypt/src/tfm.c:113-115 by factor 2.
+Unrolling 'for' loop on 'x' at lines C:/wolfssl/ctaocrypt/src/tfm.c:113-115 by factor 2.
 Estimated speedup: 1.33x, code size increase: 1.33x (3:->4)
-Unrolling 'while' loop on 'V$0' at lines C:/cyassl/ctaocrypt/src/tfm.c:116-116 by factor 2.
+Unrolling 'while' loop on 'V$0' at lines C:/wolfssl/ctaocrypt/src/tfm.c:116-116 by factor 2.
 Estimated speedup: 1.14x, code size increase: 1.75x (4:->7)
 
 There are 29 memory accesses with 304 dependences.
@@ -707,7 +707,7 @@ extern void fp_mod_2d() is called from 1 sites in this file.
     It has 3 non-trivial scope blocks nested 3 deep.
     It calls these functions:
 	<NONE>
-Unrolling 'while' loop on 'V$0' at lines C:/cyassl/ctaocrypt/src/tfm.c:725-725 by factor 2.
+Unrolling 'while' loop on 'V$0' at lines C:/wolfssl/ctaocrypt/src/tfm.c:725-725 by factor 2.
 Estimated speedup: 1.14x, code size increase: 1.75x (4:->7)
 
 There are 16 memory accesses with 85 dependences.
@@ -720,7 +720,7 @@ extern void fp_rshd() is called from 2 sites in this file.
     It has 3 non-trivial scope blocks nested 3 deep.
     It calls these functions:
 	<NONE>
-Unrolling 'while' loop on 'V$0' at lines C:/cyassl/ctaocrypt/src/tfm.c:1807-1807 by factor 2.
+Unrolling 'while' loop on 'V$0' at lines C:/wolfssl/ctaocrypt/src/tfm.c:1807-1807 by factor 2.
 Estimated speedup: 1.14x, code size increase: 1.75x (4:->7)
 
 There are 16 memory accesses with 85 dependences.
@@ -733,7 +733,7 @@ extern void fp_rshb() is called from 2 sites in this file.
     It has 3 non-trivial scope blocks nested 3 deep.
     It calls these functions:
 	<NONE>
-Unrolling 'for' loop on 'x' at lines C:/cyassl/ctaocrypt/src/tfm.c:1771-1781 by factor 2.
+Unrolling 'for' loop on 'x' at lines C:/wolfssl/ctaocrypt/src/tfm.c:1771-1781 by factor 2.
 Estimated speedup: 1.16x, code size increase: 1.78x (9:->16)
 
 There are 7 memory accesses with 12 dependences.
@@ -747,7 +747,7 @@ extern void fp_div_2d() is called from 2 sites in this file.
 	fp_mod_2d() (1 times)
 	fp_rshd() (1 times)
 	fp_rshb() (1 times)
-Unrolling 'while' loop on 'V$0' at lines C:/cyassl/ctaocrypt/src/tfm.c:676-676 by factor 2.
+Unrolling 'while' loop on 'V$0' at lines C:/wolfssl/ctaocrypt/src/tfm.c:676-676 by factor 2.
 Estimated speedup: 1.14x, code size increase: 1.75x (4:->7)
 
 There are 13 memory accesses with 59 dependences.
@@ -760,7 +760,7 @@ extern void fp_reverse() is called from 1 sites in this file.
     It has 3 non-trivial scope blocks nested 3 deep.
     It calls these functions:
 	<NONE>
-Unrolling 'while' loop on 'ix' at lines C:/cyassl/ctaocrypt/src/tfm.c:1818-1824 by factor 2.
+Unrolling 'while' loop on 'ix' at lines C:/wolfssl/ctaocrypt/src/tfm.c:1818-1824 by factor 2.
 Estimated speedup: 1.18x, code size increase: 1.67x (6:->10)
 
 There are 12 memory accesses with 57 dependences.
@@ -863,8 +863,8 @@ extern void fp_sqr_comba() is called from 1 sites in this file.
     It calls these functions:
 	<NONE>
 
-ADVICE: In function fp_sqr_comba() in C:/cyassl/ctaocrypt/src/tfm.c
-	in the 'for' loop with loop variable 'ix' at lines C:/cyassl/ctaocrypt/src/tfm.c:1349-1389
+ADVICE: In function fp_sqr_comba() in C:/wolfssl/ctaocrypt/src/tfm.c
+	in the 'for' loop with loop variable 'ix' at lines C:/wolfssl/ctaocrypt/src/tfm.c:1349-1389
 	for the statement t = (unsigned long long)c0+(unsigned long long)((unsigned *)A)[(ix*2>>2)]*(unsigned long long)((unsigned *)A)[(ix*2>>2)]; at line 1384
 	and the statement ((unsigned *)dst)[ix] = c0; at line 1388
 
@@ -873,9 +873,9 @@ ADVICE: In function fp_sqr_comba() in C:/cyassl/ctaocrypt/src/tfm.c
 	to assert that 'A' in the address of ((unsigned *)A)[(ix*2>>2)];
 	and            'dst' in the address of ((unsigned *)dst)[ix];
 	do not access the same object in memory.
-Unrolling 'for' loop on 'iz' at lines C:/cyassl/ctaocrypt/src/tfm.c:1377-1379 by factor 2.
+Unrolling 'for' loop on 'iz' at lines C:/wolfssl/ctaocrypt/src/tfm.c:1377-1379 by factor 2.
 Estimated speedup: 1.11x, code size increase: 1.88x (16:->30)
-Unrolling 'while' loop on 'V$0' at lines C:/cyassl/ctaocrypt/src/tfm.c:1395-1395 by factor 2.
+Unrolling 'while' loop on 'V$0' at lines C:/wolfssl/ctaocrypt/src/tfm.c:1395-1395 by factor 2.
 Estimated speedup: 1.14x, code size increase: 1.75x (4:->7)
 
 		====== Unroll-and-jam Result Summary ======
@@ -885,8 +885,8 @@ LOOP#1 in fp_sqr_comba() fails to unroll-and-jam: Outer Loop has multiple blocks
 		====== End Unroll-and-jam Result ======
 
 
-ADVICE: In function fp_sqr_comba() in C:/cyassl/ctaocrypt/src/tfm.c
-	in the 'for' loop with loop variable 'ix' at lines C:/cyassl/ctaocrypt/src/tfm.c:1349-1389
+ADVICE: In function fp_sqr_comba() in C:/wolfssl/ctaocrypt/src/tfm.c
+	in the 'for' loop with loop variable 'ix' at lines C:/wolfssl/ctaocrypt/src/tfm.c:1349-1389
 	for the statement t = _umull(*tmpx, *tmpy); at line 1378
 	and the statement ((unsigned *)dst)[ix] = c0; at line 1388
 
@@ -896,8 +896,8 @@ ADVICE: In function fp_sqr_comba() in C:/cyassl/ctaocrypt/src/tfm.c
 	and            'dst' in the address of ((unsigned *)dst)[ix];
 	do not access the same object in memory.
 
-ADVICE: In function fp_sqr_comba() in C:/cyassl/ctaocrypt/src/tfm.c
-	in the 'for' loop with loop variable 'ix' at lines C:/cyassl/ctaocrypt/src/tfm.c:1349-1389
+ADVICE: In function fp_sqr_comba() in C:/wolfssl/ctaocrypt/src/tfm.c
+	in the 'for' loop with loop variable 'ix' at lines C:/wolfssl/ctaocrypt/src/tfm.c:1349-1389
 	for the statement t = _umull(*tmpx, *tmpy); at line 1378
 	and the statement ((unsigned *)dst)[ix] = c0; at line 1388
 
@@ -928,11 +928,11 @@ extern void fp_lshd() is called from 4 sites in this file.
     It has 3 non-trivial scope blocks nested 3 deep.
     It calls these functions:
 	<NONE>
-Unrolling 'for' loop on 'y' at lines C:/cyassl/ctaocrypt/src/tfm.c:1739-1741 by factor 2.
+Unrolling 'for' loop on 'y' at lines C:/wolfssl/ctaocrypt/src/tfm.c:1739-1741 by factor 2.
 Estimated speedup: 1.27x, code size increase: 1.50x (4:->6)
-Unrolling 'for' loop on 'y' at lines C:/cyassl/ctaocrypt/src/tfm.c:1744-1746 by factor 2.
+Unrolling 'for' loop on 'y' at lines C:/wolfssl/ctaocrypt/src/tfm.c:1744-1746 by factor 2.
 Estimated speedup: 1.33x, code size increase: 1.33x (3:->4)
-Unrolling 'while' loop on 'V$0' at lines C:/cyassl/ctaocrypt/src/tfm.c:1749-1749 by factor 2.
+Unrolling 'while' loop on 'V$0' at lines C:/wolfssl/ctaocrypt/src/tfm.c:1749-1749 by factor 2.
 Estimated speedup: 1.14x, code size increase: 1.75x (4:->7)
 
 There are 20 memory accesses with 156 dependences.
@@ -945,7 +945,7 @@ extern void fp_mul_2d() is called from 2 sites in this file.
     It has 3 non-trivial scope blocks nested 3 deep.
     It calls these functions:
 	fp_lshd() (1 times)
-Unrolling 'while' loop on 'V$0' at lines C:/cyassl/ctaocrypt/src/tfm.c:400-400 by factor 2.
+Unrolling 'while' loop on 'V$0' at lines C:/wolfssl/ctaocrypt/src/tfm.c:400-400 by factor 2.
 Estimated speedup: 1.14x, code size increase: 1.75x (4:->7)
 
 There are 17 memory accesses with 100 dependences.
@@ -970,8 +970,8 @@ extern void fp_mul_d() is called from 3 sites in this file.
     It calls these functions:
 	<NONE>
 
-ADVICE: In function fp_mul_d() in C:/cyassl/ctaocrypt/src/tfm.c
-	in the 'for' loop at lines C:/cyassl/ctaocrypt/src/tfm.c:356-360
+ADVICE: In function fp_mul_d() in C:/wolfssl/ctaocrypt/src/tfm.c
+	in the 'for' loop at lines C:/wolfssl/ctaocrypt/src/tfm.c:356-360
 	for the statement w += (unsigned long long)((unsigned *)a)[x]*(unsigned long long)b; at line 357
 	and the statement ((unsigned *)c)[x] = w; at line 358
 
@@ -981,8 +981,8 @@ ADVICE: In function fp_mul_d() in C:/cyassl/ctaocrypt/src/tfm.c
 	and            'c' in the address of ((unsigned *)c)[x];
 	do not access the same object in memory.
 
-ADVICE: In function fp_mul_d() in C:/cyassl/ctaocrypt/src/tfm.c
-	in the 'for' loop at lines C:/cyassl/ctaocrypt/src/tfm.c:356-360
+ADVICE: In function fp_mul_d() in C:/wolfssl/ctaocrypt/src/tfm.c
+	in the 'for' loop at lines C:/wolfssl/ctaocrypt/src/tfm.c:356-360
 	for the statement ((unsigned *)c)[x] = w; at line 358
 	and the statement if ( x < (*a).used ) goto g3; else goto g4; at line 356
 
@@ -991,9 +991,9 @@ ADVICE: In function fp_mul_d() in C:/cyassl/ctaocrypt/src/tfm.c
 	to assert that 'c' in the address of ((unsigned *)c)[x];
 	and            'a' in the address of (*a).used;
 	do not access the same object in memory.
-Unrolling 'for' loop on 'x' at lines C:/cyassl/ctaocrypt/src/tfm.c:365-367 by factor 2.
+Unrolling 'for' loop on 'x' at lines C:/wolfssl/ctaocrypt/src/tfm.c:365-367 by factor 2.
 Estimated speedup: 1.33x, code size increase: 1.33x (3:->4)
-Unrolling 'while' loop on 'V$0' at lines C:/cyassl/ctaocrypt/src/tfm.c:368-368 by factor 2.
+Unrolling 'while' loop on 'V$0' at lines C:/wolfssl/ctaocrypt/src/tfm.c:368-368 by factor 2.
 Estimated speedup: 1.14x, code size increase: 1.75x (4:->7)
 
 There are 24 memory accesses with 200 dependences.
@@ -1027,11 +1027,11 @@ extern int fp_div() is called from 1 sites in this file.
 	fp_mul_d() (2 times)
 	fp_add() (1 times)
 	fp_div_2d() (1 times)
-Unrolling 'while' loop on 'V$0' at lines C:/cyassl/ctaocrypt/src/tfm.c:581-581 by factor 2.
+Unrolling 'while' loop on 'V$0' at lines C:/wolfssl/ctaocrypt/src/tfm.c:581-581 by factor 2.
 Estimated speedup: 1.14x, code size increase: 1.75x (4:->7)
-Unrolling 'for' loop on 'i' at lines C:/cyassl/ctaocrypt/src/tfm.c:592-594 by factor 2.
+Unrolling 'for' loop on 'i' at lines C:/wolfssl/ctaocrypt/src/tfm.c:592-594 by factor 2.
 Estimated speedup: 1.33x, code size increase: 1.33x (3:->4)
-Unrolling 'while' loop on 'V$2' at lines C:/cyassl/ctaocrypt/src/tfm.c:595-595 by factor 2.
+Unrolling 'while' loop on 'V$2' at lines C:/wolfssl/ctaocrypt/src/tfm.c:595-595 by factor 2.
 Estimated speedup: 1.14x, code size increase: 1.75x (4:->7)
 
 		====== Unroll-and-jam Result Summary ======
@@ -1129,8 +1129,8 @@ extern void fp_read_unsigned_bin() is called from 1 sites in this file.
     It calls these functions:
 	<NONE>
 
-ADVICE: In function fp_read_unsigned_bin() in C:/cyassl/ctaocrypt/src/tfm.c
-	in the 'for' loop with loop variable 'c' at lines C:/cyassl/ctaocrypt/src/tfm.c:1643-1645
+ADVICE: In function fp_read_unsigned_bin() in C:/wolfssl/ctaocrypt/src/tfm.c
+	in the 'for' loop with loop variable 'c' at lines C:/wolfssl/ctaocrypt/src/tfm.c:1643-1645
 	for the statement ((unsigned char *)a)[c] = *b; at line 1644
 
 	Consider declaring 'b' as unsigned char * restrict b
@@ -1138,9 +1138,9 @@ ADVICE: In function fp_read_unsigned_bin() in C:/cyassl/ctaocrypt/src/tfm.c
 	to assert that 'b' in the address of *b;
 	and            'a' in the address of ((unsigned char *)a)[c];
 	do not access the same object in memory.
-Unrolling 'for' loop on 'c' at lines C:/cyassl/ctaocrypt/src/tfm.c:1643-1645 by factor 2.
+Unrolling 'for' loop on 'c' at lines C:/wolfssl/ctaocrypt/src/tfm.c:1643-1645 by factor 2.
 Estimated speedup: 1.25x, code size increase: 1.50x (4:->6)
-Unrolling 'while' loop on 'V$0' at lines C:/cyassl/ctaocrypt/src/tfm.c:1656-1656 by factor 2.
+Unrolling 'while' loop on 'V$0' at lines C:/wolfssl/ctaocrypt/src/tfm.c:1656-1656 by factor 2.
 Estimated speedup: 1.14x, code size increase: 1.75x (4:->7)
 
 There are 16 memory accesses with 96 dependences.
@@ -1198,8 +1198,8 @@ extern void fp_mul_comba() is called from 1 sites in this file.
     It calls these functions:
 	<NONE>
 
-ADVICE: In function fp_mul_comba() in C:/cyassl/ctaocrypt/src/tfm.c
-	in the 'for' loop with loop variable 'ix' at lines C:/cyassl/ctaocrypt/src/tfm.c:427-450
+ADVICE: In function fp_mul_comba() in C:/wolfssl/ctaocrypt/src/tfm.c
+	in the 'for' loop with loop variable 'ix' at lines C:/wolfssl/ctaocrypt/src/tfm.c:427-450
 	for the statement if ( (*A).used-tx <= ty ) goto g14; else goto g13; at line 439
 	and the statement ((unsigned *)dst)[ix] = c0; at line 449
 
@@ -1208,9 +1208,9 @@ ADVICE: In function fp_mul_comba() in C:/cyassl/ctaocrypt/src/tfm.c
 	to assert that 'A' in the address of (*A).used;
 	and            'dst' in the address of ((unsigned *)dst)[ix];
 	do not access the same object in memory.
-Unrolling 'for' loop on 'iz' at lines C:/cyassl/ctaocrypt/src/tfm.c:443-446 by factor 2.
+Unrolling 'for' loop on 'iz' at lines C:/wolfssl/ctaocrypt/src/tfm.c:443-446 by factor 2.
 Estimated speedup: 1.16x, code size increase: 1.82x (11:->20)
-Unrolling 'while' loop on 'V$0' at lines C:/cyassl/ctaocrypt/src/tfm.c:455-455 by factor 2.
+Unrolling 'while' loop on 'V$0' at lines C:/wolfssl/ctaocrypt/src/tfm.c:455-455 by factor 2.
 Estimated speedup: 1.14x, code size increase: 1.75x (4:->7)
 
 		====== Unroll-and-jam Result Summary ======
@@ -1220,8 +1220,8 @@ LOOP#1 in fp_mul_comba() fails to unroll-and-jam: Outer Loop has multiple blocks
 		====== End Unroll-and-jam Result ======
 
 
-ADVICE: In function fp_mul_comba() in C:/cyassl/ctaocrypt/src/tfm.c
-	in the 'for' loop with loop variable 'ix' at lines C:/cyassl/ctaocrypt/src/tfm.c:427-450
+ADVICE: In function fp_mul_comba() in C:/wolfssl/ctaocrypt/src/tfm.c
+	in the 'for' loop with loop variable 'ix' at lines C:/wolfssl/ctaocrypt/src/tfm.c:427-450
 	for the statement t = _umlal(*tmpx, *tmpy, (unsigned long long)c0); at line 445
 	and the statement ((unsigned *)dst)[ix] = c0; at line 449
 
@@ -1231,8 +1231,8 @@ ADVICE: In function fp_mul_comba() in C:/cyassl/ctaocrypt/src/tfm.c
 	and            'dst' in the address of ((unsigned *)dst)[ix];
 	do not access the same object in memory.
 
-ADVICE: In function fp_mul_comba() in C:/cyassl/ctaocrypt/src/tfm.c
-	in the 'for' loop with loop variable 'ix' at lines C:/cyassl/ctaocrypt/src/tfm.c:427-450
+ADVICE: In function fp_mul_comba() in C:/wolfssl/ctaocrypt/src/tfm.c
+	in the 'for' loop with loop variable 'ix' at lines C:/wolfssl/ctaocrypt/src/tfm.c:427-450
 	for the statement t = _umlal(*tmpx, *tmpy, (unsigned long long)c0); at line 445
 	and the statement ((unsigned *)dst)[ix] = c0; at line 449
 
@@ -1318,15 +1318,15 @@ extern void fp_montgomery_reduce() is called from 4 sites in this file.
     It calls these functions:
 	fp_cmp_mag() (1 times)
 	s_fp_sub() (1 times)
-Unrolling 'for' loop on 'x' at lines C:/cyassl/ctaocrypt/src/tfm.c:1554-1556 by factor 2.
+Unrolling 'for' loop on 'x' at lines C:/wolfssl/ctaocrypt/src/tfm.c:1554-1556 by factor 2.
 Estimated speedup: 1.27x, code size increase: 1.50x (4:->6)
-Unrolling 'for' loop on 'y' at lines C:/cyassl/ctaocrypt/src/tfm.c:1574-1577 by factor 2.
+Unrolling 'for' loop on 'y' at lines C:/wolfssl/ctaocrypt/src/tfm.c:1574-1577 by factor 2.
 Estimated speedup: 1.14x, code size increase: 1.82x (11:->20)
-Unrolling 'for' loop on 'x' at lines C:/cyassl/ctaocrypt/src/tfm.c:1588-1590 by factor 2.
+Unrolling 'for' loop on 'x' at lines C:/wolfssl/ctaocrypt/src/tfm.c:1588-1590 by factor 2.
 Estimated speedup: 1.24x, code size increase: 1.50x (4:->6)
-Unrolling 'for' loop on 'x' at lines C:/cyassl/ctaocrypt/src/tfm.c:1592-1594 by factor 2.
+Unrolling 'for' loop on 'x' at lines C:/wolfssl/ctaocrypt/src/tfm.c:1592-1594 by factor 2.
 Estimated speedup: 1.29x, code size increase: 1.33x (3:->4)
-Unrolling 'while' loop on 'V$0' at lines C:/cyassl/ctaocrypt/src/tfm.c:1599-1599 by factor 2.
+Unrolling 'while' loop on 'V$0' at lines C:/wolfssl/ctaocrypt/src/tfm.c:1599-1599 by factor 2.
 Estimated speedup: 1.14x, code size increase: 1.75x (4:->7)
 
 		====== Unroll-and-jam Result Summary ======
@@ -1336,8 +1336,8 @@ LOOP#3 in fp_montgomery_reduce() fails to unroll-and-jam: Outer Loop has multipl
 		====== End Unroll-and-jam Result ======
 
 
-ADVICE: In function fp_montgomery_reduce() in C:/cyassl/ctaocrypt/src/tfm.c
-	in the 'for' loop with loop variable 'x' at lines C:/cyassl/ctaocrypt/src/tfm.c:1559-1583
+ADVICE: In function fp_montgomery_reduce() in C:/wolfssl/ctaocrypt/src/tfm.c
+	in the 'for' loop with loop variable 'x' at lines C:/wolfssl/ctaocrypt/src/tfm.c:1559-1583
 	for the statement *_c = t; at line 1575
 	and the statement mu = c[x]*mp; at line 1562
 
@@ -1379,8 +1379,8 @@ extern void fp_mul_2() is called from 1 sites in this file.
     It calls these functions:
 	<NONE>
 
-ADVICE: In function fp_mul_2() in C:/cyassl/ctaocrypt/src/tfm.c
-	in the 'for' loop at lines C:/cyassl/ctaocrypt/src/tfm.c:312-326
+ADVICE: In function fp_mul_2() in C:/wolfssl/ctaocrypt/src/tfm.c
+	in the 'for' loop at lines C:/wolfssl/ctaocrypt/src/tfm.c:312-326
 	for the statement rr = *tmpa>>31u; at line 317
 	and the statement *tmpb = *tmpa*2u|r; at line 320
 
@@ -1390,8 +1390,8 @@ ADVICE: In function fp_mul_2() in C:/cyassl/ctaocrypt/src/tfm.c
 	and            'b' in the address of *tmpb;
 	do not access the same object in memory.
 
-ADVICE: In function fp_mul_2() in C:/cyassl/ctaocrypt/src/tfm.c
-	in the 'for' loop at lines C:/cyassl/ctaocrypt/src/tfm.c:312-326
+ADVICE: In function fp_mul_2() in C:/wolfssl/ctaocrypt/src/tfm.c
+	in the 'for' loop at lines C:/wolfssl/ctaocrypt/src/tfm.c:312-326
 	for the statement *tmpb = *tmpa*2u|r; at line 320
 
 	Consider declaring 'a' as struct $$fake0 * const restrict a
@@ -1400,8 +1400,8 @@ ADVICE: In function fp_mul_2() in C:/cyassl/ctaocrypt/src/tfm.c
 	and            'b' in the address of *tmpb;
 	do not access the same object in memory.
 
-ADVICE: In function fp_mul_2() in C:/cyassl/ctaocrypt/src/tfm.c
-	in the 'for' loop at lines C:/cyassl/ctaocrypt/src/tfm.c:312-326
+ADVICE: In function fp_mul_2() in C:/wolfssl/ctaocrypt/src/tfm.c
+	in the 'for' loop at lines C:/wolfssl/ctaocrypt/src/tfm.c:312-326
 	for the statement *tmpb = *tmpa*2u|r; at line 320
 	and the statement if ( x < (*a).used ) goto g3; else goto g4; at line 312
 
@@ -1410,7 +1410,7 @@ ADVICE: In function fp_mul_2() in C:/cyassl/ctaocrypt/src/tfm.c
 	to assert that 'b' in the address of *tmpb;
 	and            'a' in the address of (*a).used;
 	do not access the same object in memory.
-Unrolling 'for' loop on 'x' at lines C:/cyassl/ctaocrypt/src/tfm.c:339-341 by factor 2.
+Unrolling 'for' loop on 'x' at lines C:/wolfssl/ctaocrypt/src/tfm.c:339-341 by factor 2.
 Estimated speedup: 1.29x, code size increase: 1.33x (3:->4)
 
 There are 16 memory accesses with 88 dependences.
@@ -1461,7 +1461,7 @@ extern int fp_leading_bit() is called from 1 sites in this file.
     It has 4 non-trivial scope blocks nested 4 deep.
     It calls these functions:
 	<NONE>
-Unrolling 'while' loop on 'qSz' at lines C:/cyassl/ctaocrypt/src/tfm.c:1717-1722 completely by factor 4.
+Unrolling 'while' loop on 'qSz' at lines C:/wolfssl/ctaocrypt/src/tfm.c:1717-1722 completely by factor 4.
 Estimated speedup: 2.00x, code size increase: 2.29x (7:->16)
 
 There are 2 memory accesses with 0 dependences.
@@ -1508,8 +1508,8 @@ extern void fp_div_2() is called from 11 sites in this file.
     It calls these functions:
 	<NONE>
 
-ADVICE: In function fp_div_2() in C:/cyassl/ctaocrypt/src/tfm.c
-	in the 'for' loop with loop variable 'x' at lines C:/cyassl/ctaocrypt/src/tfm.c:620-629
+ADVICE: In function fp_div_2() in C:/wolfssl/ctaocrypt/src/tfm.c
+	in the 'for' loop with loop variable 'x' at lines C:/wolfssl/ctaocrypt/src/tfm.c:620-629
 	for the statement rr = *tmpa&1u; at line 622
 	and the statement *tmpb = *tmpa>>1|r*0x80000000u; at line 625
 
@@ -1519,8 +1519,8 @@ ADVICE: In function fp_div_2() in C:/cyassl/ctaocrypt/src/tfm.c
 	and            'tmpb' in the address of *tmpb;
 	do not access the same object in memory.
 
-ADVICE: In function fp_div_2() in C:/cyassl/ctaocrypt/src/tfm.c
-	in the 'for' loop with loop variable 'x' at lines C:/cyassl/ctaocrypt/src/tfm.c:620-629
+ADVICE: In function fp_div_2() in C:/wolfssl/ctaocrypt/src/tfm.c
+	in the 'for' loop with loop variable 'x' at lines C:/wolfssl/ctaocrypt/src/tfm.c:620-629
 	for the statement *tmpb = *tmpa>>1|r*0x80000000u; at line 625
 
 	Consider declaring 'tmpa' as unsigned * restrict tmpa
@@ -1528,11 +1528,11 @@ ADVICE: In function fp_div_2() in C:/cyassl/ctaocrypt/src/tfm.c
 	to assert that 'tmpa' in the address of *tmpa;
 	and            'tmpb' in the address of *tmpb;
 	do not access the same object in memory.
-Unrolling 'for' loop on 'x' at lines C:/cyassl/ctaocrypt/src/tfm.c:620-629 by factor 2.
+Unrolling 'for' loop on 'x' at lines C:/wolfssl/ctaocrypt/src/tfm.c:620-629 by factor 2.
 Estimated speedup: 1.17x, code size increase: 1.78x (9:->16)
-Unrolling 'for' loop on 'x' at lines C:/cyassl/ctaocrypt/src/tfm.c:633-635 by factor 2.
+Unrolling 'for' loop on 'x' at lines C:/wolfssl/ctaocrypt/src/tfm.c:633-635 by factor 2.
 Estimated speedup: 1.29x, code size increase: 1.33x (3:->4)
-Unrolling 'while' loop on 'V$0' at lines C:/cyassl/ctaocrypt/src/tfm.c:638-638 by factor 2.
+Unrolling 'while' loop on 'V$0' at lines C:/wolfssl/ctaocrypt/src/tfm.c:638-638 by factor 2.
 Estimated speedup: 1.14x, code size increase: 1.75x (4:->7)
 
 There are 25 memory accesses with 213 dependences.
@@ -1805,7 +1805,7 @@ static int fp_read_radix() is called from 1 sites in this file.
 	toupper() (1 times)
 	fp_mul_d() (1 times)
 	fp_add_d() (1 times)
-Unrolling 'for' loop on 'y' at lines C:/cyassl/ctaocrypt/src/tfm.c:2437-2441 by factor 4.
+Unrolling 'for' loop on 'y' at lines C:/wolfssl/ctaocrypt/src/tfm.c:2437-2441 by factor 4.
 Estimated speedup: 1.33x, code size increase: 2.80x (5:->14)
 
 		====== Unroll-and-jam Result Summary ======

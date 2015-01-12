@@ -77,15 +77,15 @@
 #include "Board.h"
 
 /* CyaSSL Header files */
-#include <cyassl/ssl.h>
-#include <cyassl/certs_test.h>
+#include <wolfssl/ssl.h>
+#include <wolfssl/certs_test.h>
 
 #define TCPPACKETSIZE 1024
 #define TCPPORT 11111
 #define NUMTCPWORKERS 3
 
-/* Set to the IP of the computer running the cyassl command from the 
- * cyassl_root directory: "./examples/server/server -b" 
+/* Set to the IP of the computer running the wolfssl command from the 
+ * wolfssl_root directory: "./examples/server/server -b" 
  * the "-b" tells the server to bind to any interface, not just 127.0.0.1
  */
 #define IP_ADDR "xxx.xxx.x.xxx"
@@ -123,7 +123,7 @@ Void tcpHandler(UArg arg0, UArg arg1) {
 			sizeof(ca_cert_der_2048) / sizeof(char), SSL_FILETYPE_ASN1)
 			!= SSL_SUCCESS) {
 		System_printf("tcpHandler: Error loading ca_cert_der_2048"
-				" please check the cyassl/certs_test.h file.\n");
+				" please check the wolfssl/certs_test.h file.\n");
 		exitApp(ctx);
 	}
 
@@ -131,7 +131,7 @@ Void tcpHandler(UArg arg0, UArg arg1) {
 			sizeof(client_cert_der_2048) / sizeof(char), SSL_FILETYPE_ASN1)
 			!= SSL_SUCCESS) {
 		System_printf("tcpHandler: Error loading client_cert_der_2048,"
-				" please check the cyassl/certs_test.h file.\n");
+				" please check the wolfssl/certs_test.h file.\n");
 		exitApp(ctx);
 	}
 
@@ -139,7 +139,7 @@ Void tcpHandler(UArg arg0, UArg arg1) {
 			sizeof(client_key_der_2048) / sizeof(char), SSL_FILETYPE_ASN1)
 			!= SSL_SUCCESS) {
 		System_printf("tcpHandler: Error loading client_key_der_2048,"
-				" please check the cyassl/certs_test.h file.\n");
+				" please check the wolfssl/certs_test.h file.\n");
 		exitApp(ctx);
 	}
 

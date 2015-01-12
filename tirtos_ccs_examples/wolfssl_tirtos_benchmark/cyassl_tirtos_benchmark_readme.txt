@@ -1,6 +1,6 @@
 Example Summary
 ----------------
-This application demonstrates the cyassl/ctaocrypt/benchmark/benchmark.c
+This application demonstrates the wolfssl/ctaocrypt/benchmark/benchmark.c
 
 optimization flags used
 ----------------

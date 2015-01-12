@@ -11,16 +11,16 @@ var makeAssembly = false;
 var Executable = xdc.module('xdc.bld.Executable');
 
 var exeOpts = new Executable.Attrs({
-        cfgScript: 'C:/Users/khimes/workspace_v6_0/cyasslTest/cyasslTest.cfg',
+        cfgScript: 'C:/Users/khimes/workspace_v6_0/wolfsslTest/wolfsslTest.cfg',
         profile: 'release',
-        cfgHome: 'xconfig_cyasslTest',
+        cfgHome: 'xconfig_wolfsslTest',
 });
 
 exeOpts.cfgArgs = 'null';
 exeOpts.cfgArgsEncoded = true;
 
 var exe = Pkg[makeAssembly ? 'addAssembly': 'addExecutable'](
-    'cyasslTest',
+    'wolfsslTest',
     targ,
     platform,
     exeOpts
@@ -40,10 +40,10 @@ else {
 }
 
 var thisObj = {
-    cfg:        'C:/Users/khimes/workspace_v6_0/cyasslTest/cyasslTest.cfg',
-    outputPath: 'C:/Users/khimes/workspace_v6_0/cyasslTest/.config/xconfig_cyasslTest',
-    exeName:    'cyasslTest' + suffix,
-    exeIntName: 'cyasslTest' + suffix.replace('.', '_'),
+    cfg:        'C:/Users/khimes/workspace_v6_0/wolfsslTest/wolfsslTest.cfg',
+    outputPath: 'C:/Users/khimes/workspace_v6_0/wolfsslTest/.config/xconfig_wolfsslTest',
+    exeName:    'wolfsslTest' + suffix,
+    exeIntName: 'wolfsslTest' + suffix.replace('.', '_'),
     targ:       targ,
     linkerCommandFile: 'linker.cmd',
     compilerOptFile: 'compiler.opt',

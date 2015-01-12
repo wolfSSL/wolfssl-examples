@@ -4,68 +4,68 @@
    <copyright>Copyright (c) 1996-2014 Texas Instruments Incorporated</copyright>
    <link_time>0x53ebd9fc</link_time>
    <link_errors>0x0</link_errors>
-   <output_file>cyassl_tests.out</output_file>
+   <output_file>wolfssl_tests.out</output_file>
    <entry_point>
       <name>_c_int00</name>
       <address>0x20509</address>
    </entry_point>
    <input_file_list>
       <input_file id="fl-3">
-         <path>C:\Users\khimes\Documents\GitHub\wolfssl-examples\tirtos_ccs_examples\cyassl_tests\Debug\configPkg\package\cfg\</path>
+         <path>C:\Users\khimes\Documents\GitHub\wolfssl-examples\tirtos_ccs_examples\wolfssl_tests\Debug\configPkg\package\cfg\</path>
          <kind>object</kind>
-         <file>cyassl_tests_pem4f.oem4f</file>
-         <name>cyassl_tests_pem4f.oem4f</name>
+         <file>wolfssl_tests_pem4f.oem4f</file>
+         <name>wolfssl_tests_pem4f.oem4f</name>
       </input_file>
       <input_file id="fl-18">
-         <path>.\cyassl\ctaocrypt\src\</path>
+         <path>.\wolfssl\ctaocrypt\src\</path>
          <kind>object</kind>
          <file>tfm.obj</file>
          <name>tfm.obj</name>
       </input_file>
       <input_file id="fl-19">
-         <path>.\cyassl\ctaocrypt\src\</path>
+         <path>.\wolfssl\ctaocrypt\src\</path>
          <kind>object</kind>
          <file>sha512.obj</file>
          <name>sha512.obj</name>
       </input_file>
       <input_file id="fl-1a">
-         <path>.\cyassl\ctaocrypt\src\</path>
+         <path>.\wolfssl\ctaocrypt\src\</path>
          <kind>object</kind>
          <file>poly1305.obj</file>
          <name>poly1305.obj</name>
       </input_file>
       <input_file id="fl-1b">
-         <path>.\cyassl\ctaocrypt\src\</path>
+         <path>.\wolfssl\ctaocrypt\src\</path>
          <kind>object</kind>
          <file>integer.obj</file>
          <name>integer.obj</name>
       </input_file>
       <input_file id="fl-1c">
-         <path>.\cyassl\ctaocrypt\src\</path>
+         <path>.\wolfssl\ctaocrypt\src\</path>
          <kind>object</kind>
          <file>ecc.obj</file>
          <name>ecc.obj</name>
       </input_file>
       <input_file id="fl-1d">
-         <path>.\cyassl\ctaocrypt\src\</path>
+         <path>.\wolfssl\ctaocrypt\src\</path>
          <kind>object</kind>
          <file>chacha.obj</file>
          <name>chacha.obj</name>
       </input_file>
       <input_file id="fl-1e">
-         <path>.\cyassl\ctaocrypt\src\</path>
+         <path>.\wolfssl\ctaocrypt\src\</path>
          <kind>object</kind>
          <file>camellia.obj</file>
          <name>camellia.obj</name>
       </input_file>
       <input_file id="fl-1f">
-         <path>.\cyassl\ctaocrypt\src\</path>
+         <path>.\wolfssl\ctaocrypt\src\</path>
          <kind>object</kind>
          <file>blake2b.obj</file>
          <name>blake2b.obj</name>
       </input_file>
       <input_file id="fl-20">
-         <path>.\cyassl\ctaocrypt\src\</path>
+         <path>.\wolfssl\ctaocrypt\src\</path>
          <kind>object</kind>
          <file>asn.obj</file>
          <name>asn.obj</name>
@@ -79,8 +79,8 @@
       <input_file id="fl-22">
          <path>.\</path>
          <kind>object</kind>
-         <file>cyassl_tests.obj</file>
-         <name>cyassl_tests.obj</name>
+         <file>wolfssl_tests.obj</file>
+         <name>wolfssl_tests.obj</name>
       </input_file>
       <input_file id="fl-23">
          <path>.\</path>
@@ -1001,135 +1001,135 @@
          <name>mytime.oem4f</name>
       </input_file>
       <input_file id="fl-1ea">
-         <path>C:\cyassl\tirtos\packages\ti\net\cyassl\lib\</path>
+         <path>C:\wolfssl\tirtos\packages\ti\net\wolfssl\lib\</path>
          <kind>archive</kind>
-         <file>ti.net.cyassl.aem4f</file>
+         <file>ti.net.wolfssl.aem4f</file>
          <name>aes.oem4f</name>
       </input_file>
       <input_file id="fl-1eb">
-         <path>C:\cyassl\tirtos\packages\ti\net\cyassl\lib\</path>
+         <path>C:\wolfssl\tirtos\packages\ti\net\wolfssl\lib\</path>
          <kind>archive</kind>
-         <file>ti.net.cyassl.aem4f</file>
+         <file>ti.net.wolfssl.aem4f</file>
          <name>arc4.oem4f</name>
       </input_file>
       <input_file id="fl-1ec">
-         <path>C:\cyassl\tirtos\packages\ti\net\cyassl\lib\</path>
+         <path>C:\wolfssl\tirtos\packages\ti\net\wolfssl\lib\</path>
          <kind>archive</kind>
-         <file>ti.net.cyassl.aem4f</file>
+         <file>ti.net.wolfssl.aem4f</file>
          <name>des3.oem4f</name>
       </input_file>
       <input_file id="fl-1ed">
-         <path>C:\cyassl\tirtos\packages\ti\net\cyassl\lib\</path>
+         <path>C:\wolfssl\tirtos\packages\ti\net\wolfssl\lib\</path>
          <kind>archive</kind>
-         <file>ti.net.cyassl.aem4f</file>
+         <file>ti.net.wolfssl.aem4f</file>
          <name>dh.oem4f</name>
       </input_file>
       <input_file id="fl-1ee">
-         <path>C:\cyassl\tirtos\packages\ti\net\cyassl\lib\</path>
+         <path>C:\wolfssl\tirtos\packages\ti\net\wolfssl\lib\</path>
          <kind>archive</kind>
-         <file>ti.net.cyassl.aem4f</file>
+         <file>ti.net.wolfssl.aem4f</file>
          <name>dsa.oem4f</name>
       </input_file>
       <input_file id="fl-1ef">
-         <path>C:\cyassl\tirtos\packages\ti\net\cyassl\lib\</path>
+         <path>C:\wolfssl\tirtos\packages\ti\net\wolfssl\lib\</path>
          <kind>archive</kind>
-         <file>ti.net.cyassl.aem4f</file>
+         <file>ti.net.wolfssl.aem4f</file>
          <name>hmac.oem4f</name>
       </input_file>
       <input_file id="fl-1f0">
-         <path>C:\cyassl\tirtos\packages\ti\net\cyassl\lib\</path>
+         <path>C:\wolfssl\tirtos\packages\ti\net\wolfssl\lib\</path>
          <kind>archive</kind>
-         <file>ti.net.cyassl.aem4f</file>
+         <file>ti.net.wolfssl.aem4f</file>
          <name>md4.oem4f</name>
       </input_file>
       <input_file id="fl-1f1">
-         <path>C:\cyassl\tirtos\packages\ti\net\cyassl\lib\</path>
+         <path>C:\wolfssl\tirtos\packages\ti\net\wolfssl\lib\</path>
          <kind>archive</kind>
-         <file>ti.net.cyassl.aem4f</file>
+         <file>ti.net.wolfssl.aem4f</file>
          <name>md5.oem4f</name>
       </input_file>
       <input_file id="fl-1f2">
-         <path>C:\cyassl\tirtos\packages\ti\net\cyassl\lib\</path>
+         <path>C:\wolfssl\tirtos\packages\ti\net\wolfssl\lib\</path>
          <kind>archive</kind>
-         <file>ti.net.cyassl.aem4f</file>
+         <file>ti.net.wolfssl.aem4f</file>
          <name>memory.oem4f</name>
       </input_file>
       <input_file id="fl-1f3">
-         <path>C:\cyassl\tirtos\packages\ti\net\cyassl\lib\</path>
+         <path>C:\wolfssl\tirtos\packages\ti\net\wolfssl\lib\</path>
          <kind>archive</kind>
-         <file>ti.net.cyassl.aem4f</file>
+         <file>ti.net.wolfssl.aem4f</file>
          <name>pwdbased.oem4f</name>
       </input_file>
       <input_file id="fl-1f4">
-         <path>C:\cyassl\tirtos\packages\ti\net\cyassl\lib\</path>
+         <path>C:\wolfssl\tirtos\packages\ti\net\wolfssl\lib\</path>
          <kind>archive</kind>
-         <file>ti.net.cyassl.aem4f</file>
+         <file>ti.net.wolfssl.aem4f</file>
          <name>rabbit.oem4f</name>
       </input_file>
       <input_file id="fl-1f5">
-         <path>C:\cyassl\tirtos\packages\ti\net\cyassl\lib\</path>
+         <path>C:\wolfssl\tirtos\packages\ti\net\wolfssl\lib\</path>
          <kind>archive</kind>
-         <file>ti.net.cyassl.aem4f</file>
+         <file>ti.net.wolfssl.aem4f</file>
          <name>random.oem4f</name>
       </input_file>
       <input_file id="fl-1f6">
-         <path>C:\cyassl\tirtos\packages\ti\net\cyassl\lib\</path>
+         <path>C:\wolfssl\tirtos\packages\ti\net\wolfssl\lib\</path>
          <kind>archive</kind>
-         <file>ti.net.cyassl.aem4f</file>
+         <file>ti.net.wolfssl.aem4f</file>
          <name>rsa.oem4f</name>
       </input_file>
       <input_file id="fl-1f7">
-         <path>C:\cyassl\tirtos\packages\ti\net\cyassl\lib\</path>
+         <path>C:\wolfssl\tirtos\packages\ti\net\wolfssl\lib\</path>
          <kind>archive</kind>
-         <file>ti.net.cyassl.aem4f</file>
+         <file>ti.net.wolfssl.aem4f</file>
          <name>sha.oem4f</name>
       </input_file>
       <input_file id="fl-1f8">
-         <path>C:\cyassl\tirtos\packages\ti\net\cyassl\lib\</path>
+         <path>C:\wolfssl\tirtos\packages\ti\net\wolfssl\lib\</path>
          <kind>archive</kind>
-         <file>ti.net.cyassl.aem4f</file>
+         <file>ti.net.wolfssl.aem4f</file>
          <name>sha256.oem4f</name>
       </input_file>
       <input_file id="fl-1f9">
-         <path>C:\cyassl\tirtos\packages\ti\net\cyassl\lib\</path>
+         <path>C:\wolfssl\tirtos\packages\ti\net\wolfssl\lib\</path>
          <kind>archive</kind>
-         <file>ti.net.cyassl.aem4f</file>
+         <file>ti.net.wolfssl.aem4f</file>
          <name>ssl.oem4f</name>
       </input_file>
       <input_file id="fl-1fa">
-         <path>C:\cyassl\tirtos\packages\ti\net\cyassl\lib\</path>
+         <path>C:\wolfssl\tirtos\packages\ti\net\wolfssl\lib\</path>
          <kind>archive</kind>
-         <file>ti.net.cyassl.aem4f</file>
+         <file>ti.net.wolfssl.aem4f</file>
          <name>tls.oem4f</name>
       </input_file>
       <input_file id="fl-1fb">
-         <path>C:\cyassl\tirtos\packages\ti\net\cyassl\lib\</path>
+         <path>C:\wolfssl\tirtos\packages\ti\net\wolfssl\lib\</path>
          <kind>archive</kind>
-         <file>ti.net.cyassl.aem4f</file>
+         <file>ti.net.wolfssl.aem4f</file>
          <name>coding.oem4f</name>
       </input_file>
       <input_file id="fl-1fc">
-         <path>C:\cyassl\tirtos\packages\ti\net\cyassl\lib\</path>
+         <path>C:\wolfssl\tirtos\packages\ti\net\wolfssl\lib\</path>
          <kind>archive</kind>
-         <file>ti.net.cyassl.aem4f</file>
+         <file>ti.net.wolfssl.aem4f</file>
          <name>wc_port.oem4f</name>
       </input_file>
       <input_file id="fl-1fd">
-         <path>C:\cyassl\tirtos\packages\ti\net\cyassl\lib\</path>
+         <path>C:\wolfssl\tirtos\packages\ti\net\wolfssl\lib\</path>
          <kind>archive</kind>
-         <file>ti.net.cyassl.aem4f</file>
+         <file>ti.net.wolfssl.aem4f</file>
          <name>internal.oem4f</name>
       </input_file>
       <input_file id="fl-1fe">
-         <path>C:\cyassl\tirtos\packages\ti\net\cyassl\lib\</path>
+         <path>C:\wolfssl\tirtos\packages\ti\net\wolfssl\lib\</path>
          <kind>archive</kind>
-         <file>ti.net.cyassl.aem4f</file>
+         <file>ti.net.wolfssl.aem4f</file>
          <name>io.oem4f</name>
       </input_file>
       <input_file id="fl-1ff">
-         <path>C:\cyassl\tirtos\packages\ti\net\cyassl\lib\</path>
+         <path>C:\wolfssl\tirtos\packages\ti\net\wolfssl\lib\</path>
          <kind>archive</kind>
-         <file>ti.net.cyassl.aem4f</file>
+         <file>ti.net.wolfssl.aem4f</file>
          <name>keys.oem4f</name>
       </input_file>
       <input_file id="fl-200">
@@ -79270,7 +79270,7 @@
       </object_component>
    </object_component_list>
    <logical_group_list>
-      <logical_group id="lg-5" display="no" color="cyan">
+      <logical_group id="lg-5" display="no" color="wolfn">
          <name>.bootVecs</name>
          <run_address>0x0</run_address>
          <size>0x8</size>
@@ -79278,7 +79278,7 @@
             <object_component_ref idref="oc-36"/>
          </contents>
       </logical_group>
-      <logical_group id="lg-6" display="no" color="cyan">
+      <logical_group id="lg-6" display="no" color="wolfn">
          <name>.vecs</name>
          <run_address>0x20000000</run_address>
          <size>0x360</size>
@@ -79286,7 +79286,7 @@
             <object_component_ref idref="oc-32"/>
          </contents>
       </logical_group>
-      <logical_group id="lg-7" display="no" color="cyan">
+      <logical_group id="lg-7" display="no" color="wolfn">
          <name>.resetVecs</name>
          <load_address>0x0</load_address>
          <run_address>0x0</run_address>
@@ -79295,7 +79295,7 @@
             <object_component_ref idref="oc-2f"/>
          </contents>
       </logical_group>
-      <logical_group id="lg-8" display="no" color="cyan">
+      <logical_group id="lg-8" display="no" color="wolfn">
          <name>xdc.meta</name>
          <load_address>0x0</load_address>
          <run_address>0x0</run_address>
@@ -79304,14 +79304,14 @@
             <object_component_ref idref="oc-2c"/>
          </contents>
       </logical_group>
-      <logical_group id="lg-a" display="no" color="cyan">
+      <logical_group id="lg-a" display="no" color="wolfn">
          <name>.intvecs</name>
          <run_address>0x0</run_address>
          <size>0x0</size>
          <contents>
          </contents>
       </logical_group>
-      <logical_group id="lg-b" display="no" color="cyan">
+      <logical_group id="lg-b" display="no" color="wolfn">
          <name>.text</name>
          <load_address>0x3c</load_address>
          <run_address>0x3c</run_address>
@@ -80317,7 +80317,7 @@
             <object_component_ref idref="oc-362"/>
          </contents>
       </logical_group>
-      <logical_group id="lg-c" display="no" color="cyan">
+      <logical_group id="lg-c" display="no" color="wolfn">
          <name>.const</name>
          <load_address>0x25938</load_address>
          <run_address>0x25938</run_address>
@@ -80587,7 +80587,7 @@
             <object_component_ref idref="oc-2297"/>
          </contents>
       </logical_group>
-      <logical_group id="lg-d" display="no" color="cyan">
+      <logical_group id="lg-d" display="no" color="wolfn">
          <name>.cinit</name>
          <load_address>0x2de30</load_address>
          <run_address>0x2de30</run_address>
@@ -80600,28 +80600,28 @@
             <object_component_ref idref="oc-2bb8"/>
          </contents>
       </logical_group>
-      <logical_group id="lg-e" display="no" color="cyan">
+      <logical_group id="lg-e" display="no" color="wolfn">
          <name>.pinit</name>
          <run_address>0x0</run_address>
          <size>0x0</size>
          <contents>
          </contents>
       </logical_group>
-      <logical_group id="lg-f" display="no" color="cyan">
+      <logical_group id="lg-f" display="no" color="wolfn">
          <name>.init_array</name>
          <run_address>0x0</run_address>
          <size>0x0</size>
          <contents>
          </contents>
       </logical_group>
-      <logical_group id="lg-10" display="no" color="cyan">
+      <logical_group id="lg-10" display="no" color="wolfn">
          <name>.vtable</name>
          <run_address>0x0</run_address>
          <size>0x0</size>
          <contents>
          </contents>
       </logical_group>
-      <logical_group id="lg-11" display="no" color="cyan">
+      <logical_group id="lg-11" display="no" color="wolfn">
          <name>.data</name>
          <run_address>0x2002eaa0</run_address>
          <size>0xc6c</size>
@@ -80689,7 +80689,7 @@
             <object_component_ref idref="oc-2a88"/>
          </contents>
       </logical_group>
-      <logical_group id="lg-12" display="no" color="cyan">
+      <logical_group id="lg-12" display="no" color="wolfn">
          <name>.bss</name>
          <run_address>0x20000380</run_address>
          <size>0x2e720</size>
@@ -80736,14 +80736,14 @@
             <object_component_ref idref="oc-236e"/>
          </contents>
       </logical_group>
-      <logical_group id="lg-13" display="no" color="cyan">
+      <logical_group id="lg-13" display="no" color="wolfn">
          <name>.sysmem</name>
          <run_address>0x0</run_address>
          <size>0x0</size>
          <contents>
          </contents>
       </logical_group>
-      <logical_group id="lg-14" display="no" color="cyan">
+      <logical_group id="lg-14" display="no" color="wolfn">
          <name>.stack</name>
          <run_address>0x2002f70c</run_address>
          <size>0x800</size>
@@ -80752,7 +80752,7 @@
             <object_component_ref idref="oc-2bbc"/>
          </contents>
       </logical_group>
-      <logical_group id="lg-2ba7" display="never" color="cyan">
+      <logical_group id="lg-2ba7" display="never" color="wolfn">
          <name>.debug_aranges</name>
          <load_address>0x0</load_address>
          <run_address>0x0</run_address>
@@ -81628,7 +81628,7 @@
             <object_component_ref idref="oc-2b8d"/>
          </contents>
       </logical_group>
-      <logical_group id="lg-2ba9" display="never" color="cyan">
+      <logical_group id="lg-2ba9" display="never" color="wolfn">
          <name>.debug_line</name>
          <load_address>0x0</load_address>
          <run_address>0x0</run_address>
@@ -83618,7 +83618,7 @@
             <object_component_ref idref="oc-2b95"/>
          </contents>
       </logical_group>
-      <logical_group id="lg-2bab" display="never" color="cyan">
+      <logical_group id="lg-2bab" display="never" color="wolfn">
          <name>.debug_info</name>
          <load_address>0x0</load_address>
          <run_address>0x0</run_address>
@@ -85609,7 +85609,7 @@
             <object_component_ref idref="oc-2bbd"/>
          </contents>
       </logical_group>
-      <logical_group id="lg-2bad" display="never" color="cyan">
+      <logical_group id="lg-2bad" display="never" color="wolfn">
          <name>.debug_pubnames</name>
          <load_address>0x0</load_address>
          <run_address>0x0</run_address>
@@ -86844,7 +86844,7 @@
             <object_component_ref idref="oc-2b8e"/>
          </contents>
       </logical_group>
-      <logical_group id="lg-2baf" display="never" color="cyan">
+      <logical_group id="lg-2baf" display="never" color="wolfn">
          <name>.debug_frame</name>
          <load_address>0x0</load_address>
          <run_address>0x0</run_address>
@@ -87351,7 +87351,7 @@
             <object_component_ref idref="oc-2a15"/>
          </contents>
       </logical_group>
-      <logical_group id="lg-2bb1" display="never" color="cyan">
+      <logical_group id="lg-2bb1" display="never" color="wolfn">
          <name>.debug_abbrev</name>
          <load_address>0x0</load_address>
          <run_address>0x0</run_address>
@@ -89342,7 +89342,7 @@
             <object_component_ref idref="oc-2bbe"/>
          </contents>
       </logical_group>
-      <logical_group id="lg-2bb3" display="never" color="cyan">
+      <logical_group id="lg-2bb3" display="never" color="wolfn">
          <name>.debug_pubtypes</name>
          <load_address>0x0</load_address>
          <run_address>0x0</run_address>
@@ -89968,7 +89968,7 @@
             <object_component_ref idref="oc-2b60"/>
          </contents>
       </logical_group>
-      <logical_group id="lg-2bb5" display="never" color="cyan">
+      <logical_group id="lg-2bb5" display="never" color="wolfn">
          <name>.debug_str</name>
          <load_address>0x0</load_address>
          <run_address>0x0</run_address>
@@ -90589,7 +90589,7 @@
             <object_component_ref idref="oc-2b63"/>
          </contents>
       </logical_group>
-      <load_segment id="lg-2bec" display="no" color="cyan">
+      <load_segment id="lg-2bec" display="no" color="wolfn">
          <name>SEGMENT_0</name>
          <load_address>0x0</load_address>
          <run_address>0x0</run_address>
@@ -90602,7 +90602,7 @@
             <logical_group_ref idref="lg-d"/>
          </contents>
       </load_segment>
-      <load_segment id="lg-2bed" display="no" color="cyan">
+      <load_segment id="lg-2bed" display="no" color="wolfn">
          <name>SEGMENT_1</name>
          <run_address>0x20000000</run_address>
          <size>0x360</size>
@@ -90611,7 +90611,7 @@
             <logical_group_ref idref="lg-6"/>
          </contents>
       </load_segment>
-      <load_segment id="lg-2bee" display="no" color="cyan">
+      <load_segment id="lg-2bee" display="no" color="wolfn">
          <name>SEGMENT_2</name>
          <run_address>0x20000380</run_address>
          <size>0x2fb8c</size>

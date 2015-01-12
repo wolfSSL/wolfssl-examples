@@ -26,7 +26,7 @@
 -l"C:\ti\ndk_2_24_00_05_eng\packages\ti\ndk\stack\lib\stk.aem4f"
 -l"C:\ti\tirtos_tivac_2_00_02_36\products\bios_6_40_02_27\packages\ti\sysbios\lib\sysbios\instrumented\sysbios.aem4f"
 -l"C:\ti\tirtos_tivac_2_00_02_36\products\bios_6_40_02_27\packages\ti\catalog\arm\cortexm4\tiva\ce\lib\Boot.aem4f"
--l"C:\cyassl\tirtos\packages\ti\net\cyassl\lib\ti.net.cyassl.aem4f"
+-l"C:\wolfssl\tirtos\packages\ti\net\wolfssl\lib\ti.net.wolfssl.aem4f"
 -l"C:\ti\tirtos_tivac_2_00_02_36\products\bios_6_40_02_27\packages\ti\targets\arm\rtsarm\lib\ti.targets.arm.rtsarm.aem4f"
 -l"C:\ti\tirtos_tivac_2_00_02_36\products\bios_6_40_02_27\packages\ti\targets\arm\rtsarm\lib\boot.aem4f"
 -l"C:\ti\tirtos_tivac_2_00_02_36\products\bios_6_40_02_27\packages\ti\targets\arm\rtsarm\lib\auto_init.aem4f"
@@ -88,7 +88,7 @@
 
 /* Content from ti.tirtos (null): */
 
-/* Content from ti.net.cyassl (null): */
+/* Content from ti.net.wolfssl (null): */
 
 /* Content from ti.sysbios.rts (ti/sysbios/rts/linkcmd.xdt): */
 

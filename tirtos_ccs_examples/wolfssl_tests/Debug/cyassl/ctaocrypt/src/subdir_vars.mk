@@ -4,69 +4,69 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
-C:/cyassl/ctaocrypt/src/asn.c \
-C:/cyassl/ctaocrypt/src/blake2b.c \
-C:/cyassl/ctaocrypt/src/camellia.c \
-C:/cyassl/ctaocrypt/src/chacha.c \
-C:/cyassl/ctaocrypt/src/ecc.c \
-C:/cyassl/ctaocrypt/src/integer.c \
-C:/cyassl/ctaocrypt/src/poly1305.c \
-C:/cyassl/ctaocrypt/src/sha512.c \
-C:/cyassl/ctaocrypt/src/tfm.c 
+C:/wolfssl/ctaocrypt/src/asn.c \
+C:/wolfssl/ctaocrypt/src/blake2b.c \
+C:/wolfssl/ctaocrypt/src/camellia.c \
+C:/wolfssl/ctaocrypt/src/chacha.c \
+C:/wolfssl/ctaocrypt/src/ecc.c \
+C:/wolfssl/ctaocrypt/src/integer.c \
+C:/wolfssl/ctaocrypt/src/poly1305.c \
+C:/wolfssl/ctaocrypt/src/sha512.c \
+C:/wolfssl/ctaocrypt/src/tfm.c 
 
 OBJS += \
-./cyassl/ctaocrypt/src/asn.obj \
-./cyassl/ctaocrypt/src/blake2b.obj \
-./cyassl/ctaocrypt/src/camellia.obj \
-./cyassl/ctaocrypt/src/chacha.obj \
-./cyassl/ctaocrypt/src/ecc.obj \
-./cyassl/ctaocrypt/src/integer.obj \
-./cyassl/ctaocrypt/src/poly1305.obj \
-./cyassl/ctaocrypt/src/sha512.obj \
-./cyassl/ctaocrypt/src/tfm.obj 
+./wolfssl/ctaocrypt/src/asn.obj \
+./wolfssl/ctaocrypt/src/blake2b.obj \
+./wolfssl/ctaocrypt/src/camellia.obj \
+./wolfssl/ctaocrypt/src/chacha.obj \
+./wolfssl/ctaocrypt/src/ecc.obj \
+./wolfssl/ctaocrypt/src/integer.obj \
+./wolfssl/ctaocrypt/src/poly1305.obj \
+./wolfssl/ctaocrypt/src/sha512.obj \
+./wolfssl/ctaocrypt/src/tfm.obj 
 
 C_DEPS += \
-./cyassl/ctaocrypt/src/asn.pp \
-./cyassl/ctaocrypt/src/blake2b.pp \
-./cyassl/ctaocrypt/src/camellia.pp \
-./cyassl/ctaocrypt/src/chacha.pp \
-./cyassl/ctaocrypt/src/ecc.pp \
-./cyassl/ctaocrypt/src/integer.pp \
-./cyassl/ctaocrypt/src/poly1305.pp \
-./cyassl/ctaocrypt/src/sha512.pp \
-./cyassl/ctaocrypt/src/tfm.pp 
+./wolfssl/ctaocrypt/src/asn.pp \
+./wolfssl/ctaocrypt/src/blake2b.pp \
+./wolfssl/ctaocrypt/src/camellia.pp \
+./wolfssl/ctaocrypt/src/chacha.pp \
+./wolfssl/ctaocrypt/src/ecc.pp \
+./wolfssl/ctaocrypt/src/integer.pp \
+./wolfssl/ctaocrypt/src/poly1305.pp \
+./wolfssl/ctaocrypt/src/sha512.pp \
+./wolfssl/ctaocrypt/src/tfm.pp 
 
 C_DEPS__QUOTED += \
-"cyassl\ctaocrypt\src\asn.pp" \
-"cyassl\ctaocrypt\src\blake2b.pp" \
-"cyassl\ctaocrypt\src\camellia.pp" \
-"cyassl\ctaocrypt\src\chacha.pp" \
-"cyassl\ctaocrypt\src\ecc.pp" \
-"cyassl\ctaocrypt\src\integer.pp" \
-"cyassl\ctaocrypt\src\poly1305.pp" \
-"cyassl\ctaocrypt\src\sha512.pp" \
-"cyassl\ctaocrypt\src\tfm.pp" 
+"wolfssl\ctaocrypt\src\asn.pp" \
+"wolfssl\ctaocrypt\src\blake2b.pp" \
+"wolfssl\ctaocrypt\src\camellia.pp" \
+"wolfssl\ctaocrypt\src\chacha.pp" \
+"wolfssl\ctaocrypt\src\ecc.pp" \
+"wolfssl\ctaocrypt\src\integer.pp" \
+"wolfssl\ctaocrypt\src\poly1305.pp" \
+"wolfssl\ctaocrypt\src\sha512.pp" \
+"wolfssl\ctaocrypt\src\tfm.pp" 
 
 OBJS__QUOTED += \
-"cyassl\ctaocrypt\src\asn.obj" \
-"cyassl\ctaocrypt\src\blake2b.obj" \
-"cyassl\ctaocrypt\src\camellia.obj" \
-"cyassl\ctaocrypt\src\chacha.obj" \
-"cyassl\ctaocrypt\src\ecc.obj" \
-"cyassl\ctaocrypt\src\integer.obj" \
-"cyassl\ctaocrypt\src\poly1305.obj" \
-"cyassl\ctaocrypt\src\sha512.obj" \
-"cyassl\ctaocrypt\src\tfm.obj" 
+"wolfssl\ctaocrypt\src\asn.obj" \
+"wolfssl\ctaocrypt\src\blake2b.obj" \
+"wolfssl\ctaocrypt\src\camellia.obj" \
+"wolfssl\ctaocrypt\src\chacha.obj" \
+"wolfssl\ctaocrypt\src\ecc.obj" \
+"wolfssl\ctaocrypt\src\integer.obj" \
+"wolfssl\ctaocrypt\src\poly1305.obj" \
+"wolfssl\ctaocrypt\src\sha512.obj" \
+"wolfssl\ctaocrypt\src\tfm.obj" 
 
 C_SRCS__QUOTED += \
-"C:/cyassl/ctaocrypt/src/asn.c" \
-"C:/cyassl/ctaocrypt/src/blake2b.c" \
-"C:/cyassl/ctaocrypt/src/camellia.c" \
-"C:/cyassl/ctaocrypt/src/chacha.c" \
-"C:/cyassl/ctaocrypt/src/ecc.c" \
-"C:/cyassl/ctaocrypt/src/integer.c" \
-"C:/cyassl/ctaocrypt/src/poly1305.c" \
-"C:/cyassl/ctaocrypt/src/sha512.c" \
-"C:/cyassl/ctaocrypt/src/tfm.c" 
+"C:/wolfssl/ctaocrypt/src/asn.c" \
+"C:/wolfssl/ctaocrypt/src/blake2b.c" \
+"C:/wolfssl/ctaocrypt/src/camellia.c" \
+"C:/wolfssl/ctaocrypt/src/chacha.c" \
+"C:/wolfssl/ctaocrypt/src/ecc.c" \
+"C:/wolfssl/ctaocrypt/src/integer.c" \
+"C:/wolfssl/ctaocrypt/src/poly1305.c" \
+"C:/wolfssl/ctaocrypt/src/sha512.c" \
+"C:/wolfssl/ctaocrypt/src/tfm.c" 
 
 

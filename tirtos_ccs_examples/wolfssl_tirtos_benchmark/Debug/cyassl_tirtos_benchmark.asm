@@ -6,10 +6,10 @@
 	.thumb
 
 $C$DW$CU	.dwtag  DW_TAG_compile_unit
-	.dwattr $C$DW$CU, DW_AT_name("../cyassl_tirtos_benchmark.c")
+	.dwattr $C$DW$CU, DW_AT_name("../wolfssl_tirtos_benchmark.c")
 	.dwattr $C$DW$CU, DW_AT_producer("TI TI ARM C/C++ Codegen PC v5.1.6 Copyright (c) 1996-2014 Texas Instruments Incorporated")
 	.dwattr $C$DW$CU, DW_AT_TI_version(0x01)
-	.dwattr $C$DW$CU, DW_AT_comp_dir("C:\Users\khimes\Documents\GitHub\wolfssl-examples\tirtos_ccs_examples\cyassl_tirtos_benchmark\Debug")
+	.dwattr $C$DW$CU, DW_AT_comp_dir("C:\Users\khimes\Documents\GitHub\wolfssl-examples\tirtos_ccs_examples\wolfssl_tirtos_benchmark\Debug")
 
 $C$DW$1	.dwtag  DW_TAG_subprogram, DW_AT_name("ti_sysbios_BIOS_start__E")
 	.dwattr $C$DW$1, DW_AT_TI_symbol_name("ti_sysbios_BIOS_start__E")
@@ -159,7 +159,7 @@ $C$DW$31	.dwtag  DW_TAG_subprogram, DW_AT_name("benchmark_test")
 	.dwattr $C$DW$31, DW_AT_type(*$C$DW$T$10)
 	.dwattr $C$DW$31, DW_AT_declaration
 	.dwattr $C$DW$31, DW_AT_external
-	.dwattr $C$DW$31, DW_AT_decl_file("../cyassl_tirtos_benchmark.c")
+	.dwattr $C$DW$31, DW_AT_decl_file("../wolfssl_tirtos_benchmark.c")
 	.dwattr $C$DW$31, DW_AT_decl_line(0x47)
 	.dwattr $C$DW$31, DW_AT_decl_column(0x0c)
 $C$DW$32	.dwtag  DW_TAG_formal_parameter
@@ -184,7 +184,7 @@ $C$DW$33	.dwtag  DW_TAG_variable, DW_AT_name("initialized")
 	.dwattr $C$DW$33, DW_AT_TI_symbol_name("initialized")
 	.dwattr $C$DW$33, DW_AT_type(*$C$DW$T$10)
 	.dwattr $C$DW$33, DW_AT_location[DW_OP_addr initialized]
-	.dwattr $C$DW$33, DW_AT_decl_file("../cyassl_tirtos_benchmark.c")
+	.dwattr $C$DW$33, DW_AT_decl_file("../wolfssl_tirtos_benchmark.c")
 	.dwattr $C$DW$33, DW_AT_decl_line(0x3f)
 	.dwattr $C$DW$33, DW_AT_decl_column(0x0c)
 hdl:	.set	||$O1$$||+4
@@ -192,7 +192,7 @@ $C$DW$34	.dwtag  DW_TAG_variable, DW_AT_name("hdl")
 	.dwattr $C$DW$34, DW_AT_TI_symbol_name("hdl")
 	.dwattr $C$DW$34, DW_AT_type(*$C$DW$T$215)
 	.dwattr $C$DW$34, DW_AT_location[DW_OP_addr hdl]
-	.dwattr $C$DW$34, DW_AT_decl_file("../cyassl_tirtos_benchmark.c")
+	.dwattr $C$DW$34, DW_AT_decl_file("../wolfssl_tirtos_benchmark.c")
 	.dwattr $C$DW$34, DW_AT_decl_line(0x41)
 	.dwattr $C$DW$34, DW_AT_decl_column(0x15)
 msTicks:	.set	||$O1$$||+8
@@ -200,10 +200,10 @@ $C$DW$35	.dwtag  DW_TAG_variable, DW_AT_name("msTicks")
 	.dwattr $C$DW$35, DW_AT_TI_symbol_name("msTicks")
 	.dwattr $C$DW$35, DW_AT_type(*$C$DW$T$17)
 	.dwattr $C$DW$35, DW_AT_location[DW_OP_addr msTicks]
-	.dwattr $C$DW$35, DW_AT_decl_file("../cyassl_tirtos_benchmark.c")
+	.dwattr $C$DW$35, DW_AT_decl_file("../wolfssl_tirtos_benchmark.c")
 	.dwattr $C$DW$35, DW_AT_decl_line(0x40)
 	.dwattr $C$DW$35, DW_AT_decl_column(0x0f)
-;	c:\ti\ccsv6\tools\compiler\arm_5.1.6\bin\armopt.exe --call_assumptions=3 --gen_opt_info=2 C:\\Users\\khimes\\AppData\\Local\\Temp\\025842 C:\\Users\\khimes\\AppData\\Local\\Temp\\025844 --opt_info_filename=cyassl_tirtos_benchmark.nfo 
+;	c:\ti\ccsv6\tools\compiler\arm_5.1.6\bin\armopt.exe --call_assumptions=3 --gen_opt_info=2 C:\\Users\\khimes\\AppData\\Local\\Temp\\025842 C:\\Users\\khimes\\AppData\\Local\\Temp\\025844 --opt_info_filename=wolfssl_tirtos_benchmark.nfo 
 ;
 
 ; The following variables will be grouped together to share a common
@@ -225,14 +225,14 @@ $C$DW$36	.dwtag  DW_TAG_subprogram, DW_AT_name("tick")
 	.dwattr $C$DW$36, DW_AT_low_pc(tick)
 	.dwattr $C$DW$36, DW_AT_high_pc(0x00)
 	.dwattr $C$DW$36, DW_AT_TI_symbol_name("tick")
-	.dwattr $C$DW$36, DW_AT_TI_begin_file("../cyassl_tirtos_benchmark.c")
+	.dwattr $C$DW$36, DW_AT_TI_begin_file("../wolfssl_tirtos_benchmark.c")
 	.dwattr $C$DW$36, DW_AT_TI_begin_line(0x5e)
 	.dwattr $C$DW$36, DW_AT_TI_begin_column(0x0d)
-	.dwattr $C$DW$36, DW_AT_decl_file("../cyassl_tirtos_benchmark.c")
+	.dwattr $C$DW$36, DW_AT_decl_file("../wolfssl_tirtos_benchmark.c")
 	.dwattr $C$DW$36, DW_AT_decl_line(0x5e)
 	.dwattr $C$DW$36, DW_AT_decl_column(0x0d)
 	.dwattr $C$DW$36, DW_AT_TI_max_frame_size(0x08)
-	.dwpsn	file "../cyassl_tirtos_benchmark.c",line 95,column 1,is_stmt,address tick,isa 1
+	.dwpsn	file "../wolfssl_tirtos_benchmark.c",line 95,column 1,is_stmt,address tick,isa 1
 
 	.dwfde $C$DW$CIE, tick
 $C$DW$37	.dwtag  DW_TAG_formal_parameter, DW_AT_name("arg0")
@@ -262,14 +262,14 @@ tick:
 	.dwcfi	cfa_offset, 8
 	.dwcfi	save_reg_to_mem, 14, -4
 	.dwcfi	save_reg_to_mem, 4, -8
-	.dwpsn	file "../cyassl_tirtos_benchmark.c",line 96,column 5,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tirtos_benchmark.c",line 96,column 5,is_stmt,isa 1
 $C$DW$38	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$38, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$38, DW_AT_name("ti_sysbios_knl_Swi_disable__E")
 	.dwattr $C$DW$38, DW_AT_TI_call
         BL        ti_sysbios_knl_Swi_disable__E ; [DPU_3_PIPE] |96| 
         ; CALL OCCURS {ti_sysbios_knl_Swi_disable__E }  ; [] |96| 
-	.dwpsn	file "../cyassl_tirtos_benchmark.c",line 97,column 5,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tirtos_benchmark.c",line 97,column 5,is_stmt,isa 1
         ADR       A3, $C$FL1            ; [DPU_3_PIPE] |97| 
         LDMIA     A3, {A3,A4}           ; [DPU_3_PIPE] |97| 
         MOVW      V1, ||$O1$$||+0       ; [DPU_3_PIPE] |97| 
@@ -284,7 +284,7 @@ $C$DW$39	.dwtag  DW_TAG_TI_branch
         ; CALL OCCURS {__aeabi_dadd }    ; [] |97| 
         ADDS      V1, V1, #8            ; [DPU_3_PIPE] |97| 
         STMIA     V1, {A1,A2}           ; [DPU_3_PIPE] |97| 
-	.dwpsn	file "../cyassl_tirtos_benchmark.c",line 98,column 5,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tirtos_benchmark.c",line 98,column 5,is_stmt,isa 1
 $C$DW$40	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$40, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$40, DW_AT_name("ti_sysbios_knl_Swi_enable__E")
@@ -297,7 +297,7 @@ $C$DW$41	.dwtag  DW_TAG_TI_branch
         POP       {V1, PC}              ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 0
         ; BRANCH OCCURS                  ; [] 
-	.dwattr $C$DW$36, DW_AT_TI_end_file("../cyassl_tirtos_benchmark.c")
+	.dwattr $C$DW$36, DW_AT_TI_end_file("../wolfssl_tirtos_benchmark.c")
 	.dwattr $C$DW$36, DW_AT_TI_end_line(0x63)
 	.dwattr $C$DW$36, DW_AT_TI_end_column(0x01)
 	.dwendentry
@@ -314,14 +314,14 @@ $C$DW$42	.dwtag  DW_TAG_subprogram, DW_AT_name("msTimer_init")
 	.dwattr $C$DW$42, DW_AT_high_pc(0x00)
 	.dwattr $C$DW$42, DW_AT_TI_symbol_name("msTimer_init")
 	.dwattr $C$DW$42, DW_AT_external
-	.dwattr $C$DW$42, DW_AT_TI_begin_file("../cyassl_tirtos_benchmark.c")
+	.dwattr $C$DW$42, DW_AT_TI_begin_file("../wolfssl_tirtos_benchmark.c")
 	.dwattr $C$DW$42, DW_AT_TI_begin_line(0x76)
 	.dwattr $C$DW$42, DW_AT_TI_begin_column(0x06)
-	.dwattr $C$DW$42, DW_AT_decl_file("../cyassl_tirtos_benchmark.c")
+	.dwattr $C$DW$42, DW_AT_decl_file("../wolfssl_tirtos_benchmark.c")
 	.dwattr $C$DW$42, DW_AT_decl_line(0x76)
 	.dwattr $C$DW$42, DW_AT_decl_column(0x06)
 	.dwattr $C$DW$42, DW_AT_TI_max_frame_size(0x38)
-	.dwpsn	file "../cyassl_tirtos_benchmark.c",line 119,column 1,is_stmt,address msTimer_init,isa 1
+	.dwpsn	file "../wolfssl_tirtos_benchmark.c",line 119,column 1,is_stmt,address msTimer_init,isa 1
 
 	.dwfde $C$DW$CIE, msTimer_init
 
@@ -368,7 +368,7 @@ $C$DW$47	.dwtag  DW_TAG_variable, DW_AT_name("params")
 	.dwcfi	cfa_offset, 8
 	.dwcfi	save_reg_to_mem, 14, -4
 	.dwcfi	save_reg_to_mem, 4, -8
-	.dwpsn	file "../cyassl_tirtos_benchmark.c",line 122,column 5,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tirtos_benchmark.c",line 122,column 5,is_stmt,isa 1
         MOVW      V1, ||$O1$$||+0       ; [DPU_3_PIPE] |122| 
         MOVT      V1, ||$O1$$||+0       ; [DPU_3_PIPE] |122| 
         LDR       A1, [V1, #0]          ; [DPU_3_PIPE] |122| 
@@ -397,21 +397,21 @@ $C$DW$48	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$48, DW_AT_TI_call
         BL        ti_sysbios_hal_Timer_Params__init__S ; [DPU_3_PIPE] |569| 
         ; CALL OCCURS {ti_sysbios_hal_Timer_Params__init__S }  ; [] |569| 
-	.dwpsn	file "../cyassl_tirtos_benchmark.c",line 127,column 5,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tirtos_benchmark.c",line 127,column 5,is_stmt,isa 1
         MOV       A1, #1000             ; [DPU_3_PIPE] |127| 
         STR       A1, [SP, #24]         ; [DPU_3_PIPE] |127| 
-	.dwpsn	file "../cyassl_tirtos_benchmark.c",line 128,column 5,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tirtos_benchmark.c",line 128,column 5,is_stmt,isa 1
         MOVS      A4, #0                ; [DPU_3_PIPE] |128| 
         STRB      A4, [SP, #28]         ; [DPU_3_PIPE] |128| 
-	.dwpsn	file "../cyassl_tirtos_benchmark.c",line 131,column 5,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tirtos_benchmark.c",line 131,column 5,is_stmt,isa 1
         MOVW      A2, tick+0            ; [DPU_3_PIPE] |131| 
-	.dwpsn	file "../cyassl_tirtos_benchmark.c",line 129,column 5,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tirtos_benchmark.c",line 129,column 5,is_stmt,isa 1
         STRB      A4, [SP, #16]         ; [DPU_3_PIPE] |129| 
-	.dwpsn	file "../cyassl_tirtos_benchmark.c",line 131,column 5,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tirtos_benchmark.c",line 131,column 5,is_stmt,isa 1
         MOV       A3, SP                ; [DPU_3_PIPE] |131| 
-	.dwpsn	file "../cyassl_tirtos_benchmark.c",line 130,column 5,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tirtos_benchmark.c",line 130,column 5,is_stmt,isa 1
         STRB      A4, [SP, #17]         ; [DPU_3_PIPE] |130| 
-	.dwpsn	file "../cyassl_tirtos_benchmark.c",line 131,column 5,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tirtos_benchmark.c",line 131,column 5,is_stmt,isa 1
         MOVT      A2, tick+0            ; [DPU_3_PIPE] |131| 
         MOV       A1, #-1               ; [DPU_3_PIPE] |131| 
 $C$DW$49	.dwtag  DW_TAG_TI_branch
@@ -422,11 +422,11 @@ $C$DW$49	.dwtag  DW_TAG_TI_branch
         ; CALL OCCURS {ti_sysbios_hal_Timer_create }  ; [] |131| 
         STR       A1, [V1, #4]          ; [DPU_3_PIPE] |131| 
         CBNZ      A1, ||$C$L1||         ; [] 
-	.dwpsn	file "../cyassl_tirtos_benchmark.c",line 133,column 5,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tirtos_benchmark.c",line 133,column 5,is_stmt,isa 1
         ; BRANCHCC OCCURS {||$C$L1||}    ; [] |133| 
 ;* --------------------------------------------------------------------------*
 ;** 134	-----------------------    xdc_runtime_System_abort__E((const unsigned char *)"msTimer_init: Timer creation failed.\n");
-	.dwpsn	file "../cyassl_tirtos_benchmark.c",line 134,column 9,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tirtos_benchmark.c",line 134,column 9,is_stmt,isa 1
         ADR       A1, $C$SL1            ; [DPU_3_PIPE] |134| 
 $C$DW$50	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$50, DW_AT_low_pc(0x00)
@@ -440,7 +440,7 @@ $C$DW$50	.dwtag  DW_TAG_TI_branch
 ;** 138	-----------------------    *(int *)K$2 = 1;
 ;**	-----------------------g5:
 ;**  	-----------------------    return;
-	.dwpsn	file "../cyassl_tirtos_benchmark.c",line 138,column 5,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tirtos_benchmark.c",line 138,column 5,is_stmt,isa 1
         MOVS      A1, #1                ; [DPU_3_PIPE] |138| 
         STR       A1, [V1, #0]          ; [DPU_3_PIPE] |138| 
 ;* --------------------------------------------------------------------------*
@@ -453,7 +453,7 @@ $C$DW$51	.dwtag  DW_TAG_TI_branch
         POP       {V1, PC}              ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 0
         ; BRANCH OCCURS                  ; [] 
-	.dwattr $C$DW$42, DW_AT_TI_end_file("../cyassl_tirtos_benchmark.c")
+	.dwattr $C$DW$42, DW_AT_TI_end_file("../wolfssl_tirtos_benchmark.c")
 	.dwattr $C$DW$42, DW_AT_TI_end_line(0x8b)
 	.dwattr $C$DW$42, DW_AT_TI_end_column(0x01)
 	.dwendentry
@@ -470,14 +470,14 @@ $C$DW$52	.dwtag  DW_TAG_subprogram, DW_AT_name("runBenchmarks")
 	.dwattr $C$DW$52, DW_AT_high_pc(0x00)
 	.dwattr $C$DW$52, DW_AT_TI_symbol_name("runBenchmarks")
 	.dwattr $C$DW$52, DW_AT_external
-	.dwattr $C$DW$52, DW_AT_TI_begin_file("../cyassl_tirtos_benchmark.c")
+	.dwattr $C$DW$52, DW_AT_TI_begin_file("../wolfssl_tirtos_benchmark.c")
 	.dwattr $C$DW$52, DW_AT_TI_begin_line(0x4d)
 	.dwattr $C$DW$52, DW_AT_TI_begin_column(0x06)
-	.dwattr $C$DW$52, DW_AT_decl_file("../cyassl_tirtos_benchmark.c")
+	.dwattr $C$DW$52, DW_AT_decl_file("../wolfssl_tirtos_benchmark.c")
 	.dwattr $C$DW$52, DW_AT_decl_line(0x4d)
 	.dwattr $C$DW$52, DW_AT_decl_column(0x06)
 	.dwattr $C$DW$52, DW_AT_TI_max_frame_size(0x08)
-	.dwpsn	file "../cyassl_tirtos_benchmark.c",line 78,column 1,is_stmt,address runBenchmarks,isa 1
+	.dwpsn	file "../wolfssl_tirtos_benchmark.c",line 78,column 1,is_stmt,address runBenchmarks,isa 1
 
 	.dwfde $C$DW$CIE, runBenchmarks
 $C$DW$53	.dwtag  DW_TAG_formal_parameter, DW_AT_name("arg0")
@@ -514,14 +514,14 @@ runBenchmarks:
 	.dwcfi	cfa_offset, 8
 	.dwcfi	save_reg_to_mem, 14, -4
 	.dwcfi	save_reg_to_mem, 3, -8
-	.dwpsn	file "../cyassl_tirtos_benchmark.c",line 80,column 5,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tirtos_benchmark.c",line 80,column 5,is_stmt,isa 1
 $C$DW$55	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$55, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$55, DW_AT_name("msTimer_init")
 	.dwattr $C$DW$55, DW_AT_TI_call
         BL        msTimer_init          ; [DPU_3_PIPE] |80| 
         ; CALL OCCURS {msTimer_init }    ; [] |80| 
-	.dwpsn	file "../cyassl_tirtos_benchmark.c",line 82,column 5,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tirtos_benchmark.c",line 82,column 5,is_stmt,isa 1
         ADR       A1, $C$SL2            ; [DPU_3_PIPE] |82| 
 $C$DW$56	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$56, DW_AT_low_pc(0x00)
@@ -529,14 +529,14 @@ $C$DW$56	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$56, DW_AT_TI_call
         BL        xdc_runtime_System_printf__E ; [DPU_3_PIPE] |82| 
         ; CALL OCCURS {xdc_runtime_System_printf__E }  ; [] |82| 
-	.dwpsn	file "../cyassl_tirtos_benchmark.c",line 83,column 5,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tirtos_benchmark.c",line 83,column 5,is_stmt,isa 1
 $C$DW$57	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$57, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$57, DW_AT_name("xdc_runtime_System_flush__E")
 	.dwattr $C$DW$57, DW_AT_TI_call
         BL        xdc_runtime_System_flush__E ; [DPU_3_PIPE] |83| 
         ; CALL OCCURS {xdc_runtime_System_flush__E }  ; [] |83| 
-	.dwpsn	file "../cyassl_tirtos_benchmark.c",line 84,column 5,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tirtos_benchmark.c",line 84,column 5,is_stmt,isa 1
         MOVS      A1, #0                ; [DPU_3_PIPE] |84| 
 $C$DW$58	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$58, DW_AT_low_pc(0x00)
@@ -544,7 +544,7 @@ $C$DW$58	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$58, DW_AT_TI_call
         BL        benchmark_test        ; [DPU_3_PIPE] |84| 
         ; CALL OCCURS {benchmark_test }  ; [] |84| 
-	.dwpsn	file "../cyassl_tirtos_benchmark.c",line 85,column 5,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tirtos_benchmark.c",line 85,column 5,is_stmt,isa 1
         ADR       A1, $C$SL3            ; [DPU_3_PIPE] |85| 
 $C$DW$59	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$59, DW_AT_low_pc(0x00)
@@ -552,7 +552,7 @@ $C$DW$59	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$59, DW_AT_TI_call
         BL        xdc_runtime_System_printf__E ; [DPU_3_PIPE] |85| 
         ; CALL OCCURS {xdc_runtime_System_printf__E }  ; [] |85| 
-	.dwpsn	file "../cyassl_tirtos_benchmark.c",line 87,column 5,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tirtos_benchmark.c",line 87,column 5,is_stmt,isa 1
         MOVS      A1, #0                ; [DPU_3_PIPE] |87| 
 $C$DW$60	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$60, DW_AT_low_pc(0x00)
@@ -566,7 +566,7 @@ $C$DW$61	.dwtag  DW_TAG_TI_branch
         POP       {A4, PC}              ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 0
         ; BRANCH OCCURS                  ; [] 
-	.dwattr $C$DW$52, DW_AT_TI_end_file("../cyassl_tirtos_benchmark.c")
+	.dwattr $C$DW$52, DW_AT_TI_end_file("../wolfssl_tirtos_benchmark.c")
 	.dwattr $C$DW$52, DW_AT_TI_end_line(0x58)
 	.dwattr $C$DW$52, DW_AT_TI_end_column(0x01)
 	.dwendentry
@@ -584,14 +584,14 @@ $C$DW$62	.dwtag  DW_TAG_subprogram, DW_AT_name("main")
 	.dwattr $C$DW$62, DW_AT_TI_symbol_name("main")
 	.dwattr $C$DW$62, DW_AT_external
 	.dwattr $C$DW$62, DW_AT_type(*$C$DW$T$10)
-	.dwattr $C$DW$62, DW_AT_TI_begin_file("../cyassl_tirtos_benchmark.c")
+	.dwattr $C$DW$62, DW_AT_TI_begin_file("../wolfssl_tirtos_benchmark.c")
 	.dwattr $C$DW$62, DW_AT_TI_begin_line(0x90)
 	.dwattr $C$DW$62, DW_AT_TI_begin_column(0x05)
-	.dwattr $C$DW$62, DW_AT_decl_file("../cyassl_tirtos_benchmark.c")
+	.dwattr $C$DW$62, DW_AT_decl_file("../wolfssl_tirtos_benchmark.c")
 	.dwattr $C$DW$62, DW_AT_decl_line(0x90)
 	.dwattr $C$DW$62, DW_AT_decl_column(0x05)
 	.dwattr $C$DW$62, DW_AT_TI_max_frame_size(0x40)
-	.dwpsn	file "../cyassl_tirtos_benchmark.c",line 145,column 1,is_stmt,address main,isa 1
+	.dwpsn	file "../wolfssl_tirtos_benchmark.c",line 145,column 1,is_stmt,address main,isa 1
 
 	.dwfde $C$DW$CIE, main
 $C$DW$63	.dwtag  DW_TAG_formal_parameter, DW_AT_name("argc")
@@ -645,14 +645,14 @@ $C$DW$67	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$67, DW_AT_TI_call
         BL        ti_sysbios_knl_Task_Params__init__S ; [DPU_3_PIPE] 
         ; CALL OCCURS {ti_sysbios_knl_Task_Params__init__S }  ; [] 
-	.dwpsn	file "../cyassl_tirtos_benchmark.c",line 150,column 5,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tirtos_benchmark.c",line 150,column 5,is_stmt,isa 1
         MOV       A1, #65535            ; [DPU_3_PIPE] |150| 
-	.dwpsn	file "../cyassl_tirtos_benchmark.c",line 151,column 5,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tirtos_benchmark.c",line 151,column 5,is_stmt,isa 1
         MOVS      A3, #0                ; [DPU_3_PIPE] |151| 
         MOV       A2, SP                ; [DPU_3_PIPE] |151| 
-	.dwpsn	file "../cyassl_tirtos_benchmark.c",line 150,column 5,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tirtos_benchmark.c",line 150,column 5,is_stmt,isa 1
         STR       A1, [SP, #32]         ; [DPU_3_PIPE] |150| 
-	.dwpsn	file "../cyassl_tirtos_benchmark.c",line 151,column 5,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tirtos_benchmark.c",line 151,column 5,is_stmt,isa 1
         MOVW      A1, runBenchmarks+0   ; [DPU_3_PIPE] |151| 
         MOVT      A1, runBenchmarks+0   ; [DPU_3_PIPE] |151| 
 $C$DW$68	.dwtag  DW_TAG_TI_branch
@@ -662,11 +662,11 @@ $C$DW$68	.dwtag  DW_TAG_TI_branch
         BL        ti_sysbios_knl_Task_create ; [DPU_3_PIPE] |151| 
         ; CALL OCCURS {ti_sysbios_knl_Task_create }  ; [] |151| 
         CBNZ      A1, ||$C$L3||         ; [] 
-	.dwpsn	file "../cyassl_tirtos_benchmark.c",line 152,column 5,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tirtos_benchmark.c",line 152,column 5,is_stmt,isa 1
         ; BRANCHCC OCCURS {||$C$L3||}    ; [] |152| 
 ;* --------------------------------------------------------------------------*
 ;** 153	-----------------------    xdc_runtime_System_printf__E((const unsigned char *)"main: Failed to create new Task.\n");
-	.dwpsn	file "../cyassl_tirtos_benchmark.c",line 153,column 9,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tirtos_benchmark.c",line 153,column 9,is_stmt,isa 1
         ADR       A1, $C$SL4            ; [DPU_3_PIPE] |153| 
 $C$DW$69	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$69, DW_AT_low_pc(0x00)
@@ -679,7 +679,7 @@ $C$DW$69	.dwtag  DW_TAG_TI_branch
 ;**	-----------------------g3:
 ;** 156	-----------------------    ti_sysbios_BIOS_start__E();
 ;** 157	-----------------------    return 0;
-	.dwpsn	file "../cyassl_tirtos_benchmark.c",line 156,column 5,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tirtos_benchmark.c",line 156,column 5,is_stmt,isa 1
 $C$DW$70	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$70, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$70, DW_AT_name("ti_sysbios_BIOS_start__E")
@@ -688,7 +688,7 @@ $C$DW$70	.dwtag  DW_TAG_TI_branch
         ; CALL OCCURS {ti_sysbios_BIOS_start__E }  ; [] |156| 
         ADD       SP, SP, #60           ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 4
-	.dwpsn	file "../cyassl_tirtos_benchmark.c",line 157,column 1,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tirtos_benchmark.c",line 157,column 1,is_stmt,isa 1
         MOVS      A1, #0                ; [DPU_3_PIPE] |157| 
 $C$DW$71	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$71, DW_AT_low_pc(0x00)
@@ -696,7 +696,7 @@ $C$DW$71	.dwtag  DW_TAG_TI_branch
         POP       {PC}                  ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 0
         ; BRANCH OCCURS                  ; [] 
-	.dwattr $C$DW$62, DW_AT_TI_end_file("../cyassl_tirtos_benchmark.c")
+	.dwattr $C$DW$62, DW_AT_TI_end_file("../wolfssl_tirtos_benchmark.c")
 	.dwattr $C$DW$62, DW_AT_TI_end_line(0x9d)
 	.dwattr $C$DW$62, DW_AT_TI_end_column(0x01)
 	.dwendentry
@@ -714,14 +714,14 @@ $C$DW$72	.dwtag  DW_TAG_subprogram, DW_AT_name("current_time")
 	.dwattr $C$DW$72, DW_AT_TI_symbol_name("current_time")
 	.dwattr $C$DW$72, DW_AT_external
 	.dwattr $C$DW$72, DW_AT_type(*$C$DW$T$17)
-	.dwattr $C$DW$72, DW_AT_TI_begin_file("../cyassl_tirtos_benchmark.c")
+	.dwattr $C$DW$72, DW_AT_TI_begin_file("../wolfssl_tirtos_benchmark.c")
 	.dwattr $C$DW$72, DW_AT_TI_begin_line(0x69)
 	.dwattr $C$DW$72, DW_AT_TI_begin_column(0x08)
-	.dwattr $C$DW$72, DW_AT_decl_file("../cyassl_tirtos_benchmark.c")
+	.dwattr $C$DW$72, DW_AT_decl_file("../wolfssl_tirtos_benchmark.c")
 	.dwattr $C$DW$72, DW_AT_decl_line(0x69)
 	.dwattr $C$DW$72, DW_AT_decl_column(0x08)
 	.dwattr $C$DW$72, DW_AT_TI_max_frame_size(0x08)
-	.dwpsn	file "../cyassl_tirtos_benchmark.c",line 106,column 1,is_stmt,address current_time,isa 1
+	.dwpsn	file "../wolfssl_tirtos_benchmark.c",line 106,column 1,is_stmt,address current_time,isa 1
 
 	.dwfde $C$DW$CIE, current_time
 $C$DW$73	.dwtag  DW_TAG_formal_parameter, DW_AT_name("reset")
@@ -750,11 +750,11 @@ $C$DW$74	.dwtag  DW_TAG_variable, DW_AT_name("reset")
 	.dwcfi	save_reg_to_mem, 14, -4
 	.dwcfi	save_reg_to_mem, 3, -8
         CBZ       A1, ||$C$L4||         ; [] 
-	.dwpsn	file "../cyassl_tirtos_benchmark.c",line 107,column 5,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tirtos_benchmark.c",line 107,column 5,is_stmt,isa 1
         ; BRANCHCC OCCURS {||$C$L4||}    ; [] |107| 
 ;* --------------------------------------------------------------------------*
 ;** 108	-----------------------    *(&1$$+8) = 0.0;
-	.dwpsn	file "../cyassl_tirtos_benchmark.c",line 108,column 9,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tirtos_benchmark.c",line 108,column 9,is_stmt,isa 1
         ADR       A1, $C$FL2            ; [DPU_3_PIPE] |108| 
         LDMIA     A1, {A1,A2}           ; [DPU_3_PIPE] |108| 
         MOVW      A3, ||$O1$$||+8       ; [DPU_3_PIPE] |108| 
@@ -764,7 +764,7 @@ $C$DW$74	.dwtag  DW_TAG_variable, DW_AT_name("reset")
 ||$C$L4||:    
 ;**	-----------------------g3:
 ;** 111	-----------------------    return *(&1$$+8)/1000.0;
-	.dwpsn	file "../cyassl_tirtos_benchmark.c",line 111,column 5,is_stmt,isa 1
+	.dwpsn	file "../wolfssl_tirtos_benchmark.c",line 111,column 5,is_stmt,isa 1
         ADR       A3, $C$FL3            ; [DPU_3_PIPE] |111| 
         LDMIA     A3, {A3,A4}           ; [DPU_3_PIPE] |111| 
         MOVW      A1, ||$O1$$||+8       ; [DPU_3_PIPE] |111| 
@@ -783,7 +783,7 @@ $C$DW$76	.dwtag  DW_TAG_TI_branch
         POP       {A4, PC}              ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 0
         ; BRANCH OCCURS                  ; [] 
-	.dwattr $C$DW$72, DW_AT_TI_end_file("../cyassl_tirtos_benchmark.c")
+	.dwattr $C$DW$72, DW_AT_TI_end_file("../wolfssl_tirtos_benchmark.c")
 	.dwattr $C$DW$72, DW_AT_TI_end_line(0x70)
 	.dwattr $C$DW$72, DW_AT_TI_end_column(0x01)
 	.dwendentry
@@ -6318,7 +6318,7 @@ $C$DW$T$1030	.dwtag  DW_TAG_pointer_type
 $C$DW$T$1275	.dwtag  DW_TAG_typedef, DW_AT_name("__builtin_va_list")
 	.dwattr $C$DW$T$1275, DW_AT_type(*$C$DW$T$424)
 	.dwattr $C$DW$T$1275, DW_AT_language(DW_LANG_C)
-	.dwattr $C$DW$T$1275, DW_AT_decl_file("../cyassl_tirtos_benchmark.c")
+	.dwattr $C$DW$T$1275, DW_AT_decl_file("../wolfssl_tirtos_benchmark.c")
 	.dwattr $C$DW$T$1275, DW_AT_decl_line(0x9d)
 	.dwattr $C$DW$T$1275, DW_AT_decl_column(0x01)
 $C$DW$T$425	.dwtag  DW_TAG_typedef, DW_AT_name("xdc_String")

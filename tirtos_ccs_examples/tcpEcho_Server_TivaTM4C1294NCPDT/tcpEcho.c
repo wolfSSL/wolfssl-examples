@@ -57,8 +57,8 @@
 #include "Board.h"
 
 /* CyaSSL Header files */
-#include <cyassl/ssl.h>
-#include <cyassl/certs_test.h>
+#include <wolfssl/ssl.h>
+#include <wolfssl/certs_test.h>
 
 #define TCPPACKETSIZE 1024
 #define TCPPORT 11111
@@ -154,7 +154,7 @@ Void tcpHandler(UArg arg0, UArg arg1)
                                   sizeof(ca_cert_der_2048)/sizeof(char),
                                   SSL_FILETYPE_ASN1) != SSL_SUCCESS) {
        System_printf("tcpHandler: Error loading ca_cert_der_2048"
-                     " please check the cyassl/certs_test.h file.\n");
+                     " please check the wolfssl/certs_test.h file.\n");
        exitApp(ctx);
     }
 
@@ -162,7 +162,7 @@ Void tcpHandler(UArg arg0, UArg arg1)
                                   sizeof(server_cert_der_2048)/sizeof(char),
                                   SSL_FILETYPE_ASN1) != SSL_SUCCESS) {
        System_printf("tcpHandler: Error loading server_cert_der_2048,"
-                     " please check the cyassl/certs_test.h file.\n");
+                     " please check the wolfssl/certs_test.h file.\n");
        exitApp(ctx);
     }
 
@@ -170,7 +170,7 @@ Void tcpHandler(UArg arg0, UArg arg1)
                                   sizeof(server_key_der_2048)/sizeof(char),
                                   SSL_FILETYPE_ASN1) != SSL_SUCCESS) {
        System_printf("tcpHandler: Error loading server_key_der_2048,"
-                     " please check the cyassl/certs_test.h file.\n");
+                     " please check the wolfssl/certs_test.h file.\n");
        exitApp(ctx);
     }
 

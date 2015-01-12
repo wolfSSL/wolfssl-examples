@@ -3,5 +3,5 @@
  *
  * @_nodoc
  */
-package xconfig_cyasslTest {
+package xconfig_wolfsslTest {
 }

@@ -28,7 +28,7 @@
 	<variableList>
 		<variable>
 			<name>CYASSL_DIR</name>
-			<value>file:/C:/cyassl</value>
+			<value>file:/C:/wolfssl</value>
 		</variable>
 	</variableList>
 </projectDescription>

@@ -6,7 +6,7 @@
 
 unexport MAKEFILE_LIST
 MK_NOGENDEPS := $(filter clean,$(MAKECMDGOALS))
-override PKGDIR = xconfig_cyasslTest
+override PKGDIR = xconfig_wolfsslTest
 XDCINCS = -I. -I$(strip $(subst ;, -I,$(subst $(space),\$(space),$(XPKGPATH))))
 XDCCFGDIR = package/cfg/
 
@@ -124,103 +124,103 @@ PKGCFGS := $(wildcard package.xs) package/build.cfg
 .interfaces: package/package.xdc.inc package/package.defs.h package.xdc $(PKGCFGS)
 
 -include package/package.xdc.dep
-package/%.xdc.inc package/%_xconfig_cyasslTest.c package/%.defs.h: %.xdc $(PKGCFGS)
-	@$(MSG) generating interfaces for package xconfig_cyasslTest" (because $@ is older than $(firstword $?))" ...
+package/%.xdc.inc package/%_xconfig_wolfsslTest.c package/%.defs.h: %.xdc $(PKGCFGS)
+	@$(MSG) generating interfaces for package xconfig_wolfsslTest" (because $@ is older than $(firstword $?))" ...
 	$(XSRUN) -f xdc/services/intern/cmd/build.xs $(MK_IDLOPTS) -m package/package.xdc.dep -i package/package.xdc.inc package.xdc
 
-.dlls,em4f .dlls: cyasslTest.pem4f
+.dlls,em4f .dlls: wolfsslTest.pem4f
 
--include package/cfg/cyasslTest_pem4f.mak
--include package/cfg/cyasslTest_pem4f.cfg.mak
+-include package/cfg/wolfsslTest_pem4f.mak
+-include package/cfg/wolfsslTest_pem4f.cfg.mak
 ifeq (,$(MK_NOGENDEPS))
--include package/cfg/cyasslTest_pem4f.dep
+-include package/cfg/wolfsslTest_pem4f.dep
 endif
-cyasslTest.pem4f: package/cfg/cyasslTest_pem4f.xdl
+wolfsslTest.pem4f: package/cfg/wolfsslTest_pem4f.xdl
 	@
 
 
 ifeq (,$(wildcard .libraries,em4f))
-cyasslTest.pem4f package/cfg/cyasslTest_pem4f.c: .libraries,em4f
+wolfsslTest.pem4f package/cfg/wolfsslTest_pem4f.c: .libraries,em4f
 endif
 
-package/cfg/cyasslTest_pem4f.c package/cfg/cyasslTest_pem4f.h package/cfg/cyasslTest_pem4f.xdl: override _PROG_NAME := cyasslTest.xem4f
-package/cfg/cyasslTest_pem4f.c: package/cfg/cyasslTest_pem4f.cfg
+package/cfg/wolfsslTest_pem4f.c package/cfg/wolfsslTest_pem4f.h package/cfg/wolfsslTest_pem4f.xdl: override _PROG_NAME := wolfsslTest.xem4f
+package/cfg/wolfsslTest_pem4f.c: package/cfg/wolfsslTest_pem4f.cfg
 
 clean:: clean,em4f
-	-$(RM) package/cfg/cyasslTest_pem4f.cfg
-	-$(RM) package/cfg/cyasslTest_pem4f.dep
-	-$(RM) package/cfg/cyasslTest_pem4f.c
-	-$(RM) package/cfg/cyasslTest_pem4f.xdc.inc
+	-$(RM) package/cfg/wolfsslTest_pem4f.cfg
+	-$(RM) package/cfg/wolfsslTest_pem4f.dep
+	-$(RM) package/cfg/wolfsslTest_pem4f.c
+	-$(RM) package/cfg/wolfsslTest_pem4f.xdc.inc
 
 clean,em4f::
-	-$(RM) cyasslTest.pem4f
-.executables,em4f .executables: cyasslTest.xem4f
+	-$(RM) wolfsslTest.pem4f
+.executables,em4f .executables: wolfsslTest.xem4f
 
-cyasslTest.xem4f: |cyasslTest.pem4f
+wolfsslTest.xem4f: |wolfsslTest.pem4f
 
--include package/cfg/cyasslTest.xem4f.mak
-cyasslTest.xem4f: package/cfg/cyasslTest_pem4f.oem4f 
+-include package/cfg/wolfsslTest.xem4f.mak
+wolfsslTest.xem4f: package/cfg/wolfsslTest_pem4f.oem4f 
 	$(RM) $@
 	@$(MSG) lnkem4f $@ ...
 	$(RM) $(XDCCFGDIR)/$@.map
-	$(ti.targets.arm.elf.M4F.rootDir)/bin/armlnk -w -q -u _c_int00 -fs $(XDCCFGDIR)$(dir $@).  -q -o $@ package/cfg/cyasslTest_pem4f.oem4f   package/cfg/cyasslTest_pem4f.xdl --silicon_version=7M4 --strict_compatibility=on -c -m $(XDCCFGDIR)/$@.map -l $(ti.targets.arm.elf.M4F.rootDir)/lib/libc.a
+	$(ti.targets.arm.elf.M4F.rootDir)/bin/armlnk -w -q -u _c_int00 -fs $(XDCCFGDIR)$(dir $@).  -q -o $@ package/cfg/wolfsslTest_pem4f.oem4f   package/cfg/wolfsslTest_pem4f.xdl --silicon_version=7M4 --strict_compatibility=on -c -m $(XDCCFGDIR)/$@.map -l $(ti.targets.arm.elf.M4F.rootDir)/lib/libc.a
 	
-cyasslTest.xem4f: export C_DIR=
-cyasslTest.xem4f: PATH:=$(ti.targets.arm.elf.M4F.rootDir)/bin/;$(PATH)
-cyasslTest.xem4f: Path:=$(ti.targets.arm.elf.M4F.rootDir)/bin/;$(PATH)
+wolfsslTest.xem4f: export C_DIR=
+wolfsslTest.xem4f: PATH:=$(ti.targets.arm.elf.M4F.rootDir)/bin/;$(PATH)
+wolfsslTest.xem4f: Path:=$(ti.targets.arm.elf.M4F.rootDir)/bin/;$(PATH)
 
-cyasslTest.test test,em4f test: cyasslTest.xem4f.test
+wolfsslTest.test test,em4f test: wolfsslTest.xem4f.test
 
-cyasslTest.xem4f.test:: cyasslTest.xem4f
+wolfsslTest.xem4f.test:: wolfsslTest.xem4f
 ifeq (,$(_TESTLEVEL))
-	@$(MAKE) -R -r --no-print-directory -f $(XDCROOT)/packages/xdc/bld/xdc.mak _TESTLEVEL=1 cyasslTest.xem4f.test
+	@$(MAKE) -R -r --no-print-directory -f $(XDCROOT)/packages/xdc/bld/xdc.mak _TESTLEVEL=1 wolfsslTest.xem4f.test
 else
 	@$(MSG) running $<  ...
-	$(call EXEC.cyasslTest.xem4f, ) 
+	$(call EXEC.wolfsslTest.xem4f, ) 
 endif
 
 clean,em4f::
-	-$(RM) .tmp,cyasslTest.xem4f,0,*
+	-$(RM) .tmp,wolfsslTest.xem4f,0,*
 
 
 clean:: clean,em4f
 
 clean,em4f::
-	-$(RM) cyasslTest.xem4f
+	-$(RM) wolfsslTest.xem4f
 %,copy:
 	@$(if $<,,$(MSG) don\'t know how to build $*; exit 1)
 	@$(MSG) cp $< $@
 	$(RM) $@
 	$(CP) $< $@
-cyasslTest_pem4f.oem4f,copy : package/cfg/cyasslTest_pem4f.oem4f
-cyasslTest_pem4f.sem4f,copy : package/cfg/cyasslTest_pem4f.sem4f
+wolfsslTest_pem4f.oem4f,copy : package/cfg/wolfsslTest_pem4f.oem4f
+wolfsslTest_pem4f.sem4f,copy : package/cfg/wolfsslTest_pem4f.sem4f
 
 $(XDCCFGDIR)%.c $(XDCCFGDIR)%.h $(XDCCFGDIR)%.xdl: $(XDCCFGDIR)%.cfg .interfaces $(XDCROOT)/packages/xdc/cfg/Main.xs
 	@$(MSG) "configuring $(_PROG_NAME) from $< ..."
 	$(CONFIG) $(_PROG_XSOPTS) xdc.cfg $(_PROG_NAME) $(XDCCFGDIR)$*.cfg $(XDCCFGDIR)$*
 
-.PHONY: release,xconfig_cyasslTest
-xconfig_cyasslTest.tar: package/package.bld.xml
-xconfig_cyasslTest.tar: package/build.cfg
-xconfig_cyasslTest.tar: package/package.xdc.inc
+.PHONY: release,xconfig_wolfsslTest
+xconfig_wolfsslTest.tar: package/package.bld.xml
+xconfig_wolfsslTest.tar: package/build.cfg
+xconfig_wolfsslTest.tar: package/package.xdc.inc
 ifeq (,$(MK_NOGENDEPS))
--include package/rel/xconfig_cyasslTest.tar.dep
+-include package/rel/xconfig_wolfsslTest.tar.dep
 endif
-package/rel/xconfig_cyasslTest/xconfig_cyasslTest/package/package.rel.xml: .force
+package/rel/xconfig_wolfsslTest/xconfig_wolfsslTest/package/package.rel.xml: .force
 	@$(MSG) generating external release references $@ ...
 	$(XS) $(JSENV) -f $(XDCROOT)/packages/xdc/bld/rel.js $(MK_RELOPTS) . $@
 
-xconfig_cyasslTest.tar: package/rel/xconfig_cyasslTest.xdc.inc package/rel/xconfig_cyasslTest/xconfig_cyasslTest/package/package.rel.xml
+xconfig_wolfsslTest.tar: package/rel/xconfig_wolfsslTest.xdc.inc package/rel/xconfig_wolfsslTest/xconfig_wolfsslTest/package/package.rel.xml
 	@$(MSG) making release file $@ "(because of $(firstword $?))" ...
 	-$(RM) $@
-	$(call MKRELTAR,package/rel/xconfig_cyasslTest.xdc.inc,package/rel/xconfig_cyasslTest.tar.dep)
+	$(call MKRELTAR,package/rel/xconfig_wolfsslTest.xdc.inc,package/rel/xconfig_wolfsslTest.tar.dep)
 
 
-release release,xconfig_cyasslTest: all xconfig_cyasslTest.tar
+release release,xconfig_wolfsslTest: all xconfig_wolfsslTest.tar
 clean:: .clean
-	-$(RM) xconfig_cyasslTest.tar
-	-$(RM) package/rel/xconfig_cyasslTest.xdc.inc
-	-$(RM) package/rel/xconfig_cyasslTest.tar.dep
+	-$(RM) xconfig_wolfsslTest.tar
+	-$(RM) package/rel/xconfig_wolfsslTest.xdc.inc
+	-$(RM) package/rel/xconfig_wolfsslTest.tar.dep
 
 clean:: .clean
 	-$(RM) .libraries .libraries,*

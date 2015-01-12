@@ -7,22 +7,22 @@ CMD_SRCS += \
 ../EK_TM4C1294XL.cmd 
 
 CFG_SRCS += \
-../cyassl_tirtos_benchmark.cfg 
+../wolfssl_tirtos_benchmark.cfg 
 
 C_SRCS += \
 ../EK_TM4C1294XL.c \
-C:/cyassl/ctaocrypt/benchmark/benchmark.c \
-../cyassl_tirtos_benchmark.c 
+C:/wolfssl/ctaocrypt/benchmark/benchmark.c \
+../wolfssl_tirtos_benchmark.c 
 
 OBJS += \
 ./EK_TM4C1294XL.obj \
 ./benchmark.obj \
-./cyassl_tirtos_benchmark.obj 
+./wolfssl_tirtos_benchmark.obj 
 
 C_DEPS += \
 ./EK_TM4C1294XL.pp \
 ./benchmark.pp \
-./cyassl_tirtos_benchmark.pp 
+./wolfssl_tirtos_benchmark.pp 
 
 GEN_MISC_DIRS += \
 ./configPkg/ 
@@ -47,17 +47,17 @@ GEN_MISC_DIRS__QUOTED += \
 C_DEPS__QUOTED += \
 "EK_TM4C1294XL.pp" \
 "benchmark.pp" \
-"cyassl_tirtos_benchmark.pp" 
+"wolfssl_tirtos_benchmark.pp" 
 
 OBJS__QUOTED += \
 "EK_TM4C1294XL.obj" \
 "benchmark.obj" \
-"cyassl_tirtos_benchmark.obj" 
+"wolfssl_tirtos_benchmark.obj" 
 
 C_SRCS__QUOTED += \
 "../EK_TM4C1294XL.c" \
-"C:/cyassl/ctaocrypt/benchmark/benchmark.c" \
-"../cyassl_tirtos_benchmark.c" 
+"C:/wolfssl/ctaocrypt/benchmark/benchmark.c" \
+"../wolfssl_tirtos_benchmark.c" 
 
 GEN_CMDS__FLAG += \
 -l"./configPkg/linker.cmd" 

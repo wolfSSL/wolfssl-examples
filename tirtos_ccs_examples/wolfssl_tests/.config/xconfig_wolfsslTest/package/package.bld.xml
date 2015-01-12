@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="windows-1252"?>
 <!--  This file conforms to the DTD xdc/bld/build.dtd -->
-<package name="xconfig_cyasslTest" version="" producerId="undefined">
+<package name="xconfig_wolfsslTest" version="" producerId="undefined">
     <units>
     </units>
     <sources>
-        <srcFile name="package/cfg/cyasslTest_pem4f.c"/>
+        <srcFile name="package/cfg/wolfsslTest_pem4f.c"/>
     </sources>
     <configscripts>
-        <srcFile name="C:/Users/khimes/workspace_v6_0/cyasslTest/cyasslTest.cfg"/>
+        <srcFile name="C:/Users/khimes/workspace_v6_0/wolfsslTest/wolfsslTest.cfg"/>
     </configscripts>
     <makefiles>
         <srcFile name="package.mak" src="package.bld"/>
         <srcFile name="package/package.xdc.dep" src="package.xdc"/>
-        <srcFile name="package/cfg/cyasslTest_pem4f.mak" src="package.bld"/>
-        <srcFile name="package/cfg/cyasslTest_pem4f.oem4f.dep" src="package/cfg/cyasslTest_pem4f.c"/>
-        <srcFile name="package/cfg/cyasslTest_pem4f.dep" src="package/cfg/cyasslTest_pem4f.cfg"/>
-        <srcFile name="package/cfg/cyasslTest.xem4f.mak" src="package.bld"/>
-        <srcFile name="package/rel/xconfig_cyasslTest.tar.dep" src="package/rel/xconfig_cyasslTest.xdc.inc"/>
+        <srcFile name="package/cfg/wolfsslTest_pem4f.mak" src="package.bld"/>
+        <srcFile name="package/cfg/wolfsslTest_pem4f.oem4f.dep" src="package/cfg/wolfsslTest_pem4f.c"/>
+        <srcFile name="package/cfg/wolfsslTest_pem4f.dep" src="package/cfg/wolfsslTest_pem4f.cfg"/>
+        <srcFile name="package/cfg/wolfsslTest.xem4f.mak" src="package.bld"/>
+        <srcFile name="package/rel/xconfig_wolfsslTest.tar.dep" src="package/rel/xconfig_wolfsslTest.xdc.inc"/>
     </makefiles>
     <targets>
         <target name="ti.targets.arm.elf.M4F"
@@ -36,42 +36,42 @@
     <libraries>
     </libraries>
     <configurations>
-    <configuration name="cyasslTest"
-        pname="cyasslTest.pem4f"
+    <configuration name="wolfsslTest"
+        pname="wolfsslTest.pem4f"
         target="ti.targets.arm.elf.M4F"
         platform="ti.platforms.tiva:TM4C1294NCPDT"
         profile="release"
         isPartial="false"
-        xCfgScript="package/cfg/cyasslTest_pem4f.cfg"
-        xCfgPrefix="package/cfg/cyasslTest_pem4f"
-        cfgScript="C:/Users/khimes/workspace_v6_0/cyasslTest/cyasslTest.cfg"
+        xCfgScript="package/cfg/wolfsslTest_pem4f.cfg"
+        xCfgPrefix="package/cfg/wolfsslTest_pem4f"
+        cfgScript="C:/Users/khimes/workspace_v6_0/wolfsslTest/wolfsslTest.cfg"
         cfgArgs="null"
         />
     </configurations>
     <executables>
-    <executable name="cyasslTest"
-        pname="cyasslTest.xem4f"
+    <executable name="wolfsslTest"
+        pname="wolfsslTest.xem4f"
         target="ti.targets.arm.elf.M4F"
         platform="ti.platforms.tiva:TM4C1294NCPDT"
         profile="release"
-        xCfgScript="package/cfg/cyasslTest_pem4f.cfg"
-        xCfgPrefix="package/cfg/cyasslTest_pem4f"
-        cfgScript="C:/Users/khimes/workspace_v6_0/cyasslTest/cyasslTest.cfg"
+        xCfgScript="package/cfg/wolfsslTest_pem4f.cfg"
+        xCfgPrefix="package/cfg/wolfsslTest_pem4f"
+        cfgScript="C:/Users/khimes/workspace_v6_0/wolfsslTest/wolfsslTest.cfg"
         cfgArgs="null"
         />
     </executables>
     <tests>
-    <test exeName="cyasslTest.xem4f"
+    <test exeName="wolfsslTest.xem4f"
         args=""
-        groupName="cyasslTest.xem4f"
+        groupName="wolfsslTest.xem4f"
         refOutput="undefined"
         refExitCode="0"
         execArgs=""
         />
     </tests>
     <releases relDir="package/rel/">
-    <release name="xconfig_cyasslTest"
-        pname="xconfig_cyasslTest.tar"
+    <release name="xconfig_wolfsslTest"
+        pname="xconfig_wolfsslTest.tar"
         label="default"
     >
         <file name="package/package.bld.xml"/>

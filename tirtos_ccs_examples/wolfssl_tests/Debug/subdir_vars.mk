@@ -7,21 +7,21 @@ CMD_SRCS += \
 ../EK_TM4C1294XL.cmd 
 
 CFG_SRCS += \
-../cyassl_tests.cfg 
+../wolfssl_tests.cfg 
 
 C_SRCS += \
 ../EK_TM4C1294XL.c \
-../cyassl_tests.c \
-C:/cyassl/ctaocrypt/test/test.c 
+../wolfssl_tests.c \
+C:/wolfssl/ctaocrypt/test/test.c 
 
 OBJS += \
 ./EK_TM4C1294XL.obj \
-./cyassl_tests.obj \
+./wolfssl_tests.obj \
 ./test.obj 
 
 C_DEPS += \
 ./EK_TM4C1294XL.pp \
-./cyassl_tests.pp \
+./wolfssl_tests.pp \
 ./test.pp 
 
 GEN_MISC_DIRS += \
@@ -46,18 +46,18 @@ GEN_MISC_DIRS__QUOTED += \
 
 C_DEPS__QUOTED += \
 "EK_TM4C1294XL.pp" \
-"cyassl_tests.pp" \
+"wolfssl_tests.pp" \
 "test.pp" 
 
 OBJS__QUOTED += \
 "EK_TM4C1294XL.obj" \
-"cyassl_tests.obj" \
+"wolfssl_tests.obj" \
 "test.obj" 
 
 C_SRCS__QUOTED += \
 "../EK_TM4C1294XL.c" \
-"../cyassl_tests.c" \
-"C:/cyassl/ctaocrypt/test/test.c" 
+"../wolfssl_tests.c" \
+"C:/wolfssl/ctaocrypt/test/test.c" 
 
 GEN_CMDS__FLAG += \
 -l"./configPkg/linker.cmd" 

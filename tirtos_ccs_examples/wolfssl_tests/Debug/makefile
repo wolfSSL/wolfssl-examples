@@ -8,17 +8,17 @@ CG_TOOL_ROOT := c:/ti/ccsv6/tools/compiler/arm_5.1.6
 
 ORDERED_OBJS += \
 $(GEN_CMDS__FLAG) \
-"./cyassl/ctaocrypt/src/tfm.obj" \
-"./cyassl/ctaocrypt/src/sha512.obj" \
-"./cyassl/ctaocrypt/src/poly1305.obj" \
-"./cyassl/ctaocrypt/src/integer.obj" \
-"./cyassl/ctaocrypt/src/ecc.obj" \
-"./cyassl/ctaocrypt/src/chacha.obj" \
-"./cyassl/ctaocrypt/src/camellia.obj" \
-"./cyassl/ctaocrypt/src/blake2b.obj" \
-"./cyassl/ctaocrypt/src/asn.obj" \
+"./wolfssl/ctaocrypt/src/tfm.obj" \
+"./wolfssl/ctaocrypt/src/sha512.obj" \
+"./wolfssl/ctaocrypt/src/poly1305.obj" \
+"./wolfssl/ctaocrypt/src/integer.obj" \
+"./wolfssl/ctaocrypt/src/ecc.obj" \
+"./wolfssl/ctaocrypt/src/chacha.obj" \
+"./wolfssl/ctaocrypt/src/camellia.obj" \
+"./wolfssl/ctaocrypt/src/blake2b.obj" \
+"./wolfssl/ctaocrypt/src/asn.obj" \
 "./test.obj" \
-"./cyassl_tests.obj" \
+"./wolfssl_tests.obj" \
 "./EK_TM4C1294XL.obj" \
 "../EK_TM4C1294XL.cmd" \
 -l"libc.a" \
@@ -33,9 +33,9 @@ RMDIR := RMDIR /S/Q
 # All of the sources participating in the build are defined here
 -include sources.mk
 -include subdir_vars.mk
--include cyassl/ctaocrypt/src/subdir_vars.mk
+-include wolfssl/ctaocrypt/src/subdir_vars.mk
 -include subdir_rules.mk
--include cyassl/ctaocrypt/src/subdir_rules.mk
+-include wolfssl/ctaocrypt/src/subdir_rules.mk
 -include objects.mk
 
 ifneq ($(MAKECMDGOALS),clean)
@@ -123,32 +123,32 @@ endif
 
 # Add inputs and outputs from these tool invocations to the build variables 
 EXE_OUTPUTS += \
-cyassl_tests.out \
+wolfssl_tests.out \
 
 EXE_OUTPUTS__QUOTED += \
-"cyassl_tests.out" \
+"wolfssl_tests.out" \
 
 BIN_OUTPUTS += \
-cyassl_tests.hex \
+wolfssl_tests.hex \
 
 BIN_OUTPUTS__QUOTED += \
-"cyassl_tests.hex" \
+"wolfssl_tests.hex" \
 
 
 # All Target
-all: cyassl_tests.out
+all: wolfssl_tests.out
 
 # Tool invocations
-cyassl_tests.out: $(OBJS) $(CMD_SRCS) $(GEN_CMDS)
+wolfssl_tests.out: $(OBJS) $(CMD_SRCS) $(GEN_CMDS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: ARM Linker'
-	"c:/ti/ccsv6/tools/compiler/arm_5.1.6/bin/armcl" -mv7M4 --code_state=16 --float_support=FPv4SPD16 --abi=eabi -me -O1 -g --gcc --define=PART_TM4C1294NCPDT --define=TIRTOS --define=ccs --define=TIVAWARE --define=_INCLUDE_NIMU_CODE --define=NO_MAIN_DRIVER --define=BENCH_EMBEDDED --define=HAVE_CAMELLIA --define=HAVE_CHACHA --define=HAVE_ECC --define=HAVE_POLY1305 --display_error_number --diag_warning=225 --diag_wrap=off --gen_func_subsections=on -z -m"cyassl_tests.map" --heap_size=65536 --stack_size=512 -i"c:/ti/ccsv6/tools/compiler/arm_5.1.6/lib" -i"c:/ti/ccsv6/tools/compiler/arm_5.1.6/include" --reread_libs --warn_sections --display_error_number --diag_wrap=off --xml_link_info="cyassl_tests_linkInfo.xml" --rom_model -o "cyassl_tests.out" $(ORDERED_OBJS)
+	"c:/ti/ccsv6/tools/compiler/arm_5.1.6/bin/armcl" -mv7M4 --code_state=16 --float_support=FPv4SPD16 --abi=eabi -me -O1 -g --gcc --define=PART_TM4C1294NCPDT --define=TIRTOS --define=ccs --define=TIVAWARE --define=_INCLUDE_NIMU_CODE --define=NO_MAIN_DRIVER --define=BENCH_EMBEDDED --define=HAVE_CAMELLIA --define=HAVE_CHACHA --define=HAVE_ECC --define=HAVE_POLY1305 --display_error_number --diag_warning=225 --diag_wrap=off --gen_func_subsections=on -z -m"wolfssl_tests.map" --heap_size=65536 --stack_size=512 -i"c:/ti/ccsv6/tools/compiler/arm_5.1.6/lib" -i"c:/ti/ccsv6/tools/compiler/arm_5.1.6/include" --reread_libs --warn_sections --display_error_number --diag_wrap=off --xml_link_info="wolfssl_tests_linkInfo.xml" --rom_model -o "wolfssl_tests.out" $(ORDERED_OBJS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
-cyassl_tests.hex: $(EXE_OUTPUTS)
+wolfssl_tests.hex: $(EXE_OUTPUTS)
 	@echo 'Invoking: ARM Hex Utility'
-	"c:/ti/ccsv6/tools/compiler/arm_5.1.6/bin/armhex"  -o "cyassl_tests.hex" $(EXE_OUTPUTS__QUOTED)
+	"c:/ti/ccsv6/tools/compiler/arm_5.1.6/bin/armhex"  -o "wolfssl_tests.hex" $(EXE_OUTPUTS__QUOTED)
 	@echo 'Finished building: $@'
 	@echo ' '
 
@@ -156,8 +156,8 @@ cyassl_tests.hex: $(EXE_OUTPUTS)
 clean:
 	-$(RM) $(GEN_MISC_FILES__QUOTED)$(EXE_OUTPUTS__QUOTED)$(GEN_FILES__QUOTED)$(BIN_OUTPUTS__QUOTED)$(GEN_OPTS__QUOTED)$(GEN_CMDS__QUOTED)
 	-$(RMDIR) $(GEN_MISC_DIRS__QUOTED)
-	-$(RM) "EK_TM4C1294XL.pp" "cyassl_tests.pp" "test.pp" "cyassl\ctaocrypt\src\asn.pp" "cyassl\ctaocrypt\src\blake2b.pp" "cyassl\ctaocrypt\src\camellia.pp" "cyassl\ctaocrypt\src\chacha.pp" "cyassl\ctaocrypt\src\ecc.pp" "cyassl\ctaocrypt\src\integer.pp" "cyassl\ctaocrypt\src\poly1305.pp" "cyassl\ctaocrypt\src\sha512.pp" "cyassl\ctaocrypt\src\tfm.pp" 
-	-$(RM) "EK_TM4C1294XL.obj" "cyassl_tests.obj" "test.obj" "cyassl\ctaocrypt\src\asn.obj" "cyassl\ctaocrypt\src\blake2b.obj" "cyassl\ctaocrypt\src\camellia.obj" "cyassl\ctaocrypt\src\chacha.obj" "cyassl\ctaocrypt\src\ecc.obj" "cyassl\ctaocrypt\src\integer.obj" "cyassl\ctaocrypt\src\poly1305.obj" "cyassl\ctaocrypt\src\sha512.obj" "cyassl\ctaocrypt\src\tfm.obj" 
+	-$(RM) "EK_TM4C1294XL.pp" "wolfssl_tests.pp" "test.pp" "wolfssl\ctaocrypt\src\asn.pp" "wolfssl\ctaocrypt\src\blake2b.pp" "wolfssl\ctaocrypt\src\camellia.pp" "wolfssl\ctaocrypt\src\chacha.pp" "wolfssl\ctaocrypt\src\ecc.pp" "wolfssl\ctaocrypt\src\integer.pp" "wolfssl\ctaocrypt\src\poly1305.pp" "wolfssl\ctaocrypt\src\sha512.pp" "wolfssl\ctaocrypt\src\tfm.pp" 
+	-$(RM) "EK_TM4C1294XL.obj" "wolfssl_tests.obj" "test.obj" "wolfssl\ctaocrypt\src\asn.obj" "wolfssl\ctaocrypt\src\blake2b.obj" "wolfssl\ctaocrypt\src\camellia.obj" "wolfssl\ctaocrypt\src\chacha.obj" "wolfssl\ctaocrypt\src\ecc.obj" "wolfssl\ctaocrypt\src\integer.obj" "wolfssl\ctaocrypt\src\poly1305.obj" "wolfssl\ctaocrypt\src\sha512.obj" "wolfssl\ctaocrypt\src\tfm.obj" 
 	-@echo 'Finished clean'
 	-@echo ' '
 

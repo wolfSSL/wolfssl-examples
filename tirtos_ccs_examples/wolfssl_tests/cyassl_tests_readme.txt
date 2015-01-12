@@ -1,6 +1,6 @@
 Example Summary
 ----------------
-This application demonstrates the cyassl/testsuite/testsuite.test
+This application demonstrates the wolfssl/testsuite/testsuite.test
 
 Notes
 ----------------
