@@ -4235,7 +4235,7 @@
          <input_file_ref idref="fl-18"/>
       </object_component>
       <object_component id="oc-22a">
-         <name>.text:testCtaocrypt</name>
+         <name>.text:testwolfcrypt</name>
          <load_address>0x20cc8</load_address>
          <run_address>0x20cc8</run_address>
          <size>0x52</size>
@@ -93373,7 +93373,7 @@
          <object_component_ref idref="oc-8d1"/>
       </symbol>
       <symbol id="sm-18d7">
-         <name>testCtaocrypt</name>
+         <name>testwolfcrypt</name>
          <value>0x20cc9</value>
          <object_component_ref idref="oc-22a"/>
       </symbol>

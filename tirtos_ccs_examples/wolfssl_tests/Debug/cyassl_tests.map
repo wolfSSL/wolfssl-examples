@@ -503,7 +503,7 @@ xdc.meta   0    00000000    00000112     COPY SECTION
                   00020c20    00000054                   : BIOS.obj (.text:ti_sysbios_knl_Swi_Instance_finalize__E)
                   00020c74    00000052     tfm.obj (.text:fp_sub)
                   00020cc6    00000002     --HOLE-- [fill = 0]
-                  00020cc8    00000052     wolfssl_tests.obj (.text:testCtaocrypt)
+                  00020cc8    00000052     wolfssl_tests.obj (.text:testwolfcrypt)
                   00020d1a    00000050     stk.aem4f : socket.oem4f (.text:NDK_bind)
                   00020d6a    00000002     --HOLE-- [fill = 0]
                   00020d6c    00000050               : route.oem4f (.text:RtNew)
@@ -2242,7 +2242,7 @@ ffffffff   binit
 0002352d   strncpy
 2002f6c4   tcp_iss
 2002e3f8   tcps
-00020cc9   testCtaocrypt
+00020cc9   testwolfcrypt
 0002d48c   ti_catalog_arm_cortexm4_tiva_ce_Boot_A_mustNotUseEnhancedClockMode__C
 0002db9c   ti_catalog_arm_cortexm4_tiva_ce_Boot_Module__diagsEnabled__C
 0002dba0   ti_catalog_arm_cortexm4_tiva_ce_Boot_Module__diagsIncluded__C
@@ -3266,7 +3266,7 @@ address    name
 00020bcd   ti_sysbios_family_arm_m3_Hwi_Module_startup__E
 00020c21   ti_sysbios_knl_Swi_Instance_finalize__E
 00020c75   fp_sub
-00020cc9   testCtaocrypt
+00020cc9   testwolfcrypt
 00020d1b   NDK_bind
 00020dbd   SysCtlPeripheralReset
 00020e0d   TcpPrDetach

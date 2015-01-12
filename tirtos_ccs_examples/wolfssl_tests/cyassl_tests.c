@@ -68,10 +68,10 @@ typedef struct func_args {
 extern void wolfcrypt_test(void* args);
 
 /*
- *  ======== testCtaocrypt ========
- *  Run the Ctaocrypt test
+ *  ======== testwolfcrypt ========
+ *  Run the wolfcrypt test
  */
-void testCtaocrypt(UArg arg0, UArg arg1)
+void testwolfcrypt(UArg arg0, UArg arg1)
 {
     System_printf("Running wolfcrypt tests...\n");
     System_flush();
@@ -95,7 +95,7 @@ int main(int argc, char** argv)
     Task_Params_init(&taskParams);
     taskParams.arg0 = (UArg)&args;
     taskParams.stackSize = 32768;
-    handle =Task_create(testCtaocrypt, &taskParams, NULL);
+    handle =Task_create(testwolfcrypt, &taskParams, NULL);
     if (handle == NULL) {
         System_printf("main: Failed to create new Task.\n");
         return (-1);

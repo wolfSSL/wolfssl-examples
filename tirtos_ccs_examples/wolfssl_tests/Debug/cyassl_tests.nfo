@@ -12,7 +12,7 @@ extern int main() is called from 0 sites in this file.
 	ti_sysbios_knl_Task_create() (1 times)
 	ti_sysbios_knl_Task_Params_init() (1 times)
 
-extern void testCtaocrypt() is called from 0 sites in this file.
+extern void testwolfcrypt() is called from 0 sites in this file.
     It appears to be inlineable (size = 11 units)
     It has 3 non-trivial scope blocks nested 3 deep.
     It calls these functions:
@@ -31,7 +31,7 @@ static void ti_sysbios_knl_Task_Params_init() is called from 1 sites in this fil
 These functions may be recursive:
 	main()
 	ti_sysbios_knl_Task_Params_init()
-	testCtaocrypt()
+	testwolfcrypt()
 Inlineable function will be suppressed: ti_sysbios_knl_Task_Params_init()
 
 These external functions are called but not defined here:
@@ -49,7 +49,7 @@ These external functions are called but not defined here:
 
 ==============================================================================
 
-extern void testCtaocrypt() is called from 0 sites in this file.
+extern void testwolfcrypt() is called from 0 sites in this file.
     It appears to be inlineable (size = 11 units)
     It has 3 non-trivial scope blocks nested 3 deep.
     It calls these functions:

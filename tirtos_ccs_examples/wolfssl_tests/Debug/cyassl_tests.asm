@@ -100,16 +100,16 @@ $C$DW$18	.dwtag  DW_TAG_formal_parameter
 	.dwendtag $C$DW$17
 
 ;	c:\ti\ccsv6\tools\compiler\arm_5.1.6\bin\armopt.exe --call_assumptions=3 --gen_opt_info=2 C:\\Users\\khimes\\AppData\\Local\\Temp\\039082 C:\\Users\\khimes\\AppData\\Local\\Temp\\039084 --opt_info_filename=wolfssl_tests.nfo 
-	.sect	".text:testCtaocrypt"
+	.sect	".text:testwolfcrypt"
 	.clink
-	.thumbfunc testCtaocrypt
+	.thumbfunc testwolfcrypt
 	.thumb
-	.global	testCtaocrypt
+	.global	testwolfcrypt
 
-$C$DW$19	.dwtag  DW_TAG_subprogram, DW_AT_name("testCtaocrypt")
-	.dwattr $C$DW$19, DW_AT_low_pc(testCtaocrypt)
+$C$DW$19	.dwtag  DW_TAG_subprogram, DW_AT_name("testwolfcrypt")
+	.dwattr $C$DW$19, DW_AT_low_pc(testwolfcrypt)
 	.dwattr $C$DW$19, DW_AT_high_pc(0x00)
-	.dwattr $C$DW$19, DW_AT_TI_symbol_name("testCtaocrypt")
+	.dwattr $C$DW$19, DW_AT_TI_symbol_name("testwolfcrypt")
 	.dwattr $C$DW$19, DW_AT_external
 	.dwattr $C$DW$19, DW_AT_TI_begin_file("../wolfssl_tests.c")
 	.dwattr $C$DW$19, DW_AT_TI_begin_line(0x4a)
@@ -118,9 +118,9 @@ $C$DW$19	.dwtag  DW_TAG_subprogram, DW_AT_name("testCtaocrypt")
 	.dwattr $C$DW$19, DW_AT_decl_line(0x4a)
 	.dwattr $C$DW$19, DW_AT_decl_column(0x06)
 	.dwattr $C$DW$19, DW_AT_TI_max_frame_size(0x08)
-	.dwpsn	file "../wolfssl_tests.c",line 75,column 1,is_stmt,address testCtaocrypt,isa 1
+	.dwpsn	file "../wolfssl_tests.c",line 75,column 1,is_stmt,address testwolfcrypt,isa 1
 
-	.dwfde $C$DW$CIE, testCtaocrypt
+	.dwfde $C$DW$CIE, testwolfcrypt
 $C$DW$20	.dwtag  DW_TAG_formal_parameter, DW_AT_name("arg0")
 	.dwattr $C$DW$20, DW_AT_TI_symbol_name("arg0")
 	.dwattr $C$DW$20, DW_AT_type(*$C$DW$T$618)
@@ -131,7 +131,7 @@ $C$DW$21	.dwtag  DW_TAG_formal_parameter, DW_AT_name("arg1")
 	.dwattr $C$DW$21, DW_AT_location[DW_OP_reg1]
 
 ;*****************************************************************************
-;* FUNCTION NAME: testCtaocrypt                                              *
+;* FUNCTION NAME: testwolfcrypt                                              *
 ;*                                                                           *
 ;*   Regs Modified     : A1,A2,A3,A4,V1,V9,SP,LR,SR,D0,D0_hi,D1,D1_hi,D2,    *
 ;*                           D2_hi,D3,D3_hi,D4,D4_hi,D5,D5_hi,D6,D6_hi,D7,   *
@@ -141,7 +141,7 @@ $C$DW$21	.dwtag  DW_TAG_formal_parameter, DW_AT_name("arg1")
 ;*                           D7_hi,FPEXC,FPSCR                               *
 ;*   Local Frame Size  : 0 Args + 0 Auto + 8 Save = 8 byte                   *
 ;*****************************************************************************
-testCtaocrypt:
+testwolfcrypt:
 ;* --------------------------------------------------------------------------*
 ;* A1    assigned to arg0
 $C$DW$22	.dwtag  DW_TAG_variable, DW_AT_name("arg0")
@@ -284,7 +284,7 @@ $C$DW$36	.dwtag  DW_TAG_variable, DW_AT_name("taskParams")
 ;** 911	-----------------------    ti_sysbios_knl_Task_Params__init__S(&taskParams, NULL, 60u, 8u);  // [4]
 ;** 96	-----------------------    taskParams.arg0 = (unsigned)&args;
 ;** 97	-----------------------    taskParams.stackSize = 32768u;
-;** 98	-----------------------    handle = ti_sysbios_knl_Task_create(&testCtaocrypt, &taskParams, NULL);
+;** 98	-----------------------    handle = ti_sysbios_knl_Task_create(&testwolfcrypt, &taskParams, NULL);
 ;** 99	-----------------------    if ( handle == NULL ) goto g3;
         PUSH      {LR}                  ; [DPU_3_PIPE] 
 	.dwcfi	cfa_offset, 4
@@ -319,8 +319,8 @@ $C$DW$37	.dwtag  DW_TAG_TI_branch
 	.dwpsn	file "../wolfssl_tests.c",line 97,column 5,is_stmt,isa 1
         STR       A1, [SP, #44]         ; [DPU_3_PIPE] |97| 
 	.dwpsn	file "../wolfssl_tests.c",line 98,column 5,is_stmt,isa 1
-        MOVW      A1, testCtaocrypt+0   ; [DPU_3_PIPE] |98| 
-        MOVT      A1, testCtaocrypt+0   ; [DPU_3_PIPE] |98| 
+        MOVW      A1, testwolfcrypt+0   ; [DPU_3_PIPE] |98| 
+        MOVT      A1, testwolfcrypt+0   ; [DPU_3_PIPE] |98| 
 $C$DW$38	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$38, DW_AT_low_pc(0x00)
 	.dwattr $C$DW$38, DW_AT_name("ti_sysbios_knl_Task_create")
@@ -380,7 +380,7 @@ $C$DW$41	.dwtag  DW_TAG_TI_branch
 ;******************************************************************************
 ;* STRINGS                                                                    *
 ;******************************************************************************
-	.sect	".text:testCtaocrypt"
+	.sect	".text:testwolfcrypt"
 	.align	4
 ||$C$SL1||:	.string	"Running wolfcrypt tests...",10,0
 	.align	4
