@@ -4,12 +4,12 @@ These have currently been tested in windows CCS only. Once testing on the linux 
 
 Setting up the file system
 ---------------------------------------------------------
-ensure that cyassl is on the C:/ drive and remove any version numbers on the file. For example if your cyassl directory is named "cyassl_3_1_0 or cyassl-3.1.0" rename it to "cyassl". You should now have C:/cyassl directory.
+ensure that wolfssl is on the C:/ drive and remove any version numbers on the file. For example if your wolfssl directory is named "wolfssl_3_1_0 or wolfssl-3.1.0" rename it to "wolfssl". You should now have C:/wolfssl directory.
 
 Clone this repository using "github for windows". The projects have been made portable so you can run them straight from the github clone repo or you can copy and paste the "tirtos_ccs_examples" folder out of the repo to wherever and 
 they should still debug just fine once imported into your workspace (see end of this README).
 
-Instructions for building CyaSSL application for TI-RTOS
+Instructions for building wolfSSL application for TI-RTOS
 ---------------------------------------------------------
 
 Installing the software
@@ -19,20 +19,20 @@ Installing the software
 3. In CCS, open View -> CCS App Center. Search "ti-rtos". Select "TI-RTOS for TivaC" from the results and click Install Software. Follow the instructions.
 
 
-Building CyaSSL libraries for TI-RTOS
+Building wolfSSL libraries for TI-RTOS
 -------------------------------------
-1. Replace tirtos.mak in C:\ti\tirtos_tivac_2_00_02_36 with the tirtos.mak from <cyassl_root>/tirtos/tirtos_ccs_examples. Ensure you have cyassl in the proper location (should be C:/cyassl).
+1. Replace tirtos.mak in C:\ti\tirtos_tivac_2_00_02_36 with the tirtos.mak from git@github.com:wolfSSL/wolfssl.git. Ensure you have wolfssl in the proper location (should be C:/wolfssl).
 2. Open a command prompt. CD into C:\ti\tirtos_tivac_2_00_02_36.
-3. Run the make command to build CyaSSL libaries.
+3. Run the make command to build wolfSSL libaries.
     
-   ..\xdctools_3_30_01_25_core\gmake.exe -f tirtos.mak cyassl
+   ..\xdctools_3_30_01_25_core\gmake.exe -f tirtos.mak wolfssl
 
-Running CyaSSL CTaoCrypt benchmark and test application.
+Running wolfSSL CTaoCrypt benchmark and test application.
 --------------------------------------------------------
-1. After running the TCP Echo Server application, in the Debugger View, open Run -> Load Program. Browse to the Benchmark application (C:\cyassl\tirtos\packages\ti\net\cyassl\tests\ctaocrypt\benchmark). Select benchmark.xem4f and Click Open and Click OK to load the application.
+1. After running the TCP Echo Server application, in the Debugger View, open Run -> Load Program. Browse to the Benchmark application (C:\wolfssl\tirtos\packages\ti\net\wolfssl\tests\wolfcrypt\benchmark). Select benchmark.xem4f and Click Open and Click OK to load the application.
 2. Test by running the application.
-3. Repeat the steps 1 and 2 for Test application (C:\cyassl\tirtos\packages\ti\net\cyassl\tests\ctaocrypt\test).
-4. The example cyassl_tirtos_benchmark in this repository has all the correct optimization settings and will re-build the relevant c files at compile time for optimal results and additional benchmarks for camellia, rabbit, chacha, poly1305, sha512, and ECC.
+3. Repeat the steps 1 and 2 for Test application (C:\wolfssl\tirtos\packages\ti\net\wolfssl\tests\wolfcrypt\test).
+4. The example wolfssl_tirtos_benchmark in this repository has all the correct optimization settings and will re-build the relevant c files at compile time for optimal results and additional benchmarks for camellia, rabbit, chacha, poly1305, sha512, and ECC.
 
 Import a project into your workspace.
 --------------------------------------------------------
