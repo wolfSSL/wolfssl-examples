@@ -8,7 +8,7 @@ Certificate Warning
 MYTIME_settime(1408053541); = Aug 14 15:59:01 MDT 2014 
 (the day this example was written)
 
-The current CyaSSL certificates will expire on Apr 6 at 03:20:08 GMT 2017 (1491448808 in epoch)
+The current wolfSSL certificates will expire on Apr 6 at 03:20:08 GMT 2017 (1491448808 in epoch)
 At that developers will need to edit tcpEcho.c and update the MYTIME_settime(xxxxxxxx) to some
 date after the new certs were issued and before the new certs will expire.
 

@@ -726,8 +726,8 @@ xdc.meta   0    00000000    000000ff     COPY SECTION
                   00018c6e    0000001a     benchmarkTest_pem4f.oem4f (.text:ti_sysbios_knl_Task_Handle__label__S)
                   00018c88    0000001a     benchmarkTest_pem4f.oem4f (.text:xdc_runtime_System_aprintf__E)
                   00018ca2    0000001a     benchmarkTest_pem4f.oem4f (.text:xdc_runtime_System_printf__E)
-                  00018cbc    00000018     ti.net.wolfssl.aem4f : memory.oem4f (.text:CyaSSL_Free)
-                  00018cd4    00000018                         : memory.oem4f (.text:CyaSSL_Malloc)
+                  00018cbc    00000018     ti.net.wolfssl.aem4f : memory.oem4f (.text:wolfSSL_Free)
+                  00018cd4    00000018                         : memory.oem4f (.text:wolfSSL_Malloc)
                   00018cec    00000018     emac_tivaware.aem4f : EMACSnow.oem4f (.text:EMACSnow_emacSend)
                   00018d04    00000018     stk.aem4f : ip.oem4f (.text:IPRtChange)
                   00018d1c    00000018     ti.net.wolfssl.aem4f : rsa.oem4f (.text:InitRsaKey)
@@ -1388,8 +1388,8 @@ address    name
 0001466d   CfgSetExecuteOrder
 000170dd   CfgSetService
 0001e9ec   Code2Err
-00018cbd   CyaSSL_Free
-00018cd5   CyaSSL_Malloc
+00018cbd   wolfSSL_Free
+00018cd5   wolfSSL_Malloc
 00016757   DHCPClose
 0000be1d   DHCPOpen
 000130ed   DbgPrintf
@@ -3211,8 +3211,8 @@ address    name
 00018c6f   ti_sysbios_knl_Task_Handle__label__S
 00018c89   xdc_runtime_System_aprintf__E
 00018ca3   xdc_runtime_System_printf__E
-00018cbd   CyaSSL_Free
-00018cd5   CyaSSL_Malloc
+00018cbd   wolfSSL_Free
+00018cd5   wolfSSL_Malloc
 00018ced   EMACSnow_emacSend
 00018d05   IPRtChange
 00018d1d   InitRsaKey

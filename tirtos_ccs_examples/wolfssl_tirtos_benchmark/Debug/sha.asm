@@ -5222,7 +5222,7 @@ $C$DW$430	.dwtag  DW_TAG_formal_parameter
 $C$DW$T$513	.dwtag  DW_TAG_pointer_type
 	.dwattr $C$DW$T$513, DW_AT_type(*$C$DW$T$512)
 	.dwattr $C$DW$T$513, DW_AT_address_class(0x20)
-$C$DW$T$514	.dwtag  DW_TAG_typedef, DW_AT_name("CyaSSL_Malloc_cb")
+$C$DW$T$514	.dwtag  DW_TAG_typedef, DW_AT_name("wolfSSL_Malloc_cb")
 	.dwattr $C$DW$T$514, DW_AT_type(*$C$DW$T$513)
 	.dwattr $C$DW$T$514, DW_AT_language(DW_LANG_C)
 	.dwattr $C$DW$T$514, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/memory.h")
@@ -5241,7 +5241,7 @@ $C$DW$432	.dwtag  DW_TAG_formal_parameter
 $C$DW$T$516	.dwtag  DW_TAG_pointer_type
 	.dwattr $C$DW$T$516, DW_AT_type(*$C$DW$T$515)
 	.dwattr $C$DW$T$516, DW_AT_address_class(0x20)
-$C$DW$T$517	.dwtag  DW_TAG_typedef, DW_AT_name("CyaSSL_Realloc_cb")
+$C$DW$T$517	.dwtag  DW_TAG_typedef, DW_AT_name("wolfSSL_Realloc_cb")
 	.dwattr $C$DW$T$517, DW_AT_type(*$C$DW$T$516)
 	.dwattr $C$DW$T$517, DW_AT_language(DW_LANG_C)
 	.dwattr $C$DW$T$517, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/memory.h")
@@ -6092,7 +6092,7 @@ $C$DW$468	.dwtag  DW_TAG_formal_parameter
 $C$DW$T$217	.dwtag  DW_TAG_pointer_type
 	.dwattr $C$DW$T$217, DW_AT_type(*$C$DW$T$216)
 	.dwattr $C$DW$T$217, DW_AT_address_class(0x20)
-$C$DW$T$619	.dwtag  DW_TAG_typedef, DW_AT_name("CyaSSL_Free_cb")
+$C$DW$T$619	.dwtag  DW_TAG_typedef, DW_AT_name("wolfSSL_Free_cb")
 	.dwattr $C$DW$T$619, DW_AT_type(*$C$DW$T$217)
 	.dwattr $C$DW$T$619, DW_AT_language(DW_LANG_C)
 	.dwattr $C$DW$T$619, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/memory.h")
@@ -7308,7 +7308,7 @@ $C$DW$560	.dwtag  DW_TAG_formal_parameter
 $C$DW$T$785	.dwtag  DW_TAG_pointer_type
 	.dwattr $C$DW$T$785, DW_AT_type(*$C$DW$T$784)
 	.dwattr $C$DW$T$785, DW_AT_address_class(0x20)
-$C$DW$T$786	.dwtag  DW_TAG_typedef, DW_AT_name("CyaSSL_Logging_cb")
+$C$DW$T$786	.dwtag  DW_TAG_typedef, DW_AT_name("wolfSSL_Logging_cb")
 	.dwattr $C$DW$T$786, DW_AT_type(*$C$DW$T$785)
 	.dwattr $C$DW$T$786, DW_AT_language(DW_LANG_C)
 	.dwattr $C$DW$T$786, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/logging.h")
@@ -12942,7 +12942,7 @@ $C$DW$T$1315	.dwtag  DW_TAG_typedef, DW_AT_name("ti_sysbios_knl_Semaphore_Handle
 	.dwattr $C$DW$T$1315, DW_AT_decl_file("C:/ti/tirtos_tivac_2_00_02_36/products/bios_6_40_02_27/packages/ti/sysbios/knl/package/package.defs.h")
 	.dwattr $C$DW$T$1315, DW_AT_decl_line(0x50)
 	.dwattr $C$DW$T$1315, DW_AT_decl_column(0x2a)
-$C$DW$T$1316	.dwtag  DW_TAG_typedef, DW_AT_name("CyaSSL_Mutex")
+$C$DW$T$1316	.dwtag  DW_TAG_typedef, DW_AT_name("wolfSSL_Mutex")
 	.dwattr $C$DW$T$1316, DW_AT_type(*$C$DW$T$1315)
 	.dwattr $C$DW$T$1316, DW_AT_language(DW_LANG_C)
 	.dwattr $C$DW$T$1316, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/wc_port.h")

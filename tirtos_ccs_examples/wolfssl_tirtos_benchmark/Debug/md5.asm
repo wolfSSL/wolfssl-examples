@@ -3124,7 +3124,7 @@ $C$DW$313	.dwtag  DW_TAG_formal_parameter
 $C$DW$T$512	.dwtag  DW_TAG_pointer_type
 	.dwattr $C$DW$T$512, DW_AT_type(*$C$DW$T$511)
 	.dwattr $C$DW$T$512, DW_AT_address_class(0x20)
-$C$DW$T$513	.dwtag  DW_TAG_typedef, DW_AT_name("CyaSSL_Malloc_cb")
+$C$DW$T$513	.dwtag  DW_TAG_typedef, DW_AT_name("wolfSSL_Malloc_cb")
 	.dwattr $C$DW$T$513, DW_AT_type(*$C$DW$T$512)
 	.dwattr $C$DW$T$513, DW_AT_language(DW_LANG_C)
 	.dwattr $C$DW$T$513, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/memory.h")
@@ -3143,7 +3143,7 @@ $C$DW$315	.dwtag  DW_TAG_formal_parameter
 $C$DW$T$515	.dwtag  DW_TAG_pointer_type
 	.dwattr $C$DW$T$515, DW_AT_type(*$C$DW$T$514)
 	.dwattr $C$DW$T$515, DW_AT_address_class(0x20)
-$C$DW$T$516	.dwtag  DW_TAG_typedef, DW_AT_name("CyaSSL_Realloc_cb")
+$C$DW$T$516	.dwtag  DW_TAG_typedef, DW_AT_name("wolfSSL_Realloc_cb")
 	.dwattr $C$DW$T$516, DW_AT_type(*$C$DW$T$515)
 	.dwattr $C$DW$T$516, DW_AT_language(DW_LANG_C)
 	.dwattr $C$DW$T$516, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/memory.h")
@@ -3994,7 +3994,7 @@ $C$DW$351	.dwtag  DW_TAG_formal_parameter
 $C$DW$T$217	.dwtag  DW_TAG_pointer_type
 	.dwattr $C$DW$T$217, DW_AT_type(*$C$DW$T$216)
 	.dwattr $C$DW$T$217, DW_AT_address_class(0x20)
-$C$DW$T$618	.dwtag  DW_TAG_typedef, DW_AT_name("CyaSSL_Free_cb")
+$C$DW$T$618	.dwtag  DW_TAG_typedef, DW_AT_name("wolfSSL_Free_cb")
 	.dwattr $C$DW$T$618, DW_AT_type(*$C$DW$T$217)
 	.dwattr $C$DW$T$618, DW_AT_language(DW_LANG_C)
 	.dwattr $C$DW$T$618, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/memory.h")
@@ -10819,7 +10819,7 @@ $C$DW$T$1302	.dwtag  DW_TAG_typedef, DW_AT_name("ti_sysbios_knl_Semaphore_Handle
 	.dwattr $C$DW$T$1302, DW_AT_decl_file("C:/ti/tirtos_tivac_2_00_02_36/products/bios_6_40_02_27/packages/ti/sysbios/knl/package/package.defs.h")
 	.dwattr $C$DW$T$1302, DW_AT_decl_line(0x50)
 	.dwattr $C$DW$T$1302, DW_AT_decl_column(0x2a)
-$C$DW$T$1303	.dwtag  DW_TAG_typedef, DW_AT_name("CyaSSL_Mutex")
+$C$DW$T$1303	.dwtag  DW_TAG_typedef, DW_AT_name("wolfSSL_Mutex")
 	.dwattr $C$DW$T$1303, DW_AT_type(*$C$DW$T$1302)
 	.dwattr $C$DW$T$1303, DW_AT_language(DW_LANG_C)
 	.dwattr $C$DW$T$1303, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/wc_port.h")

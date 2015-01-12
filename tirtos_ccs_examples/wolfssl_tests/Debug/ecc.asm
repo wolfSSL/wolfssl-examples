@@ -28,8 +28,8 @@ $C$DW$4	.dwtag  DW_TAG_formal_parameter
 	.dwendtag $C$DW$1
 
 
-$C$DW$5	.dwtag  DW_TAG_subprogram, DW_AT_name("CyaSSL_Malloc")
-	.dwattr $C$DW$5, DW_AT_TI_symbol_name("CyaSSL_Malloc")
+$C$DW$5	.dwtag  DW_TAG_subprogram, DW_AT_name("wolfSSL_Malloc")
+	.dwattr $C$DW$5, DW_AT_TI_symbol_name("wolfSSL_Malloc")
 	.dwattr $C$DW$5, DW_AT_type(*$C$DW$T$3)
 	.dwattr $C$DW$5, DW_AT_declaration
 	.dwattr $C$DW$5, DW_AT_external
@@ -41,8 +41,8 @@ $C$DW$6	.dwtag  DW_TAG_formal_parameter
 	.dwendtag $C$DW$5
 
 
-$C$DW$7	.dwtag  DW_TAG_subprogram, DW_AT_name("CyaSSL_Free")
-	.dwattr $C$DW$7, DW_AT_TI_symbol_name("CyaSSL_Free")
+$C$DW$7	.dwtag  DW_TAG_subprogram, DW_AT_name("wolfSSL_Free")
+	.dwattr $C$DW$7, DW_AT_TI_symbol_name("wolfSSL_Free")
 	.dwattr $C$DW$7, DW_AT_declaration
 	.dwattr $C$DW$7, DW_AT_external
 	.dwattr $C$DW$7, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/memory.h")
@@ -842,7 +842,7 @@ $C$DW$141	.dwtag  DW_TAG_variable, DW_AT_name("p")
 	.dwattr $C$DW$141, DW_AT_type(*$C$DW$T$550)
 	.dwattr $C$DW$141, DW_AT_location[DW_OP_reg5]
 	.dwcfi	cfa_offset, 0
-;* 1335	-----------------------    p = (struct $$fake1 *)CyaSSL_Malloc(1656u);
+;* 1335	-----------------------    p = (struct $$fake1 *)wolfSSL_Malloc(1656u);
 ;* 1336	-----------------------    if ( p ) goto g3;
 ;* 1337	-----------------------    return NULL;
         PUSH      {V1, V2, LR}          ; [DPU_3_PIPE] 
@@ -856,10 +856,10 @@ $C$DW$141	.dwtag  DW_TAG_variable, DW_AT_name("p")
 	.dwcfi	cfa_offset, 24
 $C$DW$142	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$142, DW_AT_low_pc(0x00)
-	.dwattr $C$DW$142, DW_AT_name("CyaSSL_Malloc")
+	.dwattr $C$DW$142, DW_AT_name("wolfSSL_Malloc")
 	.dwattr $C$DW$142, DW_AT_TI_call
-        BL        CyaSSL_Malloc         ; [DPU_3_PIPE] |1335| 
-        ; CALL OCCURS {CyaSSL_Malloc }   ; [] |1335| 
+        BL        wolfSSL_Malloc         ; [DPU_3_PIPE] |1335| 
+        ; CALL OCCURS {wolfSSL_Malloc }   ; [] |1335| 
         MOV       V2, A1                ; [DPU_3_PIPE] |1335| 
 	.dwpsn	file "C:/wolfssl/ctaocrypt/src/ecc.c",line 1336,column 4,is_stmt,isa 1
         CMP       V2, #0                ; [DPU_3_PIPE] |1336| 
@@ -898,16 +898,16 @@ $C$DW$144	.dwtag  DW_TAG_TI_branch
         CBZ       A1, ||$C$L4||         ; [] 
         ; BRANCHCC OCCURS {||$C$L4||}    ; [] |1340| 
 ;* --------------------------------------------------------------------------*
-;* 1341	-----------------------    CyaSSL_Free((void *)p);
+;* 1341	-----------------------    wolfSSL_Free((void *)p);
 ;* 1342	-----------------------    return NULL;
 	.dwpsn	file "C:/wolfssl/ctaocrypt/src/ecc.c",line 1341,column 7,is_stmt,isa 1
         MOV       A1, V2                ; [DPU_3_PIPE] |1341| 
 $C$DW$145	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$145, DW_AT_low_pc(0x00)
-	.dwattr $C$DW$145, DW_AT_name("CyaSSL_Free")
+	.dwattr $C$DW$145, DW_AT_name("wolfSSL_Free")
 	.dwattr $C$DW$145, DW_AT_TI_call
-        BL        CyaSSL_Free           ; [DPU_3_PIPE] |1341| 
-        ; CALL OCCURS {CyaSSL_Free }     ; [] |1341| 
+        BL        wolfSSL_Free           ; [DPU_3_PIPE] |1341| 
+        ; CALL OCCURS {wolfSSL_Free }     ; [] |1341| 
         MOV       A1, V1                ; [DPU_3_PIPE] 
 	.dwpsn	file "C:/wolfssl/ctaocrypt/src/ecc.c",line 1342,column 7,is_stmt,isa 1
         B         ||$C$L5||             ; [DPU_3_PIPE] |1342| 
@@ -992,7 +992,7 @@ $C$DW$149	.dwtag  DW_TAG_variable, DW_AT_name("p")
 ;* 1354	-----------------------    mp_clear((struct $$fake0 *)p);
 ;* 1355	-----------------------    mp_clear((struct $$fake0 *)p+552);
 ;* 1356	-----------------------    mp_clear((struct $$fake0 *)p+1104);
-;* 1357	-----------------------    CyaSSL_Free((void *)p);
+;* 1357	-----------------------    wolfSSL_Free((void *)p);
 ;**	-----------------------g3:
 ;**  	-----------------------    return;
 	.dwpsn	file "C:/wolfssl/ctaocrypt/src/ecc.c",line 1354,column 7,is_stmt,isa 1
@@ -1022,10 +1022,10 @@ $C$DW$152	.dwtag  DW_TAG_TI_branch
         MOV       A1, V1                ; [DPU_3_PIPE] |1357| 
 $C$DW$153	.dwtag  DW_TAG_TI_branch
 	.dwattr $C$DW$153, DW_AT_low_pc(0x00)
-	.dwattr $C$DW$153, DW_AT_name("CyaSSL_Free")
+	.dwattr $C$DW$153, DW_AT_name("wolfSSL_Free")
 	.dwattr $C$DW$153, DW_AT_TI_call
-        BL        CyaSSL_Free           ; [DPU_3_PIPE] |1357| 
-        ; CALL OCCURS {CyaSSL_Free }     ; [] |1357| 
+        BL        wolfSSL_Free           ; [DPU_3_PIPE] |1357| 
+        ; CALL OCCURS {wolfSSL_Free }     ; [] |1357| 
 ;* --------------------------------------------------------------------------*
 ||$C$L6||:    
 $C$DW$154	.dwtag  DW_TAG_TI_branch
@@ -8919,8 +8919,8 @@ $C$DW$760	.dwtag  DW_TAG_TI_branch
 ;*****************************************************************************
 ;* UNDEFINED EXTERNAL REFERENCES                                             *
 ;*****************************************************************************
-	.global	CyaSSL_Malloc
-	.global	CyaSSL_Free
+	.global	wolfSSL_Malloc
+	.global	wolfSSL_Free
 	.global	memset
 	.global	fp_cmp
 	.global	fp_div_2
@@ -12368,7 +12368,7 @@ $C$DW$1219	.dwtag  DW_TAG_formal_parameter
 $C$DW$T$613	.dwtag  DW_TAG_pointer_type
 	.dwattr $C$DW$T$613, DW_AT_type(*$C$DW$T$612)
 	.dwattr $C$DW$T$613, DW_AT_address_class(0x20)
-$C$DW$T$614	.dwtag  DW_TAG_typedef, DW_AT_name("CyaSSL_Malloc_cb")
+$C$DW$T$614	.dwtag  DW_TAG_typedef, DW_AT_name("wolfSSL_Malloc_cb")
 	.dwattr $C$DW$T$614, DW_AT_type(*$C$DW$T$613)
 	.dwattr $C$DW$T$614, DW_AT_language(DW_LANG_C)
 	.dwattr $C$DW$T$614, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/memory.h")
@@ -12387,7 +12387,7 @@ $C$DW$1221	.dwtag  DW_TAG_formal_parameter
 $C$DW$T$618	.dwtag  DW_TAG_pointer_type
 	.dwattr $C$DW$T$618, DW_AT_type(*$C$DW$T$617)
 	.dwattr $C$DW$T$618, DW_AT_address_class(0x20)
-$C$DW$T$619	.dwtag  DW_TAG_typedef, DW_AT_name("CyaSSL_Realloc_cb")
+$C$DW$T$619	.dwtag  DW_TAG_typedef, DW_AT_name("wolfSSL_Realloc_cb")
 	.dwattr $C$DW$T$619, DW_AT_type(*$C$DW$T$618)
 	.dwattr $C$DW$T$619, DW_AT_language(DW_LANG_C)
 	.dwattr $C$DW$T$619, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/memory.h")
@@ -13238,7 +13238,7 @@ $C$DW$1257	.dwtag  DW_TAG_formal_parameter
 $C$DW$T$262	.dwtag  DW_TAG_pointer_type
 	.dwattr $C$DW$T$262, DW_AT_type(*$C$DW$T$261)
 	.dwattr $C$DW$T$262, DW_AT_address_class(0x20)
-$C$DW$T$721	.dwtag  DW_TAG_typedef, DW_AT_name("CyaSSL_Free_cb")
+$C$DW$T$721	.dwtag  DW_TAG_typedef, DW_AT_name("wolfSSL_Free_cb")
 	.dwattr $C$DW$T$721, DW_AT_type(*$C$DW$T$262)
 	.dwattr $C$DW$T$721, DW_AT_language(DW_LANG_C)
 	.dwattr $C$DW$T$721, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/memory.h")
@@ -20244,7 +20244,7 @@ $C$DW$T$1513	.dwtag  DW_TAG_typedef, DW_AT_name("ti_sysbios_knl_Semaphore_Handle
 	.dwattr $C$DW$T$1513, DW_AT_decl_file("C:/ti/tirtos_tivac_2_00_02_36/products/bios_6_40_02_27/packages/ti/sysbios/knl/package/package.defs.h")
 	.dwattr $C$DW$T$1513, DW_AT_decl_line(0x50)
 	.dwattr $C$DW$T$1513, DW_AT_decl_column(0x2a)
-$C$DW$T$1514	.dwtag  DW_TAG_typedef, DW_AT_name("CyaSSL_Mutex")
+$C$DW$T$1514	.dwtag  DW_TAG_typedef, DW_AT_name("wolfSSL_Mutex")
 	.dwattr $C$DW$T$1514, DW_AT_type(*$C$DW$T$1513)
 	.dwattr $C$DW$T$1514, DW_AT_language(DW_LANG_C)
 	.dwattr $C$DW$T$1514, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/wc_port.h")

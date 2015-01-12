@@ -5282,14 +5282,14 @@
          <input_file_ref idref="fl-3"/>
       </object_component>
       <object_component id="oc-a52">
-         <name>.text:CyaSSL_Free</name>
+         <name>.text:wolfSSL_Free</name>
          <load_address>0x18d00</load_address>
          <run_address>0x18d00</run_address>
          <size>0x18</size>
          <input_file_ref idref="fl-1e3"/>
       </object_component>
       <object_component id="oc-a46">
-         <name>.text:CyaSSL_Malloc</name>
+         <name>.text:wolfSSL_Malloc</name>
          <load_address>0x18d18</load_address>
          <run_address>0x18d18</run_address>
          <size>0x18</size>
@@ -85478,12 +85478,12 @@
          <object_component_ref idref="oc-6e4"/>
       </symbol>
       <symbol id="sm-39d0">
-         <name>CyaSSL_Free</name>
+         <name>wolfSSL_Free</name>
          <value>0x18d01</value>
          <object_component_ref idref="oc-a52"/>
       </symbol>
       <symbol id="sm-39d1">
-         <name>CyaSSL_Malloc</name>
+         <name>wolfSSL_Malloc</name>
          <value>0x18d19</value>
          <object_component_ref idref="oc-a46"/>
       </symbol>

@@ -1614,7 +1614,7 @@
          <input_file_ref idref="fl-3b"/>
       </object_component>
       <object_component id="oc-1b4f">
-         <name>.text:CyaSSL_accept</name>
+         <name>.text:wolfSSL_accept</name>
          <load_address>0xdeb4</load_address>
          <run_address>0xdeb4</run_address>
          <size>0x16e</size>
@@ -1852,7 +1852,7 @@
          <input_file_ref idref="fl-1bb"/>
       </object_component>
       <object_component id="oc-1b55">
-         <name>.text:CyaSSL_connect</name>
+         <name>.text:wolfSSL_connect</name>
          <load_address>0x1051c</load_address>
          <run_address>0x1051c</run_address>
          <size>0x12e</size>
@@ -3595,7 +3595,7 @@
          <input_file_ref idref="fl-1ce"/>
       </object_component>
       <object_component id="oc-6de">
-         <name>.text:CyaSSL_Cleanup</name>
+         <name>.text:wolfSSL_Cleanup</name>
          <load_address>0x1adfc</load_address>
          <run_address>0x1adfc</run_address>
          <size>0x6c</size>
@@ -4176,7 +4176,7 @@
          <input_file_ref idref="fl-79"/>
       </object_component>
       <object_component id="oc-409">
-         <name>.text:CyaSSL_Init</name>
+         <name>.text:wolfSSL_Init</name>
          <load_address>0x1ce40</load_address>
          <run_address>0x1ce40</run_address>
          <size>0x58</size>
@@ -4652,7 +4652,7 @@
          <input_file_ref idref="fl-69"/>
       </object_component>
       <object_component id="oc-2c57">
-         <name>.text:CyaSSL_SetTlsHmacInner</name>
+         <name>.text:wolfSSL_SetTlsHmacInner</name>
          <load_address>0x1e334</load_address>
          <run_address>0x1e334</run_address>
          <size>0x46</size>
@@ -4715,7 +4715,7 @@
          <input_file_ref idref="fl-6d"/>
       </object_component>
       <object_component id="oc-415">
-         <name>.text:CyaSSL_CTX_new</name>
+         <name>.text:wolfSSL_CTX_new</name>
          <load_address>0x1e5ac</load_address>
          <run_address>0x1e5ac</run_address>
          <size>0x44</size>
@@ -5520,7 +5520,7 @@
          <input_file_ref idref="fl-28"/>
       </object_component>
       <object_component id="oc-c53">
-         <name>.text:CyaSSL_read_internal</name>
+         <name>.text:wolfSSL_read_internal</name>
          <load_address>0x200a6</load_address>
          <run_address>0x200a6</run_address>
          <size>0x32</size>
@@ -5716,14 +5716,14 @@
          <input_file_ref idref="fl-1d0"/>
       </object_component>
       <object_component id="oc-2c5d">
-         <name>.text:CyaSSL_GetHmacType</name>
+         <name>.text:wolfSSL_GetHmacType</name>
          <load_address>0x205ee</load_address>
          <run_address>0x205ee</run_address>
          <size>0x2e</size>
          <input_file_ref idref="fl-1c3"/>
       </object_component>
       <object_component id="oc-457">
-         <name>.text:CyaSSL_new</name>
+         <name>.text:wolfSSL_new</name>
          <load_address>0x2061c</load_address>
          <run_address>0x2061c</run_address>
          <size>0x2e</size>
@@ -5814,7 +5814,7 @@
          <input_file_ref idref="fl-1ef"/>
       </object_component>
       <object_component id="oc-b21">
-         <name>.text:CyaSSL_CertManagerNew</name>
+         <name>.text:wolfSSL_CertManagerNew</name>
          <load_address>0x20872</load_address>
          <run_address>0x20872</run_address>
          <size>0x2c</size>
@@ -5982,7 +5982,7 @@
          <input_file_ref idref="fl-1d0"/>
       </object_component>
       <object_component id="oc-421">
-         <name>.text:CyaSSL_CTX_load_verify_buffer</name>
+         <name>.text:wolfSSL_CTX_load_verify_buffer</name>
          <load_address>0x20c92</load_address>
          <run_address>0x20c92</run_address>
          <size>0x2a</size>
@@ -6171,7 +6171,7 @@
          <input_file_ref idref="fl-1d3"/>
       </object_component>
       <object_component id="oc-40f">
-         <name>.text:CyaTLSv1_2_server_method</name>
+         <name>.text:wolfTLSv1_2_server_method</name>
          <load_address>0x210d6</load_address>
          <run_address>0x210d6</run_address>
          <size>0x26</size>
@@ -6276,7 +6276,7 @@
          <input_file_ref idref="fl-31"/>
       </object_component>
       <object_component id="oc-141a">
-         <name>.text:CyaSSL_negotiate</name>
+         <name>.text:wolfSSL_negotiate</name>
          <load_address>0x2130e</load_address>
          <run_address>0x2130e</run_address>
          <size>0x24</size>
@@ -6528,7 +6528,7 @@
          <input_file_ref idref="fl-31"/>
       </object_component>
       <object_component id="oc-13bb">
-         <name>.text:CyaSSL_GetMacSecret</name>
+         <name>.text:wolfSSL_GetMacSecret</name>
          <load_address>0x21808</load_address>
          <run_address>0x21808</run_address>
          <size>0x20</size>
@@ -6703,21 +6703,21 @@
          <input_file_ref idref="fl-1d3"/>
       </object_component>
       <object_component id="oc-11fa">
-         <name>.text:CyaSSL_CertManagerFree</name>
+         <name>.text:wolfSSL_CertManagerFree</name>
          <load_address>0x21b26</load_address>
          <run_address>0x21b26</run_address>
          <size>0x1e</size>
          <input_file_ref idref="fl-1c2"/>
       </object_component>
       <object_component id="oc-45d">
-         <name>.text:CyaSSL_set_fd</name>
+         <name>.text:wolfSSL_set_fd</name>
          <load_address>0x21b44</load_address>
          <run_address>0x21b44</run_address>
          <size>0x1e</size>
          <input_file_ref idref="fl-1c2"/>
       </object_component>
       <object_component id="oc-76c">
-         <name>.text:CyaSSL_write</name>
+         <name>.text:wolfSSL_write</name>
          <load_address>0x21b62</load_address>
          <run_address>0x21b62</run_address>
          <size>0x1e</size>
@@ -6962,7 +6962,7 @@
          <input_file_ref idref="fl-72"/>
       </object_component>
       <object_component id="oc-42d">
-         <name>.text:CyaSSL_CTX_use_PrivateKey_buffer</name>
+         <name>.text:wolfSSL_CTX_use_PrivateKey_buffer</name>
          <load_address>0x21f48</load_address>
          <run_address>0x21f48</run_address>
          <size>0x1a</size>
@@ -7088,14 +7088,14 @@
          <input_file_ref idref="fl-3"/>
       </object_component>
       <object_component id="oc-6d7">
-         <name>.text:CyaSSL_Free</name>
+         <name>.text:wolfSSL_Free</name>
          <load_address>0x2211c</load_address>
          <run_address>0x2211c</run_address>
          <size>0x18</size>
          <input_file_ref idref="fl-1c9"/>
       </object_component>
       <object_component id="oc-6b7">
-         <name>.text:CyaSSL_Malloc</name>
+         <name>.text:wolfSSL_Malloc</name>
          <load_address>0x22134</load_address>
          <run_address>0x22134</run_address>
          <size>0x18</size>
@@ -7438,7 +7438,7 @@
          <input_file_ref idref="fl-31"/>
       </object_component>
       <object_component id="oc-427">
-         <name>.text:CyaSSL_CTX_use_certificate_buffer</name>
+         <name>.text:wolfSSL_CTX_use_certificate_buffer</name>
          <load_address>0x225aa</load_address>
          <run_address>0x225aa</run_address>
          <size>0x14</size>
@@ -8236,14 +8236,14 @@
          <input_file_ref idref="fl-3"/>
       </object_component>
       <object_component id="oc-6d1">
-         <name>.text:CyaSSL_CTX_free</name>
+         <name>.text:wolfSSL_CTX_free</name>
          <load_address>0x22c70</load_address>
          <run_address>0x22c70</run_address>
          <size>0x8</size>
          <input_file_ref idref="fl-1c2"/>
       </object_component>
       <object_component id="oc-772">
-         <name>.text:CyaSSL_free</name>
+         <name>.text:wolfSSL_free</name>
          <load_address>0x22c78</load_address>
          <run_address>0x22c78</run_address>
          <size>0x8</size>
@@ -8418,28 +8418,28 @@
          <input_file_ref idref="fl-5b"/>
       </object_component>
       <object_component id="oc-1213">
-         <name>.text:CyaSSL_dtls</name>
+         <name>.text:wolfSSL_dtls</name>
          <load_address>0x22d40</load_address>
          <run_address>0x22d40</run_address>
          <size>0x6</size>
          <input_file_ref idref="fl-1c2"/>
       </object_component>
       <object_component id="oc-75a">
-         <name>.text:CyaSSL_get_fd</name>
+         <name>.text:wolfSSL_get_fd</name>
          <load_address>0x22d46</load_address>
          <run_address>0x22d46</run_address>
          <size>0x6</size>
          <input_file_ref idref="fl-1c2"/>
       </object_component>
       <object_component id="oc-1219">
-         <name>.text:CyaSSL_get_using_nonblock</name>
+         <name>.text:wolfSSL_get_using_nonblock</name>
          <load_address>0x22d4c</load_address>
          <run_address>0x22d4c</run_address>
          <size>0x6</size>
          <input_file_ref idref="fl-1c2"/>
       </object_component>
       <object_component id="oc-760">
-         <name>.text:CyaSSL_read</name>
+         <name>.text:wolfSSL_read</name>
          <load_address>0x22d52</load_address>
          <run_address>0x22d52</run_address>
          <size>0x6</size>
@@ -103130,32 +103130,32 @@
          <object_component_ref idref="oc-288c"/>
       </symbol>
       <symbol id="sm-404a">
-         <name>CyaSSL_get_using_nonblock</name>
+         <name>wolfSSL_get_using_nonblock</name>
          <value>0x22d4d</value>
          <object_component_ref idref="oc-1219"/>
       </symbol>
       <symbol id="sm-404b">
-         <name>CyaSSL_CTX_load_verify_buffer</name>
+         <name>wolfSSL_CTX_load_verify_buffer</name>
          <value>0x20c93</value>
          <object_component_ref idref="oc-421"/>
       </symbol>
       <symbol id="sm-404c">
-         <name>CyaSSL_set_fd</name>
+         <name>wolfSSL_set_fd</name>
          <value>0x21b45</value>
          <object_component_ref idref="oc-45d"/>
       </symbol>
       <symbol id="sm-404d">
-         <name>CyaSSL_GetMacSecret</name>
+         <name>wolfSSL_GetMacSecret</name>
          <value>0x21809</value>
          <object_component_ref idref="oc-13bb"/>
       </symbol>
       <symbol id="sm-404e">
-         <name>CyaSSL_get_fd</name>
+         <name>wolfSSL_get_fd</name>
          <value>0x22d47</value>
          <object_component_ref idref="oc-75a"/>
       </symbol>
       <symbol id="sm-404f">
-         <name>CyaSSL_CTX_free</name>
+         <name>wolfSSL_CTX_free</name>
          <value>0x22c71</value>
          <object_component_ref idref="oc-6d1"/>
       </symbol>
@@ -103165,7 +103165,7 @@
          <object_component_ref idref="oc-1294"/>
       </symbol>
       <symbol id="sm-4051">
-         <name>CyaSSL_new</name>
+         <name>wolfSSL_new</name>
          <value>0x2061d</value>
          <object_component_ref idref="oc-457"/>
       </symbol>
@@ -103180,7 +103180,7 @@
          <object_component_ref idref="oc-b82"/>
       </symbol>
       <symbol id="sm-4054">
-         <name>CyaSSL_read</name>
+         <name>wolfSSL_read</name>
          <value>0x22d53</value>
          <object_component_ref idref="oc-760"/>
       </symbol>
@@ -103195,37 +103195,37 @@
          <object_component_ref idref="oc-25ae"/>
       </symbol>
       <symbol id="sm-4057">
-         <name>CyaSSL_connect</name>
+         <name>wolfSSL_connect</name>
          <value>0x1051d</value>
          <object_component_ref idref="oc-1b55"/>
       </symbol>
       <symbol id="sm-4058">
-         <name>CyaSSL_negotiate</name>
+         <name>wolfSSL_negotiate</name>
          <value>0x2130f</value>
          <object_component_ref idref="oc-141a"/>
       </symbol>
       <symbol id="sm-4059">
-         <name>CyaSSL_Init</name>
+         <name>wolfSSL_Init</name>
          <value>0x1ce41</value>
          <object_component_ref idref="oc-409"/>
       </symbol>
       <symbol id="sm-405a">
-         <name>CyaSSL_free</name>
+         <name>wolfSSL_free</name>
          <value>0x22c79</value>
          <object_component_ref idref="oc-772"/>
       </symbol>
       <symbol id="sm-405b">
-         <name>CyaSSL_CTX_use_PrivateKey_buffer</name>
+         <name>wolfSSL_CTX_use_PrivateKey_buffer</name>
          <value>0x21f49</value>
          <object_component_ref idref="oc-42d"/>
       </symbol>
       <symbol id="sm-405c">
-         <name>CyaSSL_write</name>
+         <name>wolfSSL_write</name>
          <value>0x21b63</value>
          <object_component_ref idref="oc-76c"/>
       </symbol>
       <symbol id="sm-405d">
-         <name>CyaSSL_accept</name>
+         <name>wolfSSL_accept</name>
          <value>0xdeb5</value>
          <object_component_ref idref="oc-1b4f"/>
       </symbol>
@@ -103235,12 +103235,12 @@
          <object_component_ref idref="oc-264f"/>
       </symbol>
       <symbol id="sm-405f">
-         <name>CyaSSL_Cleanup</name>
+         <name>wolfSSL_Cleanup</name>
          <value>0x1adfd</value>
          <object_component_ref idref="oc-6de"/>
       </symbol>
       <symbol id="sm-4060">
-         <name>CyaSSL_dtls</name>
+         <name>wolfSSL_dtls</name>
          <value>0x22d41</value>
          <object_component_ref idref="oc-1213"/>
       </symbol>
@@ -103250,12 +103250,12 @@
          <object_component_ref idref="oc-b52"/>
       </symbol>
       <symbol id="sm-4062">
-         <name>CyaSSL_CTX_use_certificate_buffer</name>
+         <name>wolfSSL_CTX_use_certificate_buffer</name>
          <value>0x225ab</value>
          <object_component_ref idref="oc-427"/>
       </symbol>
       <symbol id="sm-4063">
-         <name>CyaSSL_CertManagerNew</name>
+         <name>wolfSSL_CertManagerNew</name>
          <value>0x20873</value>
          <object_component_ref idref="oc-b21"/>
       </symbol>
@@ -103265,12 +103265,12 @@
          <object_component_ref idref="oc-1f3c"/>
       </symbol>
       <symbol id="sm-4065">
-         <name>CyaSSL_CTX_new</name>
+         <name>wolfSSL_CTX_new</name>
          <value>0x1e5ad</value>
          <object_component_ref idref="oc-415"/>
       </symbol>
       <symbol id="sm-4066">
-         <name>CyaSSL_CertManagerFree</name>
+         <name>wolfSSL_CertManagerFree</name>
          <value>0x21b27</value>
          <object_component_ref idref="oc-11fa"/>
       </symbol>
@@ -103290,7 +103290,7 @@
          <object_component_ref idref="oc-25fe"/>
       </symbol>
       <symbol id="sm-412d">
-         <name>CyaSSL_SetTlsHmacInner</name>
+         <name>wolfSSL_SetTlsHmacInner</name>
          <value>0x1e335</value>
          <object_component_ref idref="oc-2c57"/>
       </symbol>
@@ -103300,7 +103300,7 @@
          <object_component_ref idref="oc-29c0"/>
       </symbol>
       <symbol id="sm-412f">
-         <name>CyaTLSv1_2_server_method</name>
+         <name>wolfTLSv1_2_server_method</name>
          <value>0x210d7</value>
          <object_component_ref idref="oc-40f"/>
       </symbol>
@@ -103310,7 +103310,7 @@
          <object_component_ref idref="oc-6bd"/>
       </symbol>
       <symbol id="sm-4131">
-         <name>CyaSSL_GetHmacType</name>
+         <name>wolfSSL_GetHmacType</name>
          <value>0x205ef</value>
          <object_component_ref idref="oc-2c5d"/>
       </symbol>
@@ -103510,12 +103510,12 @@
          <object_component_ref idref="oc-13e5"/>
       </symbol>
       <symbol id="sm-46a4">
-         <name>CyaSSL_Free</name>
+         <name>wolfSSL_Free</name>
          <value>0x2211d</value>
          <object_component_ref idref="oc-6d7"/>
       </symbol>
       <symbol id="sm-46a5">
-         <name>CyaSSL_Malloc</name>
+         <name>wolfSSL_Malloc</name>
          <value>0x22135</value>
          <object_component_ref idref="oc-6b7"/>
       </symbol>

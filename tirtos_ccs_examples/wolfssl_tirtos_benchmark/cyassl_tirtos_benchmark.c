@@ -1,5 +1,5 @@
 /*
- * This file contains contributions from both TI and CyaSSL
+ * This file contains contributions from both TI and wolfSSL
  *
  * Copyright (c) 2014, Texas Instruments Incorporated
  *
@@ -34,12 +34,12 @@
  *
  * Copyright (c) 2006-2014, wolfSSL Inc.
  *
- * CyaSSL is free software; you can redistribute it and/or modify
+ * wolfSSL is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
- * CyaSSL is distributed in the hope that it will be useful,
+ * wolfSSL is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
@@ -72,7 +72,7 @@ extern int benchmark_test(void* args);
 
 /*
  *  ======== runBenchmarks ========
- *  Run the CyaSSL benchmark application
+ *  Run the wolfSSL benchmark application
  */
 void runBenchmarks(UArg arg0, UArg arg1)
 {

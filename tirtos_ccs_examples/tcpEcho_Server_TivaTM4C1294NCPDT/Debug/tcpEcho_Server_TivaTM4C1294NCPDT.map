@@ -126,7 +126,7 @@ xdc.meta   0    00000000    000000fa     COPY SECTION
                   0000da58    00000178     ti.net.wolfssl.aem4f : internal.oem4f (.text:DoHandShakeMsgType)
                   0000dbd0    00000174                         : tfm.oem4f (.text:fp_sqr_comba)
                   0000dd44    00000170     stk.aem4f : rtc.oem4f (.text:RTCReport)
-                  0000deb4    0000016e     ti.net.wolfssl.aem4f : ssl.oem4f (.text:CyaSSL_accept)
+                  0000deb4    0000016e     ti.net.wolfssl.aem4f : ssl.oem4f (.text:wolfSSL_accept)
                   0000e022    00000002     os.aem4f : task.oem4f (.text:_TaskShutdown)
                   0000e024    00000168     ti.net.wolfssl.aem4f : internal.oem4f (.text:SendCertificateVerify)
                   0000e18c    00000168     sysbios.aem4f : BIOS.obj (.text:ti_sysbios_family_arm_m3_Hwi_excBusFault__I)
@@ -160,7 +160,7 @@ xdc.meta   0    00000000    000000fa     COPY SECTION
                   0001018c    00000130     ti.net.wolfssl.aem4f : internal.oem4f (.text:BuildMessage)
                   000102bc    00000130                         : des3.oem4f (.text:DesSetKey)
                   000103ec    00000130     driverlib.lib : gpio.obj (.text:GPIOPadConfigSet)
-                  0001051c    0000012e     ti.net.wolfssl.aem4f : ssl.oem4f (.text:CyaSSL_connect)
+                  0001051c    0000012e     ti.net.wolfssl.aem4f : ssl.oem4f (.text:wolfSSL_connect)
                   0001064a    0000012e                         : asn.oem4f (.text:DecodeAltNames)
                   00010778    0000012e                         : tls.oem4f (.text:p_hash)
                   000108a6    00000002     hal_userled_stub.aem4f : llled.oem4f (.text:_llUserLedShutdown)
@@ -431,7 +431,7 @@ xdc.meta   0    00000000    000000fa     COPY SECTION
                   0001ad1e    0000006e     ti.net.wolfssl.aem4f : sha256.oem4f (.text:Sha256Update)
                   0001ad8c    0000006e                         : tfm.oem4f (.text:fp_rshd)
                   0001adfa    00000002     --HOLE-- [fill = 0]
-                  0001adfc    0000006c                         : ssl.oem4f (.text:CyaSSL_Cleanup)
+                  0001adfc    0000006c                         : ssl.oem4f (.text:wolfSSL_Cleanup)
                   0001ae68    0000006c     os.aem4f : ossys.oem4f (.text:DbgPrintf)
                   0001aed4    0000006c     emac_tivaware.aem4f : EMACSnow.oem4f (.text:EMACSnow_emacStop)
                   0001af40    0000006c     stk.aem4f : nimu.oem4f (.text:NIMUShutdown)
@@ -520,7 +520,7 @@ xdc.meta   0    00000000    000000fa     COPY SECTION
                   0001cd8e    00000002     --HOLE-- [fill = 0]
                   0001cd90    00000058     stk.aem4f : bind.oem4f (.text:BindFree)
                   0001cde8    00000058     boot.aem4f : boot.oem4f (.text)
-                  0001ce40    00000058     ti.net.wolfssl.aem4f : ssl.oem4f (.text:CyaSSL_Init)
+                  0001ce40    00000058     ti.net.wolfssl.aem4f : ssl.oem4f (.text:wolfSSL_Init)
                   0001ce98    00000058                         : asn.oem4f (.text:DecodeBasicCaConstraint)
                   0001cef0    00000058     driverlib.lib : emac.obj (.text:EMACPHYConfigSet)
                   0001cf48    00000058     stk.aem4f : igmp.oem4f (.text:IGMPTimer)
@@ -590,7 +590,7 @@ xdc.meta   0    00000000    000000fa     COPY SECTION
                   0001e25c    00000048     sysbios.aem4f : BIOS.obj (.text:ti_sysbios_family_arm_m3_Hwi_excReserved__I)
                   0001e2a4    00000048                   : BIOS.obj (.text:ti_sysbios_heaps_HeapMem_getStats__E)
                   0001e2ec    00000048     ti.targets.arm.rtsarm.aem4f : Assert.oem4f (.text:xdc_runtime_Assert_raise__I)
-                  0001e334    00000046     ti.net.wolfssl.aem4f : tls.oem4f (.text:CyaSSL_SetTlsHmacInner)
+                  0001e334    00000046     ti.net.wolfssl.aem4f : tls.oem4f (.text:wolfSSL_SetTlsHmacInner)
                   0001e37a    00000046                         : internal.oem4f (.text:FreeCiphers)
                   0001e3c0    00000046     nettool_ipv4.aem4f : ipaddr.oem4f (.text:NtIfIdx2Ip)
                   0001e406    00000046     stk.aem4f : rawethsock.oem4f (.text:RawEthSockSend)
@@ -600,7 +600,7 @@ xdc.meta   0    00000000    000000fa     COPY SECTION
                   0001e51e    00000046     ti.net.wolfssl.aem4f : tfm.oem4f (.text:fp_add)
                   0001e564    00000046     ti.targets.arm.rtsarm.aem4f : Core-params.oem4f (.text:xdc_runtime_Core_assignParams__I)
                   0001e5aa    00000002     --HOLE-- [fill = 0]
-                  0001e5ac    00000044     ti.net.wolfssl.aem4f : ssl.oem4f (.text:CyaSSL_CTX_new)
+                  0001e5ac    00000044     ti.net.wolfssl.aem4f : ssl.oem4f (.text:wolfSSL_CTX_new)
                   0001e5f0    00000044                         : random.oem4f (.text:GenerateSeed)
                   0001e634    00000044                         : asn.oem4f (.text:GetLength)
                   0001e678    00000044     stk.aem4f : ipfrag.oem4f (.text:IPReasmFree)
@@ -719,7 +719,7 @@ xdc.meta   0    00000000    000000fa     COPY SECTION
                   00020040    00000033                                 : Text.oem4f (.text:xdc_runtime_Text_printVisFxn__I)
                   00020073    00000001     --HOLE-- [fill = 0]
                   00020074    00000032     nettool_ipv4.aem4f : config.oem4f (.text:CfgGetImmediate)
-                  000200a6    00000032     ti.net.wolfssl.aem4f : ssl.oem4f (.text:CyaSSL_read_internal)
+                  000200a6    00000032     ti.net.wolfssl.aem4f : ssl.oem4f (.text:wolfSSL_read_internal)
                   000200d8    00000032     stk.aem4f : route.oem4f (.text:RtDeRef)
                   0002010a    00000032               : sb.oem4f (.text:SBSetMax)
                   0002013c    00000032               : sock.oem4f (.text:SockIntAbort)
@@ -747,8 +747,8 @@ xdc.meta   0    00000000    000000fa     COPY SECTION
                   00020560    00000030     ti.targets.arm.rtsarm.aem4f : SysMin.oem4f (.text:xdc_runtime_SysMin_abort__E)
                   00020590    00000030                                 : System.oem4f (.text:xdc_runtime_System_processAtExit__E)
                   000205c0    0000002e     ti.net.wolfssl.aem4f : internal.oem4f (.text:CheckAltNames)
-                  000205ee    0000002e                         : tls.oem4f (.text:CyaSSL_GetHmacType)
-                  0002061c    0000002e                         : ssl.oem4f (.text:CyaSSL_new)
+                  000205ee    0000002e                         : tls.oem4f (.text:wolfSSL_GetHmacType)
+                  0002061c    0000002e                         : ssl.oem4f (.text:wolfSSL_new)
                   0002064a    0000002e                         : internal.oem4f (.text:FreeArrays)
                   00020678    0000002e                         : asn.oem4f (.text:FreeSigner)
                   000206a6    0000002e                         : asn.oem4f (.text:GetTime)
@@ -761,7 +761,7 @@ xdc.meta   0    00000000    000000fa     COPY SECTION
                   000207e8    0000002e     tcpEcho_pem4f.oem4f (.text:malloc)
                   00020816    0000002e     rtsv7M4_T_le_v4SPD16_eabi.lib : i_tofd_t2.obj (.text)
                   00020844    0000002e                                   : raise.obj (.text)
-                  00020872    0000002c     ti.net.wolfssl.aem4f : ssl.oem4f (.text:CyaSSL_CertManagerNew)
+                  00020872    0000002c     ti.net.wolfssl.aem4f : ssl.oem4f (.text:wolfSSL_CertManagerNew)
                   0002089e    00000002     --HOLE-- [fill = 0]
                   000208a0    0000002c     EK_TM4C1294XL.obj (.text:EK_TM4C1294XL_initGPIO)
                   000208cc    0000002c     driverlib.lib : emac.obj (.text:EMACIntStatus)
@@ -786,7 +786,7 @@ xdc.meta   0    00000000    000000fa     COPY SECTION
                   00020c10    0000002c     ti.net.wolfssl.aem4f : aes.oem4f (.text:xorbuf)
                   00020c3c    0000002c                         : des3.oem4f (.text:xorbuf)
                   00020c68    0000002a                         : internal.oem4f (.text:ConstantCompare)
-                  00020c92    0000002a                         : ssl.oem4f (.text:CyaSSL_CTX_load_verify_buffer)
+                  00020c92    0000002a                         : ssl.oem4f (.text:wolfSSL_CTX_load_verify_buffer)
                   00020cbc    0000002a                         : internal.oem4f (.text:DoRounds)
                   00020ce6    0000002a     driverlib.lib : gpio.obj (.text:GPIODirModeSet)
                   00020d10    0000002a     stk.aem4f : pbm.oem4f (.text:PBMQ_deq)
@@ -813,7 +813,7 @@ xdc.meta   0    00000000    000000fa     COPY SECTION
                   00021060    00000028     nettool_ipv4.aem4f : dhcpsock.oem4f (.text:dhcpPacketReceive)
                   00021088    00000028     sysbios.aem4f : BIOS.obj (.text:ti_sysbios_hal_Hwi_Instance_init__E)
                   000210b0    00000026     ti.net.wolfssl.aem4f : aes.oem4f (.text:AesSetIV)
-                  000210d6    00000026                         : tls.oem4f (.text:CyaTLSv1_2_server_method)
+                  000210d6    00000026                         : tls.oem4f (.text:wolfTLSv1_2_server_method)
                   000210fc    00000026     driverlib.lib : emac.obj (.text:EMACPHYRead)
                   00021122    00000026                   : emac.obj (.text:EMACPHYWrite)
                   00021148    00000026     ti.net.wolfssl.aem4f : asn.oem4f (.text:FreeSignerTable)
@@ -828,7 +828,7 @@ xdc.meta   0    00000000    000000fa     COPY SECTION
                   0002129e    00000026     sysbios.aem4f : m3_Hwi_asm.obj (.text:ti_sysbios_family_arm_m3_Hwi_pendSV__I)
                   000212c4    00000026     ti.targets.arm.rtsarm.aem4f : System.oem4f (.text:xdc_runtime_System_avprintf__E)
                   000212ea    00000024     stk.aem4f : bind.oem4f (.text:BindGetIFByDBCast)
-                  0002130e    00000024     ti.net.wolfssl.aem4f : ssl.oem4f (.text:CyaSSL_negotiate)
+                  0002130e    00000024     ti.net.wolfssl.aem4f : ssl.oem4f (.text:wolfSSL_negotiate)
                   00021332    00000024                         : des3.oem4f (.text:Des3_SetIV)
                   00021356    00000002     --HOLE-- [fill = 0]
                   00021358    00000024     emac_tivaware.aem4f : EMACSnow.oem4f (.text:EMACSnow_emacPoll)
@@ -865,7 +865,7 @@ xdc.meta   0    00000000    000000fa     COPY SECTION
                   000217a4    00000022     tcpEcho.obj (.text:setsockopt)
                   000217c6    00000022     tcpEcho_pem4f.oem4f (.text:xdc_runtime_SysMin_output__I)
                   000217e8    00000020     stk.aem4f : bind.oem4f (.text:BindFindByHost)
-                  00021808    00000020     ti.net.wolfssl.aem4f : ssl.oem4f (.text:CyaSSL_GetMacSecret)
+                  00021808    00000020     ti.net.wolfssl.aem4f : ssl.oem4f (.text:wolfSSL_GetMacSecret)
                   00021828    00000020                         : dh.oem4f (.text:DhGenerateKeyPair)
                   00021848    00000020                         : asn.oem4f (.text:FreeAltNames)
                   00021868    00000020                         : asn.oem4f (.text:FreeNameSubtrees)
@@ -890,9 +890,9 @@ xdc.meta   0    00000000    000000fa     COPY SECTION
                   00021ac8    00000020     ti.targets.arm.rtsarm.aem4f : Registry.oem4f (.text:xdc_runtime_Registry_findById__E)
                   00021ae8    00000020                                 : SysMin.oem4f (.text:xdc_runtime_SysMin_Module_startup__E)
                   00021b08    0000001e     ti.net.wolfssl.aem4f : aes.oem4f (.text:AesSetKey)
-                  00021b26    0000001e                         : ssl.oem4f (.text:CyaSSL_CertManagerFree)
-                  00021b44    0000001e                         : ssl.oem4f (.text:CyaSSL_set_fd)
-                  00021b62    0000001e                         : ssl.oem4f (.text:CyaSSL_write)
+                  00021b26    0000001e                         : ssl.oem4f (.text:wolfSSL_CertManagerFree)
+                  00021b44    0000001e                         : ssl.oem4f (.text:wolfSSL_set_fd)
+                  00021b62    0000001e                         : ssl.oem4f (.text:wolfSSL_write)
                   00021b80    0000001e                         : internal.oem4f (.text:IsAtLeastTLSv1_2)
                   00021b9e    0000001e     stk.aem4f : lli.oem4f (.text:LLIFree)
                   00021bbc    0000001e     ti.net.wolfssl.aem4f : asn.oem4f (.text:MakeSigner)
@@ -927,7 +927,7 @@ xdc.meta   0    00000000    000000fa     COPY SECTION
                   00021ef4    0000001c                                 : Memory.oem4f (.text:xdc_runtime_Memory_valloc__E)
                   00021f10    0000001c                                 : SysMin.oem4f (.text:xdc_runtime_SysMin_exit__E)
                   00021f2c    0000001c                                 : System.oem4f (.text:xdc_runtime_System_abort__E)
-                  00021f48    0000001a     ti.net.wolfssl.aem4f : ssl.oem4f (.text:CyaSSL_CTX_use_PrivateKey_buffer)
+                  00021f48    0000001a     ti.net.wolfssl.aem4f : ssl.oem4f (.text:wolfSSL_CTX_use_PrivateKey_buffer)
                   00021f62    0000001a                         : internal.oem4f (.text:FreeSSL)
                   00021f7c    0000001a                         : asn.oem4f (.text:GetExplicitVersion)
                   00021f96    0000001a                         : internal.oem4f (.text:InitCipherSpecs)
@@ -945,8 +945,8 @@ xdc.meta   0    00000000    000000fa     COPY SECTION
                   000220ce    0000001a     tcpEcho_pem4f.oem4f (.text:ti_sysbios_knl_Task_Handle__label__S)
                   000220e8    0000001a     tcpEcho_pem4f.oem4f (.text:xdc_runtime_System_aprintf__E)
                   00022102    0000001a     tcpEcho_pem4f.oem4f (.text:xdc_runtime_System_printf__E)
-                  0002211c    00000018     ti.net.wolfssl.aem4f : memory.oem4f (.text:CyaSSL_Free)
-                  00022134    00000018                         : memory.oem4f (.text:CyaSSL_Malloc)
+                  0002211c    00000018     ti.net.wolfssl.aem4f : memory.oem4f (.text:wolfSSL_Free)
+                  00022134    00000018                         : memory.oem4f (.text:wolfSSL_Malloc)
                   0002214c    00000018     emac_tivaware.aem4f : EMACSnow.oem4f (.text:EMACSnow_emacSend)
                   00022164    00000018     driverlib.lib : gpio.obj (.text:GPIOPinTypeGPIOOutput)
                   0002217c    00000018     stk.aem4f : ip.oem4f (.text:IPRtChange)
@@ -995,7 +995,7 @@ xdc.meta   0    00000000    000000fa     COPY SECTION
                   0002256a    00000016     tcpEcho.obj (.text:ti_sysbios_knl_Task_Params_init)
                   00022580    00000016     ti.targets.arm.rtsarm.aem4f : System.oem4f (.text:xdc_runtime_System_vsprintf__E)
                   00022596    00000014     stk.aem4f : bind.oem4f (.text:BindIPHost2IF)
-                  000225aa    00000014     ti.net.wolfssl.aem4f : ssl.oem4f (.text:CyaSSL_CTX_use_certificate_buffer)
+                  000225aa    00000014     ti.net.wolfssl.aem4f : ssl.oem4f (.text:wolfSSL_CTX_use_certificate_buffer)
                   000225be    00000002     --HOLE-- [fill = 0]
                   000225c0    00000014     driverlib.lib : flash.obj (.text:FlashUserGet)
                   000225d4    00000014     ti.net.wolfssl.aem4f : internal.oem4f (.text:IsTLS)
@@ -1111,8 +1111,8 @@ xdc.meta   0    00000000    000000fa     COPY SECTION
                   00022c52    0000000a     sysbios.aem4f : BIOS.obj (.text:ti_sysbios_hal_Hwi_Instance_finalize__E)
                   00022c5c    0000000a     tcpEcho_pem4f.oem4f (.text:xdc_runtime_IHeap_alloc)
                   00022c66    0000000a     tcpEcho_pem4f.oem4f (.text:xdc_runtime_IHeap_free)
-                  00022c70    00000008     ti.net.wolfssl.aem4f : ssl.oem4f (.text:CyaSSL_CTX_free)
-                  00022c78    00000008                         : ssl.oem4f (.text:CyaSSL_free)
+                  00022c70    00000008     ti.net.wolfssl.aem4f : ssl.oem4f (.text:wolfSSL_CTX_free)
+                  00022c78    00000008                         : ssl.oem4f (.text:wolfSSL_free)
                   00022c80    00000008     driverlib.lib : emac.obj (.text:EMACTxDMAPollDemand)
                   00022c88    00000008     stk.aem4f : node.oem4f (.text:NodeFree)
                   00022c90    00000008     os.aem4f : task.oem4f (.text:TaskBlock)
@@ -1137,10 +1137,10 @@ xdc.meta   0    00000000    000000fa     COPY SECTION
                   00022d28    00000008                   : BIOS.obj (.text:ti_sysbios_knl_Idle_loop__E)
                   00022d30    00000008                   : BIOS.obj (.text:ti_sysbios_knl_Task_getHookContext__E)
                   00022d38    00000008                   : BIOS.obj (.text:ti_sysbios_knl_Task_setHookContext__E)
-                  00022d40    00000006     ti.net.wolfssl.aem4f : ssl.oem4f (.text:CyaSSL_dtls)
-                  00022d46    00000006                         : ssl.oem4f (.text:CyaSSL_get_fd)
-                  00022d4c    00000006                         : ssl.oem4f (.text:CyaSSL_get_using_nonblock)
-                  00022d52    00000006                         : ssl.oem4f (.text:CyaSSL_read)
+                  00022d40    00000006     ti.net.wolfssl.aem4f : ssl.oem4f (.text:wolfSSL_dtls)
+                  00022d46    00000006                         : ssl.oem4f (.text:wolfSSL_get_fd)
+                  00022d4c    00000006                         : ssl.oem4f (.text:wolfSSL_get_using_nonblock)
+                  00022d52    00000006                         : ssl.oem4f (.text:wolfSSL_read)
                   00022d58    00000006     driverlib.lib : emac.obj (.text:EMACRxDMADescriptorListSet)
                   00022d5e    00000006                   : emac.obj (.text:EMACTxDMADescriptorListSet)
                   00022d64    00000006                   : sysctl.obj (.text:SysCtlDelay)
@@ -1666,32 +1666,32 @@ address    name
 0001fc99   CfgSetService
 000216fb   CheckAvailableSize
 00028ab8   Code2Err
-00022c71   CyaSSL_CTX_free
-00020c93   CyaSSL_CTX_load_verify_buffer
-0001e5ad   CyaSSL_CTX_new
-00021f49   CyaSSL_CTX_use_PrivateKey_buffer
-000225ab   CyaSSL_CTX_use_certificate_buffer
-00021b27   CyaSSL_CertManagerFree
-00020873   CyaSSL_CertManagerNew
-0001adfd   CyaSSL_Cleanup
-0002211d   CyaSSL_Free
-000205ef   CyaSSL_GetHmacType
-00021809   CyaSSL_GetMacSecret
-0001ce41   CyaSSL_Init
-00022135   CyaSSL_Malloc
-0001e335   CyaSSL_SetTlsHmacInner
-0000deb5   CyaSSL_accept
-0001051d   CyaSSL_connect
-00022d41   CyaSSL_dtls
-00022c79   CyaSSL_free
-00022d47   CyaSSL_get_fd
-00022d4d   CyaSSL_get_using_nonblock
-0002130f   CyaSSL_negotiate
-0002061d   CyaSSL_new
-00022d53   CyaSSL_read
-00021b45   CyaSSL_set_fd
-00021b63   CyaSSL_write
-000210d7   CyaTLSv1_2_server_method
+00022c71   wolfSSL_CTX_free
+00020c93   wolfSSL_CTX_load_verify_buffer
+0001e5ad   wolfSSL_CTX_new
+00021f49   wolfSSL_CTX_use_PrivateKey_buffer
+000225ab   wolfSSL_CTX_use_certificate_buffer
+00021b27   wolfSSL_CertManagerFree
+00020873   wolfSSL_CertManagerNew
+0001adfd   wolfSSL_Cleanup
+0002211d   wolfSSL_Free
+000205ef   wolfSSL_GetHmacType
+00021809   wolfSSL_GetMacSecret
+0001ce41   wolfSSL_Init
+00022135   wolfSSL_Malloc
+0001e335   wolfSSL_SetTlsHmacInner
+0000deb5   wolfSSL_accept
+0001051d   wolfSSL_connect
+00022d41   wolfSSL_dtls
+00022c79   wolfSSL_free
+00022d47   wolfSSL_get_fd
+00022d4d   wolfSSL_get_using_nonblock
+0002130f   wolfSSL_negotiate
+0002061d   wolfSSL_new
+00022d53   wolfSSL_read
+00021b45   wolfSSL_set_fd
+00021b63   wolfSSL_write
+000210d7   wolfTLSv1_2_server_method
 0001f087   DHCPClose
 000111e5   DHCPOpen
 0001ae69   DbgPrintf
@@ -3048,7 +3048,7 @@ address    name
 0000da57   _TaskInit
 0000dbd1   fp_sqr_comba
 0000dd45   RTCReport
-0000deb5   CyaSSL_accept
+0000deb5   wolfSSL_accept
 0000e023   _TaskShutdown
 0000e025   SendCertificateVerify
 0000e18d   ti_sysbios_family_arm_m3_Hwi_excBusFault__I
@@ -3078,7 +3078,7 @@ address    name
 0000ff25   tcpWorker
 00010059   ti_sysbios_family_arm_m3_Hwi_excMemFault__I
 000103ed   GPIOPadConfigSet
-0001051d   CyaSSL_connect
+0001051d   wolfSSL_connect
 000108a7   _llUserLedShutdown
 000108a9   EK_TM4C1294XL_initEMAC
 000109d5   ICMPGenPacket
@@ -3273,7 +3273,7 @@ address    name
 0001acb1   NDK_socket
 0001ad1f   Sha256Update
 0001ad8d   fp_rshd
-0001adfd   CyaSSL_Cleanup
+0001adfd   wolfSSL_Cleanup
 0001ae69   DbgPrintf
 0001aed5   EMACSnow_emacStop
 0001af41   NIMUShutdown
@@ -3342,7 +3342,7 @@ address    name
 0001cd35   ti_ndk_config_tcp_init
 0001cd91   BindFree
 0001cde9   _c_int00
-0001ce41   CyaSSL_Init
+0001ce41   wolfSSL_Init
 0001cef1   EMACPHYConfigSet
 0001cfa1   InitSha256
 0001cff9   Md5Update
@@ -3396,7 +3396,7 @@ address    name
 0001e25d   ti_sysbios_family_arm_m3_Hwi_excReserved__I
 0001e2a5   ti_sysbios_heaps_HeapMem_getStats__E
 0001e2ed   xdc_runtime_Assert_raise__I
-0001e335   CyaSSL_SetTlsHmacInner
+0001e335   wolfSSL_SetTlsHmacInner
 0001e37b   FreeCiphers
 0001e3c1   NtIfIdx2Ip
 0001e407   RawEthSockSend
@@ -3405,7 +3405,7 @@ address    name
 0001e4d9   TimerNew
 0001e51f   fp_add
 0001e565   xdc_runtime_Core_assignParams__I
-0001e5ad   CyaSSL_CTX_new
+0001e5ad   wolfSSL_CTX_new
 0001e5f1   GenerateSeed
 0001e635   GetLength
 0001e679   IPReasmFree
@@ -3550,8 +3550,8 @@ address    name
 00020561   xdc_runtime_SysMin_abort__E
 00020561   xdc_runtime_System_SupportProxy_abort__E
 00020591   xdc_runtime_System_processAtExit__E
-000205ef   CyaSSL_GetHmacType
-0002061d   CyaSSL_new
+000205ef   wolfSSL_GetHmacType
+0002061d   wolfSSL_new
 0002064b   FreeArrays
 00020679   FreeSigner
 00020703   RawEthSockNotify
@@ -3562,7 +3562,7 @@ address    name
 000207e9   malloc
 00020817   __aeabi_i2d
 00020845   raise
-00020873   CyaSSL_CertManagerNew
+00020873   wolfSSL_CertManagerNew
 000208a1   EK_TM4C1294XL_initGPIO
 000208cd   EMACIntStatus
 000208f9   FdSignalEvent
@@ -3580,7 +3580,7 @@ address    name
 00020b8d   ti_sysbios_knl_Clock_doTick__I
 00020bb9   ti_sysbios_knl_Queue_construct
 00020be5   xdc_runtime_Text_cordText__E
-00020c93   CyaSSL_CTX_load_verify_buffer
+00020c93   wolfSSL_CTX_load_verify_buffer
 00020ce7   GPIODirModeSet
 00020d11   PBMQ_deq
 00020d3b   RsaPrivateDecryptInline
@@ -3600,7 +3600,7 @@ address    name
 00021061   dhcpPacketReceive
 00021089   ti_sysbios_hal_Hwi_Instance_init__E
 000210b1   AesSetIV
-000210d7   CyaTLSv1_2_server_method
+000210d7   wolfTLSv1_2_server_method
 000210fd   EMACPHYRead
 00021123   EMACPHYWrite
 00021149   FreeSignerTable
@@ -3615,7 +3615,7 @@ address    name
 000212c3   ti_sysbios_family_arm_m3_Hwi_return
 000212c5   xdc_runtime_System_avprintf__E
 000212eb   BindGetIFByDBCast
-0002130f   CyaSSL_negotiate
+0002130f   wolfSSL_negotiate
 00021333   Des3_SetIV
 00021359   EMACSnow_emacPoll
 000213a1   ExecTimer
@@ -3644,7 +3644,7 @@ address    name
 00021783   memcmp
 000217c7   xdc_runtime_SysMin_output__I
 000217e9   BindFindByHost
-00021809   CyaSSL_GetMacSecret
+00021809   wolfSSL_GetMacSecret
 00021829   DhGenerateKeyPair
 00021849   FreeAltNames
 00021869   FreeNameSubtrees
@@ -3668,9 +3668,9 @@ address    name
 00021ac9   xdc_runtime_Registry_findById__E
 00021ae9   xdc_runtime_SysMin_Module_startup__E
 00021b09   AesSetKey
-00021b27   CyaSSL_CertManagerFree
-00021b45   CyaSSL_set_fd
-00021b63   CyaSSL_write
+00021b27   wolfSSL_CertManagerFree
+00021b45   wolfSSL_set_fd
+00021b63   wolfSSL_write
 00021b81   IsAtLeastTLSv1_2
 00021b9f   LLIFree
 00021bbd   MakeSigner
@@ -3698,7 +3698,7 @@ address    name
 00021f11   xdc_runtime_SysMin_exit__E
 00021f11   xdc_runtime_System_SupportProxy_exit__E
 00021f2d   xdc_runtime_System_abort__E
-00021f49   CyaSSL_CTX_use_PrivateKey_buffer
+00021f49   wolfSSL_CTX_use_PrivateKey_buffer
 00021f63   FreeSSL
 00021f97   InitCipherSpecs
 00021fb1   InitSSL_Method
@@ -3713,8 +3713,8 @@ address    name
 000220cf   ti_sysbios_knl_Task_Handle__label__S
 000220e9   xdc_runtime_System_aprintf__E
 00022103   xdc_runtime_System_printf__E
-0002211d   CyaSSL_Free
-00022135   CyaSSL_Malloc
+0002211d   wolfSSL_Free
+00022135   wolfSSL_Malloc
 0002214d   EMACSnow_emacSend
 00022165   GPIOPinTypeGPIOOutput
 0002217d   IPRtChange
@@ -3748,7 +3748,7 @@ address    name
 00022555   ti_sysbios_BIOS_exitFunc__I
 00022581   xdc_runtime_System_vsprintf__E
 00022597   BindIPHost2IF
-000225ab   CyaSSL_CTX_use_certificate_buffer
+000225ab   wolfSSL_CTX_use_certificate_buffer
 000225c1   FlashUserGet
 000225d5   IsTLS
 000225e9   NC_NetStop
@@ -3858,8 +3858,8 @@ address    name
 00022c3f   mp_sub
 00022c49   mp_to_unsigned_bin
 00022c53   ti_sysbios_hal_Hwi_Instance_finalize__E
-00022c71   CyaSSL_CTX_free
-00022c79   CyaSSL_free
+00022c71   wolfSSL_CTX_free
+00022c79   wolfSSL_free
 00022c81   EMACTxDMAPollDemand
 00022c91   TaskBlock
 00022d11   ti_sysbios_family_arm_lm4_Timer_masterDisable__I
@@ -3870,10 +3870,10 @@ address    name
 00022d29   ti_sysbios_knl_Idle_loop__E
 00022d31   ti_sysbios_knl_Task_getHookContext__E
 00022d39   ti_sysbios_knl_Task_setHookContext__E
-00022d41   CyaSSL_dtls
-00022d47   CyaSSL_get_fd
-00022d4d   CyaSSL_get_using_nonblock
-00022d53   CyaSSL_read
+00022d41   wolfSSL_dtls
+00022d47   wolfSSL_get_fd
+00022d4d   wolfSSL_get_using_nonblock
+00022d53   wolfSSL_read
 00022d59   EMACRxDMADescriptorListSet
 00022d5f   EMACTxDMADescriptorListSet
 00022d65   SysCtlDelay

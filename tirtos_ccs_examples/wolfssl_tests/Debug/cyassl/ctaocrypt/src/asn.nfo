@@ -71,8 +71,8 @@ static int DecodeAltNames() is called from 1 sites in this file.
     It has 9 non-trivial scope blocks nested 6 deep.
     It calls these functions:
 	memcpy() (2 times)
-	CyaSSL_Free() (2 times)
-	CyaSSL_Malloc() (4 times)
+	wolfSSL_Free() (2 times)
+	wolfSSL_Malloc() (4 times)
 	GetLength() (3 times)
 	GetSequence() (1 times)
 
@@ -167,7 +167,7 @@ static int DecodeSubtree() is called from 1 sites in this file.
     It has 5 non-trivial scope blocks nested 5 deep.
     It calls these functions:
 	memcpy() (1 times)
-	CyaSSL_Malloc() (2 times)
+	wolfSSL_Malloc() (2 times)
 	GetLength() (1 times)
 	GetSequence() (1 times)
 
@@ -254,7 +254,7 @@ extern void FreeAltNames() is called from 2 sites in this file.
     It appears to be inlineable (size = 21 units)
     It has 6 non-trivial scope blocks nested 5 deep.
     It calls these functions:
-	CyaSSL_Free() (2 times)
+	wolfSSL_Free() (2 times)
 
 extern void FreeDecodedCert() is called from 0 sites in this file.
     It appears to be inlineable (size = 53 units)
@@ -262,20 +262,20 @@ extern void FreeDecodedCert() is called from 0 sites in this file.
     It calls these functions:
 	FreeNameSubtrees() (2 times)
 	FreeAltNames() (2 times)
-	CyaSSL_Free() (2 times)
+	wolfSSL_Free() (2 times)
 
 extern void FreeNameSubtrees() is called from 4 sites in this file.
     It appears to be inlineable (size = 21 units)
     It has 6 non-trivial scope blocks nested 5 deep.
     It calls these functions:
-	CyaSSL_Free() (2 times)
+	wolfSSL_Free() (2 times)
 
 extern void FreeSigner() is called from 1 sites in this file.
     It appears to be inlineable (size = 33 units)
     It has 6 non-trivial scope blocks nested 4 deep.
     It calls these functions:
 	FreeNameSubtrees() (2 times)
-	CyaSSL_Free() (3 times)
+	wolfSSL_Free() (3 times)
 
 extern void FreeSignerTable() is called from 0 sites in this file.
     It appears to be inlineable (size = 37 units)
@@ -328,7 +328,7 @@ static int GetKey() is called from 1 sites in this file.
     It has 5 non-trivial scope blocks nested 4 deep.
     It calls these functions:
 	memcpy() (1 times)
-	CyaSSL_Malloc() (1 times)
+	wolfSSL_Malloc() (1 times)
 	CheckCurve() (1 times)
 	StoreRsaKey() (1 times)
 	GetLength() (3 times)
@@ -350,7 +350,7 @@ extern int GetMyVersion() is called from 5 sites in this file.
 static int GetName() is called from 2 sites in this file.
     It has 7 non-trivial scope blocks nested 6 deep.
     It calls these functions:
-	CyaSSL_Malloc() (2 times)
+	wolfSSL_Malloc() (2 times)
 	memcpy() (15 times)
 	GetSet() (1 times)
 	ShaFinal() (2 times)
@@ -421,7 +421,7 @@ extern struct Signer *MakeSigner() is called from 0 sites in this file.
     It appears to be inlineable (size = 23 units)
     It has 3 non-trivial scope blocks nested 3 deep.
     It calls these functions:
-	CyaSSL_Malloc() (1 times)
+	wolfSSL_Malloc() (1 times)
 
 static int MatchBaseName() is called from 4 sites in this file.
     It appears to be inlineable (size = 169 units)
@@ -434,7 +434,7 @@ extern int ParseCert() is called from 0 sites in this file.
     It has 3 non-trivial scope blocks nested 3 deep.
     It calls these functions:
 	memcpy() (2 times)
-	CyaSSL_Malloc() (2 times)
+	wolfSSL_Malloc() (2 times)
 	ParseCertRelative() (1 times)
 
 extern int ParseCertRelative() is called from 1 sites in this file.
@@ -762,8 +762,8 @@ These external functions are called but not defined here:
 	InitSha()
 	ShaUpdate()
 	ShaFinal()
-	CyaSSL_Malloc()
-	CyaSSL_Free()
+	wolfSSL_Malloc()
+	wolfSSL_Free()
 	Sha512Hash()
 	Sha256Hash()
 	ShaHash()
@@ -1168,7 +1168,7 @@ ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
 
 ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
 	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
-	for the statement (*emailName).name = CyaSSL_Malloc((unsigned)*&adv+1u); at line 2085
+	for the statement (*emailName).name = wolfSSL_Malloc((unsigned)*&adv+1u); at line 2085
 	and the statement memcpy((*emailName).name, (*cert).source+(*cert).srcIdx, (unsigned)*&adv); at line 2091
 
 	Consider declaring 'emailName' as struct DNS_entry * restrict emailName
@@ -1179,7 +1179,7 @@ ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
 
 ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
 	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
-	for the statement (*emailName).name = CyaSSL_Malloc((unsigned)*&adv+1u); at line 2085
+	for the statement (*emailName).name = wolfSSL_Malloc((unsigned)*&adv+1u); at line 2085
 	and the statement memcpy((*emailName).name, (*cert).source+(*cert).srcIdx, (unsigned)*&adv); at line 2091
 
 	Consider declaring 'emailName' as struct DNS_entry * restrict emailName
@@ -1190,7 +1190,7 @@ ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
 
 ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
 	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
-	for the statement (*emailName).name = CyaSSL_Malloc((unsigned)*&adv+1u); at line 2085
+	for the statement (*emailName).name = wolfSSL_Malloc((unsigned)*&adv+1u); at line 2085
 	and the statement (*emailName).name[*&adv] = 0u; at line 2093
 
 	Consider declaring 'emailName' as struct DNS_entry * restrict emailName
@@ -1200,7 +1200,7 @@ ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
 
 ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
 	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
-	for the statement (*emailName).name = CyaSSL_Malloc((unsigned)*&adv+1u); at line 2085
+	for the statement (*emailName).name = wolfSSL_Malloc((unsigned)*&adv+1u); at line 2085
 	and the statement (*emailName).next = (*cert).altEmailNames; at line 2095
 
 	Consider declaring 'emailName' as struct DNS_entry * restrict emailName
@@ -1211,7 +1211,7 @@ ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
 
 ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
 	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
-	for the statement (*emailName).name = CyaSSL_Malloc((unsigned)*&adv+1u); at line 2085
+	for the statement (*emailName).name = wolfSSL_Malloc((unsigned)*&adv+1u); at line 2085
 	and the statement (*cert).altEmailNames = emailName; at line 2096
 
 	Consider declaring 'emailName' as struct DNS_entry * restrict emailName
@@ -1222,7 +1222,7 @@ ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
 
 ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
 	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
-	for the statement (*emailName).name = CyaSSL_Malloc((unsigned)*&adv+1u); at line 2085
+	for the statement (*emailName).name = wolfSSL_Malloc((unsigned)*&adv+1u); at line 2085
 	and the statement memcpy(idx+full, (*cert).source+(*cert).srcIdx, (unsigned)*&adv); at line 2100
 
 	Consider declaring 'emailName' as struct DNS_entry * restrict emailName
@@ -1233,7 +1233,7 @@ ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
 
 ADVICE: In function GetName() in C:/wolfssl/ctaocrypt/src/asn.c
 	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:1847-2125
-	for the statement (*emailName).name = CyaSSL_Malloc((unsigned)*&adv+1u); at line 2085
+	for the statement (*emailName).name = wolfSSL_Malloc((unsigned)*&adv+1u); at line 2085
 	and the statement memcpy(idx+full, (*cert).source+(*cert).srcIdx, (unsigned)*&adv); at line 2100
 
 	Consider declaring 'emailName' as struct DNS_entry * restrict emailName
@@ -1692,7 +1692,7 @@ static int DecodeAltNames() is called from 1 sites in this file.
 ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement b = input[*&idx]; at line 3283
-	and the statement (*emailEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3343
+	and the statement (*emailEntry).name = wolfSSL_Malloc((unsigned)*&strLen+1u); at line 3343
 
 	Consider declaring 'input' as unsigned char * const restrict input
 	or declaring 'emailEntry' as  struct DNS_entry * restrict emailEntry
@@ -1702,7 +1702,7 @@ ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 
 ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
-	for the statement (*emailEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3343
+	for the statement (*emailEntry).name = wolfSSL_Malloc((unsigned)*&strLen+1u); at line 3343
 	and the statement (*emailEntry).name[*&strLen] = 0u; at line 3352
 
 	Consider declaring 'emailEntry' as struct DNS_entry * restrict emailEntry
@@ -1712,7 +1712,7 @@ ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 
 ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
-	for the statement (*emailEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3343
+	for the statement (*emailEntry).name = wolfSSL_Malloc((unsigned)*&strLen+1u); at line 3343
 	and the statement (*emailEntry).next = (*cert).altEmailNames; at line 3354
 
 	Consider declaring 'emailEntry' as struct DNS_entry * restrict emailEntry
@@ -1723,7 +1723,7 @@ ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 
 ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
-	for the statement (*emailEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3343
+	for the statement (*emailEntry).name = wolfSSL_Malloc((unsigned)*&strLen+1u); at line 3343
 	and the statement (*cert).altEmailNames = emailEntry; at line 3355
 
 	Consider declaring 'emailEntry' as struct DNS_entry * restrict emailEntry
@@ -1734,8 +1734,8 @@ ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 
 ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
-	for the statement (*emailEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3343
-	and the statement (*dnsEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3307
+	for the statement (*emailEntry).name = wolfSSL_Malloc((unsigned)*&strLen+1u); at line 3343
+	and the statement (*dnsEntry).name = wolfSSL_Malloc((unsigned)*&strLen+1u); at line 3307
 
 	Consider declaring 'emailEntry' as struct DNS_entry * restrict emailEntry
 	or declaring 'dnsEntry' as  struct DNS_entry * restrict dnsEntry
@@ -1745,7 +1745,7 @@ ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 
 ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
-	for the statement (*emailEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3343
+	for the statement (*emailEntry).name = wolfSSL_Malloc((unsigned)*&strLen+1u); at line 3343
 	and the statement if ( (*dnsEntry).name ) goto g27; else goto g24; at line 3309
 
 	Consider declaring 'emailEntry' as struct DNS_entry * restrict emailEntry
@@ -1756,7 +1756,7 @@ ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 
 ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
-	for the statement (*emailEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3343
+	for the statement (*emailEntry).name = wolfSSL_Malloc((unsigned)*&strLen+1u); at line 3343
 	and the statement memcpy((*dnsEntry).name, *&idx+input, (unsigned)*&strLen); at line 3315
 
 	Consider declaring 'emailEntry' as struct DNS_entry * restrict emailEntry
@@ -1767,7 +1767,7 @@ ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 
 ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
-	for the statement (*emailEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3343
+	for the statement (*emailEntry).name = wolfSSL_Malloc((unsigned)*&strLen+1u); at line 3343
 	and the statement (*dnsEntry).name[*&strLen] = 0u; at line 3316
 
 	Consider declaring 'emailEntry' as struct DNS_entry * restrict emailEntry
@@ -1777,7 +1777,7 @@ ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 
 ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
-	for the statement (*emailEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3343
+	for the statement (*emailEntry).name = wolfSSL_Malloc((unsigned)*&strLen+1u); at line 3343
 	and the statement (*dnsEntry).name[*&strLen] = 0u; at line 3316
 
 	Consider declaring 'emailEntry' as struct DNS_entry * restrict emailEntry
@@ -1788,7 +1788,7 @@ ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 
 ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
-	for the statement (*emailEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3343
+	for the statement (*emailEntry).name = wolfSSL_Malloc((unsigned)*&strLen+1u); at line 3343
 	and the statement (*dnsEntry).next = (*cert).altNames; at line 3318
 
 	Consider declaring 'emailEntry' as struct DNS_entry * restrict emailEntry
@@ -1799,7 +1799,7 @@ ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 
 ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
-	for the statement (*emailEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3343
+	for the statement (*emailEntry).name = wolfSSL_Malloc((unsigned)*&strLen+1u); at line 3343
 	and the statement (*dnsEntry).next = (*cert).altNames; at line 3318
 
 	Consider declaring 'emailEntry' as struct DNS_entry * restrict emailEntry
@@ -1810,7 +1810,7 @@ ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 
 ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
-	for the statement (*emailEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3343
+	for the statement (*emailEntry).name = wolfSSL_Malloc((unsigned)*&strLen+1u); at line 3343
 	and the statement (*cert).altNames = dnsEntry; at line 3319
 
 	Consider declaring 'emailEntry' as struct DNS_entry * restrict emailEntry
@@ -1843,7 +1843,7 @@ ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement if ( (*emailEntry).name ) goto g18; else goto g15; at line 3345
-	and the statement (*dnsEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3307
+	and the statement (*dnsEntry).name = wolfSSL_Malloc((unsigned)*&strLen+1u); at line 3307
 
 	Consider declaring 'emailEntry' as struct DNS_entry * restrict emailEntry
 	or declaring 'dnsEntry' as  struct DNS_entry * restrict dnsEntry
@@ -1907,7 +1907,7 @@ ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement memcpy((*emailEntry).name, *&idx+input, (unsigned)*&strLen); at line 3351
-	and the statement (*dnsEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3307
+	and the statement (*dnsEntry).name = wolfSSL_Malloc((unsigned)*&strLen+1u); at line 3307
 
 	Consider declaring 'emailEntry' as struct DNS_entry * restrict emailEntry
 	or declaring 'dnsEntry' as  struct DNS_entry * restrict dnsEntry
@@ -1988,7 +1988,7 @@ ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 
 ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
-	for the statement (*dnsEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3307
+	for the statement (*dnsEntry).name = wolfSSL_Malloc((unsigned)*&strLen+1u); at line 3307
 	and the statement (*emailEntry).name[*&strLen] = 0u; at line 3352
 
 	Consider declaring 'dnsEntry' as struct DNS_entry * restrict dnsEntry
@@ -2081,7 +2081,7 @@ ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*emailEntry).name[*&strLen] = 0u; at line 3352
-	and the statement (*dnsEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3307
+	and the statement (*dnsEntry).name = wolfSSL_Malloc((unsigned)*&strLen+1u); at line 3307
 
 	Consider declaring 'emailEntry' as struct DNS_entry * restrict emailEntry
 	or declaring 'dnsEntry' as  struct DNS_entry * restrict dnsEntry
@@ -2178,7 +2178,7 @@ ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*emailEntry).next = (*cert).altEmailNames; at line 3354
-	and the statement (*dnsEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3307
+	and the statement (*dnsEntry).name = wolfSSL_Malloc((unsigned)*&strLen+1u); at line 3307
 
 	Consider declaring 'cert' as struct DecodedCert * const restrict cert
 	or declaring 'dnsEntry' as  struct DNS_entry * restrict dnsEntry
@@ -2221,7 +2221,7 @@ ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*emailEntry).next = (*cert).altEmailNames; at line 3354
-	and the statement (*dnsEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3307
+	and the statement (*dnsEntry).name = wolfSSL_Malloc((unsigned)*&strLen+1u); at line 3307
 
 	Consider declaring 'emailEntry' as struct DNS_entry * restrict emailEntry
 	or declaring 'dnsEntry' as  struct DNS_entry * restrict dnsEntry
@@ -2308,7 +2308,7 @@ ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
 	for the statement (*cert).altEmailNames = emailEntry; at line 3355
-	and the statement (*dnsEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3307
+	and the statement (*dnsEntry).name = wolfSSL_Malloc((unsigned)*&strLen+1u); at line 3307
 
 	Consider declaring 'cert' as struct DecodedCert * const restrict cert
 	or declaring 'dnsEntry' as  struct DNS_entry * restrict dnsEntry
@@ -2372,7 +2372,7 @@ ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 
 ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
-	for the statement (*dnsEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3307
+	for the statement (*dnsEntry).name = wolfSSL_Malloc((unsigned)*&strLen+1u); at line 3307
 	and the statement (*dnsEntry).name[*&strLen] = 0u; at line 3316
 
 	Consider declaring 'dnsEntry' as struct DNS_entry * restrict dnsEntry
@@ -2382,7 +2382,7 @@ ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 
 ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
-	for the statement (*dnsEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3307
+	for the statement (*dnsEntry).name = wolfSSL_Malloc((unsigned)*&strLen+1u); at line 3307
 	and the statement (*dnsEntry).next = (*cert).altNames; at line 3318
 
 	Consider declaring 'dnsEntry' as struct DNS_entry * restrict dnsEntry
@@ -2393,7 +2393,7 @@ ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 
 ADVICE: In function DecodeAltNames() in C:/wolfssl/ctaocrypt/src/asn.c
 	in the 'while' loop at lines C:/wolfssl/ctaocrypt/src/asn.c:3282-3455
-	for the statement (*dnsEntry).name = CyaSSL_Malloc((unsigned)*&strLen+1u); at line 3307
+	for the statement (*dnsEntry).name = wolfSSL_Malloc((unsigned)*&strLen+1u); at line 3307
 	and the statement (*cert).altNames = dnsEntry; at line 3319
 
 	Consider declaring 'dnsEntry' as struct DNS_entry * restrict dnsEntry

@@ -56,7 +56,7 @@
 /* Example/Board Header files */
 #include "Board.h"
 
-/* CyaSSL Header files */
+/* wolfSSL Header files */
 #include <wolfssl/ssl.h>
 #include <wolfssl/certs_test.h>
 
@@ -81,7 +81,7 @@ Void tcpWorker(UArg arg0, UArg arg1)
     CYASSL* ssl = (CYASSL *)arg0;
 
     fdOpenSession(TaskSelf());
-    clientfd = CyaSSL_get_fd(ssl);
+    clientfd = wolfSSL_get_fd(ssl);
     System_printf("tcpWorker: start clientfd = 0x%x\n", clientfd);
 
     /* Make sure Error_Block is initialized */
@@ -98,13 +98,13 @@ Void tcpWorker(UArg arg0, UArg arg1)
     /* Loop while we receive data */
     while (flag) {
     	char ack[] = "wolfSSL's Tiva C Series Connected Launchpad Heard you loud and clear!!! -Kaleb\n";
-        nbytes = CyaSSL_read(ssl, (char *)buffer, TCPPACKETSIZE);
+        nbytes = wolfSSL_read(ssl, (char *)buffer, TCPPACKETSIZE);
         if (nbytes > 0) {
             /* Echo the data back */
-            CyaSSL_write(ssl, (char *)ack, strlen(ack));
+            wolfSSL_write(ssl, (char *)ack, strlen(ack));
         }
         else {
-            CyaSSL_free(ssl);
+            wolfSSL_free(ssl);
             fdClose((SOCKET)clientfd);
             flag = false;
         }
@@ -142,15 +142,15 @@ Void tcpHandler(UArg arg0, UArg arg1)
 
     fdOpenSession(TaskSelf());
 
-    CyaSSL_Init();
+    wolfSSL_Init();
     CYASSL_CTX* ctx = NULL;
 
-    if ((ctx = CyaSSL_CTX_new(CyaTLSv1_2_server_method())) == NULL) {
-       System_printf("tcpHandler: CyaSSL_CTX_new error.\n");
+    if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_server_method())) == NULL) {
+       System_printf("tcpHandler: wolfSSL_CTX_new error.\n");
        exitApp(ctx);
     }
 
-    if (CyaSSL_CTX_load_verify_buffer(ctx, ca_cert_der_2048,
+    if (wolfSSL_CTX_load_verify_buffer(ctx, ca_cert_der_2048,
                                   sizeof(ca_cert_der_2048)/sizeof(char),
                                   SSL_FILETYPE_ASN1) != SSL_SUCCESS) {
        System_printf("tcpHandler: Error loading ca_cert_der_2048"
@@ -158,7 +158,7 @@ Void tcpHandler(UArg arg0, UArg arg1)
        exitApp(ctx);
     }
 
-    if (CyaSSL_CTX_use_certificate_buffer(ctx, server_cert_der_2048,
+    if (wolfSSL_CTX_use_certificate_buffer(ctx, server_cert_der_2048,
                                   sizeof(server_cert_der_2048)/sizeof(char),
                                   SSL_FILETYPE_ASN1) != SSL_SUCCESS) {
        System_printf("tcpHandler: Error loading server_cert_der_2048,"
@@ -166,7 +166,7 @@ Void tcpHandler(UArg arg0, UArg arg1)
        exitApp(ctx);
     }
 
-    if (CyaSSL_CTX_use_PrivateKey_buffer(ctx, server_key_der_2048,
+    if (wolfSSL_CTX_use_PrivateKey_buffer(ctx, server_key_der_2048,
                                   sizeof(server_key_der_2048)/sizeof(char),
                                   SSL_FILETYPE_ASN1) != SSL_SUCCESS) {
        System_printf("tcpHandler: Error loading server_key_der_2048,"
@@ -217,12 +217,12 @@ Void tcpHandler(UArg arg0, UArg arg1)
 
         /* Init the Error_Block */
         Error_init(&eb);
-        if ((ssl = CyaSSL_new(ctx)) == NULL) {
-            System_printf("tcpHandler: CyaSSL_new error.\n");
+        if ((ssl = wolfSSL_new(ctx)) == NULL) {
+            System_printf("tcpHandler: wolfSSL_new error.\n");
             exitApp(ctx);
         }
 
-        CyaSSL_set_fd(ssl, clientfd);
+        wolfSSL_set_fd(ssl, clientfd);
 
         /* Initialize the defaults and set the parameters. */
         Task_Params_init(&taskParams);
@@ -242,8 +242,8 @@ Void tcpHandler(UArg arg0, UArg arg1)
 void exitApp(CYASSL_CTX* ctx)
 {
     if (ctx != NULL) {
-        CyaSSL_CTX_free(ctx);
-        CyaSSL_Cleanup();
+        wolfSSL_CTX_free(ctx);
+        wolfSSL_Cleanup();
     }
 
      BIOS_exit(-1);
@@ -280,7 +280,7 @@ int main(void)
     Board_initEMAC();
 
     /*
-     * CyaSSL library needs time() for validating certificates.
+     * wolfSSL library needs time() for validating certificates.
      * USER STEP: Set up the current time in seconds below.
      */
     MYTIME_init();

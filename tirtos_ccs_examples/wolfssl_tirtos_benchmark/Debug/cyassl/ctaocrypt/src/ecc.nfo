@@ -8,7 +8,7 @@ extern void ecc_del_point() is called from 8 sites in this file.
     It appears to be inlineable (size = 16 units)
     It has 4 non-trivial scope blocks nested 4 deep.
     It calls these functions:
-	CyaSSL_Free() (1 times)
+	wolfSSL_Free() (1 times)
 	mp_clear() (3 times)
 
 extern int ecc_export_private_only() is called from 0 sites in this file.
@@ -118,10 +118,10 @@ extern struct $$fake1 *ecc_new_point() is called from 6 sites in this file.
     It appears to be inlineable (size = 28 units)
     It has 4 non-trivial scope blocks nested 4 deep.
     It calls these functions:
-	CyaSSL_Free() (1 times)
+	wolfSSL_Free() (1 times)
 	mp_init_multi() (1 times)
 	memset() (1 times)
-	CyaSSL_Malloc() (1 times)
+	wolfSSL_Malloc() (1 times)
 
 extern int ecc_projective_add_point() is called from 4 sites in this file.
     It has 3 non-trivial scope blocks nested 3 deep.
@@ -289,7 +289,7 @@ These external functions are called but not defined here:
 	fp_cmp_d()
 	fp_add()
 	fp_div_2()
-	CyaSSL_Malloc()
+	wolfSSL_Malloc()
 	mp_montgomery_setup()
 	mp_init()
 	mp_montgomery_calc_normalization()
@@ -310,7 +310,7 @@ These external functions are called but not defined here:
 	mp_to_unsigned_bin()
 	mp_unsigned_bin_size()
 	mp_clear()
-	CyaSSL_Free()
+	wolfSSL_Free()
 
 
 		======= End file-level Analysis =======

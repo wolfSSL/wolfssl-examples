@@ -842,8 +842,8 @@ xdc.meta   0    00000000    00000112     COPY SECTION
                   00024c2c    0000001a     wolfssl_tests_pem4f.oem4f (.text:xdc_runtime_System_aprintf__E)
                   00024c46    0000001a     wolfssl_tests_pem4f.oem4f (.text:xdc_runtime_System_printf__E)
                   00024c60    00000018     chacha.obj (.text:Chacha_Process)
-                  00024c78    00000018     ti.net.wolfssl.aem4f : memory.oem4f (.text:CyaSSL_Free)
-                  00024c90    00000018                         : memory.oem4f (.text:CyaSSL_Malloc)
+                  00024c78    00000018     ti.net.wolfssl.aem4f : memory.oem4f (.text:wolfSSL_Free)
+                  00024c90    00000018                         : memory.oem4f (.text:wolfSSL_Malloc)
                   00024ca8    00000018     emac_tivaware.aem4f : EMACSnow.oem4f (.text:EMACSnow_emacSend)
                   00024cc0    00000018     stk.aem4f : ip.oem4f (.text:IPRtChange)
                   00024cd8    00000018     ti.net.wolfssl.aem4f : rsa.oem4f (.text:InitRsaKey)
@@ -1555,8 +1555,8 @@ address    name
 00025859   CheckRunTimeFastMath
 0002585d   CheckRunTimeSettings
 0002d438   Code2Err
-00024c79   CyaSSL_Free
-00024c91   CyaSSL_Malloc
+00024c79   wolfSSL_Free
+00024c91   wolfSSL_Malloc
 0002239f   DHCPClose
 0001614d   DHCPOpen
 0001e9e9   DbgPrintf
@@ -3584,8 +3584,8 @@ address    name
 00024c2d   xdc_runtime_System_aprintf__E
 00024c47   xdc_runtime_System_printf__E
 00024c61   Chacha_Process
-00024c79   CyaSSL_Free
-00024c91   CyaSSL_Malloc
+00024c79   wolfSSL_Free
+00024c91   wolfSSL_Malloc
 00024ca9   EMACSnow_emacSend
 00024cc1   IPRtChange
 00024cd9   InitRsaKey
