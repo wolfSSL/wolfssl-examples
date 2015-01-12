@@ -1,7 +1,7 @@
 # nameReplace.sh
 # Copyright (C) 2015 wolfSSL Inc.
 #
-# This file is a script developed and used during re-branding from wolfSSL to wolfSSL
+# This file is a script developed and used during re-branding from CyaSSL to wolfSSL
 #
 # @author: Kaleb
 #
@@ -27,7 +27,7 @@
 
 #find . -name '*' -type f -exec sed -i 's/wolf/wolf/g' {} \;
 #find . -name '*' -type f -exec sed -i 's/wolf/wolf/g' {} \;
-#find . -name '*' -type f -exec sed -i 's/CYA/WOLF/g' {} \;
+#find . -name '*' -type f -exec sed -i 's/WOLF/WOLF/g' {} \;
 #find . -name '*' -type f -exec sed -i 's/ctao/wolf/g' {} \;
 #find . -name '*' -type f -exec sed -i 's/Ctao/wolf/g' {} \;
 #find . -name '*' -type f -exec sed -i 's/CTao/wc_/g' {} \;

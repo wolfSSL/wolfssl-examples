@@ -16,7 +16,7 @@ the bottom click on "Set Additional Flags..." locate and delete the following:
 --define=HAVE_POLY1305
 
 then put in the following:
---define=CYASSL_SHA512
+--define=WOLFSSL_SHA512
 --define=HAVE_BLAKE2
 
 Then build and debug this project again.

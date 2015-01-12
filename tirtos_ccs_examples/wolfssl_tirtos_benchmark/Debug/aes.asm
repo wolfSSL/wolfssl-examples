@@ -5988,15 +5988,15 @@ $C$DW$182	.dwtag  DW_TAG_TI_branch
 
 $C$DW$T$489	.dwtag  DW_TAG_enumeration_type
 	.dwattr $C$DW$T$489, DW_AT_byte_size(0x01)
-$C$DW$183	.dwtag  DW_TAG_enumerator, DW_AT_name("CYASSL_WORD_SIZE"), DW_AT_const_value(0x04)
+$C$DW$183	.dwtag  DW_TAG_enumerator, DW_AT_name("WOLFSSL_WORD_SIZE"), DW_AT_const_value(0x04)
 	.dwattr $C$DW$183, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$183, DW_AT_decl_line(0x65)
 	.dwattr $C$DW$183, DW_AT_decl_column(0x05)
-$C$DW$184	.dwtag  DW_TAG_enumerator, DW_AT_name("CYASSL_BIT_SIZE"), DW_AT_const_value(0x08)
+$C$DW$184	.dwtag  DW_TAG_enumerator, DW_AT_name("WOLFSSL_BIT_SIZE"), DW_AT_const_value(0x08)
 	.dwattr $C$DW$184, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$184, DW_AT_decl_line(0x66)
 	.dwattr $C$DW$184, DW_AT_decl_column(0x05)
-$C$DW$185	.dwtag  DW_TAG_enumerator, DW_AT_name("CYASSL_WORD_BITS"), DW_AT_const_value(0x20)
+$C$DW$185	.dwtag  DW_TAG_enumerator, DW_AT_name("WOLFSSL_WORD_BITS"), DW_AT_const_value(0x20)
 	.dwattr $C$DW$185, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$185, DW_AT_decl_line(0x67)
 	.dwattr $C$DW$185, DW_AT_decl_column(0x05)
@@ -6196,7 +6196,7 @@ $C$DW$230	.dwtag  DW_TAG_enumerator, DW_AT_name("DYNAMIC_TYPE_SIGNATURE"), DW_AT
 
 $C$DW$T$491	.dwtag  DW_TAG_enumeration_type
 	.dwattr $C$DW$T$491, DW_AT_byte_size(0x01)
-$C$DW$231	.dwtag  DW_TAG_enumerator, DW_AT_name("CYASSL_MAX_ERROR_SZ"), DW_AT_const_value(0x50)
+$C$DW$231	.dwtag  DW_TAG_enumerator, DW_AT_name("WOLFSSL_MAX_ERROR_SZ"), DW_AT_const_value(0x50)
 	.dwattr $C$DW$231, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/types.h")
 	.dwattr $C$DW$231, DW_AT_decl_line(0x118)
 	.dwattr $C$DW$231, DW_AT_decl_column(0x05)
@@ -6887,7 +6887,7 @@ $C$DW$T$510	.dwtag  DW_TAG_const_type
 	.dwattr $C$DW$T$510, DW_AT_type(*$C$DW$T$509)
 
 $C$DW$T$513	.dwtag  DW_TAG_enumeration_type
-	.dwattr $C$DW$T$513, DW_AT_name("CYA_Log_Levels")
+	.dwattr $C$DW$T$513, DW_AT_name("WOLF_Log_Levels")
 	.dwattr $C$DW$T$513, DW_AT_byte_size(0x01)
 $C$DW$339	.dwtag  DW_TAG_enumerator, DW_AT_name("ERROR_LOG"), DW_AT_const_value(0x00)
 	.dwattr $C$DW$339, DW_AT_decl_file("C:/wolfssl/wolfssl/ctaocrypt/logging.h")

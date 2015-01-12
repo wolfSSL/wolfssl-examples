@@ -27,7 +27,7 @@
 	</natures>
 	<variableList>
 		<variable>
-			<name>CYASSL_DIR</name>
+			<name>WOLFSSL_DIR</name>
 			<value>file:/C:/wolfssl</value>
 		</variable>
 	</variableList>

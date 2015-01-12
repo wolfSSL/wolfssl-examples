@@ -29,112 +29,112 @@
 		<link>
 			<name>benchmark.c</name>
 			<type>1</type>
-			<locationURI>CYASSL_DIR/ctaocrypt/benchmark/benchmark.c</locationURI>
+			<locationURI>WOLFSSL_DIR/ctaocrypt/benchmark/benchmark.c</locationURI>
 		</link>
 		<link>
 			<name>wolfssl/ctaocrypt/src/aes.c</name>
 			<type>1</type>
-			<locationURI>CYASSL_DIR/ctaocrypt/src/aes.c</locationURI>
+			<locationURI>WOLFSSL_DIR/ctaocrypt/src/aes.c</locationURI>
 		</link>
 		<link>
 			<name>wolfssl/ctaocrypt/src/arc4.c</name>
 			<type>1</type>
-			<locationURI>CYASSL_DIR/ctaocrypt/src/arc4.c</locationURI>
+			<locationURI>WOLFSSL_DIR/ctaocrypt/src/arc4.c</locationURI>
 		</link>
 		<link>
 			<name>wolfssl/ctaocrypt/src/asm.c</name>
 			<type>1</type>
-			<locationURI>CYASSL_DIR/ctaocrypt/src/asm.c</locationURI>
+			<locationURI>WOLFSSL_DIR/ctaocrypt/src/asm.c</locationURI>
 		</link>
 		<link>
 			<name>wolfssl/ctaocrypt/src/asn.c</name>
 			<type>1</type>
-			<locationURI>CYASSL_DIR/ctaocrypt/src/asn.c</locationURI>
+			<locationURI>WOLFSSL_DIR/ctaocrypt/src/asn.c</locationURI>
 		</link>
 		<link>
 			<name>wolfssl/ctaocrypt/src/blake2b.c</name>
 			<type>1</type>
-			<locationURI>CYASSL_DIR/ctaocrypt/src/blake2b.c</locationURI>
+			<locationURI>WOLFSSL_DIR/ctaocrypt/src/blake2b.c</locationURI>
 		</link>
 		<link>
 			<name>wolfssl/ctaocrypt/src/camellia.c</name>
 			<type>1</type>
-			<locationURI>CYASSL_DIR/ctaocrypt/src/camellia.c</locationURI>
+			<locationURI>WOLFSSL_DIR/ctaocrypt/src/camellia.c</locationURI>
 		</link>
 		<link>
 			<name>wolfssl/ctaocrypt/src/chacha.c</name>
 			<type>1</type>
-			<locationURI>CYASSL_DIR/ctaocrypt/src/chacha.c</locationURI>
+			<locationURI>WOLFSSL_DIR/ctaocrypt/src/chacha.c</locationURI>
 		</link>
 		<link>
 			<name>wolfssl/ctaocrypt/src/des3.c</name>
 			<type>1</type>
-			<locationURI>CYASSL_DIR/ctaocrypt/src/des3.c</locationURI>
+			<locationURI>WOLFSSL_DIR/ctaocrypt/src/des3.c</locationURI>
 		</link>
 		<link>
 			<name>wolfssl/ctaocrypt/src/dh.c</name>
 			<type>1</type>
-			<locationURI>CYASSL_DIR/ctaocrypt/src/dh.c</locationURI>
+			<locationURI>WOLFSSL_DIR/ctaocrypt/src/dh.c</locationURI>
 		</link>
 		<link>
 			<name>wolfssl/ctaocrypt/src/ecc.c</name>
 			<type>1</type>
-			<locationURI>CYASSL_DIR/ctaocrypt/src/ecc.c</locationURI>
+			<locationURI>WOLFSSL_DIR/ctaocrypt/src/ecc.c</locationURI>
 		</link>
 		<link>
 			<name>wolfssl/ctaocrypt/src/hc128.c</name>
 			<type>1</type>
-			<locationURI>CYASSL_DIR/ctaocrypt/src/hc128.c</locationURI>
+			<locationURI>WOLFSSL_DIR/ctaocrypt/src/hc128.c</locationURI>
 		</link>
 		<link>
 			<name>wolfssl/ctaocrypt/src/integer.c</name>
 			<type>1</type>
-			<locationURI>CYASSL_DIR/ctaocrypt/src/integer.c</locationURI>
+			<locationURI>WOLFSSL_DIR/ctaocrypt/src/integer.c</locationURI>
 		</link>
 		<link>
 			<name>wolfssl/ctaocrypt/src/md5.c</name>
 			<type>1</type>
-			<locationURI>CYASSL_DIR/ctaocrypt/src/md5.c</locationURI>
+			<locationURI>WOLFSSL_DIR/ctaocrypt/src/md5.c</locationURI>
 		</link>
 		<link>
 			<name>wolfssl/ctaocrypt/src/poly1305.c</name>
 			<type>1</type>
-			<locationURI>CYASSL_DIR/ctaocrypt/src/poly1305.c</locationURI>
+			<locationURI>WOLFSSL_DIR/ctaocrypt/src/poly1305.c</locationURI>
 		</link>
 		<link>
 			<name>wolfssl/ctaocrypt/src/rabbit.c</name>
 			<type>1</type>
-			<locationURI>CYASSL_DIR/ctaocrypt/src/rabbit.c</locationURI>
+			<locationURI>WOLFSSL_DIR/ctaocrypt/src/rabbit.c</locationURI>
 		</link>
 		<link>
 			<name>wolfssl/ctaocrypt/src/rsa.c</name>
 			<type>1</type>
-			<locationURI>CYASSL_DIR/ctaocrypt/src/rsa.c</locationURI>
+			<locationURI>WOLFSSL_DIR/ctaocrypt/src/rsa.c</locationURI>
 		</link>
 		<link>
 			<name>wolfssl/ctaocrypt/src/sha.c</name>
 			<type>1</type>
-			<locationURI>CYASSL_DIR/ctaocrypt/src/sha.c</locationURI>
+			<locationURI>WOLFSSL_DIR/ctaocrypt/src/sha.c</locationURI>
 		</link>
 		<link>
 			<name>wolfssl/ctaocrypt/src/sha256.c</name>
 			<type>1</type>
-			<locationURI>CYASSL_DIR/ctaocrypt/src/sha256.c</locationURI>
+			<locationURI>WOLFSSL_DIR/ctaocrypt/src/sha256.c</locationURI>
 		</link>
 		<link>
 			<name>wolfssl/ctaocrypt/src/sha512.c</name>
 			<type>1</type>
-			<locationURI>CYASSL_DIR/ctaocrypt/src/sha512.c</locationURI>
+			<locationURI>WOLFSSL_DIR/ctaocrypt/src/sha512.c</locationURI>
 		</link>
 		<link>
 			<name>wolfssl/ctaocrypt/src/tfm.c</name>
 			<type>1</type>
-			<locationURI>CYASSL_DIR/ctaocrypt/src/tfm.c</locationURI>
+			<locationURI>WOLFSSL_DIR/ctaocrypt/src/tfm.c</locationURI>
 		</link>
 	</linkedResources>
 	<variableList>
 		<variable>
-			<name>CYASSL_DIR</name>
+			<name>WOLFSSL_DIR</name>
 			<value>file:/C:/wolfssl</value>
 		</variable>
 	</variableList>

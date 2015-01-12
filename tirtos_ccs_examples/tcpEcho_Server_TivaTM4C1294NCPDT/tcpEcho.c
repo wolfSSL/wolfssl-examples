@@ -64,7 +64,7 @@
 #define TCPPORT 11111
 #define NUMTCPWORKERS 3
 
-void exitApp(CYASSL_CTX* ctx);
+void exitApp(WOLFSSL_CTX* ctx);
 
 /*
  *  ======== tcpWorker ========
@@ -78,7 +78,7 @@ Void tcpWorker(UArg arg0, UArg arg1)
     bool flag = true;
     char *buffer;
     Error_Block eb;
-    CYASSL* ssl = (CYASSL *)arg0;
+    WOLFSSL* ssl = (WOLFSSL *)arg0;
 
     fdOpenSession(TaskSelf());
     clientfd = wolfSSL_get_fd(ssl);
@@ -143,7 +143,7 @@ Void tcpHandler(UArg arg0, UArg arg1)
     fdOpenSession(TaskSelf());
 
     wolfSSL_Init();
-    CYASSL_CTX* ctx = NULL;
+    WOLFSSL_CTX* ctx = NULL;
 
     if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_server_method())) == NULL) {
        System_printf("tcpHandler: wolfSSL_CTX_new error.\n");
@@ -206,7 +206,7 @@ Void tcpHandler(UArg arg0, UArg arg1)
     }
 
     while (true) {
-         CYASSL* ssl;
+         WOLFSSL* ssl;
 
         /* Wait for incoming request */
         if ((clientfd = accept(lSocket, (struct sockaddr*)&client_addr,
@@ -239,7 +239,7 @@ Void tcpHandler(UArg arg0, UArg arg1)
  *  ======== exitApp ========
  *  Cleans up the SSL context and exits the application
  */
-void exitApp(CYASSL_CTX* ctx)
+void exitApp(WOLFSSL_CTX* ctx)
 {
     if (ctx != NULL) {
         wolfSSL_CTX_free(ctx);

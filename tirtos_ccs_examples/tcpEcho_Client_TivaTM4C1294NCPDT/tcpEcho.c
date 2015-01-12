@@ -90,7 +90,7 @@
  */
 #define IP_ADDR "xxx.xxx.x.xxx"
 
-void exitApp(CYASSL_CTX* ctx);
+void exitApp(WOLFSSL_CTX* ctx);
 
 /*
  *  ======== tcpHandler ========
@@ -106,12 +106,12 @@ Void tcpHandler(UArg arg0, UArg arg1) {
 	int nbytes;
 	char *buffer;
 	char msg[] = "Hello from TM4C1294XL Connected Launchpad";
-	CYASSL* ssl = (CYASSL *) arg0;
+	WOLFSSL* ssl = (WOLFSSL *) arg0;
 
 	fdOpenSession(TaskSelf());
 
 	wolfSSL_Init();
-	CYASSL_CTX* ctx = NULL;
+	WOLFSSL_CTX* ctx = NULL;
 
 	ctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method());
 	if (ctx == 0) {
@@ -245,7 +245,7 @@ Void tcpHandler(UArg arg0, UArg arg1) {
  *  ======== exitApp ========
  *  Cleans up the SSL context and exits the application
  */
-void exitApp(CYASSL_CTX* ctx) {
+void exitApp(WOLFSSL_CTX* ctx) {
 	if (ctx != NULL) {
 		wolfSSL_CTX_free(ctx);
 		wolfSSL_Cleanup();

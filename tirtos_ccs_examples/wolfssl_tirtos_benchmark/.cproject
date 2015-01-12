@@ -61,7 +61,7 @@
 									<listOptionValue builtIn="false" value="NO_MAIN_DRIVER"/>
 									<listOptionValue builtIn="false" value="BENCH_EMBEDDED"/>
 									<listOptionValue builtIn="false" value="HAVE_ECC"/>
-									<listOptionValue builtIn="false" value="CYASSL_SHA512"/>
+									<listOptionValue builtIn="false" value="WOLFSSL_SHA512"/>
 									<listOptionValue builtIn="false" value="HAVE_CHACHA"/>
 									<listOptionValue builtIn="false" value="HAVE_POLY1305"/>
 									<listOptionValue builtIn="false" value="HAVE_CAMELLIA"/>
