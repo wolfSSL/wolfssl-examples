@@ -27,7 +27,7 @@ Building wolfSSL libraries for TI-RTOS
     
    ..\xdctools_3_30_01_25_core\gmake.exe -f tirtos.mak wolfssl
 
-Running wolfSSL CTaoCrypt benchmark and test application.
+Running wolfSSL wolfCrypt benchmark and test application.
 --------------------------------------------------------
 1. After running the TCP Echo Server application, in the Debugger View, open Run -> Load Program. Browse to the Benchmark application (C:\wolfssl\tirtos\packages\ti\net\wolfssl\tests\wolfcrypt\benchmark). Select benchmark.xem4f and Click Open and Click OK to load the application.
 2. Test by running the application.
