@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-Wall
-LIBS= -lcyassl
+LIBS= -lwolfssl
 
 3des-file-encrypt: 3des-file-encrypt.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS) 

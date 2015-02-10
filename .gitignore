@@ -41,12 +41,18 @@
 /psk/server-psk
 /psk/server-tcp
 
+/tls/client-callback
 /tls/client-tls-nonblocking
 /tls/client-tls-resume
 /tls/client-tls
 /tls/client-tcp
+/tls/server-callback
 /tls/server-tls-nonblocking
 /tls/server-tls-threaded
 /tls/server-tls
 /tls/server-tcp
+
+crypto/3des/3des-file-encrypt
+crypto/aes/aes-file-encrypt
+crypto/camellia/camellia-encrypt
 

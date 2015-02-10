@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-Wall
-LIBS= -lcyassl
+LIBS= -lwolfssl
 
 aes-file-encrypt: aes-file-encrypt.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS) 
