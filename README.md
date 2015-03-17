@@ -18,11 +18,12 @@ file to any file name and extension.
 
 Please see the README.md in clu/ for further usage and details.
 
-###### unique feature to wolfSSL CLU
+###### Unique feature to wolfSSL CLU
 The decision to allow for unique file extensions was prompted by automated tools
 available for brute forcing files. It will not provide extra security cryptographically
-however it will force attackers to check the header information and provide an extra step 
-in any attempt to brute force a file encrypted with our utility.
+however it will force attackers to check the header information on every single brute
+force attempt. This will provide further frustration and an extra step in any attempt 
+to brute force a file encrypted with our utility.
 
 #### DTLS (Datagram TLS)
 
