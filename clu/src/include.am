@@ -1,0 +1,17 @@
+# vim:ft=automake
+# included from Top Level Makefile.am
+# All paths should be given relative to the root
+
+#/ kaleb /#
+bin_PROGRAMS = wolfssl
+wolfssl_SOURCES = src/wolfsslFuncs.c \
+					src/wolfsslEncrypt.c \
+					src/wolfsslDecrypt.c \
+					src/wolfsslHash.c \
+					src/wolfsslBenchmark.c \
+					src/wolfsslSetup.c \
+					src/wolfsslHashSetup.c \
+					src/wolfsslBenchSetup.c \
+					src/wolfsslHexToBin.c \
+					src/wolfsslMain.c \
+					include/wolfssl.h
