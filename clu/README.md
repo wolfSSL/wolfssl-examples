@@ -1,5 +1,5 @@
 This is the wolfSSL:  Command Line Utility (wolfssl CLU).
-To use this feature, please configure cyassl with the following line:
+To use this feature, please configure wolfssl with the following line:
 
 '''
 ./configure --enable-pwdbased --enable-opensslextra
