@@ -35,21 +35,21 @@ int main(int argc, char** argv)
             case 'e':
                 if (argc == 2) {
                     wolfsslEncryptHelp();
-                    return 0;
+                    break;
                 }
                 ret = wolfsslSetup(argc, argv, 'e');
-                return 0;
+                break;
                 /* User wants to decrypt some data or file */
             case 'd':
                 ret = wolfsslSetup(argc, argv, 'd');
-                return 0;
+                break;
                 /* User wants to hash some data/file */
             case 'h':
                 ret = wolfsslHashSetup(argc, argv);
-                return 0;
+                break;
             case 'b':
                 ret = wolfsslBenchSetup(argc, argv);
-                return 0;
+                break;
             case 'i':/* will be handled by Setup function */
                 break;
             case 'o':/* will be handled by Setup function */
@@ -69,7 +69,6 @@ int main(int argc, char** argv)
             case 'v':
                 wolfsslVersion();
                 return 0;
-                break;
             default:
                 printf("Main Help Default.\n");
                 wolfsslVerboseHelp();
