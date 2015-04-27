@@ -41,7 +41,7 @@ int wolfsslHash(char* in, char* out, char* alg, int size)
     int     length;             /* length of hash */
 
     output = malloc(size);
-    memset(output, 0, size);
+    XMEMSET(output, 0, size);
 
     /* opens input file */
     inFile = fopen(in, "rb");
@@ -50,7 +50,7 @@ int wolfsslHash(char* in, char* out, char* alg, int size)
         length = LENGTH_IN;
 
         input = malloc(length);
-        memset(input, 0, length);
+        XMEMSET(input, 0, length);
         for (i = 0; i < length; i++) {
             /* copies text from in to input */
             if (i <= LENGTH_IN ) {
@@ -67,7 +67,7 @@ int wolfsslHash(char* in, char* out, char* alg, int size)
         length = leng;
 
         input = malloc(length+1);
-        memset(input, 0, length+1);
+        XMEMSET(input, 0, length+1);
         if (input == NULL) {
             printf("Failed to create input buffer\n");
             return FATAL_ERROR;
@@ -133,8 +133,8 @@ int wolfsslHash(char* in, char* out, char* alg, int size)
     }
 
     /* closes the opened files and frees the memory */
-    memset(input, 0, length);
-    memset(output, 0, size);
+    XMEMSET(input, 0, length);
+    XMEMSET(output, 0, size);
     free(input);
     free(output);
     return ret;

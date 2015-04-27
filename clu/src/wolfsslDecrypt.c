@@ -217,25 +217,25 @@ int wolfsslDecrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
             else {
                 fwrite(output, 1, tempMax, outFile);
 
-                memset(input, 0, tempMax);
-                memset(output, 0, tempMax);
+                XMEMSET(input, 0, tempMax);
+                XMEMSET(output, 0, tempMax);
                 break;
             }
         } 
         /* writes output to the outFile */
         fwrite(output, 1, tempMax, outFile);
 
-        memset(input, 0, tempMax);
-        memset(output, 0, tempMax);
+        XMEMSET(input, 0, tempMax);
+        XMEMSET(output, 0, tempMax);
 
         currLoopFlag++;
         length -= tempMax;
     }
     /* closes the opened files and frees memory */
-    memset(input, 0, MAX);
-    memset (output, 0, MAX);
+    XMEMSET(input, 0, MAX);
+    XMEMSET (output, 0, MAX);
     wolfsslFreeBins(input, output, NULL, NULL, NULL);
-    memset(key, 0, size);
+    XMEMSET(key, 0, size);
     /* Use the cyassl FreeRng to free rng */
     FreeRng(&rng);
     fclose(inFile);

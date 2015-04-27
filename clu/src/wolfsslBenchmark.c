@@ -92,10 +92,10 @@ int wolfsslBenchmark(int timer, int* option)
         printf("\n");
         printf("AES-CBC ");
         wolfsslStats(start, AES_BLOCK_SIZE, blocks);
-        memset(plain, 0, AES_BLOCK_SIZE);
-        memset(cipher, 0, AES_BLOCK_SIZE);
-        memset(key, 0, AES_BLOCK_SIZE);
-        memset(iv, 0, AES_BLOCK_SIZE);
+        XMEMSET(plain, 0, AES_BLOCK_SIZE);
+        XMEMSET(cipher, 0, AES_BLOCK_SIZE);
+        XMEMSET(key, 0, AES_BLOCK_SIZE);
+        XMEMSET(iv, 0, AES_BLOCK_SIZE);
         free(plain);
         free(cipher);
         free(key);
@@ -131,10 +131,10 @@ int wolfsslBenchmark(int timer, int* option)
         }
         printf("AES-CTR ");
         wolfsslStats(start, AES_BLOCK_SIZE, blocks);
-        memset(plain, 0, AES_BLOCK_SIZE);
-        memset(cipher, 0, AES_BLOCK_SIZE);
-        memset(key, 0, AES_BLOCK_SIZE);
-        memset(iv, 0, AES_BLOCK_SIZE);
+        XMEMSET(plain, 0, AES_BLOCK_SIZE);
+        XMEMSET(cipher, 0, AES_BLOCK_SIZE);
+        XMEMSET(key, 0, AES_BLOCK_SIZE);
+        XMEMSET(iv, 0, AES_BLOCK_SIZE);
         free(plain);
         free(cipher);
         free(key);
@@ -171,10 +171,10 @@ int wolfsslBenchmark(int timer, int* option)
         }
         printf("3DES ");
         wolfsslStats(start, DES3_BLOCK_SIZE, blocks);
-        memset(plain, 0, DES3_BLOCK_SIZE);
-        memset(cipher, 0, DES3_BLOCK_SIZE);
-        memset(key, 0, DES3_BLOCK_SIZE);
-        memset(iv, 0, DES3_BLOCK_SIZE);
+        XMEMSET(plain, 0, DES3_BLOCK_SIZE);
+        XMEMSET(cipher, 0, DES3_BLOCK_SIZE);
+        XMEMSET(key, 0, DES3_BLOCK_SIZE);
+        XMEMSET(iv, 0, DES3_BLOCK_SIZE);
         free(plain);
         free(cipher);
         free(key);
@@ -213,10 +213,10 @@ int wolfsslBenchmark(int timer, int* option)
         }
         printf("Camellia ");
         wolfsslStats(start, CAMELLIA_BLOCK_SIZE, blocks);
-        memset(plain, 0, CAMELLIA_BLOCK_SIZE);
-        memset(cipher, 0, CAMELLIA_BLOCK_SIZE);
-        memset(key, 0, CAMELLIA_BLOCK_SIZE);
-        memset(iv, 0, CAMELLIA_BLOCK_SIZE);
+        XMEMSET(plain, 0, CAMELLIA_BLOCK_SIZE);
+        XMEMSET(cipher, 0, CAMELLIA_BLOCK_SIZE);
+        XMEMSET(key, 0, CAMELLIA_BLOCK_SIZE);
+        XMEMSET(iv, 0, CAMELLIA_BLOCK_SIZE);
         free(plain);
         free(cipher);
         free(key);
@@ -250,8 +250,8 @@ int wolfsslBenchmark(int timer, int* option)
         Md5Final(&md5, digest);
         printf("MD5 ");
         wolfsslStats(start, MEGABYTE, blocks);
-        memset(plain, 0, MEGABYTE);
-        memset(digest, 0, MD5_DIGEST_SIZE);
+        XMEMSET(plain, 0, MEGABYTE);
+        XMEMSET(digest, 0, MD5_DIGEST_SIZE);
         free(plain);
         free(digest);
         blocks = 0;
@@ -283,8 +283,8 @@ int wolfsslBenchmark(int timer, int* option)
         ShaFinal(&sha, digest);
         printf("Sha ");
         wolfsslStats(start, MEGABYTE, blocks);
-        memset(plain, 0, MEGABYTE);
-        memset(digest, 0, SHA_DIGEST_SIZE);
+        XMEMSET(plain, 0, MEGABYTE);
+        XMEMSET(digest, 0, SHA_DIGEST_SIZE);
         free(plain);
         free(digest);
         blocks = 0;
@@ -316,8 +316,8 @@ int wolfsslBenchmark(int timer, int* option)
         Sha256Final(&sha256, digest);
         printf("Sha256 ");
         wolfsslStats(start, MEGABYTE, blocks);
-        memset(plain, 0, MEGABYTE);
-        memset(digest, 0, SHA256_DIGEST_SIZE);
+        XMEMSET(plain, 0, MEGABYTE);
+        XMEMSET(digest, 0, SHA256_DIGEST_SIZE);
         free(plain);
         free(digest);
         /* resets used for debug, uncomment if needed */
@@ -350,8 +350,8 @@ int wolfsslBenchmark(int timer, int* option)
         Sha384Final(&sha384, digest);
         printf("Sha384 ");
         wolfsslStats(start, MEGABYTE, blocks);
-        memset(plain, 0, MEGABYTE);
-        memset(digest, 0, SHA384_DIGEST_SIZE);
+        XMEMSET(plain, 0, MEGABYTE);
+        XMEMSET(digest, 0, SHA384_DIGEST_SIZE);
         free(plain);
         free(digest);
         blocks = 0;
@@ -383,8 +383,8 @@ int wolfsslBenchmark(int timer, int* option)
         Sha512Final(&sha512, digest);
         printf("Sha512 ");
         wolfsslStats(start, MEGABYTE, blocks);
-        memset(plain, 0, MEGABYTE);
-        memset(digest, 0, SHA512_DIGEST_SIZE);
+        XMEMSET(plain, 0, MEGABYTE);
+        XMEMSET(digest, 0, SHA512_DIGEST_SIZE);
         free(plain);
         free(digest);
         blocks = 0;
@@ -416,8 +416,8 @@ int wolfsslBenchmark(int timer, int* option)
         Blake2bFinal(&b2b, digest, BLAKE_DIGEST_SIZE);
         printf("Blake2b ");
         wolfsslStats(start, MEGABYTE, blocks);
-        memset(plain, 0, MEGABYTE);
-        memset(digest, 0, BLAKE_DIGEST_SIZE);
+        XMEMSET(plain, 0, MEGABYTE);
+        XMEMSET(digest, 0, BLAKE_DIGEST_SIZE);
         free(plain);
         free(digest);
     }

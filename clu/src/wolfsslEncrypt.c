@@ -276,17 +276,17 @@ int wolfsslEncrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
         if (length < 0)
             printf("length went past zero.\n");
         if (input != NULL)
-            memset(input, 0, tempMax);
+            XMEMSET(input, 0, tempMax);
         if (output != NULL)
-            memset(output, 0, tempMax);
+            XMEMSET(output, 0, tempMax);
     }
 
     /* closes the opened files and frees the memory */
     fclose(inFile);
-    memset(key, 0, size);
-    memset(iv, 0 , block);
-    memset(alg, 0, size);
-    memset(mode, 0 , block);
+    XMEMSET(key, 0, size);
+    XMEMSET(iv, 0 , block);
+    XMEMSET(alg, 0, size);
+    XMEMSET(mode, 0 , block);
     /* Use the cyassl free for rng */
     FreeRng(&rng);
     wolfsslFreeBins(input, output, NULL, NULL, NULL);

@@ -249,7 +249,7 @@ int wolfsslSetup(int argc, char** argv, char action)
         }
 
         if (pwdKeyChk == 1 && keyCheck == 1) {
-            memset(pwdKey, 0, size);
+            XMEMSET(pwdKey, 0, size);
         }
 
         /* encryption function call */
@@ -284,9 +284,9 @@ int wolfsslSetup(int argc, char** argv, char action)
             wolfsslHelp();
         }
         /* clear and free data */
-        memset(key, 0, size);
-        memset(pwdKey, 0, size);
-        memset(iv, 0, block);
+        XMEMSET(key, 0, size);
+        XMEMSET(pwdKey, 0, size);
+        XMEMSET(iv, 0, block);
         wolfsslFreeBins(pwdKey, iv, key, NULL, NULL);
     }
     else
