@@ -26,10 +26,6 @@
 
 /*end type casting */
 
-#ifdef HAVE_BLAKE2
-    #define BLAKE_DIGEST_SIZE 64
-#endif /* HAVE_BLAKE2 */
-
 int     loop       =   1;       /* benchmarking loop */
 int     i          =   0;       /* loop variable */
 

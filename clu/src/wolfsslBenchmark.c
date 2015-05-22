@@ -24,8 +24,6 @@
 
 #ifdef HAVE_BLAKE2
 
-#define BLAKE_DIGEST_SIZE 64
-
 #endif /* HAVE_BLAKE2 */
 
 /*

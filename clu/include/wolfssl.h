@@ -51,6 +51,7 @@
 #endif
 
 #ifdef HAVE_BLAKE2
+    #define BLAKE_DIGEST_SIZE 64
     #include <cyassl/ctaocrypt/blake2.h>
 #endif
 
@@ -71,6 +72,7 @@
   * or code update 
   */
 #define VERSION 0.3
+
 
 /* encryption argument function
  *
