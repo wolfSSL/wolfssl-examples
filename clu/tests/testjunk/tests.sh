@@ -1,7 +1,7 @@
 #Test utility functionality
 #!/bin/bash
 PAT="cd ~/"
-CYASSL="wolfssl"
+WOLFSSL="wolfssl"
 ENC="-e"
 DEC="-d"
 HASH="-h"
@@ -17,7 +17,7 @@ SHA3="-sha384"
 SHA5="-sha512"
 BLAKE="-blake2b"
 zero=0
-OPTS="cyassl/cyassl/options.h"
+OPTS="wolfssl/wolfssl/options.h"
 
 function crypto() {
     cd $currentDir
@@ -35,12 +35,12 @@ function crypto() {
 
         echo $RANDF  >> $IN
 
-        echo $CYASSL $ENC $1 size: $SIZEF bytes
-        $CYASSL $ENC $1 -i $IN -o $OUT -p $KEY
-        $CYASSL $DEC $1 -i $OUT -o $IN -p $KEY
-        echo $CYASSL $ENC $1 -i $RANDT
-        $CYASSL $ENC $1 -i $RANDT -o $OUT -p $KEY
-        $CYASSL $DEC $1 -i $OUT -o $IN -p $KEY
+        echo $WOLFSSL $ENC $1 size: $SIZEF bytes
+        $WOLFSSL $ENC $1 -i $IN -o $OUT -p $KEY
+        $WOLFSSL $DEC $1 -i $OUT -o $IN -p $KEY
+        echo $WOLFSSL $ENC $1 -i $RANDT
+        $WOLFSSL $ENC $1 -i $RANDT -o $OUT -p $KEY
+        $WOLFSSL $DEC $1 -i $OUT -o $IN -p $KEY
 
         rm $OUT
         rm $IN
@@ -65,10 +65,10 @@ function hashing() {
         RANDT=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w $SIZET | head -n 1)
         echo $RANDF >> $IN
 
-        echo $CYASSL -h $1 size: $SIZEF bytes
-        $CYASSL -h $1 -i $IN -o $OUT
-        echo $CYASSL -h $1 -i $RANDT
-        $CYASSL -h $1 -i $RANDT -o $OUT
+        echo $WOLFSSL -h $1 size: $SIZEF bytes
+        $WOLFSSL -h $1 -i $IN -o $OUT
+        echo $WOLFSSL -h $1 -i $RANDT
+        $WOLFSSL -h $1 -i $RANDT -o $OUT
 
         rm $IN
         rm $OUT
@@ -83,7 +83,7 @@ crypto $AES\128
 crypto $AES\192
 crypto $AES\256
 cd ~              #change to home directory
-grep -q "CYASSL_AES_COUNTER" $OPTS && if [[ $? -eq $zero ]]; then
+grep -q "WOLFSSL_AES_COUNTER" $OPTS && if [[ $? -eq $zero ]]; then
     crypto $AES2\128
     crypto $AES2\192
     crypto $AES2\256
@@ -104,11 +104,11 @@ hashing $SHA
 hashing $SHA2
 
 cd ~              #change to home directory
-grep -q "CYASSL_SHA384" $OPTS && if [[ $? -eq $zero ]]; then
+grep -q "WOLFSSL_SHA384" $OPTS && if [[ $? -eq $zero ]]; then
     hashing $SHA3
 fi
 cd ~              #change to home directory
-grep -q "CYASSL_SHA512" $OPTS && if [[ $? -eq $zero ]]; then
+grep -q "WOLFSSL_SHA512" $OPTS && if [[ $? -eq $zero ]]; then
     hashing $SHA5
 fi
 cd ~              #change to home directory
@@ -116,4 +116,4 @@ grep -q "HAVE_BLAKE2" $OPTS && if [[ $? -eq $zero ]]; then
     hashing $BLAKE
 fi
 cd $currentDir
-$CYASSL -b -t 5 -a
+$WOLFSSL -b -t 5 -a

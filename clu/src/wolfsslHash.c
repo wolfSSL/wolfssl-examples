@@ -1,21 +1,22 @@
 /* wolfsslHash.c
  *
- * Copyright (C) 2006-2014 wolfSSL Inc.
- * This file is part of CyaSSL.
+ * Copyright (C) 2006-2015 wolfSSL Inc.
  *
- * CyaSSL is free software; you can redistribute it and/or modify
+ * This file is part of wolfSSL. (formerly known as CyaSSL)
+ *
+ * wolfSSL is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
- * CyaSSL is distributed in the hope that it will be useful,
+ * wolfSSL is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
 #include "include/wolfssl.h"
@@ -78,34 +79,34 @@ int wolfsslHash(char* in, char* out, char* alg, int size)
     /* hashes using accepted algorithm */
 #ifndef NO_MD5
     if (strcmp(alg, "md5") == 0) {
-        ret = Md5Hash(input, length, output);
+        ret = wc_Md5Hash(input, length, output);
     }
 #endif
 #ifndef NO_SHA
     else if (strcmp(alg, "sha") == 0) {
-        ret = ShaHash(input, length, output);
+        ret = wc_ShaHash(input, length, output);
     }
 #endif
 #ifndef NO_SHA256
     else if (strcmp(alg, "sha256") == 0) {
-        ret = Sha256Hash(input, length, output);
+        ret = wc_Sha256Hash(input, length, output);
     }
 #endif
-#ifdef CYASSL_SHA384
+#ifdef WOLFSSL_SHA384
     else if (strcmp(alg, "sha384") == 0) {
-        ret = Sha384Hash(input, length, output);
+        ret = wc_Sha384Hash(input, length, output);
     }
 #endif
-#ifdef CYASSL_SHA512
+#ifdef WOLFSSL_SHA512
     else if (strcmp(alg, "sha512") == 0) {
-        ret = Sha512Hash(input, length, output);
+        ret = wc_Sha512Hash(input, length, output);
     }
 #endif
 #ifdef HAVE_BLAKE2
     else if (strcmp(alg, "blake2b") == 0) {
-        ret = InitBlake2b(&hash, size);
-        ret = Blake2bUpdate(&hash, input, length);
-        ret = Blake2bFinal(&hash, output, size);
+        ret = wc_InitBlake2b(&hash, size);
+        ret = wc_Blake2bUpdate(&hash, input, length);
+        ret = wc_Blake2bFinal(&hash, output, size);
     }
 #endif
     if (ret == 0) {

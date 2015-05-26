@@ -1,21 +1,22 @@
 /* wolfsslHashSetup.c
  *
- * Copyright (C) 2006-2014 wolfSSL Inc.
- * This file is part of CyaSSL.
+ * Copyright (C) 2006-2015 wolfSSL Inc.
  *
- * CyaSSL is free software; you can redistribute it and/or modify
+ * This file is part of wolfSSL. (formerly known as CyaSSL)
+ *
+ * wolfSSL is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
- * CyaSSL is distributed in the hope that it will be useful,
+ * wolfSSL is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
 #include "include/wolfssl.h"
@@ -39,10 +40,10 @@ int wolfsslHashSetup(int argc, char** argv)
 #ifndef NO_SHA256
             , "sha256"
 #endif
-#ifdef CYASSL_SHA384
+#ifdef WOLFSSL_SHA384
             , "sha384"
 #endif
-#ifdef CYASSL_SHA512
+#ifdef WOLFSSL_SHA512
             , "sha512"
 #endif
 #ifdef HAVE_BLAKE2
@@ -134,12 +135,12 @@ int wolfsslHashSetup(int argc, char** argv)
         size = SHA256_DIGEST_SIZE;
 #endif
 
-#ifdef CYASSL_SHA384
+#ifdef WOLFSSL_SHA384
     if (strcmp(alg, "sha384") == 0)
         size = SHA384_DIGEST_SIZE;
 #endif
 
-#ifdef CYASSL_SHA512
+#ifdef WOLFSSL_SHA512
     if (strcmp(alg, "sha512") == 0)
         size = SHA512_DIGEST_SIZE;
 #endif

@@ -15,14 +15,14 @@ This command allows data to be decrypted using ciphers and keys based on passwor
 -aes-ctr-[ 128 | 192 | 256 ]
         uses AES Counter with designated key size.
         to use the -ctr option you must enable the following flag
-        "#define CYASSL_AES_COUNTER"
+        "#define WOLFSSL_AES_COUNTER"
 
 -3des-cbc-[ 056 | 112 | 168 ]
-        uses 3DES algorithm with designated key size. requires cyassl be
+        uses 3DES algorithm with designated key size. requires wolfssl be
         configured with --enable-des3.
 
 -camellia-cbc-[128|192|256]
-        uses Camellia algorithm with designated key size. requires cyassl be
+        uses Camellia algorithm with designated key size. requires wolfssl be
         configured with --enable-camellia
 
 .SH OPTIONS
