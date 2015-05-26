@@ -1,23 +1,23 @@
 /* server-dtls.c 
  *
- * Copyright (C) 2006-2014 wolfSSL Inc.
+ * Copyright (C) 2006-2015 wolfSSL Inc.
  *
- * This file is part of CyaSSL.
+ * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
- * CyaSSL is free software; you can redistribute it and/or modify
+ * wolfSSL is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
- * CyaSSL is distributed in the hope that it will be useful,
+ * wolfSSL is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,  
- * USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+ *
  *=============================================================================
  *
  * Bare-bones example of a DTLS server for instructional/learning purposes.
@@ -31,7 +31,7 @@
 #include <sys/socket.h>             /* used for all socket calls */
 #include <netinet/in.h>             /* used for sockaddr_in */
 #include <arpa/inet.h>
-#include <cyassl/ssl.h>
+#include <wolfssl/ssl.h>
 #include <errno.h>
 #include <signal.h>
 #include <unistd.h>
@@ -43,17 +43,17 @@ static int cleanup;                 /* To handle shutdown */
 struct sockaddr_in servAddr;        /* our server's address */
 struct sockaddr_in cliaddr;         /* the client's address */
 
-int AwaitDGram(CYASSL_CTX* ctx);   /* Separate out Handling Datagrams */
+int AwaitDGram(WOLFSSL_CTX* ctx);   /* Separate out Handling Datagrams */
 void CleanUp();
 
-int AwaitDGram(CYASSL_CTX* ctx)
+int AwaitDGram(WOLFSSL_CTX* ctx)
 {
     int           on = 1;
     int           res = 1; 
     int           connfd = 0;  
     int           recvLen = 0;    /* length of message */
     int           listenfd = 0;   /* Initialize our socket */
-    CYASSL*       ssl = NULL;
+    WOLFSSL*       ssl = NULL;
     socklen_t     cliLen;
     socklen_t     len = sizeof(on);
     unsigned char b[MSGLEN];      /* watch for incoming messages */
@@ -118,40 +118,40 @@ int AwaitDGram(CYASSL_CTX* ctx)
         }
         printf("Connected!\n");
 
-        /* Create the CYASSL Object */
-        if ((ssl = CyaSSL_new(ctx)) == NULL) {
-            printf("CyaSSL_new error.\n");
+        /* Create the WOLFSSL Object */
+        if ((ssl = wolfSSL_new(ctx)) == NULL) {
+            printf("wolfSSL_new error.\n");
             cleanup = 1;
             return 1;
         }
         
         /* set the session ssl to client connection port */
-        CyaSSL_set_fd(ssl, listenfd);
+        wolfSSL_set_fd(ssl, listenfd);
         
-        if (CyaSSL_accept(ssl) != SSL_SUCCESS) {
+        if (wolfSSL_accept(ssl) != SSL_SUCCESS) {
 
-            int e = CyaSSL_get_error(ssl, 0);
+            int e = wolfSSL_get_error(ssl, 0);
 
-            printf("error = %d, %s\n", e, CyaSSL_ERR_reason_error_string(e));
+            printf("error = %d, %s\n", e, wolfSSL_ERR_reason_error_string(e));
             printf("SSL_accept failed.\n");
             continue;
         }
-        if ((recvLen = CyaSSL_read(ssl, buff, sizeof(buff)-1)) > 0) {
+        if ((recvLen = wolfSSL_read(ssl, buff, sizeof(buff)-1)) > 0) {
             printf("heard %d bytes\n", recvLen);
 
             buff[recvLen] = 0;
             printf("I heard this: \"%s\"\n", buff);
         }
         else if (recvLen < 0) {
-            int readErr = CyaSSL_get_error(ssl, 0);
+            int readErr = wolfSSL_get_error(ssl, 0);
             if(readErr != SSL_ERROR_WANT_READ) {
                 printf("SSL_read failed.\n");
                 cleanup = 1;
                 return 1;
             }
         }
-        if (CyaSSL_write(ssl, ack, sizeof(ack)) < 0) {
-            printf("CyaSSL_write fail.\n");
+        if (wolfSSL_write(ssl, ack, sizeof(ack)) < 0) {
+            printf("wolfSSL_write fail.\n");
             cleanup = 1;
             return 1;
         } 
@@ -161,9 +161,9 @@ int AwaitDGram(CYASSL_CTX* ctx)
 
         printf("reply sent \"%s\"\n", ack);
 
-        CyaSSL_set_fd(ssl, 0); 
-        CyaSSL_shutdown(ssl);        
-        CyaSSL_free(ssl);
+        wolfSSL_set_fd(ssl, 0); 
+        wolfSSL_shutdown(ssl);        
+        wolfSSL_free(ssl);
 
         printf("Client left return to idle state\n");
     }
@@ -177,33 +177,33 @@ int main(int argc, char** argv)
     char        caCertLoc[] = "../certs/ca-cert.pem";
     char        servCertLoc[] = "../certs/server-cert.pem";
     char        servKeyLoc[] = "../certs/server-key.pem";
-    CYASSL_CTX* ctx;
+    WOLFSSL_CTX* ctx;
     
     /* "./config --enable-debug" and uncomment next line for debugging */
-    /* CyaSSL_Debugging_ON(); */
+    /* wolfSSL_Debugging_ON(); */
 
-    /* Initialize CyaSSL */
-    CyaSSL_Init();
+    /* Initialize wolfSSL */
+    wolfSSL_Init();
 
     /* Set ctx to DTLS 1.2 */
-    if ((ctx = CyaSSL_CTX_new(CyaDTLSv1_2_server_method())) == NULL) {
-        printf("CyaSSL_CTX_new error.\n");
+    if ((ctx = wolfSSL_CTX_new(wolfDTLSv1_2_server_method())) == NULL) {
+        printf("wolfSSL_CTX_new error.\n");
         return 1;
     }
     /* Load CA certificates */
-    if (CyaSSL_CTX_load_verify_locations(ctx,caCertLoc,0) != 
+    if (wolfSSL_CTX_load_verify_locations(ctx,caCertLoc,0) != 
             SSL_SUCCESS) {
         printf("Error loading %s, please check the file.\n", caCertLoc);
         return 1;
     }
     /* Load server certificates */
-    if (CyaSSL_CTX_use_certificate_file(ctx, servCertLoc, SSL_FILETYPE_PEM) != 
+    if (wolfSSL_CTX_use_certificate_file(ctx, servCertLoc, SSL_FILETYPE_PEM) != 
                                                                  SSL_SUCCESS) {
         printf("Error loading %s, please check the file.\n", servCertLoc);
         return 1;
     }
     /* Load server Keys */
-    if (CyaSSL_CTX_use_PrivateKey_file(ctx, servKeyLoc, 
+    if (wolfSSL_CTX_use_PrivateKey_file(ctx, servKeyLoc, 
                 SSL_FILETYPE_PEM) != SSL_SUCCESS) {
         printf("Error loading %s, please check the file.\n", servKeyLoc);
         return 1;
@@ -212,8 +212,8 @@ int main(int argc, char** argv)
     cont = AwaitDGram(ctx);
 
     if (cont == 1) {
-        CyaSSL_CTX_free(ctx);
-        CyaSSL_Cleanup();
+        wolfSSL_CTX_free(ctx);
+        wolfSSL_Cleanup();
     }
 
     return 0;
