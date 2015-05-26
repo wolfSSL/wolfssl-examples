@@ -1,15 +1,15 @@
-/* client.c
+/* client-callback.c
  *
- * Copyright (C) 2006-2014 wolfSSL Inc.
+ * Copyright (C) 2006-2015 wolfSSL Inc.
  *
- * This file is part of CyaSSL.
+ * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
- * CyaSSL is free software; you can redistribute it and/or modify
+ * wolfSSL is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
- * CyaSSL is distributed in the hope that it will be useful,
+ * wolfSSL is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
@@ -23,11 +23,11 @@
     #include <config.h>
 #endif
 
-#include <cyassl/ctaocrypt/settings.h>
-#include <cyassl/options.h>
+#include <wolfssl/wolfcrypt/settings.h>
+#include <wolfssl/options.h>
 
-#include <cyassl/ssl.h>
-#include <cyassl/test.h>
+#include <wolfssl/ssl.h>
+#include <wolfssl/test.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -64,7 +64,7 @@
  * function with specific parameters : inbetween process of receiving msg
  * based from embeded receive in src/io.c
  */
-int CbIORecv(CYASSL *ssl, char *buf, int sz, void *ctx)
+int CbIORecv(WOLFSSL *ssl, char *buf, int sz, void *ctx)
 {
     int recvd;
     int sd = *(int*)ctx;
@@ -73,39 +73,39 @@ int CbIORecv(CYASSL *ssl, char *buf, int sz, void *ctx)
 
     if (recvd < 0) {
         if (errno == SOCKET_EWOULDBLOCK || errno == SOCKET_EAGAIN) {
-            if (!CyaSSL_dtls(ssl) || CyaSSL_get_using_nonblock(ssl)) {
+            if (!wolfSSL_dtls(ssl) || wolfSSL_get_using_nonblock(ssl)) {
                 printf(" Would block\n");
-                return CYASSL_CBIO_ERR_WANT_READ;
+                return WOLFSSL_CBIO_ERR_WANT_READ;
             }
             else {
                 printf("Socket timeout\n");
-                return CYASSL_CBIO_ERR_TIMEOUT;
+                return WOLFSSL_CBIO_ERR_TIMEOUT;
             }
         }
         else if (errno == SOCKET_ECONNRESET) {
             printf("Connection reset\n");
-            return CYASSL_CBIO_ERR_CONN_RST;
+            return WOLFSSL_CBIO_ERR_CONN_RST;
         }
         else if (errno == SOCKET_EINTR) {
             printf("Socket interrupted\n");
-            return CYASSL_CBIO_ERR_ISR;
+            return WOLFSSL_CBIO_ERR_ISR;
         }
         else if (errno == SOCKET_ECONNREFUSED) {
             printf("Connection refused\n");
-            return CYASSL_CBIO_ERR_WANT_READ;
+            return WOLFSSL_CBIO_ERR_WANT_READ;
         }
         else if (errno == SOCKET_ECONNABORTED) {
             printf("Connection aborted\n");
-            return CYASSL_CBIO_ERR_CONN_CLOSE;
+            return WOLFSSL_CBIO_ERR_CONN_CLOSE;
         }
         else {
             printf("General error\n");
-            return CYASSL_CBIO_ERR_GENERAL;
+            return WOLFSSL_CBIO_ERR_GENERAL;
         }
     }
     else if (recvd == 0) {
         printf("Embed receive connection closed\n");
-        return CYASSL_CBIO_ERR_CONN_CLOSE;
+        return WOLFSSL_CBIO_ERR_CONN_CLOSE;
     }
 
     printf("Received %d bytes\n", sz);
@@ -118,7 +118,7 @@ int CbIORecv(CYASSL *ssl, char *buf, int sz, void *ctx)
  *function with specific parameters : inbetween process of sending out msg
  *based from embeded receive in src/io.c
  */
-int CbIOSend(CYASSL *ssl, char *buf, int sz, void *ctx)
+int CbIOSend(WOLFSSL *ssl, char *buf, int sz, void *ctx)
 {
     int sd = *(int*)ctx;
     int sent;
@@ -130,23 +130,23 @@ int CbIOSend(CYASSL *ssl, char *buf, int sz, void *ctx)
         printf("IO Send error\n");
         if (errno == SOCKET_EWOULDBLOCK || errno == SOCKET_EAGAIN) {
             printf("Would Block\n");
-            return CYASSL_CBIO_ERR_WANT_WRITE;
+            return WOLFSSL_CBIO_ERR_WANT_WRITE;
         }
         else if (errno == SOCKET_ECONNRESET) {
             printf("Connection reset\n");
-            return CYASSL_CBIO_ERR_CONN_RST;
+            return WOLFSSL_CBIO_ERR_CONN_RST;
         }
         else if (errno == SOCKET_EINTR) {
             printf("Socket interrupted\n");
-            return CYASSL_CBIO_ERR_ISR;
+            return WOLFSSL_CBIO_ERR_ISR;
         }
         else if (errno == SOCKET_EPIPE) {
             printf("Socket EPIPE\n");
-            return CYASSL_CBIO_ERR_CONN_CLOSE;
+            return WOLFSSL_CBIO_ERR_CONN_CLOSE;
         }
         else {
             printf("General error\n");
-            return CYASSL_CBIO_ERR_GENERAL;
+            return WOLFSSL_CBIO_ERR_GENERAL;
         }
     }
 
@@ -159,42 +159,42 @@ int CbIOSend(CYASSL *ssl, char *buf, int sz, void *ctx)
 int Client(const char* ip, word16 port)
 {
     int  n;
-    char msg[] = "hello cyassl";
+    char msg[] = "hello wolfssl";
     char reply[MAXSZ]; 
     int  msgSz = strlen(msg);
     SOCKET_T    fd;
-    CYASSL_CTX* ctx;
-    CYASSL*     ssl;
+    WOLFSSL_CTX* ctx;
+    WOLFSSL*     ssl;
 
-    if ((ctx = CyaSSL_CTX_new(CyaTLSv1_2_client_method())) == NULL)
+    if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method())) == NULL)
         err_sys("Error in setting client ctx\n");
     
-    if (CyaSSL_CTX_load_verify_locations(ctx, caCert, 0) != SSL_SUCCESS)
+    if (wolfSSL_CTX_load_verify_locations(ctx, caCert, 0) != SSL_SUCCESS)
         err_sys("trouble loading client cert");
-    if (CyaSSL_CTX_use_certificate_file(ctx, cliCert, SSL_FILETYPE_PEM)
+    if (wolfSSL_CTX_use_certificate_file(ctx, cliCert, SSL_FILETYPE_PEM)
             != SSL_SUCCESS)
         err_sys("trouble loading client cert");
-    if (CyaSSL_CTX_use_PrivateKey_file(ctx, cliKey, SSL_FILETYPE_PEM)
+    if (wolfSSL_CTX_use_PrivateKey_file(ctx, cliKey, SSL_FILETYPE_PEM)
             != SSL_SUCCESS)
         err_sys("trouble loading client cert");
 
     /*sets the IO callback methods*/
-    CyaSSL_SetIORecv(ctx, CbIORecv);
-    CyaSSL_SetIOSend(ctx, CbIOSend);
+    wolfSSL_SetIORecv(ctx, CbIORecv);
+    wolfSSL_SetIOSend(ctx, CbIOSend);
 
-    if ((ssl = CyaSSL_new(ctx)) == NULL)
+    if ((ssl = wolfSSL_new(ctx)) == NULL)
         err_sys("issue when creating ssl");
 
     tcp_connect(&fd, ip, port, 0);
-    CyaSSL_set_fd(ssl, fd);
-    if (CyaSSL_connect(ssl) != SSL_SUCCESS)
+    wolfSSL_set_fd(ssl, fd);
+    if (wolfSSL_connect(ssl) != SSL_SUCCESS)
         err_sys("client connect failed");
 
-    if (CyaSSL_write(ssl, msg, msgSz) != msgSz)
+    if (wolfSSL_write(ssl, msg, msgSz) != msgSz)
         err_sys("client write failed");
 
     memset(reply, 0, MAXSZ);
-    if ((n = CyaSSL_read(ssl, reply, MAXSZ - 1)) > 0) {
+    if ((n = wolfSSL_read(ssl, reply, MAXSZ - 1)) > 0) {
         reply[n] = '\0';
     }
     else {
@@ -203,9 +203,9 @@ int Client(const char* ip, word16 port)
     }
     printf("Server sent : %s\n", reply);
 
-    CyaSSL_shutdown(ssl);
-    CyaSSL_free(ssl);
-    CyaSSL_CTX_free(ctx);
+    wolfSSL_shutdown(ssl);
+    wolfSSL_free(ssl);
+    wolfSSL_CTX_free(ctx);
 
     return 0;
 }
@@ -220,7 +220,7 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    CyaSSL_Init();
+    wolfSSL_Init();
     if (argc < 3) {
         if (Client(argv[1], YASSLPORT) != 0)
             err_sys("error creating client");
@@ -229,7 +229,7 @@ int main(int argc, char* argv[])
         if (Client(argv[1], (word16)atoi(argv[2])) != 0)
             err_sys("error creating client");
     }
-    CyaSSL_Cleanup();
+    wolfSSL_Cleanup();
 
     return 0;
 }
