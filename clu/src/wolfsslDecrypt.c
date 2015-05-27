@@ -1,21 +1,22 @@
 /* wolfsslDecrypt.c
  *
- * Copyright (C) 2006-2014 wolfSSL Inc.
- * This file is part of CyaSSL.
+ * Copyright (C) 2006-2015 wolfSSL Inc.
  *
- * CyaSSL is free software; you can redistribute it and/or modify
+ * This file is part of wolfSSL. (formerly known as CyaSSL)
+ *
+ * wolfSSL is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
- * CyaSSL is distributed in the hope that it will be useful,
+ * wolfSSL is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
 #include "include/wolfssl.h"
@@ -86,7 +87,7 @@ int wolfsslDecrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
     input = (byte*) malloc(MAX);
     output = (byte*) malloc(MAX);
 
-    InitRng(&rng);
+    wc_InitRng(&rng);
 
     /* reads from inFile and writes whatever
      * is there to the input buffer 
@@ -108,7 +109,7 @@ int wolfsslDecrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
             } 
             /* replicates old pwdKey if pwdKeys match */
             if (keyType == 1) {
-                if (PBKDF2(key, pwdKey, (int) strlen((const char*)pwdKey), salt, 
+                if (wc_PBKDF2(key, pwdKey, (int) strlen((const char*)pwdKey), salt, 
                             SALT_SIZE, 4096, size, SHA256) != 0) {
                     printf("pwdKey set error.\n");
                     wolfsslFreeBins(input, output, NULL, NULL, NULL);
@@ -150,14 +151,14 @@ int wolfsslDecrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
 #ifndef NO_AES
         if (strcmp(alg, "aes") == 0) {
             if (strcmp(mode, "cbc") == 0) {
-                ret = AesSetKey(&aes, key, AES_BLOCK_SIZE, iv, AES_DECRYPTION);
+                ret = wc_AesSetKey(&aes, key, AES_BLOCK_SIZE, iv, AES_DECRYPTION);
                 if (ret != 0) {
                     fclose(inFile);
                     fclose(outFile);
                     wolfsslFreeBins(input, output, NULL, NULL, NULL);
                     return ret;
                 }
-                ret = AesCbcDecrypt(&aes, output, input, tempMax);
+                ret = wc_AesCbcDecrypt(&aes, output, input, tempMax);
                 if (ret != 0) {
                     fclose(inFile);
                     fclose(outFile);
@@ -165,25 +166,25 @@ int wolfsslDecrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
                     return DECRYPT_ERROR;
                 }
             }  
-#ifdef CYASSL_AES_COUNTER
+#ifdef WOLFSSL_AES_COUNTER
             else if (strcmp(mode, "ctr") == 0) {
                 /* if mode is ctr */
-                AesSetKeyDirect(&aes, key, AES_BLOCK_SIZE, iv, AES_ENCRYPTION);
-                AesCtrEncrypt(&aes, output, input, tempMax);
+                wc_AesSetKeyDirect(&aes, key, AES_BLOCK_SIZE, iv, AES_ENCRYPTION);
+                wc_AesCtrEncrypt(&aes, output, input, tempMax);
             }
 #endif
         }
 #endif
 #ifndef NO_DES3
         if (strcmp(alg, "3des") == 0) {
-            ret = Des3_SetKey(&des3, key, iv, DES_DECRYPTION);
+            ret = wc_Des3_SetKey(&des3, key, iv, DES_DECRYPTION);
             if (ret != 0) {
                 fclose(inFile);
                 fclose(outFile);
                 wolfsslFreeBins(input, output, NULL, NULL, NULL);
                 return ret;
             }
-            ret = Des3_CbcDecrypt(&des3, output, input, tempMax);
+            ret = wc_Des3_CbcDecrypt(&des3, output, input, tempMax);
             if (ret != 0){
                 fclose(inFile);
                 fclose(outFile);
@@ -194,14 +195,14 @@ int wolfsslDecrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
 #endif
 #ifdef HAVE_CAMELLIA
         if (strcmp(alg, "camellia") == 0) {
-            ret = CamelliaSetKey(&camellia, key, block, iv);
+            ret = wc_CamelliaSetKey(&camellia, key, block, iv);
             if (ret != 0) {
                 fclose(inFile);
                 fclose(outFile);
                 wolfsslFreeBins(input, output, NULL, NULL, NULL);
                 return ret;
             }
-            CamelliaCbcDecrypt(&camellia, output, input, tempMax);
+            wc_CamelliaCbcDecrypt(&camellia, output, input, tempMax);
         }
 #endif
         if (currLoopFlag == lastLoopFlag) {
@@ -236,8 +237,8 @@ int wolfsslDecrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
     XMEMSET (output, 0, MAX);
     wolfsslFreeBins(input, output, NULL, NULL, NULL);
     XMEMSET(key, 0, size);
-    /* Use the cyassl FreeRng to free rng */
-    FreeRng(&rng);
+    /* Use the wolfssl wc_FreeRng to free rng */
+    wc_FreeRng(&rng);
     fclose(inFile);
     fclose(outFile);
 

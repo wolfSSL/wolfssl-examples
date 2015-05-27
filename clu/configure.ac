@@ -75,8 +75,8 @@ TAO_REQUIRE_LIBWOLFSSL
 # Have John or Todd assist in writing have_pwdbased.m4
 #TAO_REQUIRE_PWDBASED
 
-# since we have autoconf available, we can use cyassl options header
-AM_CFLAGS="$AM_CFLAGS -DHAVE_CYASSL_OPTIONS"
+# since we have autoconf available, we can use wolfssl options header
+AM_CFLAGS="$AM_CFLAGS -DHAVE_WOLFSSL_OPTIONS"
 
 # capture user C_EXTRA_FLAGS from ./configure line, CFLAGS may hold -g -O2 even
 # if user doesn't override, no way to tell

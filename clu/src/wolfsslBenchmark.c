@@ -1,21 +1,22 @@
 /* wolfsslBenchmark.c
  *
- * Copyright (C) 2006-2014 wolfSSL Inc.
- * This file is part of CyaSSL.
+ * Copyright (C) 2006-2015 wolfSSL Inc.
  *
- * CyaSSL is free software; you can redistribute it and/or modify
+ * This file is part of wolfSSL. (formerly known as CyaSSL)
+ *
+ * wolfSSL is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
- * CyaSSL is distributed in the hope that it will be useful,
+ * wolfSSL is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
 #include "include/wolfssl.h"
@@ -58,7 +59,7 @@ int wolfsslBenchmark(int timer, int* option)
     
     byte*           digest;         /* message digest */
 
-    InitRng(&rng);
+    wc_InitRng(&rng);
 
     signal(SIGALRM, wolfsslStop);
     i = 0;
@@ -70,17 +71,17 @@ int wolfsslBenchmark(int timer, int* option)
         key = malloc(AES_BLOCK_SIZE);
         iv = malloc(AES_BLOCK_SIZE);
 
-        RNG_GenerateBlock(&rng, plain, AES_BLOCK_SIZE);
-        RNG_GenerateBlock(&rng, cipher, AES_BLOCK_SIZE);
-        RNG_GenerateBlock(&rng, key, AES_BLOCK_SIZE);
-        RNG_GenerateBlock(&rng, iv, AES_BLOCK_SIZE);
+        wc_RNG_GenerateBlock(&rng, plain, AES_BLOCK_SIZE);
+        wc_RNG_GenerateBlock(&rng, cipher, AES_BLOCK_SIZE);
+        wc_RNG_GenerateBlock(&rng, key, AES_BLOCK_SIZE);
+        wc_RNG_GenerateBlock(&rng, iv, AES_BLOCK_SIZE);
         start = wolfsslGetTime();
         alarm(timer);
 
-        AesSetKey(&aes, key, AES_BLOCK_SIZE, iv, AES_ENCRYPTION);
+        wc_AesSetKey(&aes, key, AES_BLOCK_SIZE, iv, AES_ENCRYPTION);
 
         while (loop) {
-            AesCbcEncrypt(&aes, cipher, plain, AES_BLOCK_SIZE);
+            wc_AesCbcEncrypt(&aes, cipher, plain, AES_BLOCK_SIZE);
             blocks++;
             currTime = wolfsslGetTime();
             stop = currTime - start;
@@ -103,7 +104,7 @@ int wolfsslBenchmark(int timer, int* option)
     }
     i++;
 #endif
-#ifdef CYASSL_AES_COUNTER
+#ifdef WOLFSSL_AES_COUNTER
     /* aes-ctr test */
     if (option[i] == 1) {
         plain = malloc(AES_BLOCK_SIZE);
@@ -111,16 +112,16 @@ int wolfsslBenchmark(int timer, int* option)
         key = malloc(AES_BLOCK_SIZE);
         iv = malloc(AES_BLOCK_SIZE);
 
-        RNG_GenerateBlock(&rng, plain, AES_BLOCK_SIZE);
-        RNG_GenerateBlock(&rng, cipher, AES_BLOCK_SIZE);
-        RNG_GenerateBlock(&rng, key, AES_BLOCK_SIZE);
-        RNG_GenerateBlock(&rng, iv, AES_BLOCK_SIZE);
+        wc_RNG_GenerateBlock(&rng, plain, AES_BLOCK_SIZE);
+        wc_RNG_GenerateBlock(&rng, cipher, AES_BLOCK_SIZE);
+        wc_RNG_GenerateBlock(&rng, key, AES_BLOCK_SIZE);
+        wc_RNG_GenerateBlock(&rng, iv, AES_BLOCK_SIZE);
         start = wolfsslGetTime();
         alarm(timer);
 
-        AesSetKeyDirect(&aes, key, AES_BLOCK_SIZE, iv, AES_ENCRYPTION);
+        wc_AesSetKeyDirect(&aes, key, AES_BLOCK_SIZE, iv, AES_ENCRYPTION);
         while (loop) {
-            AesCtrEncrypt(&aes, cipher, plain, AES_BLOCK_SIZE);
+            wc_AesCtrEncrypt(&aes, cipher, plain, AES_BLOCK_SIZE);
             blocks++;
             currTime = wolfsslGetTime();
             stop = currTime - start;
@@ -150,17 +151,17 @@ int wolfsslBenchmark(int timer, int* option)
         key = malloc(DES3_BLOCK_SIZE);
         iv = malloc(DES3_BLOCK_SIZE);
 
-        RNG_GenerateBlock(&rng, plain, DES3_BLOCK_SIZE);
-        RNG_GenerateBlock(&rng, cipher, DES3_BLOCK_SIZE);
-        RNG_GenerateBlock(&rng, key, DES3_BLOCK_SIZE);
-        RNG_GenerateBlock(&rng, iv, DES3_BLOCK_SIZE);
+        wc_RNG_GenerateBlock(&rng, plain, DES3_BLOCK_SIZE);
+        wc_RNG_GenerateBlock(&rng, cipher, DES3_BLOCK_SIZE);
+        wc_RNG_GenerateBlock(&rng, key, DES3_BLOCK_SIZE);
+        wc_RNG_GenerateBlock(&rng, iv, DES3_BLOCK_SIZE);
 
         start = wolfsslGetTime();
         alarm(timer);
 
-        Des3_SetKey(&des3, key, iv, DES_ENCRYPTION);
+        wc_Des3_SetKey(&des3, key, iv, DES_ENCRYPTION);
         while (loop) {
-            Des3_CbcEncrypt(&des3, cipher, plain, DES3_BLOCK_SIZE);
+            wc_Des3_CbcEncrypt(&des3, cipher, plain, DES3_BLOCK_SIZE);
             blocks++;
             currTime = wolfsslGetTime();
             stop = currTime - start;
@@ -192,17 +193,17 @@ int wolfsslBenchmark(int timer, int* option)
         key = malloc(CAMELLIA_BLOCK_SIZE);
         iv = malloc(CAMELLIA_BLOCK_SIZE);
 
-        RNG_GenerateBlock(&rng, plain, CAMELLIA_BLOCK_SIZE);
-        RNG_GenerateBlock(&rng, cipher, CAMELLIA_BLOCK_SIZE);
-        RNG_GenerateBlock(&rng, key, CAMELLIA_BLOCK_SIZE);
-        RNG_GenerateBlock(&rng, iv, CAMELLIA_BLOCK_SIZE);
+        wc_RNG_GenerateBlock(&rng, plain, CAMELLIA_BLOCK_SIZE);
+        wc_RNG_GenerateBlock(&rng, cipher, CAMELLIA_BLOCK_SIZE);
+        wc_RNG_GenerateBlock(&rng, key, CAMELLIA_BLOCK_SIZE);
+        wc_RNG_GenerateBlock(&rng, iv, CAMELLIA_BLOCK_SIZE);
 
         start = wolfsslGetTime();
         alarm(timer);
 
-        CamelliaSetKey(&camellia, key, CAMELLIA_BLOCK_SIZE, iv);
+        wc_CamelliaSetKey(&camellia, key, CAMELLIA_BLOCK_SIZE, iv);
         while (loop) {
-            CamelliaCbcEncrypt(&camellia, cipher, plain, CAMELLIA_BLOCK_SIZE);
+            wc_CamelliaCbcEncrypt(&camellia, cipher, plain, CAMELLIA_BLOCK_SIZE);
             blocks++;
             currTime = wolfsslGetTime();
             stop = currTime - start;
@@ -231,21 +232,21 @@ int wolfsslBenchmark(int timer, int* option)
 
         digest = malloc(MD5_DIGEST_SIZE);
         plain = malloc(MEGABYTE);
-        RNG_GenerateBlock(&rng, plain, MEGABYTE);
+        wc_RNG_GenerateBlock(&rng, plain, MEGABYTE);
 
-        InitMd5(&md5);
+        wc_InitMd5(&md5);
         start = wolfsslGetTime();
         alarm(timer);
 
         while (loop) {
-            Md5Update(&md5, plain, MEGABYTE);
+            wc_Md5Update(&md5, plain, MEGABYTE);
             blocks++;
             currTime = wolfsslGetTime();
             stop = currTime - start;
             /* if stop >= timer, loop = 0 */
             loop = (stop >= timer) ? 0 : 1;
         }
-        Md5Final(&md5, digest);
+        wc_Md5Final(&md5, digest);
         printf("MD5 ");
         wolfsslStats(start, MEGABYTE, blocks);
         XMEMSET(plain, 0, MEGABYTE);
@@ -264,21 +265,21 @@ int wolfsslBenchmark(int timer, int* option)
 
         digest = malloc(SHA_DIGEST_SIZE);
         plain = malloc(MEGABYTE);
-        RNG_GenerateBlock(&rng, plain, MEGABYTE);
+        wc_RNG_GenerateBlock(&rng, plain, MEGABYTE);
 
-        InitSha(&sha);
+        wc_InitSha(&sha);
         start = wolfsslGetTime();
         alarm(timer);
 
         while (loop) {
-            ShaUpdate(&sha, plain, MEGABYTE);
+            wc_ShaUpdate(&sha, plain, MEGABYTE);
             blocks++;
             currTime = wolfsslGetTime();
             stop = currTime - start;
             /* if stop >= timer, loop = 0 */
             loop = (stop >= timer) ? 0 : 1;
         }
-        ShaFinal(&sha, digest);
+        wc_ShaFinal(&sha, digest);
         printf("Sha ");
         wolfsslStats(start, MEGABYTE, blocks);
         XMEMSET(plain, 0, MEGABYTE);
@@ -297,21 +298,21 @@ int wolfsslBenchmark(int timer, int* option)
 
         digest = malloc(SHA256_DIGEST_SIZE);
         plain = malloc(MEGABYTE);
-        RNG_GenerateBlock(&rng, plain, MEGABYTE);
+        wc_RNG_GenerateBlock(&rng, plain, MEGABYTE);
 
-        InitSha256(&sha256);
+        wc_InitSha256(&sha256);
         start = wolfsslGetTime();
         alarm(timer);
 
         while (loop) {
-            Sha256Update(&sha256, plain, MEGABYTE);
+            wc_Sha256Update(&sha256, plain, MEGABYTE);
             blocks++;
             currTime = wolfsslGetTime();
             stop = currTime - start;
             /* if stop >= timer, loop = 0 */
             loop = (stop >= timer) ? 0 : 1;
         }
-        Sha256Final(&sha256, digest);
+        wc_Sha256Final(&sha256, digest);
         printf("Sha256 ");
         wolfsslStats(start, MEGABYTE, blocks);
         XMEMSET(plain, 0, MEGABYTE);
@@ -324,28 +325,28 @@ int wolfsslBenchmark(int timer, int* option)
     }
     i++;
 #endif
-#ifdef CYASSL_SHA384
+#ifdef WOLFSSL_SHA384
     /* sha384 test */
     if (option[i] == 1) {
         Sha384 sha384;
 
         digest = malloc(SHA384_DIGEST_SIZE);
         plain = malloc(MEGABYTE);
-        RNG_GenerateBlock(&rng, plain, MEGABYTE);
+        wc_RNG_GenerateBlock(&rng, plain, MEGABYTE);
 
-        InitSha384(&sha384);
+        wc_InitSha384(&sha384);
         start = wolfsslGetTime();
         alarm(timer);
 
         while (loop) {
-            Sha384Update(&sha384, plain, MEGABYTE);
+            wc_Sha384Update(&sha384, plain, MEGABYTE);
             blocks++;
             currTime = wolfsslGetTime();
             stop = currTime - start;
             /* if stop >= timer, loop = 0 */
             loop = (stop >= timer) ? 0 : 1;
         }
-        Sha384Final(&sha384, digest);
+        wc_Sha384Final(&sha384, digest);
         printf("Sha384 ");
         wolfsslStats(start, MEGABYTE, blocks);
         XMEMSET(plain, 0, MEGABYTE);
@@ -357,28 +358,28 @@ int wolfsslBenchmark(int timer, int* option)
     }
     i++;
 #endif
-#ifdef CYASSL_SHA512
+#ifdef WOLFSSL_SHA512
     /* sha512 test */
     if (option[i] == 1) {
         Sha512 sha512;
 
         digest = malloc(SHA512_DIGEST_SIZE);
         plain = malloc(MEGABYTE);
-        RNG_GenerateBlock(&rng, plain, MEGABYTE);
+        wc_RNG_GenerateBlock(&rng, plain, MEGABYTE);
 
-        InitSha512(&sha512);
+        wc_InitSha512(&sha512);
         start = wolfsslGetTime();
         alarm(timer);
 
         while (loop) {
-            Sha512Update(&sha512, plain, MEGABYTE);
+            wc_Sha512Update(&sha512, plain, MEGABYTE);
             blocks++;
             currTime = wolfsslGetTime();
             stop = currTime - start;
             /* if stop >= timer, loop = 0 */
             loop = (stop >= timer) ? 0 : 1;
         }
-        Sha512Final(&sha512, digest);
+        wc_Sha512Final(&sha512, digest);
         printf("Sha512 ");
         wolfsslStats(start, MEGABYTE, blocks);
         XMEMSET(plain, 0, MEGABYTE);
@@ -397,21 +398,21 @@ int wolfsslBenchmark(int timer, int* option)
 
         digest = malloc(BLAKE_DIGEST_SIZE);
         plain = malloc(MEGABYTE);
-        RNG_GenerateBlock(&rng, plain, MEGABYTE);
+        wc_RNG_GenerateBlock(&rng, plain, MEGABYTE);
 
-        InitBlake2b(&b2b, BLAKE_DIGEST_SIZE);
+        wc_InitBlake2b(&b2b, BLAKE_DIGEST_SIZE);
         start = wolfsslGetTime();
         alarm(timer);
 
         while (loop) {
-            Blake2bUpdate(&b2b, plain, MEGABYTE);
+            wc_Blake2bUpdate(&b2b, plain, MEGABYTE);
             blocks++;
             currTime = wolfsslGetTime();
             stop = currTime - start;
             /* if stop >= timer, loop = 0 */
             loop = (stop >= timer) ? 0 : 1;
         }
-        Blake2bFinal(&b2b, digest, BLAKE_DIGEST_SIZE);
+        wc_Blake2bFinal(&b2b, digest, BLAKE_DIGEST_SIZE);
         printf("Blake2b ");
         wolfsslStats(start, MEGABYTE, blocks);
         XMEMSET(plain, 0, MEGABYTE);

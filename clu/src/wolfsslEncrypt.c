@@ -1,21 +1,22 @@
 /* wolfsslEncrypt.c
  *
- * Copyright (C) 2006-2014 wolfSSL Inc.
- * This file is part of CyaSSL.
+ * Copyright (C) 2006-2015 wolfSSL Inc.
  *
- * CyaSSL is free software; you can redistribute it and/or modify
+ * This file is part of wolfSSL. (formerly known as CyaSSL)
+ *
+ * wolfSSL is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
- * CyaSSL is distributed in the hope that it will be useful,
+ * wolfSSL is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
 #include "include/wolfssl.h"
@@ -93,7 +94,7 @@ int wolfsslEncrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
     length = inputLength;
 
     /* Start up the random number generator */
-    ret = (int) InitRng(&rng);
+    ret = (int) wc_InitRng(&rng);
     if (ret != 0) {
         printf("Random Number Generator failed to start.\n");
         return ret;
@@ -112,7 +113,7 @@ int wolfsslEncrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
      */
     if (ivCheck == 0) {
         /* IV not set, generate it */
-        ret = RNG_GenerateBlock(&rng, iv, block);
+        ret = wc_RNG_GenerateBlock(&rng, iv, block);
 
         if (ret != 0) {
             return ret;
@@ -184,39 +185,39 @@ int wolfsslEncrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
 #ifndef NO_AES
         if (strcmp(alg, "aes") == 0) {
             if (strcmp(mode, "cbc") == 0) {
-                ret = AesSetKey(&aes, key, AES_BLOCK_SIZE, iv, AES_ENCRYPTION);
+                ret = wc_AesSetKey(&aes, key, AES_BLOCK_SIZE, iv, AES_ENCRYPTION);
                 if (ret != 0) {
-                    printf("AesSetKey failed.\n");
+                    printf("wc_AesSetKey failed.\n");
                     wolfsslFreeBins(input, output, NULL, NULL, NULL);
                     return ret;
                 }
-                ret = AesCbcEncrypt(&aes, output, input, tempMax);
+                ret = wc_AesCbcEncrypt(&aes, output, input, tempMax);
                 if (ret != 0) {
-                    printf("AesCbcEncrypt failed.\n");
+                    printf("wc_AesCbcEncrypt failed.\n");
                     wolfsslFreeBins(input, output, NULL, NULL, NULL);
                     return ENCRYPT_ERROR;
                 }
             }
-#ifdef CYASSL_AES_COUNTER
+#ifdef WOLFSSL_AES_COUNTER
             else if (strcmp(mode, "ctr") == 0) {
                 /* if mode is ctr */
-                AesSetKeyDirect(&aes, key, AES_BLOCK_SIZE, iv, AES_ENCRYPTION);
-                AesCtrEncrypt(&aes, output, input, tempMax);
+                wc_AesSetKeyDirect(&aes, key, AES_BLOCK_SIZE, iv, AES_ENCRYPTION);
+                wc_AesCtrEncrypt(&aes, output, input, tempMax);
             }
 #endif
         }
 #endif
 #ifndef NO_DES3
         if (strcmp(alg, "3des") == 0) {
-            ret = Des3_SetKey(&des3, key, iv, DES_ENCRYPTION);
+            ret = wc_Des3_SetKey(&des3, key, iv, DES_ENCRYPTION);
             if (ret != 0) {
-                printf("Des3_SetKey failed.\n");
+                printf("wc_Des3_SetKey failed.\n");
                 wolfsslFreeBins(input, output, NULL, NULL, NULL);
                 return ret;
             }
-            ret = Des3_CbcEncrypt(&des3, output, input, tempMax);
+            ret = wc_Des3_CbcEncrypt(&des3, output, input, tempMax);
             if (ret != 0) {
-                printf("Des3_CbcEncrypt failed.\n");
+                printf("wc_Des3_cbcEncrypt failed.\n");
                 wolfsslFreeBins(input, output, NULL, NULL, NULL);
                 return ENCRYPT_ERROR;
             }
@@ -224,14 +225,14 @@ int wolfsslEncrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
 #endif
 #ifdef HAVE_CAMELLIA
         if (strcmp(alg, "camellia") == 0) {
-            ret = CamelliaSetKey(&camellia, key, block, iv);
+            ret = wc_CamelliaSetKey(&camellia, key, block, iv);
             if (ret != 0) {
                 printf("CamelliaSetKey failed.\n");
                 wolfsslFreeBins(input, output, NULL, NULL, NULL);
                 return ret;
             }
             if (strcmp(mode, "cbc") == 0) {
-                CamelliaCbcEncrypt(&camellia, output, input, tempMax);
+                wc_CamelliaCbcEncrypt(&camellia, output, input, tempMax);
             }
             else {
                 printf("Incompatible mode while using Camellia.\n");
@@ -287,8 +288,8 @@ int wolfsslEncrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
     XMEMSET(iv, 0 , block);
     XMEMSET(alg, 0, size);
     XMEMSET(mode, 0 , block);
-    /* Use the cyassl free for rng */
-    FreeRng(&rng);
+    /* Use the wolfssl free for rng */
+    wc_FreeRng(&rng);
     wolfsslFreeBins(input, output, NULL, NULL, NULL);
     return 0;
 }
