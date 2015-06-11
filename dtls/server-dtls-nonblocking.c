@@ -1,26 +1,26 @@
-/* server-dtls.c 
+/* server-dtls-nonblocking.c 
  *
- * Copyright (C) 2006-2014 wolfSSL Inc.
+ * Copyright (C) 2006-2015 wolfSSL Inc.
  *
- * This file is part of CyaSSL.
+ * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
- * CyaSSL is free software; you can redistribute it and/or modify
+ * wolfSSL is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
- * CyaSSL is distributed in the hope that it will be useful,
+ * wolfSSL is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,  
- * USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+ *
  *=============================================================================
  *
- * Bare-bones example of a DTLS erver for instructional/learning purposes.
+ * Bare-bones example of a nonblocking DTLS erver for instructional/learning purposes.
  * Utilizes DTLS 1.2.
  */
 
@@ -31,7 +31,7 @@
 #include <sys/socket.h>             /* used for all socket calls */
 #include <netinet/in.h>             /* used for sockaddr_in */
 #include <arpa/inet.h>
-#include <cyassl/ssl.h>
+#include <wolfssl/ssl.h>
 #include <errno.h>
 #include <signal.h>
 #include <unistd.h>
@@ -43,8 +43,8 @@
 static int cleanup;                 /* To handle shutdown */
 
 void dtls_set_nonblocking(int*);    /* set the socket non-blocking */
-int NonBlockingSSL_Accept(CYASSL*); /* non-blocking accept */
-int AwaitDGram(CYASSL_CTX* ctx);    /* Separate out Handling Datagrams */
+int NonBlockingSSL_Accept(WOLFSSL*); /* non-blocking accept */
+int AwaitDGram(WOLFSSL_CTX* ctx);    /* Separate out Handling Datagrams */
 int udp_read_connect(int);          /* broken out to improve readability */
 int dtls_select();
 
@@ -56,7 +56,7 @@ enum {
     TEST_ERROR_READY
 };
 
-int AwaitDGram(CYASSL_CTX* ctx)
+int AwaitDGram(WOLFSSL_CTX* ctx)
 {
     int     on = 1;
     int     res = 1;
@@ -67,7 +67,7 @@ int AwaitDGram(CYASSL_CTX* ctx)
     int     len = sizeof(on);
     int     cont;
     char    buff[MSGLEN];            /* string read from client */
-    CYASSL* ssl = NULL;              /* Initialize ssl object */
+    WOLFSSL* ssl = NULL;              /* Initialize ssl object */
     struct sockaddr_in servAddr;     /* our server's address */
     char    ack[] = "I hear you fashizzle\n";
 
@@ -113,9 +113,9 @@ int AwaitDGram(CYASSL_CTX* ctx)
 
 //        dtls_set_nonblocking(&clientfd);
 
-        /* Create the CYASSL Object */
-        if (( ssl = CyaSSL_new(ctx)) == NULL) {
-            printf("CyaSSL_new error.\n");
+        /* Create the WOLFSSL Object */
+        if (( ssl = wolfSSL_new(ctx)) == NULL) {
+            printf("wolfSSL_new error.\n");
             return 1;
         }
 
@@ -123,9 +123,9 @@ int AwaitDGram(CYASSL_CTX* ctx)
         printf("Connected!\n");
 
         /* set the/ session ssl to client connection port */
-        CyaSSL_set_fd(ssl, clientfd);
+        wolfSSL_set_fd(ssl, clientfd);
 
-        CyaSSL_set_using_nonblock(ssl, 1);
+        wolfSSL_set_using_nonblock(ssl, 1);
         cont = NonBlockingSSL_Accept(ssl);
 
         if (cont != 0) {
@@ -134,7 +134,7 @@ int AwaitDGram(CYASSL_CTX* ctx)
         }
 
         /* Begin: Reply to the client */
-        recvLen = CyaSSL_read(ssl, buff, sizeof(buff)-1);
+        recvLen = wolfSSL_read(ssl, buff, sizeof(buff)-1);
         
         /* Begin do-while read */
         do {
@@ -143,12 +143,12 @@ int AwaitDGram(CYASSL_CTX* ctx)
                 break;
             }
             if (recvLen < 0) {
-                readWriteErr = CyaSSL_get_error(ssl, 0);
+                readWriteErr = wolfSSL_get_error(ssl, 0);
                 if (readWriteErr != SSL_ERROR_WANT_READ) {
                     printf("Read Error, error was: %d.\n", readWriteErr);
                     cleanup = 1;
                 } else {
-                    recvLen = CyaSSL_read(ssl, buff, sizeof(buff)-1);
+                    recvLen = wolfSSL_read(ssl, buff, sizeof(buff)-1);
                 }
             }
         } while (readWriteErr == SSL_ERROR_WANT_READ && 
@@ -170,8 +170,8 @@ int AwaitDGram(CYASSL_CTX* ctx)
                 memset(&buff, 0, sizeof(buff));
                 break;
             }
-            readWriteErr = CyaSSL_get_error(ssl, 0);
-            if (CyaSSL_write(ssl, ack, sizeof(ack)) < 0) {
+            readWriteErr = wolfSSL_get_error(ssl, 0);
+            if (wolfSSL_write(ssl, ack, sizeof(ack)) < 0) {
                 printf("Write error.\n");
                 cleanup = 1;
             }
@@ -181,7 +181,7 @@ int AwaitDGram(CYASSL_CTX* ctx)
 
         /* free allocated memory */
         memset(buff, 0, sizeof(buff));
-        CyaSSL_free(ssl);
+        wolfSSL_free(ssl);
 
         /* End: Reply to the Client */
     }
@@ -216,20 +216,20 @@ int udp_read_connect(int listenfd)
     return listenfd;
 }
 
-int NonBlockingSSL_Accept(CYASSL* ssl)
+int NonBlockingSSL_Accept(WOLFSSL* ssl)
 {
     int select_ret;
     int currTimeout = 1;
-    int ret = CyaSSL_accept(ssl);
-    int error = CyaSSL_get_error(ssl, 0);
-    int listenfd = (int)CyaSSL_get_fd(ssl);
+    int ret = wolfSSL_accept(ssl);
+    int error = wolfSSL_get_error(ssl, 0);
+    int listenfd = (int)wolfSSL_get_fd(ssl);
 
     while (cleanup != 1 && (ret != SSL_SUCCESS && 
                 (error == SSL_ERROR_WANT_READ ||
                  error == SSL_ERROR_WANT_WRITE))) {
         if (cleanup == 1) {
-            CyaSSL_free(ssl);
-            CyaSSL_shutdown(ssl);
+            wolfSSL_free(ssl);
+            wolfSSL_shutdown(ssl);
             break;
         }
 
@@ -238,19 +238,19 @@ int NonBlockingSSL_Accept(CYASSL* ssl)
         else
             printf("... server would write block\n");
 
-        currTimeout = CyaSSL_dtls_get_current_timeout(ssl);
+        currTimeout = wolfSSL_dtls_get_current_timeout(ssl);
         select_ret = dtls_select(listenfd, currTimeout);
 
         if ((select_ret == TEST_RECV_READY) ||
                 (select_ret == TEST_ERROR_READY)) {
-            ret = CyaSSL_accept(ssl);
-            error = CyaSSL_get_error(ssl, 0);
+            ret = wolfSSL_accept(ssl);
+            error = wolfSSL_get_error(ssl, 0);
         }
-        else if (select_ret == TEST_TIMEOUT && !CyaSSL_dtls(ssl)) {
+        else if (select_ret == TEST_TIMEOUT && !wolfSSL_dtls(ssl)) {
             error = SSL_ERROR_WANT_READ;
         }
-        else if (select_ret == TEST_TIMEOUT && CyaSSL_dtls(ssl) &&
-                CyaSSL_dtls_got_timeout(ssl) >= 0) {
+        else if (select_ret == TEST_TIMEOUT && wolfSSL_dtls(ssl) &&
+                wolfSSL_dtls_got_timeout(ssl) >= 0) {
             error = SSL_ERROR_WANT_READ;
         }
         else {
@@ -312,33 +312,33 @@ int main(int argc, char** argv)
     char        caCertLoc[] = "../certs/ca-cert.pem";
     char        servCertLoc[] = "../certs/server-cert.pem";
     char        servKeyLoc[] = "../certs/server-key.pem";
-    CYASSL_CTX* ctx;
+    WOLFSSL_CTX* ctx;
 
     /* "./config --enable-debug" and uncomment next line for debugging */
-    /* CyaSSL_Debugging_ON(); */
+    /* wolfSSL_Debugging_ON(); */
 
-    /* Initialize CyaSSL */
-    CyaSSL_Init();
+    /* Initialize wolfSSL */
+    wolfSSL_Init();
 
     /* Set ctx to DTLS 1.2 */
-    if ((ctx = CyaSSL_CTX_new(CyaDTLSv1_2_server_method())) == NULL) {
-        printf("CyaSSL_CTX_new error.\n");
+    if ((ctx = wolfSSL_CTX_new(wolfDTLSv1_2_server_method())) == NULL) {
+        printf("wolfSSL_CTX_new error.\n");
         return 1;
     }
     /* Load CA certificates */
-    if (CyaSSL_CTX_load_verify_locations(ctx,caCertLoc,0) != 
+    if (wolfSSL_CTX_load_verify_locations(ctx,caCertLoc,0) != 
             SSL_SUCCESS) {
         printf("Error loading %s, please check the file.\n", caCertLoc);
         return 1;
     }
     /* Load server certificates */
-    if (CyaSSL_CTX_use_certificate_file(ctx, servCertLoc, SSL_FILETYPE_PEM) != 
+    if (wolfSSL_CTX_use_certificate_file(ctx, servCertLoc, SSL_FILETYPE_PEM) != 
             SSL_SUCCESS) {
         printf("Error loading %s, please check the file.\n", servCertLoc);
         return 1;
     }
     /* Load server Keys */
-    if (CyaSSL_CTX_use_PrivateKey_file(ctx, servKeyLoc, 
+    if (wolfSSL_CTX_use_PrivateKey_file(ctx, servKeyLoc, 
                 SSL_FILETYPE_PEM) != SSL_SUCCESS) {
         printf("Error loading %s, please check the file.\n", servKeyLoc);
         return 1;
@@ -347,8 +347,8 @@ int main(int argc, char** argv)
     cont = AwaitDGram(ctx);
 
     if (cont == 1) {
-        CyaSSL_CTX_free(ctx);
-        CyaSSL_Cleanup();
+        wolfSSL_CTX_free(ctx);
+        wolfSSL_Cleanup();
     }
 
     return 0;
