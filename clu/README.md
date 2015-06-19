@@ -27,7 +27,7 @@ then run "./configure", "make", and "make install" before using wolfssl CLU
 After wolfssl is properly installed, to install wolfssl CLU:
 In the clu directory (wolfssl-examples/clu) enter the following commands:
     ./autogen.sh
-	./configure
+    ./configure
     make
     sudo make install
 
