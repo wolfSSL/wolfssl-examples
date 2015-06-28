@@ -43,17 +43,18 @@ int wolfsslDecrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
     FILE*  outFile;                     /* output file */
 
     RNG     rng;                        /* random number generator */
-    byte*   input;                      /* input buffer */
-    byte*   output;                     /* output buffer */
+    byte*   input  = NULL;              /* input buffer */
+    byte*   output = NULL;              /* output buffer */
     byte    salt[SALT_SIZE] = {0};      /* salt variable */
 
     int     currLoopFlag = 1;           /* flag to track the loop */
     int     lastLoopFlag = 0;           /* flag for last loop */
     int     ret          = 0;           /* return variable */
+    int     keyVerify    = 0;           /* verify the key is set */
+    int     i            = 0;           /* loop variable */
+    int     pad          = 0;           /* the length to pad */
     int     length;                     /* length of message */
     int     tempMax = MAX;              /* equal to MAX until feof */
-    int     keyVerify   = 0;            /* verify the key is set */
-    int     i           = 0;            /* loop variable */
     int     sbSize = SALT_SIZE + block; /* size of salt and iv together */
 
     /* opens input file */
@@ -208,7 +209,7 @@ int wolfsslDecrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
         if (currLoopFlag == lastLoopFlag) {
             if (salt[0] != 0) {
                 /* reduces length based on number of padded elements  */
-                int pad = output[tempMax-1];
+                pad = output[tempMax-1];
                 /* adjust length for padded bytes and salt size */
                 length -= pad + sbSize;
                 /* reset tempMax for smaller decryption */

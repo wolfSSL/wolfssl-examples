@@ -264,10 +264,20 @@ int wolfsslEncrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
 
         if (ferror(outFile)) {
             printf("failed to write to file.\n");
+            if (input != NULL)
+                XMEMSET(input, 0, tempMax);
+            if (output != NULL)
+                XMEMSET(output, 0, tempMax);
+            wolfsslFreeBins(input, output, NULL, NULL, NULL);
             return FWRITE_ERROR;
         }
         if (ret > MAX) {
             printf("Wrote too much to file.\n");
+            if (input != NULL)
+                XMEMSET(input, 0, tempMax);
+            if (output != NULL)
+                XMEMSET(output, 0, tempMax);
+            wolfsslFreeBins(input, output, NULL, NULL, NULL);
             return FWRITE_ERROR;
         }
         /* close the outFile */

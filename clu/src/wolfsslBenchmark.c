@@ -35,7 +35,7 @@ int wolfsslBenchmark(int timer, int* option)
     int i              =   0;       /* A looping variable */
 
     int     loop       =   1;       /* benchmarking loop */
-    int64_t blocks     =   0;      /* blocks used during benchmarking */
+    int64_t blocks     =   0;       /* blocks used during benchmarking */
 #ifndef NO_AES
     Aes aes;                        /* aes declaration */
 #endif
@@ -46,7 +46,7 @@ int wolfsslBenchmark(int timer, int* option)
 
     RNG rng;                        /* random number generator */
 
-    int             ret  = 0;        /* return variable */
+    int             ret  = 0;       /* return variable */
     double          stop = 0.0;     /* stop breaks loop */
     double          start;          /* start time */
     double          currTime;       /* current time*/
