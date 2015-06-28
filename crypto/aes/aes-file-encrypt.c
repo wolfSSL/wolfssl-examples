@@ -1,31 +1,32 @@
 /* aes-file-encrypt.c
  *
- * Copyright (C) 2006-2014 wolfSSL Inc.
- * This file is part of CyaSSL.
+ * Copyright (C) 2006-2015 wolfSSL Inc.
  *
- * CyaSSL is free software; you can redistribute it and/or modify
+ * This file is part of wolfSSL. (formerly known as CyaSSL)
+ *
+ * wolfSSL is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
- * CyaSSL is distributed in the hope that it will be useful,
+ * wolfSSL is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
 #include <stdio.h>
 #include <unistd.h>
 #include <termios.h>
-#include <cyassl/options.h>
-#include <cyassl/ctaocrypt/aes.h>
-#include <cyassl/ctaocrypt/sha256.h>
-#include <cyassl/ctaocrypt/random.h>
-#include <cyassl/ctaocrypt/pwdbased.h>
+#include <wolfssl/options.h>
+#include <wolfssl/wolfcrypt/aes.h>
+#include <wolfssl/wolfcrypt/sha256.h>
+#include <wolfssl/wolfcrypt/random.h>
+#include <wolfssl/wolfcrypt/pwdbased.h>
 
 #define SALT_SIZE 8
 
@@ -36,7 +37,7 @@ int GenerateKey(RNG* rng, byte* key, int size, byte* salt, int pad)
 {
     int ret;
 
-    ret = RNG_GenerateBlock(rng, salt, SALT_SIZE);
+    ret = wc_RNG_GenerateBlock(rng, salt, SALT_SIZE);
     if (ret != 0)
         return -1020;
 
@@ -44,7 +45,7 @@ int GenerateKey(RNG* rng, byte* key, int size, byte* salt, int pad)
         salt[0] = 0;
 
     /* stretches key */
-    ret = PBKDF2(key, key, strlen((const char*)key), salt, SALT_SIZE, 4096,
+    ret = wc_PBKDF2(key, key, strlen((const char*)key), salt, SALT_SIZE, 4096,
     	size, SHA256);
     if (ret != 0)
         return -1030;
@@ -83,7 +84,7 @@ int AesEncrypt(Aes* aes, byte* key, int size, FILE* inFile, FILE* outFile)
     input = malloc(length);
     output = malloc(length);
 
-    ret = InitRng(&rng);
+    ret = wc_InitRng(&rng);
     if (ret != 0) {
         printf("Failed to initialize random number generator\n");
         return -1030;
@@ -100,7 +101,7 @@ int AesEncrypt(Aes* aes, byte* key, int size, FILE* inFile, FILE* outFile)
         input[i] = padCounter;
     }
 
-    ret = RNG_GenerateBlock(&rng, iv, AES_BLOCK_SIZE);
+    ret = wc_RNG_GenerateBlock(&rng, iv, AES_BLOCK_SIZE);
     if (ret != 0)
         return -1020;
 
@@ -110,12 +111,12 @@ int AesEncrypt(Aes* aes, byte* key, int size, FILE* inFile, FILE* outFile)
         return -1040;
 
     /* sets key */
-    ret = AesSetKey(aes, key, AES_BLOCK_SIZE, iv, AES_ENCRYPTION);
+    ret = wc_AesSetKey(aes, key, AES_BLOCK_SIZE, iv, AES_ENCRYPTION);
     if (ret != 0)
         return -1001;
 
     /* encrypts the message to the ouput based on input length + padding */
-    ret = AesCbcEncrypt(aes, output, input, length);
+    ret = wc_AesCbcEncrypt(aes, output, input, length);
     if (ret != 0)
         return -1005;
 
@@ -161,7 +162,7 @@ int AesDecrypt(Aes* aes, byte* key, int size, FILE* inFile, FILE* outFile)
     input = malloc(aSize);
     output = malloc(aSize);
 
-    InitRng(&rng);
+    wc_InitRng(&rng);
 
     /* reads from inFile and wrties whatever is there to the input array */
     ret = fread(input, 1, length, inFile);
@@ -179,13 +180,13 @@ int AesDecrypt(Aes* aes, byte* key, int size, FILE* inFile, FILE* outFile)
     }
 
     /* replicates old key if keys match */
-    ret = PBKDF2(key, key, strlen((const char*)key), salt, SALT_SIZE, 4096,
+    ret = wc_PBKDF2(key, key, strlen((const char*)key), salt, SALT_SIZE, 4096,
     	size, SHA256);
     if (ret != 0)
         return -1050;
 
     /* sets key */
-    ret = AesSetKey(aes, key, AES_BLOCK_SIZE, iv, AES_DECRYPTION);
+    ret = wc_AesSetKey(aes, key, AES_BLOCK_SIZE, iv, AES_DECRYPTION);
     if (ret != 0)
         return -1002;
 
@@ -196,7 +197,7 @@ int AesDecrypt(Aes* aes, byte* key, int size, FILE* inFile, FILE* outFile)
         input[i] = input[i + (AES_BLOCK_SIZE + SALT_SIZE)];
     }
     /* decrypts the message to output based on input length + padding*/
-    ret = AesCbcDecrypt(aes, output, input, length);
+    ret = wc_AesCbcDecrypt(aes, output, input, length);
     if (ret != 0)
         return -1006;
 
