@@ -1,15 +1,15 @@
-/* server.c
+/* server-callback.c
  *
- * Copyright (C) 2006-2014 wolfSSL Inc.
+ * Copyright (C) 2006-2015 wolfSSL Inc.
  *
- * This file is part of CyaSSL.
+ * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
- * CyaSSL is free software; you can redistribute it and/or modify
+ * wolfSSL is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
- * CyaSSL is distributed in the hope that it will be useful,
+ * wolfSSL is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
@@ -23,11 +23,11 @@
     #include <config.h>
 #endif
 
-#include <cyassl/ctaocrypt/settings.h>
-#include <cyassl/options.h>
+#include <wolfssl/wolfcrypt/settings.h>
+#include <wolfssl/options.h>
 
-#include <cyassl/ssl.h>
-#include <cyassl/test.h>
+#include <wolfssl/ssl.h>
+#include <wolfssl/test.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -61,7 +61,7 @@
  * function with specific parameters : inbetween process of receiving msg
  * based from embeded receive in src/io.c
  */
-int CbIORecv(CYASSL *ssl, char *buf, int sz, void *ctx)
+int CbIORecv(WOLFSSL *ssl, char *buf, int sz, void *ctx)
 {
     int recvd;
     int sd = *(int*)ctx;
@@ -70,39 +70,39 @@ int CbIORecv(CYASSL *ssl, char *buf, int sz, void *ctx)
 
     if (recvd < 0) {
         if (errno == SOCKET_EWOULDBLOCK || errno == SOCKET_EAGAIN) {
-            if (!CyaSSL_dtls(ssl) || CyaSSL_get_using_nonblock(ssl)) {
+            if (!wolfSSL_dtls(ssl) || wolfSSL_get_using_nonblock(ssl)) {
                 printf(" Would block\n");
-                return CYASSL_CBIO_ERR_WANT_READ;
+                return WOLFSSL_CBIO_ERR_WANT_READ;
             }
             else {
                 printf("Socket timeout\n");
-                return CYASSL_CBIO_ERR_TIMEOUT;
+                return WOLFSSL_CBIO_ERR_TIMEOUT;
             }
         }
         else if (errno == SOCKET_ECONNRESET) {
             printf("Connection reset\n");
-            return CYASSL_CBIO_ERR_CONN_RST;
+            return WOLFSSL_CBIO_ERR_CONN_RST;
         }
         else if (errno == SOCKET_EINTR) {
             printf("Socket interrupted\n");
-            return CYASSL_CBIO_ERR_ISR;
+            return WOLFSSL_CBIO_ERR_ISR;
         }
         else if (errno == SOCKET_ECONNREFUSED) {
             printf("Connection refused\n");
-            return CYASSL_CBIO_ERR_WANT_READ;
+            return WOLFSSL_CBIO_ERR_WANT_READ;
         }
         else if (errno == SOCKET_ECONNABORTED) {
             printf("Connection aborted\n");
-            return CYASSL_CBIO_ERR_CONN_CLOSE;
+            return WOLFSSL_CBIO_ERR_CONN_CLOSE;
         }
         else {
             printf("General error\n");
-            return CYASSL_CBIO_ERR_GENERAL;
+            return WOLFSSL_CBIO_ERR_GENERAL;
         }
     }
     else if (recvd == 0) {
         printf("Embed receive connection closed\n");
-        return CYASSL_CBIO_ERR_CONN_CLOSE;
+        return WOLFSSL_CBIO_ERR_CONN_CLOSE;
     }
 
     printf("Received %d bytes\n", sz);
@@ -114,7 +114,7 @@ int CbIORecv(CYASSL *ssl, char *buf, int sz, void *ctx)
  * function with specific parameters : inbetween process of sending out msg
  * based from embeded receive in src/io.c
  */
-int CbIOSend(CYASSL *ssl, char *buf, int sz, void *ctx)
+int CbIOSend(WOLFSSL *ssl, char *buf, int sz, void *ctx)
 {
     int sd = *(int*)ctx;
     int sent;
@@ -126,23 +126,23 @@ int CbIOSend(CYASSL *ssl, char *buf, int sz, void *ctx)
         printf("IO Send error\n");
         if (errno == SOCKET_EWOULDBLOCK || errno == SOCKET_EAGAIN) {
             printf("Would Block\n");
-            return CYASSL_CBIO_ERR_WANT_WRITE;
+            return WOLFSSL_CBIO_ERR_WANT_WRITE;
         }
         else if (errno == SOCKET_ECONNRESET) {
             printf("Connection reset\n");
-            return CYASSL_CBIO_ERR_CONN_RST;
+            return WOLFSSL_CBIO_ERR_CONN_RST;
         }
         else if (errno == SOCKET_EINTR) {
             printf("Socket interrupted\n");
-            return CYASSL_CBIO_ERR_ISR;
+            return WOLFSSL_CBIO_ERR_ISR;
         }
         else if (errno == SOCKET_EPIPE) {
             printf("Socket EPIPE\n");
-            return CYASSL_CBIO_ERR_CONN_CLOSE;
+            return WOLFSSL_CBIO_ERR_CONN_CLOSE;
         }
         else {
             printf("General error\n");
-            return CYASSL_CBIO_ERR_GENERAL;
+            return WOLFSSL_CBIO_ERR_GENERAL;
         }
     }
 
@@ -156,28 +156,28 @@ int Server(word16 port)
     char        msg[MAXSZ];
     const char  reply[]  = "I hear ya fa shizzle!\n";
     int         n, listenfd, connfd;
-    CYASSL_CTX* ctx;
-    CYASSL*     ssl;
+    WOLFSSL_CTX* ctx;
+    WOLFSSL*     ssl;
 
-    CyaSSL_Init();
+    wolfSSL_Init();
     
     /* create ctx and configure certificates */
-    if ((ctx = CyaSSL_CTX_new(CyaTLSv1_2_server_method())) == NULL)
-        err_sys("Fatal error : CyaSSL_CTX_new error");
+    if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_server_method())) == NULL)
+        err_sys("Fatal error : wolfSSL_CTX_new error");
    
-    if (CyaSSL_CTX_use_certificate_file(ctx, svrCert, SSL_FILETYPE_PEM)
+    if (wolfSSL_CTX_use_certificate_file(ctx, svrCert, SSL_FILETYPE_PEM)
                 != SSL_SUCCESS)
         err_sys("can't load server cert file,"
-                    "Please run from CyaSSL home dir");
+                    "Please run from wolfSSL home dir");
 
-    if (CyaSSL_CTX_use_PrivateKey_file(ctx, svrKey, SSL_FILETYPE_PEM)
+    if (wolfSSL_CTX_use_PrivateKey_file(ctx, svrKey, SSL_FILETYPE_PEM)
                 != SSL_SUCCESS)
         err_sys("can't load server key file, "
-                    "Please run from CyaSSL home dir");
+                    "Please run from wolfSSL home dir");
         
     /*sets the IO callback methods*/
-    CyaSSL_SetIORecv(ctx, CbIORecv);
-    CyaSSL_SetIOSend(ctx, CbIOSend);
+    wolfSSL_SetIORecv(ctx, CbIORecv);
+    wolfSSL_SetIOSend(ctx, CbIOSend);
 
     tcp_accept(&listenfd, &connfd, NULL, port, 1, 0, 0);
         
@@ -185,18 +185,18 @@ int Server(word16 port)
         err_sys("Fatal error : accept error");
     }
     else {
-        /* create CYASSL object and respond */
-        if ((ssl = CyaSSL_new(ctx)) == NULL)
-            err_sys("Fatal error : CyaSSL_new error");
+        /* create WOLFSSL object and respond */
+        if ((ssl = wolfSSL_new(ctx)) == NULL)
+            err_sys("Fatal error : wolfSSL_new error");
   
-        CyaSSL_set_fd(ssl, connfd);
+        wolfSSL_set_fd(ssl, connfd);
 
 	    memset(msg, 0, MAXSZ);
-	    n = CyaSSL_read(ssl, msg, MAXSZ - 1);
+	    n = wolfSSL_read(ssl, msg, MAXSZ - 1);
 	    if (n > 0) {
 	        msg[n] = '\0';
 	        printf("Client sent : %s\n", msg);
-	        if (CyaSSL_write(ssl, reply, strlen(reply)) > strlen(reply))
+	        if (wolfSSL_write(ssl, reply, strlen(reply)) > strlen(reply))
 	            err_sys("Fatal error : respond: write error");
 	    }
 
@@ -204,14 +204,14 @@ int Server(word16 port)
 	        err_sys("Fatal error :respond: read error");
             
         /* closes the connections after responding */
-        CyaSSL_shutdown(ssl);
-        CyaSSL_free(ssl);
+        wolfSSL_shutdown(ssl);
+        wolfSSL_free(ssl);
         if (close(listenfd) == -1 && close(connfd) == -1)
             err_sys("Fatal error : close error");
     }
    
-    /* free up memory used by CyaSSL */
-    CyaSSL_CTX_free(ctx);
+    /* free up memory used by wolfSSL */
+    wolfSSL_CTX_free(ctx);
 
     return 0;
 }
@@ -222,7 +222,7 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    CyaSSL_Init();
+    wolfSSL_Init();
     if (argc < 2) {
         if (Server(YASSLPORT) != 0)
             err_sys("error creating server");
@@ -231,7 +231,7 @@ int main(int argc, char* argv[])
         if (Server((word16)atoi(argv[1])) != 0)
             err_sys("error creating server");
     }
-    CyaSSL_Cleanup();
+    wolfSSL_Cleanup();
 
     return 0;
 }

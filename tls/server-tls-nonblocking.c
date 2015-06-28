@@ -1,23 +1,23 @@
 /* server-tls-nonblocking.c
  *
- * Copyright (C) 2006-2014 wolfSSL Inc.
+ * Copyright (C) 2006-2015 wolfSSL Inc.
  *
- * This file is part of CyaSSL.
+ * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
- * CyaSSL is free software; you can redistribute it and/or modify
+ * wolfSSL is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
- * CyaSSL is distributed in the hope that it will be useful,
+ * wolfSSL is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,  * USA
- * =============================================================================
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+ *=============================================================================
  *
  * This is a super basic example of what a TCP Server secured with TLS 1.2
  * that uses non blocking input and output.
@@ -33,8 +33,8 @@
 #include <sys/fcntl.h>
 #include <errno.h>
 
-/* Include the CyaSSL library for our TLS 1.2 security */
-#include <cyassl/ssl.h>
+/* Include the wolfSSL library for our TLS 1.2 security */
+#include <wolfssl/ssl.h>
 
 #define DEFAULT_PORT 11111
 
@@ -43,10 +43,10 @@
  */
 enum read_write_t {WRITE, READ, ACCEPT};
 
-int AcceptAndRead(CYASSL_CTX* ctx, socklen_t socketfd, 
+int AcceptAndRead(WOLFSSL_CTX* ctx, socklen_t socketfd, 
     struct sockaddr_in clientAddr);
 int TCPSelect(socklen_t socketfd);
-int NonBlocking_ReadWriteAccept(CYASSL* ssl, socklen_t socketfd, 
+int NonBlocking_ReadWriteAccept(WOLFSSL* ssl, socklen_t socketfd, 
     enum read_write_t rw);
 
 /*  Check if any sockets are ready for reading and writing and set it */
@@ -75,7 +75,7 @@ int TCPSelect(socklen_t socketfd)
 }
 /* Checks if NonBlocking I/O is wanted, if it is wanted it will
  * wait until it's available on the socket before reading or writing */
-int NonBlocking_ReadWriteAccept(CYASSL* ssl, socklen_t socketfd, 
+int NonBlocking_ReadWriteAccept(WOLFSSL* ssl, socklen_t socketfd, 
     enum read_write_t rw)
 {
     const char reply[] = "I hear ya fa shizzle!\n";
@@ -90,18 +90,18 @@ int NonBlocking_ReadWriteAccept(CYASSL* ssl, socklen_t socketfd,
     memset(&buff, 0, sizeof(buff));
 
     if (rw == READ)
-        rwret = CyaSSL_read(ssl, buff, sizeof(buff)-1);
+        rwret = wolfSSL_read(ssl, buff, sizeof(buff)-1);
     else if (rw == WRITE)
-        rwret = CyaSSL_write(ssl, reply, sizeof(reply)-1);
+        rwret = wolfSSL_write(ssl, reply, sizeof(reply)-1);
     else if (rw == ACCEPT)
-        rwret = CyaSSL_accept(ssl);
+        rwret = wolfSSL_accept(ssl);
 
     if (rwret == 0) {
         printf("The client has closed the connection!\n");
         return 0;
     }
     else if (rwret != SSL_SUCCESS) {
-        int error = CyaSSL_get_error(ssl, 0);
+        int error = wolfSSL_get_error(ssl, 0);
 
         /* while I/O is not ready, keep waiting */
         while ((error == SSL_ERROR_WANT_READ || 
@@ -116,13 +116,13 @@ int NonBlocking_ReadWriteAccept(CYASSL* ssl, socklen_t socketfd,
 
             if ((selectRet == 1) || (selectRet == 2)) {
                 if (rw == READ)
-                    rwret = CyaSSL_read(ssl, buff, sizeof(buff)-1);
+                    rwret = wolfSSL_read(ssl, buff, sizeof(buff)-1);
                 else if (rw == WRITE)
-                    rwret = CyaSSL_write(ssl, reply, sizeof(reply)-1);
+                    rwret = wolfSSL_write(ssl, reply, sizeof(reply)-1);
                 else if (rw == ACCEPT)
-                    rwret = CyaSSL_accept(ssl);
+                    rwret = wolfSSL_accept(ssl);
                 
-                error = CyaSSL_get_error(ssl, 0);
+                error = wolfSSL_get_error(ssl, 0);
             }
             else {
                 error = SSL_FATAL_ERROR;
@@ -134,9 +134,9 @@ int NonBlocking_ReadWriteAccept(CYASSL* ssl, socklen_t socketfd,
             printf("Client: %s\n", buff);
         /* Reply back to the client */
         else if (rw == WRITE) {
-            if ((ret = CyaSSL_write(ssl, reply, sizeof(reply)-1)) < 0) {
-                printf("CyaSSL_write error = %d\n", 
-                    CyaSSL_get_error(ssl, ret));
+            if ((ret = wolfSSL_write(ssl, reply, sizeof(reply)-1)) < 0) {
+                printf("wolfSSL_write error = %d\n", 
+                    wolfSSL_get_error(ssl, ret));
             }
         }
     }
@@ -144,7 +144,7 @@ int NonBlocking_ReadWriteAccept(CYASSL* ssl, socklen_t socketfd,
     return 1;
 }
 
-int AcceptAndRead(CYASSL_CTX* ctx, socklen_t socketfd, struct sockaddr_in clientAddr)
+int AcceptAndRead(WOLFSSL_CTX* ctx, socklen_t socketfd, struct sockaddr_in clientAddr)
 {
     socklen_t     size = sizeof(clientAddr);
 
@@ -158,16 +158,16 @@ int AcceptAndRead(CYASSL_CTX* ctx, socklen_t socketfd, struct sockaddr_in client
     /* If it connects, read in and reply to the client */
     else {
         printf("Client connected successfully!\n");
-        CYASSL* ssl;
-        if ( (ssl = CyaSSL_new(ctx)) == NULL) {
-            fprintf(stderr, "CyaSSL_new error.\n");
+        WOLFSSL* ssl;
+        if ( (ssl = wolfSSL_new(ctx)) == NULL) {
+            fprintf(stderr, "wolfSSL_new error.\n");
             exit(EXIT_FAILURE);
         }
 
         /* Direct our ssl to our clients connection */
-        CyaSSL_set_fd(ssl, connd);
+        wolfSSL_set_fd(ssl, connd);
         
-        /* Sets CyaSSL_accept(ssl) */
+        /* Sets wolfSSL_accept(ssl) */
         if(NonBlocking_ReadWriteAccept(ssl, socketfd, ACCEPT) < 0)
             return 0;
 
@@ -183,7 +183,7 @@ int AcceptAndRead(CYASSL_CTX* ctx, socklen_t socketfd, struct sockaddr_in client
             if (NonBlocking_ReadWriteAccept(ssl, socketfd, WRITE) == 0)
                 break;
         }
-        CyaSSL_free(ssl);           /* Free the CYASSL object */
+        wolfSSL_free(ssl);           /* Free the WOLFSSL object */
     } 
     close(connd);               /* close the connected socket */
 
@@ -204,7 +204,7 @@ int main()
     int on       = 1;
 
     /* Create a ctx pointer for our ssl */
-    CYASSL_CTX* ctx;
+    WOLFSSL_CTX* ctx;
 
     /* Server and Client socket address structures */
     struct sockaddr_in serverAddr, clientAddr;
@@ -229,25 +229,25 @@ int main()
         < 0)                    
         printf("setsockopt SO_REUSEADDR failed\n");
 
-    /* Initialize CyaSSL */
-    CyaSSL_Init();
+    /* Initialize wolfSSL */
+    wolfSSL_Init();
 
-    /* Create and initialize CYASSL_CTX structure */
-    if ((ctx = CyaSSL_CTX_new(CyaTLSv1_2_server_method())) == NULL) {
-        fprintf(stderr, "CyaSSL_CTX_new error.\n");
+    /* Create and initialize WOLFSSL_CTX structure */
+    if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_server_method())) == NULL) {
+        fprintf(stderr, "wolfSSL_CTX_new error.\n");
         exit(EXIT_FAILURE);
     }
 
-    /* Load server certificate into CYASSL_CTX */
-    if (CyaSSL_CTX_use_certificate_file(ctx, "../certs/server-cert.pem", 
+    /* Load server certificate into WOLFSSL_CTX */
+    if (wolfSSL_CTX_use_certificate_file(ctx, "../certs/server-cert.pem", 
                 SSL_FILETYPE_PEM) != SSL_SUCCESS) {
         fprintf(stderr, "Error loading certs/server-cert.pem, please check"
                 "the file.\n");
         exit(EXIT_FAILURE);
     }
 
-    /* Load server key into CYASSL_CTX */
-    if (CyaSSL_CTX_use_PrivateKey_file(ctx, "../certs/server-key.pem", 
+    /* Load server key into WOLFSSL_CTX */
+    if (wolfSSL_CTX_use_PrivateKey_file(ctx, "../certs/server-key.pem", 
                 SSL_FILETYPE_PEM) != SSL_SUCCESS) {
         fprintf(stderr, "Error loading certs/server-key.pem, please check"
                 "the file.\n");
@@ -274,7 +274,7 @@ int main()
         }
     }
 
-    CyaSSL_CTX_free(ctx);   /* Free CYASSL_CTX */
-    CyaSSL_Cleanup();       /* Free CyaSSL */
+    wolfSSL_CTX_free(ctx);   /* Free WOLFSSL_CTX */
+    wolfSSL_Cleanup();       /* Free wolfSSL */
     exit(EXIT_SUCCESS);
 }
