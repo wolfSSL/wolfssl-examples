@@ -22,6 +22,14 @@
 *.x86_64
 *.hex
 
+# Android files
+android/wolfssljni-ndk-sample/bin
+android/wolfssljni-ndk-sample/build.xml
+android/wolfssljni-ndk-sample/gen
+android/wolfssljni-ndk-sample/local.properties
+android/wolfssljni-ndk-sample/obj
+android/wolfssljni-ndk-sample/proguard-project.txt
+
 # Example executables
 /dtls/client-dtls-nonblocking
 /dtls/client-dtls-resume
