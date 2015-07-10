@@ -9,7 +9,7 @@ file.
 ## Prerequisites for successful installation
 
 Prerequisites
-In order to build the wolfCrypt JNI wrapper and wolfCAVP-Android application,
+In order to build the wolfSSL JNI sample application,
 you need to:
 * Install the `Android SDK` [link](http://developer.android.com/sdk/index.html)
 * Install the `Android NDK` [link](https://developer.android.com/tools/sdk/ndk/index.html)
@@ -78,7 +78,7 @@ while the emulator is running and issuing:
 $ adb logcat
 ```
 
-### Installing and Running wolfCAVP App on Device instead of Emulator
+### Installing and Running wolfssljni-ndk-sample on Device instead of Emulator
 
 Compiling, installing, and running the wolfssljni-ndk-sample application on a
 real device, versus the Android Emulator is quite easy, and nearly identical
