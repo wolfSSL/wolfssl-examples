@@ -17,6 +17,13 @@ on the Android platform, using the Android NDK toolchain.
 
 Please see the README.md in android/ for further usage and details.
 
+#### certmanager (wolfSSL CertManager)
+
+This directory contains examples that demonstrate using the wolfSSL
+CertManager (Certificate Manager) functionality.
+
+Please see the README.md in certmanager/ for further usage and details.
+
 #### clu (wolfSSL Command Line Utility)
 
 This is a tool to provide command line access to wolfcrypt cryptographic
