@@ -1,4 +1,4 @@
-/* server-dtls-threaded.c 
+/* server-dtls-threaded.c
  *
  * Copyright (C) 2006-2015 wolfSSL Inc.
  *
@@ -58,8 +58,8 @@ typedef struct {
 int AwaitDGram(WOLFSSL_CTX* ctx)
 {
     int           on = 1;
-    int           res = 1; 
-    int           bytesRcvd = 0;  
+    int           res = 1;
+    int           bytesRcvd = 0;
     int           listenfd = 0;   /* Initialize our socket */
     socklen_t     cliLen;
     socklen_t     len = sizeof(on);
@@ -90,7 +90,7 @@ int AwaitDGram(WOLFSSL_CTX* ctx)
     }
 
     /*Bind Socket*/
-    if (bind(listenfd, 
+    if (bind(listenfd,
                 (struct sockaddr *)&servAddr, sizeof(servAddr)) < 0) {
         printf("Bind failed.\n");
         cleanup = 1;
@@ -100,16 +100,16 @@ int AwaitDGram(WOLFSSL_CTX* ctx)
     printf("Awaiting client connection on port %d\n", SERV_PORT);
 
     while (cleanup != 1) {
-        
+
         threadArgs* args;
         args = (threadArgs *) malloc(sizeof(threadArgs));
 
-        cliLen = sizeof(cliAddr);  
-       /* note argument 4 of recvfrom not MSG_PEEK as dtls will see 
-        * handshake packets and think a message is arriving. Instead 
+        cliLen = sizeof(cliAddr);
+       /* note argument 4 of recvfrom not MSG_PEEK as dtls will see
+        * handshake packets and think a message is arriving. Instead
         * read any real message to struct and pass struct into thread
         * for processing.
-        */ 
+        */
         bytesRcvd = (int)recvfrom(listenfd, (char *)buf, sizeof(buf), 0,
                 (struct sockaddr*)&cliAddr, &cliLen);
 
@@ -129,7 +129,7 @@ int AwaitDGram(WOLFSSL_CTX* ctx)
                 cleanup = 1;
             }
 
-            res = setsockopt(args->activefd, SOL_SOCKET, SO_REUSEADDR, &on, 
+            res = setsockopt(args->activefd, SOL_SOCKET, SO_REUSEADDR, &on,
                                                                        len);
             if (res < 0) {
                 printf("Setsockopt SO_REUSEADDR failed.\n");
@@ -145,7 +145,7 @@ int AwaitDGram(WOLFSSL_CTX* ctx)
                     }
                 #endif
 
-            if (connect(args->activefd, (const struct sockaddr *)&cliAddr, 
+            if (connect(args->activefd, (const struct sockaddr *)&cliAddr,
                         sizeof(cliAddr)) != 0) {
                 printf("Udp connect failed.\n");
                 cleanup = 1;
@@ -226,7 +226,7 @@ void* ThreadControl(void* openSock)
     printf("reply sent \"%s\"\n", ack);
 
 
-    wolfSSL_shutdown(ssl);        
+    wolfSSL_shutdown(ssl);
     wolfSSL_free(ssl);
     close(activefd);
     free(openSock);                 /* valgrind friendly free */
@@ -238,7 +238,7 @@ void* ThreadControl(void* openSock)
 
 int main(int argc, char** argv)
 {
-    /* cont short for "continue?", Loc short for "location" */    
+    /* cont short for "continue?", Loc short for "location" */
     int         cont = 0;
     char        caCertLoc[] = "../certs/ca-cert.pem";
     char        servCertLoc[] = "../certs/server-cert.pem";
@@ -256,7 +256,7 @@ int main(int argc, char** argv)
         return 1;
     }
     /* Load CA certificates */
-    if (wolfSSL_CTX_load_verify_locations(ctx,caCertLoc,0) != 
+    if (wolfSSL_CTX_load_verify_locations(ctx,caCertLoc,0) !=
             SSL_SUCCESS) {
         printf("Error loading %s, please check the file.\n", caCertLoc);
         return 1;
@@ -268,7 +268,7 @@ int main(int argc, char** argv)
         return 1;
     }
     /* Load server Keys */
-    if (wolfSSL_CTX_use_PrivateKey_file(ctx, servKeyLoc, 
+    if (wolfSSL_CTX_use_PrivateKey_file(ctx, servKeyLoc,
                 SSL_FILETYPE_PEM) != SSL_SUCCESS) {
         printf("Error loading %s, please check the file.\n", servKeyLoc);
         return 1;
