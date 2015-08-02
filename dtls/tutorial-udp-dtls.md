@@ -179,7 +179,7 @@ Figure 1.8 “recvfrom”
 
 ```c
 int recvfrom(int socket, void* restrict buffer, size_t length,
-             int socklen_t *restrict *src_len)
+             int flags, struct sockaddr* restrict src_addr, socklen_t *src_len);
 ```
 
     5.1 PARAMETERS DEFINED
@@ -191,12 +191,21 @@ int recvfrom(int socket, void* restrict buffer, size_t length,
             The incoming data will be placed into memory at buffer.
         5.1.3 “ size_t length “
             No more than length bytes will be transferred (that`s the size of your buffer).
-        5.1.4 “ int socklen_t *restrict *src_len “
+        5.1.4 “ int flags “
             For this tutorial we can ignore this last flags. However this parameter will allow us to “peek” 
             at an incoming message without removing it from the queue or block until the request is fully 
             satisfied. To ignore these flags, simply place a zero in as the parameter. See the man page for 
-            recvfrom to see an  in-depth description of the last parameter.
-Defined:
+            recvfrom to see an  in-depth description of this parameter.
+        5.1.5 “ struct sockaddr* restrict src_addr “
+            If src_addr is not NULL, the IP address and port number of the sender of the data will be placed into memory at src_addr. 
+        5.1.6 “ socklen_t *src_len “
+            The size of the memory at src_addr. If src_addr is NULL, then src_len should also be NULL.  
+            Example:  
+            struct sockaddr_in* cliaddr;
+            socklen_t addrlen;  
+            addrlen = sizeof(struct sockaddr_in); 
+    5.2 RETURN VALUE
+        recvfrom returns the number of bytes received, or -1 if an error occurred.  
 
 Figure 1.9 Looping Receive
     
