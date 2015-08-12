@@ -91,6 +91,7 @@ Step 6: Setting up the environment
         <br/>
         In the browser window on the right under "Add dir to library search path"<br/>
         Click the add button and add this line `"C:\wolfssl\tirtos\packages\ti\net\wolfssl\lib"`<br/>
+<br/>
   Hit OK and we're ready to build the example project.<br/>
 <br/>
 Step 7: Build the project
@@ -144,11 +145,10 @@ Step 10: Test the server
         `./examples/client/client -h TCP_ECHO_IP -p 1000`<br/>
 <br/>
     The client should receive the following response:<br/>
-    `
-    SSL version is TLS1.2<br/>
-    SSL cipher suite is <whichever suite is set><br/>
-    Server response: hello wolfssl!<br/>
-    `<br/>
+    <br/>
+    `SSL version is TLS1.2`<br/>
+    `SSL cipher suite is <whichever suite is set>`<br/>
+    `Server response: hello wolfssl!`<br/>
 <br/>
 Step 11: Success
 --
