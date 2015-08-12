@@ -1,40 +1,148 @@
-Disclaimer
----------------------------------------------------------
-These have currently been tested in windows CCS only. Once testing on the linux distribution for CCS is complete this README will be updated.
-
-Setting up the file system
----------------------------------------------------------
-ensure that wolfssl is on the C:/ drive and remove any version numbers on the file. For example if your wolfssl directory is named "wolfssl_3_1_0 or wolfssl-3.1.0" rename it to "wolfssl". You should now have C:/wolfssl directory.
-
-Clone this repository using "github for windows". The projects have been made portable so you can run them straight from the github clone repo or you can copy and paste the "tirtos_ccs_examples" folder out of the repo to wherever and 
-they should still debug just fine once imported into your workspace (see end of this README).
-
-Instructions for building wolfSSL application for TI-RTOS
----------------------------------------------------------
-
-Installing the software
------------------------
-1. Install the NDK product ndk 2.24.00.05 in C:/ti using the following URL (http://software-dl.ti.com/dsps/dsps_public_sw/sdo_sb/targetcontent/tmp/ndk_2_24_00_05_eng.zip)
-2. Open CCS. A prompt opens asking to install discovered product. Select the ndk product and click finish. Restart if prompted.
-3. In CCS, open View -> CCS App Center. Search "ti-rtos". Select "TI-RTOS for TivaC" from the results and click Install Software. Follow the instructions.
-
-
-Building wolfSSL libraries for TI-RTOS
--------------------------------------
-1. Replace tirtos.mak in C:\ti\tirtos_tivac_2_00_02_36 with the tirtos.mak from git@github.com:wolfSSL/wolfssl.git. Ensure you have wolfssl in the proper location (should be C:/wolfssl).
-2. Open a command prompt. CD into C:\ti\tirtos_tivac_2_00_02_36.
-3. Run the make command to build wolfSSL libaries.
+Step 1: Download CCS
+--
+(If you already have Code Composer Studio (CCS) installed skip to step 2)<br/>
+Download CCS here: http://www.ti.com/tool/ccstudio<br/>
+<br/>
+Installer will walk you through setting up CCS. Choose options for your platform and desired compiler(s).<br/>
+<br/>
+expected install location: C:\ti<br/>
+<br/>
+Step 2: Download tivac
+--
+(If you already have TIRTOS for TivaC skip to step 3)<br/>
+Find CCS App Center it will be an option on the "Getting Started" page or click View -> CCS App Center<br/>
+Under the title "Code Composer Studio Add-ons" check the box under "TI-RTOS for TivaC"<br/>
+Now on the top of the page click "Install Software"<br/>
+<br/>
+expected install location: C:\ti<br/>
+<br/>
+Step 3: Download wolfSSL
+--
+Download wolfSSL from here: https://wolfssl.com/wolfSSL/download/downloadForm.php<br/>
+or<br/>
+clone wolfSSL development branch from here: https://github.com/wolfSSL/wolfssl<br/>
+<br/>
+expected install location: C:\wolfssl<br/>
+<br/>
+Step 4: Build the libraries
+--
+At this point we are ready to build wolfssl libraries with TIRTOS<br/>
+<br/>
+WINDOWS:<br/>
+    in the file browser navigate to: `C:\ti\ccsv6\tools\compiler` and see which<br/>
+    compiler you have installed `ti-cgt-arm_x.x.x` and make a note of it.<br/>
+    now in the file browser navigate to `C:\ti\tirtos_tivac_xxxxxxx`<br/>
+    open `tirtos.mak` in your preferred text editor<br/>
+    locate the line specifying your compiler should be on or around line 11 and<br/>
+    will look something like this:<br/>
+    `ti.targets.arm.elf.M4F   ?= $(DEFAULT_INSTALLATION_DIR)/ccsv6/tools/compiler/ti-cgt-arm_5.2.5`<br/>
+    make sure you are using the `ti-cgt-agrm_x.x.x` that you noted previously<br/>
+    next locate the wolfSSL section should be on or around line 45 and looks like this:<br/>
+    `WolfSSL settings`<br/>
+    `WOLFSSL_INSTALLATION_DIR ?= C:\wolfssl`<br/>
+    `WOLFSSL_TIRTOS_DIR = $(WOLFSSL_INSTALLATION_DIR)/tirtos<br/>`<br/>
+    Modify WOLFSSL_INSTALLATION_DIR to be the location of your wolfssl directory. Should be C:\wolfssl.<br/>
+    Open a command promp and navigate to `C:\ti\tirtos_tivac_xxxxxxx`<br/>
+    use the following command to build TIRTOS and wolfssl<br/>
+    `..\xdctools_3_31_01_33_core\gmake.exe -f tirtos.mak wolfssl`<br/>
+<br/>
+    The libraries should build without issues.<br/>
+<br/>
+Step 5: Loading first example
+--
+   In CCS click dropdown for "Project" and select "Examples..."<br/>
+   <pre>
+    Locate: TI-RTOS for TivaC<br/>
+              -> Tiva C Series<br/>
+                 -> Tiva TM4C1294NCPDT<br/>
+                   -> EK-TM4C1294XL Evaluation Kit<br/>
+                     -> Network Examples<br/>
+                       -> TI Network Examples<br/>
+                         -> Ethernet Examples<br/>
+                           -> TCP Echo with TLS<br/>
+</pre>
+    In the "TI Resource Explorer window" Click on the link in "Step 1" to import the project.<br/>
+<br/>
+Step 6: Setting up the environment
+--
+   Before building we have to do a little setup.<br/>
+   Step 6.a<br/>
+        Right click on the imported project and select `Properties`<br/>
+        under `Build -> ARM Compiler -> Include Options`<br/>
+        You will see a little file with a green "plus" symbol in the browser window<br/>
+        (NOTE: include the quotes)<br/>
+        Click on that and add this line `"C:/wolfssl"`<br/>
+   <br/>
+   Step 6.b<br/>
+        Now still in the Properties window<br/>
+        under `Build -> ARM Linker -> File Search Path`<br/>
+        In the browser window on the right under "Include library file or command file as input"<br/>
+        Click the add button and add this line `"C:\wolfssl\tirtos\packages\ti\net\wolfssl\lib\wolfssl.aem4f"`<br/>
+        In the browser window on the right under "Add <dir> to library search path"<br/>
+        Click the add button and add this line `"C:\wolfssl\tirtos\packages\ti\net\wolfssl\lib"`<br/>
+   <br/>
+   Step 6.c<br/>
+        Hit OK and we're ready to build the example project.<br/>
+Step 7: Build the project
+--
+   In the "TI Resource Explorer window" Click on the link in "Step 2" to build the project.<br/>
+<br/>
+Step 8: Prepare for debugging
+--
+   (If you have already hooked up your board skip to step 9)<br/>
+   Take a Micro-USB cable and plug the micro-USB end into the port on the Tiva Board labeled "DEBUG"<br/>
+   (This is the Micro-USB port on the opposite end of the board from the Ethernet port)<br/>
+   Insert the USB end into your PC<br/>
+   Plug one end of an Ethernet cable into the Tiva board Ethernet port and the other end<br/>
+   into your local network.<br/>
+<br/>
+Step 9: Get Debug Working
+--
+   In the "TI Resource Explorer window" Click on the link in "Step 3"<br/>
+   Click the drop down options and select "Stellaris In-Circuit Debug Interface"<br/>
+   In the "TI Resource Explorer window" Click on the link in "Step 4"<br/>
+   This should alert you to the need for some additional setup. Click OK and a new tab will open.<br/>
+   In the field "Board or Device" type in `Tiva TM4C1294NCPDT` and check the box<br/>
+   In the right-hand side of this same window click "save" to save the configuration.<br/>
+   Close this tab.<br/>
+   In the "TI Resource Explorer window" Click on the link in "Step 4" a second time.<br/>
+   The project will be flashed onto the Tiva Board. Wait for a few seconds.<br/>
+   Now hit the key "F8" or in the top left of CCS click the green "Play" Button<br/>
+   (The buton says "Resume" in the drop down if you scroll over it)<br/>
+   You will see output in the "Console" Window at the bottom of CCS.<br/>
+   A line will read `Network Added: If-1:192.168.1.xxx` or some other IP<br/>
+   This is the IP of the tcpEchoTLS server that is now running on the board in step 9<br/>
+   we will refer to this IP as `TCP_ECHO_IP`<br/>
+<br/>
+Step 10: Test the server
+--
+   Option 1:<br/>
+        To test the server here at wolfSSL we either build the client example in Microsoft Visual Studios<br/>
+        and run it against the IP above and using port 1000 (the default port for the tcpEchoTLS example)<br/>
+<br/>
+    Option 2:<br/>
+        Using Linux or Unix build our libraries and run the following command from the wolfssl root<br/>
+        directory from any computer running on the local network<br/>
+        `./examples/client/client -h TCP_ECHO_IP -p 1000`<br/>
+<br/>
+    The client should receive the following response:<br/>
+    `
+    SSL version is TLS1.2<br/>
+    SSL cipher suite is <whichever suite is set><br/>
+    Server response: hello wolfssl!<br/>
+    `<br/>
+<br/>
+Step 11: Success
+--
+   If you received that response your server is working correctly.<br/>
+   You are now ready to begin development for your project!<br/>
+<br/>
+    Contact us anytime with questions:<br/>
+    `info@wolfssl.com`<br/>
+    `support@wolfssl.com`<br/>
+<br/>
     
-   ..\xdctools_3_30_01_25_core\gmake.exe -f tirtos.mak wolfssl
-
-Running wolfSSL wolfCrypt benchmark and test application.
---------------------------------------------------------
-1. After running the TCP Echo Server application, in the Debugger View, open Run -> Load Program. Browse to the Benchmark application (C:\wolfssl\tirtos\packages\ti\net\wolfssl\tests\wolfcrypt\benchmark). Select benchmark.xem4f and Click Open and Click OK to load the application.
-2. Test by running the application.
-3. Repeat the steps 1 and 2 for Test application (C:\wolfssl\tirtos\packages\ti\net\wolfssl\tests\wolfcrypt\test).
-4. The example wolfssl_tirtos_benchmark in this repository has all the correct optimization settings and will re-build the relevant c files at compile time for optimal results and additional benchmarks for camellia, rabbit, chacha, poly1305, sha512, and ECC.
-
-Import a project into your workspace.
---------------------------------------------------------
-In CCS go to the Project tab. Click "Import CCS Projects...". 
-Click "Browse..." and navigate to tirtos_ccs_examples/ file and click "OK". In the "Discovered projects" window you will see all CCS projects. Check the ones you would like to import into the workspace, and check the box at the bottom labled "Copy projects into workspace", now click "Finish". Build and debug the desired projects. 
+    
+    
+    
+        
