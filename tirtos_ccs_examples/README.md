@@ -73,7 +73,8 @@ Step 5: Loading first example
 Step 6: Setting up the environment
 --
    Before building we have to do a little setup.<br/>
-   Step 6.a<br/>
+   <br/>
+   <b>Step 6.a</b><br/>
         Right click on the imported project and select `Properties`<br/>
         <br/>
         Under `Build -> ARM Compiler -> Include Options`<br/>
@@ -81,19 +82,17 @@ Step 6: Setting up the environment
         (NOTE: include the quotes)<br/>
         Click on that and add this line `"C:/wolfssl"`<br/>
    <br/>
-   Step 6.b<br/>
+   <b>Step 6.b</b><br/>
         Now still in the Properties window<br/>
         Under `Build -> ARM Linker -> File Search Path`<br/>
         <br/>
         In the browser window on the right under "Include library file or command file as input"<br/>
         Click the add button and add this line `"C:\wolfssl\tirtos\packages\ti\net\wolfssl\lib\wolfssl.aem4f"`<br/>
         <br/>
-        In the browser window on the right under "Add <dir> to library search path"<br/>
+        In the browser window on the right under "Add dir to library search path"<br/>
         Click the add button and add this line `"C:\wolfssl\tirtos\packages\ti\net\wolfssl\lib"`<br/>
-        <br/>
-   <br/>
-   Step 6.c<br/>
-        Hit OK and we're ready to build the example project.<br/>
+  Hit OK and we're ready to build the example project.<br/>
+<br/>
 Step 7: Build the project
 --
    In the "TI Resource Explorer window" Click on the link in "Step 2" to build the project.<br/>
@@ -111,18 +110,26 @@ Step 9: Get Debug Working
 --
    In the "TI Resource Explorer window" Click on the link in "Step 3"<br/>
    Click the drop down options and select "Stellaris In-Circuit Debug Interface"<br/>
+   <br/>
    In the "TI Resource Explorer window" Click on the link in "Step 4"<br/>
    This should alert you to the need for some additional setup. Click OK and a new tab will open.<br/>
+   <br/>
    In the field "Board or Device" type in `Tiva TM4C1294NCPDT` and check the box<br/>
+   <br/>
    In the right-hand side of this same window click "save" to save the configuration.<br/>
    Close this tab.<br/>
+   <br/>
    In the "TI Resource Explorer window" Click on the link in "Step 4" a second time.<br/>
+   <br/>
    The project will be flashed onto the Tiva Board. Wait for a few seconds.<br/>
+   <br/>
    Now hit the key "F8" or in the top left of CCS click the green "Play" Button<br/>
    (The buton says "Resume" in the drop down if you scroll over it)<br/>
+   <br/>
    You will see output in the "Console" Window at the bottom of CCS.<br/>
    A line will read `Network Added: If-1:192.168.1.xxx` or some other IP<br/>
-   This is the IP of the tcpEchoTLS server that is now running on the board in step 9<br/>
+   <br/>
+   This is the IP of the tcpEchoTLS server that is now running on the board in step 10<br/>
    we will refer to this IP as `TCP_ECHO_IP`<br/>
 <br/>
 Step 10: Test the server
