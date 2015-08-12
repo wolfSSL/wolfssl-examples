@@ -29,21 +29,28 @@ Step 4: Build the libraries
 At this point we are ready to build wolfssl libraries with TIRTOS<br/>
 <br/>
 WINDOWS:<br/>
-    in the file browser navigate to: `C:\ti\ccsv6\tools\compiler` and see which<br/>
+    In the file browser navigate to: `C:\ti\ccsv6\tools\compiler` and see which<br/>
     compiler you have installed `ti-cgt-arm_x.x.x` and make a note of it.<br/>
-    now in the file browser navigate to `C:\ti\tirtos_tivac_xxxxxxx`<br/>
-    open `tirtos.mak` in your preferred text editor<br/>
-    locate the line specifying your compiler should be on or around line 11 and<br/>
-    will look something like this:<br/>
+    <br/>
+    Now in the file browser navigate to `C:\ti\tirtos_tivac_xxxxxxx` open `tirtos.mak` in your<br/>
+    preferred text editor<br/>
+    <br/>
+    Locate the line specifying the compiler. You should find this on or around line 11 and it will look<br/>
+    something like this:<br/>
     `ti.targets.arm.elf.M4F   ?= $(DEFAULT_INSTALLATION_DIR)/ccsv6/tools/compiler/ti-cgt-arm_5.2.5`<br/>
-    make sure you are using the `ti-cgt-agrm_x.x.x` that you noted previously<br/>
-    next locate the wolfSSL section should be on or around line 45 and looks like this:<br/>
+    <br/>
+    Make sure you are using the `ti-cgt-agrm_x.x.x` that you noted previously<br/>
+    <br/>
+    Next locate the wolfSSL section should be on or around line 45 and looks like this:<br/>
     `WolfSSL settings`<br/>
     `WOLFSSL_INSTALLATION_DIR ?= C:\wolfssl`<br/>
     `WOLFSSL_TIRTOS_DIR = $(WOLFSSL_INSTALLATION_DIR)/tirtos<br/>`<br/>
+    <br/>
     Modify WOLFSSL_INSTALLATION_DIR to be the location of your wolfssl directory. Should be C:\wolfssl.<br/>
+    <br/>
     Open a command promp and navigate to `C:\ti\tirtos_tivac_xxxxxxx`<br/>
-    use the following command to build TIRTOS and wolfssl<br/>
+    <br/>
+    Use the following command to build TIRTOS and wolfssl<br/>
     `..\xdctools_3_31_01_33_core\gmake.exe -f tirtos.mak wolfssl`<br/>
 <br/>
     The libraries should build without issues.<br/>
@@ -68,18 +75,22 @@ Step 6: Setting up the environment
    Before building we have to do a little setup.<br/>
    Step 6.a<br/>
         Right click on the imported project and select `Properties`<br/>
-        under `Build -> ARM Compiler -> Include Options`<br/>
+        <br/>
+        Under `Build -> ARM Compiler -> Include Options`<br/>
         You will see a little file with a green "plus" symbol in the browser window<br/>
         (NOTE: include the quotes)<br/>
         Click on that and add this line `"C:/wolfssl"`<br/>
    <br/>
    Step 6.b<br/>
         Now still in the Properties window<br/>
-        under `Build -> ARM Linker -> File Search Path`<br/>
+        Under `Build -> ARM Linker -> File Search Path`<br/>
+        <br/>
         In the browser window on the right under "Include library file or command file as input"<br/>
         Click the add button and add this line `"C:\wolfssl\tirtos\packages\ti\net\wolfssl\lib\wolfssl.aem4f"`<br/>
+        <br/>
         In the browser window on the right under "Add <dir> to library search path"<br/>
         Click the add button and add this line `"C:\wolfssl\tirtos\packages\ti\net\wolfssl\lib"`<br/>
+        <br/>
    <br/>
    Step 6.c<br/>
         Hit OK and we're ready to build the example project.<br/>
