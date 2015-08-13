@@ -53,4 +53,16 @@ The wolfCrypt benchmark and test applications are built along with the wolfSSL l
 2. Test by running the application.
 3. Repeat the steps 1 and 2 for Test application (C:\wolfssl\tirtos\packages\ti\net\wolfssl\tests\wolfcrypt\test).
 
+Running wolfSSL examples from wolfSSL/wolfssl-examples/tirtos_ccs_examples
+---------------------------------------------------------
+Choose Project -> Import CCS Projects
+Select "Browse" and Navigate to wolfssl-examples/tirtos_ccs_examples and hit ok
+NOTE: Do not browse to each individual project just to the tirtos_ccs_examples directory
+
+Click "OK" and you should see all four projects appear in the "Discovered Projects" window
+Check which one(s) you would like to import and check the box marked "Copy Projects into workspace"
+This way you will have a backup in your cloned github repository if you ever need to revert.
+Your project should now reside in your workspace (C:/Users/*you*/workspace_v6_x/)
+
+
 
