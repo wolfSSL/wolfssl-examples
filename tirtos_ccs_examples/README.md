@@ -138,6 +138,8 @@ Step 10: Test the server
    Option 1:<br/>
         To test the server here at wolfSSL we either build the client example in Microsoft Visual Studios<br/>
         and run it against the IP above and using port 1000 (the default port for the tcpEchoTLS example)<br/>
+        Instructions for building the Visual Studio Client can be found here:
+        http://wolfssl.com/wolfSSL/Docs-wolfssl-visual-studio.html
 <br/>
     Option 2:<br/>
         Using Linux or Unix build our libraries and run the following command from the wolfssl root<br/>
