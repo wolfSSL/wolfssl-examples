@@ -20,8 +20,8 @@
  *=============================================================================
  *
  * This is a super basic example of what a TCP Server secured with TLS 1.2
- * might look like. This server can also resume the session if a client 
- * inadvertantly disconnects. 
+ * might look like. This server can also resume the session if a client
+ * inadvertantly disconnects.
  */
 
 #include <stdio.h>
@@ -38,10 +38,10 @@
 
 #define DEFAULT_PORT 11111
 
-int AcceptAndRead(WOLFSSL_CTX* ctx, socklen_t sockfd, struct sockaddr_in 
+int AcceptAndRead(WOLFSSL_CTX* ctx, socklen_t sockfd, struct sockaddr_in
     clientAddr);
 
-int AcceptAndRead(WOLFSSL_CTX* ctx, socklen_t sockfd, struct sockaddr_in 
+int AcceptAndRead(WOLFSSL_CTX* ctx, socklen_t sockfd, struct sockaddr_in
     clientAddr)
 {
         /* Create our reply message */
@@ -82,9 +82,9 @@ int AcceptAndRead(WOLFSSL_CTX* ctx, socklen_t sockfd, struct sockaddr_in
             if ((ret = wolfSSL_read(ssl, buff, sizeof(buff)-1)) > 0) {
                 /* Print any data the client sends to the console */
                 printf("Client: %s\n", buff);
-                
+
                 /* Reply back to the client */
-                if ((ret = wolfSSL_write(ssl, reply, sizeof(reply)-1)) 
+                if ((ret = wolfSSL_write(ssl, reply, sizeof(reply)-1))
                     < 0)
                 {
                     printf("wolfSSL_write error = %d\n", wolfSSL_get_error(ssl, ret));
@@ -114,7 +114,7 @@ int main()
     /* Create a ctx pointer for our ssl */
     WOLFSSL_CTX* ctx;
 
-    /* 
+    /*
      * Creates a socket that uses an internet IP address,
      * Sets the type to be Stream based (TCP),
      * 0 means choose the default protocol.
@@ -131,7 +131,7 @@ int main()
     /* If positive value, the socket is valid */
     if (sockfd == -1) {
         printf("ERROR: failed to create the socket\n");
-        return EXIT_FAILURE;        /* Kill the server with exit status 1 */        
+        return EXIT_FAILURE;        /* Kill the server with exit status 1 */
     }
 
     /* create and initialize WOLFSSL_CTX structure */
@@ -141,7 +141,7 @@ int main()
     }
 
     /* Load server certificate into WOLFSSL_CTX */
-    if (wolfSSL_CTX_use_certificate_file(ctx, "../certs/server-cert.pem", 
+    if (wolfSSL_CTX_use_certificate_file(ctx, "../certs/server-cert.pem",
                 SSL_FILETYPE_PEM) != SSL_SUCCESS) {
         fprintf(stderr, "Error loading certs/server-cert.pem, please check"
                 "the file.\n");
@@ -149,7 +149,7 @@ int main()
     }
 
     /* Load server key into WOLFSSL_CTX */
-    if (wolfSSL_CTX_use_PrivateKey_file(ctx, "../certs/server-key.pem", 
+    if (wolfSSL_CTX_use_PrivateKey_file(ctx, "../certs/server-key.pem",
                 SSL_FILETYPE_PEM) != SSL_SUCCESS) {
         fprintf(stderr, "Error loading certs/server-key.pem, please check"
                 "the file.\n");
@@ -157,7 +157,7 @@ int main()
     }
 
     /* Initialize the server address struct to zero */
-    memset((char *)&serverAddr, 0, sizeof(serverAddr)); 
+    memset((char *)&serverAddr, 0, sizeof(serverAddr));
 
     /* Fill the server's address family */
     serverAddr.sin_family      = AF_INET;

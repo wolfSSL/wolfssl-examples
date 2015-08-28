@@ -20,8 +20,8 @@
  *=============================================================================
  *
  * This is a super basic example of what a TCP Server secured with TLS 1.2
- * might look like. This server can also resume the session if a client 
- * inadvertantly disconnects. 
+ * might look like. This server can also resume the session if a client
+ * inadvertantly disconnects.
  */
 
 #include <stdio.h>
@@ -39,10 +39,10 @@
 
 #define DEFAULT_PORT 11111
 
-int AcceptAndRead(WOLFSSL_CTX* ctx, socklen_t sockfd, struct sockaddr_in 
+int AcceptAndRead(WOLFSSL_CTX* ctx, socklen_t sockfd, struct sockaddr_in
     clientAddr);
 
-int AcceptAndRead(WOLFSSL_CTX* ctx, socklen_t sockfd, struct sockaddr_in 
+int AcceptAndRead(WOLFSSL_CTX* ctx, socklen_t sockfd, struct sockaddr_in
     clientAddr)
 {
         /* Create our reply message */
@@ -85,7 +85,7 @@ int AcceptAndRead(WOLFSSL_CTX* ctx, socklen_t sockfd, struct sockaddr_in
                 printf("Client: %s\n", buff);
 
                 /* Reply back to the client */
-                if ((ret = wolfSSL_write(ssl, reply, sizeof(reply)-1)) 
+                if ((ret = wolfSSL_write(ssl, reply, sizeof(reply)-1))
                     < 0)
                 {
                     printf("wolfSSL_write error = %d\n", wolfSSL_get_error(ssl, ret));
@@ -115,7 +115,7 @@ int main()
     /* Create a ctx pointer for our ssl */
     WOLFSSL_CTX* ctx;
 
-    /* 
+    /*
      * Creates a socket that uses an internet IP address,
      * Sets the type to be Stream based (TCP),
      * 0 means choose the default protocol.

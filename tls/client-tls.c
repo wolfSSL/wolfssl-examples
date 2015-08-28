@@ -19,7 +19,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 #include    <stdio.h>
-#include    <stdlib.h>                  
+#include    <stdlib.h>
 #include    <string.h>
 #include    <errno.h>
 #include    <arpa/inet.h>
@@ -30,7 +30,7 @@
 
 const char* cert = "../certs/ca-cert.pem";
 
-/* 
+/*
  * clients initial contact with server. (socket to connect, security layer)
  */
 int ClientGreet(int sock, WOLFSSL* ssl)
@@ -60,7 +60,7 @@ int ClientGreet(int sock, WOLFSSL* ssl)
     return ret;
 }
 
-/* 
+/*
  * applies TLS 1.2 security layer to data being sent.
  */
 int Security(int sock)
@@ -101,10 +101,10 @@ int Security(int sock)
     return ret;
 }
 
-/* 
- * Command line argumentCount and argumentValues 
+/*
+ * Command line argumentCount and argumentValues
  */
-int main(int argc, char** argv) 
+int main(int argc, char** argv)
 {
     int     sockfd;                         /* socket file descriptor */
     struct  sockaddr_in servAddr;           /* struct for server address */
@@ -123,8 +123,8 @@ int main(int argc, char** argv)
         printf("Failed to create socket. Error: %i\n", errno);
         return EXIT_FAILURE;
     }
-  
-    memset(&servAddr, 0, sizeof(servAddr)); /* clears memory block for use */  
+
+    memset(&servAddr, 0, sizeof(servAddr)); /* clears memory block for use */
     servAddr.sin_family = AF_INET;          /* sets addressfamily to internet*/
     servAddr.sin_port = htons(SERV_PORT);   /* sets port to defined port */
 
