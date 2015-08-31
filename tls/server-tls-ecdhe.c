@@ -90,6 +90,7 @@ int AcceptAndRead(WOLFSSL_CTX* ctx, socklen_t sockfd, struct sockaddr_in
                 {
                     printf("wolfSSL_write error = %d\n", wolfSSL_get_error(ssl, ret));
                 }
+                break;
             }
             /* if the client disconnects break the loop */
             else {
@@ -129,6 +130,10 @@ int main()
 
     /* Initialize wolfSSL */
     wolfSSL_Init();
+
+#ifdef DEBUG_WOLFSSL
+    wolfSSL_Debugging_ON();
+#endif
 
     /* If positive value, the socket is valid */
     if (sockfd == -1) {
@@ -183,9 +188,9 @@ int main()
         /* listen for a new connection, allow 5 pending connections */
         ret = listen(sockfd, 5);
         if (ret == 0) {
-
             /* Accept client connections and read from them */
             loopExit = AcceptAndRead(ctx, sockfd, clientAddr);
+            ret = -1;
         }
     }
 
