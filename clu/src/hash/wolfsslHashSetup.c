@@ -85,20 +85,20 @@ int wolfsslHashSetup(int argc, char** argv)
     }
 
     for (i = 3; i < argc; i++) {
-        if (strcmp(argv[i], "-i") == 0 && argv[i+1] != NULL) {
+        if (XSTRNCMP(argv[i], "-in", 3) == 0 && argv[i+1] != NULL) {
             /* input file/text */
             in = malloc(strlen(argv[i+1])+1);
             XSTRNCPY(in, &argv[i+1][0], XSTRLEN(&argv[i+1][0]));
-            in[strlen(argv[i+1])] = '\0';
+            in[XSTRLEN(argv[i+1])] = '\0';
             inCheck = 1;
             i++;
         }
-        else if (strcmp(argv[i], "-o") == 0 && argv[i+1] != NULL) {
+        else if (XSTRNCMP(argv[i], "-out", 4) == 0 && argv[i+1] != NULL) {
             /* output file */
             out = argv[i+1];
             i++;
         }
-        else if (strcmp(argv[i], "-s") == 0 && argv[i+1] != NULL) {
+        else if (XSTRNCMP(argv[i], "-size", 5) == 0 && argv[i+1] != NULL) {
             /* size of output */
 #ifndef HAVE_BLAKE2
             printf("Sorry, only to be used with Blake2b enabled\n");
@@ -121,27 +121,27 @@ int wolfsslHashSetup(int argc, char** argv)
     }
     /* sets default size of algorithm */
 #ifndef NO_MD5
-    if (strcmp(alg, "md5") == 0)
+    if (XSTRNCMP(alg, "md5", 3) == 0)
         size = MD5_DIGEST_SIZE;
 #endif
 
 #ifndef NO_SHA
-    if (strcmp(alg, "sha") == 0)
+    if (XSTRNCMP(alg, "sha", 3) == 0)
         size = SHA_DIGEST_SIZE;
 #endif
 
 #ifndef NO_SHA256
-    if (strcmp(alg, "sha256") == 0)
+    if (XSTRNCMP(alg, "sha256", 6) == 0)
         size = SHA256_DIGEST_SIZE;
 #endif
 
 #ifdef WOLFSSL_SHA384
-    if (strcmp(alg, "sha384") == 0)
+    if (XSTRNCMP(alg, "sha384", 6) == 0)
         size = SHA384_DIGEST_SIZE;
 #endif
 
 #ifdef WOLFSSL_SHA512
-    if (strcmp(alg, "sha512") == 0)
+    if (XSTRNCMP(alg, "sha512", 6) == 0)
         size = SHA512_DIGEST_SIZE;
 #endif
 

@@ -87,7 +87,10 @@ enum {
     PASSWORD,
     KEY,
     IV,
-    ALL
+    ALL,
+    SIZE,
+    TIME,
+    VERIFY
 };
 
 /* Structure for holding long arguments */
@@ -103,7 +106,10 @@ static struct option long_options[] = {
     {"key",     required_argument, 0, KEY       },
     {"iv",      required_argument, 0, IV        },
     {"all",     0,                 0, ALL       },
-    {"verify",  0,                 0, 'x'       },
+    {"size",    required_argument, 0, SIZE      },
+    {"time",    required_argument, 0, TIME      },
+    {"verify",  0,                 0, VERIFY    },
+    {"v",       0,                 0, 'v'       },
     {"version", 0,                 0, 'v'       },
     {0, 0, 0, 0}
 

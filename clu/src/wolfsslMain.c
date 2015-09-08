@@ -50,6 +50,10 @@ int main(int argc, char** argv)
             /* Hash */
              case HASH:     ret = wolfsslHashSetup(argc, argv);
                             break;
+
+/* Ignore the following arguments for now. Will be handled by their respective
+ * setups IE Crypto setup, Benchmark setup, or Hash Setup */
+
             /* File passed in by user */
             case INFILE:    break;
             /* Output file */
@@ -60,8 +64,18 @@ int main(int argc, char** argv)
             case KEY:       break;
             /* IV if used must be in hex */
             case IV:        break;
+            /* Opt to benchmark all available algorithms */
             case ALL:       break;
-            case 'x':       break;
+            /* size for hash to output */
+            case SIZE:      break;
+            /* Time to benchmark for 1-10 seconds optional default: 3s */
+            case TIME:      break;
+            /* Verify results, used with -iv and -key */
+            case VERIFY:       break;
+            /* which version of clu am I using */
+
+/*End of ignored arguments */
+
             case 'v':       wolfsslVersion();
                             return 0;
              default:

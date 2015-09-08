@@ -63,28 +63,29 @@ int wolfsslBenchSetup(int argc, char** argv)
     int optionCheck = 0;                           /* acceptable option check */
 
     for (i = 2; i < argc; i++) {
-        if (strcmp(argv[i], "-help") == 0) {
+        if (XSTRNCMP(argv[i], "-help", 5) == 0) {
             /* help checking */
             wolfsslBenchHelp();
             return 0;
         }
         for (j = 0; j < (int) sizeof(algs)/(int) sizeof(algs[0]); j++) {
             /* checks for individual tests in the arguments */
-            if (strcmp(argv[i], algs[j]) == 0) {
-                option[j] = 1;    
+            if (XSTRNCMP(argv[i], algs[j], XSTRLEN(argv[i])) == 0) {
+                option[j] = 1;
                 optionCheck = 1;
             }
         }
-        if (strcmp(argv[i], "-t") == 0 && argv[i+1] != NULL) {
+        if (XSTRNCMP(argv[i], "-time", 5) == 0 && argv[i+1] != NULL) {
             /* time for each test in seconds */
             time = atoi(argv[i+1]);
             if (time < 1 || time > 10) {
-                printf("Invalid time, must be between 1-10. Using default.\n");
+                printf("Invalid time, must be between 1-10. Using default"
+                                                " of three seconds.\n");
                 time = 3;
             }
             i++;
         }
-        if (strcmp(argv[i], "-a") == 0) {
+        if (XSTRNCMP(argv[i], "-all", 4) == 0) {
             /* perform all available tests */
             for (j = 0; j < (int) sizeof(algs)/(int) sizeof(algs[0]); j++) {
                 option[j] = 1;
