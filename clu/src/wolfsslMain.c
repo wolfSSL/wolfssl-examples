@@ -71,9 +71,11 @@ int main(int argc, char** argv)
             /* Time to benchmark for 1-10 seconds optional default: 3s */
             case TIME:      break;
             /* Verify results, used with -iv and -key */
-            case VERIFY:       break;
+            case VERIFY:    break;
             /* which version of clu am I using */
-
+            case VERBOSE:
+                            wolfsslVerboseHelp();
+                            return 0;
 /*End of ignored arguments */
 
             case 'v':       wolfsslVersion();

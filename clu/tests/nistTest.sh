@@ -11,7 +11,7 @@ function hashtest() {
     fail=0
     i=0
     total=0
-    
+
     # -r options causes the "\" to be read
     while read -r md; do
         #if $i < 10
@@ -35,7 +35,7 @@ function hashtest() {
 #converts to lowercase
 #        md=${md,,}
         md="$(tr [A-Z] [a-z] <<< "$md")"
-        cipher="$(wolfssl -h $2 -i $FILE)"
+        cipher="$(wolfssl -hash $2 -in $FILE)"
         echo "$cipher                   $md"
         #compare result of hash to line in file byte-hashes.sha1
         if test "$cipher" != "$md"; then

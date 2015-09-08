@@ -38,28 +38,28 @@ int     i          =   0;       /* loop variable */
     printf("-help           Help, print out this help menu\n");
     printf("\n");
     printf("Only set one of the following.\n\n");
-    printf("-e              Encrypt a file or some user input\n");
-    printf("-d              Decrypt an encrypted file\n");
-    printf("-h              Hash a file or input\n");
-    printf("-b              Benchmark one of the algorithms\n");
+    printf("-encrypt        Encrypt a file or some user input\n");
+    printf("-decrypt        Decrypt an encrypted file\n");
+    printf("-hash           Hash a file or input\n");
+    printf("-bench          Benchmark one of the algorithms\n");
     printf("\n");
     /*optional flags*/
     printf("Optional Flags.\n\n");
-    printf("-i              input file to manage\n");
-    printf("-o              file to output as a result of option\n");
-    printf("-p              user custom password\n");
-    printf("-V              user custom IV (hex input only)\n");
-    printf("-K              user custom key(hex input only)\n");
-    printf("-x              when using -V and -k this will print result of\n"
+    printf("-in             input file to manage\n");
+    printf("-out            file to output as a result of option\n");
+    printf("-pwd            user custom password\n");
+    printf("-iv             user custom IV (hex input only)\n");
+    printf("-key            user custom key(hex input only)\n");
+    printf("-verify         when using -iv and -key this will print result of\n"
            "                encryption for user verification.\n"
            "                This flag takes no arguments.\n");
-    printf("-t              used by Benchmark, set time in seconds to run.\n");
-    printf("-v              display a more verbose help menu\n");
+    printf("-time           used by Benchmark, set time in seconds to run.\n");
+    printf("-verbose        display a more verbose help menu\n");
 
-    printf("\nFor encryption:   wolfssl -e -help\n");
-    printf("For decryption:   wolfssl -d -help\n");
-    printf("For hashing:      wolfssl -h -help\n");
-    printf("For benchmarking: wolfssl -b -help\n\n");
+    printf("\nFor encryption:   wolfssl -encrypt -help\n");
+    printf("For decryption:   wolfssl -decrypt -help\n");
+    printf("For hashing:      wolfssl -hash -help\n");
+    printf("For benchmarking: wolfssl -bench -help\n\n");
  }
 
 /*
@@ -175,11 +175,11 @@ void wolfsslEncryptHelp()
                 "camellia-cbc-256\n\n");
 #endif
     printf("***************************************************************\n");
-    printf("\nENCRYPT USAGE: wolfssl -e <-algorithm> -i <filename> "
-           "-p <password> -o <output file name>\n\n");
+    printf("\nENCRYPT USAGE: wolfssl -encrypt <-algorithm> -in <filename> "
+           "-pwd <password> -out <output file name>\n\n");
     printf("***************************************************************\n");
-    printf("\nEXAMPLE: \n\nwolfssl -e aes-cbc-128 -p Thi$i$myPa$$w0rd"
-           " -i somefile.txt -o encryptedfile.txt\n\n");
+    printf("\nEXAMPLE: \n\nwolfssl -encrypt aes-cbc-128 -pwd Thi$i$myPa$$w0rd"
+           " -in somefile.txt -out encryptedfile.txt\n\n");
 }
 
 /*
@@ -203,11 +203,11 @@ void wolfsslDecryptHelp()
                 "camellia-cbc-256\n\n");
 #endif
     printf("***************************************************************\n");
-    printf("\nDECRYPT USAGE: wolfssl -d <-algorithm> -i <encrypted file name> "
-           "-p <password> -o <output file name>\n\n");
+    printf("\nDECRYPT USAGE: wolfssl -decrypt <algorithm> -in <encrypted file> "
+           "-pwd <password> -out <output file name>\n\n");
     printf("***************************************************************\n");
-    printf("\nEXAMPLE: \n\nwolfssl -d aes-cbc-128 -p Thi$i$myPa$$w0rd"
-           " -i encryptedfile.txt -o decryptedfile.txt\n\n");
+    printf("\nEXAMPLE: \n\nwolfssl -decrypt aes-cbc-128 -pwd Thi$i$myPa$$w0rd"
+           " -in encryptedfile.txt -out decryptedfile.txt\n\n");
 }
 
 /*
@@ -244,9 +244,9 @@ void wolfsslHashHelp()
     }
             /* encryption/decryption help lists options */
     printf("***************************************************************\n");
-    printf("\nUSAGE: wolfssl -h <-algorithm> -i <file to hash>\n");
+    printf("\nUSAGE: wolfssl -hash <-algorithm> -in <file to hash>\n");
     printf("***************************************************************\n");
-    printf("\nEXAMPLE: \n\nwolfssl -h sha -i <some file>\n\n");
+    printf("\nEXAMPLE: \n\nwolfssl -hash sha -in <some file>\n\n");
 }
 
 /*
@@ -296,11 +296,11 @@ void wolfsslBenchHelp()
     printf("\n");
             /* encryption/decryption help lists options */
     printf("***************************************************************\n");
-    printf("USAGE: wolfssl -b [alg] -t [time in seconds [1-10]]\n"
-           "       or\n       wolfssl -b -t 10 -a (to test all)\n");
+    printf("USAGE: wolfssl -bench [alg] -time [time in seconds [1-10]]\n"
+           "       or\n       wolfssl -bench -time 10 -all (to test all)\n");
     printf("***************************************************************\n");
-    printf("\nEXAMPLE: \n\nwolfssl -b aes-cbc -t 10"
-           " -i encryptedfile.txt -o decryptedfile.txt\n\n");
+    printf("\nEXAMPLE: \n\nwolfssl -bench aes-cbc -time 10"
+           " -in encryptedfile.txt -out decryptedfile.txt\n\n");
 }
 
 /*

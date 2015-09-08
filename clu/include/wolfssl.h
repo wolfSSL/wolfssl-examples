@@ -90,7 +90,8 @@ enum {
     ALL,
     SIZE,
     TIME,
-    VERIFY
+    VERIFY,
+    VERBOSE
 };
 
 /* Structure for holding long arguments */
@@ -109,6 +110,7 @@ static struct option long_options[] = {
     {"size",    required_argument, 0, SIZE      },
     {"time",    required_argument, 0, TIME      },
     {"verify",  0,                 0, VERIFY    },
+    {"verbose", 0,                 0, VERBOSE   },
     {"v",       0,                 0, 'v'       },
     {"version", 0,                 0, 'v'       },
     {0, 0, 0, 0}
