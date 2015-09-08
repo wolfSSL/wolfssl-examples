@@ -34,6 +34,7 @@
 #include <wolfssl/wolfcrypt/des3.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
 #include <wolfssl/error-ssl.h>
+#include <wolfssl/wolfcrypt/hash.h>
 
 #ifndef NO_MD5
     #include <wolfssl/wolfcrypt/md5.h>
