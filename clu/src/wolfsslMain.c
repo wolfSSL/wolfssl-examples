@@ -82,7 +82,7 @@ int main(int argc, char** argv)
                             return 0;
              default:
                             printf("Main help default.\n");
-                            wolfsslVerboseHelp();
+                            wolfsslHelp();
                             return 0;
         }
     }
