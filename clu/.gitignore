@@ -21,4 +21,5 @@ lt*.m4
 *.patch
 *.deps
 *.libs
+*.dirstamp
 

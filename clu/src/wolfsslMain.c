@@ -21,62 +21,58 @@
 
 #include "include/wolfssl.h"
 
+/* enumerate optionals beyond ascii range to dis-allow use of alias IE we
+ * do not want "-e" to work for encrypt, user must use "encrypt"
+ */
+
 int main(int argc, char** argv)
 {
-    int ret = 0;
-    int option;
+    int ret = 0, option = 0, long_index = 0;
+
     if (argc == 1) {
         printf("Main Help.\n");
         wolfsslHelp();
     }
-    while ((option = getopt (argc, argv, "e:d:h:b:i:o:p:V:K:t:axv")) != -1)  {
-        switch (option)
-        {
-            /* User wants to encrypt data or file*/
-            case 'e':
-                if (argc == 2) {
-                    wolfsslEncryptHelp();
-                    break;
-                }
-                ret = wolfsslSetup(argc, argv, 'e');
-                break;
-                /* User wants to decrypt some data or file */
-            case 'd':
-                ret = wolfsslSetup(argc, argv, 'd');
-                break;
-                /* User wants to hash some data/file */
-            case 'h':
-                ret = wolfsslHashSetup(argc, argv);
-                break;
-            case 'b':
-                ret = wolfsslBenchSetup(argc, argv);
-                break;
-            case 'i':/* will be handled by Setup function */
-                break;
-            case 'o':/* will be handled by Setup function */
-                break;
-            case 'p':/* will be handled by Setup function */
-                break;
-            case 'V':/* will be handled by Setup function */
-                break;
-            case 'K':/* will be handled by Setup function */
-                break;
-            case 'a':/* will be handled by benchmarkSetup function */
-                break;
-            case 't':/* will be handled by benchSetup function */
-                break;
-            case 'x':/* will be handled by benchSetup function*/
-                break;
-            case 'v':
-                wolfsslVersion();
-                return 0;
-            default:
-                printf("Main Help Default.\n");
-                wolfsslVerboseHelp();
-                return 0;
+    while ((option = getopt_long_only(argc, argv,"",
+                   long_options, &long_index )) != -1) {
+
+
+        switch (option) {
+            /* Encrypt */
+             case ENCRYPT:  ret = wolfsslSetup(argc, argv, 'e');
+                            break;
+            /* Decrypt */
+             case DECRYPT:  ret = wolfsslSetup(argc, argv, 'd');;
+                            break;
+            /* Benchmark */
+             case BENCHMARK:ret = wolfsslBenchSetup(argc, argv);
+                            break;
+            /* Hash */
+             case HASH:     ret = wolfsslHashSetup(argc, argv);
+                            break;
+            /* File passed in by user */
+            case INFILE:    break;
+            /* Output file */
+            case OUTFILE:   break;
+            /* Password */
+            case PASSWORD:  break;
+            /* Key if used must be in hex */
+            case KEY:       break;
+            /* IV if used must be in hex */
+            case IV:        break;
+            case ALL:       break;
+            case 'x':       break;
+            case 'v':       wolfsslVersion();
+                            return 0;
+             default:
+                            printf("Main help default.\n");
+                            wolfsslVerboseHelp();
+                            return 0;
         }
     }
+
     if (ret != 0)
         printf("Error returned: %d.\n", ret);
+
     return ret;
 }

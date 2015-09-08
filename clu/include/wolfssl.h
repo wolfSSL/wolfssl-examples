@@ -25,6 +25,7 @@
 #include <unistd.h>
 #include <termios.h>
 #include <sys/time.h>
+#include <getopt.h>
 
 /* wolfssl includes */
 #include <wolfssl/options.h>
@@ -74,6 +75,39 @@
   * or code update 
   */
 #define VERSION 0.3
+
+/* Enumerated types for long arguments */
+enum {
+    ENCRYPT = 1000,
+    DECRYPT,
+    BENCHMARK,
+    HASH,
+    INFILE,
+    OUTFILE,
+    PASSWORD,
+    KEY,
+    IV,
+    ALL
+};
+
+/* Structure for holding long arguments */
+static struct option long_options[] = {
+
+    {"encrypt", required_argument, 0, ENCRYPT   },
+    {"decrypt", required_argument, 0, DECRYPT   },
+    {"bench",   required_argument, 0, BENCHMARK },
+    {"hash",    required_argument, 0, HASH      },
+    {"in",      required_argument, 0, INFILE    },
+    {"out",     required_argument, 0, OUTFILE   },
+    {"pwd",     required_argument, 0, PASSWORD  },
+    {"key",     required_argument, 0, KEY       },
+    {"iv",      required_argument, 0, IV        },
+    {"all",     0,                 0, ALL       },
+    {"verify",  0,                 0, 'x'       },
+    {"version", 0,                 0, 'v'       },
+    {0, 0, 0, 0}
+
+};
 
 
 /* encryption argument function

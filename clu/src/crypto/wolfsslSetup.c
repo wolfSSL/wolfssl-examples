@@ -89,7 +89,7 @@ int wolfsslSetup(int argc, char** argv, char action)
             if (argv[i] == NULL){
                 break;
             }
-            else if (strcmp(argv[i], "-o") == 0 && argv[i+1] != NULL) {
+            else if (XSTRNCMP(argv[i], "-out", 4) == 0 && argv[i+1] != NULL) {
                 /* output file */
                 out = argv[i+1];
                 outCheck = 1;
@@ -98,7 +98,7 @@ int wolfsslSetup(int argc, char** argv, char action)
                 continue;
             }
 
-            else if (strcmp(argv[i], "-i") == 0 && argv[i+1] != NULL) {
+            else if (XSTRNCMP(argv[i], "-in", 3) == 0 && argv[i+1] != NULL) {
                  /* input file/text */
                 in = argv[i+1];
                 inCheck = 1;
@@ -107,7 +107,7 @@ int wolfsslSetup(int argc, char** argv, char action)
                 continue;
             }
 
-            else if (strcmp(argv[i], "-p") == 0 && argv[i+1] != NULL) {
+            else if (XSTRNCMP(argv[i], "-pwd", 4) == 0 && argv[i+1] != NULL) {
                 /* password pwdKey */
                 XMEMCPY(pwdKey, argv[i+1], size);
                 pwdKeyChk = 1;
@@ -115,13 +115,13 @@ int wolfsslSetup(int argc, char** argv, char action)
                 i+=2;
                 continue;
             }
-            else if (strcmp(argv[i], "-x") == 0) {
+            else if (XSTRNCMP(argv[i], "-verify", 7) == 0) {
                 /* using hexidecimal format */
                 inputHex = 1;
                 i++;
                 continue;
             }
-            else if (strcmp(argv[i], "-V") == 0 && argv[i+1] != NULL) {
+            else if (XSTRNCMP(argv[i], "-iv", 3) == 0 && argv[i+1] != NULL) {
                 /* iv for encryption */
                 if (pwdKeyChk == 1) {
                     printf("Invalid option, attempting to use IV with password"
@@ -130,7 +130,7 @@ int wolfsslSetup(int argc, char** argv, char action)
                     return FATAL_ERROR;
                 }
                  ivSize = block*2;
-                if (strlen(argv[i+1]) != ivSize) {
+                if (XSTRLEN(argv[i+1]) != ivSize) {
                     printf("Invalid IV. Must match algorithm block size.\n");
                     printf("Invalid IV size was: %d.\n",
                                                        (int) strlen(argv[i+1]));
@@ -139,7 +139,7 @@ int wolfsslSetup(int argc, char** argv, char action)
                     return FATAL_ERROR;
                 }
                 else {
-                    char ivString[strlen(argv[i+1])];
+                    char ivString[XSTRLEN(argv[i+1])];
                     XSTRNCPY(ivString, argv[i+1], XSTRLEN(argv[i+1]));
                     ret = wolfsslHexToBin(ivString, &iv, &ivSize,
                                             NULL, NULL, NULL,
@@ -156,12 +156,12 @@ int wolfsslSetup(int argc, char** argv, char action)
                     continue;
                 }
             }
-            else if (strcmp(argv[i], "-K") == 0 && argv[i+1] != NULL) {
+            else if (XSTRNCMP(argv[i], "-key", 4) == 0 && argv[i+1] != NULL) {
                 /* 2 characters = 1 byte. 1 byte = 8 bits
                  * number of characters / 2 = bytes
                  * bytes * 8 = bits
                  */
-                numBits = (int) (strlen(argv[i+1]) / 2 ) * 8;
+                numBits = (int) (XSTRLEN(argv[i+1]) / 2 ) * 8;
                 /* Key for encryption */
                 if ((int)numBits != size) {
                     printf("Length of key provided was: %d.\n", numBits);
@@ -198,13 +198,13 @@ int wolfsslSetup(int argc, char** argv, char action)
         if (pwdKeyChk == 0 && keyCheck == 0) {
             if (dCheck == 1) {
                 printf("\nDECRYPT ERROR:\n");
-                printf("Please type \"wolfssl -d -help\" for decryption usage."
-                                                                        "\n\n");
+                printf("Please type \"wolfssl -decrypt -help\" for decryption"
+                                                                " usage \n\n");
                 return 0;
             }
             /* if no pwdKey is provided */
             else {
-                printf("No -p flag set, please enter a password to use for"
+                printf("No -pwd flag set, please enter a password to use for"
                 " encrypting.\n");
                 printf("Write your password down so you don't forget it.\n");
                 ret = wolfsslNoEcho((char*)pwdKey, size);
@@ -215,7 +215,7 @@ int wolfsslSetup(int argc, char** argv, char action)
         if (inCheck == 0 && eCheck == 1) {
             ret = 0;
             while (ret == 0) {
-                printf("-i flag was not set, please enter a string or\n"
+                printf("-in flag was not set, please enter a string or\n"
                        "file name to be encrypted: ");
                 ret = (int) scanf("%s", inName);
             } 
@@ -241,9 +241,9 @@ int wolfsslSetup(int argc, char** argv, char action)
 
         if (ivCheck == 1) {
             if (keyCheck == 0) {
-                printf("IV was explicitly set, but no -K <key> was set. User\n"
+                printf("-iv was explicitly set, but no -key was set. User\n"
                     " needs to provide a non-password based key when setting"
-                        " the IV.\n");
+                        " the -iv flag.\n");
                 wolfsslFreeBins(pwdKey, iv, key, NULL, NULL);
                 return FATAL_ERROR;
             }

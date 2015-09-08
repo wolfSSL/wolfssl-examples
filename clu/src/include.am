@@ -4,14 +4,14 @@
 
 #/ kaleb /#
 bin_PROGRAMS = wolfssl
-wolfssl_SOURCES = src/wolfsslFuncs.c \
-					src/wolfsslEncrypt.c \
-					src/wolfsslDecrypt.c \
-					src/wolfsslHash.c \
-					src/wolfsslBenchmark.c \
-					src/wolfsslSetup.c \
-					src/wolfsslHashSetup.c \
-					src/wolfsslBenchSetup.c \
-					src/wolfsslHexToBin.c \
+wolfssl_SOURCES = src/tools/wolfsslFuncs.c \
+					src/tools/wolfsslHexToBin.c \
+					src/crypto/wolfsslEncrypt.c \
+					src/crypto/wolfsslDecrypt.c \
+					src/crypto/wolfsslSetup.c \
+					src/hash/wolfsslHashSetup.c \
+					src/hash/wolfsslHash.c \
+					src/benchmark/wolfsslBenchSetup.c \
+					src/benchmark/wolfsslBenchmark.c \
 					src/wolfsslMain.c \
 					include/wolfssl.h
