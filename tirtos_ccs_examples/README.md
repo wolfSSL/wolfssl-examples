@@ -10,7 +10,8 @@ expected install location: C:\ti<br/>
 Step 2: Download tivac
 --
 (If you already have TIRTOS for TivaC skip to step 3)<br/>
-Find CCS App Center it will be an option on the "Getting Started" page or click View -> CCS App Center<br/>
+Now in Code Composer Studio, find CCS App Center it will be an option on the "Getting Started"<br/>
+page or click View -> CCS App Center<br/>
 Under the title "Code Composer Studio Add-ons" check the box under "TI-RTOS for TivaC"<br/>
 Now on the top of the page click "Install Software"<br/>
 <br/>
