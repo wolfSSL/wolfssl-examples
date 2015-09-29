@@ -1,4 +1,4 @@
-Step 1: Download CCS
+Part 1: Download CCS
 --
 (If you already have Code Composer Studio (CCS) installed skip to step 2)<br/>
 Download CCS here: http://www.ti.com/tool/ccstudio<br/>
@@ -7,7 +7,7 @@ Installer will walk you through setting up CCS. Choose options for your platform
 <br/>
 expected install location: C:\ti<br/>
 <br/>
-Step 2: Download tivac
+Part 2: Download tivac
 --
 (If you already have TIRTOS for TivaC skip to step 3)<br/>
 Now in Code Composer Studio, find CCS App Center it will be an option on the "Getting Started"<br/>
@@ -17,7 +17,7 @@ Now on the top of the page click "Install Software"<br/>
 <br/>
 expected install location: C:\ti<br/>
 <br/>
-Step 3: Download wolfSSL
+Part 3: Download wolfSSL
 --
 Download wolfSSL from here: https://wolfssl.com/wolfSSL/download/downloadForm.php<br/>
 or<br/>
@@ -25,7 +25,7 @@ clone wolfSSL development branch from here: https://github.com/wolfSSL/wolfssl<b
 <br/>
 expected install location: C:\wolfssl<br/>
 <br/>
-Step 4: Build the libraries
+Part 4: Build the libraries
 --
 At this point we are ready to build wolfssl libraries with TIRTOS<br/>
 <br/>
@@ -56,7 +56,7 @@ WINDOWS:<br/>
 <br/>
     The libraries should build without issues.<br/>
 <br/>
-Step 5: Loading first example
+Part 5: Loading first example
 --
    In CCS click dropdown for "Project" and select "Examples..."<br/>
    <pre>
@@ -71,7 +71,7 @@ Step 5: Loading first example
 </pre>
     In the "TI Resource Explorer window" Click on the link in "Step 1" to import the project.<br/>
 <br/>
-Step 6: Setting up the environment
+Part 6: Setting up the environment
 --
    Before building we have to do a little setup.<br/>
    <br/>
@@ -95,11 +95,11 @@ Step 6: Setting up the environment
 <br/>
   Hit OK and we're ready to build the example project.<br/>
 <br/>
-Step 7: Build the project
+Part 7: Build the project
 --
    In the "TI Resource Explorer window" Click on the link in "Step 2" to build the project.<br/>
 <br/>
-Step 8: Prepare for debugging
+Part 8: Prepare for debugging
 --
    (If you have already hooked up your board skip to step 9)<br/>
    Take a Micro-USB cable and plug the micro-USB end into the port on the Tiva Board labeled "DEBUG"<br/>
@@ -108,7 +108,7 @@ Step 8: Prepare for debugging
    Plug one end of an Ethernet cable into the Tiva board Ethernet port and the other end<br/>
    into your local network.<br/>
 <br/>
-Step 9: Get Debug Working
+Part 9: Get Debug Working
 --
    In the "TI Resource Explorer window" Click on the link in "Step 3"<br/>
    Click the drop down options and select "Stellaris In-Circuit Debug Interface"<br/>
@@ -134,7 +134,7 @@ Step 9: Get Debug Working
    This is the IP of the tcpEchoTLS server that is now running on the board in step 10<br/>
    we will refer to this IP as `TCP_ECHO_IP`<br/>
 <br/>
-Step 10: Test the server
+Part 10: Test the server
 --
    Option 1:<br/>
         To test the server here at wolfSSL we either build the client example in Microsoft Visual Studios<br/>
@@ -153,7 +153,7 @@ Step 10: Test the server
     `SSL cipher suite is <whichever suite is set>`<br/>
     `Server response: hello wolfssl!`<br/>
 <br/>
-Step 11: Success
+Part 11: Success
 --
    If you received that response your server is working correctly.<br/>
    You are now ready to begin development for your project!<br/>
