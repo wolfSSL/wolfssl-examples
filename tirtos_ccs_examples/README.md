@@ -75,7 +75,7 @@ Part 6: Setting up the environment
 --
    Before building we have to do a little setup.<br/>
    <br/>
-   <b>Step 6.a</b><br/>
+   <b>Part 6.a</b><br/>
         Right click on the imported project and select `Properties`<br/>
         <br/>
         Under `Build -> ARM Compiler -> Include Options`<br/>
@@ -83,7 +83,7 @@ Part 6: Setting up the environment
         (NOTE: include the quotes)<br/>
         Click on that and add this line `"C:/wolfssl"`<br/>
    <br/>
-   <b>Step 6.b</b><br/>
+   <b>Part 6.b</b><br/>
         Now still in the Properties window<br/>
         Under `Build -> ARM Linker -> File Search Path`<br/>
         <br/>
