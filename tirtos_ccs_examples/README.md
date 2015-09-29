@@ -126,7 +126,7 @@ Part 9: Get Debug Working
    The project will be flashed onto the Tiva Board. Wait for a few seconds.<br/>
    <br/>
    Now hit the key "F8" or in the top left of CCS click the green "Play" Button<br/>
-   (The buton says "Resume" in the drop down if you scroll over it)<br/>
+   (The button says "Resume" in the drop down if you scroll over it)<br/>
    <br/>
    You will see output in the "Console" Window at the bottom of CCS.<br/>
    A line will read `Network Added: If-1:192.168.1.xxx` or some other IP<br/>
