@@ -3,5 +3,6 @@
 #
 
 
-nobase_include_HEADERS+=include/wolfssl.h
+nobase_include_HEADERS+=include/wolfssl.h \
+                        include/x509/wolfsslCert.h
 

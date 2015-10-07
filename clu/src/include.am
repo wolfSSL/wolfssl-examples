@@ -14,4 +14,5 @@ wolfssl_SOURCES = src/tools/wolfsslFuncs.c \
 					src/benchmark/wolfsslBenchSetup.c \
 					src/benchmark/wolfsslBenchmark.c \
 					src/wolfsslMain.c \
+					src/x509/wolfsslCertSetup.c \
 					include/wolfssl.h

@@ -1,4 +1,4 @@
-/* util.h
+/* wolfssl.h
  *
  * Copyright (C) 2006-2015 wolfSSL Inc.
  *
