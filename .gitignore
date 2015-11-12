@@ -69,3 +69,5 @@ crypto/keys/ecc_keys
 crypto/keys/*.der
 crypto/keys/*.x963
 
+signature/signature
+
