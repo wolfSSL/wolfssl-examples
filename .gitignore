@@ -59,6 +59,8 @@ android/wolfssljni-ndk-sample/proguard-project.txt
 /tls/server-tls-threaded
 /tls/server-tls
 /tls/server-tcp
+/tls/client-tls-ecdhe
+/tls/server-tls-ecdhe
 
 crypto/3des/3des-file-encrypt
 crypto/aes/aes-file-encrypt
