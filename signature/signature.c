@@ -52,7 +52,7 @@ int main(int argc, char** argv)
     RNG rng;
     int fileLen;
     byte* fileBuf = NULL;
-    FILE* file;
+    FILE* file = NULL;
     byte* sigBuf = NULL;
     word32 sigLen;
     enum wc_HashType hash_type = WC_HASH_TYPE_SHA512;
@@ -203,6 +203,9 @@ exit:
     }
     if(sigBuf) {
         free(sigBuf);
+    }
+    if(file) {
+        fclose(file);
     }
     wc_ecc_free(&eccKey);
     wc_FreeRng(&rng);
