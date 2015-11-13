@@ -19,3 +19,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
+#include <wolfssl/wolfcrypt/random.h>
+
+/* handles incoming arguments for certificate generation */
+int wolfsslCertSetup(int argc, char** argv, char action);
+
+/* print help info */
+void wolfsslCertHelp();

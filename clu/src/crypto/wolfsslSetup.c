@@ -61,7 +61,7 @@ int wolfsslSetup(int argc, char** argv, char action)
         dCheck = 1;
 
     for (i = 2; i < argc; i++) {
-        if (strcmp(argv[i], "-help") == 0) {
+        if (XSTRNCMP(argv[i], "-help", 5) == 0) {
             if (eCheck == 1) {
                 /*wolfsslEncryptHelp*/
                 wolfsslEncryptHelp();
