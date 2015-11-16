@@ -23,10 +23,13 @@
 #include <wolfssl/options.h>
 #include <wolfssl/ssl.h>
 #include <wolfssl/wolfcrypt/ecc.h>
+#include <wolfssl/wolfcrypt/rsa.h>
 #include <wolfssl/wolfcrypt/signature.h>
 #include <wolfssl/wolfcrypt/hash.h>
 #include <wolfssl/wolfcrypt/logging.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
+
+#define RSA_KEY_SIZE    2048
 
 void hexdump(const void *buffer, word32 len, byte cols)
 {
@@ -65,7 +68,7 @@ int ecc_sign_verify_test(enum wc_HashType hash_type, enum wc_SignatureType sig_t
     if(ret != 0) {
         printf("Make ECC Key Failed! %d\n", ret);
     }
-    
+
     /* Display public key data */
     eccPubKeyLen = ECC_BUFSIZE;
     ret = wc_ecc_export_x963(&eccKey, eccPubKeyBuf, &eccPubKeyLen);
@@ -131,7 +134,7 @@ int ecc_sign_verify_test(enum wc_HashType hash_type, enum wc_SignatureType sig_t
         ret = EXIT_FAILURE;
         goto exit;
     }
-    
+
     /* Perform signature verification using public key */
     ret = wc_SignatureVerify(
         hash_type, sig_type,
@@ -141,7 +144,6 @@ int ecc_sign_verify_test(enum wc_HashType hash_type, enum wc_SignatureType sig_t
     printf("Signature Verification: %s (%d)\n", (ret == 0) ? "Pass" : "Fail", ret);
     if(ret != 0) {
         ret = EXIT_FAILURE;
-        goto exit;
     }
 
 exit:
@@ -151,15 +153,164 @@ exit:
     }
     wc_ecc_free(&eccKey);
     wc_FreeRng(&rng);
-    
+
     return ret;
 }
 
-int rsa_sign_verify_test(enum wc_HashType hash_type, enum wc_SignatureType sig_type, 
+int rsa_load_der_file(const char* derFile, RsaKey *rsaKey)
+{
+    int ret = EXIT_FAILURE;
+    FILE *file;
+    byte *buffer = NULL;
+    word32 bytes = 0;
+    word32 idx = 0;
+
+    file = fopen(derFile, "rb");
+    if (file) {
+        buffer = malloc(RSA_KEY_SIZE);
+        if(buffer) {
+            bytes = fread(buffer, 1, RSA_KEY_SIZE, file);
+            fclose(file);        
+        }
+    }
+    
+    if(buffer != NULL && bytes > 0) {
+        ret = wc_RsaPrivateKeyDecode(buffer, &idx, rsaKey, (word32)bytes);
+    }
+    
+    if(buffer) {
+        free(buffer);
+    }    
+    return ret;
+}
+
+int rsa_sign_verify_test(enum wc_HashType hash_type, enum wc_SignatureType sig_type,
     byte* fileBuf, int fileLen)
 {
-    /* TODO: Add RSA support */
-    return 0;
+    int ret;
+    RsaKey rsaKey;
+    RNG rng;
+    byte *sigBuf = NULL;
+    word32 sigLen;
+#ifdef WOLFSSL_KEY_GEN
+    byte *rsaKeyBuf = NULL, *rsaPubKeyBuf = NULL;
+    word32 rsaKeyLen, rsaPubKeyLen;
+    word32 idx = 0;
+#endif
+
+    /* Init */
+    wc_InitRng(&rng);
+
+    /* Generate key */
+    wc_InitRsaKey(&rsaKey, NULL);
+#ifdef WOLFSSL_KEY_GEN
+    ret = wc_MakeRsaKey(&rsaKey, RSA_KEY_SIZE, 65537, &rng);
+    if(ret != 0) {
+        printf("Make RSA Key Failed! %d\n", ret);
+    }
+
+    /* Display key data */
+    rsaKeyLen = RSA_KEY_SIZE;
+    rsaKeyBuf = malloc(rsaKeyLen);
+    ret = wc_RsaKeyToDer(&rsaKey, rsaKeyBuf, rsaKeyLen);
+    if (ret <= 0) {
+        printf("RSA key Der export failed! %d\n", ret);
+        ret = EXIT_FAILURE;
+        goto exit;
+    }
+    rsaKeyLen = ret;
+    printf("RSA Key: Len %d\n", rsaKeyLen);
+    hexdump(rsaKeyBuf, rsaKeyLen, 16);
+    
+    rsaPubKeyLen = RSA_KEY_SIZE;
+    rsaPubKeyBuf = malloc(rsaPubKeyLen);
+    ret = wc_RsaKeyToPublicDer(&rsaKey, rsaPubKeyBuf, rsaPubKeyLen);
+    if (ret <= 0) {
+        printf("RSA public key Der export failed! %d\n", ret);
+        ret = EXIT_FAILURE;
+        goto exit;
+    }
+    rsaPubKeyLen = ret;
+    printf("RSA Public Key: Len %d\n", rsaPubKeyLen);
+    hexdump(rsaPubKeyBuf, rsaPubKeyLen, 16);
+#else
+    /* Load cert from file client-key.der */
+    rsa_load_der_file("../certs/client-key.der", &rsaKey);
+#endif
+
+    /* Get signature length and allocate buffer */
+    sigLen = wc_SignatureGetSize(sig_type, &rsaKey, sizeof(rsaKey));
+    if(sigLen <= 0) {
+        printf("Signature %d size check fail! %d\n", sig_type, sigLen);
+        ret = EXIT_FAILURE;
+        goto exit;
+    }
+    sigBuf = malloc(sigLen);
+    if(!sigBuf) {
+        printf("Signature malloc failed!\n");
+        ret = EXIT_FAILURE;
+        goto exit;
+    }
+    printf("Signature Len: %d\n", sigLen);
+
+    /* Perform hash and sign to create signature */
+    ret = wc_SignatureGenerate(
+        hash_type, sig_type,
+        fileBuf, fileLen,
+        sigBuf, &sigLen,
+        &rsaKey, sizeof(rsaKey),
+        &rng);
+    printf("Signature Generation: %s (%d)\n", (ret > 0) ? "Pass" : "Fail", ret);
+    if(ret <= 0) {
+        ret = EXIT_FAILURE;
+        goto exit;
+    }
+
+    printf("Signature Data:\n");
+    hexdump(sigBuf, sigLen, 16);
+
+#ifdef WOLFSSL_KEY_GEN
+    /* Release and init new key */
+    wc_FreeRsaKey(&rsaKey);
+    wc_InitRsaKey(&rsaKey, NULL);
+
+    /* Import the public key */
+    ret = wc_RsaPublicKeyDecode(rsaPubKeyBuf, &idx, &rsaKey, rsaPubKeyLen);
+    if (ret != 0) {
+        printf("RSA public key import failed! %d\n", ret);
+        ret = EXIT_FAILURE;
+        goto exit;
+    }
+#endif
+
+    /* Perform signature verification */
+    ret = wc_SignatureVerify(
+        hash_type, sig_type,
+        fileBuf, fileLen,
+        sigBuf, sigLen,
+        &rsaKey, sizeof(rsaKey));
+    printf("Signature Verification: %s (%d)\n", (ret > 0) ? "Pass" : "Fail", ret);
+    if(ret <= 0) {
+        ret = EXIT_FAILURE;
+    }
+
+exit:
+    /* Free */
+#ifdef WOLFSSL_KEY_GEN
+    if(rsaKeyBuf) {
+        free(rsaKeyBuf);
+    }
+    if(rsaPubKeyBuf) {
+        free(rsaPubKeyBuf);
+    }
+#endif
+    if(sigBuf) {
+        free(sigBuf);
+    }
+    wc_FreeRsaKey(&rsaKey);
+    wc_FreeRng(&rng);
+
+    return ret;
 }
 
 int main(int argc, char** argv)
@@ -168,31 +319,34 @@ int main(int argc, char** argv)
     int fileLen;
     byte* fileBuf = NULL;
     FILE* file = NULL;
-    enum wc_HashType hash_type = WC_HASH_TYPE_SHA256;
     enum wc_SignatureType sig_type = WC_SIGNATURE_TYPE_ECC;
-    
+    enum wc_HashType hash_type = WC_HASH_TYPE_SHA256;
+
 #if 0
     wolfSSL_Debugging_ON();
 #endif
 
     /* Check arguments */
     if (argc < 2) {
-        printf("Usage: signature <filename> <hash> <sig>\n");
+        printf("Usage: signature <filename> <sig> <hash>\n");
+        printf("  <sig>: 1=ECC (def), 2=RSA\n");
         printf("  <hash>: 1=MD2, 2=MD4, 3=MD5, 4=SHA, 5=SHA256 (def), 6=SHA384, 7=SHA512\n");
-        printf("  <sig>: 1=ECC, 2=RSA\n");
         return 1;
     }
     if(argc >= 3) {
-        hash_type = atoi(argv[2]);
+        sig_type = atoi(argv[2]);
     }
-    
+    if(argc >= 4) {
+        hash_type = atoi(argv[3]);
+    }
+
     /* Verify hash type is supported */
     if (wc_HashGetDigestSize(hash_type) <= 0) {
         printf("Hash type %d not supported!\n", hash_type);
         return 1;
     }
-    
-    printf("Signature Example: Hash=%d, Sig=\n", hash_type);
+
+    printf("Signature Example: Sig=%d, Hash=%d\n", sig_type, hash_type);
 
     /* Open file */
     file = fopen(argv[1], "rb");
@@ -223,7 +377,7 @@ int main(int argc, char** argv)
         ret = EXIT_FAILURE;
         goto exit;
     }
-    
+
     /* Perform sign and verify */
     if (sig_type == WC_SIGNATURE_TYPE_ECC) {
         ret = ecc_sign_verify_test(hash_type, sig_type, fileBuf, fileLen);
@@ -235,7 +389,7 @@ int main(int argc, char** argv)
         ret = EXIT_FAILURE;
         printf("Signature type %d, not supported!\n", sig_type);
     }
-    
+
 exit:
     /* Free */
     if(fileBuf) {
