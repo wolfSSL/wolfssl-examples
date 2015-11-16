@@ -156,6 +156,12 @@ int main()
         return EXIT_FAILURE;
     }
 
+    /* load DH params */
+    ret = wolfSSL_CTX_SetTmpDH_file(ctx, "../certs/dh2048.pem" , SSL_FILETYPE_PEM);
+    if (ret != SSL_SUCCESS) {
+        fprintf(stderr, "Error setting DH parameters.\n");
+        return EXIT_FAILURE;
+    }
     /* Initialize the server address struct to zero */
     memset((char *)&serverAddr, 0, sizeof(serverAddr));
 

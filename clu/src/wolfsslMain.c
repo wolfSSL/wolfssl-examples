@@ -20,6 +20,7 @@
  */
 
 #include "include/wolfssl.h"
+#include "include/x509/wolfsslCert.h"
 
 /* enumerate optionals beyond ascii range to dis-allow use of alias IE we
  * do not want "-e" to work for encrypt, user must use "encrypt"
@@ -49,6 +50,9 @@ int main(int argc, char** argv)
                             break;
             /* Hash */
              case HASH:     ret = wolfsslHashSetup(argc, argv);
+                            break;
+            /* Certificate Stuff*/
+             case X509:     ret = wolfsslCertSetup(argc, argv, 'n');
                             break;
 
 /* Ignore the following arguments for now. Will be handled by their respective
