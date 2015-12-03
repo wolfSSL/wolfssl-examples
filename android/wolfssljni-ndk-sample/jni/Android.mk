@@ -1,8 +1,10 @@
 TOP_PATH   := $(call my-dir)/..
 
+WOLFSSL_DIR := wolfssl
+
 # Build wolfSSL shared library
 include $(CLEAR_VARS)
-LOCAL_PATH      := $(TOP_PATH)/wolfssl
+LOCAL_PATH      := $(TOP_PATH)/$(WOLFSSL_DIR)
 LOCAL_MODULE    := libwolfssl
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)
 LOCAL_C_INCLUDES := $(LOCAL_PATH)
