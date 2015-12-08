@@ -185,7 +185,7 @@ int Client(const char* ip, word16 port)
     if ((ssl = wolfSSL_new(ctx)) == NULL)
         err_sys("issue when creating ssl");
 
-    tcp_connect(&fd, ip, port, 0);
+    tcp_connect(&fd, ip, port, 0, ssl);
     wolfSSL_set_fd(ssl, fd);
     if (wolfSSL_connect(ssl) != SSL_SUCCESS)
         err_sys("client connect failed");

@@ -38,17 +38,35 @@ to compile and install the wolfCrypt JNI + wolfSSL bundle on
 the Emulator:
 
 1) Change directories into the android/wolfssljni-ndk-sample directory
+
 2) Checkout wolfssl and wolfssljni git submodules
-3) Update Android project as shown below
-4) Proceed to compile NDK and Java code as shown below
+
+3) Create stub options.h (since we're using the GitHub repo for wolfSSL)
+
+4) Update Android project as shown below
+
+5) Proceed to compile NDK and Java code as shown below
 
 ```
 $ cd android/wolfssljni-ndk-sample
 $ git submodule init
 $ git submodule update
+$ cp ./wolfssl/wolfssl/options.h.in ./wolfssl/wolfssl/options.h
 $ android update project -p . -s
 $ ndk-build
 $ ant debug
+```
+
+wolfSSL stable releases, available from the wolfSSL download page, contain
+<wolfssl/options.h>, but the GitHub development branch for wolfSSL does not.
+This is why options.h.in needs to be copied to options.h above.
+
+If you would like to update the git submodules for wolfssl and wolfssljni to
+the most current development HEAD, use the following submodule update command
+in place of the one above:
+
+```
+$ git submodule update --remote
 ```
 
 To install and run the application in an Android emulator, start the emulator:
@@ -101,4 +119,9 @@ After compilation:
    commands. This means you can follow the same steps to install the app
    on the phone, as described above for the emulator - using
    "adb debug install".
+
+## Support
+
+Please contact wolfSSL at support@wolfssl.com with any questions, bug fixes,
+or suggested feature additions.
 

@@ -19,11 +19,27 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
-#include "include/wolfssl.h"
-#include "include/x509/wolfsslCert.h"
+#include <stdio.h>
 
-int wolfsslCertSetup(int argc, char** argv)
+#include <include/x509/wolfsslCert.h>
+
+int wolfsslCertSetup(int argc, char** argv, char action)
 {
-    char* action = NULL;    /* Action user wishes to perform with the cert */
+    int i; /* loop counter */
+
+    for (i = 2; i < argc; i++) {
+        if (XSTRNCMP(argv[i], "-help", 5) == 0) {
+            wolfsslCertHelp();
+            return 0;
+        } else if (XSTRNCMP(argv[i], "-h", 2) == 0) {
+            wolfsslCertHelp();
+            return 0;
+        }
+    }
     return 0;
+}
+
+void wolfsslCertHelp()
+{
+    printf("\n\n\nThis would be the certificate help.\n\n\n");
 }

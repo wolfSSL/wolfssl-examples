@@ -183,8 +183,8 @@ int wolfsslEncrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
 
         /* sets key encrypts the message to ouput from input */
 #ifndef NO_AES
-        if (strcmp(alg, "aes") == 0) {
-            if (strcmp(mode, "cbc") == 0) {
+        if (XSTRNCMP(alg, "aes", 3) == 0) {
+            if (XSTRNCMP(mode, "cbc", 3) == 0) {
                 ret = wc_AesSetKey(&aes, key, AES_BLOCK_SIZE, iv, AES_ENCRYPTION);
                 if (ret != 0) {
                     printf("wc_AesSetKey failed.\n");
@@ -199,7 +199,7 @@ int wolfsslEncrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
                 }
             }
 #ifdef WOLFSSL_AES_COUNTER
-            else if (strcmp(mode, "ctr") == 0) {
+            else if (XSTRNCMP(mode, "ctr", 3) == 0) {
                 /* if mode is ctr */
                 wc_AesSetKeyDirect(&aes, key, AES_BLOCK_SIZE, iv, AES_ENCRYPTION);
                 wc_AesCtrEncrypt(&aes, output, input, tempMax);
@@ -208,7 +208,7 @@ int wolfsslEncrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
         }
 #endif
 #ifndef NO_DES3
-        if (strcmp(alg, "3des") == 0) {
+        if (XSTRNCMP(alg, "3des", 4) == 0) {
             ret = wc_Des3_SetKey(&des3, key, iv, DES_ENCRYPTION);
             if (ret != 0) {
                 printf("wc_Des3_SetKey failed.\n");
@@ -224,14 +224,14 @@ int wolfsslEncrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
         }
 #endif
 #ifdef HAVE_CAMELLIA
-        if (strcmp(alg, "camellia") == 0) {
+        if (XSTRNCMP(alg, "camellia", 8) == 0) {
             ret = wc_CamelliaSetKey(&camellia, key, block, iv);
             if (ret != 0) {
                 printf("CamelliaSetKey failed.\n");
                 wolfsslFreeBins(input, output, NULL, NULL, NULL);
                 return ret;
             }
-            if (strcmp(mode, "cbc") == 0) {
+            if (XSTRNCMP(mode, "cbc", 3) == 0) {
                 wc_CamelliaCbcEncrypt(&camellia, output, input, tempMax);
             }
             else {

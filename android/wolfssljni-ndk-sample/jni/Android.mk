@@ -1,16 +1,18 @@
 TOP_PATH   := $(call my-dir)/..
 
+WOLFSSL_DIR := wolfssl
+
 # Build wolfSSL shared library
 include $(CLEAR_VARS)
-LOCAL_PATH      := $(TOP_PATH)/wolfssl
+LOCAL_PATH      := $(TOP_PATH)/$(WOLFSSL_DIR)
 LOCAL_MODULE    := libwolfssl
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)
 LOCAL_C_INCLUDES := $(LOCAL_PATH)
 LOCAL_CFLAGS := -DOPENSSL_EXTRA -DWOLFSSL_DTLS -D_POSIX_THREADS -DNDEBUG \
 				-DPERSIST_SESSION_CACHE -DPERSIST_CERT_CACHE -DATOMIC_USER \
 				-DHAVE_PK_CALLBACKS -DNO_DSA -DHAVE_ECC -DTFM_ECC256 \
-				-DECC_SHAMIR -DNO_PSK -DNO_MD4 -DNO_HC128 -DNO_RABBIT \
-				-DHAVE_OCSP -DHAVE_CRL \
+				-DECC_SHAMIR -DNO_MD4 -DNO_HC128 -DNO_RABBIT \
+				-DHAVE_OCSP -DHAVE_CRL -DWOLFSSL_JNI -DHAVE_DH \
 				-Wall
 LOCAL_SRC_FILES := src/crl.c \
 				   src/internal.c \
@@ -45,6 +47,7 @@ LOCAL_SRC_FILES := src/crl.c \
 				   wolfcrypt/src/hash.c \
 				   wolfcrypt/src/hc128.c \
 				   wolfcrypt/src/hmac.c \
+				   wolfcrypt/src/idea.c \
 				   wolfcrypt/src/integer.c \
 				   wolfcrypt/src/logging.c \
 				   wolfcrypt/src/md2.c \
@@ -62,7 +65,9 @@ LOCAL_SRC_FILES := src/crl.c \
 				   wolfcrypt/src/sha.c \
 				   wolfcrypt/src/sha256.c \
 				   wolfcrypt/src/sha512.c \
+				   wolfcrypt/src/srp.c \
 				   wolfcrypt/src/tfm.c \
+				   wolfcrypt/src/wc_encrypt.c \
 				   wolfcrypt/src/wc_port.c
 include $(BUILD_SHARED_LIBRARY)
 
@@ -78,12 +83,7 @@ LOCAL_SRC_FILES  := native/com_wolfssl_WolfSSL.c \
 				    native/com_wolfssl_WolfSSLSession.c \
 				    native/com_wolfssl_wolfcrypt_ECC.c \
 			  	    native/com_wolfssl_wolfcrypt_RSA.c
-LOCAL_CFLAGS := -DOPENSSL_EXTRA -DWOLFSSL_DTLS -D_POSIX_THREADS -DNDEBUG \
-				-DPERSIST_SESSION_CACHE -DPERSIST_CERT_CACHE -DATOMIC_USER \
-				-DHAVE_PK_CALLBACKS -DNO_DSA -DHAVE_ECC -DTFM_ECC256 \
-				-DECC_SHAMIR -DNO_PSK -DNO_MD4 -DNO_HC128 -DNO_RABBIT \
-				-DHAVE_OCSP -DHAVE_CRL \
-                -Wall -Os
+LOCAL_CFLAGS := -Wall -Os -DWOLFSSL_DTLS -DHAVE_ECC
 LOCAL_SHARED_LIBRARIES := libwolfssl
 include $(BUILD_SHARED_LIBRARY)
 
