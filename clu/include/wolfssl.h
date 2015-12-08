@@ -19,6 +19,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
+#ifndef _WOLFSSL_CLU_HEADER_
+#define _WOLFSSL_CLU_HEADER_
+
 #include <string.h>
 #include <stdio.h>
 #include <signal.h>
@@ -314,4 +317,4 @@ int wolfsslHash(char* in, char* out, char* alg, int size);
 void wolfsslVersion(void);
 #endif
 
-
+#endif /* _WOLFSSL_CLU_HEADER_ */
