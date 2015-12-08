@@ -19,3 +19,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
+#include "include/wolfssl.h"
+#include "include/x509/wolfsslCert.h"
+
+int wolfsslCertSetup(int argc, char** argv)
+{
+    char* action = NULL;    /* Action user wishes to perform with the cert */
+    return 0;
+}
