@@ -1,0 +1,131 @@
+Welcome to the wolfSSL Command Line Utility Manual!
+
+The first thing that will need to be done is a complete download and install of
+wolfSSL. An instructional video of this process can be found here:
+
+https://www.youtube.com/watch?v=zXRLwW0DIPA
+
+Next view the README.md file. Which says this:
+
+To use this feature, please ./configure --enable-pwdbased --enable-opensslextra
+    other features that can be included are:
+        --enable-camellia
+        --enable-blake2
+        --enable-sha512
+        --enable-fortress
+
+then run configure, make, and make install from the command line utility root.
+
+The Utility has many tools. Encryption, Decryption, Hashing, Benchmarking, with
+more to come.
+
+The man pages provided with the utility also give a brief rundown of how to use
+each tool in the kit.
+
+Manpages are installed automatically during the make process
+
+You will now be able to run a man page by typing "man wolfsslBenchmark" etc.
+manpages are as follows:
+wolfsslBenchmark
+wolfsslEncrypt
+wolfsslDecrypt
+wolfsslHash
+wolfsslMain
+
+ENCRYPTION
+
+    SYNOPSIS
+        wolfssl encrypt <-algorithm> <-i filename> [-o filename] [-k password] [-iv IV]
+    DESCRIPTION
+        This command allows data to be encrypted using ciphers and keys based on passwords if not explicitly provided
+    .ALGORITHMS
+        -aes-cbc-[128|192|256]
+            uses AES algorithm with designated key size.
+        -aes-ctr-[128|192|256]
+            uses AES Counter with designated key size. Only available if ./congigure settings support 
+        -3des-cbc-[056|112|168]
+            uses 3DES algorithm with designated key size.
+        -camellia-cbc-[128|192|256]
+            uses Camellia algorithm with designated key size. Only available if ./configure settings support
+    OPTIONS
+        -i filename/stdin     the input filename, standard input. If file does not exist, it will treat data as stdin
+        -o filename           the output filename, if filename does not exist, it will be created
+        -k password           password to derive the key from. prompts if password option is not provided. If used, iv isn't needed
+        -iv IV                the actual iv to use. If not provided, one is randomly generated. Must be provided in hex
+        -K Key                the actual key to use. Must be in hex
+
+DECRYPTION
+
+    SYNOPSIS
+        wolfssl decrypt <-algorithm> <-i filename> [-o filename] [-k password] [-iv IV]
+    DESCRIPTION
+        This command allows data to be decrypted using ciphers and keys based on passwords if not explicitly provided
+    ALGORITHMS
+        -aes-cbc-[128|192|256]
+            uses AES algorithm with designated key size.
+        -aes-ctr-[128|192|256]
+            uses AES Counter with designated key size. Only available if ./congigure settings support 
+        -3des-cbc-[056|112|168]
+            uses 3DES algorithm with designated key size.
+        -camellia-cbc-[128|192|256]
+            uses Camellia algorithm with designated key size. Only available if ./configure settings support
+    OPTIONS
+        -i filename/stdin     the input filename, standard input. If file does not exist, it will treat data as stdin
+        -o filename           the output filename, if filename does not exist, it will be created
+        -k password           password to derive the key from. prompts if password option is not provided. If used, iv isn't needed
+        -iv IV                the actual iv to use. If not provided, one is randomly generated. Must be provided in hex
+        -K Key                the actual key to use. Must be in hex
+
+HASH
+
+    SYNOPSIS
+        wolfssl hash <-algorithm> <-i filename> [-o filename/stdin] [-s size] [-l length]
+    DESCRIPTION
+        This command hashes either stdin or a file based on the chosen algorithm
+    ALGORITHMS
+        -md5
+        -sha
+        -sha256
+        (NOTE: The following are only available if ./configure supports them)
+        -sha384
+        -sha512
+        -blake2b
+    OPTIONS
+        -i filename/stdin       the input filename, standard input. If file does not exist, it will treat data as stdin
+        -o filename             the output filename, if not provided will print stdout
+        -s size                 block size of the function. Usuable only with Blake2b
+        -l length               length of message to hash
+
+BENCHMARK
+
+    SYNOPSIS
+        wolfssl benchmark TESTS [-t time] [-all] [-tests] 
+    DESCRIPTION
+        Tests algorithm functionality and speed
+    TESTS
+        -aes-cbc
+        -aes-ctr*    
+        -3des
+        -camellia*   
+        -md5
+        -sha
+        -sha256
+        -sha384*
+        -sha512*
+        -blake2b*
+        *(NOTE: Only available through ./configure options)
+    OPTIONS
+        -t time     time for each of the tests in seconds
+        -all        runs all available tests
+
+TESTING
+        
+    Various tests can also be performed on the toolkit via nistTest.sh and tests.sh
+    to perform these tests, simply change the 'PAT' variable in each one to lead
+    to where you extracted the Utility to.
+AUTHOR
+    wolfSSL, Inc. (info@wolfssl.com)
+    Copyright 2014 wolfSSL Inc.  All rights reserved.
+
+Please report wolfssl any bugs to support@wolfssl.com
+
