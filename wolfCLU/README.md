@@ -1,4 +1,4 @@
-This is the wolfSSL:  Command Line Utility (wolfssl CLU).
+This is the wolfSSL:  Command Line Utility (wolfCLU).
 To use this feature, please configure wolfssl with the following line:
 
 '''
@@ -22,10 +22,11 @@ encryption or decryption are:
         --enable-sha512
         --enable-fortress
 
-then run "./configure", "make", and "make install" before using wolfssl CLU
+then run "./configure", "make", and "make install" for wolfssl root directory
+before using wolfCLU
 
-After wolfssl is properly installed, to install wolfssl CLU:
-In the clu directory (wolfssl-examples/clu) enter the following commands:
+After wolfssl is properly installed, to install wolfCLU:
+In the root directory (wolfssl-examples/wolfCLU) enter the following commands:
     ./autogen.sh
     ./configure
     make
