@@ -330,7 +330,7 @@ int main(int argc, char** argv)
     if (argc < 2) {
         printf("Usage: signature <filename> <sig> <hash>\n");
         printf("  <sig>: 1=ECC (def), 2=RSA\n");
-        printf("  <hash>: 1=MD2, 2=MD4, 3=MD5, 4=SHA, 5=SHA256 (def), 6=SHA384, 7=SHA512\n");
+        printf("  <hash>: 1=MD2, 2=MD4, 3=MD5, 4=SHA, 5=SHA256 (def), 6=SHA384, 7=SHA512, 8=MD5+SHA\n");
         return 1;
     }
     if(argc >= 3) {
