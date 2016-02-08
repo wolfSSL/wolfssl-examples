@@ -17,5 +17,5 @@ $ ./firmware [filename] [sig] [hash]
 ## Usage
 
 Usage: signature <filename> <sig> <hash>
-  <sig>: 1=ECC (def), 2=RSA, 3=RSA (w/ASN Encoded header)
+  <sig>: 1=ECC (def), 2=RSA, 3=RSA (w/DER Encoding)
   <hash>: 1=MD2, 2=MD4, 3=MD5, 4=SHA, 5=SHA256 (def), 6=SHA384, 7=SHA512, 8=MD5+SHA

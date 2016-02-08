@@ -346,14 +346,14 @@ int main(int argc, char** argv)
     hash_type = WC_HASH_TYPE_MD5;
 #endif
 
-#if 1
+#if 0
     wolfSSL_Debugging_ON();
 #endif
 
     /* Check arguments */
     if (argc < 2) {
         printf("Usage: signature <filename> <sig> <hash>\n");
-        printf("  <sig>: 1=ECC, 2=RSA, 3=RSA (w/ASN Encoded header): default %d\n", sig_type);
+        printf("  <sig>: 1=ECC, 2=RSA, 3=RSA (w/DER Encoding): default %d\n", sig_type);
         printf("  <hash>: 1=MD2, 2=MD4, 3=MD5, 4=SHA, 5=SHA256, 6=SHA384, 7=SHA512, 8=MD5+SHA: default %d\n", hash_type);
         return 1;
     }
