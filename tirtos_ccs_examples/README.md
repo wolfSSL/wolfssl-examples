@@ -70,6 +70,7 @@ Part 5: Loading first example
                            -> TCP Echo with TLS<br/>
 </pre>
     In the "TI Resource Explorer window" Click on the link in "Step 1" to import the project.<br/>
+    NOTE: Do not try to build the project yet. It will fail.<br/>
 <br/>
 Part 6: Setting up the environment
 --
