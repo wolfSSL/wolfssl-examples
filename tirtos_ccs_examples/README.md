@@ -45,7 +45,7 @@ WINDOWS:<br/>
     Next locate the wolfSSL section should be on or around line 45 and looks like this:<br/>
     `WolfSSL settings`<br/>
     `WOLFSSL_INSTALLATION_DIR ?= C:\wolfssl`<br/>
-    `WOLFSSL_TIRTOS_DIR = $(WOLFSSL_INSTALLATION_DIR)/tirtos<br/>`<br/>
+    `WOLFSSL_TIRTOS_DIR = $(WOLFSSL_INSTALLATION_DIR)/tirtos`<br/>
     <br/>
     Modify WOLFSSL_INSTALLATION_DIR to be the location of your wolfssl directory. Should be C:\wolfssl.<br/>
     <br/>
@@ -70,6 +70,7 @@ Part 5: Loading first example
                            -> TCP Echo with TLS<br/>
 </pre>
     In the "TI Resource Explorer window" Click on the link in "Step 1" to import the project.<br/>
+    NOTE: Do not try to build the project yet. It will fail.<br/>
 <br/>
 Part 6: Setting up the environment
 --
