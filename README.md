@@ -10,6 +10,14 @@ contains a Makefile as well as a simple tutorial on the given topic.
 
 ## Current Examples
 
+#### utasker (uTasker wolfSSL Example Tasks)
+
+This directory contains example uTasker client and server tasks  that
+demonstrate using wolfSSL with the uTasker stack. These have been tested on
+the uTasker Simulator.
+
+Please see the README.md in utasker/ for further usage and details.
+
 #### android (Android NDK Examples)
 
 This directory contains examples that demonstrate using wolfSSL and wolfSSLJNI
