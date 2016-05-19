@@ -86,7 +86,7 @@ cd wolfssl-[version]
 Examples in this directory may be compiled using:
 
 ```
-cd ./dtls
+cd ./psk
 make
 ```
 
@@ -99,7 +99,7 @@ multi-threading.
 Examples in this directory may be compiled using:
 
 ```
-cd ./dtls
+cd ./tls
 make
 ```
 
