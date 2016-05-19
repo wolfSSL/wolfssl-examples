@@ -26,7 +26,7 @@ server-psk-nonblocking: server-psk-nonblocking.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 server-psk-threaded: server-psk-threaded.o
-	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS) -lpthread
 
 .PHONY: clean all
 
