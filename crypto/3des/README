@@ -1,7 +1,8 @@
 How to use 3des-file-encrypt.c
 
-1) a. Compile with ./configure --enable-pwdbased --enable-3des
-   b. Run make
+1) a. Compile wolfSSL with ./configure --enable-pwdbased --enable-3des, run
+      'make', and then install by typing 'sudo make install'.
+   b. In the crypto/3des directory run the Makefile by typing 'make'.
 2)  Make a file to encode. Can be any file (ex. .txt .in .out .file etc.)
 3)  run the excecutable, for help run with -h flag. Basic command is as follows:
 
