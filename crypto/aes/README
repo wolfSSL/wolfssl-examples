@@ -1,6 +1,7 @@
 How to use aes-file-encrypt.c
 
-1)  Start by typing make
+1)  a. Compile with  ./configure --enable-pwdbased --enable-dtls
+    b. Run make
 2)  Make a file to encode. Can be any file (ex. .txt .in .out .file etc.)
 3)  run the excecutable, for help run with -h flag. Basic command is as follows:
 
