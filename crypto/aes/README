@@ -1,6 +1,8 @@
 How to use aes-file-encrypt.c
 
-1)  Start by typing make
+1) a. Compile wolfSSL with  ./configure --enable-pwdbased --enable-dtls, run
+      'make', and then install by typing 'sudo make install'.
+   b. In the crypto/aes directory run the Makefile by typing 'make'.
 2)  Make a file to encode. Can be any file (ex. .txt .in .out .file etc.)
 3)  run the excecutable, for help run with -h flag. Basic command is as follows:
 
