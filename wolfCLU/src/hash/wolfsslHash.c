@@ -40,9 +40,7 @@ int wolfsslHash(char* in, char* out, char* alg, int size)
     int     i  =   0;           /* loop variable */
     int     ret = -1;           /* return variable */
     int     length;             /* length of hash */
-
-    output = malloc(size);
-    XMEMSET(output, 0, size);
+    int     outputAsHexString = 1;
 
     /* opens input file */
     inFile = fopen(in, "rb");
@@ -76,6 +74,15 @@ int wolfsslHash(char* in, char* out, char* alg, int size)
         ret = (int) fread(input, 1, length, inFile);
         fclose(inFile);
     }
+
+    /* if size not provided then use input length */
+    if (size == 0) {
+        size = length * 4;
+    }
+
+    output = malloc(size);
+    XMEMSET(output, 0, size);
+
     /* hashes using accepted algorithm */
 #ifndef NO_MD5
     if (strcmp(alg, "md5") == 0) {
@@ -109,6 +116,18 @@ int wolfsslHash(char* in, char* out, char* alg, int size)
         ret = wc_Blake2bFinal(&hash, output, size);
     }
 #endif
+
+#ifndef NO_CODING
+    else if (strcmp(alg, "base64enc") == 0) {
+        ret = Base64_Encode(input, length, output, (word32*)&size);
+        outputAsHexString = 0;
+    }
+    else if (strcmp(alg, "base64dec") == 0) {
+        ret = Base64_Decode(input, length, output, (word32*)&size);
+        outputAsHexString = 0;
+    }
+#endif
+
     if (ret == 0) {
         /* if no errors so far */
         if (out != NULL) {
@@ -118,16 +137,23 @@ int wolfsslHash(char* in, char* out, char* alg, int size)
                 /* if outFile exists */
                 for (i = 0; i < size; i++) {
                     /* writes hashed output to outFile */
-                    fprintf(outFile, "%02x", output[i]);
+                    if (outputAsHexString)
+                        fprintf(outFile, "%02x", output[i]);
+                    else
+                        fprintf(outFile, "%c", output[i]);
                 }
                 fclose(outFile);
             }
         }
         else {
+            printf("output: len %d\n", size);
             /*  if no output file */
             for (i = 0; i < size; i++) {
                 /* write hashed output to terminal */
-                printf("%02x", output[i]);
+                if (outputAsHexString)
+                    printf("%02x", output[i]);
+                else
+                    printf("%c", output[i]);
             }
             printf("\n");
         }

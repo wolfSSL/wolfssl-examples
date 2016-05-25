@@ -35,19 +35,23 @@ int wolfsslHashSetup(int argc, char** argv)
         "md5"
 #endif
 #ifndef NO_SHA
-            , "sha"
+        , "sha"
 #endif
 #ifndef NO_SHA256
-            , "sha256"
+        , "sha256"
 #endif
 #ifdef WOLFSSL_SHA384
-            , "sha384"
+        , "sha384"
 #endif
 #ifdef WOLFSSL_SHA512
-            , "sha512"
+        , "sha512"
 #endif
 #ifdef HAVE_BLAKE2
-            , "blake2b"
+        , "blake2b"
+#endif
+#ifndef NO_CODING
+        , "base64enc"
+        , "base64dec"
 #endif
     };
 
@@ -146,7 +150,7 @@ int wolfsslHashSetup(int argc, char** argv)
 #endif
 
     /* hashing function */
-    wolfsslHash(in, out, alg, size);
+    ret = wolfsslHash(in, out, alg, size);
 
     free(in);
 

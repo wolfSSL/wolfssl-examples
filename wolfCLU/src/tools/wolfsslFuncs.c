@@ -68,77 +68,83 @@ int     i          =   0;       /* loop variable */
 void wolfsslVerboseHelp()
 {
     printf("\nwolfssl Command Line Utility version %3.1f\n\n", VERSION);
+
     /* hash options */
     const char* algsenc[] = {        /* list of acceptable algorithms */
 #ifndef NO_MD5
-            "md5"
+        "md5"
 #endif
 #ifndef NO_SHA
-                ,"sha"
+        ,"sha"
 #endif
 #ifndef NO_SHA256
-                ,"sha256"
+        ,"sha256"
 #endif
 #ifdef WOLFSSL_SHA384
-                ,"sha384"
+        ,"sha384"
 #endif
 #ifdef WOLFSSL_SHA512
-                ,"sha512"
+        ,"sha512"
 #endif
 #ifdef HAVE_BLAKE2
-                ,"blake2b"
+        ,"blake2b"
 #endif
-        };
+#ifndef NO_CODING
+        ,"base64enc"
+        ,"base64dec"
+#endif
+    };
 
     /* benchmark options */
     const char* algsother[] = {      /* list of acceptable algorithms */
 #ifndef NO_AES
-            "aes-cbc"
+        "aes-cbc"
 #endif
 #ifdef WOLFSSL_AES_COUNTER
-                , "aes-ctr"
+        , "aes-ctr"
 #endif
 #ifndef NO_DES3
-                , "3des"
+        , "3des"
 #endif
 #ifdef HAVE_CAMELLIA
-                , "camellia"
+        , "camellia"
 #endif
 #ifndef NO_MD5
-                , "md5"
+        , "md5"
 #endif
 #ifndef NO_SHA
-                , "sha"
+        , "sha"
 #endif
 #ifndef NO_SHA256
-                , "sha256"
+        , "sha256"
 #endif
 #ifdef WOLFSSL_SHA384
-                , "sha384"
+        , "sha384"
 #endif
 #ifdef WOLFSSL_SHA512
-                , "sha512"
+        , "sha512"
 #endif
 #ifdef HAVE_BLAKE2
-                , "blake2b"
+        , "blake2b"
 #endif
-        };
-        wolfsslHelp();
+    };
 
-        printf("Available En/De crypt Algorithms with current configure "
-            "settings.\n\n");
+    wolfsslHelp();
+
+    printf("Available En/De crypt Algorithms with current configure "
+        "settings.\n\n");
 #ifndef NO_AES
-        printf("aes-cbc-128\t\taes-cbc-192\t\taes-cbc-256\n");
+    printf("aes-cbc-128\t\taes-cbc-192\t\taes-cbc-256\n");
 #endif
 #ifdef WOLFSSL_AES_COUNTER
-        printf("aes-ctr-128\t\taes-ctr-192\t\taes-ctr-256\n");
+    printf("aes-ctr-128\t\taes-ctr-192\t\taes-ctr-256\n");
 #endif
 #ifndef NO_DES3
-        printf("3des-cbc-56\t\t3des-cbc-112\t\t3des-cbc-168\n");
+    printf("3des-cbc-56\t\t3des-cbc-112\t\t3des-cbc-168\n");
 #endif
 #ifdef HAVE_CAMELLIA
-        printf("camellia-cbc-128\tcamellia-cbc-192\t"
-                "camellia-cbc-256\n");
+    printf("camellia-cbc-128\tcamellia-cbc-192\t"
+            "camellia-cbc-256\n");
 #endif
     printf("\n");
     printf("Available hashing algorithms with current configure settings:\n\n");
@@ -162,17 +168,17 @@ void wolfsslEncryptHelp()
     printf("\nAvailable En/De crypt Algorithms with current configure "
             "settings.\n\n");
 #ifndef NO_AES
-        printf("aes-cbc-128\t\taes-cbc-192\t\taes-cbc-256\n");
+    printf("aes-cbc-128\t\taes-cbc-192\t\taes-cbc-256\n");
 #endif
 #ifdef WOLFSSL_AES_COUNTER
-        printf("aes-ctr-128\t\taes-ctr-192\t\taes-ctr-256\n");
+    printf("aes-ctr-128\t\taes-ctr-192\t\taes-ctr-256\n");
 #endif
 #ifndef NO_DES3
-        printf("3des-cbc-56\t\t3des-cbc-112\t\t3des-cbc-168\n");
+    printf("3des-cbc-56\t\t3des-cbc-112\t\t3des-cbc-168\n");
 #endif
 #ifdef HAVE_CAMELLIA
-        printf("camellia-cbc-128\tcamellia-cbc-192\t"
-                "camellia-cbc-256\n\n");
+    printf("camellia-cbc-128\tcamellia-cbc-192\t"
+            "camellia-cbc-256\n\n");
 #endif
     printf("***************************************************************\n");
     printf("\nENCRYPT USAGE: wolfssl -encrypt <-algorithm> -in <filename> "
@@ -190,17 +196,17 @@ void wolfsslDecryptHelp()
     printf("\nAvailable En/De crypt Algorithms with current configure "
             "settings.\n\n");
 #ifndef NO_AES
-        printf("aes-cbc-128\t\taes-cbc-192\t\taes-cbc-256\n");
+    printf("aes-cbc-128\t\taes-cbc-192\t\taes-cbc-256\n");
 #endif
 #ifdef WOLFSSL_AES_COUNTER
-        printf("aes-ctr-128\t\taes-ctr-192\t\taes-ctr-256\n");
+    printf("aes-ctr-128\t\taes-ctr-192\t\taes-ctr-256\n");
 #endif
 #ifndef NO_DES3
-        printf("3des-cbc-56\t\t3des-cbc-112\t\t3des-cbc-168\n");
+    printf("3des-cbc-56\t\t3des-cbc-112\t\t3des-cbc-168\n");
 #endif
 #ifdef HAVE_CAMELLIA
-        printf("camellia-cbc-128\tcamellia-cbc-192\t"
-                "camellia-cbc-256\n\n");
+    printf("camellia-cbc-128\tcamellia-cbc-192\t"
+            "camellia-cbc-256\n\n");
 #endif
     printf("***************************************************************\n");
     printf("\nDECRYPT USAGE: wolfssl -decrypt <algorithm> -in <encrypted file> "
@@ -219,28 +225,32 @@ void wolfsslHashHelp()
     /* hash options */
     const char* algsenc[] = {        /* list of acceptable algorithms */
 #ifndef NO_MD5
-            "md5"
+        "md5"
 #endif
 #ifndef NO_SHA
-                ,"sha"
+        ,"sha"
 #endif
 #ifndef NO_SHA256
-                ,"sha256"
+        ,"sha256"
 #endif
 #ifdef WOLFSSL_SHA384
-                ,"sha384"
+        ,"sha384"
 #endif
 #ifdef WOLFSSL_SHA512
-                ,"sha512"
+        ,"sha512"
 #endif
 #ifdef HAVE_BLAKE2
-                ,"blake2b"
+        ,"blake2b"
+#endif
+#ifndef NO_CODING
+        ,"base64enc"
+        ,"base64dec"
 #endif
         };
 
     printf("\nAvailable algorithms with current configure settings:\n");
     for (i = 0; i < (int) sizeof(algsenc)/(int) sizeof(algsenc[0]); i++) {
-            printf("%s\n", algsenc[i]);
+        printf("%s\n", algsenc[i]);
     }
             /* encryption/decryption help lists options */
     printf("***************************************************************\n");
@@ -255,39 +265,41 @@ void wolfsslHashHelp()
 void wolfsslBenchHelp()
 {
     printf("\n");
-        /* benchmark options */
+
+    /* benchmark options */
     const char* algsother[] = {      /* list of acceptable algorithms */
 #ifndef NO_AES
-            "aes-cbc"
+        "aes-cbc"
 #endif
 #ifdef WOLFSSL_AES_COUNTER
-                , "aes-ctr"
+        , "aes-ctr"
 #endif
 #ifndef NO_DES3
-                , "3des"
+        , "3des"
 #endif
 #ifdef HAVE_CAMELLIA
-                , "camellia"
+        , "camellia"
 #endif
 #ifndef NO_MD5
-                , "md5"
+        , "md5"
 #endif
 #ifndef NO_SHA
-                , "sha"
+        , "sha"
 #endif
 #ifndef NO_SHA256
-                , "sha256"
+        , "sha256"
 #endif
 #ifdef WOLFSSL_SHA384
-                , "sha384"
+        , "sha384"
 #endif
 #ifdef WOLFSSL_SHA512
-                , "sha512"
+        , "sha512"
 #endif
 #ifdef HAVE_BLAKE2
-                , "blake2b"
+        , "blake2b"
 #endif
-        };
+    };
+
     printf("\nAvailable tests: (-a to test all)\n");
     printf("Available tests with current configure settings:\n");
     for(i = 0; i < (int) sizeof(algsother)/(int) sizeof(algsother[0]); i++) {
@@ -312,17 +324,19 @@ int wolfsslGetAlgo(char* name, char** alg, char** mode, int* size)
     int     nameCheck   = 0;        /* check for acceptable name */
     int     modeCheck   = 0;        /* check for acceptable mode */
     char*   sz          = 0;        /* key size provided */
+
     const char* acceptAlgs[]  = {   /* list of acceptable algorithms */
 #ifndef NO_AES
         "aes"
 #endif
 #ifndef NO_DES3
-            , "3des"
+        , "3des"
 #endif
 #ifdef HAVE_CAMELLIA
-            , "camellia"
+        , "camellia"
 #endif
     };
+
     const char* acceptMode[] = {"cbc"
 #ifdef WOLFSSL_AES_COUNTER
         , "ctr"

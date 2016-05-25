@@ -65,6 +65,8 @@
     #include <wolfssl/wolfcrypt/camellia.h>
 #endif
 
+#include <wolfssl/wolfcrypt/coding.h>
+
 #ifndef UTIL_H_INCLUDED
 	#define UTIL_H_INCLUDED
 
