@@ -54,6 +54,7 @@ android/wolfssljni-ndk-sample/proguard-project.txt
 /tls/client-tls-resume
 /tls/client-tls
 /tls/client-tcp
+/tls/memory-tls
 /tls/server-callback
 /tls/server-tls-nonblocking
 /tls/server-tls-threaded
