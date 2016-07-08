@@ -29,30 +29,68 @@ Part 4: Build the libraries
 --
 At this point we are ready to build wolfssl libraries with TIRTOS<br/>
 <br/>
-WINDOWS:<br/>
-    In the file browser navigate to: `C:\ti\ccsv6\tools\compiler` and see which<br/>
-    compiler you have installed `ti-cgt-arm_x.x.x` and make a note of it.<br/>
-    <br/>
-    Now in the file browser navigate to `C:\ti\tirtos_tivac_xxxxxxx` open `tirtos.mak` in your<br/>
-    preferred text editor<br/>
-    <br/>
-    Locate the line specifying the compiler. You should find this on or around line 11 and it will look<br/>
-    something like this:<br/>
-    `ti.targets.arm.elf.M4F   ?= $(DEFAULT_INSTALLATION_DIR)/ccsv6/tools/compiler/ti-cgt-arm_5.2.5`<br/>
-    <br/>
-    Make sure you are using the `ti-cgt-agrm_x.x.x` that you noted previously<br/>
-    <br/>
-    Next locate the wolfSSL section should be on or around line 45 and looks like this:<br/>
-    `WolfSSL settings`<br/>
-    `WOLFSSL_INSTALLATION_DIR ?= C:\wolfssl`<br/>
-    `WOLFSSL_TIRTOS_DIR = $(WOLFSSL_INSTALLATION_DIR)/tirtos`<br/>
-    <br/>
-    Modify WOLFSSL_INSTALLATION_DIR to be the location of your wolfssl directory. Should be C:\wolfssl.<br/>
-    <br/>
-    Open a command promp and navigate to `C:\ti\tirtos_tivac_xxxxxxx`<br/>
-    <br/>
-    Use the following command to build TIRTOS and wolfssl<br/>
-    `..\xdctools_3_31_01_33_core\gmake.exe -f tirtos.mak wolfssl`<br/>
+This process will be easiest if you set your environment up in the following<br/>
+way.<br/>
+
+`C:\ti`<br/>
+`C:\ti\wolfssl`<br/>
+`C:\ti\ccsv6`<br/>
+`C:\ti\xdctools..`<br/>.
+`C:\ti\tirtos_tivac...`<br/>
+
+File: `C:\ti\wolfssl\tirtos\products.mak`<br/>
+Instructions:<br/>
+Copy and paste the following contents into the `C:\ti\wolfssl\tirtos\products.mak`<br/>
+file then browse to C:/ti/ and update all lines with `"X_XX_XX_XX"` to the correct<br/>
+version on your system. Also update the "X.X.X" and "X.X.X.XXx"<br/>
+
+NOTE: DO NOT forget the `"_core"` on the end of `XDC_INSTALL_DIR` if it is present<br/>
+in your environment, must be exact.<br/>
+<br/>
+################################################################################<br/>
+Contents of products.mak BEGIN<br/>
+################################################################################<br/>
+
+```
+#
+#  ======== products.mak ========
+#
+#
+# Read the http://processors.wiki.ti.com/index.php/Using_wolfSSL_with_TI-RTOS
+# for instructions to download the software required.
+
+export XDCTOOLS_JAVA_HOME = c:/ti/ccsv6/eclipse/jre
+
+# XDC_INSTALL_DIR is the path to XDCtools directory.
+XDC_INSTALL_DIR        = c:/ti/xdctools_X_XX_XX_XX_core
+
+# BIOS_INSTALL_DIR is the path to TI-RTOS Kernel (SYS/BIOS) directory. If you
+# have installed TI-RTOS, it is located in the products/bios_* path.
+BIOS_INSTALL_DIR       = c:/ti/tirtos_tivac_X_XX_XX_XX/products/bios_X_XX_XX_XX
+
+# NDK_INSTALL_DIR is the path to TI-RTOS NDK directory. If you have
+# installed TI-RTOS, it is located in the products/ndk_* path.
+NDK_INSTALL_DIR        = c:/ti/tirtos_tivac_X_XX_XX_XX/products/ndk_X_XX_XX_XX
+
+# TIVAWARE_INSTALL_DIR is the path to Tivaware driverlib directory. If you have
+# installed TI-RTOS, it is located in the products/TivaWare_* path.
+TIVAWARE_INSTALL_DIR   = c:/ti/tirtos_tivac_X_XX_XX_XX/products/TivaWare_C_Series-X.X.X.XXx
+
+# Define the code generation tools path for TI, IAR and GCC ARM compilers.
+# If you have installed Code Composer Studio, the TI and GCC compiler are
+# located in the ccsv*/tools/compiler/* path.
+#
+# Leave assignment empty to disable any toolchain.
+ti.targets.arm.elf.M4F = c:/ti/ccsv6/tools/compiler/ti-cgt-arm_X.X.X
+```
+
+################################################################################<br/>
+Contents of products.mak END<br/>
+################################################################################<br/>
+
+Finally from the wolfssl/tirtos directory run this command:<br/>
+`..\..\xdctools_X_XX_XX_XX_core\gmake.exe -f wolfssl.mak`<br/>
+
 <br/>
     The libraries should build without issues.<br/>
 <br/>
