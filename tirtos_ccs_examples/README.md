@@ -23,7 +23,7 @@ Download wolfSSL from here: https://wolfssl.com/wolfSSL/download/downloadForm.ph
 or<br/>
 clone wolfSSL development branch from here: https://github.com/wolfSSL/wolfssl<br/>
 <br/>
-expected install location: C:\wolfssl<br/>
+expected install location: C:\ti\wolfssl<br/>
 <br/>
 Part 4: Build the libraries
 --
