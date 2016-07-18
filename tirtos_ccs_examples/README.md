@@ -120,17 +120,17 @@ Part 6: Setting up the environment
         Under `Build -> ARM Compiler -> Include Options`<br/>
         You will see a little file with a green "plus" symbol in the browser window<br/>
         (NOTE: include the quotes)<br/>
-        Click on that and add this line `"C:/wolfssl"`<br/>
+        Click on that and add this line `"C:/ti/wolfssl"`<br/>
    <br/>
    <b>Part 6.b</b><br/>
         Now still in the Properties window<br/>
         Under `Build -> ARM Linker -> File Search Path`<br/>
         <br/>
         In the browser window on the right under "Include library file or command file as input"<br/>
-        Click the add button and add this line `"C:\wolfssl\tirtos\packages\ti\net\wolfssl\lib\wolfssl.aem4f"`<br/>
+        Click the add button and add this line `"C:\ti\wolfssl\tirtos\packages\ti\net\wolfssl\lib\wolfssl.aem4f"`<br/>
         <br/>
         In the browser window on the right under "Add dir to library search path"<br/>
-        Click the add button and add this line `"C:\wolfssl\tirtos\packages\ti\net\wolfssl\lib"`<br/>
+        Click the add button and add this line `"C:\ti\wolfssl\tirtos\packages\ti\net\wolfssl\lib"`<br/>
 <br/>
   Hit OK and we're ready to build the example project.<br/>
 <br/>
