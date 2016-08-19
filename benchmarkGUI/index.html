@@ -1,0 +1,94 @@
+<html>
+	<head>
+		<!-- Bootstrap required -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<title>nwjsBench</title>
+
+		<!-- bootstrap -->
+		<link rel="stylesheet" type="text/css"
+			href="./bower_components/bootstrap/dist/css/bootstrap.min.css" />
+		<link rel="stylesheet" type="text/css"
+			href="./bower_components/bootstrap/dist/css/bootstrap-theme.min.css" />
+		<link rel="stylesheet" type="text/css"
+			href="./bower_components/seiyria-bootstrap-slider/dist/css/bootstrap-slider.min.css" />
+		<link rel="stylesheet" type="text/css"
+			href="./bower_components/bootstrap-toggle/css/bootstrap-toggle.min.css" />
+		<link rel="stylesheet" type="text/css" href="./css/style.css"
+			media="screen" />
+	</head>
+	<body>
+		<!-- Navbar -->
+		<nav class="navbar navbar-default navbar-fixed-top">
+			<div class="container-fluid">
+				<div class="navbar-header">
+					<!-- Navbar toggle button -->
+					<button type="button" class="navbar-toggle collapsed"
+						data-toggle="collapse"
+						data-target="#navigation" aria-expanded="false">
+		        <span class="sr-only">Navigation</span>
+		        <span class="icon-bar"></span>
+		        <span class="icon-bar"></span>
+		        <span class="icon-bar"></span>
+		      </button>
+      		<span class="navbar-brand" href="#">
+						<img class="brand-img" src="./res/wolfSSL_brand.png"/>
+					</span>
+				</div>
+				<div class="collapse navbar-collapse" id="navigation">
+					<div class="form-group navbar-form">
+						<label class="checkbox-inline">
+					  	<input id="demoToggle" type="checkbox" data-toggle="toggle" data-on="Demo" data-off="Demo" data-onstyle="success" data-offstyle="danger" />
+						</label>
+						<label class="checkbox-inline">
+					  	<input id="aesToggle" type="checkbox" data-toggle="toggle" data-on="AES GCM" data-off="AES GCM" data-onstyle="success" data-offstyle="danger" />
+						</label>
+						<label class="checkbox-inline">
+					  	<input id="shaToggle" type="checkbox" data-toggle="toggle" data-on="SHA 256" data-off="SHA 256" data-onstyle="success" data-offstyle="danger" />
+						</label>
+						<label class="checkbox-inline">
+					  	<input id="rsaToggle" type="checkbox" data-toggle="toggle" data-on="RSA Dec" data-off="RSA Dec" data-onstyle="success" data-offstyle="danger" />
+						</label>
+						<label class="checkbox-inline">
+					  	<input id="sgxToggle" type="checkbox" data-toggle="toggle" data-on="Intel<sup>&reg;</sup> SGX" data-off="Intel<sup>&reg;</sup> SGX" data-onstyle="success" data-offstyle="danger" />
+						</label>
+						<label>Zoom
+							<input id="sizeSlider" data-slider-value="1" type="text" />
+						</label>
+					</div>
+				</div>
+			</div>
+		</nav>
+		<div class="container-fluid">
+			<div class="row">
+				<span class="text-center"><h1><strong id="programTitle">wolfSSL</strong></h1></span>
+			</div>
+			<div id="guiError" class="row hidden alert alert-danger" role="alert">
+			  <span class="glyphicon glyphicon-exclamation-sign"></span>
+				<span id="errorText"></span>
+			</div>
+			<div class="row">
+				<div id="gauges" class="col-md-12">
+				</div>
+			</div>
+		</div>
+		<!-- Footer -->
+		<footer class="footer">
+			<div class="container">
+				<p class="text-muted text-center">Copyright 2016 wolfSSL Inc.  All rights reserved.</p>
+			</div>
+		</footer>
+
+    <!-- Script Files -->
+		<script src="./bower_components/jquery/dist/jquery.min.js"></script>
+		<script src="./bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+		<script src="./bower_components/bootstrap-toggle/js/bootstrap-toggle.min.js"></script>
+		<script src="./bower_components/seiyria-bootstrap-slider/dist/bootstrap-slider.min.js"></script>
+		<script src="./bower_components/d3/d3.min.js"></script>
+		<script src="./js/d3gauge.js"></script>
+		<script src="./js/gauge.js"></script>
+		<script src="./js/index.js"></script>
+	</body>
+</html>

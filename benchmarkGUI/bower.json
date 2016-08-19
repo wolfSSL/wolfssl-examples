@@ -1,0 +1,22 @@
+{
+  "name": "benchmarkGUI",
+  "authors": [
+    "wolfSSL"
+  ],
+  "description": "Benchmark application written with nwjs",
+  "homepage": "wolfssl.com",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "d3": "3.5.17",
+    "bootstrap": "^3.3.6",
+    "bootstrap-toggle": "^2.2.2",
+    "seiyria-bootstrap-slider": "^9.1.1"
+  }
+}

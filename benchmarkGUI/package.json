@@ -1,0 +1,20 @@
+{
+  "name": "benchmarkGUI",
+  "version": "1.0.0",
+  "description": "wolfCrypt benchmark application written with a nw.js gui.",
+  "main": "index.html",
+  "author": "wolfSSL",
+  "window": {
+    "toolbar": false,
+    "show": false,
+    "width": 1065,
+    "height": 560
+  },
+  "dependencies": {
+    "nw": "0.15.4"
+  },
+  "scripts": {
+    "start": "nw"
+  },
+  "private": true
+}
