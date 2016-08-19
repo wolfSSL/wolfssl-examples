@@ -74,3 +74,14 @@ crypto/keys/*.x963
 
 signature/signature
 
+# benchmark gui
+benchmarkGUI/bower_components/
+benchmarkGUI/node_modules/
+benchmarkGUI/build/
+benchmarkGUI/benchmark.exe
+benchmarkGUI/benchmark
+benchmarkGUI/benchmark-SGX.exe
+benchmarkGUI/benchmark-SGX
+benchmarkGUI/*.swp
+benchmarkGUI/*.orig
+
