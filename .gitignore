@@ -74,3 +74,11 @@ crypto/keys/*.x963
 
 signature/signature
 
+#not ready for public consumption
+/mplabx/explorer-16_32/PIC24FJ1024GB610_PIM/wolfcrypt-test-with-lcd-display.X
+/mplabx/explorer-16_32/PIC24FJ1024GB610_PIM/wolfcrypt-test.X/nbproject/private/
+/mplabx/explorer-16_32/PIC24FJ1024GB610_PIM/wolfcrypt-test.X/build/default/
+/mplabx/explorer-16_32/PIC24FJ1024GB610_PIM/wolfcrypt-test.X/dist/default/
+/mplabx/explorer-16_32/PIC24FJ1024GB610_PIM/wolfcrypt-benchmark.X/nbproject/private/
+/mplabx/explorer-16_32/PIC24FJ1024GB610_PIM/wolfcrypt-benchmark.X/build/default/
+/mplabx/explorer-16_32/PIC24FJ1024GB610_PIM/wolfcrypt-benchmark.X/dist/default/
