@@ -25,6 +25,14 @@ on the Android platform, using the Android NDK toolchain.
 
 Please see the README.md in android/ for further usage and details.
 
+#### certfields (X509 field extraction)
+
+This directory contains an example that demonstrate using the wolfSSL
+to read a DER encoded certificate and extract the public key and
+subject name information.
+
+Please see the README.md in certfields/ for further usage and details.
+
 #### certmanager (wolfSSL CertManager)
 
 This directory contains examples that demonstrate using the wolfSSL
