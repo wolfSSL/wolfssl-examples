@@ -125,7 +125,7 @@ int main()
     int loopExit = 0; /* 0 = False, 1 = True */
     int ret      = 0; /* Return value */
     /* Server and client socket address structures */
-    struct sockaddr_in serverAddr, clientAddr;
+    struct sockaddr_in serverAddr = {0}, clientAddr = {0};
     char* cipherList = "ECDHE-ECDSA-CHACHA20-POLY1305";
 
     /* Initialize wolfSSL */
