@@ -179,7 +179,7 @@ int Server(word16 port)
     wolfSSL_SetIORecv(ctx, CbIORecv);
     wolfSSL_SetIOSend(ctx, CbIOSend);
 
-    tcp_accept(&listenfd, &connfd, NULL, port, 1, 0, 0, 1);
+    tcp_accept(&listenfd, &connfd, NULL, port, 1, 0, 0, 0, 1);
         
     if (connfd < 0) {
         err_sys("Fatal error : accept error");

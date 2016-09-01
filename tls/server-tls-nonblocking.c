@@ -207,7 +207,7 @@ int main()
     WOLFSSL_CTX* ctx;
 
     /* Server and Client socket address structures */
-    struct sockaddr_in serverAddr, clientAddr;
+    struct sockaddr_in serverAddr = {0}, clientAddr = {0};
 
     /* Initialize the server address struct to zero */
     memset((char *)&serverAddr, 0, sizeof(serverAddr)); 
