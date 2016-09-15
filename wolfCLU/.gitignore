@@ -22,4 +22,9 @@ lt*.m4
 *.deps
 *.libs
 *.dirstamp
-
+build-aux/config.guess
+build-aux/config.sub
+build-aux/install-sh
+build-aux/ltmain.sh
+m4/libtool.m4
+wolfssl

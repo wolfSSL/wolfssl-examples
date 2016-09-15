@@ -320,8 +320,8 @@ int wolfsslBenchmark(int timer, int* option)
         free(plain);
         free(digest);
         /* resets used for debug, uncomment if needed */
-        /* blocks = 0; */
-        /* loop = 1; */
+        blocks = 0;
+        loop = 1;
     }
     i++;
 #endif
