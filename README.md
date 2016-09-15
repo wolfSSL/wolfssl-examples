@@ -32,7 +32,7 @@ CertManager (Certificate Manager) functionality.
 
 Please see the README.md in certmanager/ for further usage and details.
 
-#### clu (wolfSSL Command Line Utility)
+#### wolfCLU (wolfSSL Command Line Utility)
 
 This is a tool to provide command line access to wolfcrypt cryptographic
 libraries. wolfSSL command line utility will allow users to encrypt or decrypt
