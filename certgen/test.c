@@ -8,7 +8,8 @@
 #define HEAP_HINT NULL
 #define FOURK_SZ 4096
 
-void free_things(byte* a, byte* b, byte* c, ecc_key* d, ecc_key* e, WC_RNG* f);
+void free_things(byte** a, byte** b, byte** c, ecc_key* d, ecc_key* e,
+                                                                     WC_RNG* f);
 
 int main(void) {
 
@@ -183,29 +184,30 @@ int main(void) {
     goto success;
 
 fail:
-    free_things(derBuf, pemBuf, caKeyBuf, &caKey, &newKey, &rng);
+    free_things(&derBuf, &pemBuf, &caKeyBuf, &caKey, &newKey, &rng);
     printf("Failure code was %d\n", ret);
     return -1;
 
 success:
-    free_things(derBuf, pemBuf, caKeyBuf, &caKey, &newKey, &rng);
+    free_things(&derBuf, &pemBuf, &caKeyBuf, &caKey, &newKey, &rng);
     printf("Tests passed\n");
     return 0;
 }
 
-void free_things(byte* a, byte* b, byte* c, ecc_key* d, ecc_key* e, WC_RNG* f)
+void free_things(byte** a, byte** b, byte** c, ecc_key* d, ecc_key* e,
+                                                                      WC_RNG* f)
 {
-    if (a != NULL) {
-        XFREE(a, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-        a = NULL;
+    if (*a != NULL) {
+        XFREE(*a, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        *a = NULL;
     }
-    if (b != NULL) {
-        XFREE(b, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-        b = NULL;
+    if (*b != NULL) {
+        XFREE(*b, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        *b = NULL;
     }
-    if (c != NULL) {
-        XFREE(c, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-        c = NULL;
+    if (*c != NULL) {
+        XFREE(*c, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        *c = NULL;
     }
 
     wc_ecc_free(d);
