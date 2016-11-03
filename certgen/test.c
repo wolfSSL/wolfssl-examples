@@ -55,11 +55,10 @@ int main(void) {
 /* END */
 /*---------------------------------------------------------------------------*/
 
-
 /*---------------------------------------------------------------------------*/
 /* open caKey file and get the caKey */
 /*---------------------------------------------------------------------------*/
-    printf("Getting the caKey\n");
+    printf("Getting the caKey from %s\n", caKeyFile);
 
     caKeyBuf = (byte*) XMALLOC(FOURK_SZ, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
 
@@ -73,7 +72,7 @@ int main(void) {
     fclose(file);
     printf("Successfully read %d bytes\n", caKeySz);
 
-    printf("InitRsaKey\n");
+    printf("Init ecc Key\n");
     wc_ecc_init(&caKey);
 
     printf("Decode the private key\n");
@@ -107,9 +106,7 @@ int main(void) {
 /* Create a new certificate using header information from der cert */
 /*---------------------------------------------------------------------------*/
     printf("Setting new cert issuer to subject of signer\n");
-     /* NameOrderingCACert.crt
-      *(refer to certificate which was attached in the previous mail)
-      */
+
     wc_InitCert(&newCert);
 
     newCert.sigType = CTC_SHA256wECDSA;
@@ -167,7 +164,7 @@ int main(void) {
         pemBufSz = wc_DerToPem(derBuf, derBufSz, pemBuf, FOURK_SZ, CERT_TYPE);
         if (pemBufSz < 0) goto fail;
 
-        printf("test #1 returned %d\n", pemBufSz);
+        printf("Resulting pem buffer is %d bytes\n", pemBufSz);
 
         file = fopen(pemOutput, "wb");
         if (!file) {
