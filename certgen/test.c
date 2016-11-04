@@ -39,7 +39,10 @@ int main(void) {
 /* open and read the der formatted certificate */
 /*---------------------------------------------------------------------------*/
     printf("Open and read in der formatted certificate\n");
+
     derBuf = (byte*) XMALLOC(FOURK_SZ, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    if (derBuf == NULL) goto fail;
+
     XMEMSET(derBuf, 0, FOURK_SZ);
 
     file = fopen(certToUse, "rb");
@@ -62,6 +65,7 @@ int main(void) {
     printf("Getting the caKey from %s\n", caKeyFile);
 
     caKeyBuf = (byte*) XMALLOC(FOURK_SZ, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    if (caKeyBuf == NULL) goto fail;
 
     file = fopen(caKeyFile, "rb");
     if (!file) {
@@ -70,6 +74,11 @@ int main(void) {
     }
 
     caKeySz = fread(caKeyBuf, 1, FOURK_SZ, file);
+    if (caKeySz <= 0) {
+        printf("Failed to read caKey from file\n");
+        goto fail;
+    }
+
     fclose(file);
     printf("Successfully read %d bytes\n", caKeySz);
 
@@ -93,7 +102,8 @@ int main(void) {
     if (ret != 0) goto fail;
 
     printf("Generating a new ecc key\n");
-    wc_ecc_init(&newKey);
+    ret = wc_ecc_init(&newKey);
+    if (ret != 0) goto fail;
 
     ret = wc_ecc_make_key(&rng, 32, &newKey);
     if (ret != 0) goto fail;
@@ -118,7 +128,6 @@ int main(void) {
     ret = wc_MakeCert(&newCert, derBuf, FOURK_SZ, NULL, &newKey, &rng); //ecc certificate
     if (ret < 0) goto fail;
 
-    derBufSz = ret;
     printf("MakeCert returned %d\n", ret);
 
     ret = wc_SignCert(newCert.bodySz, newCert.sigType, derBuf, FOURK_SZ, NULL,
@@ -159,7 +168,10 @@ int main(void) {
         int pemBufSz;
 
         printf("Convert the der cert to pem formatted cert\n");
+
         pemBuf = (byte*) XMALLOC(FOURK_SZ, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        if (pemBuf == NULL) goto fail;
+
         XMEMSET(pemBuf, 0, FOURK_SZ);
 
         pemBufSz = wc_DerToPem(derBuf, derBufSz, pemBuf, FOURK_SZ, CERT_TYPE);
@@ -197,17 +209,23 @@ success:
 void free_things(byte** a, byte** b, byte** c, ecc_key* d, ecc_key* e,
                                                                       WC_RNG* f)
 {
-    if (*a != NULL) {
-        XFREE(*a, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-        *a = NULL;
+    if (a != NULL) {
+        if (*a != NULL) {
+            XFREE(*a, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+            *a = NULL;
+        }
     }
-    if (*b != NULL) {
-        XFREE(*b, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-        *b = NULL;
+    if (b != NULL) {
+        if (*b != NULL) {
+            XFREE(*b, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+            *b = NULL;
+        }
     }
-    if (*c != NULL) {
-        XFREE(*c, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-        *c = NULL;
+    if (c != NULL) {
+        if (*c != NULL) {
+            XFREE(*c, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+            *c = NULL;
+        }
     }
 
     wc_ecc_free(d);
