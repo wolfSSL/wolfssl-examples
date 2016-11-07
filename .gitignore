@@ -74,3 +74,7 @@ crypto/keys/*.x963
 
 signature/signature
 
+#cergen
+certgen/test.o
+certgen/newCert*
+certgen/run_certgen_example
