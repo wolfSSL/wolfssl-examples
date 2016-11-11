@@ -67,7 +67,7 @@ int ecc_sign_verify_test(enum wc_HashType hash_type, enum wc_SignatureType sig_t
 
     /* Generate key */
     wc_ecc_init(&eccKey);
-    ret = wc_ecc_make_key(&rng, 32, &eccKey);
+    ret = wc_ecc_make_key_ex(&rng, 32, &eccKey, ECC_CURVE_DEF);
     if(ret != 0) {
         printf("ECC Make Key Failed! %d\n", ret);
     }
