@@ -52,7 +52,7 @@ void hexdump(const void *buffer, word32 len, byte cols)
 
 #ifdef HAVE_ECC
 int ecc_sign_verify_test(enum wc_HashType hash_type, enum wc_SignatureType sig_type,
-    byte* fileBuf, int fileLen)
+    byte* fileBuf, int fileLen, byte* verifyFileBuf, int verifyFileLen)
 {
     int ret;
     ecc_key eccKey;
@@ -94,32 +94,38 @@ int ecc_sign_verify_test(enum wc_HashType hash_type, enum wc_SignatureType sig_t
     printf("ECC Private Key: Len %d\n", eccPrivKeyLen);
     hexdump(eccPrivKeyBuf, eccPrivKeyLen, 16);
 
-    /* Get signature length and allocate buffer */
-    sigLen = wc_SignatureGetSize(sig_type, &eccKey, sizeof(eccKey));
-    if(sigLen <= 0) {
-        printf("ECC Signature type %d not supported!\n", sig_type);
-        ret = EXIT_FAILURE;
-        goto exit;
+    if (verifyFileBuf) {
+        sigLen = verifyFileLen;
+        sigBuf = verifyFileBuf;
     }
-    sigBuf = malloc(sigLen);
-    if(!sigBuf) {
-        printf("ECC Signature malloc failed!\n");
-        ret = EXIT_FAILURE;
-        goto exit;
-    }
-    printf("ECC Signature Len: %d\n", sigLen);
+    else {
+        /* Get signature length and allocate buffer */
+        sigLen = wc_SignatureGetSize(sig_type, &eccKey, sizeof(eccKey));
+        if(sigLen <= 0) {
+            printf("ECC Signature type %d not supported!\n", sig_type);
+            ret = EXIT_FAILURE;
+            goto exit;
+        }
+        sigBuf = malloc(sigLen);
+        if(!sigBuf) {
+            printf("ECC Signature malloc failed!\n");
+            ret = EXIT_FAILURE;
+            goto exit;
+        }
+        printf("ECC Signature Len: %d\n", sigLen);
 
-    /* Perform hash and sign to create signature */
-    ret = wc_SignatureGenerate(
-        hash_type, sig_type,
-        fileBuf, fileLen,
-        sigBuf, &sigLen,
-        &eccKey, sizeof(eccKey),
-        &rng);
-    printf("ECC Signature Generation: %s (%d)\n", (ret == 0) ? "Pass" : "Fail", ret);
-    if(ret < 0) {
-        ret = EXIT_FAILURE;
-        goto exit;
+        /* Perform hash and sign to create signature */
+        ret = wc_SignatureGenerate(
+            hash_type, sig_type,
+            fileBuf, fileLen,
+            sigBuf, &sigLen,
+            &eccKey, sizeof(eccKey),
+            &rng);
+        printf("ECC Signature Generation: %s (%d)\n", (ret == 0) ? "Pass" : "Fail", ret);
+        if(ret < 0) {
+            ret = EXIT_FAILURE;
+            goto exit;
+        }
     }
 
     printf("Signature Data:\n");
@@ -175,22 +181,22 @@ int rsa_load_der_file(const char* derFile, RsaKey *rsaKey)
         buffer = malloc(RSA_KEY_SIZE);
         if(buffer) {
             bytes = fread(buffer, 1, RSA_KEY_SIZE, file);
-            fclose(file);        
+            fclose(file);
         }
     }
-    
+
     if(buffer != NULL && bytes > 0) {
         ret = wc_RsaPrivateKeyDecode(buffer, &idx, rsaKey, (word32)bytes);
     }
-    
+
     if(buffer) {
         free(buffer);
-    }    
+    }
     return ret;
 }
 
 int rsa_sign_verify_test(enum wc_HashType hash_type, enum wc_SignatureType sig_type,
-    byte* fileBuf, int fileLen)
+    byte* fileBuf, int fileLen, byte* verifyFileBuf, int verifyFileLen)
 {
     int ret;
     RsaKey rsaKey;
@@ -228,7 +234,7 @@ int rsa_sign_verify_test(enum wc_HashType hash_type, enum wc_SignatureType sig_t
     rsaKeyLen = ret;
     printf("RSA Key: Len %d\n", rsaKeyLen);
     hexdump(rsaKeyBuf, rsaKeyLen, 16);
-    
+
     rsaPubKeyLen = RSA_KEY_SIZE;
     rsaPubKeyBuf = malloc(rsaPubKeyLen);
     ret = wc_RsaKeyToPublicDer(&rsaKey, rsaPubKeyBuf, rsaPubKeyLen);
@@ -245,32 +251,38 @@ int rsa_sign_verify_test(enum wc_HashType hash_type, enum wc_SignatureType sig_t
     rsa_load_der_file("../certs/client-key.der", &rsaKey);
 #endif
 
-    /* Get signature length and allocate buffer */
-    sigLen = wc_SignatureGetSize(sig_type, &rsaKey, sizeof(rsaKey));
-    if(sigLen <= 0) {
-        printf("RSA Signature size check fail! %d\n", sigLen);
-        ret = EXIT_FAILURE;
-        goto exit;
+    if (verifyFileBuf) {
+        sigLen = verifyFileLen;
+        sigBuf = verifyFileBuf;
     }
-    sigBuf = malloc(sigLen);
-    if(!sigBuf) {
-        printf("RSA Signature malloc failed!\n");
-        ret = EXIT_FAILURE;
-        goto exit;
-    }
-    printf("RSA Signature Len: %d\n", sigLen);
+    else {
+        /* Get signature length and allocate buffer */
+        sigLen = wc_SignatureGetSize(sig_type, &rsaKey, sizeof(rsaKey));
+        if(sigLen <= 0) {
+            printf("RSA Signature size check fail! %d\n", sigLen);
+            ret = EXIT_FAILURE;
+            goto exit;
+        }
+        sigBuf = malloc(sigLen);
+        if(!sigBuf) {
+            printf("RSA Signature malloc failed!\n");
+            ret = EXIT_FAILURE;
+            goto exit;
+        }
+        printf("RSA Signature Len: %d\n", sigLen);
 
-    /* Perform hash and sign to create signature */
-    ret = wc_SignatureGenerate(
-        hash_type, sig_type,
-        fileBuf, fileLen,
-        sigBuf, &sigLen,
-        &rsaKey, sizeof(rsaKey),
-        &rng);
-    printf("RSA Signature Generation: %s (%d)\n", (ret == 0) ? "Pass" : "Fail", ret);
-    if(ret < 0) {
-        ret = EXIT_FAILURE;
-        goto exit;
+        /* Perform hash and sign to create signature */
+        ret = wc_SignatureGenerate(
+            hash_type, sig_type,
+            fileBuf, fileLen,
+            sigBuf, &sigLen,
+            &rsaKey, sizeof(rsaKey),
+            &rng);
+        printf("RSA Signature Generation: %s (%d)\n", (ret == 0) ? "Pass" : "Fail", ret);
+        if(ret < 0) {
+            ret = EXIT_FAILURE;
+            goto exit;
+        }
     }
 
     printf("RSA Signature Data:\n");
@@ -321,15 +333,61 @@ exit:
 }
 #endif /* !NO_RSA */
 
+static int load_file_to_buffer(const char* filename, byte** fileBuf, int* fileLen)
+{
+    int ret = 0;
+    FILE* file = NULL;
+
+    /* Open file */
+    file = fopen(filename, "rb");
+    if (file == NULL) {
+        printf("File %s does not exist!\n", filename);
+        ret = EXIT_FAILURE;
+        goto exit;
+    }
+
+    /* Determine length of file */
+    fseek(file, 0, SEEK_END);
+    *fileLen = (int) ftell(file);
+    fseek(file, 0, SEEK_SET);
+    printf("File %s is %d bytes\n", filename, *fileLen);
+
+    /* Allocate buffer for image */
+    *fileBuf = malloc(*fileLen);
+    if(!*fileBuf) {
+        printf("File buffer malloc failed!\n");
+        ret = EXIT_FAILURE;
+        goto exit;
+    }
+
+    /* Load file into buffer */
+    ret = (int)fread(*fileBuf, 1, *fileLen, file);
+    if(ret != *fileLen) {
+        printf("Error reading file! %d", ret);
+        ret = EXIT_FAILURE;
+        goto exit;
+    }
+
+exit:
+
+    if(file) {
+        fclose(file);
+    }
+
+    return ret;
+}
+
 int main(int argc, char** argv)
 {
     int ret = 0;
     int fileLen;
     byte* fileBuf = NULL;
-    FILE* file = NULL;
+    int verifyFileLen;
+    byte* verifyFileBuf = NULL;
+    const char* verify_file = NULL;
     enum wc_SignatureType sig_type = WC_SIGNATURE_TYPE_NONE;
     enum wc_HashType hash_type = WC_HASH_TYPE_NONE;
-    
+
 #ifdef HAVE_ECC
     sig_type = WC_SIGNATURE_TYPE_ECC;
 #elif !defined(NO_RSA)
@@ -352,9 +410,10 @@ int main(int argc, char** argv)
 
     /* Check arguments */
     if (argc < 2) {
-        printf("Usage: signature <filename> <sig> <hash>\n");
+        printf("Usage: signature <filename> <sig> <hash> <verifyfile> \n");
         printf("  <sig>: 1=ECC, 2=RSA, 3=RSA (w/DER Encoding): default %d\n", sig_type);
         printf("  <hash>: 1=MD2, 2=MD4, 3=MD5, 4=SHA, 5=SHA256, 6=SHA384, 7=SHA512, 8=MD5+SHA: default %d\n", hash_type);
+        printf("  <verifyfile>: optional sig verify binary file\n");
         return 1;
     }
     if(argc >= 3) {
@@ -362,6 +421,9 @@ int main(int argc, char** argv)
     }
     if(argc >= 4) {
         hash_type = atoi(argv[3]);
+    }
+    if(argc >= 5) {
+        verify_file = argv[4];
     }
 
     /* Verify hash type is supported */
@@ -372,34 +434,18 @@ int main(int argc, char** argv)
 
     printf("Signature Example: Sig=%d, Hash=%d\n", sig_type, hash_type);
 
-    /* Open file */
-    file = fopen(argv[1], "rb");
-    if (file == NULL) {
-        printf("File %s does not exist!\n", argv[1]);
-        ret = EXIT_FAILURE;
+    /* Load input file */
+    ret = load_file_to_buffer(argv[1], &fileBuf, &fileLen);
+    if (ret < 0) {
         goto exit;
     }
 
-    /* Determine length of file */
-    fseek(file, 0, SEEK_END);
-    fileLen = (int) ftell(file);
-    fseek(file, 0, SEEK_SET);
-    printf("File %s is %d bytes\n", argv[1], fileLen);
-
-    /* Allocate buffer for image */
-    fileBuf = malloc(fileLen);
-    if(!fileBuf) {
-        printf("File buffer malloc failed!\n");
-        ret = EXIT_FAILURE;
-        goto exit;
-    }
-
-    /* Load file into buffer */
-    ret = (int)fread(fileBuf, 1, fileLen, file);
-    if(ret != fileLen) {
-        printf("Error reading file! %d", ret);
-        ret = EXIT_FAILURE;
-        goto exit;
+    /* Load verify signature file (optional) */
+    if (verify_file) {
+        ret = load_file_to_buffer(verify_file, &verifyFileBuf, &verifyFileLen);
+        if (ret < 0) {
+            goto exit;
+        }
     }
 
     /* Perform sign and verify */
@@ -407,7 +453,8 @@ int main(int argc, char** argv)
     {
 #ifdef HAVE_ECC
     case WC_SIGNATURE_TYPE_ECC:
-        ret = ecc_sign_verify_test(hash_type, sig_type, fileBuf, fileLen);
+        ret = ecc_sign_verify_test(hash_type, sig_type, fileBuf, fileLen,
+            verifyFileBuf, verifyFileLen);
         break;
 #endif
 #ifndef NO_RSA
@@ -415,7 +462,8 @@ int main(int argc, char** argv)
         case WC_SIGNATURE_TYPE_RSA_W_ENC:
     #endif
         case WC_SIGNATURE_TYPE_RSA:
-            ret = rsa_sign_verify_test(hash_type, sig_type, fileBuf, fileLen);
+            ret = rsa_sign_verify_test(hash_type, sig_type, fileBuf, fileLen,
+                verifyFileBuf, verifyFileLen);
             break;
 #endif
         default:
@@ -427,9 +475,6 @@ exit:
     /* Free */
     if(fileBuf) {
         free(fileBuf);
-    }
-    if(file) {
-        fclose(file);
     }
 
     return ret;
