@@ -146,7 +146,7 @@ int wolfsslHash(char* in, char* out, char* alg, int size)
             }
         }
         else {
-            printf("output: len %d\n", size);
+            //printf("output: len %d\n", size);
             /*  if no output file */
             for (i = 0; i < size; i++) {
                 /* write hashed output to terminal */

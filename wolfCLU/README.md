@@ -1,12 +1,12 @@
-#wolfCLU
+# wolfCLU
 
-This is the wolfSSL:  Command Line Utility (wolfCLU).
+This is the wolfSSL: Command Line Utility (wolfCLU).
 
-##wolfSSL Install
+## wolfSSL Install
 
 To use this feature, please configure and install wolfssl with the following commands:
 
-    ./configure --enable-pwdbased --enable-opensslextra && make && make check
+    ./configure --enable-pwdbased --enable-opensslextra --enable-base64encode && make && make check
 
 If that succeeds, run:
 
@@ -18,6 +18,9 @@ recipient of the encrypted file.
 
 `--enable-opensslextra` provides utility for a hex to binary conversion of
 hexidecimal values.
+
+`--enable-base64encode` enables Base64 encoding (not on by default)
+
 
 Additional features that can be included when configuring wolfssl for
 encryption or decryption are:
@@ -44,4 +47,26 @@ Now you should be able to use the wolfssl command line tool.  To verify type:
 
 If everything worked, you should see the wolfssl help page.
 
-Thank you and have fun!
+## Examples
+
+### Base64
+
+#### Encode
+
+```
+./wolfssl -hash base64enc -in README.md > README_encoded.md
+```
+
+#### Decode
+
+```
+./wolfssl -hash base64dec -in README_encoded.md 
+```
+
+## Contacts
+
+Please contact support@wolfssl.com with any questions or comments
+
+## License
+
+Copyright (c) 2006-2015 wolfSSL Inc.
