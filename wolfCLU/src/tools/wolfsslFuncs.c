@@ -90,7 +90,9 @@ void wolfsslVerboseHelp()
         ,"blake2b"
 #endif
 #ifndef NO_CODING
+    #ifdef WOLFSSL_BASE64_ENCODE
         ,"base64enc"
+    #endif
         ,"base64dec"
 #endif
     };
@@ -243,7 +245,9 @@ void wolfsslHashHelp()
         ,"blake2b"
 #endif
 #ifndef NO_CODING
+    #ifdef WOLFSSL_BASE64_ENCODE
         ,"base64enc"
+    #endif
         ,"base64dec"
 #endif
         };
