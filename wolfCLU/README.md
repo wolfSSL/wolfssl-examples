@@ -6,7 +6,7 @@ This is the wolfSSL: Command Line Utility (wolfCLU).
 
 To use this feature, please configure and install wolfssl with the following commands:
 
-    ./configure --enable-pwdbased --enable-opensslextra --enable-base64encode && make && make check
+    ./configure --enable-pwdbased --enable-opensslextra && make && make check
 
 If that succeeds, run:
 
@@ -60,7 +60,7 @@ If everything worked, you should see the wolfssl help page.
 #### Decode
 
 ```
-./wolfssl -hash base64dec -in README_encoded.md 
+./wolfssl -hash base64dec -in README_encoded.md
 ```
 
 ## Contacts
