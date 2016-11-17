@@ -2,7 +2,48 @@ CC=gcc
 CFLAGS=-Wall
 LIBS=-lwolfssl
 
+OS_DET=UNKNOWN
+CPU_DET=UNKNOWN
+ifeq ($(OS),Windows_NT)
+    OS_DET=WIN32
+    ifeq ($(PROCESSOR_ARCHITEW6432),AMD64)
+        CPU_DET=AMD64
+    else
+        ifeq ($(PROCESSOR_ARCHITECTURE),AMD64)
+            CPU_DET=AMD64
+        endif
+        ifeq ($(PROCESSOR_ARCHITECTURE),x86)
+            CPU_DET=IA32
+        endif
+    endif
+else
+    UNAME_S := $(shell uname -s)
+    ifeq ($(UNAME_S),Linux)
+        OS_DET=LINUX
+    endif
+    ifeq ($(UNAME_S),Darwin)
+        OS_DET=OSX
+    endif
+    UNAME_P := $(shell uname -p)
+    ifeq ($(UNAME_P),x86_64)
+        CPU_DET=AMD64
+    endif
+    ifneq ($(filter %86,$(UNAME_P)),)
+        CPU_DET=IA32
+    endif
+    ifneq ($(filter arm%,$(UNAME_P)),)
+        CPU_DET=ARM
+    endif
+endif
+
+# $(info $$OS_DET is [${OS_DET}])
+# $(info $$CPU_DET is [${CPU_DET}])
+
+ifeq ($(OS_DET),LINUX)
 all: client-tcp client-tls client-tls-nonblocking client-tls-ecdhe server-tls-ecdhe client-tls-perf client-tls-resume client-callback memory-tls server-tcp server-tls server-tls-nonblocking server-tls-threaded server-tls-epoll-perf server-callback server-tls-epoll-threaded
+else
+all: client-tcp client-tls client-tls-nonblocking client-tls-ecdhe server-tls-ecdhe client-tls-resume client-callback memory-tls server-tcp server-tls server-tls-nonblocking server-tls-threaded server-callback
+endif
 
 client-tcp: client-tcp.o
 	$(CC) -o $@ $^ $(CFLAGS)
