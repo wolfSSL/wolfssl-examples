@@ -50,7 +50,9 @@ int wolfsslHashSetup(int argc, char** argv)
         , "blake2b"
 #endif
 #ifndef NO_CODING
+    #ifdef WOLFSSL_BASE64_ENCODE
         , "base64enc"
+    #endif
         , "base64dec"
 #endif
     };

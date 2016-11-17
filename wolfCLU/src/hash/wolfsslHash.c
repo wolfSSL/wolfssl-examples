@@ -118,15 +118,17 @@ int wolfsslHash(char* in, char* out, char* alg, int size)
 #endif
 
 #ifndef NO_CODING
+#ifdef WOLFSSL_BASE64_ENCODE
     else if (strcmp(alg, "base64enc") == 0) {
         ret = Base64_Encode(input, length, output, (word32*)&size);
         outputAsHexString = 0;
     }
+#endif /* WOLFSSL_BASE64_ENCODE */
     else if (strcmp(alg, "base64dec") == 0) {
         ret = Base64_Decode(input, length, output, (word32*)&size);
         outputAsHexString = 0;
     }
-#endif
+#endif /* !NO_CODING */
 
     if (ret == 0) {
         /* if no errors so far */
