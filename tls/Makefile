@@ -1,6 +1,8 @@
 CC=gcc
 CFLAGS=-Wall
-LIBS=-lwolfssl
+LIBS=-lwolfssl -lm
+DEBUG_FLAGS=-g -DDEBUG
+#CFLAGS+=$(DEBUG_FLAGS)
 
 OS_DET=UNKNOWN
 CPU_DET=UNKNOWN

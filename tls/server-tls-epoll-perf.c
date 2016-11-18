@@ -638,6 +638,10 @@ static int WolfSSLCtx_Init(int version, char* cert, char* key, char* verifyCert,
     WOLFSSL_CTX* ctx;
     wolfSSL_method_func method = NULL;
 
+#ifdef DEBUG_WOLFSSL
+    wolfSSL_Debugging_ON();
+#endif
+
     /* Initialize wolfSSL */
     wolfSSL_Init();
 

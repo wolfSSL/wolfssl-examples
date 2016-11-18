@@ -56,7 +56,7 @@
 
 
 /* The states of the SSL connection. */
-typedef enum SSLState { INIT, CONNECT, WRITE, READ, CLOSE } SSLState;
+typedef enum SSLState { INIT, CONNECT, WRITE, READ_WAIT, READ, CLOSE } SSLState;
 
 /* Data for each active connection. */
 typedef struct SSLConn {
@@ -572,14 +572,16 @@ static int SSLConn_ReadWrite(SSLConn_CTX* ctx, SSLConn* sslConn)
             }
 
             if (ret == 1)
-                sslConn->state = READ;
+                sslConn->state = READ_WAIT;
             break;
 
-        case READ:
+        case READ_WAIT:
             ret = TCP_Select(sslConn->sockfd, 0);
             if (ret != 1)
                 break;
+            sslConn->state = READ;
 
+        case READ:
             len = ctx->bufferLen;
             if (ctx->maxBytes > 0) {
                 len = min(len, ctx->maxBytes - ctx->totalReadBytes);
@@ -674,6 +676,10 @@ static int WolfSSLCtx_Init(int version, char* cert, char* key, char* verifyCert,
 {
     WOLFSSL_CTX* ctx;
     wolfSSL_method_func method = NULL;
+
+#ifdef DEBUG_WOLFSSL
+    wolfSSL_Debugging_ON();
+#endif
 
     /* Initialize wolfSSL */
     wolfSSL_Init();
