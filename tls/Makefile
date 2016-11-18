@@ -1,8 +1,25 @@
+# TLS Examples Makefile
 CC=gcc
 CFLAGS=-Wall
 LIBS=-lwolfssl -lm
 DEBUG_FLAGS=-g -DDEBUG
+
+# Intel QuickAssist
+QAT_PATH=../../QAT1.6
+QAT_FLAGS=-DDO_CRYPTO -DUSER_SPACE \
+	-I$(QAT_PATH)/quickassist/include \
+	-I$(QAT_PATH)/quickassist/include/lac \
+	-I$(QAT_PATH)/quickassist/utilities/osal/include \
+	-I$(QAT_PATH)/quickassist/utilities/osal/src/linux/user_space/include \
+	-I$(QAT_PATH)/quickassist/lookaside/access_layer/include \
+	-I$(QAT_PATH)/quickassist/lookaside/access_layer/src/common/include
+QAT_LIBS=-L$(QAT_PATH) -ladf_proxy -losal -licp_qa_al_s
+
+# Options
 #CFLAGS+=$(DEBUG_FLAGS)
+#CFLAGS+=$(QAT_FLAGS)
+#LIBS+=$(QAT_LIBS)
+
 
 OS_DET=UNKNOWN
 CPU_DET=UNKNOWN
