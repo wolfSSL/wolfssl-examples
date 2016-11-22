@@ -21,6 +21,7 @@ QAT_LIBS=-L$(QAT_PATH) -ladf_proxy -losal -licp_qa_al_s
 #LIBS+=$(QAT_LIBS)
 
 
+# OS / CPU Detection
 OS_DET=UNKNOWN
 CPU_DET=UNKNOWN
 ifeq ($(OS),Windows_NT)

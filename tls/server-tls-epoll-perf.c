@@ -658,7 +658,6 @@ static int WolfSSLCtx_Init(int version, char* cert, char* key, char* verifyCert,
 #ifdef WOLFSSL_ASYNC_CRYPT
     if (wolfAsync_DevOpen(&devId) != 0) {
         fprintf(stderr, "Async device open failed\nRunning without async\n");
-        //return(EXIT_FAILURE);
     }
 
     wolfSSL_CTX_UseAsync(ctx, devId);
