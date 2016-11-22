@@ -638,6 +638,10 @@ static int WolfSSLCtx_Init(int version, char* cert, char* key, char* verifyCert,
     WOLFSSL_CTX* ctx;
     wolfSSL_method_func method = NULL;
 
+#ifdef DEBUG_WOLFSSL
+    wolfSSL_Debugging_ON();
+#endif
+
     /* Initialize wolfSSL */
     wolfSSL_Init();
 
@@ -653,8 +657,7 @@ static int WolfSSLCtx_Init(int version, char* cert, char* key, char* verifyCert,
 
 #ifdef WOLFSSL_ASYNC_CRYPT
     if (wolfAsync_DevOpen(&devId) != 0) {
-        fprintf(stderr, "Async device open failed");
-        return(EXIT_FAILURE);
+        fprintf(stderr, "Async device open failed\nRunning without async\n");
     }
 
     wolfSSL_CTX_UseAsync(ctx, devId);

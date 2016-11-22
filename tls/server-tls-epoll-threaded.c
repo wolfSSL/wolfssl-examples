@@ -305,16 +305,12 @@ static int SSL_Read(WOLFSSL* ssl, char* buffer, int len, int* totalBytes,
 
     pthread_mutex_lock(&sslConnMutex);
     *readTime += diff;
+    if (rwret > 0)
+        *totalBytes += rwret;
     pthread_mutex_unlock(&sslConnMutex);
 
     if (rwret == 0) {
         return 0;
-    }
-
-    if (rwret > 0) {
-        pthread_mutex_lock(&sslConnMutex);
-        *totalBytes += rwret;
-        pthread_mutex_unlock(&sslConnMutex);
     }
 
     error = wolfSSL_get_error(ssl, 0);
@@ -759,8 +755,7 @@ static int WolfSSLCtx_Init(int version, char* cert, char* key, char* verifyCert,
 
 #ifdef WOLFSSL_ASYNC_CRYPT
     if (wolfAsync_DevOpen(devId) != 0) {
-        fprintf(stderr, "Async device open failed");
-        return(EXIT_FAILURE);
+        fprintf(stderr, "Async device open failed\nRunning without async\n");
     }
 
     wolfSSL_CTX_UseAsync(ctx, *devId);
@@ -1193,6 +1188,10 @@ int main(int argc, char* argv[])
                 exit(MY_EX_USAGE);
         }
     }
+
+#ifdef DEBUG_WOLFSSL
+    wolfSSL_Debugging_ON();
+#endif
 
     /* Initialize wolfSSL */
     wolfSSL_Init();
