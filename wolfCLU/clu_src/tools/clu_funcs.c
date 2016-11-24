@@ -19,8 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,USA
  */
 
-#include "include/wolfssl.h"
- #include "include/version.h"
+#include "clu_include/clu_header_main.h"
+#include "clu_include/version.h"
 
 #define SALT_SIZE       8
 #define DES3_BLOCK_SIZE 24

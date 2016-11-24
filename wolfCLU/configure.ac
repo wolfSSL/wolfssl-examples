@@ -14,7 +14,7 @@ AC_INIT([wolfssl_clu], [0.4], [http://www.wolfssl.com])
 
 #a helpful directory to keep clutter out of root
 AC_CONFIG_AUX_DIR([build-aux])
-AC_CONFIG_HEADER([src/config.h])
+AC_CONFIG_HEADER([clu_src/config.h])
 AC_CANONICAL_HOST
 AC_CANONICAL_BUILD  
 		

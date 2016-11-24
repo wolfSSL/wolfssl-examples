@@ -1,0 +1,9 @@
+# vim:ft=automake
+# All paths should be given relative to the root
+#
+
+
+nobase_include_HEADERS+=clu_include/clu_header_main.h \
+                        clu_include/x509/clu_cert.h \
+                        clu_include/clu_optargs.h
+

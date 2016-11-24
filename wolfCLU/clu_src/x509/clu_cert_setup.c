@@ -21,14 +21,14 @@
 
 #include <stdio.h>
 
-#include <include/x509/wolfsslCert.h>
+#include "clu_include/x509/clu_cert.h"
 #include <wolfssl/wolfcrypt/types.h>
-#include "include/optargs.h"
+#include "clu_include/clu_optargs.h"
 
 #ifdef WOLFSSL_STATIC_MEMORY
     #include <wolfssl/wolfcrypt/memory.h>
     static WOLFSSL_HEAP_HINT* HEAP_HINT;
-#else
+else
     #define HEAP_HINT NULL
 #endif
 

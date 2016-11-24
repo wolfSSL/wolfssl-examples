@@ -1,8 +1,0 @@
-# vim:ft=automake
-# All paths should be given relative to the root
-#
-
-
-nobase_include_HEADERS+=include/wolfssl.h \
-                        include/x509/wolfsslCert.h
-

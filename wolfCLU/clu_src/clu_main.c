@@ -19,9 +19,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
-#include "include/wolfssl.h"
-#include "include/x509/wolfsslCert.h"
-#include "include/optargs.h"
+#include "clu_include/clu_header_main.h"
+#include "clu_include/x509/clu_cert.h"
+#include "clu_include/clu_optargs.h"
 
 /* enumerate optionals beyond ascii range to dis-allow use of alias IE we
  * do not want "-e" to work for encrypt, user must use "encrypt"
@@ -30,11 +30,19 @@
 int main(int argc, char** argv)
 {
     int ret = 0, option = 0, long_index = 0;
+    int i;
 
     if (argc == 1) {
         printf("Main Help.\n");
         wolfsslHelp();
     }
+
+    /* flexibility: allow users to input any CAPS or lower case,
+     * we will do all processing on lower case only. */
+    for (i = 0; i < argc; i++) {
+        convert_to_lower(argv[i], (int) XSTRLEN(argv[i]));
+    }
+
     while ((option = getopt_long_only(argc, argv,"",
                    long_options, &long_index )) != -1) {
 

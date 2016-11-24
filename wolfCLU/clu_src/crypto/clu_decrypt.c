@@ -19,7 +19,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
-#include "include/wolfssl.h"
+#include "clu_include/clu_header_main.h"
 
 #define SALT_SIZE       8
 #define MAX             1024

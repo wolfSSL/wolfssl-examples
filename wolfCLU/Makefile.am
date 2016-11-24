@@ -37,8 +37,8 @@ man_MANS+= manpages/wolfsslEncrypt.1
 man_MANS+= manpages/wolfsslHash.1
 man_MANS+= manpages/wolfsslMain.1
 
-include src/include.am
-include include/include.am
+include clu_src/include.am
+include clu_include/include.am
 #####include data/include.am
 
 

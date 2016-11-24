@@ -1,0 +1,18 @@
+# vim:ft=automake
+# included from Top Level Makefile.am
+# All paths should be given relative to the root
+
+#/ kaleb /#
+bin_PROGRAMS = wolfssl
+wolfssl_SOURCES = clu_src/tools/clu_funcs.c \
+					clu_src/tools/clu_hex_to_bin.c \
+					clu_src/crypto/clu_encrypt.c \
+					clu_src/crypto/clu_decrypt.c \
+					clu_src/crypto/clu_crypto_setup.c \
+					clu_src/hash/clu_hash_setup.c \
+					clu_src/hash/clu_hash.c \
+					clu_src/benchmark/clu_bench_setup.c \
+					clu_src/benchmark/clu_benchmark.c \
+					clu_src/clu_main.c \
+					clu_src/x509/clu_cert_setup.c \
+					include/clu_header_main.h
