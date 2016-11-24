@@ -1,6 +1,6 @@
-/* wolfsslHexToBin.c
+/* clu_hex_to_bin.c
  *
- * Copyright (C) 2006-2015 wolfSSL Inc.
+ * Copyright (C) 2006-2016 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
