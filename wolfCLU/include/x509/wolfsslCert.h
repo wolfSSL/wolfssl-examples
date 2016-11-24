@@ -19,10 +19,19 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
+#include <getopt.h>
 #include <wolfssl/wolfcrypt/random.h>
+#include <wolfssl/wolfcrypt/error-crypt.h>
+
+#ifdef WOLFSSL_STATIC_MEMORY
+    #include <wolfssl/wolfcrypt/memory.h>
+    static WOLFSSL_HEAP_HINT* HEAP_HINT;
+#else
+    #define HEAP_HINT NULL
+#endif
 
 /* handles incoming arguments for certificate generation */
-int wolfsslCertSetup(int argc, char** argv, char action);
+int wolfsslCertSetup(int argc, char** argv);
 
 /* print help info */
 void wolfsslCertHelp();

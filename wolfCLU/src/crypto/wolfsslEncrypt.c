@@ -69,7 +69,10 @@ int wolfsslEncrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
 
         /* use user entered data to encrypt */
         inputLength = (int) strlen(in);
-        userInputBuffer = (char*) malloc(inputLength);
+        userInputBuffer = (char*) XMALLOC(inputLength, HEAP_HINT,
+                                                       DYNAMIC_TYPE_TMP_BUFFER);
+        if (userInputBuffer == NULL)
+            return MEMORY_E;
 
         /* writes the entered text to the input buffer */
         XMEMCPY(userInputBuffer, in, inputLength);
@@ -80,7 +83,7 @@ int wolfsslEncrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
         fclose(tempInFile);
 
         /* free buffer */
-        free(userInputBuffer);
+        XFREE(userInputBuffer, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
     }
 
     /* open the inFile in read mode */
@@ -138,9 +141,15 @@ int wolfsslEncrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
     fwrite(iv, 1, block, outFile);
     fclose(outFile);
 
-    /* malloc 1kB buffers */
-    input = (byte*) malloc(MAX);
-    output = (byte*) malloc(MAX);
+    /* MALLOC 1kB buffers */
+    input = (byte*) XMALLOC(MAX, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    if (input == NULL)
+        return MEMORY_E;
+    output = (byte*) XMALLOC(MAX, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    if (output == NULL) {
+        wolfsslFreeBins(input, NULL, NULL, NULL, NULL);
+        return MEMORY_E;
+    }
 
     /* loop, encrypt 1kB at a time till length <= 0 */
     while (length > 0) {

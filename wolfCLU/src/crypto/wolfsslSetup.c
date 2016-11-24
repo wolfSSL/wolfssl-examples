@@ -79,9 +79,19 @@ int wolfsslSetup(int argc, char** argv, char action)
     block = wolfsslGetAlgo(name, &alg, &mode, &size);
 
     if (block != FATAL_ERROR) {
-        pwdKey = (byte*) malloc(size);
-        iv = (byte*) malloc(block);
-        key = (byte*) malloc(size);
+        pwdKey = (byte*) XMALLOC(size, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        if (pwdKey == NULL)
+            return MEMORY_E;
+        iv = (byte*) XMALLOC(block, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        if (iv == NULL) {
+            wolfsslFreeBins(pwdKey, NULL, NULL, NULL, NULL);
+            return MEMORY_E;
+        }
+        key = (byte*) XMALLOC(size, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        if (key == NULL) {
+            wolfsslFreeBins(pwdKey, iv, NULL, NULL, NULL);
+            return MEMORY_E;
+        }
 
         /* Start at the third flag entered */
         i = 3;

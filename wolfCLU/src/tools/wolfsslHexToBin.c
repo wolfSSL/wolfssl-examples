@@ -30,16 +30,22 @@
 #include <wolfssl/wolfcrypt/coding.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
 #include <stdio.h>
+#include "include/wolfssl.h"
 //#include <include/wolfssl.h>
 
 /* free up to 5 binary buffers using wolfssl abstraction layer */
 void wolfsslFreeBins(byte* b1, byte* b2, byte* b3, byte* b4, byte* b5)
 {
-   XFREE(b1, NULL, DYNAMIC_TYPE_TMP_BUFFER);
-   XFREE(b2, NULL, DYNAMIC_TYPE_TMP_BUFFER);
-   XFREE(b3, NULL, DYNAMIC_TYPE_TMP_BUFFER);
-   XFREE(b4, NULL, DYNAMIC_TYPE_TMP_BUFFER);
-   XFREE(b5, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+    if (b1 != NULL)
+        XFREE(b1, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    if (b2 != NULL)
+        XFREE(b2, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    if (b3 != NULL)
+        XFREE(b3, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    if (b4 != NULL)
+        XFREE(b4, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    if (b5 != NULL)
+        XFREE(b5, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
 }
 
 

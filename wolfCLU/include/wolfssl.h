@@ -74,56 +74,21 @@
 #define MEGABYTE (1024*1024)
 #define MAX_THREADS 64
 
+#include <wolfssl/wolfcrypt/types.h>
+
+#ifdef WOLFSSL_STATIC_MEMORY
+    #include <wolfssl/wolfcrypt/memory.h>
+    static WOLFSSL_HEAP_HINT* HEAP_HINT;
+#else
+    #define HEAP_HINT NULL
+#endif
+
  /* @VERSION 
   * Update every time library change, 
   * functionality shift, 
   * or code update 
   */
 #define VERSION 0.3
-
-/* Enumerated types for long arguments */
-enum {
-    ENCRYPT = 1000,
-    DECRYPT,
-    BENCHMARK,
-    HASH,
-    INFILE,
-    OUTFILE,
-    PASSWORD,
-    KEY,
-    IV,
-    ALL,
-    SIZE,
-    TIME,
-    VERIFY,
-    VERBOSE,
-    X509
-};
-
-/* Structure for holding long arguments */
-static struct option long_options[] = {
-
-    {"encrypt", required_argument, 0, ENCRYPT   },
-    {"decrypt", required_argument, 0, DECRYPT   },
-    {"bench",   required_argument, 0, BENCHMARK },
-    {"hash",    required_argument, 0, HASH      },
-    {"in",      required_argument, 0, INFILE    },
-    {"out",     required_argument, 0, OUTFILE   },
-    {"pwd",     required_argument, 0, PASSWORD  },
-    {"key",     required_argument, 0, KEY       },
-    {"iv",      required_argument, 0, IV        },
-    {"all",     0,                 0, ALL       },
-    {"size",    required_argument, 0, SIZE      },
-    {"time",    required_argument, 0, TIME      },
-    {"verify",  0,                 0, VERIFY    },
-    {"verbose", 0,                 0, VERBOSE   },
-    {"x509",    required_argument, 0, X509      },
-    {"v",       0,                 0, 'v'       },
-    {"version", 0,                 0, 'v'       },
-    {0, 0, 0, 0}
-
-};
-
 
 /* encryption argument function
  *
@@ -239,7 +204,7 @@ int wolfsslHexToBin(const char* h1, byte** b1, word32* b1Sz,
                     const char* h3, byte** b3, word32* b3Sz,
                     const char* h4, byte** b4, word32* b4Sz);
 
-/* A function to free malloced byte* buffers after conversion
+/* A function to free MALLOCED buffers
  *
  * @param b1 a buffer to be freed, can be set to NULL
  * @param b2 a buffer to be freed, can be set to NULL

@@ -21,6 +21,7 @@
 
 #include "include/wolfssl.h"
 
+
 #define DES3_BLOCK_SIZE 24
 
 #ifdef HAVE_BLAKE2
@@ -50,13 +51,13 @@ int wolfsslBenchmark(int timer, int* option)
     double          stop = 0.0;     /* stop breaks loop */
     double          start;          /* start time */
     double          currTime;       /* current time*/
-    
+
 
     ALIGN16 byte*   plain;          /* plain text */
     ALIGN16 byte*   cipher;         /* cipher */
     ALIGN16 byte*   key;            /* key for testing */
     ALIGN16 byte*   iv;             /* iv for initial encoding */
-    
+
     byte*           digest;         /* message digest */
 
     wc_InitRng(&rng);
@@ -66,10 +67,25 @@ int wolfsslBenchmark(int timer, int* option)
 #ifndef NO_AES
     /* aes test */
     if (option[i] == 1) {
-        plain = malloc(AES_BLOCK_SIZE);
-        cipher = malloc(AES_BLOCK_SIZE);
-        key = malloc(AES_BLOCK_SIZE);
-        iv = malloc(AES_BLOCK_SIZE);
+        plain = XMALLOC(AES_BLOCK_SIZE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        if (plain == NULL) {
+            return MEMORY_E;
+        }
+        cipher = XMALLOC(AES_BLOCK_SIZE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        if (cipher == NULL) {
+            wolfsslFreeBins(plain, NULL, NULL, NULL, NULL);
+            return MEMORY_E;
+        }
+        key = XMALLOC(AES_BLOCK_SIZE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        if (key == NULL) {
+            wolfsslFreeBins(plain, cipher, NULL, NULL, NULL);
+            return MEMORY_E;
+        }
+        iv = XMALLOC(AES_BLOCK_SIZE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        if (iv == NULL) {
+            wolfsslFreeBins(plain, cipher, key, NULL, NULL);
+            return MEMORY_E;
+        }
 
         wc_RNG_GenerateBlock(&rng, plain, AES_BLOCK_SIZE);
         wc_RNG_GenerateBlock(&rng, cipher, AES_BLOCK_SIZE);
@@ -95,10 +111,7 @@ int wolfsslBenchmark(int timer, int* option)
         XMEMSET(cipher, 0, AES_BLOCK_SIZE);
         XMEMSET(key, 0, AES_BLOCK_SIZE);
         XMEMSET(iv, 0, AES_BLOCK_SIZE);
-        free(plain);
-        free(cipher);
-        free(key);
-        free(iv);
+        wolfsslFreeBins(plain, cipher, key, iv, NULL);
         blocks = 0;
         loop = 1;
     }
@@ -107,10 +120,25 @@ int wolfsslBenchmark(int timer, int* option)
 #ifdef WOLFSSL_AES_COUNTER
     /* aes-ctr test */
     if (option[i] == 1) {
-        plain = malloc(AES_BLOCK_SIZE);
-        cipher = malloc(AES_BLOCK_SIZE);
-        key = malloc(AES_BLOCK_SIZE);
-        iv = malloc(AES_BLOCK_SIZE);
+        plain = XMALLOC(AES_BLOCK_SIZE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        if (plain == NULL) {
+            return MEMORY_E;
+        }
+        cipher = XMALLOC(AES_BLOCK_SIZE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        if (cipher == NULL) {
+            wolfsslFreeBins(plain, NULL, NULL, NULL, NULL);
+            return MEMORY_E;
+        }
+        key = XMALLOC(AES_BLOCK_SIZE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        if (key == NULL) {
+            wolfsslFreeBins(plain, cipher, NULL, NULL, NULL);
+            return MEMORY_E;
+        }
+        iv = XMALLOC(AES_BLOCK_SIZE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        if (iv == NULL) {
+            wolfsslFreeBins(plain, cipher, key, NULL, NULL);
+            return MEMORY_E;
+        }
 
         wc_RNG_GenerateBlock(&rng, plain, AES_BLOCK_SIZE);
         wc_RNG_GenerateBlock(&rng, cipher, AES_BLOCK_SIZE);
@@ -134,10 +162,7 @@ int wolfsslBenchmark(int timer, int* option)
         XMEMSET(cipher, 0, AES_BLOCK_SIZE);
         XMEMSET(key, 0, AES_BLOCK_SIZE);
         XMEMSET(iv, 0, AES_BLOCK_SIZE);
-        free(plain);
-        free(cipher);
-        free(key);
-        free(iv);
+        wolfsslFreeBins(plain, cipher, key, iv, NULL);
         blocks = 0;
         loop = 1;
     }
@@ -145,11 +170,26 @@ int wolfsslBenchmark(int timer, int* option)
 #endif
 #ifndef NO_DES3
     /* 3des test */
-    if (option[i] == 1) {   
-        plain = malloc(DES3_BLOCK_SIZE);
-        cipher = malloc(DES3_BLOCK_SIZE);
-        key = malloc(DES3_BLOCK_SIZE);
-        iv = malloc(DES3_BLOCK_SIZE);
+    if (option[i] == 1) {
+        plain = XMALLOC(DES3_BLOCK_SIZE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        if (plain == NULL) {
+            return MEMORY_E;
+        }
+        cipher = XMALLOC(DES3_BLOCK_SIZE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        if (cipher == NULL) {
+            wolfsslFreeBins(plain, NULL, NULL, NULL, NULL);
+            return MEMORY_E;
+        }
+        key = XMALLOC(DES3_BLOCK_SIZE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        if (key == NULL) {
+            wolfsslFreeBins(plain, cipher, NULL, NULL, NULL);
+            return MEMORY_E;
+        }
+        iv = XMALLOC(DES3_BLOCK_SIZE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        if (iv == NULL) {
+            wolfsslFreeBins(plain, cipher, key, NULL, NULL);
+            return MEMORY_E;
+        }
 
         wc_RNG_GenerateBlock(&rng, plain, DES3_BLOCK_SIZE);
         wc_RNG_GenerateBlock(&rng, cipher, DES3_BLOCK_SIZE);
@@ -174,24 +214,37 @@ int wolfsslBenchmark(int timer, int* option)
         XMEMSET(cipher, 0, DES3_BLOCK_SIZE);
         XMEMSET(key, 0, DES3_BLOCK_SIZE);
         XMEMSET(iv, 0, DES3_BLOCK_SIZE);
-        free(plain);
-        free(cipher);
-        free(key);
-        free(iv);
+        wolfsslFreeBins(plain, cipher, key, iv, NULL);
         blocks = 0;
         loop = 1;
     }
     i++;
 #endif
 #ifdef HAVE_CAMELLIA
+    #define CAM_SZ CAMELLIA_BLOCK_SIZE
     /* camellia test */
     if (option[i] == 1) {
         Camellia camellia;
 
-        plain = malloc(CAMELLIA_BLOCK_SIZE);
-        cipher = malloc(CAMELLIA_BLOCK_SIZE);
-        key = malloc(CAMELLIA_BLOCK_SIZE);
-        iv = malloc(CAMELLIA_BLOCK_SIZE);
+        plain = XMALLOC(CAM_SZ, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        if (plain == NULL) {
+            return MEMORY_E;
+        }
+        cipher = XMALLOC(CAM_SZ, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        if (cipher == NULL) {
+            wolfsslFreeBins(plain, NULL, NULL, NULL, NULL);
+            return MEMORY_E;
+        }
+        key = XMALLOC(CAM_SZ, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        if (key == NULL) {
+            wolfsslFreeBins(plain, cipher, NULL, NULL, NULL);
+            return MEMORY_E;
+        }
+        iv = XMALLOC(CAM_SZ, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        if (iv == NULL) {
+            wolfsslFreeBins(plain, cipher, key, NULL, NULL);
+            return MEMORY_E;
+        }
 
         wc_RNG_GenerateBlock(&rng, plain, CAMELLIA_BLOCK_SIZE);
         wc_RNG_GenerateBlock(&rng, cipher, CAMELLIA_BLOCK_SIZE);
@@ -216,10 +269,7 @@ int wolfsslBenchmark(int timer, int* option)
         XMEMSET(cipher, 0, CAMELLIA_BLOCK_SIZE);
         XMEMSET(key, 0, CAMELLIA_BLOCK_SIZE);
         XMEMSET(iv, 0, CAMELLIA_BLOCK_SIZE);
-        free(plain);
-        free(cipher);
-        free(key);
-        free(iv);
+        wolfsslFreeBins(plain, cipher, key, iv, NULL);
         blocks = 0;
         loop = 1;
     }
@@ -230,8 +280,14 @@ int wolfsslBenchmark(int timer, int* option)
     if (option[i] == 1) {
         Md5 md5;
 
-        digest = malloc(MD5_DIGEST_SIZE);
-        plain = malloc(MEGABYTE);
+        digest = XMALLOC(MD5_DIGEST_SIZE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        if (digest == NULL)
+            return MEMORY_E;
+        plain = XMALLOC(MEGABYTE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        if (plain == NULL) {
+            wolfsslFreeBins(digest, NULL, NULL, NULL, NULL);
+            return MEMORY_E;
+        }
         wc_RNG_GenerateBlock(&rng, plain, MEGABYTE);
 
         wc_InitMd5(&md5);
@@ -251,8 +307,7 @@ int wolfsslBenchmark(int timer, int* option)
         wolfsslStats(start, MEGABYTE, blocks);
         XMEMSET(plain, 0, MEGABYTE);
         XMEMSET(digest, 0, MD5_DIGEST_SIZE);
-        free(plain);
-        free(digest);
+        wolfsslFreeBins(digest, plain, NULL, NULL, NULL);
         blocks = 0;
         loop = 1;
     }
@@ -263,8 +318,14 @@ int wolfsslBenchmark(int timer, int* option)
     if (option[i] == 1) {
         Sha sha;
 
-        digest = malloc(SHA_DIGEST_SIZE);
-        plain = malloc(MEGABYTE);
+        digest = XMALLOC(SHA_DIGEST_SIZE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        if (digest == NULL)
+            return MEMORY_E;
+        plain = XMALLOC(MEGABYTE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        if (plain == NULL) {
+            wolfsslFreeBins(digest, NULL, NULL, NULL, NULL);
+            return MEMORY_E;
+        }
         wc_RNG_GenerateBlock(&rng, plain, MEGABYTE);
 
         wc_InitSha(&sha);
@@ -284,20 +345,27 @@ int wolfsslBenchmark(int timer, int* option)
         wolfsslStats(start, MEGABYTE, blocks);
         XMEMSET(plain, 0, MEGABYTE);
         XMEMSET(digest, 0, SHA_DIGEST_SIZE);
-        free(plain);
-        free(digest);
+        wolfsslFreeBins(plain, digest, NULL, NULL, NULL);
         blocks = 0;
         loop = 1;
     }
     i++;
 #endif
 #ifndef NO_SHA256
+    #define SHA256_SZ SHA256_DIGEST_SIZE
     /* sha256 test */
     if (option[i] == 1) {
         Sha256 sha256;
 
-        digest = malloc(SHA256_DIGEST_SIZE);
-        plain = malloc(MEGABYTE);
+        digest = XMALLOC(SHA256_SZ, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        if (digest == NULL)
+            return MEMORY_E;
+        plain = XMALLOC(MEGABYTE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        if (plain == NULL) {
+            wolfsslFreeBins(digest, NULL, NULL, NULL, NULL);
+            return MEMORY_E;
+        }
+
         wc_RNG_GenerateBlock(&rng, plain, MEGABYTE);
 
         wc_InitSha256(&sha256);
@@ -317,8 +385,7 @@ int wolfsslBenchmark(int timer, int* option)
         wolfsslStats(start, MEGABYTE, blocks);
         XMEMSET(plain, 0, MEGABYTE);
         XMEMSET(digest, 0, SHA256_DIGEST_SIZE);
-        free(plain);
-        free(digest);
+        wolfsslFreeBins(plain, digest, NULL, NULL, NULL);
         /* resets used for debug, uncomment if needed */
         blocks = 0;
         loop = 1;
@@ -326,12 +393,20 @@ int wolfsslBenchmark(int timer, int* option)
     i++;
 #endif
 #ifdef WOLFSSL_SHA384
+    #define SHA384_SZ SHA384_DIGEST_SIZE
     /* sha384 test */
     if (option[i] == 1) {
         Sha384 sha384;
 
-        digest = malloc(SHA384_DIGEST_SIZE);
-        plain = malloc(MEGABYTE);
+        digest = XMALLOC(SHA384_SZ, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        if (digest == NULL)
+            return MEMORY_E;
+        plain = XMALLOC(MEGABYTE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        if (plain == NULL) {
+            wolfsslFreeBins(digest, NULL, NULL, NULL, NULL);
+            return MEMORY_E;
+        }
+
         wc_RNG_GenerateBlock(&rng, plain, MEGABYTE);
 
         wc_InitSha384(&sha384);
@@ -351,20 +426,27 @@ int wolfsslBenchmark(int timer, int* option)
         wolfsslStats(start, MEGABYTE, blocks);
         XMEMSET(plain, 0, MEGABYTE);
         XMEMSET(digest, 0, SHA384_DIGEST_SIZE);
-        free(plain);
-        free(digest);
+        wolfsslFreeBins(plain, digest, NULL, NULL, NULL);
         blocks = 0;
         loop = 1;
     }
     i++;
 #endif
 #ifdef WOLFSSL_SHA512
+    #define SHA512_SZ SHA512_DIGEST_SIZE
     /* sha512 test */
     if (option[i] == 1) {
         Sha512 sha512;
 
-        digest = malloc(SHA512_DIGEST_SIZE);
-        plain = malloc(MEGABYTE);
+        digest = XMALLOC(SHA512_SZ, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        if (digest == NULL)
+            return MEMORY_E;
+        plain = XMALLOC(MEGABYTE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        if (plain == NULL) {
+            wolfsslFreeBins(digest, NULL, NULL, NULL, NULL);
+            return MEMORY_E;
+        }
+
         wc_RNG_GenerateBlock(&rng, plain, MEGABYTE);
 
         wc_InitSha512(&sha512);
@@ -384,8 +466,7 @@ int wolfsslBenchmark(int timer, int* option)
         wolfsslStats(start, MEGABYTE, blocks);
         XMEMSET(plain, 0, MEGABYTE);
         XMEMSET(digest, 0, SHA512_DIGEST_SIZE);
-        free(plain);
-        free(digest);
+        wolfsslFreeBins(plain, digest, NULL, NULL, NULL);
         blocks = 0;
         loop = 1;
     }
@@ -396,8 +477,15 @@ int wolfsslBenchmark(int timer, int* option)
     if (option[i] == 1) {
         Blake2b  b2b;
 
-        digest = malloc(BLAKE_DIGEST_SIZE);
-        plain = malloc(MEGABYTE);
+        digest = XMALLOC(BLAKE_DIGEST_SIZE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        if (digest == NULL)
+            return MEMORY_E;
+        plain = XMALLOC(MEGABYTE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        if (plain == NULL) {
+            wolfsslFreeBins(digest, NULL, NULL, NULL, NULL);
+            return MEMORY_E;
+        }
+
         wc_RNG_GenerateBlock(&rng, plain, MEGABYTE);
 
         wc_InitBlake2b(&b2b, BLAKE_DIGEST_SIZE);
@@ -417,8 +505,7 @@ int wolfsslBenchmark(int timer, int* option)
         wolfsslStats(start, MEGABYTE, blocks);
         XMEMSET(plain, 0, MEGABYTE);
         XMEMSET(digest, 0, BLAKE_DIGEST_SIZE);
-        free(plain);
-        free(digest);
+        wolfsslFreeBins(digest, plain, NULL, NULL, NULL);
     }
 #endif
     return ret;

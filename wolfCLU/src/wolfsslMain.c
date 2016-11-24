@@ -21,6 +21,7 @@
 
 #include "include/wolfssl.h"
 #include "include/x509/wolfsslCert.h"
+#include "include/optargs.h"
 
 /* enumerate optionals beyond ascii range to dis-allow use of alias IE we
  * do not want "-e" to work for encrypt, user must use "encrypt"
@@ -40,19 +41,19 @@ int main(int argc, char** argv)
 
         switch (option) {
             /* Encrypt */
-             case ENCRYPT:  ret = wolfsslSetup(argc, argv, 'e');
+            case ENCRYPT:  ret = wolfsslSetup(argc, argv, 'e');
                             break;
             /* Decrypt */
-             case DECRYPT:  ret = wolfsslSetup(argc, argv, 'd');;
+            case DECRYPT:  ret = wolfsslSetup(argc, argv, 'd');;
                             break;
             /* Benchmark */
-             case BENCHMARK:ret = wolfsslBenchSetup(argc, argv);
+            case BENCHMARK:ret = wolfsslBenchSetup(argc, argv);
                             break;
             /* Hash */
-             case HASH:     ret = wolfsslHashSetup(argc, argv);
+            case HASH:     ret = wolfsslHashSetup(argc, argv);
                             break;
-            /* Certificate Stuff*/
-             case X509:     ret = wolfsslCertSetup(argc, argv, 'n');
+            /* x509 Certificate processing */
+            case X509:     ret = wolfsslCertSetup(argc, argv);
                             break;
 
 /* Ignore the following arguments for now. Will be handled by their respective
@@ -76,6 +77,9 @@ int main(int argc, char** argv)
             case TIME:      break;
             /* Verify results, used with -iv and -key */
             case VERIFY:    break;
+            /* Certificate Stuff*/
+            case INFORM:    break;
+            case OUTFORM:   break;
             /* which version of clu am I using */
             case VERBOSE:
                             wolfsslVerboseHelp();
@@ -84,6 +88,7 @@ int main(int argc, char** argv)
 
             case 'v':       wolfsslVersion();
                             return 0;
+
              default:
                             printf("Main help default.\n");
                             wolfsslHelp();

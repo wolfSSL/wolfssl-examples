@@ -48,7 +48,10 @@ int wolfsslHash(char* in, char* out, char* alg, int size)
         /* if no input file was provided */
         length = LENGTH_IN;
 
-        input = malloc(length);
+        input = XMALLOC(length, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        if (input == NULL)
+            return MEMORY_E;
+
         XMEMSET(input, 0, length);
         for (i = 0; i < length; i++) {
             /* copies text from in to input */
@@ -65,7 +68,10 @@ int wolfsslHash(char* in, char* out, char* alg, int size)
 
         length = leng;
 
-        input = malloc(length+1);
+        input = XMALLOC(length+1, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        if (input == NULL)
+            return MEMORY_E;
+
         XMEMSET(input, 0, length+1);
         if (input == NULL) {
             printf("Failed to create input buffer\n");
@@ -80,7 +86,11 @@ int wolfsslHash(char* in, char* out, char* alg, int size)
         size = length * 4;
     }
 
-    output = malloc(size);
+    output = XMALLOC(size, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    if (output == NULL) {
+        wolfsslFreeBins(input, NULL, NULL, NULL, NULL);
+        return MEMORY_E;
+    }
     XMEMSET(output, 0, size);
 
     /* hashes using accepted algorithm */
@@ -112,8 +122,11 @@ int wolfsslHash(char* in, char* out, char* alg, int size)
 #ifdef HAVE_BLAKE2
     else if (strcmp(alg, "blake2b") == 0) {
         ret = wc_InitBlake2b(&hash, size);
+        if (ret != 0) return ret;
         ret = wc_Blake2bUpdate(&hash, input, length);
+        if (ret != 0) return ret;
         ret = wc_Blake2bFinal(&hash, output, size);
+        if (ret != 0) return ret;
     }
 #endif
 
@@ -163,7 +176,6 @@ int wolfsslHash(char* in, char* out, char* alg, int size)
     /* closes the opened files and frees the memory */
     XMEMSET(input, 0, length);
     XMEMSET(output, 0, size);
-    free(input);
-    free(output);
+    wolfsslFreeBins(input, output, NULL, NULL, NULL);
     return ret;
 }

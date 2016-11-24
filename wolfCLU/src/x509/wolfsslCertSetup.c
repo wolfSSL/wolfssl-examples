@@ -22,21 +22,65 @@
 #include <stdio.h>
 
 #include <include/x509/wolfsslCert.h>
+#include <wolfssl/wolfcrypt/types.h>
+#include "include/optargs.h"
 
-int wolfsslCertSetup(int argc, char** argv, char action)
+#ifdef WOLFSSL_STATIC_MEMORY
+    #include <wolfssl/wolfcrypt/memory.h>
+    static WOLFSSL_HEAP_HINT* HEAP_HINT;
+#else
+    #define HEAP_HINT NULL
+#endif
+
+int wolfsslCertSetup(int argc, char** argv)
 {
-    int i; /* loop counter */
+    int i;
+    char* inform;
+    char* outform;
 
+    printf("In x509 loop\n");
     for (i = 2; i < argc; i++) {
+        convert_to_lower(argv[i], (int) XSTRLEN(argv[i]));
         if (XSTRNCMP(argv[i], "-help", 5) == 0) {
             wolfsslCertHelp();
             return 0;
         } else if (XSTRNCMP(argv[i], "-h", 2) == 0) {
             wolfsslCertHelp();
             return 0;
+        } else if (XSTRNCMP(argv[i], "-inform", 7) == 0) {
+
+            convert_to_lower(argv[i+1], (int) XSTRLEN(argv[i+1]));
+            inform = argv[i+1];
+
+            printf("inform is %s\n", inform);
+
+            if (XSTRNCMP(inform, "pem", 3) == 0)
+                printf("IDENTIFIED PEM\n");
+            if (XSTRNCMP(inform, "der", 3) == 0)
+                printf("IDENTIFIED DER\n");
+        } else if (XSTRNCMP(argv[i], "-outform", 8) == 0) {
+
+            convert_to_lower(argv[i+1], (int) XSTRLEN(argv[i+1]));
+            outform = argv[i+1];
+
+            printf("outform is %s\n", outform);
+
+            if (XSTRNCMP(outform, "pem", 3) == 0)
+                printf("IDENTIFIED PEM\n");
+            if (XSTRNCMP(outform, "der", 3) == 0)
+                printf("IDENTIFIED DER\n");
         }
     }
+
     return 0;
+}
+
+void convert_to_lower(char* s, int sSz)
+{
+    int i;
+    for (i = 0; i < sSz; i++) {
+        s[i] = tolower(s[i]);
+    }
 }
 
 void wolfsslCertHelp()

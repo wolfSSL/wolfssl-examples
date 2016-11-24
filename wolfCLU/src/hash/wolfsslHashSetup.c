@@ -93,7 +93,11 @@ int wolfsslHashSetup(int argc, char** argv)
     for (i = 3; i < argc; i++) {
         if (XSTRNCMP(argv[i], "-in", 3) == 0 && argv[i+1] != NULL) {
             /* input file/text */
-            in = malloc(strlen(argv[i+1])+1);
+            in = XMALLOC(strlen(argv[i+1])+1, HEAP_HINT,
+                                                      DYNAMIC_TYPE_TMP_BUFFER);
+            if (in == NULL)
+                return MEMORY_E;
+
             XSTRNCPY(in, &argv[i+1][0], XSTRLEN(&argv[i+1][0]));
             in[XSTRLEN(argv[i+1])] = '\0';
             inCheck = 1;
@@ -154,6 +158,7 @@ int wolfsslHashSetup(int argc, char** argv)
     /* hashing function */
     ret = wolfsslHash(in, out, alg, size);
 
+    XFREE(in, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
     free(in);
 
     return ret;

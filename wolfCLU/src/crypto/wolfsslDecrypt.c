@@ -85,8 +85,13 @@ int wolfsslDecrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
         lastLoopFlag =  length/MAX;
     }
 
-    input = (byte*) malloc(MAX);
-    output = (byte*) malloc(MAX);
+    input = (byte*) XMALLOC(MAX, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    if (input == NULL)
+        return MEMORY_E;
+    output = (byte*) XMALLOC(MAX, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    if (output == NULL) {
+        wolfsslFreeBins(input, NULL, NULL, NULL, NULL);
+    }
 
     wc_InitRng(&rng);
 
