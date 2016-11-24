@@ -35,3 +35,7 @@ int wolfsslCertSetup(int argc, char** argv);
 
 /* print help info */
 void wolfsslCertHelp();
+
+/* check for user input errors */
+int error_check(int inpem, int inder, int outpem, int outder);
+

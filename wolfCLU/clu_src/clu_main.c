@@ -22,7 +22,7 @@
 #include "clu_include/clu_header_main.h"
 #include "clu_include/x509/clu_cert.h"
 #include "clu_include/clu_optargs.h"
-
+#include "clu_include/clu_error_codes.h"
 /* enumerate optionals beyond ascii range to dis-allow use of alias IE we
  * do not want "-e" to work for encrypt, user must use "encrypt"
  */
@@ -109,3 +109,12 @@ int main(int argc, char** argv)
 
     return ret;
 }
+
+void convert_to_lower(char* s, int sSz)
+{
+    int i;
+    for (i = 0; i < sSz; i++) {
+        s[i] = tolower(s[i]);
+    }
+}
+
