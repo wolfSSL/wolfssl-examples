@@ -57,27 +57,41 @@ int wolfsslCertSetup(int argc, char** argv)
             wolfsslCertHelp();
             return 0;
         } else if (XSTRNCMP(argv[i], "-inform", 7) == 0) {
-
-            convert_to_lower(argv[i+1], (int) XSTRLEN(argv[i+1]));
             inform = argv[i+1];
-
             printf("inform is %s\n", inform);
 
-            if (XSTRNCMP(inform, "pem", 3) == 0)
+            if (inform == NULL) {
+                printf("Usage: -inform [PEM/DER]\n");
+                printf("missing inform required argument\n");
+                return USER_INPUT_ERROR;
+            }
+            else if (XSTRNCMP(inform, "pem", 3) == 0)
                 inpem = 1;
-            if (XSTRNCMP(inform, "der", 3) == 0)
+            else if (XSTRNCMP(inform, "der", 3) == 0)
                 inder = 1;
+            else {
+                printf("Usage: -inform [PEM/DER]\n");
+                printf("missing inform required argument\n");
+                return USER_INPUT_ERROR;
+            }
         } else if (XSTRNCMP(argv[i], "-outform", 8) == 0) {
-
-            convert_to_lower(argv[i+1], (int) XSTRLEN(argv[i+1]));
             outform = argv[i+1];
-
             printf("outform is %s\n", outform);
 
-            if (XSTRNCMP(outform, "pem", 3) == 0)
+            if (inform == NULL) {
+                printf("Usage: -inform [PEM/DER]\n");
+                printf("missing inform required argument\n");
+                return USER_INPUT_ERROR;
+            }
+            else if (XSTRNCMP(outform, "pem", 3) == 0)
                 outpem = 1;
-            if (XSTRNCMP(outform, "der", 3) == 0)
+            else if (XSTRNCMP(outform, "der", 3) == 0)
                 outder = 1;
+            else {
+                printf("Usage: -outform [PEM/DER]\n");
+                printf("missing outform required argument\n");
+                return USER_INPUT_ERROR;
+            }
         }
     }
 
@@ -101,10 +115,10 @@ int wolfsslCertSetup(int argc, char** argv)
             printf("run inder outder\n");
             break;
         default:
-            goto clu_cert_end;
+            printf("Error case\n");
             break;
     }
-clu_cert_end:
+
     return ret;
 }
 
