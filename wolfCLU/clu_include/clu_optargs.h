@@ -39,6 +39,8 @@ enum {
     X509,
     INFORM,
     OUTFORM,
+    NOOUT,
+    TEXT_OUT,
     HELP1, /* "-help" */
     HELP2, /* "-h" */
 };
@@ -63,6 +65,8 @@ static struct option long_options[] = {
     {"x509",    0,                 0, X509      },
     {"inform",  required_argument, 0, INFORM    },
     {"outform", required_argument, 0, OUTFORM   },
+    {"noout",   0,                 0, NOOUT     },
+    {"text",    0,                 0, TEXT_OUT  },
     {"help",    0,                 0, HELP1     },
     {"h",       0,                 0, HELP2     },
     {"v",       0,                 0, 'v'       },

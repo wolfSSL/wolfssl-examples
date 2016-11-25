@@ -1,4 +1,4 @@
-/* clu_cert.h
+/* clu_parse.h
  *
  * Copyright (C) 2006-2016 wolfSSL Inc.
  *
@@ -19,24 +19,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
-#include <getopt.h>
-#include <wolfssl/wolfcrypt/random.h>
-#include <wolfssl/wolfcrypt/error-crypt.h>
-
-#ifdef WOLFSSL_STATIC_MEMORY
-    #include <wolfssl/wolfcrypt/memory.h>
-    static WOLFSSL_HEAP_HINT* HEAP_HINT;
-#else
-    #define HEAP_HINT NULL
-#endif
-
-/* handles incoming arguments for certificate generation */
-int wolfsslCertSetup(int argc, char** argv);
-
-/* print help info */
-void wolfsslCertHelp();
-
-/* check for user input errors */
-int error_check(int inpem_flag, int inder_flag, int outpem_flag,
-                                               int outder_flag, int noout_flag);
-
+/* a helper function for wolfCLU_parse_file */
+int wolfCLU_inpem_outpem(char* infile, char* outfile);
+/* a helper function for wolfCLU_parse_file */
+int wolfCLU_inpem_outder(char* infile, char* outfile);
+/* a helper function for wolfCLU_parse_file */
+int wolfCLU_inder_outpem(char* infile, char* outfile);
+/* a helper function for wolfCLU_parse_file */
+int wolfCLU_inder_outder(char* infile, char* outfile);
+/* function for processing input/output based on format requests from user */
+int wolfCLU_parse_file(char* infile, int inform, char* outfile, int outform);

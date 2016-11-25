@@ -88,6 +88,8 @@ int main(int argc, char** argv)
             /* Certificate Stuff*/
             case INFORM:    break;
             case OUTFORM:   break;
+            case NOOUT:     break;
+            case TEXT_OUT:  break;
             /* which version of clu am I using */
             case VERBOSE:
                             wolfsslVerboseHelp();

@@ -1,0 +1,131 @@
+/* clu_parse.c
+ *
+ * Copyright (C) 2006-2016 wolfSSL Inc.
+ *
+ * This file is part of wolfSSL. (formerly known as CyaSSL)
+ *
+ * wolfSSL is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * wolfSSL is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+ */
+
+#include <stdio.h>
+#include <wolfssl/wolfcrypt/asn_public.h>
+#include "clu_include/clu_header_main.h"
+#include "clu_include/clu_error_codes.h"
+#include "clu_include/x509/clu_parse.h"
+
+#define MAX_CERT_SIZE 4096
+
+enum {
+    PEM = 0,
+    DER = 1,
+};
+
+int wolfCLU_inpem_outpem(char* infile, char* outfile)
+{
+    int ret;
+    ret = wolfCLU_parse_file(infile, PEM, outfile, PEM);
+    return ret;
+}
+
+int wolfCLU_inpem_outder(char* infile, char* outfile)
+{
+    int ret;
+    ret = wolfCLU_parse_file(infile, PEM, outfile, DER);
+    return ret;
+}
+
+int wolfCLU_inder_outpem(char* infile, char* outfile)
+{
+    int ret;
+    ret = wolfCLU_parse_file(infile, DER, outfile, PEM);
+    return ret;
+}
+
+int wolfCLU_inder_outder(char* infile, char* outfile)
+{
+    int ret;
+    ret = wolfCLU_parse_file(infile, DER, outfile, DER);
+    return ret;
+}
+
+int wolfCLU_parse_file(char* infile, int inform, char* outfile, int outform)
+{
+    int ret, inBufSz, outBufSz;
+    FILE* instream;
+    FILE* outstream;
+    byte* inBuf = NULL;
+    byte* outBuf = NULL;
+
+    instream    = fopen(infile, "rb");
+    outstream   = fopen(outfile, "wb");
+/*----------------------------------------------------------------------------*/
+/* read in der, output der */
+/*----------------------------------------------------------------------------*/
+    if ( (inform & outform) == 1) {
+        printf("in parse: in = der, out = der\n");
+    }
+/*----------------------------------------------------------------------------*/
+/* read in der, output pem */
+/*----------------------------------------------------------------------------*/
+    else if ( (inform && !outform) ) {
+        /* MALLOC buffer for the certificate to be processed */
+        inBuf = (byte*) XMALLOC(MAX_CERT_SIZE, HEAP_HINT,
+                                                       DYNAMIC_TYPE_TMP_BUFFER);
+        if (inBuf == NULL) return MEMORY_E;
+        XMEMSET(inBuf, 0, MAX_CERT_SIZE);
+
+        /* read in the certificate to be processed */
+        inBufSz = fread(inBuf, 1, MAX_CERT_SIZE, instream);
+        if (inBufSz <= 0) return FREAD_ERROR;
+
+        /* MALLOC buffer for the result of conversion from der to pem */
+        outBuf = (byte*) XMALLOC(MAX_CERT_SIZE, HEAP_HINT,
+                                                       DYNAMIC_TYPE_TMP_BUFFER);
+        if (outBuf == NULL) {
+            XFREE(inBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+            return MEMORY_E;
+        }
+        XMEMSET(outBuf, 0, MAX_CERT_SIZE);
+
+        /* convert inBuf from der to pem, store result in outBuf  */
+        outBufSz = wc_DerToPem(inBuf, inBufSz, outBuf, MAX_CERT_SIZE,
+                                                                     CERT_TYPE);
+        if (outBufSz < 0) {
+            wolfsslFreeBins(inBuf, outBuf, NULL, NULL, NULL);
+            return DER_TO_PEM_ERROR;
+        }
+
+        /* write the result of conversion to the outfile specified */
+        ret = fwrite(outBuf, 1, outBufSz, outstream);
+    }
+/*----------------------------------------------------------------------------*/
+/* read in pem, output der */
+/*----------------------------------------------------------------------------*/
+    else if ( (!inform && outform) ) {
+        printf("in parse: in = pem, out = der\n");
+    }
+/*----------------------------------------------------------------------------*/
+/* read in pem, output pem */
+/*----------------------------------------------------------------------------*/
+    else {
+        printf("in parse: in = pem, out = pem\n");
+    }
+
+    fclose(outstream);
+    fclose(instream);
+
+    ret = 0;
+    return ret;
+}

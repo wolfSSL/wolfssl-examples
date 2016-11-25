@@ -21,10 +21,10 @@
 
 #include <stdio.h>
 
-#include "clu_include/x509/clu_cert.h"
 #include <wolfssl/wolfcrypt/types.h>
-#include "clu_include/clu_optargs.h"
 #include "clu_include/clu_error_codes.h"
+#include "clu_include/x509/clu_cert.h"
+#include "clu_include/x509/clu_parse.h"
 
 #ifdef WOLFSSL_STATIC_MEMORY
     #include <wolfssl/wolfcrypt/memory.h>
@@ -38,81 +38,165 @@ enum {
     INPEM_OUTDER = 2,
     INDER_OUTPEM = 3,
     INDER_OUTDER = 4,
+    NOOUT_SET    = 5,
 };
 
 int wolfsslCertSetup(int argc, char** argv)
 {
     int i, ret;
-    char* inform;
-    char* outform;
-    int inder = 0, inpem = 0, outder = 0, outpem = 0;
+    int text_flag = 0;      /* does user desire human readable cert info */
+    int noout_flag = 0;     /* are we outputting a file */
+    int inder_flag = 0;     /* is the incoming file in der format */
+    int inpem_flag = 0;     /* is the incoming file in pem format */
+    int outder_flag = 0;    /* is the output file in der format */
+    int outpem_flag = 0;    /* is the output file in pem format */
+    int infile_flag = 0;    /* set if passing in file argument */
+    int outfile_flag = 0;   /* set if passing out file argument */
+
+    char* infile;           /* pointer to the infile name */
+    char* outfile;          /* pointer to the outfile name */
+    char* inform;           /* the input format */
+    char* outform;          /* the output format */
+
 
     printf("In x509 loop\n");
     for (i = 2; i < argc; i++) {
-        convert_to_lower(argv[i], (int) XSTRLEN(argv[i]));
+/*---------------------------------------------------------------------------*/
+/* help */
+/*---------------------------------------------------------------------------*/
         if (XSTRNCMP(argv[i], "-help", 5) == 0) {
             wolfsslCertHelp();
             return 0;
         } else if (XSTRNCMP(argv[i], "-h", 2) == 0) {
             wolfsslCertHelp();
             return 0;
+/*---------------------------------------------------------------------------*/
+/* inform pem/der/??OTHER?? */
+/*---------------------------------------------------------------------------*/
         } else if (XSTRNCMP(argv[i], "-inform", 7) == 0) {
             inform = argv[i+1];
-            printf("inform is %s\n", inform);
-
             if (inform == NULL) {
                 printf("Usage: -inform [PEM/DER]\n");
                 printf("missing inform required argument\n");
                 return USER_INPUT_ERROR;
             }
             else if (XSTRNCMP(inform, "pem", 3) == 0)
-                inpem = 1;
+                inpem_flag = 1;
             else if (XSTRNCMP(inform, "der", 3) == 0)
-                inder = 1;
+                inder_flag = 1;
             else {
                 printf("Usage: -inform [PEM/DER]\n");
                 printf("missing inform required argument\n");
                 return USER_INPUT_ERROR;
             }
+            i++;
+            continue;
+/*---------------------------------------------------------------------------*/
+/* outform pem/der/??OTHER?? */
+/*---------------------------------------------------------------------------*/
         } else if (XSTRNCMP(argv[i], "-outform", 8) == 0) {
             outform = argv[i+1];
-            printf("outform is %s\n", outform);
 
-            if (inform == NULL) {
-                printf("Usage: -inform [PEM/DER]\n");
-                printf("missing inform required argument\n");
+            if (outform == NULL) {
+                printf("Usage: -outform [PEM/DER]\n");
+                printf("missing outform required argument\n");
                 return USER_INPUT_ERROR;
             }
             else if (XSTRNCMP(outform, "pem", 3) == 0)
-                outpem = 1;
+                outpem_flag = 1;
             else if (XSTRNCMP(outform, "der", 3) == 0)
-                outder = 1;
+                outder_flag = 1;
             else {
                 printf("Usage: -outform [PEM/DER]\n");
                 printf("missing outform required argument\n");
                 return USER_INPUT_ERROR;
             }
+            i++;
+            continue;
+/*---------------------------------------------------------------------------*/
+/* in file */
+/*---------------------------------------------------------------------------*/
+        } else if (XSTRNCMP(argv[i], "-in", 3) == 0) {
+            /* set flag for in file and flag for input file OK if exists
+             * check for error case below. If no error then read in file */
+            infile = argv[i+1];
+            if (access(infile, F_OK) != -1) {
+                printf("input file is \"%s\"\n", infile);
+                infile_flag = 1;
+            } else {
+                printf("ERROR: input file \"%s\" does not exist\n", infile);
+                return INPUT_FILE_ERROR;
+            }
+            i++;
+            continue;
+/*---------------------------------------------------------------------------*/
+/* out file */
+/*---------------------------------------------------------------------------*/
+        } else if (XSTRNCMP(argv[i], "-out", 4) == 0) {
+            /* set flag for out file, check for error case below. If no error
+             * then write outfile */
+            outfile_flag = 1;
+            outfile = argv[i+1];
+            if (access(outfile, F_OK) != -1) {
+                printf("output file set: \"%s\"\n", outfile);
+            } else {
+                printf("output file \"%s\"did not exist, it will be created.\n",
+                        outfile);
+            }
+            i++;
+            continue;
+/*---------------------------------------------------------------------------*/
+/* noout */
+/*---------------------------------------------------------------------------*/
+        } else if (XSTRNCMP(argv[i], "-noout", 6) == 0) {
+            /* set flag for no output file */
+            noout_flag = 1;
+            continue;
+/*---------------------------------------------------------------------------*/
+/* text */
+/*---------------------------------------------------------------------------*/
+        } else if (XSTRNCMP(argv[i], "-text", 5) == 0) {
+            /* set flag for converting to human readable. 
+             * return NOT_YET_IMPLEMENTED error */
+            text_flag = 1;
+            continue;
+/*---------------------------------------------------------------------------*/
+/* END */
+/*---------------------------------------------------------------------------*/
         }
     }
 
-    ret = error_check(inpem, inder, outpem, outder);
-    printf("ret = %d\n", ret);
+    ret = error_check(inpem_flag, inder_flag, outpem_flag, outder_flag,
+                                                                    noout_flag);
+
     switch (ret) {
         case INPEM_OUTPEM:
             ret = 0;
             printf("run inpem outpem\n");
+            if (infile_flag) wolfCLU_inpem_outpem(infile, outfile);
+            else return INPUT_FILE_ERROR;
             break;
         case INPEM_OUTDER:
             ret = 0;
             printf("run inpem outder\n");
+            if (infile_flag) wolfCLU_inpem_outder(infile, outfile);
+            else return INPUT_FILE_ERROR;
             break;
         case INDER_OUTPEM:
             ret = 0;
             printf("run inder outpem\n");
+            if (infile_flag) wolfCLU_inder_outpem(infile, outfile);
+            else return INPUT_FILE_ERROR;
             break;
         case INDER_OUTDER:
             ret = 0;
             printf("run inder outder\n");
+            if (infile_flag) wolfCLU_inder_outder(infile, outfile);
+            else return INPUT_FILE_ERROR;
+            break;
+        case NOOUT_SET:
+            ret = 0;
+            printf("noout set\n");
             break;
         default:
             printf("Error case\n");
@@ -129,50 +213,81 @@ void wolfsslCertHelp()
 }
 
 /*
- * @arg a: is inform set to pem
- * @arg b: is inform set to der
- * @arg c: is outform set to pem
- * @arg d: is outform set to der
+ * @arg inpem_flag: is inform set to pem
+ * @arg inder_flag: is inform set to der
+ * @arg outpem_flag: is outform set to pem
+ * @arg outder_flag: is outform set to der
  */
-int error_check(int inpem, int inder, int outpem, int outder)
+int error_check(int inpem_flag, int inder_flag, int outpem_flag,
+                                                int outder_flag, int noout_flag)
 {
     int ret = USER_INPUT_ERROR;
-    ret = ( inpem & inder);
+    int tmp;
+    ret = ( inpem_flag & inder_flag);
     if (ret) {
         printf("ERROR: inform set to both PEM and DER format\n");
         return USER_INPUT_ERROR;
     }
-    ret = ( inpem & outpem);
+    ret = ( inpem_flag & outpem_flag);
     if (ret) {
+        tmp = ret;
+        ret = (tmp & noout_flag);
+        if (ret) {
+            printf("ERROR: noout set when output format is specified");
+            return USER_INPUT_ERROR;
+        }
         printf("input is pem format, output is pem format\n");
         return INPEM_OUTPEM;
    }
-    ret = (inpem & outder);
+    ret = (inpem_flag & outder_flag);
     if (ret) {
+        tmp = ret;
+        ret = (tmp & noout_flag);
+        if (ret) {
+            printf("ERROR: noout set when output format is specified");
+            return USER_INPUT_ERROR;
+        }
         printf("input is pem format, output is der format\n");
         return INPEM_OUTDER;
     }
-    ret = (inder & outpem);
+    ret = (inder_flag & outpem_flag);
     if (ret) {
+        tmp = ret;
+        ret = (tmp & noout_flag);
+        if (ret) {
+            printf("ERROR: noout set when output format is specified");
+            return USER_INPUT_ERROR;
+        }
         printf("input is der format, output is pem format\n");
         return INDER_OUTPEM;
     }
-    ret = (inder & outder);
+    ret = (inder_flag & outder_flag);
     if (ret) {
-        printf("input is der format, output is der format\n");
+        tmp = ret;
+        ret = (tmp & noout_flag);
+        if (ret) {
+            printf("ERROR: noout set when output format is specified");
+            return USER_INPUT_ERROR;
+        }
         return INDER_OUTDER;
     }
-    ret = (outder & outpem);
+    ret = (outder_flag & outpem_flag);
     if (ret) {
         printf("ERROR: outform set to both DER and PEM format\n");
         return USER_INPUT_ERROR;
     }
     if (!ret) {
         ret = USER_INPUT_ERROR;
-        if ( !inpem && !inder)
-            printf("User failed to specify input format: -inform not set\n");
-        else
-            printf("User failed to specify output format: -outform not set\n");
+        if ( !inpem_flag && !inder_flag)
+            printf("ERROR: Failed to specify input format: -inform not set\n");
+        else {
+            ret = (inder_flag & noout_flag) | (inpem_flag & noout_flag);
+            if (ret) {
+                return NOOUT_SET;
+            }
+            else
+                printf("ERROR: Failed to specify -outform or -noout\n");
+        }
     }
     return ret;
 }
