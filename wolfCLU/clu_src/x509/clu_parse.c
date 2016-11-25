@@ -21,6 +21,7 @@
 
 #include <stdio.h>
 #include <wolfssl/wolfcrypt/asn_public.h>
+#include <wolfssl/ssl.h> /* wolfSSL_CertPemToDer */
 #include "clu_include/clu_header_main.h"
 #include "clu_include/clu_error_codes.h"
 #include "clu_include/x509/clu_parse.h"
@@ -68,8 +69,18 @@ int wolfCLU_parse_file(char* infile, int inform, char* outfile, int outform)
     byte* inBuf = NULL;
     byte* outBuf = NULL;
 
+    if (infile == NULL || outfile == NULL)
+        return BAD_FUNC_ARG;
+
+    /* MALLOC buffer for the certificate to be processed */
+    inBuf = (byte*) XMALLOC(MAX_CERT_SIZE, HEAP_HINT,
+                                                   DYNAMIC_TYPE_TMP_BUFFER);
+    if (inBuf == NULL) return MEMORY_E;
+    XMEMSET(inBuf, 0, MAX_CERT_SIZE);
+
     instream    = fopen(infile, "rb");
     outstream   = fopen(outfile, "wb");
+
 /*----------------------------------------------------------------------------*/
 /* read in der, output der */
 /*----------------------------------------------------------------------------*/
@@ -80,22 +91,20 @@ int wolfCLU_parse_file(char* infile, int inform, char* outfile, int outform)
 /* read in der, output pem */
 /*----------------------------------------------------------------------------*/
     else if ( (inform && !outform) ) {
-        /* MALLOC buffer for the certificate to be processed */
-        inBuf = (byte*) XMALLOC(MAX_CERT_SIZE, HEAP_HINT,
-                                                       DYNAMIC_TYPE_TMP_BUFFER);
-        if (inBuf == NULL) return MEMORY_E;
-        XMEMSET(inBuf, 0, MAX_CERT_SIZE);
-
         /* read in the certificate to be processed */
         inBufSz = fread(inBuf, 1, MAX_CERT_SIZE, instream);
-        if (inBufSz <= 0) return FREAD_ERROR;
+        if (inBufSz <= 0) {
+            ret = FREAD_ERROR;
+            goto clu_parse_cleanup;
+        }
 
         /* MALLOC buffer for the result of conversion from der to pem */
         outBuf = (byte*) XMALLOC(MAX_CERT_SIZE, HEAP_HINT,
                                                        DYNAMIC_TYPE_TMP_BUFFER);
         if (outBuf == NULL) {
             XFREE(inBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-            return MEMORY_E;
+            ret = MEMORY_E;
+            goto clu_parse_cleanup;
         }
         XMEMSET(outBuf, 0, MAX_CERT_SIZE);
 
@@ -104,17 +113,61 @@ int wolfCLU_parse_file(char* infile, int inform, char* outfile, int outform)
                                                                      CERT_TYPE);
         if (outBufSz < 0) {
             wolfsslFreeBins(inBuf, outBuf, NULL, NULL, NULL);
-            return DER_TO_PEM_ERROR;
+            ret = DER_TO_PEM_ERROR;
+            goto clu_parse_cleanup;
         }
 
         /* write the result of conversion to the outfile specified */
         ret = fwrite(outBuf, 1, outBufSz, outstream);
-    }
+        if (ret <= 0) {
+            wolfsslFreeBins(inBuf, outBuf, NULL, NULL, NULL);
+            ret = FWRITE_ERROR;
+            goto clu_parse_cleanup;
+        }
+
+        /* success cleanup */
+        wolfsslFreeBins(inBuf, outBuf, NULL, NULL, NULL);
+   }
 /*----------------------------------------------------------------------------*/
 /* read in pem, output der */
 /*----------------------------------------------------------------------------*/
     else if ( (!inform && outform) ) {
         printf("in parse: in = pem, out = der\n");
+        inBufSz = fread(inBuf, 1, MAX_CERT_SIZE, instream);
+        if (inBufSz <= 0) {
+            ret = FREAD_ERROR;
+            goto clu_parse_cleanup;
+        }
+
+        /* MALLOC buffer for the result of converstion from pem to der */
+        outBuf = (byte*) XMALLOC(MAX_CERT_SIZE, HEAP_HINT,
+                                                       DYNAMIC_TYPE_TMP_BUFFER);
+        if (outBuf == NULL) {
+            XFREE(inBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+            ret = MEMORY_E;
+            goto clu_parse_cleanup;
+        }
+        XMEMSET(outBuf, 0, MAX_CERT_SIZE);
+
+        /* convert inBuf from pem to der, store result in outBuf */
+        outBufSz = wolfSSL_CertPemToDer(inBuf, inBufSz, outBuf, MAX_CERT_SIZE,
+                                                                     CERT_TYPE);
+        if (outBufSz < 0) {
+            wolfsslFreeBins(inBuf, outBuf, NULL, NULL, NULL);
+            ret = PEM_TO_DER_ERROR;
+            goto clu_parse_cleanup;
+        }
+
+        /* write the result of conversion to the outfile specified */
+        ret = fwrite(outBuf, 1, outBufSz, outstream);
+        if (ret <= 0) {
+            wolfsslFreeBins(inBuf, outBuf, NULL, NULL, NULL);
+            ret = FWRITE_ERROR;
+            goto clu_parse_cleanup;
+        }
+
+        /* success cleanup */
+        wolfsslFreeBins(inBuf, outBuf, NULL, NULL, NULL);
     }
 /*----------------------------------------------------------------------------*/
 /* read in pem, output pem */
@@ -123,9 +176,11 @@ int wolfCLU_parse_file(char* infile, int inform, char* outfile, int outform)
         printf("in parse: in = pem, out = pem\n");
     }
 
+    ret = 0;
+clu_parse_cleanup:
+
     fclose(outstream);
     fclose(instream);
 
-    ret = 0;
     return ret;
 }
