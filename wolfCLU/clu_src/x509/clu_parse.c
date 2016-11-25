@@ -33,37 +33,38 @@ enum {
     DER = 1,
 };
 
-int wolfCLU_inpem_outpem(char* infile, char* outfile)
+int wolfCLU_inpem_outpem(char* infile, char* outfile, int silent_flag)
 {
     int ret;
-    ret = wolfCLU_parse_file(infile, PEM, outfile, PEM);
+    ret = wolfCLU_parse_file(infile, PEM, outfile, PEM, silent_flag);
     return ret;
 }
 
-int wolfCLU_inpem_outder(char* infile, char* outfile)
+int wolfCLU_inpem_outder(char* infile, char* outfile, int silent_flag)
 {
     int ret;
-    ret = wolfCLU_parse_file(infile, PEM, outfile, DER);
+    ret = wolfCLU_parse_file(infile, PEM, outfile, DER, silent_flag);
     return ret;
 }
 
-int wolfCLU_inder_outpem(char* infile, char* outfile)
+int wolfCLU_inder_outpem(char* infile, char* outfile, int silent_flag)
 {
     int ret;
-    ret = wolfCLU_parse_file(infile, DER, outfile, PEM);
+    ret = wolfCLU_parse_file(infile, DER, outfile, PEM, silent_flag);
     return ret;
 }
 
-int wolfCLU_inder_outder(char* infile, char* outfile)
+int wolfCLU_inder_outder(char* infile, char* outfile, int silent_flag)
 {
     int ret;
-    ret = wolfCLU_parse_file(infile, DER, outfile, DER);
+    ret = wolfCLU_parse_file(infile, DER, outfile, DER, silent_flag);
     return ret;
 }
 
-int wolfCLU_parse_file(char* infile, int inform, char* outfile, int outform)
+int wolfCLU_parse_file(char* infile, int inform, char* outfile, int outform,
+                                                                int silent_flag)
 {
-    int ret, inBufSz, outBufSz;
+    int i, ret, inBufSz, outBufSz;
     FILE* instream;
     FILE* outstream;
     byte* inBuf = NULL;
@@ -125,6 +126,12 @@ int wolfCLU_parse_file(char* infile, int inform, char* outfile, int outform)
             goto clu_parse_cleanup;
         }
 
+        if (!silent_flag) {
+           for (i = 0; i < outBufSz; i++) {
+                printf("%c", outBuf[i]);
+            }
+        }
+
         /* success cleanup */
         wolfsslFreeBins(inBuf, outBuf, NULL, NULL, NULL);
    }
@@ -132,7 +139,6 @@ int wolfCLU_parse_file(char* infile, int inform, char* outfile, int outform)
 /* read in pem, output der */
 /*----------------------------------------------------------------------------*/
     else if ( (!inform && outform) ) {
-        printf("in parse: in = pem, out = der\n");
         inBufSz = fread(inBuf, 1, MAX_CERT_SIZE, instream);
         if (inBufSz <= 0) {
             ret = FREAD_ERROR;

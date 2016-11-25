@@ -90,6 +90,7 @@ int main(int argc, char** argv)
             case OUTFORM:   break;
             case NOOUT:     break;
             case TEXT_OUT:  break;
+            case SILENT:    break;
             /* which version of clu am I using */
             case VERBOSE:
                             wolfsslVerboseHelp();

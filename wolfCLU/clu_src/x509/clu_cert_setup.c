@@ -44,14 +44,15 @@ enum {
 int wolfsslCertSetup(int argc, char** argv)
 {
     int i, ret;
-    int text_flag = 0;      /* does user desire human readable cert info */
-    int noout_flag = 0;     /* are we outputting a file */
-    int inder_flag = 0;     /* is the incoming file in der format */
-    int inpem_flag = 0;     /* is the incoming file in pem format */
-    int outder_flag = 0;    /* is the output file in der format */
-    int outpem_flag = 0;    /* is the output file in pem format */
-    int infile_flag = 0;    /* set if passing in file argument */
+    int text_flag    = 0;   /* does user desire human readable cert info */
+    int noout_flag   = 0;   /* are we outputting a file */
+    int inder_flag   = 0;   /* is the incoming file in der format */
+    int inpem_flag   = 0;   /* is the incoming file in pem format */
+    int outder_flag  = 0;   /* is the output file in der format */
+    int outpem_flag  = 0;   /* is the output file in pem format */
+    int infile_flag  = 0;   /* set if passing in file argument */
     int outfile_flag = 0;   /* set if passing out file argument */
+    int silent_flag  = 0;   /* set to disable echo to command line */
 
     char* infile;           /* pointer to the infile name */
     char* outfile;          /* pointer to the outfile name */
@@ -161,6 +162,14 @@ int wolfsslCertSetup(int argc, char** argv)
             text_flag = 1;
             continue;
 /*---------------------------------------------------------------------------*/
+/* silent */
+/*---------------------------------------------------------------------------*/
+        } else if (XSTRNCMP(argv[i], "-silent", 7) == 0) {
+            /* set flag for converting to human readable. 
+             * return NOT_YET_IMPLEMENTED error */
+            silent_flag = 1;
+            continue;
+/*---------------------------------------------------------------------------*/
 /* END */
 /*---------------------------------------------------------------------------*/
         }
@@ -173,25 +182,25 @@ int wolfsslCertSetup(int argc, char** argv)
         case INPEM_OUTPEM:
             ret = 0;
             printf("run inpem outpem\n");
-            if (infile_flag) wolfCLU_inpem_outpem(infile, outfile);
+            if (infile_flag) wolfCLU_inpem_outpem(infile, outfile, silent_flag);
             else return INPUT_FILE_ERROR;
             break;
         case INPEM_OUTDER:
             ret = 0;
             printf("run inpem outder\n");
-            if (infile_flag) wolfCLU_inpem_outder(infile, outfile);
+            if (infile_flag) wolfCLU_inpem_outder(infile, outfile, silent_flag);
             else return INPUT_FILE_ERROR;
             break;
         case INDER_OUTPEM:
             ret = 0;
             printf("run inder outpem\n");
-            if (infile_flag) wolfCLU_inder_outpem(infile, outfile);
+            if (infile_flag) wolfCLU_inder_outpem(infile, outfile, silent_flag);
             else return INPUT_FILE_ERROR;
             break;
         case INDER_OUTDER:
             ret = 0;
             printf("run inder outder\n");
-            if (infile_flag) wolfCLU_inder_outder(infile, outfile);
+            if (infile_flag) wolfCLU_inder_outder(infile, outfile, silent_flag);
             else return INPUT_FILE_ERROR;
             break;
         case NOOUT_SET:
