@@ -74,6 +74,10 @@ int wolfsslCertSetup(int argc, char** argv)
                 printf("missing inform required argument\n");
                 return USER_INPUT_ERROR;
             }
+            if (inpem_flag || inder_flag) {
+                printf("ERROR: inform set more than once.\n");
+                return USER_INPUT_ERROR;
+            }
             else if (XSTRNCMP(inform, "pem", 3) == 0)
                 inpem_flag = 1;
             else if (XSTRNCMP(inform, "der", 3) == 0)
@@ -95,6 +99,9 @@ int wolfsslCertSetup(int argc, char** argv)
                 printf("Usage: -outform [PEM/DER]\n");
                 printf("missing outform required argument\n");
                 return USER_INPUT_ERROR;
+            }
+            if (outpem_flag || outder_flag) {
+                printf("ERROR: outform set more than once.\n");
             }
             else if (XSTRNCMP(outform, "pem", 3) == 0)
                 outpem_flag = 1;

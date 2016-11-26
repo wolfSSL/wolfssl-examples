@@ -3,7 +3,7 @@
 function test() {
     CHECK=$1
     #UNCOMMENT FOR VERBOSE OUTPUT
-#    echo "${2}"
+    echo "${2}"
     [ $CHECK != 23 ] && [ $CHECK != 22 ] && [ $CHECK != 0 ] \
                            && echo "CHECK = $CHECK" && exit 5
     [ $CHECK == 0 ] && echo "valid input: TEST PASSED"
