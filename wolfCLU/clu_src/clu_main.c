@@ -23,6 +23,7 @@
 #include "clu_include/x509/clu_cert.h"
 #include "clu_include/clu_optargs.h"
 #include "clu_include/clu_error_codes.h"
+#include "clu_include/x509/clu_request.h"
 /* enumerate optionals beyond ascii range to dis-allow use of alias IE we
  * do not want "-e" to work for encrypt, user must use "encrypt"
  */
@@ -63,7 +64,9 @@ int main(int argc, char** argv)
             /* x509 Certificate processing */
             case X509:     ret = wolfsslCertSetup(argc, argv);
                             break;
-
+            /* x509 Certificate request */
+            case REQUEST:  ret = wolfsslRequestSetup(argc, argv);
+                            break;
 /* Ignore the following arguments for now. Will be handled by their respective
  * setups IE Crypto setup, Benchmark setup, or Hash Setup */
 

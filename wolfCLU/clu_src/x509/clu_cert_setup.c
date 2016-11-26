@@ -20,18 +20,11 @@
  */
 
 #include <stdio.h>
-
+#include <unistd.h>
 #include <wolfssl/wolfcrypt/types.h>
 #include "clu_include/clu_error_codes.h"
 #include "clu_include/x509/clu_cert.h"
 #include "clu_include/x509/clu_parse.h"
-
-#ifdef WOLFSSL_STATIC_MEMORY
-    #include <wolfssl/wolfcrypt/memory.h>
-    static WOLFSSL_HEAP_HINT* HEAP_HINT;
-else
-    #define HEAP_HINT NULL
-#endif
 
 enum {
     INPEM_OUTPEM = 1,

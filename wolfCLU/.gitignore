@@ -28,3 +28,4 @@ build-aux/install-sh
 build-aux/ltmain.sh
 m4/libtool.m4
 wolfssl
+test-suite.log

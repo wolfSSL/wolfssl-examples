@@ -1,4 +1,4 @@
-/* clu_cert.h
+/* clu_request.h
  *
  * Copyright (C) 2006-2016 wolfSSL Inc.
  *
@@ -19,16 +19,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
-#include <wolfssl/wolfcrypt/random.h>
-#include <wolfssl/wolfcrypt/error-crypt.h>
+/* handles incoming arguments for certificate requests */
+int wolfsslRequestSetup(int argc, char** argv);
 
-/* handles incoming arguments for certificate generation */
-int wolfsslCertSetup(int argc, char** argv);
-
-/* print help info */
-void wolfsslCertHelp();
-
-/* check for user input errors */
-int error_check(int inpem_flag, int inder_flag, int outpem_flag,
-                                               int outder_flag, int noout_flag);
 

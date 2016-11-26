@@ -42,6 +42,7 @@ enum {
     NOOUT,
     TEXT_OUT,
     SILENT,
+    REQUEST,
     HELP1, /* "-help" */
     HELP2, /* "-h" */
 };
@@ -69,6 +70,7 @@ static struct option long_options[] = {
     {"noout",   0,                 0, NOOUT     },
     {"text",    0,                 0, TEXT_OUT  },
     {"silent",  0,                 0, SILENT    },
+    {"req",     0,                 0, REQUEST   },
     {"help",    0,                 0, HELP1     },
     {"h",       0,                 0, HELP2     },
     {"v",       0,                 0, 'v'       },

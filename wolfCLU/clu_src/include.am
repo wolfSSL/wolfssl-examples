@@ -14,5 +14,8 @@ wolfssl_SOURCES = clu_src/tools/clu_funcs.c \
 					clu_src/benchmark/clu_bench_setup.c \
 					clu_src/benchmark/clu_benchmark.c \
 					clu_src/clu_main.c \
-					clu_src/x509/clu_cert_setup.c \
-					clu_src/x509/clu_parse.c
+					clu_src/x509/clu_parse.c \
+					clu_src/x509/clu_request_setup.c \
+					clu_src/x509/clu_cert_setup.c
+
+
