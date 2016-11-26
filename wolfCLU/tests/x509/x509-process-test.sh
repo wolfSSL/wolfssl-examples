@@ -94,15 +94,14 @@ function run3() {
     echo "TEST 3.b"
     cert_test_case "-inform pem -outform der -in testing-certs/ca-cert.pem -out tmp.der" \
                     testing-certs/ca-cert.der tmp.der
-#    test_case "-inform pem -in ca-cert.pem -outform der -out out.txt"
     echo "TEST 3.c"
     test_case "-inform der -in ca-cert.pem -outform der -out out.txt"
     echo "TEST 3.d"
     test_case "-inform pem -in ca-cert.pem -outform pem -out out.txt"
 }
 
-#run1
-#run2
+run1
+run2
 run3
 
 rm out.txt
