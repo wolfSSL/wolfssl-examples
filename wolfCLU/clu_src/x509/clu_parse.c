@@ -26,7 +26,7 @@
 #include "clu_include/clu_error_codes.h"
 #include "clu_include/x509/clu_parse.h"
 
-#define MAX_CERT_SIZE 4096
+#define MAX_CERT_SIZE 16384
 
 enum {
     PEM = 0,
