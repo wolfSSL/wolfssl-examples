@@ -21,7 +21,7 @@
 
 #include "clu_include/clu_header_main.h"
 
-int wolfsslBenchSetup(int argc, char** argv)
+int wolfCLU_benchSetup(int argc, char** argv)
 {
     int     ret     =   0;          /* return variable */
     int     time    =   3;          /* timer variable */
@@ -65,7 +65,7 @@ int wolfsslBenchSetup(int argc, char** argv)
     for (i = 2; i < argc; i++) {
         if (XSTRNCMP(argv[i], "-help", 5) == 0) {
             /* help checking */
-            wolfsslBenchHelp();
+            wolfCLU_benchHelp();
             return 0;
         }
         for (j = 0; j < (int) sizeof(algs)/(int) sizeof(algs[0]); j++) {
@@ -95,12 +95,12 @@ int wolfsslBenchSetup(int argc, char** argv)
     }
     if (optionCheck != 1) {
         /* help checking */
-        wolfsslHelp();
+        wolfCLU_help();
     }
     else {
         /* benchmarking function */
         printf("\nTesting for %d second(s)\n", time);
-        ret = wolfsslBenchmark(time, option);
+        ret = wolfCLU_benchmark(time, option);
     }
     return ret;
 }

@@ -26,7 +26,7 @@
 /*
  * hashing function
  */
-int wolfsslHash(char* in, char* out, char* alg, int size)
+int wolfCLU_hash(char* in, char* out, char* alg, int size)
 {
 #ifdef HAVE_BLAKE2
     Blake2b hash;               /* blake2b declaration */
@@ -88,7 +88,7 @@ int wolfsslHash(char* in, char* out, char* alg, int size)
 
     output = XMALLOC(size, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
     if (output == NULL) {
-        wolfsslFreeBins(input, NULL, NULL, NULL, NULL);
+        wolfCLU_freeBins(input, NULL, NULL, NULL, NULL);
         return MEMORY_E;
     }
     XMEMSET(output, 0, size);
@@ -176,6 +176,6 @@ int wolfsslHash(char* in, char* out, char* alg, int size)
     /* closes the opened files and frees the memory */
     XMEMSET(input, 0, length);
     XMEMSET(output, 0, size);
-    wolfsslFreeBins(input, output, NULL, NULL, NULL);
+    wolfCLU_freeBins(input, output, NULL, NULL, NULL);
     return ret;
 }

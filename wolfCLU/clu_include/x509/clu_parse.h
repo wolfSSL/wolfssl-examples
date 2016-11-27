@@ -20,13 +20,13 @@
  */
 
 /* a helper function for wolfCLU_parse_file */
-int wolfCLU_inpem_outpem(char* infile, char* outfile, int silent_flag);
+int wolfCLU_inpemOutpem(char* infile, char* outfile, int silent_flag);
 /* a helper function for wolfCLU_parse_file */
-int wolfCLU_inpem_outder(char* infile, char* outfile, int silent_flag);
+int wolfCLU_inpemOutder(char* infile, char* outfile, int silent_flag);
 /* a helper function for wolfCLU_parse_file */
-int wolfCLU_inder_outpem(char* infile, char* outfile, int silent_flag);
+int wolfCLU_inderOutpem(char* infile, char* outfile, int silent_flag);
 /* a helper function for wolfCLU_parse_file */
-int wolfCLU_inder_outder(char* infile, char* outfile, int silent_flag);
+int wolfCLU_inderOutder(char* infile, char* outfile, int silent_flag);
 /* function for processing input/output based on format requests from user */
-int wolfCLU_parse_file(char* infile, int inform, char* outfile, int outform,
+int wolfCLU_parseFile(char* infile, int inform, char* outfile, int outform,
                                                                int silent_flag);

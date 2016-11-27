@@ -20,6 +20,6 @@
  */
 
 /* handles incoming arguments for certificate requests */
-int wolfsslRequestSetup(int argc, char** argv);
+int wolfCLU_requestSetup(int argc, char** argv);
 
 

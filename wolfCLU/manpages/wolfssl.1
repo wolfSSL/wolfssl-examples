@@ -11,16 +11,18 @@ wolfSSL supports industry standards up to the current TLSv1.2 and DTLSv1.2 and o
     \- Encryption and Decryption with Ciphers
     \- Hashing functionality
     \- Benchmark utilities
+    \- x509 conversion from PEM to DER or DER to PEM
     With more features to come.
 .SH COMMAND SUMMARY
 wolfSSL offers many different commands all of which have a vast variety of options and arguments. 
 This utility is to be used with wolfSSL installed and can use different function based on different ./configure options
 
 LIST
-        -e \- encrypt a file or basic input using various algorithms and options
-        -d \- decrypt a file or basic input using various algorithms and options
-        -h \- hash a file or basic input using a variety of hashing algorithms
-        -b \- tests the processing speed of the ciphersuites
+        -encrypt \- encrypt a file or basic input using various algorithms and options
+        -decrypt \- decrypt a file or basic input using various algorithms and options
+        -hash \- hash a file or basic input using a variety of hashing algorithms
+        -bench \- tests the processing speed of the ciphersuites
+        -x509 \- converts an existing PEM formatted certificate to DER format or vise versa
 .SH OPTIONS
 Acceptable options can be brought up using either "-help" or through the man pages of the commands
 .SH BUGS

@@ -23,10 +23,10 @@
 #include <wolfssl/wolfcrypt/error-crypt.h>
 
 /* handles incoming arguments for certificate generation */
-int wolfsslCertSetup(int argc, char** argv);
+int wolfCLU_certSetup(int argc, char** argv);
 
 /* print help info */
-void wolfsslCertHelp();
+void wolfCLU_certHelp();
 
 /* check for user input errors */
 int error_check(int inpem_flag, int inder_flag, int outpem_flag,

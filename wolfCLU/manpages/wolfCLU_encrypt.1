@@ -4,7 +4,7 @@
 .SH NAME
 encrypt \- cipher routines
 .SH SYNOPSIS
-wolfssl encrypt <-algorithm> <-i filename> [-o filename] [-k password] [-iv IV]
+wolfssl -encrypt <-algorithm> <-in filename> [-out filename] [-pwd password] [-iv IV]
 .SH DESCRIPTION
 This command allows data to be encrypted using ciphers and keys based on passwords if not explicitly provided
 .SH ALGORITHMS
@@ -22,15 +22,15 @@ This command allows data to be encrypted using ciphers and keys based on passwor
 -camellia-cbc-[128|192|256]
         uses Camellia algorithm with designated key size. Only available if ./configure settings support
 .SH OPTIONS
--i filename/stdin     the input filename, standard input. If file does not
+-in filename/stdin    the input filename, standard input. If file does not
 .br
                       exist, user will be prompted for file name or input string
 .br
 .LP
--o filename           the output filename, if filename does not exist, it will be created
+-out filename         the output filename, if filename does not exist, it will be created
 .br
 .LP
--p password           password to derive the key from. Prompts user if password
+-pwd password         password to derive the key from. Prompts user if password
 .br
                       option is not provided. If password option is used iv is not required.
 .br
@@ -40,7 +40,7 @@ This command allows data to be encrypted using ciphers and keys based on passwor
                       Must be provided in hex
 .br
 .LP
--K Key                the actual key to use. Must be in hex
+-key Key              the actual key to use. Must be in hex
 .SH BUGS
 No known bugs at this time.
 .SH AUTHOR

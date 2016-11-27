@@ -21,7 +21,7 @@
 
 #include "clu_include/clu_header_main.h"
 
-int wolfsslSetup(int argc, char** argv, char action)
+int wolfCLU_setup(int argc, char** argv, char action)
 {
     char     outNameE[256];     /* default outFile for encrypt */
     char     outNameD[256];     /* default outfile for decrypt */
@@ -63,12 +63,12 @@ int wolfsslSetup(int argc, char** argv, char action)
     for (i = 2; i < argc; i++) {
         if (XSTRNCMP(argv[i], "-help", 5) == 0) {
             if (eCheck == 1) {
-                /*wolfsslEncryptHelp*/
-                wolfsslEncryptHelp();
+                /*wolfCLU_encryptHelp*/
+                wolfCLU_encryptHelp();
                 return 0;
             } else {
-                /*wolfsslDecryptHelp*/
-                wolfsslDecryptHelp();
+                /*wolfCLU_decryptHelp*/
+                wolfCLU_decryptHelp();
                 return 0;
             }
         }
@@ -76,7 +76,7 @@ int wolfsslSetup(int argc, char** argv, char action)
 
     name = argv[2];
     /* gets blocksize, algorithm, mode, and key size from name argument */
-    block = wolfsslGetAlgo(name, &alg, &mode, &size);
+    block = wolfCLU_getAlgo(name, &alg, &mode, &size);
 
     if (block != FATAL_ERROR) {
         pwdKey = (byte*) XMALLOC(size, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
@@ -84,12 +84,12 @@ int wolfsslSetup(int argc, char** argv, char action)
             return MEMORY_E;
         iv = (byte*) XMALLOC(block, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
         if (iv == NULL) {
-            wolfsslFreeBins(pwdKey, NULL, NULL, NULL, NULL);
+            wolfCLU_freeBins(pwdKey, NULL, NULL, NULL, NULL);
             return MEMORY_E;
         }
         key = (byte*) XMALLOC(size, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
         if (key == NULL) {
-            wolfsslFreeBins(pwdKey, iv, NULL, NULL, NULL);
+            wolfCLU_freeBins(pwdKey, iv, NULL, NULL, NULL);
             return MEMORY_E;
         }
 
@@ -136,7 +136,7 @@ int wolfsslSetup(int argc, char** argv, char action)
                 if (pwdKeyChk == 1) {
                     printf("Invalid option, attempting to use IV with password"
                            " based key.");
-                    wolfsslFreeBins(pwdKey, iv, key, NULL, NULL);
+                    wolfCLU_freeBins(pwdKey, iv, key, NULL, NULL);
                     return FATAL_ERROR;
                 }
                  ivSize = block*2;
@@ -145,20 +145,20 @@ int wolfsslSetup(int argc, char** argv, char action)
                     printf("Invalid IV size was: %d.\n",
                                                        (int) strlen(argv[i+1]));
                     printf("size of IV expected was: %d.\n", ivSize);
-                    wolfsslFreeBins(pwdKey, iv, key, NULL, NULL);
+                    wolfCLU_freeBins(pwdKey, iv, key, NULL, NULL);
                     return FATAL_ERROR;
                 }
                 else {
                     char ivString[XSTRLEN(argv[i+1])];
                     XSTRNCPY(ivString, argv[i+1], XSTRLEN(argv[i+1]));
-                    ret = wolfsslHexToBin(ivString, &iv, &ivSize,
+                    ret = wolfCLU_hexToBin(ivString, &iv, &ivSize,
                                             NULL, NULL, NULL,
                                             NULL, NULL, NULL,
                                             NULL, NULL, NULL);
                     if (ret != 0) {
                         printf("failed during conversion of IV, ret = %d\n",
                                                                            ret);
-                        wolfsslFreeBins(pwdKey, iv, key, NULL, NULL);
+                        wolfCLU_freeBins(pwdKey, iv, key, NULL, NULL);
                         return -1;
                     }
                     ivCheck = 1;
@@ -177,20 +177,20 @@ int wolfsslSetup(int argc, char** argv, char action)
                     printf("Length of key provided was: %d.\n", numBits);
                     printf("Length of key expected was: %d.\n", size);
                     printf("Invalid Key. Must match algorithm key size.\n");
-                    wolfsslFreeBins(pwdKey, iv, key, NULL, NULL);
+                    wolfCLU_freeBins(pwdKey, iv, key, NULL, NULL);
                     return FATAL_ERROR;
                 }
                 else {
                     char keyString[strlen(argv[i+1])];
                     XSTRNCPY(keyString, argv[i+1], XSTRLEN(argv[i+1]));
-                    ret = wolfsslHexToBin(keyString, &key, &numBits,
+                    ret = wolfCLU_hexToBin(keyString, &key, &numBits,
                                             NULL, NULL, NULL,
                                             NULL, NULL, NULL,
                                             NULL, NULL, NULL);
                      if (ret != 0) {
                         printf("failed during conversion of Key, ret = %d\n",
                                                                            ret);
-                        wolfsslFreeBins(pwdKey, iv, key, NULL, NULL);
+                        wolfCLU_freeBins(pwdKey, iv, key, NULL, NULL);
                         return -1;
                     }
                     keyCheck = 1;
@@ -217,7 +217,7 @@ int wolfsslSetup(int argc, char** argv, char action)
                 printf("No -pwd flag set, please enter a password to use for"
                 " encrypting.\n");
                 printf("Write your password down so you don't forget it.\n");
-                ret = wolfsslNoEcho((char*)pwdKey, size);
+                ret = wolfCLU_noEcho((char*)pwdKey, size);
                 pwdKeyChk = 1;
             }
         }
@@ -238,14 +238,14 @@ int wolfsslSetup(int argc, char** argv, char action)
         if (eCheck == 1 && dCheck == 1) {
             printf("You want to encrypt and decrypt simultaneously? That is"
                     "not possible...\n");
-            wolfsslFreeBins(pwdKey, iv, key, NULL, NULL);
+            wolfCLU_freeBins(pwdKey, iv, key, NULL, NULL);
             return FATAL_ERROR;
         }
 
         if (inCheck == 0 && dCheck == 1) {
             printf("We are so sorry but you must specify what it is you are "
                     "trying to decrypt.\n");
-            wolfsslFreeBins(pwdKey, iv, key, NULL, NULL);
+            wolfCLU_freeBins(pwdKey, iv, key, NULL, NULL);
             return FATAL_ERROR;
         }
 
@@ -254,7 +254,7 @@ int wolfsslSetup(int argc, char** argv, char action)
                 printf("-iv was explicitly set, but no -key was set. User\n"
                     " needs to provide a non-password based key when setting"
                         " the -iv flag.\n");
-                wolfsslFreeBins(pwdKey, iv, key, NULL, NULL);
+                wolfCLU_freeBins(pwdKey, iv, key, NULL, NULL);
                 return FATAL_ERROR;
             }
         }
@@ -275,7 +275,7 @@ int wolfsslSetup(int argc, char** argv, char action)
                     out = (ret > 0) ? outNameE : '\0';
                 }
             }
-            ret = wolfsslEncrypt(alg, mode, pwdKey, key, size, in, out,
+            ret = wolfCLU_encrypt(alg, mode, pwdKey, key, size, in, out,
                     iv, block, ivCheck, inputHex);
         }
         /* decryption function call */
@@ -288,17 +288,17 @@ int wolfsslSetup(int argc, char** argv, char action)
                     out = (ret > 0) ? outNameD : '\0';
                 }
             }
-            ret = wolfsslDecrypt(alg, mode, pwdKey, key, size, in, out,
+            ret = wolfCLU_decrypt(alg, mode, pwdKey, key, size, in, out,
                     iv, block, keyType);
         }
         else {
-            wolfsslHelp();
+            wolfCLU_help();
         }
         /* clear and free data */
         XMEMSET(key, 0, size);
         XMEMSET(pwdKey, 0, size);
         XMEMSET(iv, 0, block);
-        wolfsslFreeBins(pwdKey, iv, key, NULL, NULL);
+        wolfCLU_freeBins(pwdKey, iv, key, NULL, NULL);
     }
     else
         ret = FATAL_ERROR;

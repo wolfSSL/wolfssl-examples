@@ -1,10 +1,10 @@
-.\" Manpage for wolfsslDecrypt.
+.\" Manpage for wolfCLU decrypt.
 .\" Contact info@wolfssl.com to correct errors or typos.
 .TH wolfSSL SSL1  "10 Dec 2014" "0.3" "wolfssl decrypt man page"
 .SH NAME
 decrypt \- cipher routines
 .SH SYNOPSIS
-wolfsslDecrypt <-algorithm> <-i filename> [-o filename] [-p password] [-iv IV] [-K key]
+wolfssl -decrypt <-algorithm> <-in filename> [-out filename] [-pwd password] [-iv IV] [-key key]
 .SH DESCRIPTION
 This command allows data to be decrypted using ciphers and keys based on passwords if not explicitly provided
 .SH ALGORITHMS
@@ -26,15 +26,15 @@ This command allows data to be decrypted using ciphers and keys based on passwor
         configured with --enable-camellia
 
 .SH OPTIONS
--i filename/stdin     the input filename, standard input. If file does not
+-in filename/stdin    the input filename, standard input. If file does not
 .br
                       exist, user will be prompted for file name or input string
 .br
 .LP
--o filename           the output filename, if filename does not exist, it will be created
+-out filename         the output filename, if filename does not exist, it will be created
 .br
 .LP
--p password           password to derive the key from. Prompts user if password
+-pwd password         password to derive the key from. Prompts user if password
 .br
                       option is not provided. If password option is used iv is not required.
 .br
@@ -44,7 +44,7 @@ This command allows data to be decrypted using ciphers and keys based on passwor
                       Must be provided in hex
 .br
 .LP
--K Key                the actual key to use. Must be in hex
+-key Key              the actual key to use. Must be in hex
 .SH BUGS
 No known bugs at this time.
 .SH AUTHOR

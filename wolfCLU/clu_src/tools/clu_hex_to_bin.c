@@ -33,7 +33,7 @@
 #include "clu_include/clu_header_main.h"
 
 /* free up to 5 binary buffers using wolfssl abstraction layer */
-void wolfsslFreeBins(byte* b1, byte* b2, byte* b3, byte* b4, byte* b5)
+void wolfCLU_freeBins(byte* b1, byte* b2, byte* b3, byte* b4, byte* b5)
 {
     if (b1 != NULL)
         XFREE(b1, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
@@ -49,7 +49,7 @@ void wolfsslFreeBins(byte* b1, byte* b2, byte* b3, byte* b4, byte* b5)
 
 
 /* convert hex string to binary, store size, 0 success (free mem on failure) */
-int wolfsslHexToBin(const char* h1, byte** b1, word32* b1Sz,
+int wolfCLU_hexToBin(const char* h1, byte** b1, word32* b1Sz,
                     const char* h2, byte** b2, word32* b2Sz,
                     const char* h3, byte** b3, word32* b3Sz,
                     const char* h4, byte** b4, word32* b4Sz)
@@ -64,7 +64,7 @@ int wolfsslHexToBin(const char* h1, byte** b1, word32* b1Sz,
             return MEMORY_E;
         ret = Base16_Decode((const byte*)h1, (int)XSTRLEN(h1), *b1, b1Sz);
         if (ret != 0) {
-            wolfsslFreeBins(*b1, NULL, NULL, NULL, NULL);
+            wolfCLU_freeBins(*b1, NULL, NULL, NULL, NULL);
             return ret;
         }
     }
@@ -74,12 +74,12 @@ int wolfsslHexToBin(const char* h1, byte** b1, word32* b1Sz,
         *b2Sz = (int)XSTRLEN(h2) / 2;
         *b2   = XMALLOC(*b2Sz, NULL, DYNAMIC_TYPE_TMP_BUFFER);
         if (*b2 == NULL) {
-            wolfsslFreeBins(b1 ? *b1 : NULL, NULL, NULL, NULL, NULL);
+            wolfCLU_freeBins(b1 ? *b1 : NULL, NULL, NULL, NULL, NULL);
             return MEMORY_E;
         }
         ret = Base16_Decode((const byte*)h2, (int)XSTRLEN(h2), *b2, b2Sz);
         if (ret != 0) {
-            wolfsslFreeBins(b1 ? *b1 : NULL, *b2, NULL, NULL, NULL);
+            wolfCLU_freeBins(b1 ? *b1 : NULL, *b2, NULL, NULL, NULL);
             return ret;
         }
     }
@@ -89,12 +89,12 @@ int wolfsslHexToBin(const char* h1, byte** b1, word32* b1Sz,
         *b3Sz = (int)XSTRLEN(h3) / 2;
         *b3   = XMALLOC(*b3Sz, NULL, DYNAMIC_TYPE_TMP_BUFFER);
         if (*b3 == NULL) {
-            wolfsslFreeBins(b1 ? *b1 : NULL, b2 ? *b2 : NULL, NULL, NULL, NULL);
+            wolfCLU_freeBins(b1 ? *b1 : NULL, b2 ? *b2 : NULL, NULL, NULL, NULL);
             return MEMORY_E;
         }
         ret = Base16_Decode((const byte*)h3, (int)XSTRLEN(h3), *b3, b3Sz);
         if (ret != 0) {
-            wolfsslFreeBins(b1 ? *b1 : NULL, b2 ? *b2 : NULL, *b3, NULL, NULL);
+            wolfCLU_freeBins(b1 ? *b1 : NULL, b2 ? *b2 : NULL, *b3, NULL, NULL);
             return ret;
         }
     }
@@ -104,13 +104,13 @@ int wolfsslHexToBin(const char* h1, byte** b1, word32* b1Sz,
         *b4Sz = (int)XSTRLEN(h4) / 2;
         *b4   = XMALLOC(*b4Sz, NULL, DYNAMIC_TYPE_TMP_BUFFER);
         if (*b4 == NULL) {
-            wolfsslFreeBins(b1 ? *b1 : NULL,b2 ? *b2 : NULL,b3 ? *b3 :
+            wolfCLU_freeBins(b1 ? *b1 : NULL,b2 ? *b2 : NULL,b3 ? *b3 :
                                                                 NULL,NULL,NULL);
             return MEMORY_E;
         }
         ret = Base16_Decode((const byte*)h4, (int)XSTRLEN(h4), *b4, b4Sz);
         if (ret != 0) {
-            wolfsslFreeBins(b1 ? *b1 : NULL, b2 ? *b2 : NULL, b3 ? *b3 : NULL,
+            wolfCLU_freeBins(b1 ? *b1 : NULL, b2 ? *b2 : NULL, b3 ? *b3 : NULL,
                 *b4, NULL);
             return ret;
         }

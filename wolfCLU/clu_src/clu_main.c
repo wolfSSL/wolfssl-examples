@@ -35,7 +35,7 @@ int main(int argc, char** argv)
 
     if (argc == 1) {
         printf("Main Help.\n");
-        wolfsslHelp();
+        wolfCLU_help();
     }
 
     /* flexibility: allow users to input any CAPS or lower case,
@@ -50,22 +50,22 @@ int main(int argc, char** argv)
 
         switch (option) {
             /* Encrypt */
-            case ENCRYPT:  ret = wolfsslSetup(argc, argv, 'e');
+            case ENCRYPT:  ret = wolfCLU_setup(argc, argv, 'e');
                             break;
             /* Decrypt */
-            case DECRYPT:  ret = wolfsslSetup(argc, argv, 'd');;
+            case DECRYPT:  ret = wolfCLU_setup(argc, argv, 'd');;
                             break;
             /* Benchmark */
-            case BENCHMARK:ret = wolfsslBenchSetup(argc, argv);
+            case BENCHMARK:ret = wolfCLU_benchSetup(argc, argv);
                             break;
             /* Hash */
-            case HASH:     ret = wolfsslHashSetup(argc, argv);
+            case HASH:     ret = wolfCLU_hashSetup(argc, argv);
                             break;
             /* x509 Certificate processing */
-            case X509:     ret = wolfsslCertSetup(argc, argv);
+            case X509:     ret = wolfCLU_certSetup(argc, argv);
                             break;
             /* x509 Certificate request */
-            case REQUEST:  ret = wolfsslRequestSetup(argc, argv);
+            case REQUEST:  ret = wolfCLU_requestSetup(argc, argv);
                             break;
 /* Ignore the following arguments for now. Will be handled by their respective
  * setups IE Crypto setup, Benchmark setup, or Hash Setup */
@@ -96,16 +96,16 @@ int main(int argc, char** argv)
             case SILENT:    break;
             /* which version of clu am I using */
             case VERBOSE:
-                            wolfsslVerboseHelp();
+                            wolfCLU_verboseHelp();
                             return 0;
 /*End of ignored arguments */
 
-            case 'v':       wolfsslVersion();
+            case 'v':       wolfCLU_version();
                             return 0;
 
              default:
                             printf("Main help default.\n");
-                            wolfsslHelp();
+                            wolfCLU_help();
                             return 0;
         }
     }

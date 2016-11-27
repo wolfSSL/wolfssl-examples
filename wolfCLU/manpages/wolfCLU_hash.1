@@ -4,7 +4,7 @@
 .SH NAME
 hash \- hashing utility
 .SH SYNOPSIS
-wolfssl hash <-algorithm> <-i filename> [-o filename/stdin] [-s size] [-l length]
+wolfssl -hash <-algorithm> <-in filename> [-out filename/stdin] [-size size] [-length length]
 .SH DESCRIPTION
 This command hashes either stdin or a file based on the chosen algorithm
 .SH ALGORITHMS
@@ -16,16 +16,16 @@ This command hashes either stdin or a file based on the chosen algorithm
 -sha512
 -blake2b
 .SH OPTIONS
--i filename/stdin     the input filename, standard input. If file does not exist, 
+-in filename/stdin    the input filename, standard input. If file does not exist, 
 .br
                       user will be prompted for file name or input input string
 .br
 .LP
--o filename           the output filename, if file does not exist, it will be created
+-out filename         the output filename, if file does not exist, it will be created
 .LP
--s size               **Usuable only with Blake2b. Block size of the function.
+-size size            **Usuable only with Blake2b. Block size of the function.
 .LP
--l length             length of message to hash (optional)
+-length length        length of message to hash (optional)
 ** denotes only available for specific algorithm
 .SH BUGS
 No known bugs at this time.

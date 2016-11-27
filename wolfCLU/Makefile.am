@@ -32,11 +32,11 @@ EXTRA_DIST+= tests
 EXTRA_DIST+= manpages
 EXTRA_DIST+= README.md
 
-man_MANS+= manpages/wolfsslBenchmark.1
-man_MANS+= manpages/wolfsslDecrypt.1
-man_MANS+= manpages/wolfsslEncrypt.1
-man_MANS+= manpages/wolfsslHash.1
-man_MANS+= manpages/wolfsslMain.1
+man_MANS+= manpages/wolfCLU_benchmark.1
+man_MANS+= manpages/wolfCLU_decrypt.1
+man_MANS+= manpages/wolfCLU_encrypt.1
+man_MANS+= manpages/wolfCLU_hash.1
+man_MANS+= manpages/wolfssl.1
 
 include clu_src/include.am
 include clu_include/include.am

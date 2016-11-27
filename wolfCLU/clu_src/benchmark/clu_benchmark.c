@@ -31,7 +31,7 @@
 /*
  * benchmarking funciton 
  */
-int wolfsslBenchmark(int timer, int* option)
+int wolfCLU_benchmark(int timer, int* option)
 {
     int i              =   0;       /* A looping variable */
 
@@ -62,7 +62,7 @@ int wolfsslBenchmark(int timer, int* option)
 
     wc_InitRng(&rng);
 
-    signal(SIGALRM, wolfsslStop);
+    signal(SIGALRM, wolfCLU_stop);
     i = 0;
 #ifndef NO_AES
     /* aes test */
@@ -73,17 +73,17 @@ int wolfsslBenchmark(int timer, int* option)
         }
         cipher = XMALLOC(AES_BLOCK_SIZE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
         if (cipher == NULL) {
-            wolfsslFreeBins(plain, NULL, NULL, NULL, NULL);
+            wolfCLU_freeBins(plain, NULL, NULL, NULL, NULL);
             return MEMORY_E;
         }
         key = XMALLOC(AES_BLOCK_SIZE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
         if (key == NULL) {
-            wolfsslFreeBins(plain, cipher, NULL, NULL, NULL);
+            wolfCLU_freeBins(plain, cipher, NULL, NULL, NULL);
             return MEMORY_E;
         }
         iv = XMALLOC(AES_BLOCK_SIZE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
         if (iv == NULL) {
-            wolfsslFreeBins(plain, cipher, key, NULL, NULL);
+            wolfCLU_freeBins(plain, cipher, key, NULL, NULL);
             return MEMORY_E;
         }
 
@@ -91,7 +91,7 @@ int wolfsslBenchmark(int timer, int* option)
         wc_RNG_GenerateBlock(&rng, cipher, AES_BLOCK_SIZE);
         wc_RNG_GenerateBlock(&rng, key, AES_BLOCK_SIZE);
         wc_RNG_GenerateBlock(&rng, iv, AES_BLOCK_SIZE);
-        start = wolfsslGetTime();
+        start = wolfCLU_getTime();
         alarm(timer);
 
         wc_AesSetKey(&aes, key, AES_BLOCK_SIZE, iv, AES_ENCRYPTION);
@@ -99,19 +99,19 @@ int wolfsslBenchmark(int timer, int* option)
         while (loop) {
             wc_AesCbcEncrypt(&aes, cipher, plain, AES_BLOCK_SIZE);
             blocks++;
-            currTime = wolfsslGetTime();
+            currTime = wolfCLU_getTime();
             stop = currTime - start;
             /* if stop >= timer, loop = 0 */
             loop = (stop >= timer) ? 0 : 1;
         }
         printf("\n");
         printf("AES-CBC ");
-        wolfsslStats(start, AES_BLOCK_SIZE, blocks);
+        wolfCLU_stats(start, AES_BLOCK_SIZE, blocks);
         XMEMSET(plain, 0, AES_BLOCK_SIZE);
         XMEMSET(cipher, 0, AES_BLOCK_SIZE);
         XMEMSET(key, 0, AES_BLOCK_SIZE);
         XMEMSET(iv, 0, AES_BLOCK_SIZE);
-        wolfsslFreeBins(plain, cipher, key, iv, NULL);
+        wolfCLU_freeBins(plain, cipher, key, iv, NULL);
         blocks = 0;
         loop = 1;
     }
@@ -126,17 +126,17 @@ int wolfsslBenchmark(int timer, int* option)
         }
         cipher = XMALLOC(AES_BLOCK_SIZE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
         if (cipher == NULL) {
-            wolfsslFreeBins(plain, NULL, NULL, NULL, NULL);
+            wolfCLU_freeBins(plain, NULL, NULL, NULL, NULL);
             return MEMORY_E;
         }
         key = XMALLOC(AES_BLOCK_SIZE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
         if (key == NULL) {
-            wolfsslFreeBins(plain, cipher, NULL, NULL, NULL);
+            wolfCLU_freeBins(plain, cipher, NULL, NULL, NULL);
             return MEMORY_E;
         }
         iv = XMALLOC(AES_BLOCK_SIZE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
         if (iv == NULL) {
-            wolfsslFreeBins(plain, cipher, key, NULL, NULL);
+            wolfCLU_freeBins(plain, cipher, key, NULL, NULL);
             return MEMORY_E;
         }
 
@@ -144,25 +144,25 @@ int wolfsslBenchmark(int timer, int* option)
         wc_RNG_GenerateBlock(&rng, cipher, AES_BLOCK_SIZE);
         wc_RNG_GenerateBlock(&rng, key, AES_BLOCK_SIZE);
         wc_RNG_GenerateBlock(&rng, iv, AES_BLOCK_SIZE);
-        start = wolfsslGetTime();
+        start = wolfCLU_getTime();
         alarm(timer);
 
         wc_AesSetKeyDirect(&aes, key, AES_BLOCK_SIZE, iv, AES_ENCRYPTION);
         while (loop) {
             wc_AesCtrEncrypt(&aes, cipher, plain, AES_BLOCK_SIZE);
             blocks++;
-            currTime = wolfsslGetTime();
+            currTime = wolfCLU_getTime();
             stop = currTime - start;
             /* if stop >= timer, loop = 0 */
             loop = (stop >= timer) ? 0 : 1;
         }
         printf("AES-CTR ");
-        wolfsslStats(start, AES_BLOCK_SIZE, blocks);
+        wolfCLU_stats(start, AES_BLOCK_SIZE, blocks);
         XMEMSET(plain, 0, AES_BLOCK_SIZE);
         XMEMSET(cipher, 0, AES_BLOCK_SIZE);
         XMEMSET(key, 0, AES_BLOCK_SIZE);
         XMEMSET(iv, 0, AES_BLOCK_SIZE);
-        wolfsslFreeBins(plain, cipher, key, iv, NULL);
+        wolfCLU_freeBins(plain, cipher, key, iv, NULL);
         blocks = 0;
         loop = 1;
     }
@@ -177,17 +177,17 @@ int wolfsslBenchmark(int timer, int* option)
         }
         cipher = XMALLOC(DES3_BLOCK_SIZE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
         if (cipher == NULL) {
-            wolfsslFreeBins(plain, NULL, NULL, NULL, NULL);
+            wolfCLU_freeBins(plain, NULL, NULL, NULL, NULL);
             return MEMORY_E;
         }
         key = XMALLOC(DES3_BLOCK_SIZE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
         if (key == NULL) {
-            wolfsslFreeBins(plain, cipher, NULL, NULL, NULL);
+            wolfCLU_freeBins(plain, cipher, NULL, NULL, NULL);
             return MEMORY_E;
         }
         iv = XMALLOC(DES3_BLOCK_SIZE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
         if (iv == NULL) {
-            wolfsslFreeBins(plain, cipher, key, NULL, NULL);
+            wolfCLU_freeBins(plain, cipher, key, NULL, NULL);
             return MEMORY_E;
         }
 
@@ -196,25 +196,25 @@ int wolfsslBenchmark(int timer, int* option)
         wc_RNG_GenerateBlock(&rng, key, DES3_BLOCK_SIZE);
         wc_RNG_GenerateBlock(&rng, iv, DES3_BLOCK_SIZE);
 
-        start = wolfsslGetTime();
+        start = wolfCLU_getTime();
         alarm(timer);
 
         wc_Des3_SetKey(&des3, key, iv, DES_ENCRYPTION);
         while (loop) {
             wc_Des3_CbcEncrypt(&des3, cipher, plain, DES3_BLOCK_SIZE);
             blocks++;
-            currTime = wolfsslGetTime();
+            currTime = wolfCLU_getTime();
             stop = currTime - start;
             /* if stop >= timer, loop = 0 */
             loop = (stop >= timer) ? 0 : 1;
         }
         printf("3DES ");
-        wolfsslStats(start, DES3_BLOCK_SIZE, blocks);
+        wolfCLU_stats(start, DES3_BLOCK_SIZE, blocks);
         XMEMSET(plain, 0, DES3_BLOCK_SIZE);
         XMEMSET(cipher, 0, DES3_BLOCK_SIZE);
         XMEMSET(key, 0, DES3_BLOCK_SIZE);
         XMEMSET(iv, 0, DES3_BLOCK_SIZE);
-        wolfsslFreeBins(plain, cipher, key, iv, NULL);
+        wolfCLU_freeBins(plain, cipher, key, iv, NULL);
         blocks = 0;
         loop = 1;
     }
@@ -232,17 +232,17 @@ int wolfsslBenchmark(int timer, int* option)
         }
         cipher = XMALLOC(CAM_SZ, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
         if (cipher == NULL) {
-            wolfsslFreeBins(plain, NULL, NULL, NULL, NULL);
+            wolfCLU_freeBins(plain, NULL, NULL, NULL, NULL);
             return MEMORY_E;
         }
         key = XMALLOC(CAM_SZ, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
         if (key == NULL) {
-            wolfsslFreeBins(plain, cipher, NULL, NULL, NULL);
+            wolfCLU_freeBins(plain, cipher, NULL, NULL, NULL);
             return MEMORY_E;
         }
         iv = XMALLOC(CAM_SZ, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
         if (iv == NULL) {
-            wolfsslFreeBins(plain, cipher, key, NULL, NULL);
+            wolfCLU_freeBins(plain, cipher, key, NULL, NULL);
             return MEMORY_E;
         }
 
@@ -251,25 +251,25 @@ int wolfsslBenchmark(int timer, int* option)
         wc_RNG_GenerateBlock(&rng, key, CAMELLIA_BLOCK_SIZE);
         wc_RNG_GenerateBlock(&rng, iv, CAMELLIA_BLOCK_SIZE);
 
-        start = wolfsslGetTime();
+        start = wolfCLU_getTime();
         alarm(timer);
 
         wc_CamelliaSetKey(&camellia, key, CAMELLIA_BLOCK_SIZE, iv);
         while (loop) {
             wc_CamelliaCbcEncrypt(&camellia, cipher, plain, CAMELLIA_BLOCK_SIZE);
             blocks++;
-            currTime = wolfsslGetTime();
+            currTime = wolfCLU_getTime();
             stop = currTime - start;
             /* if stop >= timer, loop = 0 */
             loop = (stop >= timer) ? 0 : 1;
         }
         printf("Camellia ");
-        wolfsslStats(start, CAMELLIA_BLOCK_SIZE, blocks);
+        wolfCLU_stats(start, CAMELLIA_BLOCK_SIZE, blocks);
         XMEMSET(plain, 0, CAMELLIA_BLOCK_SIZE);
         XMEMSET(cipher, 0, CAMELLIA_BLOCK_SIZE);
         XMEMSET(key, 0, CAMELLIA_BLOCK_SIZE);
         XMEMSET(iv, 0, CAMELLIA_BLOCK_SIZE);
-        wolfsslFreeBins(plain, cipher, key, iv, NULL);
+        wolfCLU_freeBins(plain, cipher, key, iv, NULL);
         blocks = 0;
         loop = 1;
     }
@@ -285,29 +285,29 @@ int wolfsslBenchmark(int timer, int* option)
             return MEMORY_E;
         plain = XMALLOC(MEGABYTE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
         if (plain == NULL) {
-            wolfsslFreeBins(digest, NULL, NULL, NULL, NULL);
+            wolfCLU_freeBins(digest, NULL, NULL, NULL, NULL);
             return MEMORY_E;
         }
         wc_RNG_GenerateBlock(&rng, plain, MEGABYTE);
 
         wc_InitMd5(&md5);
-        start = wolfsslGetTime();
+        start = wolfCLU_getTime();
         alarm(timer);
 
         while (loop) {
             wc_Md5Update(&md5, plain, MEGABYTE);
             blocks++;
-            currTime = wolfsslGetTime();
+            currTime = wolfCLU_getTime();
             stop = currTime - start;
             /* if stop >= timer, loop = 0 */
             loop = (stop >= timer) ? 0 : 1;
         }
         wc_Md5Final(&md5, digest);
         printf("MD5 ");
-        wolfsslStats(start, MEGABYTE, blocks);
+        wolfCLU_stats(start, MEGABYTE, blocks);
         XMEMSET(plain, 0, MEGABYTE);
         XMEMSET(digest, 0, MD5_DIGEST_SIZE);
-        wolfsslFreeBins(digest, plain, NULL, NULL, NULL);
+        wolfCLU_freeBins(digest, plain, NULL, NULL, NULL);
         blocks = 0;
         loop = 1;
     }
@@ -323,29 +323,29 @@ int wolfsslBenchmark(int timer, int* option)
             return MEMORY_E;
         plain = XMALLOC(MEGABYTE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
         if (plain == NULL) {
-            wolfsslFreeBins(digest, NULL, NULL, NULL, NULL);
+            wolfCLU_freeBins(digest, NULL, NULL, NULL, NULL);
             return MEMORY_E;
         }
         wc_RNG_GenerateBlock(&rng, plain, MEGABYTE);
 
         wc_InitSha(&sha);
-        start = wolfsslGetTime();
+        start = wolfCLU_getTime();
         alarm(timer);
 
         while (loop) {
             wc_ShaUpdate(&sha, plain, MEGABYTE);
             blocks++;
-            currTime = wolfsslGetTime();
+            currTime = wolfCLU_getTime();
             stop = currTime - start;
             /* if stop >= timer, loop = 0 */
             loop = (stop >= timer) ? 0 : 1;
         }
         wc_ShaFinal(&sha, digest);
         printf("Sha ");
-        wolfsslStats(start, MEGABYTE, blocks);
+        wolfCLU_stats(start, MEGABYTE, blocks);
         XMEMSET(plain, 0, MEGABYTE);
         XMEMSET(digest, 0, SHA_DIGEST_SIZE);
-        wolfsslFreeBins(plain, digest, NULL, NULL, NULL);
+        wolfCLU_freeBins(plain, digest, NULL, NULL, NULL);
         blocks = 0;
         loop = 1;
     }
@@ -362,30 +362,30 @@ int wolfsslBenchmark(int timer, int* option)
             return MEMORY_E;
         plain = XMALLOC(MEGABYTE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
         if (plain == NULL) {
-            wolfsslFreeBins(digest, NULL, NULL, NULL, NULL);
+            wolfCLU_freeBins(digest, NULL, NULL, NULL, NULL);
             return MEMORY_E;
         }
 
         wc_RNG_GenerateBlock(&rng, plain, MEGABYTE);
 
         wc_InitSha256(&sha256);
-        start = wolfsslGetTime();
+        start = wolfCLU_getTime();
         alarm(timer);
 
         while (loop) {
             wc_Sha256Update(&sha256, plain, MEGABYTE);
             blocks++;
-            currTime = wolfsslGetTime();
+            currTime = wolfCLU_getTime();
             stop = currTime - start;
             /* if stop >= timer, loop = 0 */
             loop = (stop >= timer) ? 0 : 1;
         }
         wc_Sha256Final(&sha256, digest);
         printf("Sha256 ");
-        wolfsslStats(start, MEGABYTE, blocks);
+        wolfCLU_stats(start, MEGABYTE, blocks);
         XMEMSET(plain, 0, MEGABYTE);
         XMEMSET(digest, 0, SHA256_DIGEST_SIZE);
-        wolfsslFreeBins(plain, digest, NULL, NULL, NULL);
+        wolfCLU_freeBins(plain, digest, NULL, NULL, NULL);
         /* resets used for debug, uncomment if needed */
         blocks = 0;
         loop = 1;
@@ -403,30 +403,30 @@ int wolfsslBenchmark(int timer, int* option)
             return MEMORY_E;
         plain = XMALLOC(MEGABYTE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
         if (plain == NULL) {
-            wolfsslFreeBins(digest, NULL, NULL, NULL, NULL);
+            wolfCLU_freeBins(digest, NULL, NULL, NULL, NULL);
             return MEMORY_E;
         }
 
         wc_RNG_GenerateBlock(&rng, plain, MEGABYTE);
 
         wc_InitSha384(&sha384);
-        start = wolfsslGetTime();
+        start = wolfCLU_getTime();
         alarm(timer);
 
         while (loop) {
             wc_Sha384Update(&sha384, plain, MEGABYTE);
             blocks++;
-            currTime = wolfsslGetTime();
+            currTime = wolfCLU_getTime();
             stop = currTime - start;
             /* if stop >= timer, loop = 0 */
             loop = (stop >= timer) ? 0 : 1;
         }
         wc_Sha384Final(&sha384, digest);
         printf("Sha384 ");
-        wolfsslStats(start, MEGABYTE, blocks);
+        wolfCLU_stats(start, MEGABYTE, blocks);
         XMEMSET(plain, 0, MEGABYTE);
         XMEMSET(digest, 0, SHA384_DIGEST_SIZE);
-        wolfsslFreeBins(plain, digest, NULL, NULL, NULL);
+        wolfCLU_freeBins(plain, digest, NULL, NULL, NULL);
         blocks = 0;
         loop = 1;
     }
@@ -443,30 +443,30 @@ int wolfsslBenchmark(int timer, int* option)
             return MEMORY_E;
         plain = XMALLOC(MEGABYTE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
         if (plain == NULL) {
-            wolfsslFreeBins(digest, NULL, NULL, NULL, NULL);
+            wolfCLU_freeBins(digest, NULL, NULL, NULL, NULL);
             return MEMORY_E;
         }
 
         wc_RNG_GenerateBlock(&rng, plain, MEGABYTE);
 
         wc_InitSha512(&sha512);
-        start = wolfsslGetTime();
+        start = wolfCLU_getTime();
         alarm(timer);
 
         while (loop) {
             wc_Sha512Update(&sha512, plain, MEGABYTE);
             blocks++;
-            currTime = wolfsslGetTime();
+            currTime = wolfCLU_getTime();
             stop = currTime - start;
             /* if stop >= timer, loop = 0 */
             loop = (stop >= timer) ? 0 : 1;
         }
         wc_Sha512Final(&sha512, digest);
         printf("Sha512 ");
-        wolfsslStats(start, MEGABYTE, blocks);
+        wolfCLU_stats(start, MEGABYTE, blocks);
         XMEMSET(plain, 0, MEGABYTE);
         XMEMSET(digest, 0, SHA512_DIGEST_SIZE);
-        wolfsslFreeBins(plain, digest, NULL, NULL, NULL);
+        wolfCLU_freeBins(plain, digest, NULL, NULL, NULL);
         blocks = 0;
         loop = 1;
     }
@@ -482,30 +482,30 @@ int wolfsslBenchmark(int timer, int* option)
             return MEMORY_E;
         plain = XMALLOC(MEGABYTE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
         if (plain == NULL) {
-            wolfsslFreeBins(digest, NULL, NULL, NULL, NULL);
+            wolfCLU_freeBins(digest, NULL, NULL, NULL, NULL);
             return MEMORY_E;
         }
 
         wc_RNG_GenerateBlock(&rng, plain, MEGABYTE);
 
         wc_InitBlake2b(&b2b, BLAKE_DIGEST_SIZE);
-        start = wolfsslGetTime();
+        start = wolfCLU_getTime();
         alarm(timer);
 
         while (loop) {
             wc_Blake2bUpdate(&b2b, plain, MEGABYTE);
             blocks++;
-            currTime = wolfsslGetTime();
+            currTime = wolfCLU_getTime();
             stop = currTime - start;
             /* if stop >= timer, loop = 0 */
             loop = (stop >= timer) ? 0 : 1;
         }
         wc_Blake2bFinal(&b2b, digest, BLAKE_DIGEST_SIZE);
         printf("Blake2b ");
-        wolfsslStats(start, MEGABYTE, blocks);
+        wolfCLU_stats(start, MEGABYTE, blocks);
         XMEMSET(plain, 0, MEGABYTE);
         XMEMSET(digest, 0, BLAKE_DIGEST_SIZE);
-        wolfsslFreeBins(digest, plain, NULL, NULL, NULL);
+        wolfCLU_freeBins(digest, plain, NULL, NULL, NULL);
     }
 #endif
     return ret;

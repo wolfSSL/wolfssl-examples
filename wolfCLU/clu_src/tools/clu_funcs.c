@@ -33,7 +33,7 @@ int     i          =   0;       /* loop variable */
 /*
  * generic help function
  */
- void wolfsslHelp()
+ void wolfCLU_help()
  {  printf("\n");
     printf("-help           Help, print out this help menu\n");
     printf("\n");
@@ -65,7 +65,7 @@ int     i          =   0;       /* loop variable */
 /*
  * verbose help function
  */
-void wolfsslVerboseHelp()
+void wolfCLU_verboseHelp()
 {
     printf("\nwolfssl Command Line Utility version %3.1f\n\n", VERSION);
 
@@ -131,7 +131,7 @@ void wolfsslVerboseHelp()
 #endif
     };
 
-    wolfsslHelp();
+    wolfCLU_help();
 
     printf("Available En/De crypt Algorithms with current configure "
         "settings.\n\n");
@@ -165,7 +165,7 @@ void wolfsslVerboseHelp()
 /*
  * Encrypt Usage
  */
-void wolfsslEncryptHelp()
+void wolfCLU_encryptHelp()
 {
     printf("\nAvailable En/De crypt Algorithms with current configure "
             "settings.\n\n");
@@ -193,7 +193,7 @@ void wolfsslEncryptHelp()
 /*
  * Decrypt Usage
  */
-void wolfsslDecryptHelp()
+void wolfCLU_decryptHelp()
 {
     printf("\nAvailable En/De crypt Algorithms with current configure "
             "settings.\n\n");
@@ -221,7 +221,7 @@ void wolfsslDecryptHelp()
 /*
  * Hash Usage
  */
-void wolfsslHashHelp()
+void wolfCLU_hashHelp()
 {
     printf("\n");
     /* hash options */
@@ -266,7 +266,7 @@ void wolfsslHashHelp()
 /*
  * Benchmark Usage
  */
-void wolfsslBenchHelp()
+void wolfCLU_benchHelp()
 {
     printf("\n");
 
@@ -322,7 +322,7 @@ void wolfsslBenchHelp()
 /*
  * finds algorithm for encryption/decryption
  */
-int wolfsslGetAlgo(char* name, char** alg, char** mode, int* size)
+int wolfCLU_getAlgo(char* name, char** alg, char** mode, int* size)
 {
     int     ret         = 0;        /* return variable */
     int     nameCheck   = 0;        /* check for acceptable name */
@@ -410,7 +410,7 @@ int wolfsslGetAlgo(char* name, char** alg, char** mode, int* size)
 /*
  * makes a cyptographically secure key by stretching a user entered pwdKey
  */
-int wolfsslGenKey(RNG* rng, byte* pwdKey, int size, byte* salt, int pad)
+int wolfCLU_genKey(RNG* rng, byte* pwdKey, int size, byte* salt, int pad)
 {
     int ret;        /* return variable */
 
@@ -439,7 +439,7 @@ int wolfsslGenKey(RNG* rng, byte* pwdKey, int size, byte* salt, int pad)
 /*
  * secure data entry by turning off key echoing in the terminal
  */
-int wolfsslNoEcho(char* pwdKey, int size)
+int wolfCLU_noEcho(char* pwdKey, int size)
 {
     struct termios oflags, nflags;
     char* success;
@@ -478,7 +478,7 @@ int wolfsslNoEcho(char* pwdKey, int size)
 /*
  * adds character to end of string
  */
-void wolfsslAppend(char* s, char c)
+void wolfCLU_append(char* s, char c)
 {
     int len = (int) strlen(s); /* length of string*/
 
@@ -489,7 +489,7 @@ void wolfsslAppend(char* s, char c)
 /*
  * resets benchmarking loop
  */
-void wolfsslStop(int signo)
+void wolfCLU_stop(int signo)
 {
     (void) signo; /* type cast to void for unused variable */
     loop = 0;
@@ -498,7 +498,7 @@ void wolfsslStop(int signo)
 /*
  * gets current time durring program execution
  */
-double wolfsslGetTime(void)
+double wolfCLU_getTime(void)
 {
     struct timeval tv;
 
@@ -510,10 +510,10 @@ double wolfsslGetTime(void)
 /*
  * prints out stats for benchmarking
  */
-void wolfsslStats(double start, int blockSize, int64_t blocks)
+void wolfCLU_stats(double start, int blockSize, int64_t blocks)
 {
     double mbs;
-    double time_total = wolfsslGetTime() - start;
+    double time_total = wolfCLU_getTime() - start;
 
     printf("took %6.3f seconds, blocks = %llu\n", time_total,
             (unsigned long long)blocks);
@@ -526,7 +526,7 @@ void wolfsslStats(double start, int blockSize, int64_t blocks)
         printf("Benchmarked using 1 Megabyte at a time\n\n");
 }
 
-void wolfsslVersion()
+void wolfCLU_version()
 {
     printf("\nYou are using version %s of the wolfssl Command Line Utility.\n\n"
         , LIBWOLFSSL_VERSION_STRING);

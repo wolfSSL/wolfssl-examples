@@ -24,7 +24,7 @@
 #define SALT_SIZE       8
 #define MAX             1024
 
-int wolfsslDecrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size, 
+int wolfCLU_decrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size, 
         char* in, char* out, byte* iv, int block, int keyType)
 {
 #ifndef NO_AES
@@ -90,7 +90,7 @@ int wolfsslDecrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
         return MEMORY_E;
     output = (byte*) XMALLOC(MAX, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
     if (output == NULL) {
-        wolfsslFreeBins(input, NULL, NULL, NULL, NULL);
+        wolfCLU_freeBins(input, NULL, NULL, NULL, NULL);
     }
 
     wc_InitRng(&rng);
@@ -104,13 +104,13 @@ int wolfsslDecrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
         if (currLoopFlag == 1) {
             if ( (int) fread (salt, 1, SALT_SIZE, inFile) != SALT_SIZE) {
                 printf("Error reading salt.\n");
-                wolfsslFreeBins(input, output, NULL, NULL, NULL);
+                wolfCLU_freeBins(input, output, NULL, NULL, NULL);
                 return FREAD_ERROR;
             }
 
             if ( (int) fread (iv, 1, block, inFile) != block) {
                 printf("Error reading salt.\n");
-                wolfsslFreeBins(input, output, NULL, NULL, NULL);
+                wolfCLU_freeBins(input, output, NULL, NULL, NULL);
                 return FREAD_ERROR;
             } 
             /* replicates old pwdKey if pwdKeys match */
@@ -118,7 +118,7 @@ int wolfsslDecrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
                 if (wc_PBKDF2(key, pwdKey, (int) strlen((const char*)pwdKey), salt, 
                             SALT_SIZE, 4096, size, SHA256) != 0) {
                     printf("pwdKey set error.\n");
-                    wolfsslFreeBins(input, output, NULL, NULL, NULL);
+                    wolfCLU_freeBins(input, output, NULL, NULL, NULL);
                     return ENCRYPT_ERROR;
                 }
             }
@@ -135,7 +135,7 @@ int wolfsslDecrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
                 }
                 if (keyVerify == 0) {
                     printf("the key is all zero's or not set.\n");
-                    wolfsslFreeBins(input, output, NULL, NULL, NULL);
+                    wolfCLU_freeBins(input, output, NULL, NULL, NULL);
                     return ENCRYPT_ERROR;
                 } 
             }
@@ -148,7 +148,7 @@ int wolfsslDecrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
             }
             else {
                 printf("Input file does not exist.\n");
-                wolfsslFreeBins(input, output, NULL, NULL, NULL);
+                wolfCLU_freeBins(input, output, NULL, NULL, NULL);
                 return FREAD_ERROR;
             }
         }
@@ -161,14 +161,14 @@ int wolfsslDecrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
                 if (ret != 0) {
                     fclose(inFile);
                     fclose(outFile);
-                    wolfsslFreeBins(input, output, NULL, NULL, NULL);
+                    wolfCLU_freeBins(input, output, NULL, NULL, NULL);
                     return ret;
                 }
                 ret = wc_AesCbcDecrypt(&aes, output, input, tempMax);
                 if (ret != 0) {
                     fclose(inFile);
                     fclose(outFile);
-                    wolfsslFreeBins(input, output, NULL, NULL, NULL);
+                    wolfCLU_freeBins(input, output, NULL, NULL, NULL);
                     return DECRYPT_ERROR;
                 }
             }  
@@ -187,14 +187,14 @@ int wolfsslDecrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
             if (ret != 0) {
                 fclose(inFile);
                 fclose(outFile);
-                wolfsslFreeBins(input, output, NULL, NULL, NULL);
+                wolfCLU_freeBins(input, output, NULL, NULL, NULL);
                 return ret;
             }
             ret = wc_Des3_CbcDecrypt(&des3, output, input, tempMax);
             if (ret != 0){
                 fclose(inFile);
                 fclose(outFile);
-                wolfsslFreeBins(input, output, NULL, NULL, NULL);
+                wolfCLU_freeBins(input, output, NULL, NULL, NULL);
                 return DECRYPT_ERROR;
             }
         }
@@ -205,7 +205,7 @@ int wolfsslDecrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
             if (ret != 0) {
                 fclose(inFile);
                 fclose(outFile);
-                wolfsslFreeBins(input, output, NULL, NULL, NULL);
+                wolfCLU_freeBins(input, output, NULL, NULL, NULL);
                 return ret;
             }
             wc_CamelliaCbcDecrypt(&camellia, output, input, tempMax);
@@ -241,7 +241,7 @@ int wolfsslDecrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
     /* closes the opened files and frees memory */
     XMEMSET(input, 0, MAX);
     XMEMSET (output, 0, MAX);
-    wolfsslFreeBins(input, output, NULL, NULL, NULL);
+    wolfCLU_freeBins(input, output, NULL, NULL, NULL);
     XMEMSET(key, 0, size);
     /* Use the wolfssl wc_FreeRng to free rng */
     wc_FreeRng(&rng);

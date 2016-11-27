@@ -34,7 +34,7 @@ enum {
     NOOUT_SET    = 5,
 };
 
-int wolfsslCertSetup(int argc, char** argv)
+int wolfCLU_certSetup(int argc, char** argv)
 {
     int i, ret;
     int text_flag    = 0;   /* does user desire human readable cert info */
@@ -59,10 +59,10 @@ int wolfsslCertSetup(int argc, char** argv)
 /* help */
 /*---------------------------------------------------------------------------*/
         if (XSTRNCMP(argv[i], "-help", 5) == 0) {
-            wolfsslCertHelp();
+            wolfCLU_certHelp();
             return 0;
         } else if (XSTRNCMP(argv[i], "-h", 2) == 0) {
-            wolfsslCertHelp();
+            wolfCLU_certHelp();
             return 0;
 /*---------------------------------------------------------------------------*/
 /* inform pem/der/??OTHER?? */
@@ -182,25 +182,25 @@ int wolfsslCertSetup(int argc, char** argv)
         case INPEM_OUTPEM:
             ret = 0;
             printf("run inpem outpem\n");
-            if (infile_flag) wolfCLU_inpem_outpem(infile, outfile, silent_flag);
+            if (infile_flag) wolfCLU_inpemOutpem(infile, outfile, silent_flag);
             else return INPUT_FILE_ERROR;
             break;
         case INPEM_OUTDER:
             ret = 0;
             printf("run inpem outder\n");
-            if (infile_flag) wolfCLU_inpem_outder(infile, outfile, silent_flag);
+            if (infile_flag) wolfCLU_inpemOutder(infile, outfile, silent_flag);
             else return INPUT_FILE_ERROR;
             break;
         case INDER_OUTPEM:
             ret = 0;
             printf("run inder outpem\n");
-            if (infile_flag) wolfCLU_inder_outpem(infile, outfile, silent_flag);
+            if (infile_flag) wolfCLU_inderOutpem(infile, outfile, silent_flag);
             else return INPUT_FILE_ERROR;
             break;
         case INDER_OUTDER:
             ret = 0;
             printf("run inder outder\n");
-            if (infile_flag) wolfCLU_inder_outder(infile, outfile, silent_flag);
+            if (infile_flag) wolfCLU_inderOutder(infile, outfile, silent_flag);
             else return INPUT_FILE_ERROR;
             break;
         case NOOUT_SET:
@@ -216,7 +216,7 @@ int wolfsslCertSetup(int argc, char** argv)
 }
 
 
-void wolfsslCertHelp()
+void wolfCLU_certHelp()
 {
     printf("\n\n\nThis would be the certificate help.\n\n\n");
 }

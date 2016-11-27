@@ -24,7 +24,7 @@
 /*
  * hash argument function
  */
-int wolfsslHashSetup(int argc, char** argv)
+int wolfCLU_hashSetup(int argc, char** argv)
 {
     int     ret        =   0;   /* return variable, counter */
     int     i          =   0;   /* loop variable */
@@ -68,12 +68,12 @@ int wolfsslHashSetup(int argc, char** argv)
 
     /* help checking */
     if (argc == 2) {
-        wolfsslHashHelp();
+        wolfCLU_hashHelp();
         return 0;
     }
     for (i = 2; i < argc; i++) {
         if (strcmp(argv[i], "-help") == 0) {
-            wolfsslHashHelp();
+            wolfCLU_hashHelp();
             return 0;
         }
     }
@@ -156,7 +156,7 @@ int wolfsslHashSetup(int argc, char** argv)
 #endif
 
     /* hashing function */
-    ret = wolfsslHash(in, out, alg, size);
+    ret = wolfCLU_hash(in, out, alg, size);
 
     XFREE(in, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
     free(in);

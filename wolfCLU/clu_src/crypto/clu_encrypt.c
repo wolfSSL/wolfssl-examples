@@ -24,7 +24,7 @@
 #define SALT_SIZE       8
 #define MAX             1024
 
-int wolfsslEncrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
+int wolfCLU_encrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
         char* in, char* out, byte* iv, int block, int ivCheck, int inputHex)
 {
 #ifndef NO_AES
@@ -122,8 +122,8 @@ int wolfsslEncrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
             return ret;
         }
 
-        /* stretches pwdKey to fit size based on wolfsslGetAlgo() */
-        ret = wolfsslGenKey(&rng, pwdKey, size, salt, padCounter);
+        /* stretches pwdKey to fit size based on wolfCLU_getAlgo() */
+        ret = wolfCLU_genKey(&rng, pwdKey, size, salt, padCounter);
 
         if (ret != 0) {
             printf("failed to set pwdKey.\n");
@@ -147,7 +147,7 @@ int wolfsslEncrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
         return MEMORY_E;
     output = (byte*) XMALLOC(MAX, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
     if (output == NULL) {
-        wolfsslFreeBins(input, NULL, NULL, NULL, NULL);
+        wolfCLU_freeBins(input, NULL, NULL, NULL, NULL);
         return MEMORY_E;
     }
 
@@ -165,7 +165,7 @@ int wolfsslEncrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
 
                 /* hex or ascii */
                 if (inputHex == 1) {
-                    hexRet = wolfsslHexToBin(inputString, &input,
+                    hexRet = wolfCLU_hexToBin(inputString, &input,
                                                 &tempInputL,
                                                 NULL, NULL, NULL,
                                                 NULL, NULL, NULL,
@@ -185,7 +185,7 @@ int wolfsslEncrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
                 tempMax = ret + padCounter;
             }
             else { /* otherwise we got a file read error */
-                wolfsslFreeBins(input, output, NULL, NULL, NULL);
+                wolfCLU_freeBins(input, output, NULL, NULL, NULL);
                 return FREAD_ERROR;
             }/* End feof check */
         }/* End fread check */
@@ -197,13 +197,13 @@ int wolfsslEncrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
                 ret = wc_AesSetKey(&aes, key, AES_BLOCK_SIZE, iv, AES_ENCRYPTION);
                 if (ret != 0) {
                     printf("wc_AesSetKey failed.\n");
-                    wolfsslFreeBins(input, output, NULL, NULL, NULL);
+                    wolfCLU_freeBins(input, output, NULL, NULL, NULL);
                     return ret;
                 }
                 ret = wc_AesCbcEncrypt(&aes, output, input, tempMax);
                 if (ret != 0) {
                     printf("wc_AesCbcEncrypt failed.\n");
-                    wolfsslFreeBins(input, output, NULL, NULL, NULL);
+                    wolfCLU_freeBins(input, output, NULL, NULL, NULL);
                     return ENCRYPT_ERROR;
                 }
             }
@@ -221,13 +221,13 @@ int wolfsslEncrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
             ret = wc_Des3_SetKey(&des3, key, iv, DES_ENCRYPTION);
             if (ret != 0) {
                 printf("wc_Des3_SetKey failed.\n");
-                wolfsslFreeBins(input, output, NULL, NULL, NULL);
+                wolfCLU_freeBins(input, output, NULL, NULL, NULL);
                 return ret;
             }
             ret = wc_Des3_CbcEncrypt(&des3, output, input, tempMax);
             if (ret != 0) {
                 printf("wc_Des3_cbcEncrypt failed.\n");
-                wolfsslFreeBins(input, output, NULL, NULL, NULL);
+                wolfCLU_freeBins(input, output, NULL, NULL, NULL);
                 return ENCRYPT_ERROR;
             }
         }
@@ -237,7 +237,7 @@ int wolfsslEncrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
             ret = wc_CamelliaSetKey(&camellia, key, block, iv);
             if (ret != 0) {
                 printf("CamelliaSetKey failed.\n");
-                wolfsslFreeBins(input, output, NULL, NULL, NULL);
+                wolfCLU_freeBins(input, output, NULL, NULL, NULL);
                 return ret;
             }
             if (XSTRNCMP(mode, "cbc", 3) == 0) {
@@ -245,7 +245,7 @@ int wolfsslEncrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
             }
             else {
                 printf("Incompatible mode while using Camellia.\n");
-                wolfsslFreeBins(input, output, NULL, NULL, NULL);
+                wolfCLU_freeBins(input, output, NULL, NULL, NULL);
                 return FATAL_ERROR;
             }
         }
@@ -277,7 +277,7 @@ int wolfsslEncrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
                 XMEMSET(input, 0, tempMax);
             if (output != NULL)
                 XMEMSET(output, 0, tempMax);
-            wolfsslFreeBins(input, output, NULL, NULL, NULL);
+            wolfCLU_freeBins(input, output, NULL, NULL, NULL);
             return FWRITE_ERROR;
         }
         if (ret > MAX) {
@@ -286,7 +286,7 @@ int wolfsslEncrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
                 XMEMSET(input, 0, tempMax);
             if (output != NULL)
                 XMEMSET(output, 0, tempMax);
-            wolfsslFreeBins(input, output, NULL, NULL, NULL);
+            wolfCLU_freeBins(input, output, NULL, NULL, NULL);
             return FWRITE_ERROR;
         }
         /* close the outFile */
@@ -309,6 +309,6 @@ int wolfsslEncrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
     XMEMSET(mode, 0 , block);
     /* Use the wolfssl free for rng */
     wc_FreeRng(&rng);
-    wolfsslFreeBins(input, output, NULL, NULL, NULL);
+    wolfCLU_freeBins(input, output, NULL, NULL, NULL);
     return 0;
 }

@@ -94,53 +94,53 @@
  *
  * @param argc holds all command line input
  * @param argv each holds one value from the command line input
- * @param action forwarded from wolfsslMain (-e, -d, -h, or -b)
+ * @param action forwarded from wolfCLU_main (-e, -d, -h, or -b)
  */
-int wolfsslSetup(int argc, char** argv, char action);
+int wolfCLU_setup(int argc, char** argv, char action);
 
 /* hash argument function
  *
  * @param argc holds all command line input
  * @param argv each holds one value from the command line input
  */
-int wolfsslHashSetup(int argc, char** argv);
+int wolfCLU_hashSetup(int argc, char** argv);
 
 /* benchmark argument function
  *
  * @param argc holds all command line input
  * @param argv each holds one value from the command line input
  */
-int wolfsslBenchSetup(int argc, char** argv);
+int wolfCLU_benchSetup(int argc, char** argv);
 
 /* 
  * generic help function 
  */
-void wolfsslHelp(void);
+void wolfCLU_help(void);
 
 /* 
  * verbose help function 
  */
-void wolfsslVerboseHelp(void);
+void wolfCLU_verboseHelp(void);
 
 /* 
  * encrypt help function 
  */
-void wolfsslEncryptHelp(void);
+void wolfCLU_encryptHelp(void);
 
 /* 
  * decrypt help function
  */
-void wolfsslDecryptHelp(void);
+void wolfCLU_decryptHelp(void);
 
 /* 
  * hash help function 
  */
-void wolfsslHashHelp(void);
+void wolfCLU_hashHelp(void);
 
 /* 
  * benchmark help function
  */
-void wolfsslBenchHelp(void);
+void wolfCLU_benchHelp(void);
 
 /* find algorithm for encryption/decryption 
  * 
@@ -149,40 +149,40 @@ void wolfsslBenchHelp(void);
  * @param mode the mode as set by the user (cbc or ctr)
  * @param size set based on the algorithm specified
  */
-int wolfsslGetAlgo(char* name, char** alg, char** mode, int* size);
+int wolfCLU_getAlgo(char* name, char** alg, char** mode, int* size);
 
 /* generates key based on password provided 
  * 
  * @param rng the random number generator
  * @param pwdKey the password based key as provided by the user
- * @param size size as determined by wolfsslGetAlgo
+ * @param size size as determined by wolfCLU_GetAlgo
  * @param salt the buffer to store the resulting salt after it's generated
  * @param pad a flag to let us know if there are padded bytes or not
  */
-int wolfsslGenKey(RNG* rng, byte* pwdKey, int size, byte* salt, int pad);
+int wolfCLU_genKey(RNG* rng, byte* pwdKey, int size, byte* salt, int pad);
 
 /* secure entry of password 
  *
  * @param pwdKey the password provide by the user
- * @param size the size as determnined by wolfsslGetAlgo
+ * @param size the size as determnined by wolfCLU_GetAlgo
  */
-int wolfsslNoEcho(char* pwdKey, int size);
+int wolfCLU_noEcho(char* pwdKey, int size);
 
 /* adds characters to end of string
  *
  * @param s the char array we'll be appending to
  * @param c the char that will be appended to s
  */
-void wolfsslAppend(char* s, char c);
+void wolfCLU_append(char* s, char c);
 
 /* interrupt function
  *
  * @param signo gets type cast to void, interrupts the loop.
  */
-void wolfsslStop(int signo);
+void wolfCLU_stop(int signo);
 
 /* finds current time during runtime */
-double wolfsslGetTime(void);
+double wolfCLU_getTime(void);
 
 /* A function to convert from Hex to Binary
  *
@@ -199,7 +199,7 @@ double wolfsslGetTime(void);
  * @param b3Sz a word32 that will be set after conversion of b3, can be NULL
  * @param b4Sz a word32 that will be set after conversion of b4, can be NULL
  */
-int wolfsslHexToBin(const char* h1, byte** b1, word32* b1Sz,
+int wolfCLU_hexToBin(const char* h1, byte** b1, word32* b1Sz,
                     const char* h2, byte** b2, word32* b2Sz,
                     const char* h3, byte** b3, word32* b3Sz,
                     const char* h4, byte** b4, word32* b4Sz);
@@ -212,14 +212,14 @@ int wolfsslHexToBin(const char* h1, byte** b1, word32* b1Sz,
  * @param b4 a buffer to be freed, can be set to NULL
  * @param b5 a buffer to be freed, can be set to NULL
  */
-void wolfsslFreeBins(byte* b1, byte* b2, byte* b3, byte* b4, byte* b5);
+void wolfCLU_freeBins(byte* b1, byte* b2, byte* b3, byte* b4, byte* b5);
 
 /* function to display stats results from benchmark
  *
  * @param start the time when the benchmark was started
  * @param blockSize the block size of the algorithm being benchmarked
  */
-void wolfsslStats(double start, int blockSize, int64_t blocks);
+void wolfCLU_stats(double start, int blockSize, int64_t blocks);
 
 /* encryption function
  *
@@ -230,7 +230,7 @@ void wolfsslStats(double start, int blockSize, int64_t blocks);
  * @param pwdKey this is the user provided password to be used as the key
  * @param key if entered must be in hex, can be used to verify encryption with
  *            nist test vectors.
- * @param size this is set by wolfsslGetAlgo and is used to stretch the password
+ * @param size this is set by wolfCLU_GetAlgo and is used to stretch the password
  * @param in the filename or user input from command line
  * @param out the filename to output following en/de cryption
  * @param iv if entered must be in hex otherwise generated at run time
@@ -238,7 +238,7 @@ void wolfsslStats(double start, int blockSize, int64_t blocks);
  * @param ivCheck a flag if user inputs a specific IV
  * @param inputHex a flag to specify encrypting hex data, instead of byte data
  */
-int wolfsslEncrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size, 
+int wolfCLU_encrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size, 
 								char* in, char* out, byte* iv, int block, 
                                 int ivCheck, int inputHex);
 
@@ -251,7 +251,7 @@ int wolfsslEncrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
  * @param pwdKey this is the user provided password to be used as the key
  * @param key if entered must be in hex, can be used to verify encryption with
  *            nist test vectors.
- * @param size this is set by wolfsslGetAlgo and is used to stretch the password
+ * @param size this is set by wolfCLU_GetAlgo and is used to stretch the password
  * @param in the filename or user input from command line
  * @param out the filename to output following en/de cryption
  * @param iv if entered must be in hex otherwise generated at run time
@@ -259,7 +259,7 @@ int wolfsslEncrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
  * @param keyType let's decrypt know if it's using a password based key or a 
  *        hexidecimal, user specified key.
  */
-int wolfsslDecrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size, 
+int wolfCLU_decrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size, 
 						char* in, char* out, byte* iv, int block, int keyType);
 
 /* benchmarking function 
@@ -267,7 +267,7 @@ int wolfsslDecrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
  * @param timer a timer to be started and stopped for benchmarking purposes
  * @param option a flag to allow benchmark execution
  */
-int wolfsslBenchmark(int timer, int* option);
+int wolfCLU_benchmark(int timer, int* option);
 
 /* hashing function 
  *
@@ -277,11 +277,11 @@ int wolfsslBenchmark(int timer, int* option);
  * @param alg
  * @param size
  */
-int wolfsslHash(char* in, char* out, char* alg, int size);
+int wolfCLU_hash(char* in, char* out, char* alg, int size);
 /*
  * get the current Version
  */
-void wolfsslVersion(void);
+void wolfCLU_version(void);
 #endif
 
 #endif /* _WOLFSSL_CLU_HEADER_ */

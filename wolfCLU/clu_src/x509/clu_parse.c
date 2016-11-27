@@ -33,35 +33,35 @@ enum {
     DER = 1,
 };
 
-int wolfCLU_inpem_outpem(char* infile, char* outfile, int silent_flag)
+int wolfCLU_inpemOutpem(char* infile, char* outfile, int silent_flag)
 {
     int ret;
-    ret = wolfCLU_parse_file(infile, PEM, outfile, PEM, silent_flag);
+    ret = wolfCLU_parseFile(infile, PEM, outfile, PEM, silent_flag);
     return ret;
 }
 
-int wolfCLU_inpem_outder(char* infile, char* outfile, int silent_flag)
+int wolfCLU_inpemOutder(char* infile, char* outfile, int silent_flag)
 {
     int ret;
-    ret = wolfCLU_parse_file(infile, PEM, outfile, DER, silent_flag);
+    ret = wolfCLU_parseFile(infile, PEM, outfile, DER, silent_flag);
     return ret;
 }
 
-int wolfCLU_inder_outpem(char* infile, char* outfile, int silent_flag)
+int wolfCLU_inderOutpem(char* infile, char* outfile, int silent_flag)
 {
     int ret;
-    ret = wolfCLU_parse_file(infile, DER, outfile, PEM, silent_flag);
+    ret = wolfCLU_parseFile(infile, DER, outfile, PEM, silent_flag);
     return ret;
 }
 
-int wolfCLU_inder_outder(char* infile, char* outfile, int silent_flag)
+int wolfCLU_inderOutder(char* infile, char* outfile, int silent_flag)
 {
     int ret;
-    ret = wolfCLU_parse_file(infile, DER, outfile, DER, silent_flag);
+    ret = wolfCLU_parseFile(infile, DER, outfile, DER, silent_flag);
     return ret;
 }
 
-int wolfCLU_parse_file(char* infile, int inform, char* outfile, int outform,
+int wolfCLU_parseFile(char* infile, int inform, char* outfile, int outform,
                                                                 int silent_flag)
 {
     int i, ret, inBufSz, outBufSz;
@@ -113,7 +113,7 @@ int wolfCLU_parse_file(char* infile, int inform, char* outfile, int outform,
         outBufSz = wc_DerToPem(inBuf, inBufSz, outBuf, MAX_CERT_SIZE,
                                                                      CERT_TYPE);
         if (outBufSz < 0) {
-            wolfsslFreeBins(inBuf, outBuf, NULL, NULL, NULL);
+            wolfCLU_freeBins(inBuf, outBuf, NULL, NULL, NULL);
             ret = DER_TO_PEM_ERROR;
             goto clu_parse_cleanup;
         }
@@ -121,7 +121,7 @@ int wolfCLU_parse_file(char* infile, int inform, char* outfile, int outform,
         /* write the result of conversion to the outfile specified */
         ret = fwrite(outBuf, 1, outBufSz, outstream);
         if (ret <= 0) {
-            wolfsslFreeBins(inBuf, outBuf, NULL, NULL, NULL);
+            wolfCLU_freeBins(inBuf, outBuf, NULL, NULL, NULL);
             ret = FWRITE_ERROR;
             goto clu_parse_cleanup;
         }
@@ -133,7 +133,7 @@ int wolfCLU_parse_file(char* infile, int inform, char* outfile, int outform,
         }
 
         /* success cleanup */
-        wolfsslFreeBins(inBuf, outBuf, NULL, NULL, NULL);
+        wolfCLU_freeBins(inBuf, outBuf, NULL, NULL, NULL);
    }
 /*----------------------------------------------------------------------------*/
 /* read in pem, output der */
@@ -159,7 +159,7 @@ int wolfCLU_parse_file(char* infile, int inform, char* outfile, int outform,
         outBufSz = wolfSSL_CertPemToDer(inBuf, inBufSz, outBuf, MAX_CERT_SIZE,
                                                                      CERT_TYPE);
         if (outBufSz < 0) {
-            wolfsslFreeBins(inBuf, outBuf, NULL, NULL, NULL);
+            wolfCLU_freeBins(inBuf, outBuf, NULL, NULL, NULL);
             ret = PEM_TO_DER_ERROR;
             goto clu_parse_cleanup;
         }
@@ -167,13 +167,13 @@ int wolfCLU_parse_file(char* infile, int inform, char* outfile, int outform,
         /* write the result of conversion to the outfile specified */
         ret = fwrite(outBuf, 1, outBufSz, outstream);
         if (ret <= 0) {
-            wolfsslFreeBins(inBuf, outBuf, NULL, NULL, NULL);
+            wolfCLU_freeBins(inBuf, outBuf, NULL, NULL, NULL);
             ret = FWRITE_ERROR;
             goto clu_parse_cleanup;
         }
 
         /* success cleanup */
-        wolfsslFreeBins(inBuf, outBuf, NULL, NULL, NULL);
+        wolfCLU_freeBins(inBuf, outBuf, NULL, NULL, NULL);
     }
 /*----------------------------------------------------------------------------*/
 /* read in pem, output pem */
