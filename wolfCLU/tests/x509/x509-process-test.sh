@@ -100,9 +100,25 @@ run3() {
     test_case "-inform pem -in ca-cert.pem -outform pem -out out.txt"
 }
 
+run4() {
+    echo "TEST4: INVALID INPUT FILES"
+    echo "TEST 4.a"
+    #convert ca-cert.der to tmp.pem and compare to ca-cert.pem for valid transform
+    test_case "-inform der -in testing-certs/ca-cert.der
+                    -in testing-certs/ca-cert.der -outform pem -out tmp.pem"
+    echo "TEST 4.b"
+    test_case "-inform der -in testing-certs/ca-cert.der
+                    -outform pem -out tmp.pem -out tmp.pem"
+
+    echo "TEST 4.c"
+    test_case "-inform pem -outform der -in testing-certs/ca-cert.pem
+                    -out tmp.der -out tmp.der -in testing-certs/ca-cert.pem"
+}
+
 run1
 run2
 run3
+run4
 
 rm out.txt
 rm tmp.pem

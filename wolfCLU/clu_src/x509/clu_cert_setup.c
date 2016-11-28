@@ -121,6 +121,10 @@ int wolfCLU_certSetup(int argc, char** argv)
             /* set flag for in file and flag for input file OK if exists
              * check for error case below. If no error then read in file */
             infile = argv[i+1];
+            if (infile_flag) {
+                printf("ERROR: input file set more than once\n");
+                return USER_INPUT_ERROR;
+            }
             if (access(infile, F_OK) != -1) {
                 printf("input file is \"%s\"\n", infile);
                 infile_flag = 1;
@@ -136,6 +140,10 @@ int wolfCLU_certSetup(int argc, char** argv)
         } else if (XSTRNCMP(argv[i], "-out", 4) == 0) {
             /* set flag for out file, check for error case below. If no error
              * then write outfile */
+            if (outfile_flag) {
+                printf("ERROR: output file set more than once\n");
+                return USER_INPUT_ERROR;
+            }
             outfile_flag = 1;
             outfile = argv[i+1];
             if (access(outfile, F_OK) != -1) {
