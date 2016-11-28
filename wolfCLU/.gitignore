@@ -30,4 +30,4 @@ m4/libtool.m4
 wolfssl
 test-suite.log
 tests/x509/x509-process-test.sh.log
-
+tests/x509/x509-process-test.sh.trs

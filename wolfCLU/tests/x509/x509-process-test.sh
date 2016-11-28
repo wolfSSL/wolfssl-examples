@@ -1,6 +1,6 @@
 #!/bin/sh
 
-function test() {
+test_return() {
     CHECK=$1
     #UNCOMMENT FOR VERBOSE OUTPUT
     echo "${2}"
@@ -12,14 +12,14 @@ function test() {
     echo ""
 }
 
-function test_case() {
+test_case() {
     echo "testing: ./wolfssl -x509 $1"
     OUTPUT=$(./wolfssl -x509 $1)
     RESULT=$?
-    test $RESULT "$OUTPUT"
+    test_return $RESULT "$OUTPUT"
 }
 
-function cert_test_case() {
+cert_test_case() {
     echo "testing: ./wolfssl -x509 $1"
     OUTPUT=$(./wolfssl -x509 $1)
     RESULT=$?
@@ -31,7 +31,7 @@ function cert_test_case() {
     echo ""
 }
 
-function run1() {
+run1() {
     echo "TEST 1: VALID"
     echo "TEST 1.a"
     test_case "-inform pem -outform pem"
@@ -47,7 +47,7 @@ function run1() {
     echo ""
 }
 
-function run2() {
+run2() {
     echo "TEST 2: INVALID INPUT"
     echo "TEST 2.a"
     test_case "-inform pem -inform der"
@@ -85,7 +85,7 @@ function run2() {
     test_case "-inform pem -outform pem -noout"
 }
 
-function run3() {
+run3() {
     echo "TEST3: VALID INPUT FILES"
     echo "TEST 3.a"
     #convert ca-cert.der to tmp.pem and compare to ca-cert.pem for valid transform
