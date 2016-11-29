@@ -61,7 +61,8 @@ int wolfCLU_setup(int argc, char** argv, char action)
         dCheck = 1;
 
     for (i = 2; i < argc; i++) {
-        if (XSTRNCMP(argv[i], "-help", 5) == 0) {
+        if (XSTRNCMP(argv[i], "-help", 5) == 0 || XSTRNCMP(argv[i], "-h", 2)
+                                                                         == 0) {
             if (eCheck == 1) {
                 /*wolfCLU_encryptHelp*/
                 wolfCLU_encryptHelp();

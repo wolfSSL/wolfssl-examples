@@ -94,6 +94,20 @@ int main(int argc, char** argv)
             case NOOUT:     break;
             case TEXT_OUT:  break;
             case SILENT:    break;
+            case HELP1:
+                    if (argc == 2) {
+                        printf("Main help menu:\n");
+                        wolfCLU_help();
+                        return 0;
+                    }
+                    break;
+            case HELP2:
+                    if (argc == 2) {
+                        printf("Main help menu:\n");
+                        wolfCLU_help();
+                        return 0;
+                    }
+                    break;
             /* which version of clu am I using */
             case VERBOSE:
                             wolfCLU_verboseHelp();

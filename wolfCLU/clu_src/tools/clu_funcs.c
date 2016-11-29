@@ -42,6 +42,7 @@ int     i          =   0;       /* loop variable */
     printf("-decrypt        Decrypt an encrypted file\n");
     printf("-hash           Hash a file or input\n");
     printf("-bench          Benchmark one of the algorithms\n");
+    printf("-x509           X509 certificate processing\n");
     printf("\n");
     /*optional flags*/
     printf("Optional Flags.\n\n");
@@ -55,11 +56,14 @@ int     i          =   0;       /* loop variable */
            "                This flag takes no arguments.\n");
     printf("-time           used by Benchmark, set time in seconds to run.\n");
     printf("-verbose        display a more verbose help menu\n");
+    printf("-inform         input format of the certificate file [PEM/DER]\n");
+    printf("-outform        format to output [PEM/DER]\n");
 
     printf("\nFor encryption:   wolfssl -encrypt -help\n");
     printf("For decryption:   wolfssl -decrypt -help\n");
     printf("For hashing:      wolfssl -hash -help\n");
-    printf("For benchmarking: wolfssl -bench -help\n\n");
+    printf("For benchmarking: wolfssl -bench -help\n");
+    printf("For x509:         wolfssl -x509 -help\n\n");
  }
 
 /*
@@ -318,6 +322,19 @@ void wolfCLU_benchHelp()
     printf("\nEXAMPLE: \n\nwolfssl -bench aes-cbc -time 10"
            " -in encryptedfile.txt -out decryptedfile.txt\n\n");
 }
+
+void wolfCLU_certHelp()
+{
+    printf("\n\n");
+    printf("***************************************************************\n");
+    printf("\nX509 USAGE: wolfssl -x509 -inform <PEM or DER> -in <filename> "
+           "-outform <PEM or DER> -out <output file name> \n\n");
+    printf("***************************************************************\n");
+    printf("\nEXAMPLE: \n\nwolfssl -x509 -inform pem -in testing-certs/"
+           "ca-cert.pem -outform der -out testing-certs/ca-cert-converted.der"
+           "\n\n");
+}
+
 
 /*
  * finds algorithm for encryption/decryption

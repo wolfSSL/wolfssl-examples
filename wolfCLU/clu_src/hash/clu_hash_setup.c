@@ -67,12 +67,9 @@ int wolfCLU_hashSetup(int argc, char** argv)
 #endif
 
     /* help checking */
-    if (argc == 2) {
-        wolfCLU_hashHelp();
-        return 0;
-    }
     for (i = 2; i < argc; i++) {
-        if (strcmp(argv[i], "-help") == 0) {
+        if (XSTRNCMP(argv[i], "-help", 5) == 0 || XSTRNCMP(argv[i], "-h", 2)
+                                                                         == 0) {
             wolfCLU_hashHelp();
             return 0;
         }
@@ -80,11 +77,12 @@ int wolfCLU_hashSetup(int argc, char** argv)
 
     for (i = 0; i < (int) sizeof(algs)/(int) sizeof(algs[0]); i++) {
         /* checks for acceptable algorithms */
-        if (strcmp(argv[2], algs[i]) == 0) {
+        if (XSTRNCMP(argv[2], algs[i], XSTRLEN(algs[i])) == 0) {
             alg = argv[2];
             algCheck = 1;
         }
     }
+
     if (algCheck == 0) {
         printf("Invalid algorithm\n");
         return FATAL_ERROR;
@@ -159,7 +157,6 @@ int wolfCLU_hashSetup(int argc, char** argv)
     ret = wolfCLU_hash(in, out, alg, size);
 
     XFREE(in, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-    free(in);
 
     return ret;
 }

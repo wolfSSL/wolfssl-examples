@@ -63,7 +63,8 @@ int wolfCLU_benchSetup(int argc, char** argv)
     int optionCheck = 0;                           /* acceptable option check */
 
     for (i = 2; i < argc; i++) {
-        if (XSTRNCMP(argv[i], "-help", 5) == 0) {
+        if (XSTRNCMP(argv[i], "-help", 5) == 0 || XSTRNCMP(argv[i], "-h", 2)
+                                                                         == 0) {
             /* help checking */
             wolfCLU_benchHelp();
             return 0;

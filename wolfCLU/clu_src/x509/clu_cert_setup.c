@@ -53,7 +53,6 @@ int wolfCLU_certSetup(int argc, char** argv)
     char* outform;          /* the output format */
 
 
-    printf("In x509 loop\n");
     for (i = 2; i < argc; i++) {
 /*---------------------------------------------------------------------------*/
 /* help */
@@ -189,31 +188,26 @@ int wolfCLU_certSetup(int argc, char** argv)
     switch (ret) {
         case INPEM_OUTPEM:
             ret = 0;
-            printf("run inpem outpem\n");
             if (infile_flag) wolfCLU_inpemOutpem(infile, outfile, silent_flag);
             else return INPUT_FILE_ERROR;
             break;
         case INPEM_OUTDER:
             ret = 0;
-            printf("run inpem outder\n");
             if (infile_flag) wolfCLU_inpemOutder(infile, outfile, silent_flag);
             else return INPUT_FILE_ERROR;
             break;
         case INDER_OUTPEM:
             ret = 0;
-            printf("run inder outpem\n");
             if (infile_flag) wolfCLU_inderOutpem(infile, outfile, silent_flag);
             else return INPUT_FILE_ERROR;
             break;
         case INDER_OUTDER:
             ret = 0;
-            printf("run inder outder\n");
             if (infile_flag) wolfCLU_inderOutder(infile, outfile, silent_flag);
             else return INPUT_FILE_ERROR;
             break;
         case NOOUT_SET:
             ret = 0;
-            printf("noout set\n");
             break;
         default:
             printf("Error case\n");
@@ -221,12 +215,6 @@ int wolfCLU_certSetup(int argc, char** argv)
     }
 
     return ret;
-}
-
-
-void wolfCLU_certHelp()
-{
-    printf("\n\n\nThis would be the certificate help.\n\n\n");
 }
 
 /*
@@ -253,7 +241,6 @@ int error_check(int inpem_flag, int inder_flag, int outpem_flag,
             printf("ERROR: noout set when output format is specified");
             return USER_INPUT_ERROR;
         }
-        printf("input is pem format, output is pem format\n");
         return INPEM_OUTPEM;
    }
     ret = (inpem_flag & outder_flag);
@@ -264,7 +251,6 @@ int error_check(int inpem_flag, int inder_flag, int outpem_flag,
             printf("ERROR: noout set when output format is specified");
             return USER_INPUT_ERROR;
         }
-        printf("input is pem format, output is der format\n");
         return INPEM_OUTDER;
     }
     ret = (inder_flag & outpem_flag);
@@ -275,7 +261,6 @@ int error_check(int inpem_flag, int inder_flag, int outpem_flag,
             printf("ERROR: noout set when output format is specified");
             return USER_INPUT_ERROR;
         }
-        printf("input is der format, output is pem format\n");
         return INDER_OUTPEM;
     }
     ret = (inder_flag & outder_flag);
