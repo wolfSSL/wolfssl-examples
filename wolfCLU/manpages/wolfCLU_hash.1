@@ -1,0 +1,37 @@
+.\" Manpage for wolfssl command line utility hash.
+.\" Contact info@wolfssl.com to correct errors or typos.
+.TH wolfSSL SSL1  "10 Dec 2014" "0.3" "wolfssl hash man page"
+.SH NAME
+hash \- hashing utility
+.SH SYNOPSIS
+wolfssl -hash <-algorithm> <-in filename> [-out filename/stdin] [-size size] [-length length]
+.SH DESCRIPTION
+This command hashes either stdin or a file based on the chosen algorithm
+.SH ALGORITHMS
+-md5
+-sha
+-sha256
+(NOTE: The following are only available if ./configure supports them)
+-sha384
+-sha512
+-blake2b
+.SH OPTIONS
+-in filename/stdin    the input filename, standard input. If file does not exist, 
+.br
+                      user will be prompted for file name or input input string
+.br
+.LP
+-out filename         the output filename, if file does not exist, it will be created
+.LP
+-size size            **Usuable only with Blake2b. Block size of the function.
+.LP
+-length length        length of message to hash (optional)
+** denotes only available for specific algorithm
+.SH BUGS
+No known bugs at this time.
+.SH AUTHOR
+wolfSSL, Inc. (info@wolfssl.com)
+.SH COPYRIGHT
+Copyright 2014 wolfSSL Inc.  All rights reserved.
+.SH REPORTING BUGS
+Report wolfssl bugs to support@wolfssl.com

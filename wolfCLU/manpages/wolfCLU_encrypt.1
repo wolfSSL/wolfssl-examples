@@ -1,0 +1,51 @@
+.\" Manpage for wolfssl encrypt.
+.\" Contact info@wolfssl.com to correct errors or typos.
+.TH wolfSSL SSL1  "10 Dec 2014" "0.3" "wolfssl encrypt man page"
+.SH NAME
+encrypt \- cipher routines
+.SH SYNOPSIS
+wolfssl -encrypt <-algorithm> <-in filename> [-out filename] [-pwd password] [-iv IV]
+.SH DESCRIPTION
+This command allows data to be encrypted using ciphers and keys based on passwords if not explicitly provided
+.SH ALGORITHMS
+-aes-cbc-[128|192|256]
+        uses AES algorithm with designated key size.
+
+-aes-ctr-[128|192|256]
+        uses AES Counter with designated key size.
+        to use the -ctr option you must use the following:
+        "#define WOLFSSL_AES_COUNTER"
+
+-3des-cbc-[056|112|168]
+        uses 3DES algorithm with designated key size.
+
+-camellia-cbc-[128|192|256]
+        uses Camellia algorithm with designated key size. Only available if ./configure settings support
+.SH OPTIONS
+-in filename/stdin    the input filename, standard input. If file does not
+.br
+                      exist, user will be prompted for file name or input string
+.br
+.LP
+-out filename         the output filename, if filename does not exist, it will be created
+.br
+.LP
+-pwd password         password to derive the key from. Prompts user if password
+.br
+                      option is not provided. If password option is used iv is not required.
+.br
+.LP
+-iv IV                the actual iv to use. If not provided, one is randomly generated.
+.br
+                      Must be provided in hex
+.br
+.LP
+-key Key              the actual key to use. Must be in hex
+.SH BUGS
+No known bugs at this time.
+.SH AUTHOR
+wolfSSL, Inc. (info@wolfssl.com)
+.SH COPYRIGHT
+Copyright 2014 wolfSSL Inc.  All rights reserved.
+.SH REPORTING BUGS
+Report wolfssl bugs to support@wolfssl.com

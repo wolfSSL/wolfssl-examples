@@ -10,11 +10,11 @@
 #requires user to have AutoConf version 2.63 or greater.
 AC_PREREQ([2.63])
 
-AC_INIT([wolfssl_clu], [0.4], [http://www.wolfssl.com])
+AC_INIT([wolfssl_clu], [0.5], [http://www.wolfssl.com])
 
 #a helpful directory to keep clutter out of root
 AC_CONFIG_AUX_DIR([build-aux])
-AC_CONFIG_HEADER([src/config.h])
+AC_CONFIG_HEADER([clu_src/config.h])
 AC_CANONICAL_HOST
 AC_CANONICAL_BUILD  
 		

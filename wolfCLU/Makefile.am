@@ -16,7 +16,8 @@ EXTRA_HEADERS =
 BUILT_SOURCES=
 EXTRA_DIST=
 dist_doc_DATA=
-
+check_SCRIPTS=
+dist_noinst_SCRIPTS=
 
 #includes additional rules from aminclude.am
 @INC_AMINCLUDE@
@@ -31,20 +32,24 @@ EXTRA_DIST+= tests
 EXTRA_DIST+= manpages
 EXTRA_DIST+= README.md
 
-man_MANS+= manpages/wolfsslBenchmark.1
-man_MANS+= manpages/wolfsslDecrypt.1
-man_MANS+= manpages/wolfsslEncrypt.1
-man_MANS+= manpages/wolfsslHash.1
-man_MANS+= manpages/wolfsslMain.1
+man_MANS+= manpages/wolfCLU_benchmark.1
+man_MANS+= manpages/wolfCLU_decrypt.1
+man_MANS+= manpages/wolfCLU_encrypt.1
+man_MANS+= manpages/wolfCLU_hash.1
+man_MANS+= manpages/wolfssl.1
 
-include src/include.am
-include include/include.am
+include clu_src/include.am
+include clu_include/include.am
+include tests/x509/include.am
 #####include data/include.am
 
 
 TESTS += $(check_PROGRAMS)
-test: check
 
+check_SCRIPTS+= $(dist_noinst_SCRIPTS)
+TESTS += $(check_SCRIPTS)
+
+test: check
 #DISTCLEANFILES+= wolfssl-config
 
 

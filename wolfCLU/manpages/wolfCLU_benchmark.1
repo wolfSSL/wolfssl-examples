@@ -1,0 +1,34 @@
+.\" Manpage for wolfCLU_benchmark.
+.\" Contact info@wolfssl.com to correct errors or typos.
+.TH wolfSSL SSL1  "10 Dec 2014" "0.3" "wolfssl benchmark man page"
+.SH NAME
+wolfCLU benchmark \- benchmarking utility for testing
+.SH SYNOPSIS
+wolfssl -bench TESTS [-time <sec>] [-all] [-tests]
+.SH DESCRIPTION
+Tests algorithm functionality and speed
+.SH TESTS
+-aes-cbc
+-aes-ctr*
+-3des*
+-camellia*
+-md5
+-sha
+-sha256
+-sha384*
+-sha512*
+-blake2b*
+*(NOTE: Only available through ./configure options)
+.SH OPTIONS
+-time <sec>     time for each of the tests in seconds
+.br
+.LP
+-all        runs all available tests
+.SH BUGS
+No known bugs at this time.
+.SH AUTHOR
+wolfSSL, Inc. (info@wolfssl.com)
+.SH COPYRIGHT
+Copyright 2014 wolfSSL Inc.  All rights reserved.
+.SH REPORTING BUGS
+Report wolfssl bugs to support@wolfssl.com

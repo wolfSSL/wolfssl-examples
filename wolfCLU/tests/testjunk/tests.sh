@@ -1,11 +1,16 @@
 #Test utility functionality
 #!/bin/bash
-PAT="cd ~/"
+
+CURR_PATH=`pwd`
+echo "CURR_PATH = $CURR_PATH"
+
+PAT="cd $CURR_PATH/../../"
+
 WOLFSSL="wolfssl"
-ENC="-e"
-DEC="-d"
-HASH="-h"
-BENCH="-b"
+ENC="-encrypt"
+DEC="-decrypt"
+HASH="-hash"
+BENCH="-bench"
 AES="aes-cbc-"
 AES2="aes-ctr-"
 DES="3des-cbc-"
@@ -18,6 +23,9 @@ SHA5="-sha512"
 BLAKE="-blake2b"
 zero=0
 OPTS="wolfssl/wolfssl/options.h"
+INPUT="-in"
+OUTPUT="-out"
+PASSWD="-pwd"
 
 function crypto() {
     cd $currentDir
@@ -36,11 +44,11 @@ function crypto() {
         echo $RANDF  >> $IN
 
         echo $WOLFSSL $ENC $1 size: $SIZEF bytes
-        $WOLFSSL $ENC $1 -i $IN -o $OUT -p $KEY
-        $WOLFSSL $DEC $1 -i $OUT -o $IN -p $KEY
-        echo $WOLFSSL $ENC $1 -i $RANDT
-        $WOLFSSL $ENC $1 -i $RANDT -o $OUT -p $KEY
-        $WOLFSSL $DEC $1 -i $OUT -o $IN -p $KEY
+        $WOLFSSL $ENC $1 $INPUT $IN $OUTPUT $OUT $PASSWD $KEY
+        $WOLFSSL $DEC $1 $INPUT $OUT $OUTPUT $IN $PASSWD $KEY
+        echo $WOLFSSL $ENC $1 $INPUT $RANDT
+        $WOLFSSL $ENC $1 $INPUT $RANDT $OUTPUT $OUT $PASSWD $KEY
+        $WOLFSSL $DEC $1 $INPUT $OUT $OUTPUT $IN $PASSWD $KEY
 
         rm $OUT
         rm $IN
@@ -65,10 +73,10 @@ function hashing() {
         RANDT=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w $SIZET | head -n 1)
         echo $RANDF >> $IN
 
-        echo $WOLFSSL -h $1 size: $SIZEF bytes
-        $WOLFSSL -h $1 -i $IN -o $OUT
-        echo $WOLFSSL -h $1 -i $RANDT
-        $WOLFSSL -h $1 -i $RANDT -o $OUT
+        echo $WOLFSSL $HASH $1 size: $SIZEF bytes
+        $WOLFSSL $HASH $1 $INPUT $IN $OUTPUT $OUT
+        echo $WOLFSSL $HASH $1 $INPUT $RANDT
+        $WOLFSSL $HASH $1 $INPUT $RANDT $OUTPUT $OUT
 
         rm $IN
         rm $OUT
@@ -78,11 +86,11 @@ function hashing() {
         let SIZET+=10
     done
 }
-currentDir=$(pwd) #save our current directory
+
 crypto $AES\128
 crypto $AES\192
 crypto $AES\256
-cd ~              #change to home directory
+cd $CURR_PATH/../../              #change to home directory
 grep -q "WOLFSSL_AES_COUNTER" $OPTS && if [[ $? -eq $zero ]]; then
     crypto $AES2\128
     crypto $AES2\192
@@ -92,7 +100,7 @@ fi
 crypto $DES\56
 crypto $DES\112
 crypto $DES\168
-cd ~              #change to home directory
+cd $CURR_PATH/../../              #change to home directory
 grep -q "HAVE_CAMELLIA" $OPTS && if [[ $? -eq $zero ]]; then
     crypto $CAM\128
     crypto $CAM\192
@@ -103,17 +111,18 @@ hashing $M
 hashing $SHA
 hashing $SHA2
 
-cd ~              #change to home directory
+
+cd $CURR_PATH/../../              #change to home directory
 grep -q "WOLFSSL_SHA384" $OPTS && if [[ $? -eq $zero ]]; then
     hashing $SHA3
 fi
-cd ~              #change to home directory
+cd $CURR_PATH/../../              #change to home directory
 grep -q "WOLFSSL_SHA512" $OPTS && if [[ $? -eq $zero ]]; then
     hashing $SHA5
 fi
-cd ~              #change to home directory
+cd $CURR_PATH/../../              #change to home directory
 grep -q "HAVE_BLAKE2" $OPTS && if [[ $? -eq $zero ]]; then
     hashing $BLAKE
 fi
-cd $currentDir
+cd $CURR_PATH
 $WOLFSSL -b -t 5 -a

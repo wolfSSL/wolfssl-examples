@@ -26,16 +26,16 @@ Manpages are installed automatically during the make process
 
 You will now be able to run a man page by typing "man wolfsslBenchmark" etc.
 manpages are as follows:
-wolfsslBenchmark
-wolfsslEncrypt
-wolfsslDecrypt
-wolfsslHash
-wolfsslMain
+wolfCLU_benchmark
+wolfCLU_encrypt
+wolfCLU_decrypt
+wolfCLU_hash
+wolfCLU_main
 
 ENCRYPTION
 
     SYNOPSIS
-        wolfssl encrypt <-algorithm> <-i filename> [-o filename] [-k password] [-iv IV]
+        wolfssl -encrypt <-algorithm> <-in filename> [-out filename] [-pwd password] [-iv IV]
     DESCRIPTION
         This command allows data to be encrypted using ciphers and keys based on passwords if not explicitly provided
     .ALGORITHMS
@@ -48,16 +48,16 @@ ENCRYPTION
         -camellia-cbc-[128|192|256]
             uses Camellia algorithm with designated key size. Only available if ./configure settings support
     OPTIONS
-        -i filename/stdin     the input filename, standard input. If file does not exist, it will treat data as stdin
-        -o filename           the output filename, if filename does not exist, it will be created
-        -k password           password to derive the key from. prompts if password option is not provided. If used, iv isn't needed
+        -in filename/stdin     the input filename, standard input. If file does not exist, it will treat data as stdin
+        -out filename           the output filename, if filename does not exist, it will be created
+        -pwd password           password to derive the key from. prompts if password option is not provided. If used, iv isn't needed
         -iv IV                the actual iv to use. If not provided, one is randomly generated. Must be provided in hex
-        -K Key                the actual key to use. Must be in hex
+        -key Key                the actual key to use. Must be in hex
 
 DECRYPTION
 
     SYNOPSIS
-        wolfssl decrypt <-algorithm> <-i filename> [-o filename] [-k password] [-iv IV]
+        wolfssl -decrypt <-algorithm> <-in filename> [-out filename] [-key password] [-iv IV]
     DESCRIPTION
         This command allows data to be decrypted using ciphers and keys based on passwords if not explicitly provided
     ALGORITHMS
@@ -70,16 +70,16 @@ DECRYPTION
         -camellia-cbc-[128|192|256]
             uses Camellia algorithm with designated key size. Only available if ./configure settings support
     OPTIONS
-        -i filename/stdin     the input filename, standard input. If file does not exist, it will treat data as stdin
-        -o filename           the output filename, if filename does not exist, it will be created
-        -k password           password to derive the key from. prompts if password option is not provided. If used, iv isn't needed
+        -in filename/stdin     the input filename, standard input. If file does not exist, it will treat data as stdin
+        -out filename           the output filename, if filename does not exist, it will be created
+        -pwd password           password to derive the key from. prompts if password option is not provided. If used, iv isn't needed
         -iv IV                the actual iv to use. If not provided, one is randomly generated. Must be provided in hex
-        -K Key                the actual key to use. Must be in hex
+        -key Key                the actual key to use. Must be in hex
 
 HASH
 
     SYNOPSIS
-        wolfssl hash <-algorithm> <-i filename> [-o filename/stdin] [-s size] [-l length]
+        wolfssl -hash <-algorithm> <-i filename> [-o filename/stdin] [-s size] [-l length]
     DESCRIPTION
         This command hashes either stdin or a file based on the chosen algorithm
     ALGORITHMS
@@ -91,22 +91,22 @@ HASH
         -sha512
         -blake2b
     OPTIONS
-        -i filename/stdin       the input filename, standard input. If file does not exist, it will treat data as stdin
-        -o filename             the output filename, if not provided will print stdout
-        -s size                 block size of the function. Usuable only with Blake2b
-        -l length               length of message to hash
+        -in filename/stdin       the input filename, standard input. If file does not exist, it will treat data as stdin
+        -out filename           the output filename, if not provided will print stdout
+        -size size              block size of the function. Usuable only with Blake2b
+        -length length          length of message to hash
 
 BENCHMARK
 
     SYNOPSIS
-        wolfssl benchmark TESTS [-t time] [-all] [-tests] 
+        wolfssl benchmark TESTS [-time time] [-all] [-tests] 
     DESCRIPTION
         Tests algorithm functionality and speed
     TESTS
         -aes-cbc
-        -aes-ctr*    
+        -aes-ctr*
         -3des
-        -camellia*   
+        -camellia*
         -md5
         -sha
         -sha256
@@ -115,7 +115,7 @@ BENCHMARK
         -blake2b*
         *(NOTE: Only available through ./configure options)
     OPTIONS
-        -t time     time for each of the tests in seconds
+        -time <sec> time for each of the tests in seconds
         -all        runs all available tests
 
 TESTING
