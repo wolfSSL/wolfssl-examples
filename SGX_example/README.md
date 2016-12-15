@@ -4,7 +4,8 @@ wolfSSL Enclave Example
 This repository contains an example application, written in C++, which
 demonstrates how to link with the wolfSSL lightweight SSL/TLS library with a
 simple Enclave. First create wolfssl.lib from <wolfssl-root>/IDE/WIN-SGX
-then copy wolfssl.lib to SGX_example/
+then copy wolfssl.lib to SGX_example/. Steps for creating wolfssl.lib can be
+found in the main wolfSSL directory. <wolfssl-root>/IDE/WIN-SGX/ReadMe.txt.
 
 ![location for wolfssl.lib](README-images/wolfssl-lib.PNG)
 
