@@ -29,17 +29,6 @@
 /*--------------------------------------------------------------*/
 /* Header files and definitions */
 /*--------------------------------------------------------------*/
-#ifdef HAVE_CONFIG_H
-    #include <config.h>
-#endif
-
-#include <wolfssl/options.h>
-#include <wolfssl/wolfcrypt/settings.h>
-#include <wolfssl/wolfcrypt/arc4.h>
-#include <wolfssl/ssl.h>
-#include <wolfssl/wolfcrypt/mem_track.h>
-#include <wolfssl/certs_test.h>
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -47,7 +36,11 @@
 #include <signal.h>
 #include <unistd.h>
 #include <fcntl.h>
-
+#include <wolfssl/options.h>
+#include <wolfssl/wolfcrypt/settings.h>
+#include <wolfssl/ssl.h>
+#include <wolfssl/certs_test.h>
+#include <wolfssl/wolfcrypt/types.h>
 
 #define MAXSZ      1024
 /* Use the certs already available in the examples repo */
@@ -184,7 +177,6 @@ int main(int argc, char** argv)
     }
 
     wolfSSL_Init();
-    InitMemoryTracker();
 
     /* Example usage */
 //    sslServ = Server(ctxServ, "ECDHE-RSA-AES128-SHA", 1);
@@ -263,7 +255,6 @@ cleanup:
     close(open(CR, O_RDWR | O_NOCTTY | O_NDELAY));
     close(open(SR, O_RDWR | O_NOCTTY | O_NDELAY));
 
-    ShowMemoryTracker();
     wolfSSL_shutdown(sslServ);
     wolfSSL_free(sslServ);
     wolfSSL_CTX_free(ctxServ);

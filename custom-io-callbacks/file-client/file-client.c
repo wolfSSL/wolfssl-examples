@@ -30,25 +30,16 @@
 /* Header files and definitions */
 /*--------------------------------------------------------------*/
 #include <stdio.h>
-
-#ifdef HAVE_CONFIG_H
-    #include <config.h>
-#endif
-
-#include <wolfssl/options.h>
-#include <wolfssl/wolfcrypt/settings.h>
-#include <wolfssl/wolfcrypt/arc4.h>
-#include <wolfssl/wolfcrypt/mem_track.h>
-#include <wolfssl/certs_test.h>
-#include <wolfssl/ssl.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
-
-
 #include <fcntl.h>
 #include <unistd.h>
+#include <wolfssl/options.h>
+#include <wolfssl/wolfcrypt/settings.h>
+#include <wolfssl/certs_test.h>
+#include <wolfssl/ssl.h>
+#include <wolfssl/wolfcrypt/types.h>
 
 #define MAXSZ         1024
 /* use the certs already available in the examples repo */
