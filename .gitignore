@@ -22,6 +22,7 @@
 *.x86_64
 *.hex
 
+
 # Android files
 android/wolfssljni-ndk-sample/bin
 android/wolfssljni-ndk-sample/build.xml
@@ -67,6 +68,9 @@ crypto/3des/3des-file-encrypt
 crypto/aes/aes-file-encrypt
 crypto/camellia/camellia-encrypt
 crypto/keys/ecc_keys
+
+*/file-client/start-client
+*/file-server/start-server
 
 #Example der and x963 files
 crypto/keys/*.der
