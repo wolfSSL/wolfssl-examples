@@ -82,28 +82,6 @@ static int verboseFlag = 0;
 /*--------------------------------------------------------------*/
 /* Function implementations */
 /*--------------------------------------------------------------*/
-//unsigned int my_psk_client_cb(WOLFSSL* ssl, const char* hint,
-//        char* identity, unsigned int id_max_len, unsigned char* Xkey,
-//        unsigned int key_max_len)
-//{
-//    (void)ssl;
-//    (void)hint;
-//    (void)key_max_len;
-//
-//    /* identity is OpenSSL testing default for openssl s_client, keep same */
-//    strncpy(identity, "Client_identity", id_max_len);
-//
-//
-//    /* test key in hex is 0x1a2b3c4d , in decimal 439,041,101 , we're using
-//       unsigned binary */
-//    Xkey[0] = 26;
-//    Xkey[1] = 43;
-//    Xkey[2] = 60;
-//    Xkey[3] = 77;
-//
-//    return 4;   /* length of key in octets or 0 for error */
-//}
-
 int CbIORecv(WOLFSSL *ssl, char *buf, int sz, void *ctx)
 {
     (void) ssl; /* will not need ssl context, just using the file system */
