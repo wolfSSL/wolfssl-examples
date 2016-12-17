@@ -39,6 +39,7 @@ After wolfssl is installed, install wolfCLU.  In the directory
     ./autogen.sh
     ./configure
     make
+    (optionally) make check OR make test
     sudo make install
 
 Now you should be able to use the wolfssl command line tool.  To verify type:
@@ -47,7 +48,7 @@ Now you should be able to use the wolfssl command line tool.  To verify type:
 
 If everything worked, you should see the wolfssl help page.
 
-## Examples
+## Example Usages
 
 ### Base64
 
@@ -63,10 +64,17 @@ If everything worked, you should see the wolfssl help page.
 ./wolfssl -hash base64dec -in README_encoded.md
 ```
 
+#### X509
+
+```
+wolfssl -x509 -inform pem -in testing-certs/ca-cert.pem -outform der -out outputfilename.der
+wolfssl -x509 -inform der -in testing-certs/ca-cert.der -outform pem -out outputfilename.pem
+```
+
 ## Contacts
 
 Please contact support@wolfssl.com with any questions or comments
 
 ## License
 
-Copyright (c) 2006-2015 wolfSSL Inc.
+Copyright (c) 2006-2016 wolfSSL Inc.
