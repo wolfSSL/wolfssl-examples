@@ -1,0 +1,12 @@
+How to use pkcs12-example.c
+
+1) a. Compile wolfSSL with  ./configure --enable-pwdbased --enable-des3, run
+      'make', and then install by typing 'sudo make install'.
+   b. In the crypto/pkcs12 directory run the Makefile by typing 'make'.
+2)  run the excecutable as follows:
+
+        ./pkcs12-example
+
+3)  Running 'make clean' will delete the excecutable as well as any created
+    files. Making sure that the only files left are 'pkcs12-example.c',
+    'Makefile', 'test-servercert.p12'and 'README'.
