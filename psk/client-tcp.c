@@ -20,15 +20,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  **/
 
-#include    <sys/socket.h>	/* basic socket definitions */
-#include    <netinet/in.h>	/* sockaddr_in{} and other Internet defns */
-#include    <stdio.h>
-#include    <stdlib.h>
-#include    <string.h>
-#include    <errno.h>
-#include    <arpa/inet.h>
-#include    <signal.h>
-#include    <unistd.h>
+#include <sys/socket.h>	/* basic socket definitions */
+#include <netinet/in.h>	/* sockaddr_in{} and other Internet defns */
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+#include <arpa/inet.h>
+#include <signal.h>
+#include <unistd.h>
 
 #define     MAXLINE     256    /* max text line length */
 #define     SERV_PORT   11111

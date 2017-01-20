@@ -5,22 +5,22 @@ TCP/PSK Tutorial
 
 1. Include the wolfSSL compatibility header:
 ``#include <wolfssl/ssl.h>``
-* Change all calls from read() or recv() to wolfSSL_read(), in the simple client 
+* Change all calls from read() or recv() to wolfSSL_read(), in the simple client
 
     ``read(sockfd, recvline, MAXLINE)`` becomes ``wolfSSL_read(ssl, recvline, MAXLINE)``
 
-3. Change all calls from write() or send() to CySSL_write(), in the simple client 
+3. Change all calls from write() or send() to CySSL_write(), in the simple client
 
     ``write(socked, send line,strlen(send line))`` becomes ``wolfSSL_write(ssl, send line, strlen(sendline))``
 
-4. In the main method initialize wolfSSL and WOLFSSL_CTX. 
-     
-        wolfSSL_Init();    
-        
-        if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method())) == NULL)     
+4. In the main method initialize wolfSSL and WOLFSSL_CTX.
+
+        wolfSSL_Init();
+
+        if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method())) == NULL)
             fprintf(stderr, "SSL_CTX_new error.\n");
             return 1;
-        } 
+        }
 
 5. Create the wolfSSL object after each TCP connect and associate the file descriptor with the session:
 
@@ -28,15 +28,15 @@ TCP/PSK Tutorial
             fprintf(stderr, "wolfSSL_new error.\n");
             return 1;
         }
-        
+
         ret = wolfSSL_set_fd(ssl, sockfd);
 
         if (ret != SSL_SUCCESS){
             return 1;
         }
-        
+
 6. Cleanup. After each wolfSSL object is done being used you can free it up by calling ``wolfSSL_free(ssl);``
-7. When completely done using SSL/TLS, free the WOLFSSL_CTX object by 
+7. When completely done using SSL/TLS, free the WOLFSSL_CTX object by
 
     ``wolfSSL_CTX_free(CTX);``
 
@@ -46,43 +46,43 @@ TCP/PSK Tutorial
 
 1. When configuring wolfSSL
 
-    ``sudo ./configure --enable-psk``
+    ``./configure --enable-psk CFLAGS="-DWOLFSSL_STATIC_PSK"``
 
-    ``sudo make``
+    ``make``
 
     ``sudo make install``
-        
+
 2. In the main method add
 
     ``wolfSSL_CTX_set_psk_client_callback(ctx, 	My_Psk_Client_cb);``
 
-3. Add the function 
+3. Add the function
 
 		static inline unsigned int My_Psk_Client_Cb(WOLFSSL* ssl, const char* hint,
-            char* identity, unsigned int id_max_len, unsigned char* key, 
+            char* identity, unsigned int id_max_len, unsigned char* key,
             unsigned int key_max_len)
     		{
         		(void)ssl;
         		(void)hint;
         		(void)key_max_len;
-    
+
         		strncpy(identity, "Client_identity", id_max_len);
-    
+
         		key[0] = 26;
         		key[1] = 43;
        			key[2] = 60;
         		key[3] = 77;
-        		
+
         		return 4;
         	}
 
-## **Adding Non-Blocking to the wolfSSL Simple Client.**  
+## **Adding Non-Blocking to the wolfSSL Simple Client.**
 
-1. Include the fcntl.h header file. This is needed for some of the constants that will be used when dealing with non-blocking on the socket. `` #include <fcntl.h>`` 
+1. Include the fcntl.h header file. This is needed for some of the constants that will be used when dealing with non-blocking on the socket. `` #include <fcntl.h>``
 
 2. After the function ``wolfSSL_set_fd(ssl,sockfd)``, tell wolfSSL that you want non-blocking to be used. This is done by adding : `` wolfSSL_set_using_nonblock(ssl,1);``
 
-3. Now we much invoke the fcnt callable serve to use non-blocking. 
+3. Now we much invoke the fcnt callable serve to use non-blocking.
 
         int flags = fcntl(sockfd, F_GETFL, 0);
         if (flags < 0) {
@@ -95,7 +95,7 @@ TCP/PSK Tutorial
             printf("fcntl set failed\n");
             return 1;
         }
-4. Now we are ready to call the function to start non-blocking on our socket. This is done by adding: 
+4. Now we are ready to call the function to start non-blocking on our socket. This is done by adding:
 
         ret = NonBlockingSSL_Connect(ssl);
 
@@ -103,7 +103,7 @@ TCP/PSK Tutorial
     	    return 1;
         }
 
-5. Now we need to add the non-blocking function. 
+5. Now we need to add the non-blocking function.
 
      **Add the tcp_select function**
 
@@ -145,7 +145,7 @@ TCP/PSK Tutorial
         static int NonBlockingSSL_Connect(WOLFSSL* ssl)
         {
             int ret, error, sockfd, select_ret, currTimeout;
-    
+
             ret    = wolfSSL_connect(ssl);
             error  = wolfSSL_get_error(ssl, 0);
             sockfd = (int)wolfSSL_get_fd(ssl);
@@ -182,16 +182,16 @@ TCP/PSK Tutorial
 
 ## **Adding Session Resumption to Simple Client**
 
-Session resumption allows a client/server pair to re-use previously generated crypto material, so that they don't have to compute new crypto keys every time a connection gets established. 
+Session resumption allows a client/server pair to re-use previously generated crypto material, so that they don't have to compute new crypto keys every time a connection gets established.
 
-1. After sending a string to the server we need to save the session ID so it can be used again for the next connection. 
+1. After sending a string to the server we need to save the session ID so it can be used again for the next connection.
 
         /* Save the session ID to reuse */
         WOLFSSL_SESSION* session   = wolfSSL_get_session(ssl);
-        WOLFSSL*         sslResume = wolfSSL_new(ctx); 
+        WOLFSSL*         sslResume = wolfSSL_new(ctx);
 
-2. Now we must close wolfSSL SSL and close connections. Alos free the socket and ctx. 
- 
+2. Now we must close wolfSSL SSL and close connections. Alos free the socket and ctx.
+
         /* shut down wolfSSL */
         wolfSSL_shutdown(ssl);
 
@@ -201,16 +201,16 @@ Session resumption allows a client/server pair to re-use previously generated cr
         /* cleanup */
         wolfSSL_free(ssl);
         wolfSSL_CTX_free(ctx);
-        wolfSSL_Cleanup();      
+        wolfSSL_Cleanup();
 
-3. Now we are ready to reconnect and start a new socket but we are going to reuse the session id to make things go a little faster. 
+3. Now we are ready to reconnect and start a new socket but we are going to reuse the session id to make things go a little faster.
 
-      
+
         sock = socket(AF_INET, SOCK_STREAM, 0);
-    
+
         /* connect to the socket */
         ret = connect(sock, (struct sockaddr *) &servaddr,         sizeof(servaddr));
-    
+
         if (ret != 0){
             return 1;
         }
@@ -219,7 +219,7 @@ Session resumption allows a client/server pair to re-use previously generated cr
         wolfSSL_set_fd(sslResume, sock);
         wolfSSL_set_session(sslResume, session);
 
-4. Check if the connect was successful. 
+4. Check if the connect was successful.
 
         /* check has connect successfully */
         if (wolfSSL_connect(sslResume) != SSL_SUCCESS) {
@@ -227,7 +227,7 @@ Session resumption allows a client/server pair to re-use previously generated cr
             return 1;
         }
 
-5. If successful we can write to the server again. 
+5. If successful we can write to the server again.
 
 6. Check to see if the session id was actually reused or if it was just a new session.
 
@@ -237,7 +237,7 @@ Session resumption allows a client/server pair to re-use previously generated cr
         else
             printf("didn't reuse session id!!!\n");
 
-7. Now close the ssl and socket. 
+7. Now close the ssl and socket.
 
         /* shut down wolfSSL */
         wolfSSL_shutdown(sslResume);
@@ -246,13 +246,13 @@ Session resumption allows a client/server pair to re-use previously generated cr
         close(sock);
 
         /* clean up */
-        wolfSSL_free(sslResume);   
+        wolfSSL_free(sslResume);
         wolfSSL_CTX_free(ctx);
         wolfSSL_Cleanup();
-    
-        
+
+
 ## **Tutorial for adding wolfSSL Security and PSK (Pre shared Keys) to a Simple Server.**
- 
+
 1. Include the wolfSSL compatibility header:
     ``#include <wolfssl/ssl.h>``
 
@@ -260,7 +260,7 @@ Session resumption allows a client/server pair to re-use previously generated cr
     ``read(sockfd, recvline, MAXLINE)`` becomes ``wolfSSL_read(ssl, recvline, MAXLINE)``
 
 	>(wolfSSL_read on first use also calls wolfSSL_accept if not explicitly called earlier in code.)
- 
+
 3. Change all calls from write() or send() to CySSL_write(), in the simple server
     ``write(sockfd, sendline, strlen(sendline))`` becomes ``wolfSSL_write(ssl, sendline, strlen(sendline))``
 
@@ -268,18 +268,18 @@ Session resumption allows a client/server pair to re-use previously generated cr
     ``wolfSSL_Init()``
 
 5. Create a ctx pointer that contains using the following process.
-    ```	
+    ```
     WOLFSSL_CTX* ctx;
-	
+
     if ((ctx = wolfSSL_CTX_new(wolfSSLv23_server_method())) == NULL)
 	    err_sys(“wolfSSL_CTX_new error”);
     ```
 
 6. In the servers main loop for accepting clients create a WOLFSSL pointer. Once a new client is accepted create a wolfSSL object and associate that object with the socket that the client is on. After using the wolfSSL object it should be freed and also before closing the program the ctx pointer should be freed and a wolfSSL cleanup method called.
-    
+
 	```
     WOLFSSL* ssl;
-	
+
 	wolfSSL_set_fd(ssl, “integer returned from accept”);
 
 	wolfSSL_free(ssl);
@@ -288,7 +288,7 @@ Session resumption allows a client/server pair to re-use previously generated cr
 	wolfSSL_Cleanup();
     ```
 
-	
+
 ## Now adding Pre-Shared Keys (PSK) to the wolfSSL Simple Server:
 
 The following steps are on how to use PSK in a wolfSSL server
@@ -307,13 +307,13 @@ The following steps are on how to use PSK in a wolfSSL server
     wolfSSL_CTX_set_cipher_list(ctx, “PSK-AES128-CBC-SHA256”);
     ```
 
-	>PSK-AES128-CBC-SHA256 creates the cipher list of having pre shared keys with advanced encryption security using 128 bit key 
+	>PSK-AES128-CBC-SHA256 creates the cipher list of having pre shared keys with advanced encryption security using 128 bit key
 	>with cipher block chaining using secure hash algorithm.
 
 3. Add the my_psk_server_cb function as follows. This is a function needed that is passed in as an argument to the wolfSSL callback.
-    
+
 ```
-    static inline unsigned int my_psk_client_cb(WOLFSSL* ssl, char* identity, unsigned 
+    static inline unsigned int my_psk_client_cb(WOLFSSL* ssl, char* identity, unsigned
                                                 char* key, unsigned int key_max_len) {
     		(void)ssl;
     		(void)key_max_len;
@@ -332,9 +332,9 @@ The following steps are on how to use PSK in a wolfSSL server
     }
 ```
 
-	
+
 Example Makefile for Simple wolfSSL PSK Client:
-	
+
 ```
 	CC=gcc
 	OBJ = client-psk.o
@@ -344,20 +344,20 @@ Example Makefile for Simple wolfSSL PSK Client:
         $(CC) -c -o $@ $< $(CFLAGS)
 
 	client-psk: client-psk.c
-        $(CC) -Wall -o client-psk client-psk.c -lwolfssl	
+        $(CC) -Wall -o client-psk client-psk.c -lwolfssl
 
     .PHONY: clean
 
-	clean:   
+	clean:
 		rm -f *.o client-psk
 ```
 
-The -lwolfssl will link the wolfSSL Libraries to your program 
+The -lwolfssl will link the wolfSSL Libraries to your program
 
 
 The makefile for the server is going to be similar to that of the client. If the user wants separate makefiles just make a use the same set up of the client makefile and replace every instance of client-psk with server-psk. To combine make files just add a server-psk with similar ending to each time client-psk is referenced and change the target. There will also need to be a target for when compiling all targets.
 
-```	
+```
 	all: server-psk client-psk
 
 	server-psk: server-psk.c
@@ -380,7 +380,7 @@ When a socket is setup as non-blocking, reads and writes to the socket do not ca
 3. Now we much invoke the fcntl callable serve to use nonblocking. This is done by adding:
 
     ```
-    /* invokes the fcntl callable service to get the file status 
+    /* invokes the fcntl callable service to get the file status
      * flags for a file. checks if it returns an error, if it does
      * stop program */
     int flags = fcntl(sockfd, F_GETFL, 0);
@@ -390,8 +390,8 @@ When a socket is setup as non-blocking, reads and writes to the socket do not ca
     }
 
     /* invokes the fcntl callable service set file status flags.
-     * Do not block an open, a read, or a write on the file 
-     * (do not wait for terminal input. If an error occurs, 
+     * Do not block an open, a read, or a write on the file
+     * (do not wait for terminal input. If an error occurs,
     * stop program*/
     flags = fcntl(sockfd, F_SETFL, flags | O_NONBLOCK);
     if (flags < 0){
@@ -415,7 +415,7 @@ When a socket is setup as non-blocking, reads and writes to the socket do not ca
 
     ```
     /*
-     * enum used for tcp_select function 
+     * enum used for tcp_select function
      */
     enum {
         TEST_SELECT_FAIL,
@@ -500,21 +500,21 @@ Nonblocking on the server side allows for switching between multiple client conn
 
 1. Include the fcntl.h header file. This is needed for some of the constants that will be used when dealing with non blocking on the socket.
     ``#include <fcntl.h>``
-	
+
 2. After accept has found a client and an ssl object has been made and associated with the clients socket then call the wolfSSL function to set wolfSSL in non blocking mode. This is done using the following function call.
     ``wolfSSL_set_using_nonblock(ssl, 1);``
 
 3. Immediately after setting wolfSSL to use non blocking, the socket that the client is connected on needs to also be set up to be non blocking. This is done using the included fcntl.h and making the following function call.
-    
+
     ``fcntl(*sockfd, F_SETFL, O_NONBLOCK);``
 
 	>Both F_SETFL and O_NONBLOCK are constants from the fcntl.h file.
 
 4. Include a function to select tcp. What this function does is it checks file descriptors for readiness of reading, writing, for pending exceptions, and for timeout. The timeout variable needs to point to struct timeval type. If the timeval members are 0 then the function does not block. The function and its input parameters are listed below.
-    ``select(int nfds, fd_set* read, fd_set* write, fd_set* exception, struct timeval* time)`` 
+    ``select(int nfds, fd_set* read, fd_set* write, fd_set* exception, struct timeval* time)``
 
 	>For the example server we do not consider write when selecting the tcp so it is set to NULL. For ease the example code uses enumerated values for which state the function select returns. This then makes the next loop discussed easier.
-	
+
 5. Next is to add a loop for handling when to read and write. This loop uses the select tcp function to continually check on the status of the tcp connection and when it is ready or has an exception the wolfSSL_accept function is called.
 
 6. The final thing added is a loop around wolfSSL_read. This is done so that when encountering the error SSL_ERROR_WANT_READ the server gives the client some time to send the message.
@@ -534,7 +534,7 @@ Nonblocking on the server side allows for switching between multiple client conn
     ```
 
 
-	
+
 
 ## Concurrent Server
 
@@ -564,16 +564,16 @@ The main thread accepts clients and for each client accepted a new thread is spa
           int  n;              /* length of string read */
           char buf[MAXLINE];   /* string read from client */
           char response[22] = "I hear ya for shizzle";
- 
+
           /* create WOLFSSL object and respond */
           if ((ssl = wolfSSL_new(ctx)) == NULL)
               err_sys("wolfSSL_new error");
-          wolfSSL_set_fd(ssl, connfd);            
-                                             
-          /* respond to client */                            
-          n = wolfSSL_read(ssl, buf, MAXLINE);                
-          if (n > 0) {                                       
-              printf("%s\n", buf);                           
+          wolfSSL_set_fd(ssl, connfd);
+
+          /* respond to client */
+          n = wolfSSL_read(ssl, buf, MAXLINE);
+          if (n > 0) {
+              printf("%s\n", buf);
               if (wolfSSL_write(ssl, response, 22) > 22) {
                   err_sys("respond: write error");
               }
@@ -581,14 +581,14 @@ The main thread accepts clients and for each client accepted a new thread is spa
           if (n < 0) {
               err_sys("respond: read error");
           }
-                                                       
+
           /* closes the connections after responding */
           wolfSSL_shutdown(ssl);
-         wolfSSL_free(ssl);           
-         if (close(connfd) == -1)   
+         wolfSSL_free(ssl);
+         if (close(connfd) == -1)
              err_sys("close error");
          pthread_exit( NULL);
     }
     ```
-    
+
 5. Void* arg is the argument that gets passed into wolfssal_thread when pthread_create is called. In this example that argument is used to pass the socket value that the client for the current thread is on.
