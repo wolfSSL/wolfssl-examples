@@ -20,7 +20,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
-#include <wolfssl/ssl.h> /* include wolfssl security */
+#include <wolfssl/options.h> /* included for option sync */
+#include <wolfssl/ssl.h>     /* include wolfSSL security */
+
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <stdio.h>

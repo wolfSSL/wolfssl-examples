@@ -1,6 +1,11 @@
 CC=gcc
-CFLAGS=-Wall
-LIBS=-lwolfssl
+CFLAGS=-Wall -I/usr/local/include
+LIBS=-lwolfssl -lm -L/usr/local/lib
+
+# For debug (./configure --enable-debug --disable-shared)
+#LIBS=/usr/local/lib/libwolfssl.a
+#CFLAGS+=-g -DDEBUG
+
 
 all: client-tcp client-psk client-psk-nonblocking client-psk-resume server-tcp server-psk server-psk-nonblocking server-psk-threaded
 

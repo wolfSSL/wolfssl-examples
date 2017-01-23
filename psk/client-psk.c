@@ -20,14 +20,16 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  **/
 
-#include    <stdio.h>
-#include    <stdlib.h>
-#include    <string.h>
-#include    <errno.h>
-#include    <arpa/inet.h>
-#include    <signal.h>
-#include    <unistd.h>
-#include    <wolfssl/ssl.h>  /* must include this to use wolfSSL security */
+#include <wolfssl/options.h> /* included for options sync */
+#include <wolfssl/ssl.h>     /* must include this to use wolfSSL security */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+#include <arpa/inet.h>
+#include <signal.h>
+#include <unistd.h>
 
 #define     MAXLINE 256      /* max text line length */
 #define     SERV_PORT 11111  /* default port*/
