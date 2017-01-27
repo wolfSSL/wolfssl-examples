@@ -139,10 +139,10 @@ static int devId = INVALID_DEVID;
 #endif
 
 
-/* Get the wolfSSL server method function for the specified version.
+/* Get the wolfSSL client method function for the specified version.
  *
  * version  Protocol version to use.
- * returns The server method function or NULL when version not supported.
+ * returns The client method function or NULL when version not supported.
  */
 static wolfSSL_method_func SSL_GetMethod(int version)
 {
@@ -677,13 +677,6 @@ static int WolfSSLCtx_Init(int version, char* cert, char* key, char* verifyCert,
     WOLFSSL_CTX* ctx;
     wolfSSL_method_func method = NULL;
 
-#ifdef DEBUG_WOLFSSL
-    wolfSSL_Debugging_ON();
-#endif
-
-    /* Initialize wolfSSL */
-    wolfSSL_Init();
-
     method = SSL_GetMethod(version);
     if (method == NULL)
         return(EXIT_FAILURE);
@@ -734,11 +727,10 @@ static int WolfSSLCtx_Init(int version, char* cert, char* key, char* verifyCert,
  */
 static void WolfSSLCtx_Final(WOLFSSL_CTX* ctx)
 {
+    wolfSSL_CTX_free(ctx);
 #ifdef WOLFSSL_ASYNC_CRYPT
     wolfAsync_DevClose(&devId);
 #endif
-    wolfSSL_CTX_free(ctx);
-    wolfSSL_Cleanup();
 }
 
 /* Create a socket to talf to server on and connect.
@@ -811,7 +803,7 @@ static void Usage(void)
  */
 int main(int argc, char* argv[])
 {
-    socklen_t    socketfd;
+    socklen_t    socketfd = -1;
     int          ch;
     WOLFSSL_CTX* ctx = NULL;
     SSLConn_CTX* sslConnCtx;
@@ -930,6 +922,14 @@ int main(int argc, char* argv[])
         }
     }
 
+
+#ifdef DEBUG_WOLFSSL
+    wolfSSL_Debugging_ON();
+#endif
+
+    /* Initialize wolfSSL */
+    wolfSSL_Init();
+
     /* Initialize wolfSSL and create a context object. */
     if (WolfSSLCtx_Init(version, ourCert, ourKey, verifyCert, cipherList, &ctx)
             == EXIT_FAILURE)
@@ -1002,6 +1002,8 @@ int main(int argc, char* argv[])
     SSLConn_Free(sslConnCtx);
 
     WolfSSLCtx_Final(ctx);
+
+    wolfSSL_Cleanup();
 
     exit(EXIT_SUCCESS);
 }

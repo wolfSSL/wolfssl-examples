@@ -51,7 +51,7 @@
 #define MAX_WOLF_EVENTS  10
 
 /* The command line options. */
-#define OPTIONS          "?p:v:l:c:k:A:n:N:R:W:B:"
+#define OPTIONS          "?p:v:al:c:k:A:n:N:R:W:B:"
 
 /* The default server certificate. */
 #define SVR_CERT	 "../certs/server-cert.pem"
@@ -151,7 +151,7 @@ static char reply[NUM_WRITE_BYTES];
  * version  Protocol version to use.
  * returns The server method function or NULL when version not supported.
  */
-static wolfSSL_method_func SSL_GetMethod(int version)
+static wolfSSL_method_func SSL_GetMethod(int version, int allowDowngrade)
 {
     wolfSSL_method_func method = NULL;
 
@@ -176,7 +176,7 @@ static wolfSSL_method_func SSL_GetMethod(int version)
 
 #ifndef NO_TLS
         case 3:
-            method = wolfTLSv1_2_server_method_ex;
+            method = allowDowngrade ? wolfSSLv23_server_method_ex : wolfTLSv1_2_server_method_ex;
             break;
 #endif
     }
@@ -632,20 +632,13 @@ static void SSLConn_PrintStats(SSLConn_CTX* ctx)
  * returns EXIT_SUCCESS when a wolfSSL context object is created and
  * EXIT_FAILURE otherwise.
  */
-static int WolfSSLCtx_Init(int version, char* cert, char* key, char* verifyCert,
-                           char* cipherList, WOLFSSL_CTX** wolfsslCtx)
+static int WolfSSLCtx_Init(int version, int allowDowngrade, char* cert,
+    char* key, char* verifyCert, char* cipherList, WOLFSSL_CTX** wolfsslCtx)
 {
     WOLFSSL_CTX* ctx;
     wolfSSL_method_func method = NULL;
 
-#ifdef DEBUG_WOLFSSL
-    wolfSSL_Debugging_ON();
-#endif
-
-    /* Initialize wolfSSL */
-    wolfSSL_Init();
-
-    method = SSL_GetMethod(version);
+    method = SSL_GetMethod(version, allowDowngrade);
     if (method == NULL)
         return(EXIT_FAILURE);
 
@@ -710,11 +703,10 @@ static int WolfSSLCtx_Init(int version, char* cert, char* key, char* verifyCert,
  */
 static void WolfSSLCtx_Final(WOLFSSL_CTX* ctx)
 {
+    wolfSSL_CTX_free(ctx);
 #ifdef WOLFSSL_ASYNC_CRYPT
     wolfAsync_DevClose(&devId);
 #endif
-    wolfSSL_CTX_free(ctx);
-    wolfSSL_Cleanup();
 }
 
 /* Create a random reply.
@@ -802,6 +794,7 @@ static void Usage(void)
     printf("-p <num>    Port to listen on, not 0, default %d\n", wolfSSLPort);
     printf("-v <num>    SSL version [0-3], SSLv3(0) - TLS1.2(3)), default %d\n",
                                  SERVER_DEFAULT_VERSION);
+    printf("-a          Allow TLS version downgrade\n");
     printf("-l <str>    Cipher suite list (: delimited)\n");
     printf("-c <file>   Certificate file,           default %s\n", SVR_CERT);
     printf("-k <file>   Key file,                   default %s\n", SVR_KEY);
@@ -836,6 +829,7 @@ int main(int argc, char* argv[])
     char*               ourKey        = SVR_KEY;
     char*               verifyCert    = CLI_CERT;
     int                 version       = SERVER_DEFAULT_VERSION;
+    int                 allowDowngrade= 0;
     int                 numConns      = SSL_NUM_CONN;
     int                 numBytesRead  = NUM_READ_BYTES;
     int                 numBytesWrite = NUM_WRITE_BYTES;
@@ -866,6 +860,9 @@ int main(int argc, char* argv[])
                     Usage();
                     exit(MY_EX_USAGE);
                 }
+                break;
+            case 'a':
+                allowDowngrade = 1;
                 break;
 
             /* List of cipher suites to use. */
@@ -947,8 +944,15 @@ int main(int argc, char* argv[])
     if (events == NULL)
         exit(EXIT_FAILURE);
 
+#ifdef DEBUG_WOLFSSL
+    wolfSSL_Debugging_ON();
+#endif
+
+    /* Initialize wolfSSL */
+    wolfSSL_Init();
+
     /* Initialize wolfSSL and create a context object. */
-    if (WolfSSLCtx_Init(version, ourCert, ourKey, verifyCert, cipherList, &ctx)
+    if (WolfSSLCtx_Init(version, allowDowngrade, ourCert, ourKey, verifyCert, cipherList, &ctx)
             == -1)
         exit(EXIT_FAILURE);
 
@@ -1090,6 +1094,8 @@ int main(int argc, char* argv[])
     SSLConn_Free(sslConnCtx);
 
     WolfSSLCtx_Final(ctx);
+
+    wolfSSL_Cleanup();
 
     exit(EXIT_SUCCESS);
 }
