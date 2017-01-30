@@ -212,6 +212,8 @@ static int SSL_Write(WOLFSSL* ssl, char* reply, int replyLen, int* totalBytes,
         return 2;
     if (error == SSL_ERROR_WANT_WRITE)
         return 3;
+    if (error == WC_PENDING_E)
+        return 4;
     if (error == 0)
         return 1;
 
@@ -980,8 +982,7 @@ int main(int argc, char* argv[])
                 printf("ERROR: failed in async polling\n");
                 break;
             }
-
-            if (ret == 1)
+            if (ret == 0)
                 continue;
         }
         sslConn->err = 0;
