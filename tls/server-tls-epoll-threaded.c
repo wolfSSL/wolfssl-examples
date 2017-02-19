@@ -53,7 +53,7 @@
 #define MAX_WOLF_EVENTS  10
 
 /* The command line options. */
-#define OPTIONS          "?p:v:l:c:k:A:t:n:N:R:W:B:"
+#define OPTIONS          "?p:v:al:c:k:A:t:n:N:R:W:B:"
 
 /* The default server certificate. */
 #define SVR_CERT	 "../certs/server-cert.pem"
@@ -150,7 +150,7 @@ static void SSLConn_Free(SSLConn_CTX* ctx);
 static void SSLConn_Close(SSLConn_CTX* ctx, ThreadData* threadData,
     SSLConn* sslConn);
 static void SSLConn_FreeSSLConn(ThreadData* threadData);
-static void WolfSSLCtx_Final(WOLFSSL_CTX* ctx);
+static void WolfSSLCtx_Final(ThreadData* threadData);
 
 
 /* The index of the command line option. */
@@ -178,6 +178,8 @@ static char*        ourKey        = SVR_KEY;
 static char*        verifyCert    = CLI_CERT;
 /* The version of SSL/TLS to use. */
 static int          version       = SERVER_DEFAULT_VERSION;
+/* The flag to indicate downgrade is allowed */
+static int          allowDowngrade = 0;
 /* The number of threads to start. */
 static int          numThreads    = NUM_THREADS;
 /* The number of connections per threads to allow. */
@@ -197,7 +199,7 @@ static int          maxConns      = MAX_CONNECTIONS;
  * version  Protocol version to use.
  * returns The server method function or NULL when version not supported.
  */
-static wolfSSL_method_func SSL_GetMethod(int version)
+static wolfSSL_method_func SSL_GetMethod(int version, int allowDowngrade)
 {
     wolfSSL_method_func method = NULL;
 
@@ -222,7 +224,7 @@ static wolfSSL_method_func SSL_GetMethod(int version)
 
 #ifndef NO_TLS
         case 3:
-            method = wolfTLSv1_2_server_method_ex;
+            method = allowDowngrade ? wolfSSLv23_server_method_ex : wolfTLSv1_2_server_method_ex;
             break;
 #endif
     }
@@ -444,9 +446,10 @@ static void SSLConn_Free(SSLConn_CTX* ctx)
         while (threadData->sslConn != NULL)
             SSLConn_Close(ctx, threadData, threadData->sslConn);
         SSLConn_FreeSSLConn(threadData);
-        WolfSSLCtx_Final(threadData->ctx);
+        WolfSSLCtx_Final(threadData);
     }
     free(ctx->threadData);
+    ctx->threadData = NULL;
 
     free(ctx);
 }
@@ -515,6 +518,7 @@ static void SSLConn_FreeSSLConn(ThreadData* threadData)
              ;
 #endif
         wolfSSL_free(sslConn->ssl);
+        sslConn->ssl = NULL;
         close(sslConn->sockfd);
         free(sslConn);
 
@@ -736,69 +740,71 @@ static void SSLConn_PrintStats(SSLConn_CTX* ctx)
  * returns EXIT_SUCCESS when a wolfSSL context object is created and
  * EXIT_FAILURE otherwise.
  */
-static int WolfSSLCtx_Init(int version, char* cert, char* key, char* verifyCert,
-                           char* cipherList, int* devId,
-                           WOLFSSL_CTX** wolfsslCtx)
+static int WolfSSLCtx_Init(ThreadData* threadData, int version, int allowDowngrade,
+    char* cert, char* key, char* verifyCert, char* cipherList)
 {
-    WOLFSSL_CTX* ctx;
     wolfSSL_method_func method = NULL;
 
-    method = SSL_GetMethod(version);
+    method = SSL_GetMethod(version, allowDowngrade);
     if (method == NULL)
         return(EXIT_FAILURE);
 
     /* Create and initialize WOLFSSL_CTX structure */
-    if ((ctx = wolfSSL_CTX_new(method(NULL))) == NULL) {
+    if ((threadData->ctx = wolfSSL_CTX_new(method(NULL))) == NULL) {
         fprintf(stderr, "wolfSSL_CTX_new error.\n");
         return(EXIT_FAILURE);
     }
 
 #ifdef WOLFSSL_ASYNC_CRYPT
-    if (wolfAsync_DevOpen(devId) != 0) {
+#ifndef WC_NO_ASYNC_THREADING
+    if (wolfAsync_DevOpenThread(&threadData->devId, &threadData->thread_id) < 0)
+#else
+    if (wolfAsync_DevOpen(&threadData->devId) < 0)
+#endif
+    {
         fprintf(stderr, "Async device open failed\nRunning without async\n");
     }
 
-    wolfSSL_CTX_UseAsync(ctx, *devId);
+    wolfSSL_CTX_UseAsync(threadData->ctx, threadData->devId);
 #endif
 
     /* Load server certificate into WOLFSSL_CTX */
-    if (wolfSSL_CTX_use_certificate_file(ctx, cert, SSL_FILETYPE_PEM)
+    if (wolfSSL_CTX_use_certificate_file(threadData->ctx, cert, SSL_FILETYPE_PEM)
             != SSL_SUCCESS) {
         fprintf(stderr, "Error loading %s, please check the file.\n", cert);
-        wolfSSL_CTX_free(ctx);
+        WolfSSLCtx_Final(threadData);
         return(EXIT_FAILURE);
     }
 
     /* Load server key into WOLFSSL_CTX */
-    if (wolfSSL_CTX_use_PrivateKey_file(ctx, key, SSL_FILETYPE_PEM)
+    if (wolfSSL_CTX_use_PrivateKey_file(threadData->ctx, key, SSL_FILETYPE_PEM)
             != SSL_SUCCESS) {
         fprintf(stderr, "Error loading %s, please check the file.\n", key);
-        wolfSSL_CTX_free(ctx);
+        WolfSSLCtx_Final(threadData);
         return(EXIT_FAILURE);
     }
 
     /* Setup client authentication. */
-    wolfSSL_CTX_set_verify(ctx, SSL_VERIFY_PEER, 0);
-    if (wolfSSL_CTX_load_verify_locations(ctx, verifyCert, 0) != SSL_SUCCESS) {
+    wolfSSL_CTX_set_verify(threadData->ctx, SSL_VERIFY_PEER, 0);
+    if (wolfSSL_CTX_load_verify_locations(threadData->ctx, verifyCert, 0) != SSL_SUCCESS) {
         fprintf(stderr, "Error loading %s, please check the file.\n",
                 verifyCert);
-        wolfSSL_CTX_free(ctx);
+        WolfSSLCtx_Final(threadData);
         return(EXIT_FAILURE);
     }
 
     if (cipherList != NULL) {
-        if (wolfSSL_CTX_set_cipher_list(ctx, cipherList) != SSL_SUCCESS) {
+        if (wolfSSL_CTX_set_cipher_list(threadData->ctx, cipherList) != SSL_SUCCESS) {
             fprintf(stderr, "Server can't set cipher list.\n");
-            wolfSSL_CTX_free(ctx);
+            WolfSSLCtx_Final(threadData);
             return(EXIT_FAILURE);
         }
     }
 
 #ifndef NO_DH
-    SetDHCtx(ctx);
+    SetDHCtx(threadData->ctx);
 #endif
 
-    *wolfsslCtx = ctx;
     return EXIT_SUCCESS;
 }
 
@@ -806,9 +812,14 @@ static int WolfSSLCtx_Init(int version, char* cert, char* key, char* verifyCert,
  *
  * ctx  The wolfSSL context object.
  */
-static void WolfSSLCtx_Final(WOLFSSL_CTX* ctx)
+static void WolfSSLCtx_Final(ThreadData* threadData)
 {
-    wolfSSL_CTX_free(ctx);
+    wolfSSL_CTX_free(threadData->ctx);
+    threadData->ctx = NULL;
+
+#ifdef WOLFSSL_ASYNC_CRYPT
+    wolfAsync_DevClose(&threadData->devId);
+#endif
 }
 
 /* Create a socket to listen on and wait for first client.
@@ -879,8 +890,7 @@ static void *ThreadHandler(void *data)
 #endif
 
     /* Initialize wolfSSL and create a context object. */
-    if (WolfSSLCtx_Init(version, ourCert, ourKey, verifyCert, cipherList,
-                        &threadData->devId, &threadData->ctx) == -1) {
+    if (WolfSSLCtx_Init(threadData, version, allowDowngrade, ourCert, ourKey, verifyCert, cipherList) == -1) {
         exit(EXIT_FAILURE);
     }
 
@@ -1061,6 +1071,7 @@ static void Usage(void)
     printf("-p <num>    Port to listen on, not 0, default %d\n", DEFAULT_PORT);
     printf("-v <num>    SSL version [0-3], SSLv3(0) - TLS1.2(3)), default %d\n",
                                  SERVER_DEFAULT_VERSION);
+    printf("-a          Allow TLS version downgrade\n");
     printf("-l <str>    Cipher suite list (: delimited)\n");
     printf("-c <file>   Certificate file,           default %s\n", SVR_CERT);
     printf("-k <file>   Key file,                   default %s\n", SVR_KEY);
@@ -1104,6 +1115,9 @@ int main(int argc, char* argv[])
                     Usage();
                     exit(MY_EX_USAGE);
                 }
+                break;
+            case 'a':
+                allowDowngrade = 1;
                 break;
 
             /* List of cipher suites to use. */
@@ -1193,6 +1207,10 @@ int main(int argc, char* argv[])
     wolfSSL_Debugging_ON();
 #endif
 
+#ifdef WOLFSSL_ASYNC_CRYPT
+    wolfAsync_HardwareStart();
+#endif
+
     /* Initialize wolfSSL */
     wolfSSL_Init();
 
@@ -1221,6 +1239,10 @@ int main(int argc, char* argv[])
     SSLConn_Free(sslConnCtx);
 
     wolfSSL_Cleanup();
+
+#ifdef WOLFSSL_ASYNC_CRYPT
+    wolfAsync_HardwareStop();
+#endif
 
     exit(EXIT_SUCCESS);
 }

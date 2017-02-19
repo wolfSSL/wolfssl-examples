@@ -1,8 +1,14 @@
 # TLS Examples Makefile
 CC=gcc
-CFLAGS=-Wall
-LIBS=-lwolfssl -lm
+LIB_PATH=/usr/local
+CFLAGS=-Wall -I$(LIB_PATH)/include
+LIBS=-L$(LIB_PATH)/lib -lm
+DYN_LIB=-lwolfssl
+STATIC_LIB=$(LIB_PATH)/lib/libwolfssl.a
 DEBUG_FLAGS=-g -DDEBUG
+DEBUG_INC_PATHS=-MD
+OPTIMIZE=-Os
+
 
 # Intel QuickAssist
 QAT_PATH=../../QAT1.6
@@ -13,12 +19,15 @@ QAT_FLAGS=-DDO_CRYPTO -DUSER_SPACE \
 	-I$(QAT_PATH)/quickassist/utilities/osal/src/linux/user_space/include \
 	-I$(QAT_PATH)/quickassist/lookaside/access_layer/include \
 	-I$(QAT_PATH)/quickassist/lookaside/access_layer/src/common/include
-QAT_LIBS=-L$(QAT_PATH) -ladf_proxy -losal -licp_qa_al_s
+QAT_LIBS=-L$(QAT_PATH) -ladf_proxy -losal -licp_qa_al_s -lpthread
 
 # Options
 #CFLAGS+=$(DEBUG_FLAGS)
+CFLAGS+=$(OPTIMIZE)
 #CFLAGS+=$(QAT_FLAGS)
 #LIBS+=$(QAT_LIBS)
+#LIBS+=$(STATIC_LIB)
+LIBS+=$(DYN_LIB)
 
 
 # OS / CPU Detection
