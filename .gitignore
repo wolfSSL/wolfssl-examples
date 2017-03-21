@@ -34,6 +34,7 @@ android/wolfssljni-ndk-sample/proguard-project.txt
 # Example executables
 /dtls/client-dtls-nonblocking
 /dtls/client-dtls-resume
+/dtls/client-dtls-shared
 /dtls/client-dtls
 /dtls/client-udp
 /dtls/server-dtls-nonblocking
