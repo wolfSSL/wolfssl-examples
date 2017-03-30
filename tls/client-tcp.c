@@ -19,51 +19,29 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 #include    <stdio.h>
-#include    <unistd.h>
-#include    <stdlib.h>                  
+#include    <stdlib.h>
 #include    <string.h>
 #include    <errno.h>
 #include    <arpa/inet.h>
+#include    <unistd.h>              /* TCP unsecure read/write methods */
 
-#define MAXDATASIZE  4096   /* maximum acceptable amount of data */
-#define SERV_PORT    11111  /* define default port number */
+#define MAXDATASIZE  4096           /* maximum acceptable amount of data */
+#define SERV_PORT    11111          /* define default port number */
 
-/*
- *  clients initial contact with server. Socket to connect to: sock
- */
-int ClientGreet(int sock)
-{
-    /* data to send to the server, data recieved from the server */
-    char    sendBuff[MAXDATASIZE], rcvBuff[MAXDATASIZE] = {0};
-    int     err = 0;
 
-    printf("Message for server:\t");
-    fgets(sendBuff, MAXDATASIZE, stdin);
 
-    if (write(sock, sendBuff, strlen(sendBuff)) != strlen(sendBuff)) {
-        /* the message is not able to send, or error trying */
-        err = errno;
-        printf("Write error: errno: %i\n", err);
-        return EXIT_FAILURE;
-    }
-
-    if (read(sock, rcvBuff, MAXDATASIZE) < 0) {
-        /* the server fails to send data, or error trying */
-        err = errno;
-        printf("Read error. errno: %i\n", err);
-        return EXIT_FAILURE;
-    }
-    printf("Recieved: \t%s\n", rcvBuff);
-    return 0;
-}
-/* 
- * command line argumentCount and argumentValues 
- */
-int main(int argc, char** argv) 
+int main(int argc, char** argv)
 {
     int     sockfd;                         /* socket file descriptor */
     struct  sockaddr_in servAddr;           /* struct for server address */
-    int     err;                            /* variable for error checks */
+    int     ret = 0;                        /* variable for error checking */
+
+    /* data to send to the server, data recieved from the server */
+    char    sendBuff[MAXDATASIZE], rcvBuff[MAXDATASIZE] = {0};
+
+
+    /* SECURE CODE SECTION will be here, see client-tls.c for comparison */
+
 
     if (argc != 2) {
         /* if the number of arguments is not two, error */
@@ -73,8 +51,9 @@ int main(int argc, char** argv)
 
     /* internet address family, stream based tcp, default protocol */
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
+
     if (sockfd < 0) {
-        printf("Failed to create socket. errono: %i\n", errno);
+        printf("Failed to create socket. errno: %i\n", errno);
         return EXIT_FAILURE;
     }
 
@@ -85,16 +64,65 @@ int main(int argc, char** argv)
     /* looks for the server at the entered address (ip in the command line) */
     if (inet_pton(AF_INET, argv[1], &servAddr.sin_addr) < 1) {
         /* checks validity of address */
-        err = errno;
-        printf("Invalid Address. errno: %i\n", err);
+        ret = errno;
+        printf("Invalid Address. errno: %i\n", ret);
         return EXIT_FAILURE;
     }
 
     if (connect(sockfd, (struct sockaddr *) &servAddr, sizeof(servAddr)) < 0) {
-        err = errno;
-        printf("Connect error. errno: %i\n", err);
+        ret = errno;
+        printf("Connect error. Error: %i\n", ret);
         return EXIT_FAILURE;
     }
-    ClientGreet(sockfd);
-    return 0;
+
+    printf("Message for server:\t");
+    fgets(sendBuff, MAXDATASIZE, stdin);
+
+    /* see client-tls.c where secure code is inserted here ...
+
+
+
+
+
+
+
+
+
+
+     SECURE CODE SECTION
+
+
+
+
+
+
+
+
+
+
+
+
+    end of secure code section */
+
+    if (write(sockfd, sendBuff, strlen(sendBuff)) != strlen(sendBuff)) {
+        /* the message is not able to send, or error trying */
+        ret = errno;
+        printf("Write error: Error: %i\n", ret);
+        return EXIT_FAILURE;
+    }
+
+    if (read(sockfd, rcvBuff, MAXDATASIZE) < 0) {
+        /* the server failed to send data, or error trying */
+        ret = errno;
+        printf("Read error. Error: %i\n", ret);
+        return EXIT_FAILURE;
+    }
+    printf("Recieved: \t%s\n", rcvBuff);
+
+
+
+
+
+
+    return ret;
 }
