@@ -577,7 +577,7 @@ static int SSLConn_ReadWrite(SSLConn_CTX* ctx, SSLConn* sslConn)
  */
 static void SSLConn_PrintStats(SSLConn_CTX* ctx)
 {
-    fprintf(stderr, "wolfSSL Client Benchmark %d bytes\n"
+    fprintf(stderr, "wolfSSL Server Benchmark %d bytes\n"
             "\tNum Conns         : %9d\n"
             "\tTotal             : %9.3f ms\n"
             "\tTotal Avg         : %9.3f ms\n"
