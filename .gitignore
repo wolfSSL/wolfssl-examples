@@ -78,8 +78,12 @@ crypto/keys/*.der
 crypto/keys/*.x963
 
 signature/signature
+signature/ED25519/gen_key_files
+signature/ED25519/sign_and_verify
 
 #cergen
 certgen/test.o
 certgen/newCert*
 certgen/run_certgen_example
+
+
