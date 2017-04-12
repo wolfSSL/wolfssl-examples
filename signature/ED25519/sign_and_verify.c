@@ -8,6 +8,10 @@
 #define USE_CERT_BUFFERS_ED
 #include "test_keys.h"
 
+#ifndef HAVE_ED25519
+    #error "Please build wolfSSL with the --enable-ed25519 option"
+#endif
+
 static int err_sys(const char* msg, int es);
 
 static int err_sys(const char* msg, int es)

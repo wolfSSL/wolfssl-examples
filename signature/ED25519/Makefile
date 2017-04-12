@@ -15,8 +15,8 @@ LIBRARIES :=
 #example: if using custom install location add the include and lib dir to the
 #         INCLUDE_DIRS and LIBRARY_DIRS respectively
 
-#INCLUDE_DIRS += /Users/khimes/work/testDir/wolf-install-dir-for-testing/include
-#LIBRARY_DIRS += /Users/khimes/work/testDir/wolf-install-dir-for-testing/lib
+#INCLUDE_DIRS += /path-to-custom/wolf-install-dir-for-testing/include
+#LIBRARY_DIRS += /path-to-custom/wolf-install-dir-for-testing/lib
 LIBRARIES += wolfssl
 
 CPPFLAGS += $(foreach includedir,$(INCLUDE_DIRS),-I$(includedir))

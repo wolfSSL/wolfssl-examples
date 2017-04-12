@@ -3,6 +3,10 @@
 #include <wolfssl/wolfcrypt/ed25519.h>
 #include <wolfssl/ssl.h>
 
+#ifndef HAVE_ED25519
+    #error "Please build wolfSSL with the --enable-ed25519 option"
+#endif
+
 int create_and_output_ed_key(void);
 static int err_sys(const char* msg, int es);
 
