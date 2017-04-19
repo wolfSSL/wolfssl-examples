@@ -19,3 +19,22 @@ $ ./firmware [filename] [sig] [hash]
 Usage: signature <filename> <sig> <hash>
   <sig>: 1=ECC (def), 2=RSA, 3=RSA (w/DER Encoding)
   <hash>: 1=MD2, 2=MD4, 3=MD5, 4=SHA, 5=SHA256 (def), 6=SHA384, 7=SHA512, 8=MD5+SHA
+
+------------------ UPDATE -----------------
+April 11 2017:
+
+Added ED25519 directory
+
+ED25519 directory contains:
+
+1. App "gen_key_files.c" to generate public/private keys and output keys to .der
+formatted files.
+
+2. genkeybuffers.pl - a perl script to write the header file "test_keys.h" using
+   the .der formatted files output from applicaton "gen_key_files.c"
+
+3. App "sign_and_verify.c" to use the "test_keys.h" header file buffers for
+   importing the public and private keys. App will then sign a msg with the
+   private key and verify that signature using the public key
+
+
