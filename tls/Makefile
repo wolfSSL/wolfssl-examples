@@ -69,9 +69,9 @@ endif
 # $(info $$CPU_DET is [${CPU_DET}])
 
 ifeq ($(OS_DET),LINUX)
-all: client-tcp client-tls client-tls-nonblocking client-tls-ecdhe server-tls-ecdhe client-tls-perf client-tls-resume client-callback memory-tls server-tcp server-tls server-tls-nonblocking server-tls-threaded server-tls-epoll-perf server-callback server-tls-epoll-threaded
+all: client-tcp client-tls client-tls-nonblocking client-tls-ecdhe server-tls-ecdhe client-tls-perf client-tls-resume client-tls-writedup client-callback memory-tls server-tcp server-tls server-tls-nonblocking server-tls-threaded server-tls-epoll-perf server-callback server-tls-epoll-threaded
 else
-all: client-tcp client-tls client-tls-nonblocking client-tls-ecdhe server-tls-ecdhe client-tls-resume client-callback memory-tls server-tcp server-tls server-tls-nonblocking server-tls-threaded server-callback
+all: client-tcp client-tls client-tls-nonblocking client-tls-ecdhe server-tls-ecdhe client-tls-resume client-tls-writedup client-callback memory-tls server-tcp server-tls server-tls-nonblocking server-tls-threaded server-callback
 endif
 
 client-tcp: client-tcp.o
@@ -94,6 +94,9 @@ client-tls-perf: client-tls-perf.o
 
 client-tls-resume: client-tls-resume.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+
+client-tls-writedup: client-tls-writedup.o
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS) -lpthread
 
 client-callback: client-callback.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
@@ -125,4 +128,4 @@ server-tls-epoll-threaded: server-tls-epoll-threaded.o
 .PHONY: clean all
 
 clean:
-	rm -f *.o client-tcp client-tls client-tls-nonblocking client-tls-ecdhe server-tls-ecdhe client-tls-perf client-tls-resume client-callback memory-tls server-tcp server-tls server-tls-nonblocking server-tls-threaded server-tls-epoll-perf server-callback server-tls-epoll-threaded
+	rm -f *.o client-tcp client-tls client-tls-nonblocking client-tls-ecdhe server-tls-ecdhe client-tls-perf client-tls-resume client-tls-writedup client-callback memory-tls server-tcp server-tls server-tls-nonblocking server-tls-threaded server-tls-epoll-perf server-callback server-tls-epoll-threaded
