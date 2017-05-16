@@ -1,6 +1,6 @@
 /* server-psk-nonblocking.c
- * A server ecample using a TCP connection with PSK security and non blocking. 
- *  
+ * A server ecample using a TCP connection with PSK security and non blocking.
+ *
  * Copyright (C) 2006-2015 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
@@ -58,7 +58,7 @@ int tcp_select(int sockfd, int to_sec)
     int nfds = sockfd + 1;
     struct timeval timeout = {to_sec, 0};
     int result;
-    
+
     /* reset socket values */
     FD_ZERO(&recvfds);
     FD_SET(sockfd, &recvfds);
@@ -68,13 +68,16 @@ int tcp_select(int sockfd, int to_sec)
     result = select(nfds, &recvfds, NULL, &errfds, &timeout);
 
     /* logic for which enumerated value is returned */
-    if (result == 0)
+    if (result == 0) {
         return TEST_TIMEOUT;
+    }
     else if (result > 0) {
-        if (FD_ISSET(sockfd, &recvfds))
+        if (FD_ISSET(sockfd, &recvfds)) {
             return TEST_RECV_READY;
-        else if (FD_ISSET(sockfd, &errfds))
+        }
+        else if (FD_ISSET(sockfd, &errfds)) {
             return TEST_ERROR_READY;
+        }
     }
 
     return TEST_SELECT_FAIL;
@@ -84,7 +87,7 @@ int tcp_select(int sockfd, int to_sec)
 /*
  * Pulled in from examples/server/server.c
  * Function to handle nonblocking. Loops until tcp_select notifies that it's
- * ready for action. 
+ * ready for action.
  */
 int NonBlockingSSL(WOLFSSL* ssl)
 {
@@ -99,15 +102,17 @@ int NonBlockingSSL(WOLFSSL* ssl)
         int currTimeout = 1;
 
         /* print out for user notification */
-        if (error == SSL_ERROR_WANT_READ)
+        if (error == SSL_ERROR_WANT_READ) {
             printf("... server would read block\n");
-        else
+        }
+        else {
             printf("... server would write block\n");
+        }
 
         select_ret = tcp_select(sockfd, currTimeout);
-        
+
         /* if tcp_select signals ready try to accept otherwise continue loop*/
-        if ((select_ret == TEST_RECV_READY) || 
+        if ((select_ret == TEST_RECV_READY) ||
             (select_ret == TEST_ERROR_READY)) {
             ret = wolfSSL_accept(ssl);
             error = wolfSSL_get_error(ssl, 0);
@@ -129,10 +134,10 @@ int NonBlockingSSL(WOLFSSL* ssl)
 }
 
 
-/* 
+/*
  * Handles response to client.
  */
-int respond(WOLFSSL* ssl)
+int Respond(WOLFSSL* ssl)
 {
     int    n;              /* length of string read */
     char   buf[MAXLINE];   /* string read from client */
@@ -140,17 +145,21 @@ int respond(WOLFSSL* ssl)
 
     memset(buf, 0, MAXLINE);
     do {
-        if (NonBlockingSSL(ssl) != SSL_SUCCESS)
+        if (NonBlockingSSL(ssl) != SSL_SUCCESS) {
             return 1;
+        }
+
         n = wolfSSL_read(ssl, buf, MAXLINE);
         if (n > 0) {
             printf("%s\n", buf);
-        } 
+        }
     }
     while(n < 0);
-    
-    if (NonBlockingSSL(ssl) != SSL_SUCCESS)
+
+    if (NonBlockingSSL(ssl) != SSL_SUCCESS) {
         return 1;
+    }
+
     if (wolfSSL_write(ssl, response, strlen(response)) != strlen(response)) {
         printf("Fatal error : respond: write error\n");
         return 1;
@@ -168,8 +177,9 @@ static inline unsigned int my_psk_server_cb(WOLFSSL* ssl, const char* identity,
     (void)ssl;
     (void)key_max_len;
 
-    if (strncmp(identity, "Client_identity", 15) != 0)
+    if (strncmp(identity, "Client_identity", 15) != 0) {
         return 0;
+    }
 
     key[0] = 26;
     key[1] = 43;
@@ -190,20 +200,21 @@ int main()
     WOLFSSL_CTX*         ctx;
 
     wolfSSL_Init();
-    
+
     if ((ctx = wolfSSL_CTX_new(wolfSSLv23_server_method())) == NULL) {
         printf("Fatal error : wolfSSL_CTX_new error\n");
         return 1;
     }
 
-    /* use psk suite for security */ 
+    /* use psk suite for security */
     wolfSSL_CTX_set_psk_server_callback(ctx, my_psk_server_cb);
     wolfSSL_CTX_use_psk_identity_hint(ctx, "wolfssl server");
     if (wolfSSL_CTX_set_cipher_list(ctx, "PSK-AES128-CBC-SHA256")
-        != SSL_SUCCESS)
+        != SSL_SUCCESS) {
         printf("Fatal error : server can't set cipher list\n");
+    }
 
-    /* find a socket */ 
+    /* find a socket */
     listenfd = socket(AF_INET, SOCK_STREAM, 0);
     if (listenfd < 0) {
         printf("Fatal error : socket error\n");
@@ -221,40 +232,40 @@ int main()
     if (setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, (const void*)&opt,
                    sizeof(int)) != 0) {
         printf("Fatal error : setsockopt errer");
-        return 1;           
+        return 1;
     }
     if (bind(listenfd, (struct sockaddr *) &servAddr, sizeof(servAddr)) < 0) {
         printf("Fatal error : bind error\n");
         return 1;
     }
-        
+
     /* main loop for accepting and responding to clients */
     for ( ; ; ) {
         WOLFSSL* ssl;
-        
-        /* listen to the socket */   
+
+        /* listen to the socket */
         if (listen(listenfd, LISTENQ) < 0) {
             printf("Fatal error : listen error\n");
             return 1;
         }
-        
+
         cliLen = sizeof(cliAddr);
         connfd = accept(listenfd, (struct sockaddr *) &cliAddr, &cliLen);
         if (connfd < 0) {
             if (errno != EINTR) {
                 printf("Fatal error : accept error\n");
-                return 1;   
+                return 1;
             }
         }
         else {
             printf("Connection from %s, port %d\n",
                    inet_ntop(AF_INET, &cliAddr.sin_addr, buff, sizeof(buff)),
                    ntohs(cliAddr.sin_port));
-    
+
             /* create WOLFSSL object */
             if ((ssl = wolfSSL_new(ctx)) == NULL) {
                 printf("Fatal error : wolfSSL_new error\n");
-                return 1;   
+                return 1;
             }
             wolfSSL_set_fd(ssl, connfd);
 
@@ -264,9 +275,10 @@ int main()
                 printf("Fatal error : fcntl set failed\n");
                 return 1;
             }
-            if (respond(ssl) != 0)
+            if (Respond(ssl) != 0) {
                 printf("Fatal error : respond error\n");
                 return 1;
+            }
 
             /* closes the connections after responding */
             wolfSSL_shutdown(ssl);
@@ -280,7 +292,7 @@ int main()
     /* free up memory used by wolfssl */
     wolfSSL_CTX_free(ctx);
     wolfSSL_Cleanup();
-    
+
     return 0;
 }
 
