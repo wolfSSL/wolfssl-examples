@@ -1,4 +1,4 @@
-/* server-dtls.c 
+/* server-dtls.c
  *
  * Copyright (C) 2006-2015 wolfSSL Inc.
  *
@@ -24,6 +24,7 @@
  * Utilizes DTLS 1.2.
  */
 
+#include <wolfssl/options.h>
 #include <stdio.h>                  /* standard in/out procedures */
 #include <stdlib.h>                 /* defines system calls */
 #include <string.h>                 /* necessary for memset */
@@ -49,8 +50,8 @@ void CleanUp();
 int AwaitDGram(WOLFSSL_CTX* ctx)
 {
     int           on = 1;
-    int           res = 1; 
-    int           connfd = 0;  
+    int           res = 1;
+    int           connfd = 0;
     int           recvLen = 0;    /* length of message */
     int           listenfd = 0;   /* Initialize our socket */
     WOLFSSL*       ssl = NULL;
@@ -86,7 +87,7 @@ int AwaitDGram(WOLFSSL_CTX* ctx)
         }
 
         /*Bind Socket*/
-        if (bind(listenfd, 
+        if (bind(listenfd,
                     (struct sockaddr *)&servAddr, sizeof(servAddr)) < 0) {
             printf("Bind failed.\n");
             cleanup = 1;
@@ -95,7 +96,7 @@ int AwaitDGram(WOLFSSL_CTX* ctx)
 
         printf("Awaiting client connection on port %d\n", SERV_PORT);
 
-        cliLen = sizeof(cliaddr);   
+        cliLen = sizeof(cliaddr);
         connfd = (int)recvfrom(listenfd, (char *)&b, sizeof(b), MSG_PEEK,
                 (struct sockaddr*)&cliaddr, &cliLen);
 
@@ -104,7 +105,7 @@ int AwaitDGram(WOLFSSL_CTX* ctx)
             continue;
         }
         else if (connfd > 0) {
-            if (connect(listenfd, (const struct sockaddr *)&cliaddr, 
+            if (connect(listenfd, (const struct sockaddr *)&cliaddr,
                         sizeof(cliaddr)) != 0) {
                 printf("Udp connect failed.\n");
                 cleanup = 1;
@@ -124,10 +125,10 @@ int AwaitDGram(WOLFSSL_CTX* ctx)
             cleanup = 1;
             return 1;
         }
-        
+
         /* set the session ssl to client connection port */
         wolfSSL_set_fd(ssl, listenfd);
-        
+
         if (wolfSSL_accept(ssl) != SSL_SUCCESS) {
 
             int e = wolfSSL_get_error(ssl, 0);
@@ -154,15 +155,15 @@ int AwaitDGram(WOLFSSL_CTX* ctx)
             printf("wolfSSL_write fail.\n");
             cleanup = 1;
             return 1;
-        } 
+        }
         else {
             printf("Sending reply.\n");
         }
 
         printf("reply sent \"%s\"\n", ack);
 
-        wolfSSL_set_fd(ssl, 0); 
-        wolfSSL_shutdown(ssl);        
+        wolfSSL_set_fd(ssl, 0);
+        wolfSSL_shutdown(ssl);
         wolfSSL_free(ssl);
 
         printf("Client left return to idle state\n");
@@ -172,13 +173,13 @@ int AwaitDGram(WOLFSSL_CTX* ctx)
 
 int main(int argc, char** argv)
 {
-    /* cont short for "continue?", Loc short for "location" */    
+    /* cont short for "continue?", Loc short for "location" */
     int         cont = 0;
     char        caCertLoc[] = "../certs/ca-cert.pem";
     char        servCertLoc[] = "../certs/server-cert.pem";
     char        servKeyLoc[] = "../certs/server-key.pem";
     WOLFSSL_CTX* ctx;
-    
+
     /* "./config --enable-debug" and uncomment next line for debugging */
     /* wolfSSL_Debugging_ON(); */
 
@@ -191,7 +192,7 @@ int main(int argc, char** argv)
         return 1;
     }
     /* Load CA certificates */
-    if (wolfSSL_CTX_load_verify_locations(ctx,caCertLoc,0) != 
+    if (wolfSSL_CTX_load_verify_locations(ctx,caCertLoc,0) !=
             SSL_SUCCESS) {
         printf("Error loading %s, please check the file.\n", caCertLoc);
         return 1;
@@ -203,7 +204,7 @@ int main(int argc, char** argv)
         return 1;
     }
     /* Load server Keys */
-    if (wolfSSL_CTX_use_PrivateKey_file(ctx, servKeyLoc, 
+    if (wolfSSL_CTX_use_PrivateKey_file(ctx, servKeyLoc,
                 SSL_FILETYPE_PEM) != SSL_SUCCESS) {
         printf("Error loading %s, please check the file.\n", servKeyLoc);
         return 1;

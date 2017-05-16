@@ -81,7 +81,8 @@ int dtls_recvfrom_cb(WOLFSSL* ssl, char* buf, int sz, void* ctx)
     if (!shared->handShakeDone) {
         /* get directly from socket */
         return recvfrom(shared->sd, buf, sz, 0, NULL, NULL);
-    } else {
+    }
+    else {
         /* get the "pushed" datagram from our cb buffer instead */
         int copied = min(sz, shared->recvSz);
 
@@ -265,4 +266,3 @@ int main (int argc, char** argv)
 
     return 0;
 }
-

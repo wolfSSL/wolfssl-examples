@@ -20,11 +20,11 @@
  *
  *=============================================================================
  *
- * Bare-bones example of a threaded DTLS server for instructional/learning purposes.
- * Utilizes DTLS 1.2. and multi-threading
+ * Bare-bones example of a threaded DTLS server for instructional/learning
+ * purposes. Utilizes DTLS 1.2. and multi-threading
  */
 
-
+#include <wolfssl/options.h>
 #include <stdio.h>                  /* standard in/out procedures */
 #include <stdlib.h>                 /* defines system calls */
 #include <string.h>                 /* necessary for memset */
@@ -53,7 +53,7 @@ typedef struct {
     int activefd;
     int size;
     unsigned char b[MSGLEN];
-}threadArgs;
+} threadArgs;
 
 int AwaitDGram(WOLFSSL_CTX* ctx)
 {
@@ -137,7 +137,8 @@ int AwaitDGram(WOLFSSL_CTX* ctx)
                 return 1;
             }
                 #ifdef SO_REUSEPORT
-                    res = setsockopt(args->activefd, SOL_SOCKET, SO_REUSEPORT, &on, len);
+                    res = setsockopt(args->activefd, SOL_SOCKET,
+                                        SO_REUSEPORT, &on, len);
                     if (res < 0) {
                         printf("Setsockopt SO_REUSEPORT failed.\n");
                         cleanup = 1;
@@ -218,7 +219,7 @@ void* ThreadControl(void* openSock)
         printf("wolfSSL_write fail.\n");
         cleanup = 1;
         return NULL;
-    } 
+    }
     else {
         printf("Sending reply.\n");
     }
