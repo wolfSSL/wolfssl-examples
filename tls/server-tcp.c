@@ -119,7 +119,8 @@ int main()
         return 1;
     }
 
-    /* Continuously accept connections while not currently in an active connection or told to quit */
+    /* Continuously accept connections while not currently in an active
+     * connection or told to quit */
     while (exit == 0){
         /* Listen for a new connection, allow 5 pending connections */
         listen(sockfd, 5);

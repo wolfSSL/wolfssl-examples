@@ -218,7 +218,7 @@ int main(int argc, char** argv)
     }
     
     fcntl(sockfd, F_SETFL, O_NONBLOCK);     /* sets socket to non-blocking */
-    memset(&servAddr, 0, sizeof(servAddr));     /* clears memory block for use */
+    memset(&servAddr, 0, sizeof(servAddr)); /* clears memory block for use */
     servAddr.sin_family = AF_INET;          /* sets addressfamily to internet*/
     servAddr.sin_port = htons(SERV_PORT);   /* sets port to defined port */  
 

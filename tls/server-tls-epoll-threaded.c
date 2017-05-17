@@ -224,7 +224,8 @@ static wolfSSL_method_func SSL_GetMethod(int version, int allowDowngrade)
 
 #ifndef NO_TLS
         case 3:
-            method = allowDowngrade ? wolfSSLv23_server_method_ex : wolfTLSv1_2_server_method_ex;
+            method = allowDowngrade ? wolfSSLv23_server_method_ex
+                                    : wolfTLSv1_2_server_method_ex;
             break;
 #endif
     }
@@ -771,8 +772,9 @@ static void SSLConn_PrintStats(SSLConn_CTX* ctx)
  * returns EXIT_SUCCESS when a wolfSSL context object is created and
  * EXIT_FAILURE otherwise.
  */
-static int WolfSSLCtx_Init(ThreadData* threadData, int version, int allowDowngrade,
-    char* cert, char* key, char* verifyCert, char* cipherList)
+static int WolfSSLCtx_Init(ThreadData* threadData, int version,
+    int allowDowngrade, char* cert, char* key, char* verifyCert,
+    char* cipherList)
 {
     wolfSSL_method_func method = NULL;
 
@@ -818,7 +820,8 @@ static int WolfSSLCtx_Init(ThreadData* threadData, int version, int allowDowngra
 
     /* Setup client authentication. */
     wolfSSL_CTX_set_verify(threadData->ctx, SSL_VERIFY_PEER, 0);
-    if (wolfSSL_CTX_load_verify_locations(threadData->ctx, verifyCert, 0) != SSL_SUCCESS) {
+    if (wolfSSL_CTX_load_verify_locations(threadData->ctx, verifyCert, 0)
+            != SSL_SUCCESS) {
         fprintf(stderr, "Error loading %s, please check the file.\n",
                 verifyCert);
         WolfSSLCtx_Final(threadData);
@@ -826,7 +829,8 @@ static int WolfSSLCtx_Init(ThreadData* threadData, int version, int allowDowngra
     }
 
     if (cipherList != NULL) {
-        if (wolfSSL_CTX_set_cipher_list(threadData->ctx, cipherList) != SSL_SUCCESS) {
+        if (wolfSSL_CTX_set_cipher_list(threadData->ctx, cipherList)
+                != SSL_SUCCESS) {
             fprintf(stderr, "Server can't set cipher list.\n");
             WolfSSLCtx_Final(threadData);
             return(EXIT_FAILURE);
@@ -923,7 +927,8 @@ static void *ThreadHandler(void *data)
 #endif
 
     /* Initialize wolfSSL and create a context object. */
-    if (WolfSSLCtx_Init(threadData, version, allowDowngrade, ourCert, ourKey, verifyCert, cipherList) == -1) {
+    if (WolfSSLCtx_Init(threadData, version, allowDowngrade, ourCert, ourKey,
+            verifyCert, cipherList) == -1) {
         exit(EXIT_FAILURE);
     }
 

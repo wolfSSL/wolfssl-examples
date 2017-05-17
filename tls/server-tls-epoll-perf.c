@@ -176,7 +176,8 @@ static wolfSSL_method_func SSL_GetMethod(int version, int allowDowngrade)
 
 #ifndef NO_TLS
         case 3:
-            method = allowDowngrade ? wolfSSLv23_server_method_ex : wolfTLSv1_2_server_method_ex;
+            method = allowDowngrade ? wolfSSLv23_server_method_ex
+                                    : wolfTLSv1_2_server_method_ex;
             break;
 #endif
     }

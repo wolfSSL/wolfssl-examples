@@ -155,7 +155,8 @@ int NonBlocking_ReadWriteAccept(WOLFSSL* ssl, socklen_t socketfd,
     return 1;
 }
 
-int AcceptAndRead(WOLFSSL_CTX* ctx, socklen_t socketfd, struct sockaddr_in clientAddr)
+int AcceptAndRead(WOLFSSL_CTX* ctx, socklen_t socketfd,
+        struct sockaddr_in clientAddr)
 {
     socklen_t     size = sizeof(clientAddr);
 
