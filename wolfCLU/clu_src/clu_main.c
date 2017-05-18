@@ -1,6 +1,6 @@
 /* clu_main.c
  *
- * Copyright (C) 2006-2016 wolfSSL Inc.
+ * Copyright (C) 2006-2017 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -24,6 +24,7 @@
 #include "clu_include/clu_optargs.h"
 #include "clu_include/clu_error_codes.h"
 #include "clu_include/x509/clu_request.h"
+#include "clu_include/genkey/clu_genkey.h"
 /* enumerate optionals beyond ascii range to dis-allow use of alias IE we
  * do not want "-e" to work for encrypt, user must use "encrypt"
  */
@@ -67,6 +68,8 @@ int main(int argc, char** argv)
             /* x509 Certificate request */
             case REQUEST:  ret = wolfCLU_requestSetup(argc, argv);
                             break;
+            case GEN_KEY:  ret = wolfCLU_genKeySetup(argc, argv);
+                            break;
 /* Ignore the following arguments for now. Will be handled by their respective
  * setups IE Crypto setup, Benchmark setup, or Hash Setup */
 
@@ -91,6 +94,7 @@ int main(int argc, char** argv)
             /* Certificate Stuff*/
             case INFORM:    break;
             case OUTFORM:   break;
+            case OUTPUT:    break;
             case NOOUT:     break;
             case TEXT_OUT:  break;
             case SILENT:    break;

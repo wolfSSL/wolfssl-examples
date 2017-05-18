@@ -1,6 +1,6 @@
 /* clu_funcs.c
  *
- * Copyright (C) 2006-2016 wolfSSL Inc.
+ * Copyright (C) 2006-2017 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as wolfSSL)
  *
@@ -21,6 +21,7 @@
 
 #include "clu_include/clu_header_main.h"
 #include "clu_include/version.h"
+#include "clu_include/x509/clu_cert.h" /* for PEM_FORM and DER_FORM */
 
 #define SALT_SIZE       8
 #define DES3_BLOCK_SIZE 24
@@ -58,12 +59,15 @@ int     i          =   0;       /* loop variable */
     printf("-verbose        display a more verbose help menu\n");
     printf("-inform         input format of the certificate file [PEM/DER]\n");
     printf("-outform        format to output [PEM/DER]\n");
+    printf("-output         used with -genkey option to specify which keys to\n"
+           "                output [PUB/PRIV/KEYPAIR]\n");
 
     printf("\nFor encryption:   wolfssl -encrypt -help\n");
     printf("For decryption:   wolfssl -decrypt -help\n");
     printf("For hashing:      wolfssl -hash -help\n");
     printf("For benchmarking: wolfssl -bench -help\n");
-    printf("For x509:         wolfssl -x509 -help\n\n");
+    printf("For x509:         wolfssl -x509 -help\n");
+    printf("For key creation: wolfssl -genkey -help\n\n");
  }
 
 /*
@@ -335,6 +339,19 @@ void wolfCLU_certHelp()
            "\n\n");
 }
 
+void wolfCLU_genKeyHelp() {
+    printf("\n\n");
+    printf("***************************************************************\n");
+    printf("\ngenkey USAGE:\nwolfssl -genkey <keytype> -out <filename> -outform"
+           " <PEM or DER> -output <PUB/PRIV/KEYPAIR> \n\n");
+    printf("***************************************************************\n");
+    printf("\nEXAMPLE: \n\nwolfssl -genkey ed25519 -out mykey -outform der "
+           " -output KEYPAIR"
+           "\n\nThe above command would output the files: mykey.priv "
+           " and mykey.pub\nChanging the -output option to just PRIV would only"
+           "\noutput the mykey.priv and using just PUB would only output"
+           "\nmykey.pub\n\n");
+}
 
 /*
  * finds algorithm for encryption/decryption
@@ -422,35 +439,6 @@ int wolfCLU_getAlgo(char* name, char** alg, char** mode, int* size)
         ret = FATAL_ERROR;
     }
     return ret;
-}
-
-/*
- * makes a cyptographically secure key by stretching a user entered pwdKey
- */
-int wolfCLU_genKey(RNG* rng, byte* pwdKey, int size, byte* salt, int pad)
-{
-    int ret;        /* return variable */
-
-    /* randomly generates salt */
-
-    ret = wc_RNG_GenerateBlock(rng, salt, SALT_SIZE-1);
-
-    if (ret != 0)
-        return ret;
-
-    /* set first value of salt to let us know
-     * if message has padding or not
-     */
-    if (pad == 0)
-        salt[0] = 0;
-
-    /* stretches pwdKey */
-    ret = (int) wc_PBKDF2(pwdKey, pwdKey, (int) strlen((const char*)pwdKey), salt, SALT_SIZE,
-                                                            4096, size, SHA256);
-    if (ret != 0)
-        return ret;
-
-    return 0;
 }
 
 /*
@@ -547,4 +535,77 @@ void wolfCLU_version()
 {
     printf("\nYou are using version %s of the wolfssl Command Line Utility.\n\n"
         , LIBWOLFSSL_VERSION_STRING);
+}
+
+int wolfCLU_checkForArg(char* searchTerm, int length, int argc, char** argv)
+{
+    int i;
+    int ret = 0;
+    int argFound = 0;
+
+    for (i = 0; i < argc; i++) {
+        if (argv[i] == NULL) {
+            ret = 0;
+            break; /* stop checking if no more args*/
+        } else if (XSTRNCMP(argv[i], searchTerm, length) == 0) {
+            /* EXCEPTIONS: */
+            if (XSTRNCMP(searchTerm, "-in", 3) == 0 &&
+                XSTRNCMP(searchTerm, "-inform", 7) != 0) {
+                if (XSTRNCMP(argv[i], "-inform", 7) == 0) {
+                    continue;
+                }
+            }
+            if (XSTRNCMP(searchTerm, "-out", 3) == 0 &&
+                XSTRNCMP(searchTerm, "-outform", 8) != 0 &&
+                XSTRNCMP(searchTerm, "-output", 7) != 0) {
+                if (XSTRNCMP(argv[i], "-outform", 8) == 0 ||
+                    XSTRNCMP(argv[i], "-output", 7) == 0) {
+                    continue;
+                }
+            }
+            /* END EXCEPTIONS */
+            ret = i;
+            if (argFound == 1) {
+                printf("ERROR: argument found twice: \"%s\"\n", searchTerm);
+                return USER_INPUT_ERROR;
+            }
+            argFound = 1;
+        }
+    }
+
+    return ret;
+}
+
+int wolfCLU_checkOutform(char* outform)
+{
+    if (outform == NULL) {
+        printf("Usage: -outform [PEM/DER]\n");
+        printf("missing outform required argument\n");
+        return USER_INPUT_ERROR;
+    } else if (XSTRNCMP(outform, "pem", 3) == 0) {
+        return PEM_FORM;
+    } else if (XSTRNCMP(outform, "der", 3) == 0) {
+        return DER_FORM;
+    } else {
+        printf("Usage: -outform [PEM/DER]\n");
+        printf("\"%s\" is not a valid output format\n", outform);
+    }
+    return USER_INPUT_ERROR;
+}
+
+int wolfCLU_checkInform(char* inform)
+{
+    if (inform == NULL) {
+        printf("Usage: -inform [PEM/DER]\n");
+        printf("missing inform required argument\n");
+        return USER_INPUT_ERROR;
+    } else if (XSTRNCMP(inform, "pem", 3) == 0) {
+        return PEM_FORM;
+    } else if (XSTRNCMP(inform, "der", 3) == 0) {
+        return DER_FORM;
+    } else {
+        printf("Usage: -inform [PEM/DER]\n");
+        printf("\"%s\" is not a valid input format\n", inform);
+    }
+    return USER_INPUT_ERROR;
 }
