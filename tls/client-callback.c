@@ -166,32 +166,39 @@ int Client(const char* ip, word16 port)
     WOLFSSL_CTX* ctx;
     WOLFSSL*     ssl;
 
-    if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method())) == NULL)
+    if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method())) == NULL) {
         err_sys("Error in setting client ctx\n");
+    }
     
-    if (wolfSSL_CTX_load_verify_locations(ctx, caCertFile, 0) != SSL_SUCCESS)
+    if (wolfSSL_CTX_load_verify_locations(ctx, caCertFile, 0) != SSL_SUCCESS) {
         err_sys("trouble loading client cert");
+    }
     if (wolfSSL_CTX_use_certificate_file(ctx, cliCertFile, SSL_FILETYPE_PEM)
-            != SSL_SUCCESS)
+            != SSL_SUCCESS) {
         err_sys("trouble loading client cert");
+    }
     if (wolfSSL_CTX_use_PrivateKey_file(ctx, cliKeyFile, SSL_FILETYPE_PEM)
-            != SSL_SUCCESS)
+            != SSL_SUCCESS) {
         err_sys("trouble loading client cert");
+    }
 
     /*sets the IO callback methods*/
     wolfSSL_SetIORecv(ctx, CbIORecv);
     wolfSSL_SetIOSend(ctx, CbIOSend);
 
-    if ((ssl = wolfSSL_new(ctx)) == NULL)
+    if ((ssl = wolfSSL_new(ctx)) == NULL) {
         err_sys("issue when creating ssl");
+    }
 
     tcp_connect(&fd, ip, port, 0, 0, ssl);
     wolfSSL_set_fd(ssl, fd);
-    if (wolfSSL_connect(ssl) != SSL_SUCCESS)
+    if (wolfSSL_connect(ssl) != SSL_SUCCESS) {
         err_sys("client connect failed");
+    }
 
-    if (wolfSSL_write(ssl, msg, msgSz) != msgSz)
+    if (wolfSSL_write(ssl, msg, msgSz) != msgSz) {
         err_sys("client write failed");
+    }
 
     memset(reply, 0, MAXSZ);
     if ((n = wolfSSL_read(ssl, reply, MAXSZ - 1)) > 0) {
@@ -222,12 +229,14 @@ int main(int argc, char* argv[])
 
     wolfSSL_Init();
     if (argc < 3) {
-        if (Client(argv[1], YASSLPORT) != 0)
+        if (Client(argv[1], YASSLPORT) != 0) {
             err_sys("error creating client");
         }
+    }
     else {
-        if (Client(argv[1], (word16)atoi(argv[2])) != 0)
+        if (Client(argv[1], (word16)atoi(argv[2])) != 0) {
             err_sys("error creating client");
+        }
     }
     wolfSSL_Cleanup();
 

@@ -75,20 +75,21 @@ void *ThreadHandler(void* socketDesc)
             printf("Client on Socket %d: %s\n", connd, buff);
             
             /* Reply back to the client */
-            if ((ret = wolfSSL_write(ssl, reply, sizeof(reply)-1)) 
-                < 0) {
+            if ((ret = wolfSSL_write(ssl, reply, sizeof(reply)-1)) < 0) {
                 printf("wolfSSL_write error = %d\n", wolfSSL_get_error(ssl, ret));
             }
         }
         /* if the client disconnects break the loop */
         else {
-            if (ret < 0)
-                printf("wolfSSL_read error = %d\n", wolfSSL_get_error(ssl
-                    ,ret));
-            else if (ret == 0)
+            if (ret < 0) {
+                printf("wolfSSL_read error = %d\n",
+                        wolfSSL_get_error(ssl ,ret));
+            }
+            else if (ret == 0) {
                 printf("The client has closed the connection.\n");
+            }
 
-            wolfSSL_free(ssl);           /* Free the WOLFSSL object */
+            wolfSSL_free(ssl);          /* Free the WOLFSSL object */
             close(connd);               /* close the connected socket */
             break;
         }
@@ -109,8 +110,8 @@ int AcceptAndRead(socklen_t sockfd, struct sockaddr_in clientAddr)
     while ((connd = accept(sockfd, (struct sockaddr *)&clientAddr, 
         &size))) {
         /* Pass the client into a new thread */
-        if (pthread_create(&thread_id, NULL, ThreadHandler, (void *)
-            &connd) < 0) {
+        if (pthread_create(&thread_id, NULL, ThreadHandler, (void *)&connd)
+            < 0) {
             perror("could not create thread");
         }
         printf("Handler assigned\n");
@@ -177,8 +178,7 @@ int main()
     }
 
     /* Attach the server socket to our port */
-    if (bind(sockfd, (struct sockaddr *)&serverAddr, sizeof(serverAddr))
-        < 0) {
+    if (bind(sockfd, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) < 0) {
         printf("ERROR: failed to bind\n");
         return EXIT_FAILURE;
     }

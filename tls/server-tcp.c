@@ -66,12 +66,14 @@ int AcceptAndRead(socklen_t sockfd)
                 char reply[] = "I hear ya fa shizzle!\n";
                 
                 /* Reply back to the client */
-                if ((ret = write(connd, reply, sizeof(reply)-1)) < 0)
+                if ((ret = write(connd, reply, sizeof(reply)-1)) < 0) {
                     printf("write error\n");
+                }
             }
             /* If the client disconnects break the loop */
-            else
+            else {
                 break;
+            }
         }
     }
 

@@ -135,10 +135,12 @@ int Security(int sock, struct sockaddr_in addr)
     }
     
     /* checks to see if the new session is the same as the old session */
-    if (wolfSSL_session_reused(sslResume))
+    if (wolfSSL_session_reused(sslResume)) {
         printf("Re-used session ID\n"); 
-    else
+    }
+    else {
         printf("Did not re-use session ID\n");
+    }
     
     /* regreet the client */
     ret = ClientGreet(sock, sslResume);

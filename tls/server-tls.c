@@ -84,19 +84,18 @@ int AcceptAndRead(WOLFSSL_CTX* ctx, socklen_t sockfd, struct sockaddr_in
                 printf("Client: %s\n", buff);
 
                 /* Reply back to the client */
-                if ((ret = wolfSSL_write(ssl, reply, sizeof(reply)-1))
-                    < 0)
-                {
+                if ((ret = wolfSSL_write(ssl, reply, sizeof(reply)-1)) < 0) {
                     printf("wolfSSL_write error = %d\n", wolfSSL_get_error(ssl, ret));
                 }
             }
             /* if the client disconnects break the loop */
             else {
-                if (ret < 0)
-                    printf("wolfSSL_read error = %d\n", wolfSSL_get_error(ssl
-                        ,ret));
-                else if (ret == 0)
+                if (ret < 0) {
+                    printf("wolfSSL_read error = %d\n", wolfSSL_get_error(ssl ,ret));
+                }
+                else if (ret == 0) {
                     printf("The client has closed the connection.\n");
+                }
 
                 break;
             }
@@ -157,7 +156,8 @@ int main()
     }
 
     /* load DH params */
-    ret = wolfSSL_CTX_SetTmpDH_file(ctx, "../certs/dh2048.pem" , SSL_FILETYPE_PEM);
+    ret = wolfSSL_CTX_SetTmpDH_file(ctx, "../certs/dh2048.pem",
+            SSL_FILETYPE_PEM);
     if (ret != SSL_SUCCESS) {
         fprintf(stderr, "Error setting DH parameters.\n");
         return EXIT_FAILURE;
@@ -171,8 +171,7 @@ int main()
     serverAddr.sin_port        = htons(DEFAULT_PORT);
 
     /* Attach the server socket to our port */
-    if (bind(sockfd, (struct sockaddr *)&serverAddr, sizeof(serverAddr))
-        < 0) {
+    if (bind(sockfd, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) < 0) {
         printf("ERROR: failed to bind\n");
         return EXIT_FAILURE;
     }

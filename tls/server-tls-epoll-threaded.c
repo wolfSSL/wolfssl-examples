@@ -267,18 +267,23 @@ static int SSL_Write(WOLFSSL* ssl, char* reply, int replyLen, int* totalBytes,
         *totalBytes += rwret;
         pthread_mutex_unlock(&sslConnMutex);
     }
-    if (rwret == replyLen)
+    if (rwret == replyLen) {
         return 1;
+    }
 
     error = wolfSSL_get_error(ssl, 0);
-    if (error == SSL_ERROR_WANT_READ)
+    if (error == SSL_ERROR_WANT_READ) {
         return 2;
-    if (error == SSL_ERROR_WANT_WRITE)
+    }
+    if (error == SSL_ERROR_WANT_WRITE) {
         return 3;
-    if (error == WC_PENDING_E)
+    }
+    if (error == WC_PENDING_E) {
         return 4;
-    if (error == 0)
+    }
+    if (error == 0) {
         return 1;
+    }
 
     /* Cannot do anything about other errors. */
     fprintf(stderr, "wolfSSL_write error = %d\n", error);
@@ -307,8 +312,9 @@ static int SSL_Read(WOLFSSL* ssl, char* buffer, int len, int* totalBytes,
 
     pthread_mutex_lock(&sslConnMutex);
     *readTime += diff;
-    if (rwret > 0)
+    if (rwret > 0) {
         *totalBytes += rwret;
+    }
     pthread_mutex_unlock(&sslConnMutex);
 
     if (rwret == 0) {
@@ -316,14 +322,18 @@ static int SSL_Read(WOLFSSL* ssl, char* buffer, int len, int* totalBytes,
     }
 
     error = wolfSSL_get_error(ssl, 0);
-    if (error == SSL_ERROR_WANT_READ)
+    if (error == SSL_ERROR_WANT_READ) {
         return 2;
-    if (error == SSL_ERROR_WANT_WRITE)
+    }
+    if (error == SSL_ERROR_WANT_WRITE) {
         return 3;
-    if (error == WC_PENDING_E)
+    }
+    if (error == WC_PENDING_E) {
         return 4;
-    if (error == 0)
+    }
+    if (error == 0) {
         return 1;
+    }
 
     /* Cannot do anything about other errors. */
     fprintf(stderr, "wolfSSL_read error = %d\n", error);
@@ -349,10 +359,12 @@ static int SSL_Accept(WOLFSSL* ssl, double* acceptTime, double* resumeTime)
     diff = current_time(0) - start;
 
     pthread_mutex_lock(&sslConnMutex);
-    if (!wolfSSL_session_reused(ssl))
+    if (!wolfSSL_session_reused(ssl)) {
         *acceptTime += diff;
-    else
+    }
+    else {
         *resumeTime += diff;
+    }
     pthread_mutex_unlock(&sslConnMutex);
 
     if (ret == 0) {
@@ -360,16 +372,20 @@ static int SSL_Accept(WOLFSSL* ssl, double* acceptTime, double* resumeTime)
         return 0;
     }
 
-    if (ret == SSL_SUCCESS)
+    if (ret == SSL_SUCCESS) {
         return 1;
+    }
 
     error = wolfSSL_get_error(ssl, 0);
-    if (error == SSL_ERROR_WANT_READ)
+    if (error == SSL_ERROR_WANT_READ) {
         return 2;
-    if (error == SSL_ERROR_WANT_WRITE)
+    }
+    if (error == SSL_ERROR_WANT_WRITE) {
         return 3;
-    if (error == WC_PENDING_E)
+    }
+    if (error == WC_PENDING_E) {
         return 4;
+    }
 
     /* Cannot do anything about other errors. */
     fprintf(stderr, "wolfSSL_accept error = %d\n", error);
@@ -396,8 +412,9 @@ static SSLConn_CTX* SSLConn_New(int numThreads, int numConns, int bufferLen,
     int          i;
 
     ctx = (SSLConn_CTX*)malloc(sizeof(*ctx));
-    if (ctx == NULL)
+    if (ctx == NULL) {
         return NULL;
+    }
     memset(ctx, 0, sizeof(*ctx));
 
     ctx->numThreads = numThreads;
@@ -437,8 +454,9 @@ static void SSLConn_Free(SSLConn_CTX* ctx)
     int i;
     ThreadData* threadData;
 
-    if (ctx == NULL)
+    if (ctx == NULL) {
         return;
+    }
 
     for (i = 0; i < ctx->numThreads; i++) {
         threadData = &ctx->threadData[i];
@@ -465,14 +483,16 @@ static void SSLConn_Close(SSLConn_CTX* ctx, ThreadData* threadData,
 {
     int ret;
 
-    if (sslConn->state == CLOSED)
+    if (sslConn->state == CLOSED) {
         return;
+    }
 
     pthread_mutex_lock(&sslConnMutex);
     ret = (ctx->numConnections == 0);
     ctx->numConnections++;
-    if (wolfSSL_session_reused(sslConn->ssl))
+    if (wolfSSL_session_reused(sslConn->ssl)) {
         ctx->numResumed++;
+    }
     pthread_mutex_unlock(&sslConnMutex);
 
     if (ret) {
@@ -484,12 +504,15 @@ static void SSLConn_Close(SSLConn_CTX* ctx, ThreadData* threadData,
     sslConn->state = CLOSED;
 
     /* Take it out of the double-linked list. */
-    if (threadData->sslConn == sslConn)
+    if (threadData->sslConn == sslConn) {
         threadData->sslConn = sslConn->next;
-    if (sslConn->next != NULL)
+    }
+    if (sslConn->next != NULL) {
         sslConn->next->prev = sslConn->prev;
-    if (sslConn->prev != NULL)
+    }
+    if (sslConn->prev != NULL) {
         sslConn->prev->next = sslConn->next;
+    }
 
     /* Put object at head of free list */
     sslConn->next = threadData->freeSSLConn;
@@ -536,8 +559,9 @@ static int SSLConn_Done(SSLConn_CTX* ctx) {
     int ret;
 
     pthread_mutex_lock(&sslConnMutex);
-    if (ctx->maxConnections > 0)
+    if (ctx->maxConnections > 0) {
         ret = (ctx->numConnections >= ctx->maxConnections);
+    }
     else {
         ret = (ctx->totalWriteBytes >= ctx->maxBytes) &&
               (ctx->totalReadBytes >= ctx->maxBytes);
@@ -564,8 +588,9 @@ static int SSLConn_Accept(ThreadData* threadData, WOLFSSL_CTX* sslCtx,
     SSLConn*           conn;
 
     conn = malloc(sizeof(*conn));
-    if (conn == NULL)
+    if (conn == NULL) {
         return EXIT_FAILURE;
+    }
 
     /* Accept the client connection. */
     conn->sockfd = accept(sockfd, (struct sockaddr *)&clientAddr, &size);
@@ -590,8 +615,9 @@ static int SSLConn_Accept(ThreadData* threadData, WOLFSSL_CTX* sslCtx,
     conn->state = ACCEPT;
     conn->next = threadData->sslConn;
     conn->prev = NULL;
-    if (threadData->sslConn != NULL)
+    if (threadData->sslConn != NULL) {
         threadData->sslConn->prev = conn;
+    }
     threadData->sslConn = conn;
     threadData->cnt++;
 
@@ -623,8 +649,9 @@ static int SSLConn_ReadWrite(SSLConn_CTX* ctx, ThreadData* threadData,
                 return EXIT_FAILURE;
             }
 
-            if (ret == 1)
+            if (ret == 1) {
                 sslConn->state = READ;
+            }
             break;
 
         case READ:
@@ -635,8 +662,9 @@ static int SSLConn_ReadWrite(SSLConn_CTX* ctx, ThreadData* threadData,
                 if (ctx->maxBytes > 0) {
                     len = min(len, ctx->maxBytes - ctx->totalReadBytes);
                 }
-                if (len == 0)
+                if (len == 0) {
                     break;
+                }
 
                 /* Read application data. */
                 ret = SSL_Read(sslConn->ssl, buffer, len, &ctx->totalReadBytes,
@@ -647,8 +675,9 @@ static int SSLConn_ReadWrite(SSLConn_CTX* ctx, ThreadData* threadData,
                 }
             }
 
-            if (ret != 1)
+            if (ret != 1) {
                 break;
+            }
             sslConn->state = WRITE;
 
         case WRITE:
@@ -656,8 +685,9 @@ static int SSLConn_ReadWrite(SSLConn_CTX* ctx, ThreadData* threadData,
             if (ctx->maxBytes > 0) {
                 len = min(len, ctx->maxBytes - ctx->totalWriteBytes);
             }
-            if (len == 0)
+            if (len == 0) {
                 break;
+            }
 
             /* Write application data. */
             ret = SSL_Write(sslConn->ssl, reply, len, &ctx->totalWriteBytes,
@@ -668,8 +698,9 @@ static int SSLConn_ReadWrite(SSLConn_CTX* ctx, ThreadData* threadData,
                 return EXIT_FAILURE;
             }
 
-            if (ret == 1)
+            if (ret == 1) {
                 sslConn->state = READ;
+            }
             break;
 
         case CLOSED:
@@ -746,8 +777,9 @@ static int WolfSSLCtx_Init(ThreadData* threadData, int version, int allowDowngra
     wolfSSL_method_func method = NULL;
 
     method = SSL_GetMethod(version, allowDowngrade);
-    if (method == NULL)
+    if (method == NULL) {
         return(EXIT_FAILURE);
+    }
 
     /* Create and initialize WOLFSSL_CTX structure */
     if ((threadData->ctx = wolfSSL_CTX_new(method(NULL))) == NULL) {
@@ -769,8 +801,8 @@ static int WolfSSLCtx_Init(ThreadData* threadData, int version, int allowDowngra
 #endif
 
     /* Load server certificate into WOLFSSL_CTX */
-    if (wolfSSL_CTX_use_certificate_file(threadData->ctx, cert, SSL_FILETYPE_PEM)
-            != SSL_SUCCESS) {
+    if (wolfSSL_CTX_use_certificate_file(threadData->ctx, cert,
+            SSL_FILETYPE_PEM) != SSL_SUCCESS) {
         fprintf(stderr, "Error loading %s, please check the file.\n", cert);
         WolfSSLCtx_Final(threadData);
         return(EXIT_FAILURE);
@@ -848,13 +880,14 @@ static int CreateSocketListen(int port, int numClients, socklen_t* socketfd) {
         fprintf(stderr, "ERROR: failed to create the socket\n");
         return(EXIT_FAILURE);
     }
-    if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEPORT, &on, len) < 0)
+    if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEPORT, &on, len) < 0) {
         fprintf(stderr, "setsockopt SO_REUSEADDR failed\n");
-    if (setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, &on, len) < 0)
+    }
+    if (setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, &on, len) < 0) {
         fprintf(stderr, "setsockopt TCP_NODELAY failed\n");
+    }
 
-    if (bind(sockfd, (struct sockaddr *)&serverAddr,
-             sizeof(serverAddr)) < 0) {
+    if (bind(sockfd, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) < 0) {
         fprintf(stderr, "ERROR: failed to bind\n");
         return(EXIT_FAILURE);
     }
@@ -896,12 +929,14 @@ static void *ThreadHandler(void *data)
 
     /* Allocate space for EPOLL events to be stored. */
     events = (struct epoll_event*)malloc(EPOLL_NUM_EVENTS * sizeof(*events));
-    if (events == NULL)
+    if (events == NULL) {
         exit(EXIT_FAILURE);
+    }
 
     /* Create a socket and listen for a client. */
-    if (CreateSocketListen(port, numClients, &socketfd) == EXIT_FAILURE)
+    if (CreateSocketListen(port, numClients, &socketfd) == EXIT_FAILURE) {
         exit(EXIT_FAILURE);
+    }
 
     /* Create an EPOLL file descriptor. */
     efd = epoll_create1(0);
@@ -1008,8 +1043,9 @@ static void *ThreadHandler(void *data)
             else {
                 if (sslConnCtx->totalTime == 0) {
                     pthread_mutex_lock(&sslConnMutex);
-                    if (sslConnCtx->totalTime == 0)
+                    if (sslConnCtx->totalTime == 0) {
                         sslConnCtx->totalTime = current_time(1);
+                    }
                     pthread_mutex_unlock(&sslConnMutex);
                 }
                 ret = SSLConn_ReadWrite(sslConnCtx, threadData,
@@ -1018,8 +1054,7 @@ static void *ThreadHandler(void *data)
         }
 
         /* Accept more connections again up to the maximum concurrent. */
-        if (!threadData->accepting &&
-            threadData->cnt < sslConnCtx->numConns) {
+        if (!threadData->accepting && threadData->cnt < sslConnCtx->numConns) {
             ret = epoll_ctl(efd, EPOLL_CTL_ADD, socketfd, &event);
             if (ret == -1) {
                 fprintf(stderr, "ERROR: failed add event to epoll\n");
@@ -1029,8 +1064,9 @@ static void *ThreadHandler(void *data)
         }
     }
 
-    if (socketfd != -1)
+    if (socketfd != -1) {
         close(socketfd);
+    }
     free(events);
 
     return NULL;
@@ -1219,19 +1255,21 @@ int main(int argc, char* argv[])
     /* Create SSL/TLS connection data object. */
     sslConnCtx = SSLConn_New(numThreads, numConns, numBytesRead, numBytesWrite,
                              maxConns, maxBytes);
-    if (sslConnCtx == NULL)
+    if (sslConnCtx == NULL) {
         exit(EXIT_FAILURE);
+    }
 
     for (i = 0; i < numThreads; i++) {
         if (pthread_create(&sslConnCtx->threadData[i].thread_id, NULL,
-                           ThreadHandler, &sslConnCtx->threadData[i]) < 0) {
+                ThreadHandler, &sslConnCtx->threadData[i]) < 0) {
             perror("ERRROR: could not create thread");
         }
     }
 
     /* Start all the threads. */
-    for (i = 0; i < numThreads; i++)
-        pthread_join(sslConnCtx->threadData[i].thread_id, NULL) ;
+    for (i = 0; i < numThreads; i++) {
+        pthread_join(sslConnCtx->threadData[i].thread_id, NULL);
+    }
 
     sslConnCtx->totalTime = current_time(0) - sslConnCtx->totalTime;
 
