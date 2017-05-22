@@ -54,7 +54,7 @@ int Respond(WOLFSSL* ssl)
         }
     }
     if (n < 0) {
-        printf("Fatal error :espond: read error\n");
+        printf("Fatal error :respond: read error\n");
         return 1;
     }
 
