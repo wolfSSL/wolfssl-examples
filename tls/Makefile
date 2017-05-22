@@ -1,5 +1,5 @@
 # TLS Examples Makefile
-CC=clang
+CC=gcc
 LIB_PATH=/usr/local
 CFLAGS=-Wall -I$(LIB_PATH)/include
 LIBS=-L$(LIB_PATH)/lib -lm
