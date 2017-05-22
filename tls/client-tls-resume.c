@@ -50,7 +50,7 @@ int ClientGreet(int sock, WOLFSSL* ssl)
         return EXIT_FAILURE;
     }
 
-    if (wolfSSL_read(ssl, rcvBuff, MAXDATASIZE) == 0) {
+    if ((ret = wolfSSL_read(ssl, rcvBuff, MAXDATASIZE)) <= 0) {
         /* the server failed to send data, or error trying */
         ret = wolfSSL_get_error(ssl, 0);
         printf("Read error. Error: %i\n", ret);
@@ -100,6 +100,9 @@ int Security(int sock, struct sockaddr_in addr)
     }
     
     ret = ClientGreet(sock, ssl);
+    if (ret < 0) {
+        return ret;
+    }
     
     /* saves the session */
     session = wolfSSL_get_session(ssl);
@@ -135,10 +138,12 @@ int Security(int sock, struct sockaddr_in addr)
     }
     
     /* checks to see if the new session is the same as the old session */
-    if (wolfSSL_session_reused(sslResume))
+    if (wolfSSL_session_reused(sslResume)) {
         printf("Re-used session ID\n"); 
-    else
+    }
+    else {
         printf("Did not re-use session ID\n");
+    }
     
     /* regreet the client */
     ret = ClientGreet(sock, sslResume);

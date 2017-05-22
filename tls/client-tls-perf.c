@@ -202,20 +202,26 @@ static int SSL_Write(WOLFSSL* ssl, char* reply, int replyLen, int* totalBytes,
         return 0;
     }
 
-    if (rwret > 0)
+    if (rwret > 0) {
         *totalBytes += rwret;
-    if (rwret == replyLen)
+    }
+    if (rwret == replyLen) {
         return 1;
+    }
 
     error = wolfSSL_get_error(ssl, 0);
-    if (error == SSL_ERROR_WANT_READ)
+    if (error == SSL_ERROR_WANT_READ) {
         return 2;
-    if (error == SSL_ERROR_WANT_WRITE)
+    }
+    if (error == SSL_ERROR_WANT_WRITE) {
         return 3;
-    if (error == WC_PENDING_E)
+    }
+    if (error == WC_PENDING_E) {
         return 4;
-    if (error == 0)
+    }
+    if (error == 0) {
         return 1;
+    }
 
     /* Cannot do anything about other errors. */
     fprintf(stderr, "wolfSSL_read/write error = %d\n", error);
@@ -246,18 +252,23 @@ static int SSL_Read(WOLFSSL* ssl, char* buffer, int len, int* totalBytes,
         return 0;
     }
 
-    if (rwret > 0)
+    if (rwret > 0) {
         *totalBytes += rwret;
+    }
 
     error = wolfSSL_get_error(ssl, 0);
-    if (error == SSL_ERROR_WANT_READ)
+    if (error == SSL_ERROR_WANT_READ) {
         return 2;
-    if (error == SSL_ERROR_WANT_WRITE)
+    }
+    if (error == SSL_ERROR_WANT_WRITE) {
         return 3;
-    if (error == WC_PENDING_E)
+    }
+    if (error == WC_PENDING_E) {
         return 4;
-    if (error == 0)
+    }
+    if (error == 0) {
         return 1;
+    }
 
     /* Cannot do anything about other errors. */
     fprintf(stderr, "wolfSSL_read/write error = %d\n", error);
@@ -281,31 +292,39 @@ static int SSL_Connect(WOLFSSL* ssl, int resume, WOLFSSL_SESSION* session,
     double start;
 
     start = current_time(1);
-    if (resume && (session != NULL))
+    if (resume && (session != NULL)) {
         wolfSSL_set_session(ssl, session);
+    }
     /* Connect to the server. */
     ret = wolfSSL_connect(ssl);
-    if (!wolfSSL_session_reused(ssl))
+    if (!wolfSSL_session_reused(ssl)) {
         *connTime += current_time(0) - start;
-    else
+    }
+    else {
         *resumeTime += current_time(0) - start;
+    }
     if (ret == 0) {
         fprintf(stderr, "The server has closed the connection!\n");
         return 0;
     }
 
-    if (ret == SSL_SUCCESS)
+    if (ret == SSL_SUCCESS) {
         return 1;
+    }
 
     error = wolfSSL_get_error(ssl, 0);
-    if (error == SSL_ERROR_WANT_READ)
+    if (error == SSL_ERROR_WANT_READ) {
         return 2;
-    if (error == SSL_ERROR_WANT_WRITE)
+    }
+    if (error == SSL_ERROR_WANT_WRITE) {
         return 3;
-    if (error == WC_PENDING_E)
+    }
+    if (error == WC_PENDING_E) {
         return 4;
-    if (error == 0)
+    }
+    if (error == 0) {
         return EXIT_SUCCESS;
+    }
 
     /* Cannot do anything about other errors. */
     fprintf(stderr, "wolfSSL_read/write error = %d\n", error);
@@ -355,8 +374,9 @@ static SSLConn_CTX* SSLConn_New(int numConns, int bufferLen, int replyLen,
     int          i;
 
     ctx = (SSLConn_CTX*)malloc(sizeof(*ctx));
-    if (ctx == NULL)
+    if (ctx == NULL) {
         return NULL;
+    }
     memset(ctx, 0, sizeof(*ctx));
 
     ctx->resume = resume;
@@ -406,25 +426,30 @@ static void SSLConn_Free(SSLConn_CTX* ctx)
 {
     int i;
 
-    if (ctx == NULL)
+    if (ctx == NULL) {
         return;
+    }
 
     if (ctx->sslConn != NULL) {
-        for (i = 0; i < ctx->numConns; i++)
+        for (i = 0; i < ctx->numConns; i++) {
             if (ctx->sslConn[i].ssl != NULL) {
                 wolfSSL_free(ctx->sslConn[i].ssl);
                 close(ctx->sslConn[i].sockfd);
             }
+        }
 
-        if (ctx->sslConn != NULL)
+        if (ctx->sslConn != NULL) {
             free(ctx->sslConn);
+        }
     }
 
-    if (ctx->buffer != NULL)
+    if (ctx->buffer != NULL) {
         free(ctx->buffer);
+    }
 
-    if (ctx->reply != NULL)
+    if (ctx->reply != NULL) {
         free(ctx->reply);
+    }
 
     free(ctx);
 }
@@ -436,12 +461,14 @@ static void SSLConn_Free(SSLConn_CTX* ctx)
  */
 static void SSLConn_Close(SSLConn_CTX* ctx, SSLConn* sslConn)
 {
-    if (wolfSSL_session_reused(sslConn->ssl))
+    if (wolfSSL_session_reused(sslConn->ssl)) {
         ctx->numResumed++;
+    }
     ctx->numConnections++;
 
-    if (ctx->resume)
+    if (ctx->resume) {
         sslConn->session = wolfSSL_get_session(sslConn->ssl);
+    }
     wolfSSL_free(sslConn->ssl);
     sslConn->ssl = NULL;
 
@@ -460,8 +487,9 @@ static void SSLConn_Close(SSLConn_CTX* ctx, SSLConn* sslConn)
  * returns 1 if the run is done or 0 otherwise.
  */
 static int SSLConn_Done(SSLConn_CTX* ctx) {
-    if (ctx->maxConnections > 0)
+    if (ctx->maxConnections > 0) {
         return (ctx->numConnections >= ctx->maxConnections);
+    }
     return (ctx->totalWriteBytes >= ctx->maxBytes) &&
            (ctx->totalReadBytes >= ctx->maxBytes);
 }
@@ -514,13 +542,16 @@ static int TCP_Select(SOCKET_T socketfd, int to_sec)
 
     result = select(nfds, &recvfds, NULL, &errfds, &timeout);
 
-    if (result == 0)
+    if (result == 0) {
         return -1;
+    }
     else if (result > 0) {
-        if (FD_ISSET(socketfd, &recvfds))
+        if (FD_ISSET(socketfd, &recvfds)) {
             return 1;
-        else if(FD_ISSET(socketfd, &errfds))
+        }
+        else if(FD_ISSET(socketfd, &errfds)) {
             return 0;
+        }
     }
 
     return TEST_SELECT_FAIL;
@@ -562,8 +593,9 @@ static int SSLConn_ReadWrite(SSLConn_CTX* ctx, SSLConn* sslConn)
                 len = min(len, ctx->maxBytes - ctx->totalWriteBytes);
             }
             /* Don't write if we are done. */
-            if (len == 0)
+            if (len == 0) {
                 break;
+            }
 
             /* Write application data. */
             ret = SSL_Write(sslConn->ssl, ctx->reply, len,
@@ -573,14 +605,16 @@ static int SSLConn_ReadWrite(SSLConn_CTX* ctx, SSLConn* sslConn)
                 return EXIT_FAILURE;
             }
 
-            if (ret == 1)
+            if (ret == 1) {
                 sslConn->state = READ_WAIT;
+            }
             break;
 
         case READ_WAIT:
             ret = TCP_Select(sslConn->sockfd, 0);
-            if (ret != 1)
+            if (ret != 1) {
                 break;
+            }
             sslConn->state = READ;
 
         case READ:
@@ -589,8 +623,9 @@ static int SSLConn_ReadWrite(SSLConn_CTX* ctx, SSLConn* sslConn)
                 len = min(len, ctx->maxBytes - ctx->totalReadBytes);
             }
             /* Don't read if we are done. */
-            if (len == 0)
+            if (len == 0) {
                 break;
+            }
 
             /* Read application data. */
             ret = SSL_Read(sslConn->ssl, ctx->buffer, len, &ctx->totalReadBytes,
@@ -601,10 +636,12 @@ static int SSLConn_ReadWrite(SSLConn_CTX* ctx, SSLConn* sslConn)
             }
 
             if (ret == 1) {
-                if (ctx->maxConnections > 0)
+                if (ctx->maxConnections > 0) {
                     sslConn->state = CLOSE;
-                else
+                }
+                else {
                     sslConn->state = WRITE;
+                }
             }
             break;
     }
@@ -680,8 +717,9 @@ static int WolfSSLCtx_Init(int version, char* cert, char* key, char* verifyCert,
     wolfSSL_method_func method = NULL;
 
     method = SSL_GetMethod(version);
-    if (method == NULL)
+    if (method == NULL) {
         return(EXIT_FAILURE);
+    }
 
     /* Create and initialize WOLFSSL_CTX structure */
     if ((ctx = wolfSSL_CTX_new(method(NULL))) == NULL) {
@@ -698,8 +736,9 @@ static int WolfSSLCtx_Init(int version, char* cert, char* key, char* verifyCert,
 #endif
 
     if (cipherList) {
-        if (wolfSSL_CTX_set_cipher_list(ctx, cipherList) != SSL_SUCCESS)
+        if (wolfSSL_CTX_set_cipher_list(ctx, cipherList) != SSL_SUCCESS) {
             err_sys("client can't set cipher list 1");
+        }
     }
 
     /* load CA certificates into wolfSSL_CTX. which will verify the server */
@@ -714,7 +753,7 @@ static int WolfSSLCtx_Init(int version, char* cert, char* key, char* verifyCert,
     }
 
     if (wolfSSL_CTX_use_PrivateKey_file(ctx, key, SSL_FILETYPE_PEM)
-                                     != SSL_SUCCESS) {
+            != SSL_SUCCESS) {
         printf("Error loading %s. Please check the file.\n", key);
         return EXIT_FAILURE;
     }
@@ -764,8 +803,9 @@ static int CreateSocketConnect(int port, socklen_t* socketfd)
     serverAddr.sin_addr.s_addr = INADDR_ANY;
     serverAddr.sin_port        = htons(port);
 
-    if (setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, &on, len) < 0)
+    if (setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, &on, len) < 0) {
         fprintf(stderr, "setsockopt TCP_NODELAY failed\n");
+    }
 
     /* Connect to the server. */
     while (connect(sockfd, (struct sockaddr *)&serverAddr, sizeof(serverAddr)))
@@ -934,14 +974,16 @@ int main(int argc, char* argv[])
 
     /* Initialize wolfSSL and create a context object. */
     if (WolfSSLCtx_Init(version, ourCert, ourKey, verifyCert, cipherList, &ctx)
-            == EXIT_FAILURE)
+            == EXIT_FAILURE) {
         exit(EXIT_FAILURE);
+    }
 
     /* Create SSL/TLS connection data object. */
     sslConnCtx = SSLConn_New(numConns, numBytesRead, numBytesWrite,
                              maxConns, maxBytes, resumeSession);
-    if (sslConnCtx == NULL)
+    if (sslConnCtx == NULL) {
         exit(EXIT_FAILURE);
+    }
 
     /* Keep handling connections until all done. */
     for (i = 0; !SSLConn_Done(sslConnCtx); i = (i + 1) % numConns) {
@@ -953,15 +995,14 @@ int main(int argc, char* argv[])
                 WOLFSSL_CIPHER* cipher;
                 cipher = wolfSSL_get_current_cipher(sslConn->ssl);
                 printf("SSL cipher suite is %s\n",
-                       wolfSSL_CIPHER_get_name(cipher));
+                        wolfSSL_CIPHER_get_name(cipher));
             }
             SSLConn_Close(sslConnCtx, sslConn);
         }
 
         /* Create TCP connection and connect if in INIT state. */
-        if ((sslConn->state == INIT) &&
-            ((sslConnCtx->maxConnections <= 0) ||
-             (sslConnCtx->numCreated < sslConnCtx->maxConnections))) {
+        if ((sslConn->state == INIT) && ((sslConnCtx->maxConnections <= 0) ||
+                (sslConnCtx->numCreated < sslConnCtx->maxConnections))) {
             if (CreateSocketConnect(port, &socketfd) == EXIT_FAILURE) {
                 printf("ERROR: failed to connect to server\n");
                 exit(EXIT_FAILURE);
@@ -982,15 +1023,17 @@ int main(int argc, char* argv[])
                 printf("ERROR: failed in async polling\n");
                 break;
             }
-            if (ret == 0)
+            if (ret == 0) {
                 continue;
+            }
         }
         sslConn->err = 0;
 #endif
 
         /* Handle other SSL states. */
-        if (sslConnCtx->totalTime == 0)
+        if (sslConnCtx->totalTime == 0) {
             sslConnCtx->totalTime = current_time(1);
+        }
         if (SSLConn_ReadWrite(sslConnCtx, sslConn) == EXIT_FAILURE) {
             if (sslConnCtx->maxConnections > 0)
                 sslConn->state = CLOSE;

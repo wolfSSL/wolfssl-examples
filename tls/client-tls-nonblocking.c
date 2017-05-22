@@ -56,13 +56,16 @@ static inline int tcp_select(int socketfd, int to_sec)
 
     result = select(nfds, &recvfds, NULL, &errfds, &timeout);
 
-    if (result == 0)
+    if (result == 0) {
         return TEST_TIMEOUT;
+    }
     else if (result > 0) {
-        if (FD_ISSET(socketfd, &recvfds))
+        if (FD_ISSET(socketfd, &recvfds)) {
             return TEST_RECV_READY;
-        else if(FD_ISSET(socketfd, &errfds))
+        }
+        else if(FD_ISSET(socketfd, &errfds)) {
             return TEST_ERROR_READY;
+        }
     }
 
     return TEST_SELECT_FAIL;
@@ -79,16 +82,18 @@ int NonBlockConnect(WOLFSSL* ssl)
                                   error == SSL_ERROR_WANT_WRITE)) {
         int currTimeout = 1;
 
-        if (error == SSL_ERROR_WANT_READ)
+        if (error == SSL_ERROR_WANT_READ) {
             printf("... server would read block\n");
-        else
+        }
+        else {
             printf("... server would write block\n");
+        }
 
         select_ret = tcp_select(sockfd, currTimeout);
 
         if ((select_ret == TEST_RECV_READY) ||
-                                        (select_ret == TEST_ERROR_READY)) {
-                    ret = wolfSSL_connect(ssl);
+                (select_ret == TEST_ERROR_READY)) {
+            ret = wolfSSL_connect(ssl);
             error = wolfSSL_get_error(ssl, 0);
         }
         else if (select_ret == TEST_TIMEOUT) {
@@ -132,6 +137,10 @@ int count = 0;
         while (ret == SSL_ERROR_WANT_READ) {
 count++;
             ret = wolfSSL_read(ssl, rcvBuff, MAXDATASIZE);
+            if (ret > 0) {
+                break;
+            }
+
             ret = wolfSSL_get_error(ssl, 0);
         }
 printf("counter %d\n", count);
@@ -213,7 +222,7 @@ int main(int argc, char** argv)
     }
     
     fcntl(sockfd, F_SETFL, O_NONBLOCK);     /* sets socket to non-blocking */
-    memset(&servAddr, 0, sizeof(servAddr));     /* clears memory block for use */
+    memset(&servAddr, 0, sizeof(servAddr)); /* clears memory block for use */
     servAddr.sin_family = AF_INET;          /* sets addressfamily to internet*/
     servAddr.sin_port = htons(SERV_PORT);   /* sets port to defined port */  
 

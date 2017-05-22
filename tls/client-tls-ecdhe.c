@@ -83,18 +83,20 @@ int Security(int sock)
         return EXIT_FAILURE;
     }
 
-    if (wolfSSL_CTX_set_cipher_list(ctx, cipherList) != SSL_SUCCESS)
+    if (wolfSSL_CTX_set_cipher_list(ctx, cipherList) != SSL_SUCCESS) {
             err_sys("client can't set cipher list 1");
+    }
 
-    if (wolfSSL_CTX_use_certificate_chain_file(ctx, myCert)
-                                                               != SSL_SUCCESS)
-            err_sys("can't load client cert file, check file and run from"
-                    " wolfSSL home dir");
+    if (wolfSSL_CTX_use_certificate_chain_file(ctx, myCert) != SSL_SUCCESS) {
+            err_sys("can't load client cert file, check file and run from "
+                    "wolfSSL home dir");
+    }
 
     if (wolfSSL_CTX_use_PrivateKey_file(ctx, myKey, SSL_FILETYPE_PEM)
-                                         != SSL_SUCCESS)
-            err_sys("can't load client private key file, check file and run "
-                    "from wolfSSL home dir");
+            != SSL_SUCCESS) {
+        err_sys("can't load client private key file, check file and run "
+                "from wolfSSL home dir");
+    }
 
     /* load CA certificates into wolfSSL_CTX. which will verify the server */
     if (wolfSSL_CTX_load_verify_locations(ctx, cert, 0) != SSL_SUCCESS) {

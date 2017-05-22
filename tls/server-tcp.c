@@ -66,12 +66,14 @@ int AcceptAndRead(socklen_t sockfd)
                 char reply[] = "I hear ya fa shizzle!\n";
                 
                 /* Reply back to the client */
-                if ((ret = write(connd, reply, sizeof(reply)-1)) < 0)
+                if ((ret = write(connd, reply, sizeof(reply)-1)) < 0) {
                     printf("write error\n");
+                }
             }
             /* If the client disconnects break the loop */
-            else
+            else {
                 break;
+            }
         }
     }
 
@@ -117,7 +119,8 @@ int main()
         return 1;
     }
 
-    /* Continuously accept connections while not currently in an active connection or told to quit */
+    /* Continuously accept connections while not currently in an active
+     * connection or told to quit */
     while (exit == 0){
         /* Listen for a new connection, allow 5 pending connections */
         listen(sockfd, 5);

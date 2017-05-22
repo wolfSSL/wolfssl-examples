@@ -58,8 +58,8 @@ int AcceptAndRead(WOLFSSL_CTX* ctx, socklen_t sockfd, struct sockaddr_in
     }
     /* If it connects, read in and reply to the client */
     else {
-        printf("Client connected successfully\n");
         WOLFSSL*     ssl;
+        printf("Client connected successfully\n");
 
         if ( (ssl = wolfSSL_new(ctx)) == NULL) {
             fprintf(stderr, "wolfSSL_new error.\n");
@@ -85,20 +85,21 @@ int AcceptAndRead(WOLFSSL_CTX* ctx, socklen_t sockfd, struct sockaddr_in
                 printf("Client: %s\n", buff);
 
                 /* Reply back to the client */
-                if ((ret = wolfSSL_write(ssl, reply, sizeof(reply)-1))
-                    < 0)
-                {
-                    printf("wolfSSL_write error = %d\n", wolfSSL_get_error(ssl, ret));
+                if ((ret = wolfSSL_write(ssl, reply, sizeof(reply)-1)) < 0) {
+                    printf("wolfSSL_write error = %d\n",
+                            wolfSSL_get_error(ssl, ret));
                 }
                 break;
             }
             /* if the client disconnects break the loop */
             else {
-                if (ret < 0)
-                    printf("wolfSSL_read error = %d\n", wolfSSL_get_error(ssl
-                        ,ret));
-                else if (ret == 0)
+                if (ret < 0) {
+                    printf("wolfSSL_read error = %d\n",
+                            wolfSSL_get_error(ssl ,ret));
+                }
+                else if (ret == 0) {
                     printf("The client has closed the connection.\n");
+                }
 
                 break;
             }
@@ -149,22 +150,23 @@ int main()
 
     /* Load server certificate into WOLFSSL_CTX */
     if (wolfSSL_CTX_use_certificate_file(ctx, "../certs/server-ecc.pem",
-                SSL_FILETYPE_PEM) != SSL_SUCCESS) {
-        fprintf(stderr, "Error loading certs/server-cert.pem, please check"
+            SSL_FILETYPE_PEM) != SSL_SUCCESS) {
+        fprintf(stderr, "Error loading certs/server-cert.pem, please check "
                 "the file.\n");
         return EXIT_FAILURE;
     }
 
     /* Load server key into WOLFSSL_CTX */
     if (wolfSSL_CTX_use_PrivateKey_file(ctx, "../certs/ecc-key.pem",
-                SSL_FILETYPE_PEM) != SSL_SUCCESS) {
+            SSL_FILETYPE_PEM) != SSL_SUCCESS) {
         fprintf(stderr, "Error loading certs/server-key.pem, please check"
                 "the file.\n");
         return EXIT_FAILURE;
     }
 
-    if (wolfSSL_CTX_set_cipher_list(ctx, cipherList) != SSL_SUCCESS)
-            printf("client can't set cipher list 1");
+    if (wolfSSL_CTX_set_cipher_list(ctx, cipherList) != SSL_SUCCESS) {
+        printf("client can't set cipher list 1");
+    }
 
     /* Initialize the server address struct to zero */
     memset((char *)&serverAddr, 0, sizeof(serverAddr));
@@ -175,8 +177,7 @@ int main()
     serverAddr.sin_port        = htons(DEFAULT_PORT);
 
     /* Attach the server socket to our port */
-    if (bind(sockfd, (struct sockaddr *)&serverAddr, sizeof(serverAddr))
-        < 0) {
+    if (bind(sockfd, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) < 0) {
         printf("ERROR: failed to bind\n");
         return EXIT_FAILURE;
     }
@@ -190,7 +191,6 @@ int main()
         if (ret == 0) {
             /* Accept client connections and read from them */
             loopExit = AcceptAndRead(ctx, sockfd, clientAddr);
-            ret = -1;
         }
     }
 

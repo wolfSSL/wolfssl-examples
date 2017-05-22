@@ -23,8 +23,8 @@
     #include <config.h>
 #endif
 
-#include <wolfssl/wolfcrypt/settings.h>
 #include <wolfssl/options.h>
+#include <wolfssl/wolfcrypt/settings.h>
 
 #include <wolfssl/ssl.h>
 #include <wolfssl/test.h>
@@ -39,11 +39,11 @@
 #include <arpa/inet.h>
 
 /*look in new location for certs*/
-#if defined(svrCert) || defined(svrKey)
-    #undef svrCert
-    #undef svrKey
-    #define svrCert    "../certs/server-cert.pem"
-    #define svrKey     "../certs/server-key.pem"
+#if defined(svrCertFile) || defined(svrKeyFile)
+    #undef svrCertFile
+    #undef svrKeyFile
+    #define svrCertFile    "../certs/server-cert.pem"
+    #define svrKeyFile     "../certs/server-key.pem"
 #endif
 
 #define MAXSZ     1024
@@ -162,18 +162,21 @@ int Server(word16 port)
     wolfSSL_Init();
     
     /* create ctx and configure certificates */
-    if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_server_method())) == NULL)
+    if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_server_method())) == NULL) {
         err_sys("Fatal error : wolfSSL_CTX_new error");
+    }
    
-    if (wolfSSL_CTX_use_certificate_file(ctx, svrCert, SSL_FILETYPE_PEM)
-                != SSL_SUCCESS)
-        err_sys("can't load server cert file,"
-                    "Please run from wolfSSL home dir");
+    if (wolfSSL_CTX_use_certificate_file(ctx, svrCertFile, SSL_FILETYPE_PEM)
+                != SSL_SUCCESS) {
+        err_sys("can't load server cert file, "
+                "Please run from wolfSSL home dir");
+    }
 
-    if (wolfSSL_CTX_use_PrivateKey_file(ctx, svrKey, SSL_FILETYPE_PEM)
-                != SSL_SUCCESS)
+    if (wolfSSL_CTX_use_PrivateKey_file(ctx, svrKeyFile, SSL_FILETYPE_PEM)
+                != SSL_SUCCESS) {
         err_sys("can't load server key file, "
                     "Please run from wolfSSL home dir");
+    }
         
     /*sets the IO callback methods*/
     wolfSSL_SetIORecv(ctx, CbIORecv);
@@ -186,8 +189,9 @@ int Server(word16 port)
     }
     else {
         /* create WOLFSSL object and respond */
-        if ((ssl = wolfSSL_new(ctx)) == NULL)
+        if ((ssl = wolfSSL_new(ctx)) == NULL) {
             err_sys("Fatal error : wolfSSL_new error");
+        }
   
         wolfSSL_set_fd(ssl, connfd);
 
@@ -200,14 +204,16 @@ int Server(word16 port)
 	            err_sys("Fatal error : respond: write error");
 	    }
 
-	    if (n < 0)
+	    if (n < 0) {
 	        err_sys("Fatal error :respond: read error");
+        }
             
         /* closes the connections after responding */
         wolfSSL_shutdown(ssl);
         wolfSSL_free(ssl);
-        if (close(listenfd) == -1 && close(connfd) == -1)
+        if (close(listenfd) == -1 && close(connfd) == -1) {
             err_sys("Fatal error : close error");
+        }
     }
    
     /* free up memory used by wolfSSL */
@@ -215,6 +221,7 @@ int Server(word16 port)
 
     return 0;
 }
+
 int main(int argc, char* argv[])
 {
     if (argc > 2) {
@@ -224,12 +231,14 @@ int main(int argc, char* argv[])
 
     wolfSSL_Init();
     if (argc < 2) {
-        if (Server(YASSLPORT) != 0)
+        if (Server(YASSLPORT) != 0) {
             err_sys("error creating server");
         }
+    }
     else {
-        if (Server((word16)atoi(argv[1])) != 0)
+        if (Server((word16)atoi(argv[1])) != 0) {
             err_sys("error creating server");
+        }
     }
     wolfSSL_Cleanup();
 
