@@ -1,6 +1,6 @@
 /* clu_cert_setup.c
  *
- * Copyright (C) 2006-2016 wolfSSL Inc.
+ * Copyright (C) 2006-2017 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -22,6 +22,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <wolfssl/wolfcrypt/types.h>
+#include "clu_include/clu_header_main.h"
 #include "clu_include/clu_error_codes.h"
 #include "clu_include/x509/clu_cert.h"
 #include "clu_include/x509/clu_parse.h"
@@ -53,135 +54,121 @@ int wolfCLU_certSetup(int argc, char** argv)
     char* outform;          /* the output format */
 
 
-    for (i = 2; i < argc; i++) {
 /*---------------------------------------------------------------------------*/
 /* help */
 /*---------------------------------------------------------------------------*/
-        if (XSTRNCMP(argv[i], "-help", 5) == 0) {
-            wolfCLU_certHelp();
-            return 0;
-        } else if (XSTRNCMP(argv[i], "-h", 2) == 0) {
-            wolfCLU_certHelp();
-            return 0;
+    ret = wolfCLU_checkForArg("-h", 2, argc, argv);
+    if (ret > 0) {
+        wolfCLU_certHelp();
+        return 0;
+    }
+
 /*---------------------------------------------------------------------------*/
 /* inform pem/der/??OTHER?? */
 /*---------------------------------------------------------------------------*/
-        } else if (XSTRNCMP(argv[i], "-inform", 7) == 0) {
-            inform = argv[i+1];
-            if (inform == NULL) {
-                printf("Usage: -inform [PEM/DER]\n");
-                printf("missing inform required argument\n");
-                return USER_INPUT_ERROR;
-            }
-            if (inpem_flag || inder_flag) {
-                printf("ERROR: inform set more than once.\n");
-                return USER_INPUT_ERROR;
-            }
-            else if (XSTRNCMP(inform, "pem", 3) == 0)
-                inpem_flag = 1;
-            else if (XSTRNCMP(inform, "der", 3) == 0)
-                inder_flag = 1;
-            else {
-                printf("Usage: -inform [PEM/DER]\n");
-                printf("missing inform required argument\n");
-                return USER_INPUT_ERROR;
-            }
-            i++;
-            continue;
+    ret = wolfCLU_checkForArg("-inform", 7, argc, argv);
+    if (ret > 0) {
+        inform = argv[ret+1];
+    } else {
+        return ret;
+    }
+
+    ret = wolfCLU_checkInform(inform);
+    if (ret == PEM_FORM) {
+        inpem_flag = 1;
+    } else if (ret == DER_FORM) {
+        inder_flag = 1;
+    } else {
+        return ret;
+    }
 /*---------------------------------------------------------------------------*/
 /* outform pem/der/??OTHER?? */
 /*---------------------------------------------------------------------------*/
-        } else if (XSTRNCMP(argv[i], "-outform", 8) == 0) {
-            outform = argv[i+1];
+    ret = wolfCLU_checkForArg("-outform", 8, argc, argv);
+    if (ret > 0) {
+        outform = argv[ret+1];
+    } else {
+        return ret;
+    }
 
-            if (outform == NULL) {
-                printf("Usage: -outform [PEM/DER]\n");
-                printf("missing outform required argument\n");
-                return USER_INPUT_ERROR;
-            }
-            if (outpem_flag || outder_flag) {
-                printf("ERROR: outform set more than once.\n");
-            }
-            else if (XSTRNCMP(outform, "pem", 3) == 0)
-                outpem_flag = 1;
-            else if (XSTRNCMP(outform, "der", 3) == 0)
-                outder_flag = 1;
-            else {
-                printf("Usage: -outform [PEM/DER]\n");
-                printf("missing outform required argument\n");
-                return USER_INPUT_ERROR;
-            }
-            i++;
-            continue;
+    ret = wolfCLU_checkOutform(outform);
+    if (ret == PEM_FORM) {
+        outpem_flag = 1;
+    } else if (ret == DER_FORM) {
+        outder_flag = 1;
+    } else {
+        return ret;
+    }
+
 /*---------------------------------------------------------------------------*/
 /* in file */
 /*---------------------------------------------------------------------------*/
-        } else if (XSTRNCMP(argv[i], "-in", 3) == 0) {
-            /* set flag for in file and flag for input file OK if exists
-             * check for error case below. If no error then read in file */
-            infile = argv[i+1];
-            if (infile_flag) {
-                printf("ERROR: input file set more than once\n");
-                return USER_INPUT_ERROR;
-            }
-            if (access(infile, F_OK) != -1) {
-                printf("input file is \"%s\"\n", infile);
-                infile_flag = 1;
-            } else {
-                printf("ERROR: input file \"%s\" does not exist\n", infile);
-                return INPUT_FILE_ERROR;
-            }
-            i++;
-            continue;
+    ret = wolfCLU_checkForArg("-in", 3, argc, argv);
+    if (ret > 0) {
+       /* set flag for in file and flag for input file OK if exists
+        * check for error case below. If no error then read in file */
+       infile = argv[ret+1];
+    } else {
+        return ret;
+    }
+
+    if (access(infile, F_OK) != -1) {
+        printf("input file is \"%s\"\n", infile);
+        infile_flag = 1;
+    } else {
+        printf("ERROR: input file \"%s\" does not exist\n", infile);
+        return INPUT_FILE_ERROR;
+    }
 /*---------------------------------------------------------------------------*/
 /* out file */
 /*---------------------------------------------------------------------------*/
-        } else if (XSTRNCMP(argv[i], "-out", 4) == 0) {
-            /* set flag for out file, check for error case below. If no error
-             * then write outfile */
-            if (outfile_flag) {
-                printf("ERROR: output file set more than once\n");
-                return USER_INPUT_ERROR;
-            }
-            outfile_flag = 1;
-            outfile = argv[i+1];
-            if (access(outfile, F_OK) != -1) {
-                printf("output file set: \"%s\"\n", outfile);
-            } else {
-                printf("output file \"%s\"did not exist, it will be created.\n",
-                        outfile);
-            }
-            i++;
-            continue;
+    ret = wolfCLU_checkForArg("-out", 4, argc, argv);
+    if (ret > 0) {
+        /* set flag for out file, check for error case below. If no error
+         * then write outfile */
+        outfile_flag = 1;
+        outfile = argv[ret+1];
+    } else {
+        return ret;
+    }
+
+    if (access(outfile, F_OK) != -1) {
+        printf("output file set: \"%s\"\n", outfile);
+    } else {
+        printf("output file \"%s\"did not exist, it will be created.\n",
+                                                                       outfile);
+    }
 /*---------------------------------------------------------------------------*/
 /* noout */
 /*---------------------------------------------------------------------------*/
-        } else if (XSTRNCMP(argv[i], "-noout", 6) == 0) {
-            /* set flag for no output file */
-            noout_flag = 1;
-            continue;
+    ret = wolfCLU_checkForArg("-noout", 6, argc, argv);
+    if (ret > 0) {
+        /* set flag for no output file */
+        noout_flag = 1;
+    } /* Optional flag do not return error */
 /*---------------------------------------------------------------------------*/
 /* text */
 /*---------------------------------------------------------------------------*/
-        } else if (XSTRNCMP(argv[i], "-text", 5) == 0) {
-            /* set flag for converting to human readable. 
-             * return NOT_YET_IMPLEMENTED error */
-            text_flag = 1;
-            continue;
+    ret = wolfCLU_checkForArg("-text", 5, argc, argv);
+    if (ret > 0) {
+        /* set flag for converting to human readable.
+         * return NOT_YET_IMPLEMENTED error
+         */
+        text_flag = 1;
+    } /* Optional flag do not return error */
 /*---------------------------------------------------------------------------*/
 /* silent */
 /*---------------------------------------------------------------------------*/
-        } else if (XSTRNCMP(argv[i], "-silent", 7) == 0) {
-            /* set flag for converting to human readable. 
-             * return NOT_YET_IMPLEMENTED error */
-            silent_flag = 1;
-            continue;
+    ret = wolfCLU_checkForArg("-silent", 7, argc, argv);
+    if (ret > 0) {
+        /* set flag for converting to human readable.
+         * return NOT_YET_IMPLEMENTED error
+         */
+        silent_flag = 1;
+    } /* Optional flag do not return error */
 /*---------------------------------------------------------------------------*/
-/* END */
+/* END ARG PROCESSING */
 /*---------------------------------------------------------------------------*/
-        }
-    }
-
     ret = error_check(inpem_flag, inder_flag, outpem_flag, outder_flag,
                                                                     noout_flag);
 

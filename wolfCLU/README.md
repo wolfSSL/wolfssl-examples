@@ -31,6 +31,12 @@ encryption or decryption are:
         --enable-sha512
         --enable-fortress
 
+Additional features that can be included when configuring wolfssl for
+key generation are:
+
+        --enable-ed25519
+
+
 ##wolfCLU Install
 
 After wolfssl is installed, install wolfCLU.  In the directory
@@ -77,4 +83,4 @@ Please contact support@wolfssl.com with any questions or comments
 
 ## License
 
-Copyright (c) 2006-2016 wolfSSL Inc.
+Copyright (c) 2006-2017 wolfSSL Inc.

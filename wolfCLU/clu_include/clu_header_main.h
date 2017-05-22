@@ -1,6 +1,6 @@
 /* clu_header_main.h
  *
- * Copyright (C) 2006-2016 wolfSSL Inc.
+ * Copyright (C) 2006-2017 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -67,12 +67,10 @@
 
 #include <wolfssl/wolfcrypt/coding.h>
 
-#ifndef UTIL_H_INCLUDED
-	#define UTIL_H_INCLUDED
-
 #define BLOCK_SIZE 16384
 #define MEGABYTE (1024*1024)
 #define MAX_THREADS 64
+#define MAX_FILENAME_SZ 256
 
 #include <wolfssl/wolfcrypt/types.h>
 
@@ -83,10 +81,12 @@
     #define HEAP_HINT NULL
 #endif
 
- /* @VERSION 
-  * Update every time library change, 
-  * functionality shift, 
-  * or code update 
+#include "clu_include/clu_error_codes.h"
+
+ /* @VERSION
+  * Update every time library change,
+  * functionality shift,
+  * or code update
   */
 #define VERSION 0.3
 
@@ -112,37 +112,42 @@ int wolfCLU_hashSetup(int argc, char** argv);
  */
 int wolfCLU_benchSetup(int argc, char** argv);
 
-/* 
- * generic help function 
+/*
+ * generic help function
  */
 void wolfCLU_help(void);
 
-/* 
- * verbose help function 
+/*
+ * verbose help function
  */
 void wolfCLU_verboseHelp(void);
 
-/* 
- * encrypt help function 
+/*
+ * encrypt help function
  */
 void wolfCLU_encryptHelp(void);
 
-/* 
+/*
  * decrypt help function
  */
 void wolfCLU_decryptHelp(void);
 
-/* 
- * hash help function 
+/*
+ * hash help function
  */
 void wolfCLU_hashHelp(void);
 
-/* 
+/*
  * benchmark help function
  */
 void wolfCLU_benchHelp(void);
 
-/* find algorithm for encryption/decryption 
+/*
+ * genkey help function
+ */
+void wolfCLU_genKeyHelp(void);
+
+/* find algorithm for encryption/decryption
  * 
  * @param name the whole line sent from user. Example: "aes-cbc-128"
  * @param alg the algorithm specified by the user (aes, 3des, or camellia)
@@ -151,17 +156,7 @@ void wolfCLU_benchHelp(void);
  */
 int wolfCLU_getAlgo(char* name, char** alg, char** mode, int* size);
 
-/* generates key based on password provided 
- * 
- * @param rng the random number generator
- * @param pwdKey the password based key as provided by the user
- * @param size size as determined by wolfCLU_GetAlgo
- * @param salt the buffer to store the resulting salt after it's generated
- * @param pad a flag to let us know if there are padded bytes or not
- */
-int wolfCLU_genKey(RNG* rng, byte* pwdKey, int size, byte* salt, int pad);
-
-/* secure entry of password 
+/* secure entry of password
  *
  * @param pwdKey the password provide by the user
  * @param size the size as determnined by wolfCLU_GetAlgo
@@ -230,7 +225,8 @@ void wolfCLU_stats(double start, int blockSize, int64_t blocks);
  * @param pwdKey this is the user provided password to be used as the key
  * @param key if entered must be in hex, can be used to verify encryption with
  *            nist test vectors.
- * @param size this is set by wolfCLU_GetAlgo and is used to stretch the password
+ * @param size this is set by wolfCLU_GetAlgo and is used to stretch the
+ *        password
  * @param in the filename or user input from command line
  * @param out the filename to output following en/de cryption
  * @param iv if entered must be in hex otherwise generated at run time
@@ -238,8 +234,8 @@ void wolfCLU_stats(double start, int blockSize, int64_t blocks);
  * @param ivCheck a flag if user inputs a specific IV
  * @param inputHex a flag to specify encrypting hex data, instead of byte data
  */
-int wolfCLU_encrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size, 
-								char* in, char* out, byte* iv, int block, 
+int wolfCLU_encrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
+                                char* in, char* out, byte* iv, int block,
                                 int ivCheck, int inputHex);
 
 /* decryption function
@@ -251,37 +247,69 @@ int wolfCLU_encrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
  * @param pwdKey this is the user provided password to be used as the key
  * @param key if entered must be in hex, can be used to verify encryption with
  *            nist test vectors.
- * @param size this is set by wolfCLU_GetAlgo and is used to stretch the password
+ * @param size this is set by wolfCLU_GetAlgo and is used to stretch the
+ *        password
  * @param in the filename or user input from command line
  * @param out the filename to output following en/de cryption
  * @param iv if entered must be in hex otherwise generated at run time
  * @param block size of block as determined by the algorithm being used
- * @param keyType let's decrypt know if it's using a password based key or a 
+ * @param keyType let's decrypt know if it's using a password based key or a
  *        hexidecimal, user specified key.
  */
-int wolfCLU_decrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size, 
-						char* in, char* out, byte* iv, int block, int keyType);
+int wolfCLU_decrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
+                    char* in, char* out, byte* iv, int block, int keyType);
 
-/* benchmarking function 
+/* benchmarking function
  *
  * @param timer a timer to be started and stopped for benchmarking purposes
  * @param option a flag to allow benchmark execution
  */
 int wolfCLU_benchmark(int timer, int* option);
 
-/* hashing function 
+/* hashing function
  *
- * @param in 
+ * @param in
  * @param len
  * @param out
  * @param alg
  * @param size
  */
 int wolfCLU_hash(char* in, char* out, char* alg, int size);
+
 /*
  * get the current Version
  */
 void wolfCLU_version(void);
-#endif
+
+/*
+ * generic function to check for a specific input argument. Return the
+ * argv[i] where argument was found. Useful for getting following value after
+ * arg.
+ * EXAMPLE:
+ * --------------------
+ * int ret;
+ * char myString[BIG_ENOUGH_FOR_INPUT];
+ * ret = wolfCLU_checkForArg("-somearg");
+ * if (ret > 0)
+ *     XSTRNCPY(myString, argv[ret+1], XSTRLEN(argv[ret+1]));
+ * else {
+ *      <ERROR LOGIC>
+ * }
+ * --------------------
+ *
+ *
+ */
+int wolfCLU_checkForArg(char* searchTerm, int length, int argc, char** argv);
+
+/*
+ * Verify valid output format
+ */
+int wolfCLU_checkOutform(char* outform);
+
+/*
+ * Verify valid input format
+ */
+int wolfCLU_checkInform(char* inform);
+
 
 #endif /* _WOLFSSL_CLU_HEADER_ */
