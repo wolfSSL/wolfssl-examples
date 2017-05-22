@@ -224,7 +224,8 @@ static wolfSSL_method_func SSL_GetMethod(int version, int allowDowngrade)
 
 #ifndef NO_TLS
         case 3:
-            method = allowDowngrade ? wolfSSLv23_server_method_ex : wolfTLSv1_2_server_method_ex;
+            method = allowDowngrade ? wolfSSLv23_server_method_ex
+                : wolfTLSv1_2_server_method_ex;
             break;
 #endif
     }
@@ -267,18 +268,23 @@ static int SSL_Write(WOLFSSL* ssl, char* reply, int replyLen, int* totalBytes,
         *totalBytes += rwret;
         pthread_mutex_unlock(&sslConnMutex);
     }
-    if (rwret == replyLen)
+    if (rwret == replyLen) {
         return 1;
+    }
 
     error = wolfSSL_get_error(ssl, 0);
-    if (error == SSL_ERROR_WANT_READ)
+    if (error == SSL_ERROR_WANT_READ) {
         return 2;
-    if (error == SSL_ERROR_WANT_WRITE)
+    }
+    if (error == SSL_ERROR_WANT_WRITE) {
         return 3;
-    if (error == WC_PENDING_E)
+    }
+    if (error == WC_PENDING_E) {
         return 4;
-    if (error == 0)
+    }
+    if (error == 0) {
         return 1;
+    }
 
     /* Cannot do anything about other errors. */
     fprintf(stderr, "wolfSSL_write error = %d\n", error);
@@ -307,8 +313,9 @@ static int SSL_Read(WOLFSSL* ssl, char* buffer, int len, int* totalBytes,
 
     pthread_mutex_lock(&sslConnMutex);
     *readTime += diff;
-    if (rwret > 0)
+    if (rwret > 0) {
         *totalBytes += rwret;
+    }
     pthread_mutex_unlock(&sslConnMutex);
 
     if (rwret == 0) {
@@ -316,14 +323,18 @@ static int SSL_Read(WOLFSSL* ssl, char* buffer, int len, int* totalBytes,
     }
 
     error = wolfSSL_get_error(ssl, 0);
-    if (error == SSL_ERROR_WANT_READ)
+    if (error == SSL_ERROR_WANT_READ) {
         return 2;
-    if (error == SSL_ERROR_WANT_WRITE)
+    }
+    if (error == SSL_ERROR_WANT_WRITE) {
         return 3;
-    if (error == WC_PENDING_E)
+    }
+    if (error == WC_PENDING_E) {
         return 4;
-    if (error == 0)
+    }
+    if (error == 0) {
         return 1;
+    }
 
     /* Cannot do anything about other errors. */
     fprintf(stderr, "wolfSSL_read error = %d\n", error);
@@ -349,10 +360,13 @@ static int SSL_Accept(WOLFSSL* ssl, double* acceptTime, double* resumeTime)
     diff = current_time(0) - start;
 
     pthread_mutex_lock(&sslConnMutex);
-    if (!wolfSSL_session_reused(ssl))
+    if (!wolfSSL_session_reused(ssl)) {
         *acceptTime += diff;
-    else
+    }
+    else {
         *resumeTime += diff;
+    }
+
     pthread_mutex_unlock(&sslConnMutex);
 
     if (ret == 0) {
@@ -360,16 +374,20 @@ static int SSL_Accept(WOLFSSL* ssl, double* acceptTime, double* resumeTime)
         return 0;
     }
 
-    if (ret == SSL_SUCCESS)
+    if (ret == SSL_SUCCESS) {
         return 1;
+    }
 
     error = wolfSSL_get_error(ssl, 0);
-    if (error == SSL_ERROR_WANT_READ)
+    if (error == SSL_ERROR_WANT_READ) {
         return 2;
-    if (error == SSL_ERROR_WANT_WRITE)
+    }
+    if (error == SSL_ERROR_WANT_WRITE) {
         return 3;
-    if (error == WC_PENDING_E)
+    }
+    if (error == WC_PENDING_E) {
         return 4;
+    }
 
     /* Cannot do anything about other errors. */
     fprintf(stderr, "wolfSSL_accept error = %d\n", error);
@@ -740,8 +758,9 @@ static void SSLConn_PrintStats(SSLConn_CTX* ctx)
  * returns EXIT_SUCCESS when a wolfSSL context object is created and
  * EXIT_FAILURE otherwise.
  */
-static int WolfSSLCtx_Init(ThreadData* threadData, int version, int allowDowngrade,
-    char* cert, char* key, char* verifyCert, char* cipherList)
+static int WolfSSLCtx_Init(ThreadData* threadData, int version,
+        int allowDowngrade, char* cert, char* key, char* verifyCert,
+        char* cipherList)
 {
     wolfSSL_method_func method = NULL;
 
@@ -786,7 +805,8 @@ static int WolfSSLCtx_Init(ThreadData* threadData, int version, int allowDowngra
 
     /* Setup client authentication. */
     wolfSSL_CTX_set_verify(threadData->ctx, SSL_VERIFY_PEER, 0);
-    if (wolfSSL_CTX_load_verify_locations(threadData->ctx, verifyCert, 0) != SSL_SUCCESS) {
+    if (wolfSSL_CTX_load_verify_locations(threadData->ctx, verifyCert, 0)
+            != SSL_SUCCESS) {
         fprintf(stderr, "Error loading %s, please check the file.\n",
                 verifyCert);
         WolfSSLCtx_Final(threadData);
@@ -794,7 +814,8 @@ static int WolfSSLCtx_Init(ThreadData* threadData, int version, int allowDowngra
     }
 
     if (cipherList != NULL) {
-        if (wolfSSL_CTX_set_cipher_list(threadData->ctx, cipherList) != SSL_SUCCESS) {
+        if (wolfSSL_CTX_set_cipher_list(threadData->ctx, cipherList)
+                != SSL_SUCCESS) {
             fprintf(stderr, "Server can't set cipher list.\n");
             WolfSSLCtx_Final(threadData);
             return(EXIT_FAILURE);
@@ -890,7 +911,8 @@ static void *ThreadHandler(void *data)
 #endif
 
     /* Initialize wolfSSL and create a context object. */
-    if (WolfSSLCtx_Init(threadData, version, allowDowngrade, ourCert, ourKey, verifyCert, cipherList) == -1) {
+    if (WolfSSLCtx_Init(threadData, version, allowDowngrade, ourCert, ourKey,
+                verifyCert, cipherList) == -1) {
         exit(EXIT_FAILURE);
     }
 
@@ -973,7 +995,7 @@ static void *ThreadHandler(void *data)
                 else {
                     /* Client connection. */
                     SSLConn_Close(sslConnCtx, threadData, events[i].data.ptr);
-                    ret = epoll_ctl(efd, EPOLL_CTL_ADD, socketfd, &event);
+                    epoll_ctl(efd, EPOLL_CTL_ADD, socketfd, &event);
                 }
             }
             else if (events[i].data.ptr == NULL) {
@@ -1014,6 +1036,7 @@ static void *ThreadHandler(void *data)
                 }
                 ret = SSLConn_ReadWrite(sslConnCtx, threadData,
                                         events[i].data.ptr);
+                printf("ret = %d\n", ret);
             }
         }
 
@@ -1246,4 +1269,5 @@ int main(int argc, char* argv[])
 
     exit(EXIT_SUCCESS);
 }
+
 

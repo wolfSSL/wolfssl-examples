@@ -76,7 +76,9 @@ int main(int argc, char** argv)
     }
 
     printf("Message for server:\t");
-    fgets(sendBuff, MAXDATASIZE, stdin);
+    if (fgets(sendBuff, MAXDATASIZE, stdin) != NULL) {
+        /* sendBuff is assigned in condition */
+    }
 
     /* see client-tls.c where secure code is inserted here ...
 

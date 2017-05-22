@@ -86,19 +86,21 @@ int AcceptAndRead(WOLFSSL_CTX* ctx, socklen_t sockfd, struct sockaddr_in
 
                 /* Reply back to the client */
                 if ((ret = wolfSSL_write(ssl, reply, sizeof(reply)-1))
-                    < 0)
-                {
-                    printf("wolfSSL_write error = %d\n", wolfSSL_get_error(ssl, ret));
+                    < 0) {
+                    printf("wolfSSL_write error = %d\n",
+                            wolfSSL_get_error(ssl, ret));
                 }
                 break;
             }
             /* if the client disconnects break the loop */
             else {
-                if (ret < 0)
+                if (ret < 0) {
                     printf("wolfSSL_read error = %d\n", wolfSSL_get_error(ssl
                         ,ret));
-                else if (ret == 0)
+                }
+                else if (ret == 0) {
                     printf("The client has closed the connection.\n");
+                }
 
                 break;
             }
@@ -191,6 +193,7 @@ int main()
             /* Accept client connections and read from them */
             loopExit = AcceptAndRead(ctx, sockfd, clientAddr);
             ret = -1;
+            printf("this is a test, the ret is now at value %d", ret);
         }
     }
 
@@ -198,3 +201,5 @@ int main()
     wolfSSL_Cleanup();       /* Free wolfSSL */
     return EXIT_SUCCESS;
 }
+
+

@@ -25,6 +25,7 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -44,6 +45,7 @@ int AcceptAndRead(WOLFSSL_CTX* ctx, socklen_t sockfd, struct sockaddr_in
 int AcceptAndRead(WOLFSSL_CTX* ctx, socklen_t sockfd, struct sockaddr_in
     clientAddr)
 {
+    int ret = 0;
         /* Create our reply message */
     const char reply[]  = "I hear ya fa shizzle!\n";
     socklen_t         size    = sizeof(clientAddr);
@@ -73,7 +75,6 @@ int AcceptAndRead(WOLFSSL_CTX* ctx, socklen_t sockfd, struct sockaddr_in
 
         for ( ; ; ) {
             char buff[256];
-            int  ret = 0;
 
             /* Clear the buffer memory for anything  possibly left over */
             memset(&buff, 0, sizeof(buff));
@@ -87,7 +88,8 @@ int AcceptAndRead(WOLFSSL_CTX* ctx, socklen_t sockfd, struct sockaddr_in
                 if ((ret = wolfSSL_write(ssl, reply, sizeof(reply)-1))
                     < 0)
                 {
-                    printf("wolfSSL_write error = %d\n", wolfSSL_get_error(ssl, ret));
+                    printf("wolfSSL_write error = %d\n",
+                            wolfSSL_get_error(ssl, ret));
                 }
             }
             /* if the client disconnects break the loop */
@@ -95,9 +97,14 @@ int AcceptAndRead(WOLFSSL_CTX* ctx, socklen_t sockfd, struct sockaddr_in
                 if (ret < 0)
                     printf("wolfSSL_read error = %d\n", wolfSSL_get_error(ssl
                         ,ret));
-                else if (ret == 0)
+                else if (ret == 0){
                     printf("The client has closed the connection.\n");
-
+                }
+                break;
+            }
+            if ( strncmp(buff, "quit", 4) == 0 ) {
+                printf("Client sent quit command: shutting down.\n");
+                ret = -1;
                 break;
             }
         }
@@ -105,7 +112,7 @@ int AcceptAndRead(WOLFSSL_CTX* ctx, socklen_t sockfd, struct sockaddr_in
     }
     close(connd);               /* close the connected socket */
 
-    return 0;
+    return ret;
 }
 
 
@@ -157,7 +164,8 @@ int main()
     }
 
     /* load DH params */
-    ret = wolfSSL_CTX_SetTmpDH_file(ctx, "../certs/dh2048.pem" , SSL_FILETYPE_PEM);
+    ret = wolfSSL_CTX_SetTmpDH_file(ctx, "../certs/dh2048.pem",
+            SSL_FILETYPE_PEM);
     if (ret != SSL_SUCCESS) {
         fprintf(stderr, "Error setting DH parameters.\n");
         return EXIT_FAILURE;
@@ -194,3 +202,4 @@ int main()
     wolfSSL_Cleanup();       /* Free wolfSSL */
     return EXIT_SUCCESS;
 }
+

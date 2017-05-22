@@ -1,0 +1,37 @@
+scan-build: Using '/usr/lib/llvm-3.8/bin/clang' for static analysis
+/usr/share/clang/scan-build-3.8/bin/../libexec/ccc-analyzer -Wall -I/usr/local/include -Os   -c -o client-tcp.o client-tcp.c
+/usr/share/clang/scan-build-3.8/bin/../libexec/ccc-analyzer -o client-tcp client-tcp.o -Wall -I/usr/local/include -Os
+/usr/share/clang/scan-build-3.8/bin/../libexec/ccc-analyzer -Wall -I/usr/local/include -Os   -c -o client-tls.o client-tls.c
+/usr/share/clang/scan-build-3.8/bin/../libexec/ccc-analyzer -o client-tls client-tls.o -Wall -I/usr/local/include -Os -L/usr/local/lib -lm -lwolfssl
+/usr/share/clang/scan-build-3.8/bin/../libexec/ccc-analyzer -Wall -I/usr/local/include -Os   -c -o client-tls-nonblocking.o client-tls-nonblocking.c
+/usr/share/clang/scan-build-3.8/bin/../libexec/ccc-analyzer -o client-tls-nonblocking client-tls-nonblocking.o -Wall -I/usr/local/include -Os -L/usr/local/lib -lm -lwolfssl
+/usr/share/clang/scan-build-3.8/bin/../libexec/ccc-analyzer -Wall -I/usr/local/include -Os   -c -o client-tls-ecdhe.o client-tls-ecdhe.c
+/usr/share/clang/scan-build-3.8/bin/../libexec/ccc-analyzer -o client-tls-ecdhe client-tls-ecdhe.o -Wall -I/usr/local/include -Os -L/usr/local/lib -lm -lwolfssl
+/usr/share/clang/scan-build-3.8/bin/../libexec/ccc-analyzer -Wall -I/usr/local/include -Os   -c -o server-tls-ecdhe.o server-tls-ecdhe.c
+/usr/share/clang/scan-build-3.8/bin/../libexec/ccc-analyzer -o server-tls-ecdhe server-tls-ecdhe.o -Wall -I/usr/local/include -Os -L/usr/local/lib -lm -lwolfssl
+/usr/share/clang/scan-build-3.8/bin/../libexec/ccc-analyzer -Wall -I/usr/local/include -Os   -c -o client-tls-perf.o client-tls-perf.c
+/usr/share/clang/scan-build-3.8/bin/../libexec/ccc-analyzer -o client-tls-perf client-tls-perf.o -Wall -I/usr/local/include -Os -L/usr/local/lib -lm -lwolfssl
+/usr/share/clang/scan-build-3.8/bin/../libexec/ccc-analyzer -Wall -I/usr/local/include -Os   -c -o client-tls-resume.o client-tls-resume.c
+/usr/share/clang/scan-build-3.8/bin/../libexec/ccc-analyzer -o client-tls-resume client-tls-resume.o -Wall -I/usr/local/include -Os -L/usr/local/lib -lm -lwolfssl
+/usr/share/clang/scan-build-3.8/bin/../libexec/ccc-analyzer -Wall -I/usr/local/include -Os   -c -o client-tls-writedup.o client-tls-writedup.c
+/usr/share/clang/scan-build-3.8/bin/../libexec/ccc-analyzer -o client-tls-writedup client-tls-writedup.o -Wall -I/usr/local/include -Os -L/usr/local/lib -lm -lwolfssl -lpthread
+/usr/share/clang/scan-build-3.8/bin/../libexec/ccc-analyzer -Wall -I/usr/local/include -Os   -c -o client-callback.o client-callback.c
+/usr/share/clang/scan-build-3.8/bin/../libexec/ccc-analyzer -o client-callback client-callback.o -Wall -I/usr/local/include -Os -L/usr/local/lib -lm -lwolfssl
+/usr/share/clang/scan-build-3.8/bin/../libexec/ccc-analyzer -Wall -I/usr/local/include -Os   -c -o memory-tls.o memory-tls.c
+/usr/share/clang/scan-build-3.8/bin/../libexec/ccc-analyzer -o memory-tls memory-tls.o -Wall -I/usr/local/include -Os -L/usr/local/lib -lm -lwolfssl -lpthread
+/usr/share/clang/scan-build-3.8/bin/../libexec/ccc-analyzer -Wall -I/usr/local/include -Os   -c -o server-tcp.o server-tcp.c
+/usr/share/clang/scan-build-3.8/bin/../libexec/ccc-analyzer -o server-tcp server-tcp.o -Wall -I/usr/local/include -Os
+/usr/share/clang/scan-build-3.8/bin/../libexec/ccc-analyzer -Wall -I/usr/local/include -Os   -c -o server-tls.o server-tls.c
+/usr/share/clang/scan-build-3.8/bin/../libexec/ccc-analyzer -o server-tls server-tls.o -Wall -I/usr/local/include -Os -L/usr/local/lib -lm -lwolfssl
+/usr/share/clang/scan-build-3.8/bin/../libexec/ccc-analyzer -Wall -I/usr/local/include -Os   -c -o server-tls-nonblocking.o server-tls-nonblocking.c
+/usr/share/clang/scan-build-3.8/bin/../libexec/ccc-analyzer -o server-tls-nonblocking server-tls-nonblocking.o -Wall -I/usr/local/include -Os -L/usr/local/lib -lm -lwolfssl
+/usr/share/clang/scan-build-3.8/bin/../libexec/ccc-analyzer -Wall -I/usr/local/include -Os   -c -o server-tls-threaded.o server-tls-threaded.c
+/usr/share/clang/scan-build-3.8/bin/../libexec/ccc-analyzer -o server-tls-threaded server-tls-threaded.o -Wall -I/usr/local/include -Os -L/usr/local/lib -lm -lwolfssl -lpthread
+/usr/share/clang/scan-build-3.8/bin/../libexec/ccc-analyzer -Wall -I/usr/local/include -Os   -c -o server-tls-epoll-perf.o server-tls-epoll-perf.c
+/usr/share/clang/scan-build-3.8/bin/../libexec/ccc-analyzer -o server-tls-epoll-perf server-tls-epoll-perf.o -Wall -I/usr/local/include -Os -L/usr/local/lib -lm -lwolfssl
+/usr/share/clang/scan-build-3.8/bin/../libexec/ccc-analyzer -Wall -I/usr/local/include -Os   -c -o server-callback.o server-callback.c
+/usr/share/clang/scan-build-3.8/bin/../libexec/ccc-analyzer -o server-callback server-callback.o -Wall -I/usr/local/include -Os -L/usr/local/lib -lm -lwolfssl
+/usr/share/clang/scan-build-3.8/bin/../libexec/ccc-analyzer -Wall -I/usr/local/include -Os   -c -o server-tls-epoll-threaded.o server-tls-epoll-threaded.c
+/usr/share/clang/scan-build-3.8/bin/../libexec/ccc-analyzer -o server-tls-epoll-threaded server-tls-epoll-threaded.o -Wall -I/usr/local/include -Os -L/usr/local/lib -lm -lwolfssl -lpthread
+scan-build: Removing directory '/tmp/scan-build-2017-05-22-085514-14792-1' because it contains no reports.
+scan-build: No bugs found.
