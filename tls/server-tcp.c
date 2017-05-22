@@ -35,7 +35,7 @@ int AcceptAndRead(socklen_t sockfd);
 int AcceptAndRead(socklen_t sockfd)
 {
     struct sockaddr_in clientAddr;
- 	socklen_t size = sizeof(clientAddr);
+     socklen_t size = sizeof(clientAddr);
     int ret  = 0;
 
     /* Wait until a client connects */
@@ -56,7 +56,7 @@ int AcceptAndRead(socklen_t sockfd)
 
             /* Clear the buffer memory for anything  possibly left over */
             bzero(&buff, sizeof(buff));
-            
+
             /* Read the client data into our buff array */
             if ((ret = read(connd, buff, sizeof(buff)-1)) > 0){
                 /* Print any data the client sends to the console */
@@ -64,7 +64,7 @@ int AcceptAndRead(socklen_t sockfd)
 
                 /* Create our reply message */
                 char reply[] = "I hear ya fa shizzle!\n";
-                
+
                 /* Reply back to the client */
                 if ((ret = write(connd, reply, sizeof(reply)-1)) < 0)
                     printf("write error\n");
@@ -77,37 +77,37 @@ int AcceptAndRead(socklen_t sockfd)
 
     /* Close the socket */
     close(connd);
-    
+
     return 0;
 }
 
 
 int main()
 {
-    /* 
+    /*
      * Creates a socket that uses an internet IP address,
      * Sets the type to be Stream based (TCP),
      * 0 means choose the default protocol.
      */
 
      /* Identify and access the sockets */
-    socklen_t sockfd = socket(AF_INET, SOCK_STREAM, 0); 
-    int exit   = 0; 	/* 0 = false, 1 = true */
+    socklen_t sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    int exit   = 0;     /* 0 = false, 1 = true */
 
     /* If positive value, the socket is valid */
     if(sockfd == -1){
         printf("ERROR: failed to create the socket\n");
-        return 1;        /* Kill the server with exit status 1 */        
+        return 1;        /* Kill the server with exit status 1 */
     }
 
     /* Server and client socket address structures */
-	struct sockaddr_in serverAddr;
+    struct sockaddr_in serverAddr;
 
-	/* Initialize the server address struct to zero */
-    memset((char *)&serverAddr, 0, sizeof(serverAddr)); 
+    /* Initialize the server address struct to zero */
+    memset((char *)&serverAddr, 0, sizeof(serverAddr));
 
     /* Fill the server's address family */
-    serverAddr.sin_family	   = AF_INET;
+    serverAddr.sin_family      = AF_INET;
     serverAddr.sin_addr.s_addr = INADDR_ANY;
     serverAddr.sin_port        = htons(DEFAULT_PORT);
 
@@ -124,7 +124,7 @@ int main()
         printf("Waiting for a connection...\n");
 
         /* Accept client connections and read from them */
-    	exit = AcceptAndRead(sockfd);
+        exit = AcceptAndRead(sockfd);
     }
 
     /* Close the open sockets */

@@ -35,8 +35,8 @@
 #include    <errno.h>
 #include    <arpa/inet.h>
 #include    <pthread.h>
-#include    <wolfssl/options.h>      /* wolfSSL build options */
-#include    <wolfssl/ssl.h>          /* wolfSSL security library */
+#include    <wolfssl/options.h>     /* wolfSSL build options */
+#include    <wolfssl/ssl.h>         /* wolfSSL security library */
 
 #define MAXDATASIZE  256            /* maximum acceptable amount of data */
 #define MAXTIMES     1024*4
@@ -152,7 +152,7 @@ int Security(int sock)
     } else {
         printf("wolfSSL_connect err = %d\n", wolfSSL_get_error(ssl, 0));
         return EXIT_FAILURE;
-    } 
+    }
 
     /* frees all data before client termination */
     wolfSSL_free(ssl);

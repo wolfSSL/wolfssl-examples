@@ -51,11 +51,11 @@
 #define MAXSZ     1024
 #define YASSLPORT 11111
 
-#define SOCKET_EWOULDBLOCK EWOULDBLOCK
-#define SOCKET_EAGAIN      EAGAIN
-#define SOCKET_ECONNRESET  ECONNRESET
-#define SOCKET_EINTR       EINTR
-#define SOCKET_EPIPE       EPIPE
+#define SOCKET_EWOULDBLOCK  EWOULDBLOCK
+#define SOCKET_EAGAIN       EAGAIN
+#define SOCKET_ECONNRESET   ECONNRESET
+#define SOCKET_EINTR        EINTR
+#define SOCKET_EPIPE        EPIPE
 #define SOCKET_ECONNREFUSED ECONNREFUSED
 #define SOCKET_ECONNABORTED ECONNABORTED
 
@@ -109,7 +109,7 @@ int CbIORecv(WOLFSSL *ssl, char *buf, int sz, void *ctx)
     }
 
     printf("Received %d bytes\n", sz);
-    
+
     return recvd;
 }
 
@@ -151,7 +151,7 @@ int CbIOSend(WOLFSSL *ssl, char *buf, int sz, void *ctx)
     }
 
     printf("CbIOSend: sent %d bytes to %d\n", sz, sd);
-    
+
     return sent;
 }
 
@@ -160,7 +160,7 @@ int Client(const char* ip, word16 port)
 {
     int  n;
     char msg[] = "hello wolfssl";
-    char reply[MAXSZ]; 
+    char reply[MAXSZ];
     int  msgSz = strlen(msg);
     SOCKET_T    fd;
     WOLFSSL_CTX* ctx;
@@ -168,7 +168,7 @@ int Client(const char* ip, word16 port)
 
     if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method())) == NULL)
         err_sys("Error in setting client ctx\n");
-    
+
     if (wolfSSL_CTX_load_verify_locations(ctx, caCert, 0) != SSL_SUCCESS)
         err_sys("trouble loading client cert");
     if (wolfSSL_CTX_use_certificate_file(ctx, cliCert, SSL_FILETYPE_PEM)
