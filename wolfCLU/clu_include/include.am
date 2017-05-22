@@ -8,5 +8,6 @@ nobase_include_HEADERS+=clu_include/clu_header_main.h \
                         clu_include/clu_error_codes.h \
                         clu_include/x509/clu_cert.h \
                         clu_include/x509/clu_parse.h \
-                        clu_include/x509/clu_request.h
+                        clu_include/x509/clu_request.h \
+                        clu_include/genkey/clu_genkey.h
 
