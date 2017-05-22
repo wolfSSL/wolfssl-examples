@@ -39,11 +39,11 @@
 #include <arpa/inet.h>
 
 /*look in new location for certs*/
-#if defined(svrCert) || defined(svrKey)
-    #undef svrCert
-    #undef svrKey
-    #define svrCert    "../certs/server-cert.pem"
-    #define svrKey     "../certs/server-key.pem"
+#if defined(svrCertFile) || defined(svrKeyFile)
+    #undef svrCertFile
+    #undef svrKeyFile
+    #define svrCertFile    "../certs/server-cert.pem"
+    #define svrKeyFile     "../certs/server-key.pem"
 #endif
 
 #define MAXSZ     1024
@@ -165,12 +165,12 @@ int Server(word16 port)
     if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_server_method())) == NULL)
         err_sys("Fatal error : wolfSSL_CTX_new error");
    
-    if (wolfSSL_CTX_use_certificate_file(ctx, svrCert, SSL_FILETYPE_PEM)
+    if (wolfSSL_CTX_use_certificate_file(ctx, svrCertFile, SSL_FILETYPE_PEM)
                 != SSL_SUCCESS)
         err_sys("can't load server cert file,"
                     "Please run from wolfSSL home dir");
 
-    if (wolfSSL_CTX_use_PrivateKey_file(ctx, svrKey, SSL_FILETYPE_PEM)
+    if (wolfSSL_CTX_use_PrivateKey_file(ctx, svrKeyFile, SSL_FILETYPE_PEM)
                 != SSL_SUCCESS)
         err_sys("can't load server key file, "
                     "Please run from wolfSSL home dir");
