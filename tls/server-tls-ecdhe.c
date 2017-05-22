@@ -58,8 +58,8 @@ int AcceptAndRead(WOLFSSL_CTX* ctx, socklen_t sockfd, struct sockaddr_in
     }
     /* If it connects, read in and reply to the client */
     else {
-        printf("Client connected successfully\n");
         WOLFSSL*     ssl;
+        printf("Client connected successfully\n");
 
         if ( (ssl = wolfSSL_new(ctx)) == NULL) {
             fprintf(stderr, "wolfSSL_new error.\n");

@@ -142,13 +142,17 @@ static void err_sys(const char* msg)
 
 static void* client_thread(void* args)
 {
+    WOLFSSL_CTX* cli_ctx;
+    int          ret;
+    WOLFSSL*     cli_ssl;
+
     /* set up client */
-    WOLFSSL_CTX* cli_ctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method());
+    cli_ctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method());
     if (cli_ctx == NULL) {
         err_sys("bad client ctx new");
     }
 
-    int ret = wolfSSL_CTX_load_verify_locations(cli_ctx, cacert, NULL);
+    ret = wolfSSL_CTX_load_verify_locations(cli_ctx, cacert, NULL);
     if (ret != SSL_SUCCESS) {
         err_sys("bad ca load");
     }
@@ -156,7 +160,7 @@ static void* client_thread(void* args)
     wolfSSL_SetIOSend(cli_ctx, ClientSend);
     wolfSSL_SetIORecv(cli_ctx, ClientRecv);
 
-    WOLFSSL* cli_ssl = wolfSSL_new(cli_ctx);
+    cli_ssl = wolfSSL_new(cli_ctx);
     if (cli_ssl == NULL) {
         err_sys("bad client new");
     }
@@ -182,13 +186,18 @@ static void* client_thread(void* args)
 
 int main()
 {
+    WOLFSSL_CTX* srv_ctx;
+    int          ret;
+    WOLFSSL*     srv_ssl;
+    pthread_t    tid;
+
     /* set up server */
-    WOLFSSL_CTX* srv_ctx = wolfSSL_CTX_new(wolfTLSv1_2_server_method());
+    srv_ctx = wolfSSL_CTX_new(wolfTLSv1_2_server_method());
     if (srv_ctx == NULL) {
         err_sys("bad server ctx new");
     }
 
-    int ret = wolfSSL_CTX_use_PrivateKey_file(srv_ctx, key, SSL_FILETYPE_PEM);
+    ret = wolfSSL_CTX_use_PrivateKey_file(srv_ctx, key, SSL_FILETYPE_PEM);
     if (ret != SSL_SUCCESS) {
         err_sys("bad server key file load");
     }
@@ -201,13 +210,12 @@ int main()
     wolfSSL_SetIOSend(srv_ctx, ServerSend);
     wolfSSL_SetIORecv(srv_ctx, ServerRecv);
 
-    WOLFSSL* srv_ssl = wolfSSL_new(srv_ctx);
-    if (srv_ctx == NULL) {
+    srv_ssl = wolfSSL_new(srv_ctx);
+    if (srv_ssl == NULL) {
         err_sys("bad server new");
     }
 
     /* start client thread */
-    pthread_t tid;
     pthread_create(&tid, 0, client_thread, NULL);
 
     /* accept tls connection without tcp sockets */

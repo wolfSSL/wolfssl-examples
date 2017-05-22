@@ -223,9 +223,10 @@ int main()
      * 0 means choose the default protocol.
      */
     socklen_t socketfd = socket(AF_INET, SOCK_STREAM, 0);
-    int loopExit = 0; /* 0 = False, 1 = True */
-    int ret      = 0;
-    int on       = 1;
+    int       loopExit = 0; /* 0 = False, 1 = True */
+    int       ret      = 0;
+    int       on       = 1;
+    socklen_t len      = sizeof(on);
 
     /* Create a ctx pointer for our ssl */
     WOLFSSL_CTX* ctx;
@@ -241,8 +242,6 @@ int main()
     serverAddr.sin_addr.s_addr = INADDR_ANY;
     serverAddr.sin_port        = htons(DEFAULT_PORT);
        
-    socklen_t len = sizeof(on);
-
     /* If positive value, the socket is valid */
     if (socketfd == -1) {
         printf("ERROR: failed to create the socket\n");
