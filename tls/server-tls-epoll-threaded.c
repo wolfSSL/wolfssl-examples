@@ -1014,6 +1014,10 @@ static void *ThreadHandler(void *data)
                     /* Client connection. */
                     SSLConn_Close(sslConnCtx, threadData, events[i].data.ptr);
                     ret = epoll_ctl(efd, EPOLL_CTL_ADD, socketfd, &event);
+                    if (ret == -1) {
+                        fprintf(stderr, "ERROR: failed add event to epoll\n");
+                        exit(EXIT_FAILURE);
+                    }
                 }
             }
             else if (events[i].data.ptr == NULL) {
@@ -1055,6 +1059,10 @@ static void *ThreadHandler(void *data)
                 }
                 ret = SSLConn_ReadWrite(sslConnCtx, threadData,
                                         events[i].data.ptr);
+                if (ret == EXIT_FAILURE) {
+                    fprintf(stderr, "ERROR: failed read/write\n");
+                    exit(EXIT_FAILURE);
+                }
             }
         }
 

@@ -109,9 +109,7 @@ int NonBlocking_ReadWriteAccept(WOLFSSL* ssl, socklen_t socketfd,
         int error = wolfSSL_get_error(ssl, 0);
 
         /* while I/O is not ready, keep waiting */
-        while ((error == SSL_ERROR_WANT_READ || 
-            error == SSL_ERROR_WANT_WRITE)) {
-
+        while (error == SSL_ERROR_WANT_READ || error == SSL_ERROR_WANT_WRITE) {
             if (error == SSL_ERROR_WANT_READ) {
                 printf("... server would read block\n");
             }
@@ -124,18 +122,29 @@ int NonBlocking_ReadWriteAccept(WOLFSSL* ssl, socklen_t socketfd,
             if ((selectRet == 1) || (selectRet == 2)) {
                 if (rw == READ) {
                     rwret = wolfSSL_read(ssl, buff, sizeof(buff)-1);
+                    if (rwret > 0) {
+                        /* successful read */
+                        break;
+                    }
                 }
                 else if (rw == WRITE) {
                     rwret = wolfSSL_write(ssl, reply, sizeof(reply)-1);
+                    if (rwret > 0) {
+                        /* successful write */
+                        break;
+                    }
                 }
                 else if (rw == ACCEPT) {
                     rwret = wolfSSL_accept(ssl);
+                    if (rwret == SSL_SUCCESS) {
+                        /* successful accept */
+                        break;
+                    }
                 }
                 
                 error = wolfSSL_get_error(ssl, 0);
             }
             else {
-                error = SSL_FATAL_ERROR;
                 return -1;
             }
         }

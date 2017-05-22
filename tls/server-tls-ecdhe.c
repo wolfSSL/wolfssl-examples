@@ -191,7 +191,6 @@ int main()
         if (ret == 0) {
             /* Accept client connections and read from them */
             loopExit = AcceptAndRead(ctx, sockfd, clientAddr);
-            ret = -1;
         }
     }
 

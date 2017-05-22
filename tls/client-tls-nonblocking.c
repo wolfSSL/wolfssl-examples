@@ -137,6 +137,10 @@ int count = 0;
         while (ret == SSL_ERROR_WANT_READ) {
 count++;
             ret = wolfSSL_read(ssl, rcvBuff, MAXDATASIZE);
+            if (ret > 0) {
+                break;
+            }
+
             ret = wolfSSL_get_error(ssl, 0);
         }
 printf("counter %d\n", count);

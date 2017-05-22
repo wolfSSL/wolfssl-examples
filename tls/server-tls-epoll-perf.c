@@ -1070,6 +1070,11 @@ int main(int argc, char* argv[])
                     /* Client connection. */
                     SSLConn_Close(sslConnCtx, events[i].data.ptr);
                     ret = epoll_ctl(efd, EPOLL_CTL_ADD, socketfd, &event);
+                    if (ret == -1) {
+                        fprintf(stderr,
+                                "ERROR: failed to add event to epoll\n");
+                        exit(EXIT_FAILURE);
+                    }
                 }
             }
             else if (events[i].data.ptr == NULL) {

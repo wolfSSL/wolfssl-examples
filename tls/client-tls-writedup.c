@@ -131,16 +131,16 @@ int Security(int sock)
     ret = wolfSSL_connect(ssl);
     if (ret == SSL_SUCCESS) {
         /* start client thread */
-        WOLFSSL* write_ssl = ssl;
+        WOLFSSL* write_ssl;
 
 #ifdef HAVE_WRITE_DUP
-        write_ssl = wolfSSL_write_dup(ssl);
-        if (write_ssl == NULL) {
+        if ((write_ssl = wolfSSL_write_dup(ssl)) == NULL) {
             printf("wolfSSL_write_dup error.\n");
             return EXIT_FAILURE;
         }
 #else
         #warning "client-tls-writedup not built with HAVE_WRITE_DUP"
+        write_ssl = ssl;
 #endif
 
         pthread_t tid;

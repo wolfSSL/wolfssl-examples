@@ -157,7 +157,7 @@ static void* client_thread(void* args)
     wolfSSL_SetIORecv(cli_ctx, ClientRecv);
 
     WOLFSSL* cli_ssl = wolfSSL_new(cli_ctx);
-    if (cli_ctx == NULL) {
+    if (cli_ssl == NULL) {
         err_sys("bad client new");
     }
 
@@ -168,6 +168,9 @@ static void* client_thread(void* args)
     printf("wolfSSL client success!\n");
 
     ret = wolfSSL_write(cli_ssl, "hello memory wolfSSL!", 21);
+    if (ret < 0) {
+        err_sys("bad write");
+    }
 
     /* clean up */
     wolfSSL_free(cli_ssl);
@@ -218,6 +221,10 @@ int main()
     unsigned char buf[80];
     memset(buf, 0, sizeof(buf));
     ret = wolfSSL_read(srv_ssl, buf, sizeof(buf)-1);
+    if (ret < 0) {
+        err_sys("bad read");
+    }
+
     printf("client msg = %s\n", buf);
 
     /* clean up */
