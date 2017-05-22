@@ -71,7 +71,6 @@ int CbIORecv(WOLFSSL *ssl, char *buf, int sz, void *ctx)
 
     recvd = recv(sd, buf, sz, 0);
 
-    /* recvd = unusual(buf, size) */
     if (recvd < 0) {
         if (errno == SOCKET_EWOULDBLOCK || errno == SOCKET_EAGAIN) {
             if (!wolfSSL_dtls(ssl) || wolfSSL_get_using_nonblock(ssl)) {
