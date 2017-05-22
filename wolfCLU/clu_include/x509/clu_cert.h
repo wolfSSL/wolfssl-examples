@@ -1,6 +1,6 @@
 /* clu_cert.h
  *
- * Copyright (C) 2006-2016 wolfSSL Inc.
+ * Copyright (C) 2006-2017 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -21,6 +21,11 @@
 
 #include <wolfssl/wolfcrypt/random.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
+
+enum {
+    PEM_FORM,
+    DER_FORM,
+};
 
 /* handles incoming arguments for certificate generation */
 int wolfCLU_certSetup(int argc, char** argv);

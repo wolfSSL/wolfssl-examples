@@ -1,6 +1,6 @@
 /* clu_encrypt.c
  *
- * Copyright (C) 2006-2016 wolfSSL Inc.
+ * Copyright (C) 2006-2017 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -20,8 +20,8 @@
  */
 
 #include "clu_include/clu_header_main.h"
+#include "clu_include/genkey/clu_genkey.h"
 
-#define SALT_SIZE       8
 #define MAX             1024
 
 int wolfCLU_encrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
@@ -123,7 +123,7 @@ int wolfCLU_encrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
         }
 
         /* stretches pwdKey to fit size based on wolfCLU_getAlgo() */
-        ret = wolfCLU_genKey(&rng, pwdKey, size, salt, padCounter);
+        ret = wolfCLU_genKey_PWDBASED(&rng, pwdKey, size, salt, padCounter);
 
         if (ret != 0) {
             printf("failed to set pwdKey.\n");
