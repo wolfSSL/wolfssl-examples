@@ -107,11 +107,10 @@ int AcceptAndRead(socklen_t sockfd, struct sockaddr_in clientAddr)
     pthread_t thread_id;
 
     /* Wait until a client connects */
-    while ((connd = accept(sockfd, (struct sockaddr *)&clientAddr, 
-        &size))) {
+    while ((connd = accept(sockfd, (struct sockaddr *)&clientAddr, &size))) {
         /* Pass the client into a new thread */
         if (pthread_create(&thread_id, NULL, ThreadHandler, (void *)&connd)
-            < 0) {
+                < 0) {
             perror("could not create thread");
         }
         printf("Handler assigned\n");
@@ -164,7 +163,7 @@ int main()
     /* Load server certificate into WOLFSSL_CTX */
     if (wolfSSL_CTX_use_certificate_file(ctx, "../certs/server-cert.pem", 
                 SSL_FILETYPE_PEM) != SSL_SUCCESS) {
-        fprintf(stderr, "Error loading certs/server-cert.pem, please check"
+        fprintf(stderr, "Error loading certs/server-cert.pem, please check "
                 "the file.\n");
         return EXIT_FAILURE;
     }
@@ -172,7 +171,7 @@ int main()
     /* Load server key into WOLFSSL_CTX */
     if (wolfSSL_CTX_use_PrivateKey_file(ctx, "../certs/server-key.pem", 
                 SSL_FILETYPE_PEM) != SSL_SUCCESS) {
-        fprintf(stderr, "Error loading certs/server-key.pem, please check"
+        fprintf(stderr, "Error loading certs/server-key.pem, please check "
                 "the file.\n");
         return EXIT_FAILURE;
     }
