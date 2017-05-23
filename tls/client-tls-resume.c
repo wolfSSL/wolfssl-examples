@@ -20,7 +20,7 @@
  */
 #include    <stdio.h>
 #include    <unistd.h>
-#include    <stdlib.h>                  
+#include    <stdlib.h>
 #include    <string.h>
 #include    <errno.h>
 #include    <arpa/inet.h>
@@ -31,7 +31,7 @@
 
 const char* cert = "../certs/ca-cert.pem";
 
-/* 
+/*
  * clients initial contact with server. (socket to connect, security layer)
  */
 int ClientGreet(int sock, WOLFSSL* ssl)
@@ -41,7 +41,9 @@ int ClientGreet(int sock, WOLFSSL* ssl)
     int ret = 0;
 
     printf("Message for server:\t");
-    fgets(sendBuff, MAXDATASIZE, stdin);
+    if((fgets(sendBuff, MAXDATASIZE, stdin)) != NULL){
+        /*sendBuff assigned in condition*/
+    }
 
     if (wolfSSL_write(ssl, sendBuff, strlen(sendBuff)) != strlen(sendBuff)) {
         /* the message is not able to send, or error trying */
@@ -61,7 +63,7 @@ int ClientGreet(int sock, WOLFSSL* ssl)
     return ret;
 }
 
-/* 
+/*
  * applies TLS 1.2 security layer to data being sent.
  */
 int Security(int sock, struct sockaddr_in addr)
@@ -92,31 +94,31 @@ int Security(int sock, struct sockaddr_in addr)
     }
 
     wolfSSL_set_fd(ssl, sock);
-    
+
     /* connects to wolfSSL */
     ret = wolfSSL_connect(ssl);
     if (ret != SSL_SUCCESS) {
         return ret;
     }
-    
-    ret = ClientGreet(sock, ssl);
-    
+
+    ClientGreet(sock, ssl);
+
     /* saves the session */
     session = wolfSSL_get_session(ssl);
     wolfSSL_free(ssl);
 
     /* closes the connection */
     close(sock);
-    
+
     /* new ssl to reconnect to */
     sslResume = wolfSSL_new(ctx);
-    
+
     /* makes a new socket to connect to */
     sock = socket(AF_INET, SOCK_STREAM, 0);
-    
+
     /* sets session to old session */
     wolfSSL_set_session(sslResume, session);
-    
+
     /* connects to new socket */
     if (connect(sock, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
         /* if socket fails to connect to the server*/
@@ -124,28 +126,28 @@ int Security(int sock, struct sockaddr_in addr)
         printf("Connect error. Error: %i\n", ret);
         return EXIT_FAILURE;
     }
-    
+
     /* sets new file discriptior */
     wolfSSL_set_fd(sslResume, sock);
-    
+
     /* reconects to wolfSSL */
     ret = wolfSSL_connect(sslResume);
     if (ret != SSL_SUCCESS) {
         return ret;
     }
-    
+
     /* checks to see if the new session is the same as the old session */
     if (wolfSSL_session_reused(sslResume))
-        printf("Re-used session ID\n"); 
+        printf("Re-used session ID\n");
     else
         printf("Did not re-use session ID\n");
-    
+
     /* regreet the client */
     ret = ClientGreet(sock, sslResume);
-    
+
     /* closes the connection */
     close(sock);
-    
+
     /* frees all data before client termination */
     wolfSSL_free(sslResume);
     wolfSSL_CTX_free(ctx);
@@ -154,10 +156,10 @@ int Security(int sock, struct sockaddr_in addr)
     return ret;
 }
 
-/* 
- * Command line argumentCount and argumentValues 
+/*
+ * Command line argumentCount and argumentValues
  */
-int main(int argc, char** argv) 
+int main(int argc, char** argv)
 {
     int     sockfd;                         /* socket file descriptor */
     struct  sockaddr_in servAddr;           /* struct for server address */
@@ -177,7 +179,7 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
 
-    memset(&servAddr, 0, sizeof(servAddr)); /* clears memory block for use */  
+    memset(&servAddr, 0, sizeof(servAddr)); /* clears memory block for use */
     servAddr.sin_family = AF_INET;          /* sets addressfamily to internet*/
     servAddr.sin_port = htons(SERV_PORT);   /* sets port to defined port */
 
@@ -189,7 +191,7 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
 
-    if ((ret = connect(sockfd, (struct sockaddr *) &servAddr, 
+    if ((ret = connect(sockfd, (struct sockaddr *) &servAddr,
         sizeof(servAddr))) < 0) {
         /* if socket fails to connect to the server*/
         ret = errno;
@@ -200,3 +202,4 @@ int main(int argc, char** argv)
 
     return ret;
 }
+

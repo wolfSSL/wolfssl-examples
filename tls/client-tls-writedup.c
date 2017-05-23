@@ -131,10 +131,9 @@ int Security(int sock)
     ret = wolfSSL_connect(ssl);
     if (ret == SSL_SUCCESS) {
         /* start client thread */
-        WOLFSSL* write_ssl = ssl;
 
 #ifdef HAVE_WRITE_DUP
-        write_ssl = wolfSSL_write_dup(ssl);
+        WOLFSSL* write_ssl = wolfSSL_write_dup(ssl);
         if (write_ssl == NULL) {
             printf("wolfSSL_write_dup error.\n");
             return EXIT_FAILURE;
@@ -146,13 +145,13 @@ int Security(int sock)
         pthread_t tid;
         pthread_create(&tid, NULL, ReadSSL, ssl);
 
-        ret = WriteSSL(write_ssl);
+        ret = WriteSSL(ssl);
 
         pthread_join(tid, NULL);
     } else {
         printf("wolfSSL_connect err = %d\n", wolfSSL_get_error(ssl, 0));
         return EXIT_FAILURE;
-    } 
+    }
 
     /* frees all data before client termination */
     wolfSSL_free(ssl);
@@ -207,3 +206,4 @@ int main(int argc, char** argv)
 
     return ret;
 }
+

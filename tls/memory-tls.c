@@ -159,7 +159,7 @@ static void* client_thread(void* args)
     if (ret != SSL_SUCCESS) err_sys("bad client tls connect");
     printf("wolfSSL client success!\n");
 
-    ret = wolfSSL_write(cli_ssl, "hello memory wolfSSL!", 21);
+    wolfSSL_write(cli_ssl, "hello memory wolfSSL!", 21);
 
     /* clean up */
     wolfSSL_free(cli_ssl);
@@ -199,7 +199,7 @@ int main()
     /* read msg post handshake from client */
     unsigned char buf[80];
     memset(buf, 0, sizeof(buf));
-    ret = wolfSSL_read(srv_ssl, buf, sizeof(buf)-1);
+    wolfSSL_read(srv_ssl, buf, sizeof(buf)-1);
     printf("client msg = %s\n", buf);
 
     /* clean up */
@@ -208,3 +208,4 @@ int main()
 
     return 0;
 }
+

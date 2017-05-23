@@ -1032,7 +1032,7 @@ int main(int argc, char* argv[])
                 else {
                     /* Client connection. */
                     SSLConn_Close(sslConnCtx, events[i].data.ptr);
-                    ret = epoll_ctl(efd, EPOLL_CTL_ADD, socketfd, &event);
+                    epoll_ctl(efd, EPOLL_CTL_ADD, socketfd, &event);
                 }
             }
             else if (events[i].data.ptr == NULL) {
@@ -1099,4 +1099,5 @@ int main(int argc, char* argv[])
 
     exit(EXIT_SUCCESS);
 }
+
 
