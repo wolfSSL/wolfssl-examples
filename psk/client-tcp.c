@@ -43,7 +43,7 @@ int SendReceive(int sockfd)
     char recvline[MAXLINE]; /* string received from the server */
 
     /* write string to the server */
-    if (write(sockfd, sendline, strlen(sendline)) != sizeof(sendline)) {
+    if (write(sockfd, sendline, strlen(sendline)) != strlen(sendline)) {
         printf("Write Error to Server\n");
         return 1;
     }
