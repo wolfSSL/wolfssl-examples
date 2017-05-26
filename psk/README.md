@@ -200,10 +200,9 @@ Session resumption allows a client/server pair to re-use previously generated cr
         /* close connection */
         close(sockfd);
 
-        /* cleanup */
+        /* cleanup without wolfSSL_Cleanup() for now */
         wolfSSL_free(ssl);
         wolfSSL_CTX_free(ctx);
-        wolfSSL_Cleanup();
 
 3. Now we are ready to reconnect and start a new socket but we are going to reuse the session id to make things go a little faster.
 
@@ -247,7 +246,7 @@ Session resumption allows a client/server pair to re-use previously generated cr
         /* shut down socket */
         close(sock);
 
-        /* clean up */
+        /* clean up now with wolfSSL_Cleanup() */
         wolfSSL_free(sslResume);
         wolfSSL_CTX_free(ctx);
         wolfSSL_Cleanup();
