@@ -38,10 +38,10 @@
 
 #define DEFAULT_PORT 11111
 
-int AcceptAndRead(WOLFSSL_CTX* ctx, socklen_t sockfd, struct sockaddr_in
+int AcceptAndRead(WOLFSSL_CTX* ctx, int sockfd, struct sockaddr_in
     clientAddr);
 
-int AcceptAndRead(WOLFSSL_CTX* ctx, socklen_t sockfd, struct sockaddr_in
+int AcceptAndRead(WOLFSSL_CTX* ctx, int sockfd, struct sockaddr_in
     clientAddr)
 {
         /* Create our reply message */
@@ -49,7 +49,7 @@ int AcceptAndRead(WOLFSSL_CTX* ctx, socklen_t sockfd, struct sockaddr_in
     socklen_t         size    = sizeof(clientAddr);
 
     /* Wait until a client connects */
-    socklen_t connd = accept(sockfd, (struct sockaddr *)&clientAddr, &size);
+    int       connd = accept(sockfd, (struct sockaddr *)&clientAddr, &size);
 
     /* If fails to connect,int loop back up and wait for a new connection */
     if (connd == -1) {
@@ -119,7 +119,7 @@ int main()
      * Sets the type to be Stream based (TCP),
      * 0 means choose the default protocol.
      */
-    socklen_t sockfd   = socket(AF_INET, SOCK_STREAM, 0);
+    int sockfd   = socket(AF_INET, SOCK_STREAM, 0);
     int loopExit = 0; /* 0 = False, 1 = True */
     int ret      = 0; /* Return value */
     /* Server and client socket address structures */
