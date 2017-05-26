@@ -208,17 +208,17 @@ Session resumption allows a client/server pair to re-use previously generated cr
 3. Now we are ready to reconnect and start a new socket but we are going to reuse the session id to make things go a little faster.
 
 
-        sockfd = socket(AF_INET, SOCK_STREAM, 0);
+        sock = socket(AF_INET, SOCK_STREAM, 0);
 
         /* connect to the socket */
-        ret = connect(sockfd, (struct sockaddr *) &servaddr, sizeof(servaddr));
+        ret = connect(sock, (struct sockaddr *) &servaddr, sizeof(servaddr));
 
         if (ret != 0){
             return 1;
         }
 
         /* set the session ID to connect to the server */
-        wolfSSL_set_fd(sslResume, sockfd);
+        wolfSSL_set_fd(sslResume, sock);
         wolfSSL_set_session(sslResume, session);
 
 4. Check if the connect was successful.
@@ -245,7 +245,7 @@ Session resumption allows a client/server pair to re-use previously generated cr
         wolfSSL_shutdown(sslResume);
 
         /* shut down socket */
-        close(sockfd);
+        close(sock);
 
         /* clean up */
         wolfSSL_free(sslResume);

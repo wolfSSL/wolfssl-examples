@@ -158,10 +158,9 @@ int main(int argc, char **argv){
     /* close connection */
     close(sockfd);
 
-    /* cleanup */
+    /* cleanup without wolfSSL_Cleanup() for now */
     wolfSSL_free(ssl);
     wolfSSL_CTX_free(ctx);
-    wolfSSL_Cleanup();
 
     /*
      * resume session, start new connection and socket
@@ -206,7 +205,7 @@ int main(int argc, char **argv){
     /* shut down socket */
     close(sock);
 
-    /* clean up */
+    /* clean up now with wolfSSL_Cleanup() */
     wolfSSL_free(sslResume);
     wolfSSL_CTX_free(ctx);
     wolfSSL_Cleanup();
