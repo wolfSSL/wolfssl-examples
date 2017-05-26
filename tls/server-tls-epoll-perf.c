@@ -444,7 +444,7 @@ static int SSLConn_Done(SSLConn_CTX* ctx) {
  * otherwise.
  */
 static int SSLConn_Accept(SSLConn_CTX* ctx, WOLFSSL_CTX* sslCtx,
-                          socklen_t sockfd, SSLConn** sslConn)
+                          int sockfd, SSLConn** sslConn)
 {
     struct sockaddr_in clientAddr = {0};
     socklen_t          size = sizeof(clientAddr);
@@ -741,9 +741,9 @@ static void RandomReply(char* reply, int replyLen)
  * socketfd    The socket file descriptor to accept on.
  * returns EXIT_SUCCESS on success and EXIT_FAILURE otherwise.
  */
-static int CreateSocketListen(int port, int numClients, socklen_t* socketfd) {
+static int CreateSocketListen(int port, int numClients, int* socketfd) {
     int                 ret;
-    socklen_t           sockfd;
+    int                 sockfd;
     struct sockaddr_in  serverAddr = {0};
     int                 on = 1;
     socklen_t           len = sizeof(on);
@@ -756,7 +756,7 @@ static int CreateSocketListen(int port, int numClients, socklen_t* socketfd) {
 
     /* Create a non-blocking socket to listen on for new connections. */
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockfd == (socklen_t)-1) {
+    if (sockfd == -1) {
         fprintf(stderr, "ERROR: failed to create the socket\n");
         return(EXIT_FAILURE);
     }
@@ -815,7 +815,7 @@ static void Usage(void)
 int main(int argc, char* argv[])
 {
     int                 ret = 0;
-    socklen_t           socketfd = -1;
+    int                 socketfd = -1;
     int                 efd;
     struct epoll_event  event;
     struct epoll_event  event_conn;

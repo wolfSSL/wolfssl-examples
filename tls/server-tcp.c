@@ -30,9 +30,9 @@
 
 #define DEFAULT_PORT 11111
 
-int AcceptAndRead(socklen_t sockfd);
+int AcceptAndRead(int sockfd);
 
-int AcceptAndRead(socklen_t sockfd)
+int AcceptAndRead(int sockfd)
 {
     struct sockaddr_in clientAddr;
  	socklen_t size = sizeof(clientAddr);
@@ -91,7 +91,7 @@ int main()
      */
 
      /* Identify and access the sockets */
-    socklen_t sockfd = socket(AF_INET, SOCK_STREAM, 0); 
+    int sockfd = socket(AF_INET, SOCK_STREAM, 0); 
     int exit   = 0; 	/* 0 = false, 1 = true */
 
     /* If positive value, the socket is valid */

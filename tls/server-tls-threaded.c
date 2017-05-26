@@ -39,7 +39,7 @@
 
 #define DEFAULT_PORT 11111
 
-int  AcceptAndRead(socklen_t sockfd, struct sockaddr_in clientAddr);
+int  AcceptAndRead(int sockfd, struct sockaddr_in clientAddr);
 void *ThreadHandler(void* socketDesc);
 
 /* Create a ctx pointer for our ssl */
@@ -98,7 +98,7 @@ void *ThreadHandler(void* socketDesc)
 }
 
 
-int AcceptAndRead(socklen_t sockfd, struct sockaddr_in clientAddr)
+int AcceptAndRead(int sockfd, struct sockaddr_in clientAddr)
 {
     socklen_t size = sizeof(clientAddr);
     int connd;      /* Identify and access the clients connection */
@@ -130,7 +130,7 @@ int main()
      * Sets the type to be Stream based (TCP),
      * 0 means choose the default protocol.
      */
-    socklen_t sockfd   = socket(AF_INET, SOCK_STREAM, 0);
+    int sockfd   = socket(AF_INET, SOCK_STREAM, 0);
     int ret      = 0; /* Return Variable */
     int loopExit = 0; /* 0 = False, 1 = True */
 

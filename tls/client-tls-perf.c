@@ -741,16 +741,16 @@ static void WolfSSLCtx_Final(WOLFSSL_CTX* ctx)
  * socketfd  The connected socket.
  * returns EXIT_SUCCESS when the socket is connected and EXIT_FAILURE otherwise.
  */
-static int CreateSocketConnect(int port, socklen_t* socketfd)
+static int CreateSocketConnect(int port, int* socketfd)
 {
     int                on = 1;
     socklen_t          len = sizeof(on);
     struct sockaddr_in serverAddr = {0};
-    socklen_t          sockfd;
+    int                sockfd;
 
     /* Create a non-blocking socket to listen on for new connections. */
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockfd == (socklen_t)-1) {
+    if (sockfd == -1) {
         fprintf(stderr, "ERROR: failed to create the socket\n");
         return EXIT_FAILURE;
     }
@@ -805,7 +805,7 @@ static void Usage(void)
  */
 int main(int argc, char* argv[])
 {
-    socklen_t    socketfd = -1;
+    int          socketfd = -1;
     int          ch;
     WOLFSSL_CTX* ctx = NULL;
     SSLConn_CTX* sslConnCtx;

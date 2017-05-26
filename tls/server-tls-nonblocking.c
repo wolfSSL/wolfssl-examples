@@ -43,14 +43,14 @@
  */
 enum read_write_t {WRITE, READ, ACCEPT};
 
-int AcceptAndRead(WOLFSSL_CTX* ctx, socklen_t socketfd, 
+int AcceptAndRead(WOLFSSL_CTX* ctx, int socketfd, 
     struct sockaddr_in clientAddr);
-int TCPSelect(socklen_t socketfd);
-int NonBlocking_ReadWriteAccept(WOLFSSL* ssl, socklen_t socketfd, 
+int TCPSelect(int socketfd);
+int NonBlocking_ReadWriteAccept(WOLFSSL* ssl, int socketfd, 
     enum read_write_t rw);
 
 /*  Check if any sockets are ready for reading and writing and set it */
-int TCPSelect(socklen_t socketfd)
+int TCPSelect(int socketfd)
 {
     fd_set recvfds, errfds;
     int nfds = socketfd + 1;
@@ -75,7 +75,7 @@ int TCPSelect(socklen_t socketfd)
 }
 /* Checks if NonBlocking I/O is wanted, if it is wanted it will
  * wait until it's available on the socket before reading or writing */
-int NonBlocking_ReadWriteAccept(WOLFSSL* ssl, socklen_t socketfd, 
+int NonBlocking_ReadWriteAccept(WOLFSSL* ssl, int socketfd, 
     enum read_write_t rw)
 {
     const char reply[] = "I hear ya fa shizzle!\n";
@@ -144,7 +144,8 @@ int NonBlocking_ReadWriteAccept(WOLFSSL* ssl, socklen_t socketfd,
     return 1;
 }
 
-int AcceptAndRead(WOLFSSL_CTX* ctx, socklen_t socketfd, struct sockaddr_in clientAddr)
+int AcceptAndRead(WOLFSSL_CTX* ctx, int socketfd,
+        struct sockaddr_in clientAddr)
 {
     socklen_t     size = sizeof(clientAddr);
 
@@ -198,7 +199,7 @@ int main()
      * Sets the type to be Stream based (TCP),
      * 0 means choose the default protocol.
      */
-    socklen_t socketfd = socket(AF_INET, SOCK_STREAM, 0);
+    int socketfd = socket(AF_INET, SOCK_STREAM, 0);
     int loopExit = 0; /* 0 = False, 1 = True */
     int ret      = 0;
     int on       = 1;
