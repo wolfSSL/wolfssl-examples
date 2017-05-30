@@ -38,15 +38,15 @@
 
 #define DEFAULT_PORT 11111
 
-/* Create an enum that we will use to tell our 
+/* Create an enum that we will use to tell our
  * NonBlocking_ReadWriteAccept() method what to do
  */
 enum read_write_t {WRITE, READ, ACCEPT};
 
-int AcceptAndRead(WOLFSSL_CTX* ctx, socklen_t socketfd, 
+int AcceptAndRead(WOLFSSL_CTX* ctx, socklen_t socketfd,
     struct sockaddr_in clientAddr);
 int TCPSelect(socklen_t socketfd);
-int NonBlocking_ReadWriteAccept(WOLFSSL* ssl, socklen_t socketfd, 
+int NonBlocking_ReadWriteAccept(WOLFSSL* ssl, socklen_t socketfd,
     enum read_write_t rw);
 
 /*  Check if any sockets are ready for reading and writing and set it */
@@ -75,17 +75,17 @@ int TCPSelect(socklen_t socketfd)
 }
 /* Checks if NonBlocking I/O is wanted, if it is wanted it will
  * wait until it's available on the socket before reading or writing */
-int NonBlocking_ReadWriteAccept(WOLFSSL* ssl, socklen_t socketfd, 
+int NonBlocking_ReadWriteAccept(WOLFSSL* ssl, socklen_t socketfd,
     enum read_write_t rw)
 {
     const char reply[] = "I hear ya fa shizzle!\n";
     char       buff[256];
     int        rwret = 0;
     int        selectRet;
-    int 	   ret;
+    int        ret;
 
 
-    /* Clear the buffer memory for anything  possibly left 
+    /* Clear the buffer memory for anything  possibly left
        over */
     memset(&buff, 0, sizeof(buff));
 
@@ -104,7 +104,7 @@ int NonBlocking_ReadWriteAccept(WOLFSSL* ssl, socklen_t socketfd,
         int error = wolfSSL_get_error(ssl, 0);
 
         /* while I/O is not ready, keep waiting */
-        while ((error == SSL_ERROR_WANT_READ || 
+        while ((error == SSL_ERROR_WANT_READ ||
             error == SSL_ERROR_WANT_WRITE)) {
 
             if (error == SSL_ERROR_WANT_READ)
@@ -121,7 +121,7 @@ int NonBlocking_ReadWriteAccept(WOLFSSL* ssl, socklen_t socketfd,
                     rwret = wolfSSL_write(ssl, reply, sizeof(reply)-1);
                 else if (rw == ACCEPT)
                     rwret = wolfSSL_accept(ssl);
-                
+
                 error = wolfSSL_get_error(ssl, 0);
             }
             else {
@@ -135,7 +135,7 @@ int NonBlocking_ReadWriteAccept(WOLFSSL* ssl, socklen_t socketfd,
         /* Reply back to the client */
         else if (rw == WRITE) {
             if ((ret = wolfSSL_write(ssl, reply, sizeof(reply)-1)) < 0) {
-                printf("wolfSSL_write error = %d\n", 
+                printf("wolfSSL_write error = %d\n",
                     wolfSSL_get_error(ssl, ret));
             }
         }
@@ -166,16 +166,16 @@ int AcceptAndRead(WOLFSSL_CTX* ctx, socklen_t socketfd, struct sockaddr_in clien
 
         /* Direct our ssl to our clients connection */
         wolfSSL_set_fd(ssl, connd);
-        
+
         /* Sets wolfSSL_accept(ssl) */
         if(NonBlocking_ReadWriteAccept(ssl, socketfd, ACCEPT) < 0)
             return 0;
 
-        /* 
+        /*
          * loop until the connected client disconnects
          * and read in any messages the client sends
          */
-        for ( ; ; ) {   
+        for ( ; ; ) {
             /* Read data in when I/O is available */
             if (NonBlocking_ReadWriteAccept(ssl, socketfd, READ) == 0)
                 break;
@@ -184,7 +184,7 @@ int AcceptAndRead(WOLFSSL_CTX* ctx, socklen_t socketfd, struct sockaddr_in clien
                 break;
         }
         wolfSSL_free(ssl);           /* Free the WOLFSSL object */
-    } 
+    }
     close(connd);               /* close the connected socket */
 
     return 0;
@@ -193,7 +193,7 @@ int AcceptAndRead(WOLFSSL_CTX* ctx, socklen_t socketfd, struct sockaddr_in clien
 
 int main()
 {
-    /* 
+    /*
      * Creates a socket that uses an internet IP address,
      * Sets the type to be Stream based (TCP),
      * 0 means choose the default protocol.
@@ -210,13 +210,13 @@ int main()
     struct sockaddr_in serverAddr = {0}, clientAddr = {0};
 
     /* Initialize the server address struct to zero */
-    memset((char *)&serverAddr, 0, sizeof(serverAddr)); 
+    memset((char *)&serverAddr, 0, sizeof(serverAddr));
 
     /* Fill the server's address family */
     serverAddr.sin_family      = AF_INET;
     serverAddr.sin_addr.s_addr = INADDR_ANY;
     serverAddr.sin_port        = htons(DEFAULT_PORT);
-       
+
     socklen_t len = sizeof(on);
 
     /* If positive value, the socket is valid */
@@ -225,8 +225,8 @@ int main()
         exit(EXIT_FAILURE);        /* Kill the server with exit status 1 */
     }
     /* Set the sockets options for use with nonblocking i/o */
-    if (setsockopt(socketfd, SOL_SOCKET, SO_REUSEADDR, &on, len) 
-        < 0)                    
+    if (setsockopt(socketfd, SOL_SOCKET, SO_REUSEADDR, &on, len)
+        < 0)
         printf("setsockopt SO_REUSEADDR failed\n");
 
     /* Initialize wolfSSL */
@@ -239,7 +239,7 @@ int main()
     }
 
     /* Load server certificate into WOLFSSL_CTX */
-    if (wolfSSL_CTX_use_certificate_file(ctx, "../certs/server-cert.pem", 
+    if (wolfSSL_CTX_use_certificate_file(ctx, "../certs/server-cert.pem",
                 SSL_FILETYPE_PEM) != SSL_SUCCESS) {
         fprintf(stderr, "Error loading certs/server-cert.pem, please check"
                 "the file.\n");
@@ -247,7 +247,7 @@ int main()
     }
 
     /* Load server key into WOLFSSL_CTX */
-    if (wolfSSL_CTX_use_PrivateKey_file(ctx, "../certs/server-key.pem", 
+    if (wolfSSL_CTX_use_PrivateKey_file(ctx, "../certs/server-key.pem",
                 SSL_FILETYPE_PEM) != SSL_SUCCESS) {
         fprintf(stderr, "Error loading certs/server-key.pem, please check"
                 "the file.\n");
