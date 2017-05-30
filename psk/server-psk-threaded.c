@@ -1,6 +1,6 @@
 /* server-psk-threaded.c
  * A server ecample using a multi-threaded TCP connection with PSK security. 
- *  
+ *
  * Copyright (C) 2006-2015 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
@@ -50,8 +50,9 @@ static inline unsigned int my_psk_server_cb(WOLFSSL* ssl, const char* identity,
     (void)ssl;
     (void)key_max_len;
 
-    if (strncmp(identity, "Client_identity", 15) != 0)
+    if (strncmp(identity, "Client_identity", 15) != 0) {
         return 0;
+    }
 
     key[0] = 26;
     key[1] = 43;
@@ -68,10 +69,10 @@ void* wolfssl_thread(void* fd)
 {
     WOLFSSL* ssl;
     int connfd = *((int*)fd);
-    int  n;             
-    char buf[MAXLINE];  
+    int  n;
+    char buf[MAXLINE];
     char response[] = "I hear ya for shizzle";
-   
+
     memset(buf, 0, MAXLINE);
 
     /* create WOLFSSL object */
@@ -79,14 +80,15 @@ void* wolfssl_thread(void* fd)
         printf("Fatal error : wolfSSL_new error");
         /* place signal for forced error exit here */
     }
-        
+
     wolfSSL_set_fd(ssl, connfd);
 
     /* respond to client */
     n = wolfSSL_read(ssl, buf, MAXLINE);
     if (n > 0) {
         printf("%s\n", buf);
-        if (wolfSSL_write(ssl, response, strlen(response)) != strlen(response)) {
+        if (wolfSSL_write(ssl, response, strlen(response))
+                                      != strlen(response)) {
             printf("Fatal error :respond: write error\n");
             /* place signal for forced error exit here */
         }
@@ -95,12 +97,12 @@ void* wolfssl_thread(void* fd)
         printf("Fatal error : respond: read error\n");
         /* place signal for forced error exit here */
     }
-   
+
     /* closes the connections after responding */
     wolfSSL_shutdown(ssl);
     wolfSSL_free(ssl);
     if (close(connfd) == -1) {
-        printf("Fatal error : close error\n"); 
+        printf("Fatal error : close error\n");
         /* place signal for forced error exit here */
     }
 
@@ -118,18 +120,20 @@ int main()
     void*               wolfssl_thread(void*);
 
     wolfSSL_Init();
-    
-    if ((ctx = wolfSSL_CTX_new(wolfSSLv23_server_method())) == NULL)
-        printf("Fatal error : wolfSSL_CTX_new error\n");
 
-    /* use psk suite for security */ 
+    if ((ctx = wolfSSL_CTX_new(wolfSSLv23_server_method())) == NULL) {
+        printf("Fatal error : wolfSSL_CTX_new error\n");
+    }
+
+    /* use psk suite for security */
     wolfSSL_CTX_set_psk_server_callback(ctx, my_psk_server_cb);
     wolfSSL_CTX_use_psk_identity_hint(ctx, "wolfssl server");
     if (wolfSSL_CTX_set_cipher_list(ctx, "PSK-AES128-CBC-SHA256")
-                                   != SSL_SUCCESS)
+                                   != SSL_SUCCESS) {
         printf("Fatal error : server can't set cipher list");
+    }
 
-    /* find a socket */ 
+    /* find a socket */
     listenfd = socket(AF_INET, SOCK_STREAM, 0);
     if (listenfd < 0) {
         printf("Fatal error : socket error");
@@ -145,17 +149,17 @@ int main()
     opt = 1;
     if (setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, (const void *)&opt,
                sizeof(int))) {
-        return 1;                                                
+        return 1;
     }
-    
+
     if (bind(listenfd, (struct sockaddr *) &servAddr, sizeof(servAddr)) < 0) {
         printf("Fatal error : bind error");
-        return 1;   
+        return 1;
     }
-    
+
     /* main loop for accepting and responding to clients */
     for ( ; ; ) {
-        /* listen to the socket */   
+        /* listen to the socket */
         if (listen(listenfd, LISTENQ) < 0) {
             printf("Fatal error : listen error");
             return 1;
@@ -171,13 +175,13 @@ int main()
             printf("Connection from %s, port %d\n",
                    inet_ntop(AF_INET, &cliAddr.sin_addr, buff, sizeof(buff)),
                    ntohs(cliAddr.sin_port));
-            
+
             if (pthread_create(&thread, NULL, &wolfssl_thread, (void*) &connfd) 
                                != 0) {
-                return 1;   
+                return 1;
             }
             if (pthread_detach(thread) != 0) {
-                return 1;   
+                return 1;
             }
         }
     }
