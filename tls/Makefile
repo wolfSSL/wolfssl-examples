@@ -1,13 +1,30 @@
 # TLS Examples Makefile
-CC=gcc
-LIB_PATH=/usr/local
-CFLAGS=-Wall -I$(LIB_PATH)/include
-LIBS=-L$(LIB_PATH)/lib -lm
-DYN_LIB=-lwolfssl
-STATIC_LIB=$(LIB_PATH)/lib/libwolfssl.a
-DEBUG_FLAGS=-g -DDEBUG
-DEBUG_INC_PATHS=-MD
-OPTIMIZE=-Os
+CC       = gcc
+LIB_PATH = /usr/local
+CFLAGS   = -Wall -I$(LIB_PATH)/include
+LIBS     = -L$(LIB_PATH)/lib -lm
+
+# option variables
+DYN_LIB         = -lwolfssl
+STATIC_LIB      = $(LIB_PATH)/lib/libwolfssl.a
+DEBUG_FLAGS     = -g -DDEBUG
+DEBUG_INC_PATHS = -MD
+OPTIMIZE        = -Os
+
+# Options
+#CFLAGS+=$(DEBUG_FLAGS)
+CFLAGS+=$(OPTIMIZE)
+#CFLAGS+=$(QAT_FLAGS)
+#LIBS+=$(QAT_LIBS)
+#LIBS+=$(STATIC_LIB)
+LIBS+=$(DYN_LIB)
+
+# build targets
+SRC=$(wildcard *.c)
+TARGETS=$(patsubst %.c, %, $(SRC))
+LINUX_SPECIFIC=client-tls-perf \
+	server-tls-epoll-perf \
+	server-tls-epoll-threaded
 
 
 # Intel QuickAssist
@@ -20,14 +37,6 @@ QAT_FLAGS=-DDO_CRYPTO -DUSER_SPACE \
 	-I$(QAT_PATH)/quickassist/lookaside/access_layer/include \
 	-I$(QAT_PATH)/quickassist/lookaside/access_layer/src/common/include
 QAT_LIBS=-L$(QAT_PATH) -ladf_proxy -losal -licp_qa_al_s -lpthread
-
-# Options
-#CFLAGS+=$(DEBUG_FLAGS)
-CFLAGS+=$(OPTIMIZE)
-#CFLAGS+=$(QAT_FLAGS)
-#LIBS+=$(QAT_LIBS)
-#LIBS+=$(STATIC_LIB)
-LIBS+=$(DYN_LIB)
 
 
 # OS / CPU Detection
@@ -68,64 +77,28 @@ endif
 # $(info $$OS_DET is [${OS_DET}])
 # $(info $$CPU_DET is [${CPU_DET}])
 
-ifeq ($(OS_DET),LINUX)
-all: client-tcp client-tls client-tls-nonblocking client-tls-ecdhe server-tls-ecdhe client-tls-perf client-tls-resume client-tls-writedup client-callback memory-tls server-tcp server-tls server-tls-nonblocking server-tls-threaded server-tls-epoll-perf server-callback server-tls-epoll-threaded
-else
-all: client-tcp client-tls client-tls-nonblocking client-tls-ecdhe server-tls-ecdhe client-tls-resume client-tls-writedup client-callback memory-tls server-tcp server-tls server-tls-nonblocking server-tls-threaded server-callback
-endif
-
-client-tcp: client-tcp.o
-	$(CC) -o $@ $^ $(CFLAGS)
-
-client-tls: client-tls.o
-	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
-
-client-tls-nonblocking: client-tls-nonblocking.o
-	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
-
-client-tls-ecdhe: client-tls-ecdhe.o
-	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
-
-server-tls-ecdhe: server-tls-ecdhe.o
-	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
-
-client-tls-perf: client-tls-perf.o
-	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
-
-client-tls-resume: client-tls-resume.o
-	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
-
-client-tls-writedup: client-tls-writedup.o
-	$(CC) -o $@ $^ $(CFLAGS) $(LIBS) -lpthread
-
-client-callback: client-callback.o
-	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
-
-memory-tls: memory-tls.o
-	$(CC) -o $@ $^ $(CFLAGS) $(LIBS) -lpthread
-
-server-tcp: server-tcp.o
-	$(CC) -o $@ $^ $(CFLAGS)
-
-server-tls: server-tls.o
-	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
-
-server-tls-nonblocking: server-tls-nonblocking.o
-	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
-
-server-tls-epoll-perf: server-tls-epoll-perf.o
-	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
-
-server-tls-threaded: server-tls-threaded.o
-	$(CC) -o $@ $^ $(CFLAGS) $(LIBS) -lpthread
-
-server-callback: server-callback.o
-	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
-
-server-tls-epoll-threaded: server-tls-epoll-threaded.o
-	$(CC) -o $@ $^ $(CFLAGS) $(LIBS) -lpthread
-
 .PHONY: clean all
 
+ifneq ($(OS_DET),LINUX)
+all: $(filter-out $(LINUX_SPECIFIC), $(TARGETS))
+else
+all: $(TARGETS)
+endif
+
+debug: CFLAGS+=$(DEBUG_FLAGS)
+debug: all
+
+# add the -pthread flag to any threaded examples
+%-threaded: CFLAGS+=-pthread
+%-writedup: CFLAGS+=-pthread
+memory-tls: CFLAGS+=-pthread
+
+# compile tcp examples without the LIBS variable
+%-tcp: LIBS=
+
+# build template
+%: %.c
+	$(CC) -o $@ $< $(CFLAGS) $(LIBS)
+
 clean:
-	rm -f *.o client-tcp client-tls client-tls-nonblocking client-tls-ecdhe server-tls-ecdhe client-tls-perf client-tls-resume client-tls-writedup client-callback memory-tls server-tcp server-tls server-tls-nonblocking server-tls-threaded server-tls-epoll-perf server-callback server-tls-epoll-threaded
+	rm -f $(TARGETS)
