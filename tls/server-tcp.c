@@ -24,14 +24,10 @@
 #include <stdio.h>
 #include <string.h>
 
-/* error reporting */
-#include <err.h>
-
 /* socket includes */
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
-
 
 
 #define DEFAULT_PORT 11111
@@ -54,7 +50,8 @@ int main()
      */
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
         /* exit the program with -1 after printing the message to stderr */
-        errx(-1, "failed to create the socket");
+        fprintf(stderr, "ERROR: failed to create the socket\n");
+        return -1;
     }
 
 
@@ -62,21 +59,22 @@ int main()
     memset(&serverAddr, 0, sizeof(serverAddr));
 
     /* Fill the server's address family */
-    serverAddr.sin_family      = AF_INET;
-    serverAddr.sin_addr.s_addr = INADDR_ANY;
-    serverAddr.sin_port        = htons(DEFAULT_PORT);
+    serverAddr.sin_family      = AF_INET;             /* using IPv4      */
+    serverAddr.sin_addr.s_addr = INADDR_ANY;          /* from anywhere   */
+    serverAddr.sin_port        = htons(DEFAULT_PORT); /* on DEFAULT_PORT */
 
 
     /* Attach the server socket to our port */
     if (bind(sockfd, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0) {
-        errx(-1, "failed to bind");
+        fprintf(stderr, "ERROR: failed to bind\n");
+        return -1;
     }
 
 
     /* Listen for a new connection, allow 5 pending connections */
     if (listen(sockfd, 5) == -1) {
-        close(sockfd);
-        errx(-1, "failed to listen");
+        fprintf(stderr, "ERROR: failed to listen\n");
+        return -1;
     }
 
 
@@ -84,8 +82,8 @@ int main()
 
     /* Accept client connections */
     if ((connd = accept(sockfd, (struct sockaddr*)&clientAddr, &size)) == -1) {
-        close(sockfd);
-        errx(-1, "failed to accept the connection\n");
+        fprintf(stderr, "ERROR: failed to accept the connection\n\n");
+        return -1;
     }
 
 
@@ -111,18 +109,18 @@ int main()
             /* Reply back to the client */
             if ((ret = write(connd, buff, sizeof(buff)-1)) < 0) {
                 /* Write an error without exiting the program */
-                warnx("write error");
+                fprintf(stderr, "ERROR: failed to write\n");
             }
         }
     } while (ret > 0);
 
 
     /* Check for a read error condition */
-    if (ret < 0) {
-        warnx("read error");
+    if (ret == 0) {
+        printf("Client has closed the connection.\n");
     }
     else {
-        printf("Client has closed the connection.\n");
+        fprintf(stderr, "ERROR: failed to read\n");
     }
 
 
