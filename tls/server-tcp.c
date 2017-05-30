@@ -43,19 +43,17 @@ int main()
     int                ret = 0;
 
 
-    /*
-     * Creates a socket that uses an internet IPv4 address,
+
+    /* Create a socket that uses an internet IPv4 address,
      * Sets the socket to be stream based (TCP),
-     * 0 means choose the default protocol.
-     */
+     * 0 means choose the default protocol. */
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
-        /* exit the program with -1 after printing the message to stderr */
         fprintf(stderr, "ERROR: failed to create the socket\n");
         return -1;
     }
 
 
-    /* Initialize the server address struct to zero */
+    /* Initialize the server address struct with zeros */
     memset(&serverAddr, 0, sizeof(serverAddr));
 
     /* Fill the server's address family */
@@ -91,7 +89,7 @@ int main()
 
     /* Read in from the client while there is something to read */
     do {
-        /* Clear the buffer memory for anything  possibly left over */
+        /* Clear the buffer memory for anything possibly left over */
         memset(buff, 0, sizeof(buff));
 
 
@@ -108,8 +106,8 @@ int main()
 
             /* Reply back to the client */
             if ((ret = write(connd, buff, sizeof(buff)-1)) < 0) {
-                /* Write an error without exiting the program */
                 fprintf(stderr, "ERROR: failed to write\n");
+                return -1;
             }
         }
     } while (ret > 0);
@@ -121,6 +119,7 @@ int main()
     }
     else {
         fprintf(stderr, "ERROR: failed to read\n");
+        return -1;
     }
 
 

@@ -19,7 +19,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
-/* the unual suspects */
+/* the usual suspects */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -47,13 +47,11 @@ int main(int argc, char** argv)
     }
 
 
-    /*
-     * Creates a socket that uses an internet IPv4 address,
+    /* Create a socket that uses an internet IPv4 address,
      * Sets the socket to be stream based (TCP),
-     * 0 means choose the default protocol.
-     */
-    if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-        fprintf(stderr, "ERROR: failed to create socket\n");
+     * 0 means choose the default protocol. */
+    if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
+        fprintf(stderr, "ERROR: failed to create the socket\n");
         return -1;
     }
 
@@ -104,6 +102,6 @@ int main(int argc, char** argv)
 
 
     /* Cleanup and return */
-    close(sockfd); /* Close the connection to the server */
-    return 0;      /* Return reporting a success         */
+    close(sockfd); /* Close the connection to the server     */
+    return 0;      /* Return reporting a success             */
 }
