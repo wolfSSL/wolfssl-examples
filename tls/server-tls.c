@@ -63,7 +63,7 @@ int main()
     }
 
 
-    /* Create and initilize WOLFSSL_CTX */
+    /* Create and initialize WOLFSSL_CTX */
     if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_server_method())) == NULL) {
         fprintf(stderr, "ERROR: failed to create WOLFSSL_CTX\n");
         return -1;
@@ -93,7 +93,7 @@ int main()
     }
 
 
-    /* Initialize the server address struct to zero */
+    /* Initialize the server address struct with zeros */
     memset(&serverAddr, 0, sizeof(serverAddr));
 
     /* Fill the server's address family */
@@ -169,6 +169,7 @@ int main()
     }
     else {
         fprintf(stderr, "ERROR: failed to read\n");
+        return -1;
     }
 
 
