@@ -26,6 +26,7 @@
 
 /* socket includes */
 #include <sys/socket.h>
+#include <arpa/inet.h>
 #include <netinet/in.h>
 #include <unistd.h>
 
@@ -36,10 +37,10 @@ int main()
 {
     int                sockfd;
     int                connd;
-    char               buff[256];
-    struct sockaddr_in serverAddr;
+    struct sockaddr_in servAddr;
     struct sockaddr_in clientAddr;
     socklen_t          size = sizeof(clientAddr);
+    char               buff[256];
     int                ret = 0;
 
 
@@ -54,16 +55,16 @@ int main()
 
 
     /* Initialize the server address struct with zeros */
-    memset(&serverAddr, 0, sizeof(serverAddr));
+    memset(&servAddr, 0, sizeof(servAddr));
 
-    /* Fill the server's address family */
-    serverAddr.sin_family      = AF_INET;             /* using IPv4      */
-    serverAddr.sin_addr.s_addr = INADDR_ANY;          /* from anywhere   */
-    serverAddr.sin_port        = htons(DEFAULT_PORT); /* on DEFAULT_PORT */
+    /* Fill in the server address */
+    servAddr.sin_family      = AF_INET;             /* using IPv4      */
+    servAddr.sin_port        = htons(DEFAULT_PORT); /* on DEFAULT_PORT */
+    servAddr.sin_addr.s_addr = INADDR_ANY;          /* from anywhere   */
 
 
-    /* Attach the server socket to our port */
-    if (bind(sockfd, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0) {
+    /* Bind the server socket to our port */
+    if (bind(sockfd, (struct sockaddr*)&servAddr, sizeof(servAddr)) < 0) {
         fprintf(stderr, "ERROR: failed to bind\n");
         return -1;
     }
@@ -94,7 +95,7 @@ int main()
 
 
         /* Read the client data into our buff array */
-        if ((ret = read(connd, buff, sizeof(buff)-1)) > 0) {
+        if (read(connd, buff, sizeof(buff)-1) > 0) {
             /* Print any data the client sends to the console */
             printf("Client: %s\n", buff);
 
@@ -105,9 +106,8 @@ int main()
 
 
             /* Reply back to the client */
-            if ((ret = write(connd, buff, sizeof(buff)-1)) < 0) {
+            if (write(connd, buff, sizeof(buff)-1) < 0) {
                 fprintf(stderr, "ERROR: failed to write\n");
-                return -1;
             }
         }
     } while (ret > 0);
@@ -119,13 +119,11 @@ int main()
     }
     else {
         fprintf(stderr, "ERROR: failed to read\n");
-        return -1;
     }
 
 
     /* Cleanup and return */
-    close(connd);  /* Close the connection to the client     */
-    close(sockfd); /* Close the socket listening for clients */
-    return 0;      /* Return reporting a success             */
-
+    close(connd);          /* Close the connection to the client     */
+    close(sockfd);         /* Close the socket listening for clients */
+    return 0;              /* Return reporting a success             */
 }

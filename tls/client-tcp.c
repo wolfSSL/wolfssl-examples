@@ -27,6 +27,7 @@
 /* socket includes */
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <netinet/in.h>
 #include <unistd.h>
 
 
@@ -34,15 +35,15 @@
 
 int main(int argc, char** argv)
 {
-    int     sockfd;
-    struct  sockaddr_in servAddr;
-    char    buff[256];
-    size_t  len;
+    int                sockfd;
+    struct sockaddr_in servAddr;
+    char               buff[256];
+    size_t             len;
 
 
     /* Check for proper calling convention */
     if (argc != 2) {
-        printf("usage: ./client-tcp  <IPv4 address>\n");
+        printf("usage: %s <IPv4 address>\n", argv[0]);
         return 0;
     }
 
@@ -60,8 +61,8 @@ int main(int argc, char** argv)
     memset(&servAddr, 0, sizeof(servAddr));
 
     /* Fill in the server address */
-    servAddr.sin_family = AF_INET;           /* use IPv4                  */
-    servAddr.sin_port = htons(DEFAULT_PORT); /* look at port DEFAULT_PORT */
+    servAddr.sin_family = AF_INET;             /* using IPv4      */
+    servAddr.sin_port   = htons(DEFAULT_PORT); /* on DEFAULT_PORT */
 
     /* Get the server IPv4 address from the command line call */
     if (inet_pton(AF_INET, argv[1], &servAddr.sin_addr) != 1) {
@@ -102,6 +103,6 @@ int main(int argc, char** argv)
 
 
     /* Cleanup and return */
-    close(sockfd); /* Close the connection to the server     */
-    return 0;      /* Return reporting a success             */
+    close(sockfd);         /* Close the connection to the server     */
+    return 0;              /* Return reporting a success             */
 }

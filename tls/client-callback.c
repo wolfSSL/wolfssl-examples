@@ -39,13 +39,13 @@
 #include <arpa/inet.h>
 
 /*look in diffrent location for cert*/
-#if defined(caCert) || defined(cliCert) || defined(cliKey)
-    #undef caCert
-    #undef cliCert
-    #undef cliKey
-    #define caCert     "../certs/ca-cert.pem"
-    #define cliCert    "../certs/client-cert.pem"
-    #define cliKey     "../certs/client-key.pem"
+#if defined(caCertFile) || defined(cliCertFile) || defined(cliKeyFile)
+    #undef caCertFile
+    #undef cliCertFile
+    #undef cliKeyFile
+    #define caCertFile     "../certs/ca-cert.pem"
+    #define cliCertFile    "../certs/client-cert.pem"
+    #define cliKeyFile     "../certs/client-key.pem"
 #endif
 
 #define MAXSZ     1024
@@ -169,12 +169,12 @@ int Client(const char* ip, word16 port)
     if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method())) == NULL)
         err_sys("Error in setting client ctx\n");
     
-    if (wolfSSL_CTX_load_verify_locations(ctx, caCert, 0) != SSL_SUCCESS)
+    if (wolfSSL_CTX_load_verify_locations(ctx, caCertFile, 0) != SSL_SUCCESS)
         err_sys("trouble loading client cert");
-    if (wolfSSL_CTX_use_certificate_file(ctx, cliCert, SSL_FILETYPE_PEM)
+    if (wolfSSL_CTX_use_certificate_file(ctx, cliCertFile, SSL_FILETYPE_PEM)
             != SSL_SUCCESS)
         err_sys("trouble loading client cert");
-    if (wolfSSL_CTX_use_PrivateKey_file(ctx, cliKey, SSL_FILETYPE_PEM)
+    if (wolfSSL_CTX_use_PrivateKey_file(ctx, cliKeyFile, SSL_FILETYPE_PEM)
             != SSL_SUCCESS)
         err_sys("trouble loading client cert");
 
