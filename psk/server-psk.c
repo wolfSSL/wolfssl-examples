@@ -62,10 +62,10 @@ int main()
     int  n;              /* length of string read */
     int                 listenfd, connfd;
     int                 opt;
-    struct sockaddr_in  cliAddr, servAddr;
     char                buff[MAXLINE];
     char buf[MAXLINE];   /* string read from client */
     char response[] = "I hear ya for shizzle";
+    struct sockaddr_in  cliAddr, servAddr;
     socklen_t           cliLen;
     WOLFSSL_CTX*         ctx;
 

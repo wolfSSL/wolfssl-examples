@@ -58,36 +58,11 @@ static inline unsigned int My_Psk_Client_Cb(WOLFSSL* ssl, const char* hint,
     return 4;
 }
 
-/*
- * this function will send the inputted string to the server and then
- * recieve the string from the server outputing it to the termial
- */
-int SendReceive(WOLFSSL* ssl)
-{
-    char sendline[MAXLINE]="Hello Server"; /* string to send to the server */
-    char recvline[MAXLINE]; /* string received from the server */
-
-	/* write string to the server */
-	if (wolfSSL_write(ssl, sendline, MAXLINE) != sizeof(sendline)) {
-		printf("Write Error to Server\n");
-		return 1;
-    }
-
-	/* flags if the Server stopped before the client could end */
-    if (wolfSSL_read(ssl, recvline, MAXLINE) < 0 ) {
-    	printf("Client: Server Terminated Prematurely!\n");
-        return 1;
-    }
-
-    /* show message from the server */
-	printf("Server Message: %s\n", recvline);
-
-	return 0;
-}
-
 int main(int argc, char **argv)
 {
     int ret, sockfd;
+    char sendline[MAXLINE]="Hello Server"; /* string to send to the server */
+    char recvline[MAXLINE]; /* string received from the server */
     WOLFSSL* ssl;
     WOLFSSL_CTX* ctx;
     struct sockaddr_in servaddr;;
@@ -148,11 +123,20 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    /* takes inputting string and outputs it to the server */
-	ret = SendReceive(ssl);
-	if (ret != 0) {
+    /* write string to the server */
+	if (wolfSSL_write(ssl, sendline, MAXLINE) != sizeof(sendline)) {
+		printf("Write Error to Server\n");
 		return 1;
-	}
+    }
+    
+    /* check if server ended before client could read a response  */
+    if (wolfSSL_read(ssl, recvline, MAXLINE) < 0 ) {
+    	printf("Client: Server Terminated Prematurely!\n");
+        return 1;
+    }
+
+    /* show message from the server */
+	printf("Server Message: %s\n", recvline);
 
     /* cleanup */
     wolfSSL_free(ssl);
