@@ -82,7 +82,7 @@ SOCK_RAW:        a direct IP service
     Defined:
 
 Figure 1.3 Setting Protocol
-    
+
 ```c
 #include <sys/socket.h>
 …
@@ -130,7 +130,7 @@ struct sockaddr_in{
 
 NOTE: this code will not be found in our example server. It is imported with the following call (figure 1.6).
 
-Figure 1.6 
+Figure 1.6
 `#include <netinet/in.h>`
 
 Before calling bind, we need to fill this struct. The three key parts we need to set are:
@@ -164,7 +164,7 @@ We can then call SERV_PORT where it is needed and if you, the client, are alread
     4.4 “ntohl”
         network to host - long : convert a 32-bit number from a network representation into the local processor`s format. This is commonly used to read an IP address from a sockaddr structure.
 
-        Using any of the above 4.4 macros will guarantee that your code remains portable regardless 
+        Using any of the above 4.4 macros will guarantee that your code remains portable regardless
         of the architecture you use in compilation.
 
 ####1.5. <BEGIN LOOP>:
@@ -184,31 +184,31 @@ int recvfrom(int socket, void* restrict buffer, size_t length,
 
     5.1 PARAMETERS DEFINED
         5.1.1 “ int socket ”
-            The first parameter “socket” is the socket we created and bound in STEPS 1 & 2. The port number 
-            assigned to that socket via the “bind” tells us what port recvfrom will “watch” while awaiting 
+            The first parameter “socket” is the socket we created and bound in STEPS 1 & 2. The port number
+            assigned to that socket via the “bind” tells us what port recvfrom will “watch” while awaiting
             incoming data transmissions.
         5.1.2 “ void* restrict buffer ”
             The incoming data will be placed into memory at buffer.
         5.1.3 “ size_t length “
             No more than length bytes will be transferred (that`s the size of your buffer).
         5.1.4 “ int flags “
-            For this tutorial we can ignore this last flags. However this parameter will allow us to “peek” 
-            at an incoming message without removing it from the queue or block until the request is fully 
-            satisfied. To ignore these flags, simply place a zero in as the parameter. See the man page for 
+            For this tutorial we can ignore this last flags. However this parameter will allow us to “peek”
+            at an incoming message without removing it from the queue or block until the request is fully
+            satisfied. To ignore these flags, simply place a zero in as the parameter. See the man page for
             recvfrom to see an  in-depth description of this parameter.
         5.1.5 “ struct sockaddr* restrict src_addr “
-            If src_addr is not NULL, the IP address and port number of the sender of the data will be placed into memory at src_addr. 
+            If src_addr is not NULL, the IP address and port number of the sender of the data will be placed into memory at src_addr.
         5.1.6 “ socklen_t *src_len “
-            The size of the memory at src_addr. If src_addr is NULL, then src_len should also be NULL.  
-            Example:  
+            The size of the memory at src_addr. If src_addr is NULL, then src_len should also be NULL.
+            Example:
             struct sockaddr_in* cliaddr;
-            socklen_t addrlen;  
-            addrlen = sizeof(struct sockaddr_in); 
+            socklen_t addrlen;
+            addrlen = sizeof(struct sockaddr_in);
     5.2 RETURN VALUE
-        recvfrom returns the number of bytes received, or -1 if an error occurred.  
+        recvfrom returns the number of bytes received, or -1 if an error occurred.
 
 Figure 1.9 Looping Receive
-    
+
 ```c
 for (;;) {
     printf("waiting for client message on port %d\n", SERV_PORT);
@@ -229,8 +229,8 @@ for (;;) {
 
 ####1.6. REPLY TO MESSAGE
 
-Now we are able to receive messages from our clients but how do we let clients know their messages are 
-being received? We have no connection to the server and we don’t know their IP address. Fortunately the 
+Now we are able to receive messages from our clients but how do we let clients know their messages are
+being received? We have no connection to the server and we don’t know their IP address. Fortunately the
 recvfrom call gave us the address, and it was placed in remaddr:
 Defined:
 
@@ -286,11 +286,11 @@ void DatagramClient (FILE* clientInput, WOLFSSL* ssl) {
 
     fgets(sendLine, MAXLINE, clientInput);
 
-    if ( ( wolfSSL_write(ssl, sendLine, strlen(sendLine))) !=  
+    if ( ( wolfSSL_write(ssl, sendLine, strlen(sendLine))) !=
            strlen(sendLine))
         err_sys("SSL_write failed");
 
-    n = wolfSSL_read(ssl, recvLine, sizeof(recvLine)-1); 
+    n = wolfSSL_read(ssl, recvLine, sizeof(recvLine)-1);
     if (n < 0) {
         int readErr = wolfSSL_get_error(ssl, 0);
         if(readErr != SSL_ERROR_WANT_READ)
@@ -302,7 +302,7 @@ void DatagramClient (FILE* clientInput, WOLFSSL* ssl) {
 }
 ```
 
-This function can be accomplished within main without creating an additional function. 
+This function can be accomplished within main without creating an additional function.
 
 ####2.3. Main Function
 #####2.3.1. Create a socket
@@ -322,21 +322,21 @@ if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
 ```
 This method checks for a socket creation error, a good idea when setting up any socket implementation. Include the socket header:
 
-Figure 1.16        
+Figure 1.16
 `#include <sys/socket.h>`
-domain: the address family that is used for the socket you created, typically the internet protocol address AF_INET is used here. 
+domain: the address family that is used for the socket you created, typically the internet protocol address AF_INET is used here.
 type: a datagram socket, in this case we will use SOCK_DGRAM which is in the IPv4 protocol.
 protocol: we use 0 because there is only one type of datagram service.
 
 #####2.3.2. Set up the server
 Create a socket address structure. Typically declared as:
 
-Figure 1.17        
+Figure 1.17
 `struct sockaddr_in servaddr;`
 
 This struct is contained in the header:
 
-Figure 1.18        
+Figure 1.18
 `#include <netinet/in.h>`
 
 This socket address structure will then be initialized to 0 using the bzero() or memset() functions. It will be filled with the IP address and port number of the server and then passed to the function you will create next. Here are the assignments to the servaddr:
@@ -354,7 +354,7 @@ inet_pton(AF_INET, argv[1], &servAddr.sin_addr);
 ```
 
 
-##CHAPTER 2: 
+##CHAPTER 2:
 Layering DTLS onto Simple Server and Client.
 
 ###Section 1:
@@ -374,16 +374,16 @@ Next change the size of our MSGLEN to 4096 to be more universal. This step is un
 
 ####1.3. Shifting Variables, Making new Methods
 #####1.3.1 Move sockaddr_in’s
-Now move our structs of type sockaddr_in so they are within scope of the entire program. We do this in preparation for the next step which will be to bust our client handling out of main. 
+Now move our structs of type sockaddr_in so they are within scope of the entire program. We do this in preparation for the next step which will be to bust our client handling out of main.
 
 #####1.3.2 Create Signal Handler
 Additionally we will create a static int called cleanup here. This variable will be our signal to run wolfSSL_cleanup(); which will free the wolfSSL libraries and all allocated memory at the end of our program.
 
 #####1.3.3 Create ctx and sig_handler Method
-Now we declare a WOLFSSL_CTX pointer and call it “ctx” for simplicity, and declare a void sig_handler method that takes a constant integer as an argument. 
+Now we declare a WOLFSSL_CTX pointer and call it “ctx” for simplicity, and declare a void sig_handler method that takes a constant integer as an argument.
 
 #####1.3.4 Declare AwaitDGram()
-Finally we will declare a method AwaitDGram(). We will break our client handling out of main() and handle those connection in our new method. This is in preparation for Chapter 3 where we will be handling multiple client connections simultaneously.Your variable section should now look something like 
+Finally we will declare a method AwaitDGram(). We will break our client handling out of main() and handle those connection in our new method. This is in preparation for Chapter 3 where we will be handling multiple client connections simultaneously.Your variable section should now look something like
 Figure 2.2
 ```c
 #includes here...
@@ -404,7 +404,7 @@ Figure 2.3
 ```c
 void AwaitDGram()
      {
-         
+
              }
 ```
 
@@ -422,7 +422,7 @@ void AwaitDGram()
 {
     int                  on = 1;
     int                 res = 1;
-    int              connfd = 0; 
+    int              connfd = 0;
     int             recvlen = 0;    /* length of message */
     int            listenfd = 0;    /* Initialize our socket */
     WOLFSSL* ssl =          NULL;
@@ -439,61 +439,61 @@ With the layering on of dtls we will need to re-allocate our socket and re-bind 
 
 So while not 1 we will keep our socket open and listening for packets to arrive!
 
-Start a while loop just below your variable declarations in method “AwaitDGram”. 
+Start a while loop just below your variable declarations in method “AwaitDGram”.
 
 #####1.4.5 Move main() body into AwaitDGram()
 
-Now cut and paste all remaining code from main() into the while loop you just made, and delete the beginning of the “for” loop. Your while loop should now look like this: 
+Now cut and paste all remaining code from main() into the while loop you just made, and delete the beginning of the “for” loop. Your while loop should now look like this:
 
 NOTE: (ignore the line numbering DO NOT worry about the line numbers on the left as I am pulling straight from my old code just like you would be. The line numbers are irrelevant)
 
 Figure 2.6
 ```c
-while (cleanup != 1) {  
+while (cleanup != 1) {
     /* create a UDP/IP socket */
     if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
         perror("cannot create socket");
         return 0;
     }
-                     
-                     
+
+
 /* INADDR_ANY = IPaddr, socket =  11111, modify SERV_PORT to change */
 memset((char *)&servaddr, 0, sizeof(servaddr));
-                                         
-/* host-to-network-long conversion (htonl) */                    
+
+/* host-to-network-long conversion (htonl) */
 /* host-to-network-short conversion (htons) */
-                    
+
 servaddr.sin_family      = AF_INET;
-servaddr.sin_addr.s_addr = htonl(INADDR_ANY);                    
-servaddr.sin_port        = htons(SERV_PORT);                     
-                                         
-if (bind(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {                    
-    perror("bind failed");                  
+servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+servaddr.sin_port        = htons(SERV_PORT);
+
+if (bind(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
+    perror("bind failed");
     return 0;
 }
-                                                              
+
 printf("waiting for client message on port %d\n", SERV_PORT);
-                                             
+
 recvlen = recvfrom(sockfd, buf, MSGLEN, 0,
                                        (struct sockaddr *)&cliaddr, &addrlen);
-                     
+
 printf("heard %d bytes\n", recvlen);
-                     
+
 if (recvlen > 0) {
-    buf[recvlen] = 0;    
-    printf("I heard this: \"%s\"\n", buf);                    
+    buf[recvlen] = 0;
+    printf("I heard this: \"%s\"\n", buf);
 }
-                                         
-else                        
+
+else
     printf("lost the connection to client\n");
-                         
+
 sprintf(buf, "Message #%d received\n", msgnum++);
 printf("reply sent \"%s\"\n", buf);
-                     
+
 if (sendto(sockfd, buf, strlen(buf), 0,
                                (struct sockaddr *)&cliaddr, addrlen) < 0)
     perror("sendto");
-                     
+
 /* continues to loop, use "Ctrl+C" to terminate listening */
     }
 }
@@ -509,9 +509,9 @@ Figure 2.7
 struct sigaction    act, oact;  /* structures for signal handling */
 
 /* Some comment */
-act.sa_handler = sig_handler;                                
-sigemptyset(&act.sa_mask);   
-act.sa_flags = 0;            
+act.sa_handler = sig_handler;
+sigemptyset(&act.sa_mask);
+act.sa_flags = 0;
 sigaction(SIGINT, &act, &oact);
 ```
 
@@ -521,20 +521,20 @@ This is pretty self-explanatory.
 Figure 2.8
 `wolfSSL_Debugging_ON();`
 
-#####1.5.3 Initialize wolfSSL, Load Certificates and Keys 
+#####1.5.3 Initialize wolfSSL, Load Certificates and Keys
 In order for these to load properly you will need to place a copy of the “certs” file one directory above your current working directory. You can find a copy of the “certs” file in wolfssl home directory. Simply copy and paste this file into the directory one up from your working directory, or change the file path in the code to search your wolfssl home directory for the certs file.
 Figure 2.9
-```c 
+```c
 wolfSSL_Init();                      /* Initialize wolfSSL */
-                                                                
-/* Set ctx to DTLS 1.2 */                                  
+
+/* Set ctx to DTLS 1.2 */
 if ( (ctx = wolfSSL_CTX_new(wolfDTLSv1_2_server_method())) == NULL){
-    fprintf(stderr, "wolfSSL_CTX_new error.\n");                   
-    exit(EXIT_FAILURE);                                           
-}                                              
+    fprintf(stderr, "wolfSSL_CTX_new error.\n");
+    exit(EXIT_FAILURE);
+}
 /* Load CA certificates */
 if (wolfSSL_CTX_load_verify_locations(ctx,"../certs/ca-cert.pem",0) !=
-                                                             SSL_SUCCESS) {                                               
+                                                             SSL_SUCCESS) {
     fprintf(stderr, "Error loading ../certs/ca-cert.pem, "
                        "please check the file.\n");
     exit(EXIT_FAILURE);
@@ -556,8 +556,8 @@ if (wolfSSL_CTX_use_PrivateKey_file(ctx,"../certs/server-key.pem",
 ```
 
 #####1.5.4 Call AwaitDGram() and add cleanup conditional
-To finish our main() method we will call our method that handles client connections and add a 
-conditional statement that will free up any allocated memory at the termination of our program. 
+To finish our main() method we will call our method that handles client connections and add a
+conditional statement that will free up any allocated memory at the termination of our program.
 Last, add a return method for main().
 
 Figure 2.10
@@ -569,7 +569,7 @@ if (cleanup == 1)
 return 0;
 ```
 ####1.6 Quick recap
-So we’ve loaded all the certificates and keys we will need to encrypt any and all communications sent between our server and client. This encryption will be of type DTLS version 1.2 as seen on line 214 of figure 2.1.5.3, wolfDTLSv1_2_server_method(). In order for a client to now talk to our DTLS encrypted server they themselves will have to have certificates to verify our encryption, accept our key, and perform a DTLS handshake. See section 2 of this chapter for a tutorial on encrypting a client with DTLS version 1.2. 
+So we’ve loaded all the certificates and keys we will need to encrypt any and all communications sent between our server and client. This encryption will be of type DTLS version 1.2 as seen on line 214 of figure 2.1.5.3, wolfDTLSv1_2_server_method(). In order for a client to now talk to our DTLS encrypted server they themselves will have to have certificates to verify our encryption, accept our key, and perform a DTLS handshake. See section 2 of this chapter for a tutorial on encrypting a client with DTLS version 1.2.
 
 ####1.7 Adding DTLS to AwaitDGram()
 #####1.7.1 Avoid Socket in Use Error
@@ -578,7 +578,7 @@ Our client handling is now running in a while loop, so it will continue to liste
 Figure 2.11
 Our code:                                       (socket)        (level) (option_name)(option_value) (option_len)
         |                   |                    |                 |             /
-        |                   |                    |                 |           /        
+        |                   |                    |                 |           /
         V                 V                  V               V        V
         88         res = setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &on, len);
 
@@ -605,12 +605,12 @@ if (res < 0) {
     cleanup = 1;
 }
 ```
-This code error avoidance code will be inserted just after we finish our host to network short conversion of SERV_PORT and just before we bind the socket. 
+This code error avoidance code will be inserted just after we finish our host to network short conversion of SERV_PORT and just before we bind the socket.
 
 NOTE: We have now changed our error handling from:
-`perror(“some message”); and return 0;` 
-to: 
-`printf(“some message”); and cleanup = 1;` 
+`perror(“some message”); and return 0;`
+to:
+`printf(“some message”); and cleanup = 1;`
  All active error situations will now change to match this format and all future error situations will be of the same format. This will ensure that all memory is freed at the termination of our program.
 
 #####1.7.2 Await Datagram arrival
@@ -622,15 +622,15 @@ Figure 2.13
 clilen =    sizeof(cliaddr); /* will be moved to the variable section later */
 unsigned char       b[1500]; /* will be moved to the variable section later */
 int              connfd = 0; /* will be moved to the variable section later */
- 
- 
+
+
 connfd = (int)recvfrom(listenfd, (char *)&b, sizeof(b), MSG_PEEK,
-                                  (struct sockaddr*)&cliaddr, &clilen); 
+                                  (struct sockaddr*)&cliaddr, &clilen);
 if (connfd < 0){
     printf("No clients in que, enter idle state\n");
     continue;
 }
- 
+
 else if (connfd > 0) {
     if (connect(listenfd, (const struct sockaddr *)&cliaddr,
         sizeof(cliaddr)) != 0) {
@@ -647,27 +647,27 @@ printf("Connected!\n");
 We say “Connected” for user friendly interpretation, but what we really mean is: “Datagrams have arrived, a client is attempting to communicate with us… let’s perform a handshake and see if they are using DTLS version 1.2… if so then ok, we’ll read their Datagrams and see what they have to say”.
 
 #####1.7.3 Using wolfSSL to Open a Session with Client.
-First we must declare an object that points to a WOLFSSL structure. We will just call it “ssl”. We will then assign it to use the correct cypher suite as previously defined by “ctx”. We will again perform some error handling on this assignment and then set the file descriptor that will handle all incoming and outgoing messages for this session. 
+First we must declare an object that points to a WOLFSSL structure. We will just call it “ssl”. We will then assign it to use the correct cypher suite as previously defined by “ctx”. We will again perform some error handling on this assignment and then set the file descriptor that will handle all incoming and outgoing messages for this session.
 
 Once all that has been set up we are ready to check and see if our client is using an acceptable cypher suite. We accomplish this by making a call to wolfSSL_accept on our ssl object that is now pointing to the file descriptor that has an awaiting Datagram in it. ( That’s a lot i know). We’ll use some fancy calls to error get methods so that if this part fails we will have a little bit of an idea as to why it failed, and how to fix it.
 
 Figure 2.14
 ```c
-/* initialize arg */   
-WOLFSSL* ssl;        
-                             
+/* initialize arg */
+WOLFSSL* ssl;
+
 /* Create the WOLFSSL Object */
 if (( ssl = wolfSSL_new(ctx) ) == NULL) {
-    printf("wolfSSL_new error.\n");      
-    cleanup = 1;                        
-}                                 
-                                   
+    printf("wolfSSL_new error.\n");
+    cleanup = 1;
+}
+
 /* set the session ssl to client connection port */
-wolfSSL_set_fd(ssl, listenfd);                      
-                                                            
-                                     
+wolfSSL_set_fd(ssl, listenfd);
+
+
 if (wolfSSL_accept(ssl) != SSL_SUCCESS) {
-    int err = wolfSSL_get_error(ssl, 0); 
+    int err = wolfSSL_get_error(ssl, 0);
     char buffer[80];
     printf("error = %d, %s\n", err, wolfSSL_ERR_error_string(err, buffe    r));
     buffer[sizeof(buffer)-1]= 0;
@@ -685,7 +685,7 @@ if (( recvlen = wolfSSL_read(ssl, buff, sizeof(buff)-1)) > 0){
     buff[recvlen - 1] = 0;
     printf("I heard this: \"%s\"\n", buff);
 }
-  
+
 if (recvlen < 0) {
     int readErr = wolfSSL_get_error(ssl, 0);
     if(readErr != SSL_ERROR_WANT_READ) {
@@ -693,7 +693,7 @@ if (recvlen < 0) {
     cleanup = 1;
     }
 }
-    
+
 if (wolfSSL_write(ssl, ack, sizeof(ack)) < 0) {
     printf("wolfSSL_write fail.\n");
     cleanup = 1;
@@ -717,27 +717,27 @@ This concludes Section 1 of Chapter 2 on “Layering DTLS onto a UDP Server”. 
 ###Section 2:
 
 ####2.1. Enable DTLS
-As stated in chapter 4 of the wolfSSL manual, DTLS is enabled by using the --enable-dtls build option when building wolfSSL. If you have not done so, this should be your first step.  
+As stated in chapter 4 of the wolfSSL manual, DTLS is enabled by using the --enable-dtls build option when building wolfSSL. If you have not done so, this should be your first step.
 
 ####2.2. wolfSSL Tutorial
 Walk through chapter 11 in the wolfSSL tutorial. Follow the guides for TLS/SSL using the correct CyaDTLS client method. A few adjustments for dtls:
 
-####2.2.1.    
-Make sure you have the correct port defined in your program, i.e., 
+####2.2.1.
+Make sure you have the correct port defined in your program, i.e.,
 `#define SERV_PORT 11111 for server with 11111 set as the port.`
 
-####2.2.2.    
-Edit the arguments in your send and receive function to just 2 arguments - a FILE* 
+####2.2.2.
+Edit the arguments in your send and receive function to just 2 arguments - a FILE*
 object and a WOLFSSL* object (previously this function had 4 arguments).
 
-####2.2.3.    
-Change sendto and recvfrom functions to wolfSSL_write and wolfSSL_read. 
+####2.2.3.
+Change sendto and recvfrom functions to wolfSSL_write and wolfSSL_read.
 Delete the last 3 arguments that were in sendto and recvfrom. In the wolfSSL_read() call, change the first argument from a socket to the WOLFSSL* object from the original function call.
 
 ####2.3. Set Peer
 Make a call to the wolfSSL_dtls_set_peer() function. It will take in as arguments your WOLFSSL* object, a point to the address carrying your sockaddr_in structure, and size of the structure. Example:
 
-Figure 2.17            
+Figure 2.17
 ```c
 wolfSSL_dtls_set_peer(ssl, &servAddr, sizeof(servAddr));
 ```
@@ -745,79 +745,79 @@ This function will be called between where you built the sockaddr_in structure a
 ####2.4. Connect
 Add a wolfSSL connect function below the call to wolfSSL_set_fd() and pass the WOLFSSL* object you created as the argument. Include error checking. Example:
 
-Figure 2.18            
+Figure 2.18
 ```c
 if  (wolfSSL_connect(ssl) != SSL_SUCCESS) {
     int err1 = wolfSSL_get_error(ssl, 0);
-    char buffer[80];              
+    char buffer[80];
     printf("err = %d, %s\n", err1,yaSSL_ERR_error_string(err1, buffer));
-    err_sys("SSL_connect failed");                                   
+    err_sys("SSL_connect failed");
 }
 ```
 ####2.5. Write/Read
 Call your wolfSSL_write/wolfSSL_read function. Example:
 
-####Figure 2.19            
+####Figure 2.19
 DatagramClient(stdin, ssl);
 
 ####2.6. Shutdown, free, cleanup
-Make calls to wolfSSL_shutdown(), wolfSSL_free(), wolfSSL_CTX_free(), and wolfSSL_Cleanup() with correct parameters in each. This can be done in the read/write function or at the end of the main method. 
+Make calls to wolfSSL_shutdown(), wolfSSL_free(), wolfSSL_CTX_free(), and wolfSSL_Cleanup() with correct parameters in each. This can be done in the read/write function or at the end of the main method.
 
 ####2.7. Adjust Makefile
-Include -DWOLFSSL_DTLS before -o in your compilation line. This will include the DTLS method you chose. 
+Include -DWOLFSSL_DTLS before -o in your compilation line. This will include the DTLS method you chose.
 
-##CHAPTER 3: 
+##CHAPTER 3:
 Multi-threading the DTLS server.
 
-Incomplete pending further research.
+WHY WAS THIS LEFT ALONE
 
-##CHAPTER 4: 
+##CHAPTER 4:
 Session Resumption with DTLS client.
 
 Leah
 
 ###1. Main Method Changes
 
-####1.1     
-                
-All of the code up until the main method will remain the same for session 
+####1.1
+
+All of the code up until the main method will remain the same for session
 resumption.however, you may want to add some of the main method calls into their own functions to shorten main.
 
-####1.2 
-Add a few new objects at the top of main 
+####1.2
+Add a few new objects at the top of main
 
-####1.2.1. 
+####1.2.1.
 A new wolfSSL object for the resumption portion.
 
-####1.2.2. 
+####1.2.2.
 A wolfSSL session object to create the session.
 
 ####1.2.3.
 A char* object to print a message that session resume is testing.
 
-Figure 4.1 (1.2.1-1.2.3 Example code:)        
+Figure 4.1 (1.2.1-1.2.3 Example code:)
 ```c
 WOLFSSL* sslResume = 0;
 WOLFSSL_SESSION* session = 0;
 char* srTest = "testing session resume";
 ```
 ###2. Start session resumption
-####2.1.     
-After the call to your read/write function, you will need to write again. Make a call 
+####2.1.
+After the call to your read/write function, you will need to write again. Make a call
 to wolfSSL_write() using your original ssl object, your char* resume test object, and size of resume test object as the 3 arguments. This will send the message that you are trying to test for session resumption to the server.
-####2.2.     
+####2.2.
 Set your wolfSSL session object to get the session with  your Cyassl object.
-####2.3.     
+####2.3.
 Set up a new wolfSSL object for the resumption stage using sslResume.
 
-Figure 4.2 (2.1-2.3 Example code:)        
+Figure 4.2 (2.1-2.3 Example code:)
 ```c
 wolfSSL_write(ssl, srTest, sizeof(srTest));
 session = wolfSSL_get_session(ssl);
 sslResume = wolfSSL_new(ctx);
 ```
 
-####2.4.     
+####2.4.
 Shutdown and free your original WOLFSSL object, ssl in our case, and close the     socket.
 
 Figure 4.3
@@ -826,34 +826,34 @@ wolfSSL_shutdown(ssl);
 wolfSSL_free(ssl);
 close(sockfd);
 ```
-####2.5.     
-Rebuild the server address structure the same way you did in setting up UDP. 
+####2.5.
+Rebuild the server address structure the same way you did in setting up UDP.
 Simply repeat the four lines of code at the end of II.B. in Create Basic UDP Client).
-####2.6.     
-Reset the DTLS peer by calling the wolfSSL_dtls_set_peer function again 
-changing only the first parameter from your original WOLFSSL object to your resumption object → we changed ssl to sslResume.    
+####2.6.
+Reset the DTLS peer by calling the wolfSSL_dtls_set_peer function again
+changing only the first parameter from your original WOLFSSL object to your resumption object → we changed ssl to sslResume.
 
 Figure 4.4
 ```c
 wolfSSL_dtls_set_peer(sslResume, &servAddr, sizeof(servAddr));
-```    
-Next, re-create your socket using the method used prior - same code as in part 
+```
+Next, re-create your socket using the method used prior - same code as in part
 2.1 of Create Basic UDP Client.
-####2.7.    
-Set the file descriptor by calling wolfSSL_set_fd again with the new WOLFSSL 
-####2.8.    
+####2.7.
+Set the file descriptor by calling wolfSSL_set_fd again with the new WOLFSSL
+####2.8.
 Set the session. Use wolfSSL_set_session(sslResume, session).
 object, i.e., sslResume. Use the same socket you just recreated.
-####2.9.    
-Connect again using wolfSSL_connect with your new resume WOLFSSL 
+####2.9.
+Connect again using wolfSSL_connect with your new resume WOLFSSL
 object(sslResume).
-####2.10.    
-Check if the session was actually reused. 
-####2.11.    
-Call your read and write function a second time with the sslResume as your new 
-WOLFSSL object. 
-####2.12.    
-Call wolfSSL_write with the same parameters as step A. only changing ssl to 
+####2.10.
+Check if the session was actually reused.
+####2.11.
+Call your read and write function a second time with the sslResume as your new
+WOLFSSL object.
+####2.12.
+Call wolfSSL_write with the same parameters as step A. only changing ssl to
 sslResume.
 
 Figure 4.5 (2.7 - 2.12 Example Code:)
@@ -873,12 +873,12 @@ DatagramClient(stdin, sslResume);
 wolfSSL_write(sslResume, srTest, sizeof(srTest));
 ```
 
-####2.13.    
-Shutdown and free sslResume and close the socket. Make sure you still have 
-the call to free your ctx and cleanup.     
+####2.13.
+Shutdown and free sslResume and close the socket. Make sure you still have
+the call to free your ctx and cleanup.
 
 Figure 4.6
-```c 
+```c
 wolfSSL_shutdown(sslResume);
 wolfSSL_free(sslResume);
 close(sockfd);
@@ -886,8 +886,8 @@ wolfSSL_CTX_free(ctx);
 wolfSSL_Cleanup();
 ```
 ###3. Adjust Main Method
-####3.1.    
-After the first call to wolfSSL_set_fd and again after the first call to 
+####3.1.
+After the first call to wolfSSL_set_fd and again after the first call to
 wolfSSL_set_session(), replace the following:
 
 Figure 4.7
@@ -895,7 +895,7 @@ Figure 4.7
 if (wolfSSL_connect(ssl) != SSL_SUCCESS) {
     int err1 = wolfSSL_get_error(ssl, 0);
     char buffer[80];
-    printf("err = %d, %s\n", err1, wolfSSL_ERR_error_string(err1, buffer));  
+    printf("err = %d, %s\n", err1, wolfSSL_ERR_error_string(err1, buffer));
     err_sys("SSL_connect failed");
 }
 ```
@@ -923,7 +923,7 @@ fcntl(sockfd, F_SETFL, O_NONBLOCK);
 NonBlockingDTLS_Connect(sslResume);
 ```
 
-####3.2.    
+####3.2.
 Finally, add a call to sleep after the last call to write:
 
 Figure 4.11
@@ -939,11 +939,11 @@ Incomplete pending further research.
 
 ###Section 2:
 
-####2.1. Add new headers to top of file:    
+####2.1. Add new headers to top of file:
 #include <errno.h>    /* error checking */
 #include <fcntl.h>    /* set file status flags */
 
-####2.2. Add enum variables for testing functions - before first function:    
+####2.2. Add enum variables for testing functions - before first function:
 ```c
 enum {
     TEST_SELECT_FAIL,
@@ -952,8 +952,8 @@ enum {
     TEST_ERROR_READY
 };
 ```
-####2.3. Add a DTLS selection function 
-This is similar to the tcp_select() function in wolfSSL. This function will also call 
+####2.3. Add a DTLS selection function
+This is similar to the tcp_select() function in wolfSSL. This function will also call
 select():
 ```c
 /* tcp select using dtls nonblocking function*/
@@ -964,14 +964,14 @@ static int dtls_select(int socketfd, int to_sec)
     int            nfds = socketfd +1;
     struct timeval timeout = { (to_sec > 0) ? to_sec : 0, 0};
     int            result;
-    
+
     FD_ZERO(&recvfds);
     FD_SET(socketfd, &recvfds);
     FD_ZERO(&errfds);
     FD_SET(socketfd, &errfds);
-    
+
     result = select(nfds, &recvfds, NULL, &errfds, &timeout);
-    
+
     if (result == 0)
         return TEST_TIMEOUT;
     else if (result > 0) {
@@ -1020,16 +1020,16 @@ static void NonBlockingDTLS_Connect(WOLFSSL* ssl)
              error = SSL_FATAL_ERROR;
         }
     }
-    
+
     if (ret != SSL_SUCCESS)
         err_sys("SSL_connect failed with");
     }
 ```
 
 ####2.5.    Adjust Datagram Client Function (could be located within main method).
-Create while loops for wolfSSL_write() and wolfSSL_read() to check for error    
+Create while loops for wolfSSL_write() and wolfSSL_read() to check for error
 ```c
-void DatagramClient (FILE* clientInput, WOLFSSL* ssl) 
+void DatagramClient (FILE* clientInput, WOLFSSL* ssl)
 {
     int     n = 0;
     char    sendLine[MAXLINE], recvLine[MAXLINE - 1];
@@ -1037,7 +1037,7 @@ void DatagramClient (FILE* clientInput, WOLFSSL* ssl)
     fgets(sendLine, MAXLINE, clientInput);
 
     while  ( ( wolfSSL_write(ssl, sendLine, strlen(sendLine))) !=
-                                                    strlen(sendLine)) 
+                                                    strlen(sendLine))
         err_sys("SSL_write failed");
 
     while ( (n = wolfSSL_read(ssl, recvLine, sizeof(recvLine)-1)) <= 0) {
@@ -1057,4 +1057,5 @@ REFERENCES:
 1. Paul Krzyzanowski, “Programming with UDP sockets”, Copyright 2003-2014, PK.ORG
 
 2. The Open Group, “setsockopt - set the socket options”, Copyright © 1997, The Single UNIX ® Specification, Version 2
+
 

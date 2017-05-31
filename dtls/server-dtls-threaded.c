@@ -41,12 +41,13 @@
 #define SERV_PORT   11111           /* define our server port number */
 #define MSGLEN      4096
 
-WOLFSSL_CTX*        ctx;             /* must be global for ThreadControl */
-static int         cleanup;         /* To handle shutdown */
-struct sockaddr_in cliAddr;         /* the client's address */
-struct sockaddr_in servAddr;        /* our server's address */
+static WOLFSSL_CTX* ctx;                    /* global for ThreadControl*/
+static int          cleanup;                /* To handle shutdown */
+static struct       sockaddr_in cliAddr;    /* the client's address */
+static struct       sockaddr_in servAddr;   /* our server's address */
 
-int AwaitDGram(WOLFSSL_CTX* ctx);
+void sig_handler(const int sig);
+int AwaitDGram(void);
 void* ThreadControl(void*);
 
 typedef struct {
@@ -55,7 +56,14 @@ typedef struct {
     unsigned char b[MSGLEN];
 }threadArgs;
 
-int AwaitDGram(WOLFSSL_CTX* ctx)
+void sig_handler(const int sig)
+{
+    printf("\nSIGINT %d handled\n", sig);
+    cleanup = 1;
+    return;
+}
+
+int AwaitDGram(void)
 {
     int           on = 1;
     int           res = 1;
@@ -72,9 +80,6 @@ int AwaitDGram(WOLFSSL_CTX* ctx)
     }
     printf("Socket allocated\n");
 
-    /* clear servAddr each loop */
-    memset((char *)&servAddr, 0, sizeof(servAddr));
-
     /* host-to-network-long conversion (htonl) */
     /* host-to-network-short conversion (htons) */
     servAddr.sin_family      = AF_INET;
@@ -90,8 +95,7 @@ int AwaitDGram(WOLFSSL_CTX* ctx)
     }
 
     /*Bind Socket*/
-    if (bind(listenfd,
-                (struct sockaddr *)&servAddr, sizeof(servAddr)) < 0) {
+    if (bind(listenfd, (struct sockaddr *)&servAddr, sizeof(servAddr)) < 0) {
         printf("Bind failed.\n");
         cleanup = 1;
         return 1;
@@ -99,7 +103,10 @@ int AwaitDGram(WOLFSSL_CTX* ctx)
 
     printf("Awaiting client connection on port %d\n", SERV_PORT);
 
+    int test_counter = 0;
+
     while (cleanup != 1) {
+        printf("iteration #%d\n", ++test_counter);
 
         threadArgs* args;
         args = (threadArgs *) malloc(sizeof(threadArgs));
@@ -110,16 +117,22 @@ int AwaitDGram(WOLFSSL_CTX* ctx)
         * read any real message to struct and pass struct into thread
         * for processing.
         */
+
         bytesRcvd = (int)recvfrom(listenfd, (char *)buf, sizeof(buf), 0,
                 (struct sockaddr*)&cliAddr, &cliLen);
+
+        if (cleanup == 1) {
+            free(args);
+            return 1;
+        }
 
         if (bytesRcvd < 0) {
             printf("No clients in que, enter idle state\n");
             continue;
         }
-
         else if (bytesRcvd > 0) {
 
+            /* put all the bytes from buf into args */
             memcpy(args->b, buf, sizeof(buf));
 
             args->size = bytesRcvd;
@@ -130,20 +143,23 @@ int AwaitDGram(WOLFSSL_CTX* ctx)
             }
 
             res = setsockopt(args->activefd, SOL_SOCKET, SO_REUSEADDR, &on,
-                                                                       len);
+                    len);
+
             if (res < 0) {
                 printf("Setsockopt SO_REUSEADDR failed.\n");
                 cleanup = 1;
                 return 1;
             }
-                #ifdef SO_REUSEPORT
-                    res = setsockopt(args->activefd, SOL_SOCKET, SO_REUSEPORT, &on, len);
-                    if (res < 0) {
-                        printf("Setsockopt SO_REUSEPORT failed.\n");
-                        cleanup = 1;
-                        return 1;
-                    }
-                #endif
+
+            #ifdef SO_REUSEPORT
+                res = setsockopt(args->activefd, SOL_SOCKET, SO_REUSEPORT, &on,
+                        len);
+                if (res < 0) {
+                    printf("Setsockopt SO_REUSEPORT failed.\n");
+                    cleanup = 1;
+                    return 1;
+                }
+            #endif
 
             if (connect(args->activefd, (const struct sockaddr *)&cliAddr,
                         sizeof(cliAddr)) != 0) {
@@ -153,16 +169,28 @@ int AwaitDGram(WOLFSSL_CTX* ctx)
             }
         }
         else {
-            printf("Recvfrom failed.\n");
+            /* else bytesRcvd = 0 */
             cleanup = 1;
             return 1;
         }
+
+        /* (not actually connected?) */
         printf("Connected!\n");
 
-        pthread_t threadid;
-        /* SPIN A THREAD HERE TO HANDLE "buff" and "reply/ack" */
-        pthread_create(&threadid, NULL, ThreadControl, args);
-        printf("control passed to thread control.\n");
+        if (cleanup != 1) {
+            pthread_t threadid;
+            /* SPIN A THREAD HERE TO HANDLE "buff" and "reply/ack" */
+            pthread_create(&threadid, NULL, ThreadControl, args);
+            printf("control passed to ThreadControl.\n");
+        }
+        else if (cleanup == 1) {
+            return 1;
+        } else {
+            printf("I don't know what to tell ya man\n");
+        }
+
+        /* clear servAddr each loop */
+        memset((char *)&servAddr, 0, sizeof(servAddr));
     }
 
     return 0;
@@ -170,17 +198,19 @@ int AwaitDGram(WOLFSSL_CTX* ctx)
 
 void* ThreadControl(void* openSock)
 {
+    printf("------------------------------------------\n"
+           "start of thread control\n");
+
     pthread_detach(pthread_self());
 
     threadArgs* args = (threadArgs*)openSock;
     int             recvLen = 0;                /* length of message     */
     int             activefd = args->activefd;  /* the active descriptor */
-    int             msgLen = args->size;        /* the size of message   */
-    unsigned char   buff[msgLen];               /* the incoming message  */
+    unsigned char   buff[MSGLEN];               /* the incoming message  */
     char            ack[] = "I hear you fashizzle!\n";
     WOLFSSL*         ssl;
 
-    memcpy(buff, args->b, msgLen);
+    memcpy(buff, args->b, MSGLEN);
 
     /* Create the WOLFSSL Object */
     if ((ssl = wolfSSL_new(ctx)) == NULL) {
@@ -191,16 +221,19 @@ void* ThreadControl(void* openSock)
 
     /* set the session ssl to client connection port */
     wolfSSL_set_fd(ssl, activefd);
-
+    printf("wolfssl fd has been set\n");
+    printf("attempting to call wolfSSL_Accept(ssl)\n");
     if (wolfSSL_accept(ssl) != SSL_SUCCESS) {
-
         int e = wolfSSL_get_error(ssl, 0);
 
-        printf("error = %d, %s\n", e, wolfSSL_ERR_reason_error_string(e));
+        printf("error = %d, %s\n", e,
+                wolfSSL_ERR_reason_error_string((unsigned long) e));
         printf("SSL_accept failed.\n");
         return NULL;
     }
-    if ((recvLen = wolfSSL_read(ssl, buff, msgLen-1)) > 0) {
+    printf("wolfSSL_accept(ssl) success\n");
+
+    if ((recvLen = wolfSSL_read(ssl, buff, MSGLEN-1)) > 0) {
         printf("heard %d bytes\n", recvLen);
 
         buff[recvLen] = 0;
@@ -214,29 +247,35 @@ void* ThreadControl(void* openSock)
             return NULL;
         }
     }
+    else {
+        printf("recvLen = %d\n", recvLen);
+    }
     if (wolfSSL_write(ssl, ack, sizeof(ack)) < 0) {
         printf("wolfSSL_write fail.\n");
         cleanup = 1;
         return NULL;
-    } 
+    }
     else {
         printf("Sending reply.\n");
     }
 
     printf("reply sent \"%s\"\n", ack);
 
-
     wolfSSL_shutdown(ssl);
     wolfSSL_free(ssl);
     close(activefd);
     free(openSock);                 /* valgrind friendly free */
+    free(args);
 
     printf("Client left return to idle state\n");
     printf("Exiting thread.\n\n");
     pthread_exit(openSock);
+
+    printf("end of thread control\n"
+           "------------------------------------------\n");
 }
 
-int main(int argc, char** argv)
+int main(void)
 {
     /* cont short for "continue?", Loc short for "location" */
     int         cont = 0;
@@ -246,6 +285,14 @@ int main(int argc, char** argv)
 
     /* "./config --enable-debug" and uncomment next line for debugging */
     /* wolfSSL_Debugging_ON(); */
+
+    /* signal handling code */
+    struct sigaction    act, oact;
+
+    act.sa_handler = sig_handler;
+    sigemptyset(&act.sa_mask);
+    act.sa_flags = 0;
+    sigaction(SIGINT, &act, &oact);
 
     /* Initialize wolfSSL */
     wolfSSL_Init();
@@ -262,7 +309,7 @@ int main(int argc, char** argv)
         return 1;
     }
     /* Load server certificates */
-    if (wolfSSL_CTX_use_certificate_file(ctx, servCertLoc, SSL_FILETYPE_PEM) != 
+    if (wolfSSL_CTX_use_certificate_file(ctx, servCertLoc, SSL_FILETYPE_PEM) !=
             SSL_SUCCESS) {
         printf("Error loading %s, please check the file.\n", servCertLoc);
         return 1;
@@ -274,7 +321,7 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    cont = AwaitDGram(ctx);
+    cont = AwaitDGram();
 
     if (cont == 1) {
         wolfSSL_CTX_free(ctx);

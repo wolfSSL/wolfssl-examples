@@ -1,5 +1,5 @@
-CC=gcc
-CFLAGS=-Wall -DWOLFSSL_DTLS
+CC=clang
+CFLAGS=-DWOLFSSL_DTLS
 LIBS=-lwolfssl -lpthread
 
 all: client-udp client-dtls client-dtls-nonblocking client-dtls-resume client-dtls-shared server-udp server-dtls server-dtls-nonblocking server-dtls-threaded
@@ -30,7 +30,6 @@ server-dtls-nonblocking: server-dtls-nonblocking.o
 
 server-dtls-threaded: server-dtls-threaded.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
-
 
 .PHONY: clean all
 

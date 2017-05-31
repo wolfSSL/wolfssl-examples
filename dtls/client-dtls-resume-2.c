@@ -1,5 +1,5 @@
-/*
- * client-dtls-resume.c
+/* 
+ * client-dtls-resume.c 
  *
  * Copyright (C) 2006-2015 wolfSSL Inc.
  *
@@ -37,35 +37,35 @@
 #include <string.h>
 
 #define MAXLINE   4096
-#define SERV_PORT 11111
+#define SERV_PORT 11111 
 
 /* Send and receive function */
-void DatagramClient (WOLFSSL* ssl)
+void DatagramClient (WOLFSSL* ssl) 
 {
     int  n = 0;
     char sendLine[MAXLINE], recvLine[MAXLINE - 1];
 
     while (fgets(sendLine, MAXLINE, stdin) != NULL) {
-
-       if ( ( wolfSSL_write(ssl, sendLine, strlen(sendLine))) !=
+        
+       if ( ( wolfSSL_write(ssl, sendLine, strlen(sendLine))) != 
 	      strlen(sendLine)) {
             printf("SSL_write failed");
         }
 
        n = wolfSSL_read(ssl, recvLine, sizeof(recvLine)-1);
-
+       
        if (n < 0) {
             int readErr = wolfSSL_get_error(ssl, 0);
 	        if(readErr != SSL_ERROR_WANT_READ)
 		        printf("wolfSSL_read failed");
        }
 
-        recvLine[n] = '\0';
+        recvLine[n] = '\0';  
         fputs(recvLine, stdout);
     }
 }
 
-int main (int argc, char** argv)
+int main (int argc, char** argv) 
 {
     int     		sockfd = 0;
     struct  		sockaddr_in servAddr;
@@ -77,14 +77,14 @@ int main (int argc, char** argv)
     char*    		srTest = "testing session resume";
     char            cert_array[] = "../certs/ca-cert.pem";
     char*           certs = cert_array;
-    if (argc != 2) {
+    if (argc != 2) { 
         printf("usage: udpcli <IP address>\n");
         return 1;
     }
 
     wolfSSL_Init();
     /* wolfSSL_Debugging_ON(); */
-
+   
     if ( (ctx = wolfSSL_CTX_new(wolfDTLSv1_2_client_method())) == NULL) {
         fprintf(stderr, "wolfSSL_CTX_new error.\n");
         return 1;
@@ -100,7 +100,7 @@ int main (int argc, char** argv)
     	printf("unable to get ssl object");
         return 1;
     }
-
+    
     memset(&servAddr, 0, sizeof(servAddr));
     servAddr.sin_family = AF_INET;
     servAddr.sin_port = htons(SERV_PORT);
@@ -110,12 +110,12 @@ int main (int argc, char** argv)
     }
 
     wolfSSL_dtls_set_peer(ssl, &servAddr, sizeof(servAddr));
-
-    if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-       printf("cannot create a socket.");
+    
+    if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) { 
+       printf("cannot create a socket."); 
        return 1;
     }
-
+    
     wolfSSL_set_fd(ssl, sockfd);
     if (wolfSSL_connect(ssl) != SSL_SUCCESS) {
 	    int err1 = wolfSSL_get_error(ssl, 0);
@@ -124,7 +124,7 @@ int main (int argc, char** argv)
 	    printf("SSL_connect failed");
         return 1;
     }
-
+    
     DatagramClient(ssl);
     wolfSSL_write(ssl, srTest, sizeof(srTest));
     session = wolfSSL_get_session(ssl);
@@ -143,16 +143,16 @@ int main (int argc, char** argv)
     }
 
     wolfSSL_dtls_set_peer(sslResume, &servAddr, sizeof(servAddr));
-
-    if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+   
+    if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) { 
         printf("cannot create a socket.");
         return 1;
-    }
-
+    } 
+    
     wolfSSL_set_fd(sslResume, sockfd);
     wolfSSL_set_session(sslResume, session);
 
-    if (wolfSSL_connect(sslResume) != SSL_SUCCESS) {
+    if (wolfSSL_connect(sslResume) != SSL_SUCCESS) { 
 	    printf("SSL_connect failed");
         return 1;
     }
@@ -161,14 +161,14 @@ int main (int argc, char** argv)
     	printf("reused session id\n");
     else
     	printf("didn't reuse session id!!!\n");
-
+    
     DatagramClient(sslResume);
-
+    
     wolfSSL_write(sslResume, srTest, sizeof(srTest));
 
     wolfSSL_shutdown(sslResume);
     wolfSSL_free(sslResume);
-
+    
     close(sockfd);
     wolfSSL_CTX_free(ctx);
     wolfSSL_Cleanup();

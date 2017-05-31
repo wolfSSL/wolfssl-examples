@@ -1,5 +1,5 @@
-/* 
- * client-dtls-nonblocking.c 
+/*
+ * client-dtls-nonblocking-2.c
  *
  * Copyright (C) 2006-2015 wolfSSL Inc.
  *
@@ -39,7 +39,7 @@
 #include <string.h>
 
 #define MAXLINE   4096
-#define SERV_PORT 11111 
+#define SERV_PORT 11111
 
 enum {
     TEST_SELECT_FAIL,
@@ -48,99 +48,7 @@ enum {
     TEST_ERROR_READY
 };
 
-/* Tcp select using dtls nonblocking function */
-static int dtls_select(int socketfd, int to_sec)
-{
-
-    fd_set recvfds, errfds;
-    int    nfds = socketfd +1;
-    struct timeval timeout = { (to_sec > 0) ? to_sec : 0, 0};
-    int    result;
-
-    FD_ZERO(&recvfds);
-    FD_SET(socketfd, &recvfds);
-    FD_ZERO(&errfds);
-    FD_SET(socketfd, &errfds);
-
-    result = select(nfds, &recvfds, NULL, &errfds, &timeout);
-
-    if (result == 0)
-	    return TEST_TIMEOUT;
-    else if (result > 0) {
-	    if (FD_ISSET(socketfd, &recvfds))
-	        return TEST_RECV_READY;
-	    else if (FD_ISSET(socketfd, &errfds))
-	        return TEST_ERROR_READY;
-    }
-    return TEST_SELECT_FAIL;
-}
-
-/* Connect using Nonblocking - DTLS version */
-static void NonBlockingDTLS_Connect(WOLFSSL* ssl)
-{
-    int ret = wolfSSL_connect(ssl);
-    int error = wolfSSL_get_error(ssl, 0);
-    int sockfd = (int)wolfSSL_get_fd(ssl); 
-    int select_ret;
-   
-    while (ret != SSL_SUCCESS && (error == SSL_ERROR_WANT_READ || 
-		error == SSL_ERROR_WANT_WRITE)) {
-	    int currTimeout = 1;
-	    if (error == SSL_ERROR_WANT_READ)
-	        printf("... client would read block\n");
-	    else
-	        printf("... client would write block\n");
-	    currTimeout = wolfSSL_dtls_get_current_timeout(ssl);
-	    select_ret = dtls_select(sockfd, currTimeout);
-	    if ( ( select_ret == TEST_RECV_READY) || 
-		    (select_ret == TEST_ERROR_READY)) {	
-	        ret = wolfSSL_connect(ssl);
-	        error = wolfSSL_get_error(ssl, 0);
-	    }
-	    else if (select_ret == TEST_TIMEOUT && !wolfSSL_dtls(ssl)) {
-	        error = 2;
-	    }
-	    else if (select_ret == TEST_TIMEOUT && wolfSSL_dtls(ssl) && 
-		    wolfSSL_dtls_got_timeout(ssl) >= 0) {
-	        error = 2;
-	    }
-	    else{
-	        error = SSL_FATAL_ERROR;
-	    }
-    }
-
-    if (ret != SSL_SUCCESS) {
-	    printf("SSL_connect failed with");
-    }
-}
-
-/* Main send and receive function */
-void DatagramClient (WOLFSSL* ssl) 
-{
-    int  n = 0;
-    char sendLine[MAXLINE], recvLine[MAXLINE - 1];
-
-    while (fgets(sendLine, MAXLINE, stdin) != NULL) {
-
-        while  ( ( wolfSSL_write(ssl, sendLine, strlen(sendLine))) != 
-	        strlen(sendLine)) {
-    	    printf("SSL_write failed");
-        }
-
-        while ( (n = wolfSSL_read(ssl, recvLine, sizeof(recvLine)-1)) <= 0) {
-
-	        int readErr = wolfSSL_get_error(ssl, 0);
-	        if(readErr != SSL_ERROR_WANT_READ)
-	            printf("wolfSSL_read failed");
-        }
-
-        recvLine[n] = '\0';  
-        fputs(recvLine, stdout);
-    }
-}
-
-
-int main (int argc, char** argv) 
+int main (int argc, char** argv)
 {
     int     		sockfd = 0;
     struct  		sockaddr_in servAddr;
@@ -149,10 +57,10 @@ int main (int argc, char** argv)
     WOLFSSL_CTX* 	ctx = 0;
     WOLFSSL* 		sslResume = 0;
     WOLFSSL_SESSION*	session = 0;
-    char            cert_array[] = "../certs/ca-cert.pem";
-    char*           certs = cert_array;
-    char*           srTest = "testing session resume";
-    
+    char            	cert_array[] = "../certs/ca-cert.pem";
+    char*           	certs = cert_array;
+    char*           	srTest = "testing session resume";
+
     if (argc != 2) {
 	    printf("usage: udpcli <IP address>\n");
         return 1;
@@ -188,24 +96,100 @@ int main (int argc, char** argv)
 
     wolfSSL_dtls_set_peer(ssl, &servAddr, sizeof(servAddr));
 
-    if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) { 
-    	printf("cannot create a socket."); 
+    if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+    	printf("cannot create a socket.");
         return 1;
     }
 
     wolfSSL_set_fd(ssl, sockfd);
     wolfSSL_set_using_nonblock(ssl, 1);
     fcntl(sockfd, F_SETFL, O_NONBLOCK);
-    NonBlockingDTLS_Connect(ssl);
+    //NonBlockingDTLS_Connect(ssl);
 
-    DatagramClient(ssl);
-    while ( (wolfSSL_write(ssl, srTest, sizeof(srTest))) != sizeof(srTest)) { 
+/********************* NonBlockingDTLS_Connect(ssl) code *********************/
+    int ret = wolfSSL_connect(ssl);
+    int error = wolfSSL_get_error(ssl, 0);
+    int nb_sockfd = (int)wolfSSL_get_fd(ssl);
+    int select_ret;
+
+    while (ret != SSL_SUCCESS && (error == SSL_ERROR_WANT_READ ||
+		error == SSL_ERROR_WANT_WRITE)) {
+	    int currTimeout = 1;
+	    if (error == SSL_ERROR_WANT_READ)
+	        printf("... client would read block\n");
+	    else
+	        printf("... client would write block\n");
+	    currTimeout = wolfSSL_dtls_get_current_timeout(ssl);
+	    //select_ret = dtls_select(sockfd, currTimeout);
+        fd_set recvfds, errfds;
+        int    nfds = nb_sockfd +1;
+        struct timeval timeout = { (currTimeout > 0) ? currTimeout : 0, 0};
+        int    result;
+
+        FD_ZERO(&recvfds);
+        FD_SET(nb_sockfd, &recvfds);
+        FD_ZERO(&errfds);
+        FD_SET(nb_sockfd, &errfds);
+
+        result = select(nfds, &recvfds, NULL, &errfds, &timeout);
+
+        select_ret = TEST_SELECT_FAIL;
+
+        if (result == 0)
+	        select_ret = TEST_TIMEOUT;
+        else if (result > 0) {
+	        if (FD_ISSET(nb_sockfd, &recvfds))
+	            select_ret = TEST_RECV_READY;
+	        else if (FD_ISSET(nb_sockfd, &errfds))
+	            select_ret = TEST_ERROR_READY;
+        }
+
+	    if ( ( select_ret == TEST_RECV_READY) ||
+		    (select_ret == TEST_ERROR_READY)) {
+	        ret = wolfSSL_connect(ssl);
+	        error = wolfSSL_get_error(ssl, 0);
+	    }
+	    else if (select_ret == TEST_TIMEOUT && !wolfSSL_dtls(ssl)) {
+	        error = 2;
+	    }
+	    else if (select_ret == TEST_TIMEOUT && wolfSSL_dtls(ssl) &&
+		    wolfSSL_dtls_got_timeout(ssl) >= 0) {
+	        error = 2;
+	    }
+	    else{
+	        error = SSL_FATAL_ERROR;
+	    }
+    }
+
+    if (ret != SSL_SUCCESS) {
+	    printf("SSL_connect failed with");
+    }
+
+    //DatagramClient(ssl);
+    int  n = 0;
+    char sendLine[MAXLINE], recvLine[MAXLINE - 1];
+
+    while (fgets(sendLine, MAXLINE, stdin) != NULL) {
+
+        while  ( ( wolfSSL_write(ssl, sendLine, strlen(sendLine))) !=
+	        strlen(sendLine)) {
+    	    printf("SSL_write failed");
+        }
+
+        while ( (n = wolfSSL_read(ssl, recvLine, sizeof(recvLine)-1)) <= 0) {
+
+	        int readErr = wolfSSL_get_error(ssl, 0);
+	        if(readErr != SSL_ERROR_WANT_READ)
+	            printf("wolfSSL_read failed");
+        }
+
+        recvLine[n] = '\0';
+        fputs(recvLine, stdout);
+    }
+    while ( (wolfSSL_write(ssl, srTest, sizeof(srTest))) != sizeof(srTest)) {
 	    printf("failed to write");
         return 1;
     }
-
-    session = wolfSSL_get_session(ssl);
-    sslResume = wolfSSL_new(ctx);
 
     wolfSSL_shutdown(ssl);
     wolfSSL_free(ssl);
@@ -219,39 +203,17 @@ int main (int argc, char** argv)
         return 1;
     }
 
-    wolfSSL_dtls_set_peer(sslResume, &servAddr, sizeof(servAddr));
-
-    if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) { 
+    if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
 	   printf("cannot create a socket.");
-    return 1; 
+    return 1;
     }
 
-    wolfSSL_set_fd(sslResume, sockfd);
-    wolfSSL_set_session(sslResume, session);
-    wolfSSL_set_using_nonblock(sslResume, 1);
-    fcntl(sockfd, F_SETFL, O_NONBLOCK);
-    NonBlockingDTLS_Connect(sslResume);
-
-    if(wolfSSL_session_reused(sslResume))
-	    printf("reused session id\n");
-    else
-	    printf("didn't reuse session id!!!\n");
-
-    DatagramClient(sslResume);
-    while ((wolfSSL_write(sslResume, srTest, sizeof(srTest))) != sizeof(srTest))
-    { 
-	    printf("failed to write");
-        return 1;
-    }
-    sleep(1);
-
-    wolfSSL_shutdown(sslResume);
-    wolfSSL_free(sslResume);
-   
     close(sockfd);
     wolfSSL_CTX_free(ctx);
     wolfSSL_Cleanup();
 
     return 0;
 }
+
+
 
