@@ -1,4 +1,4 @@
-/* server-dtls-nonblocking.c 
+/* server-dtls-nonblocking.c
  *
  * Copyright (C) 2006-2015 wolfSSL Inc.
  *
@@ -20,10 +20,11 @@
  *
  *=============================================================================
  *
- * Bare-bones example of a nonblocking DTLS erver for instructional/learning purposes.
- * Utilizes DTLS 1.2.
+ * Bare-bones example of a nonblocking DTLS erver for instructional/learning
+ * purposes. Utilizes DTLS 1.2.
  */
 
+#include <wolfssl/options.h>
 #include <stdio.h>                  /* standard in/out procedures */
 #include <stdlib.h>                 /* defines system calls */
 #include <string.h>                 /* necessary for memset */
@@ -61,7 +62,7 @@ int AwaitDGram(WOLFSSL_CTX* ctx)
     int     on = 1;
     int     res = 1;
     int     recvLen;                 /* length of string read */
-    int     readWriteErr; 
+    int     readWriteErr;
     int     listenfd = 0;            /* Initialize our socket */
     int     clientfd = 0;            /* client connection */
     int     len = sizeof(on);
@@ -78,9 +79,9 @@ int AwaitDGram(WOLFSSL_CTX* ctx)
             printf("Cannot create socket.\n");
             return 1;
         }
-        
+
         printf("Socket allocated\n");
-        
+
         dtls_set_nonblocking(&listenfd);
 
         memset((char *)&servAddr, 0, sizeof(servAddr));
@@ -99,19 +100,19 @@ int AwaitDGram(WOLFSSL_CTX* ctx)
         }
 
         /*Bind Socket*/
-        if (bind(listenfd, 
+        if (bind(listenfd,
                     (struct sockaddr *)&servAddr, sizeof(servAddr)) < 0) {
             printf("Bind failed.\n");
             return 1;
         }
 
         printf("Awaiting client connection on port %d\n", SERV_PORT);
-        
-        
-        clientfd = udp_read_connect(listenfd);
-     
 
-//        dtls_set_nonblocking(&clientfd);
+
+        clientfd = udp_read_connect(listenfd);
+
+
+        /* dtls_set_nonblocking(&clientfd); */
 
         /* Create the WOLFSSL Object */
         if (( ssl = wolfSSL_new(ctx)) == NULL) {
@@ -135,7 +136,7 @@ int AwaitDGram(WOLFSSL_CTX* ctx)
 
         /* Begin: Reply to the client */
         recvLen = wolfSSL_read(ssl, buff, sizeof(buff)-1);
-        
+
         /* Begin do-while read */
         do {
             if (cleanup == 1) {
@@ -147,23 +148,24 @@ int AwaitDGram(WOLFSSL_CTX* ctx)
                 if (readWriteErr != SSL_ERROR_WANT_READ) {
                     printf("Read Error, error was: %d.\n", readWriteErr);
                     cleanup = 1;
-                } else {
+                }
+                else {
                     recvLen = wolfSSL_read(ssl, buff, sizeof(buff)-1);
                 }
             }
-        } while (readWriteErr == SSL_ERROR_WANT_READ && 
-                                         recvLen < 0 && 
+        } while (readWriteErr == SSL_ERROR_WANT_READ &&
+                                         recvLen < 0 &&
                                          cleanup != 1);
         /* End do-while read */
 
         if (recvLen > 0) {
             buff[recvLen] = 0;
             printf("I heard this:\"%s\"\n", buff);
-        } 
+        }
         else {
             printf("Connection Timed Out.\n");
         }
-        
+
         /* Begin do-while write */
         do {
             if (cleanup == 1) {
@@ -176,7 +178,7 @@ int AwaitDGram(WOLFSSL_CTX* ctx)
                 cleanup = 1;
             }
             printf("Reply sent:\"%s\"\n", ack);
-        }while(readWriteErr == SSL_ERROR_WANT_WRITE && cleanup != 1);
+        } while(readWriteErr == SSL_ERROR_WANT_WRITE && cleanup != 1);
         /* End do-while write */
 
         /* free allocated memory */
@@ -201,7 +203,7 @@ int udp_read_connect(int listenfd)
     } while (bytesRecvd <= 0);
 
     if (bytesRecvd > 0) {
-        if (connect(listenfd, (const struct sockaddr*)&cliAddr, 
+        if (connect(listenfd, (const struct sockaddr*)&cliAddr,
                     sizeof(cliAddr)) != 0) {
             printf("udp connect failed.\n");
         }
@@ -224,7 +226,7 @@ int NonBlockingSSL_Accept(WOLFSSL* ssl)
     int error = wolfSSL_get_error(ssl, 0);
     int listenfd = (int)wolfSSL_get_fd(ssl);
 
-    while (cleanup != 1 && (ret != SSL_SUCCESS && 
+    while (cleanup != 1 && (ret != SSL_SUCCESS &&
                 (error == SSL_ERROR_WANT_READ ||
                  error == SSL_ERROR_WANT_WRITE))) {
         if (cleanup == 1) {
@@ -271,8 +273,8 @@ void dtls_set_nonblocking(int* sockfd)
     if (flags < 0) {
         printf("fcntl get failed");
         cleanup = 1;
-    }            
-    flags = fcntl(*sockfd, F_SETFL, flags | O_NONBLOCK);            
+    }
+    flags = fcntl(*sockfd, F_SETFL, flags | O_NONBLOCK);
     if (flags < 0) {
         printf("fcntl set failed.\n");
         cleanup = 1;
@@ -293,13 +295,16 @@ int dtls_select(int socketfd, int toSec)
 
     result = select(nfds, &recvfds, NULL, &errfds, &timeout);
 
-    if (result == 0)
+    if (result == 0) {
         return TEST_TIMEOUT;
+    }
     else if (result > 0) {
-        if (FD_ISSET(socketfd, &recvfds))
+        if (FD_ISSET(socketfd, &recvfds)) {
             return TEST_RECV_READY;
-        else if(FD_ISSET(socketfd, &errfds))
+        }
+        else if(FD_ISSET(socketfd, &errfds)) {
             return TEST_ERROR_READY;
+        }
     }
 
     return TEST_SELECT_FAIL;
@@ -307,7 +312,7 @@ int dtls_select(int socketfd, int toSec)
 
 int main(int argc, char** argv)
 {
-    /* cont short for "continue?", Loc short for "location" */    
+    /* cont short for "continue?", Loc short for "location" */
     int         cont = 0;
     char        caCertLoc[] = "../certs/ca-cert.pem";
     char        servCertLoc[] = "../certs/server-cert.pem";
@@ -326,7 +331,7 @@ int main(int argc, char** argv)
         return 1;
     }
     /* Load CA certificates */
-    if (wolfSSL_CTX_load_verify_locations(ctx,caCertLoc,0) != 
+    if (wolfSSL_CTX_load_verify_locations(ctx,caCertLoc,0) !=
             SSL_SUCCESS) {
         printf("Error loading %s, please check the file.\n", caCertLoc);
         return 1;
@@ -338,7 +343,7 @@ int main(int argc, char** argv)
         return 1;
     }
     /* Load server Keys */
-    if (wolfSSL_CTX_use_PrivateKey_file(ctx, servKeyLoc, 
+    if (wolfSSL_CTX_use_PrivateKey_file(ctx, servKeyLoc,
                 SSL_FILETYPE_PEM) != SSL_SUCCESS) {
         printf("Error loading %s, please check the file.\n", servKeyLoc);
         return 1;

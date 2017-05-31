@@ -1,5 +1,5 @@
-/* 
- * server-udp.c 
+/*
+ * server-udp.c
  *
  * Copyright (C) 2006-2015 wolfSSL Inc.
  *
@@ -35,7 +35,7 @@
 #define SERV_PORT   11111                   /* define our server port number */
 #define MSGLEN      4096                    /* limit incoming message size */
 
-int main (int argc, char** argv) 
+int main (int argc, char** argv)
 {
     int           sockfd;                   /* Initialize our socket */
     int           recvLen;                  /* number of bytes recieved */
@@ -69,7 +69,7 @@ int main (int argc, char** argv)
         memset(buf, 0, sizeof(buf));
         printf("waiting for client message on port %d\n", SERV_PORT);
 
-        recvLen = recvfrom(sockfd, buf, MSGLEN, 0, 
+        recvLen = recvfrom(sockfd, buf, MSGLEN, 0,
                 (struct sockaddr *)&cliAddr, &cliAddrLen);
 
         printf("heard %d bytes\n", recvLen);
@@ -84,7 +84,7 @@ int main (int argc, char** argv)
         printf("Message #%d received\n", msgNum++);
         printf("reply sent \"%s\"\n", buf);
 
-        if (sendto(sockfd, buf, sizeof(buf), 0, 
+        if (sendto(sockfd, buf, sizeof(buf), 0,
                     (struct sockaddr *)&cliAddr, cliAddrLen) < 0) {
             printf("\"sendto\" failed.\n");
             return 1;

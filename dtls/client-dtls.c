@@ -1,5 +1,5 @@
-/* 
- * client-dtls.c 
+/*
+ * client-dtls.c
  *
  * Copyright (C) 2006-2015 wolfSSL Inc.
  *
@@ -24,9 +24,9 @@
  * Bare-bones example of a DTLS client for instructional/learning purposes.
  */
 
+#include <wolfssl/options.h>
 #include <unistd.h>
 #include <wolfssl/ssl.h>
-#include <wolfssl/options.h>
 #include <netdb.h>
 #include <signal.h>
 #include <sys/socket.h>
@@ -37,23 +37,23 @@
 #include <string.h>
 
 #define MAXLINE   4096
-#define SERV_PORT 11111 
+#define SERV_PORT 11111
 
 /* Send and receive function */
-void DatagramClient (WOLFSSL* ssl) 
+void DatagramClient (WOLFSSL* ssl)
 {
     int  n = 0;
     char sendLine[MAXLINE], recvLine[MAXLINE - 1];
 
     while (fgets(sendLine, MAXLINE, stdin) != NULL) {
-    
-       if ( ( wolfSSL_write(ssl, sendLine, strlen(sendLine))) != 
+
+       if ( ( wolfSSL_write(ssl, sendLine, strlen(sendLine))) !=
 	      strlen(sendLine)) {
             printf("SSL_write failed");
         }
 
        n = wolfSSL_read(ssl, recvLine, sizeof(recvLine)-1);
-       
+
        if (n < 0) {
             int readErr = wolfSSL_get_error(ssl, 0);
 	        if(readErr != SSL_ERROR_WANT_READ) {
@@ -61,12 +61,12 @@ void DatagramClient (WOLFSSL* ssl)
             }
        }
 
-        recvLine[n] = '\0';  
+        recvLine[n] = '\0';
         fputs(recvLine, stdout);
     }
 }
 
-int main (int argc, char** argv)  
+int main (int argc, char** argv)
 {
     int     	sockfd = 0;
     struct  	sockaddr_in servAddr;
@@ -75,20 +75,20 @@ int main (int argc, char** argv)
     char        cert_array[]  = "../certs/ca-cert.pem";
     char*       certs = cert_array;
 
-    if (argc != 2) { 
+    if (argc != 2) {
         printf("usage: udpcli <IP address>\n");
         return 1;
     }
 
     wolfSSL_Init();
     /* wolfSSL_Debugging_ON(); */
-   
+
     if ( (ctx = wolfSSL_CTX_new(wolfDTLSv1_2_client_method())) == NULL) {
         fprintf(stderr, "wolfSSL_CTX_new error.\n");
         return 1;
     }
 
-    if (wolfSSL_CTX_load_verify_locations(ctx, certs, 0) 
+    if (wolfSSL_CTX_load_verify_locations(ctx, certs, 0)
 	    != SSL_SUCCESS) {
         fprintf(stderr, "Error loading %s, please check the file.\n", certs);
         return 1;
@@ -109,9 +109,9 @@ int main (int argc, char** argv)
     }
 
     wolfSSL_dtls_set_peer(ssl, &servAddr, sizeof(servAddr));
-    
-    if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) { 
-       printf("cannot create a socket."); 
+
+    if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+       printf("cannot create a socket.");
        return 1;
     }
     wolfSSL_set_fd(ssl, sockfd);
@@ -121,7 +121,7 @@ int main (int argc, char** argv)
 	    printf("SSL_connect failed");
         return 1;
     }
- 
+
     DatagramClient(ssl);
 
     wolfSSL_shutdown(ssl);
@@ -132,4 +132,3 @@ int main (int argc, char** argv)
 
     return 0;
 }
-

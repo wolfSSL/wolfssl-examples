@@ -133,6 +133,7 @@ int CamelliaEncrypt(Camellia* cam, byte* key, int size, FILE* inFile,
     free(key);
     fclose(inFile);
     fclose(outFile);
+    wc_FreeRng(&rng);
 
     return 0;
 }
@@ -341,6 +342,6 @@ int main(int argc, char** argv)
     else if (choice == 'n') {
         printf("Must select either -e or -d for encryption and decryption\n");
     }
-
+    
     return ret;
 }
