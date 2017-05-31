@@ -136,6 +136,8 @@ int my_IOSend(WOLFSSL* ssl, char* buff, int sz, void* ctx)
 
 #define DEFAULT_PORT 11111
 
+#define CERT_FILE "../certs/ca-cert.pem"
+
 int main(int argc, char** argv)
 {
     int                sockfd;
@@ -175,10 +177,10 @@ int main(int argc, char** argv)
     }
 
     /* Load client certificates into WOLFSSL_CTX */
-    if (wolfSSL_CTX_load_verify_locations(ctx, "../certs/ca-cert.pem", NULL)
+    if (wolfSSL_CTX_load_verify_locations(ctx, CERT_FILE, NULL)
         != SSL_SUCCESS) {
-        fprintf(stderr, "ERROR: failed to load certs/ca-cert.pem, please "
-                "check the file.\n");
+        fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
+                CERT_FILE);
         return -1;
     }
 

@@ -99,7 +99,7 @@ int main(int argc, char** argv)
     }
 
     /* Print the message to stdout */
-    printf("Recieved:           %s\n", buff);
+    printf("Recieved: %s\n", buff);
 
 
     /* Cleanup and return */

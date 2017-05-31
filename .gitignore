@@ -51,23 +51,23 @@ android/wolfssljni-ndk-sample/proguard-project.txt
 /psk/server-psk
 /psk/server-tcp
 
-/tls/client-callback
-/tls/client-tls-nonblocking
-/tls/client-tls-resume
-/tls/client-tls
-/tls/client-tls-writedup
 /tls/client-tcp
-/tls/memory-tls
-/tls/server-callback
-/tls/server-tls-nonblocking
-/tls/server-tls-threaded
-/tls/server-tls
-/tls/server-tcp
+/tls/client-tls
+/tls/client-tls-callback
 /tls/client-tls-ecdhe
-/tls/server-tls-ecdhe
+/tls/client-tls-nonblocking
 /tls/client-tls-perf
+/tls/client-tls-resume
+/tls/client-tls-writedup
+/tls/memory-tls
+/tls/server-tcp
+/tls/server-tls
+/tls/server-tls-callback
+/tls/server-tls-ecdhe
 /tls/server-tls-epoll-perf
 /tls/server-tls-epoll-threaded
+/tls/server-tls-nonblocking
+/tls/server-tls-threaded
 
 crypto/3des/3des-file-encrypt
 crypto/aes/aes-file-encrypt
