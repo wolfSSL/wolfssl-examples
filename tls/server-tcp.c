@@ -41,7 +41,7 @@ int main()
     struct sockaddr_in clientAddr;
     socklen_t          size = sizeof(clientAddr);
     char               buff[256];
-    int                ret = 0;
+    size_t             len;
 
 
 
@@ -88,37 +88,26 @@ int main()
 
     printf("Client connected successfully\n");
 
-    /* Read in from the client while there is something to read */
-    do {
-        /* Clear the buffer memory for anything possibly left over */
-        memset(buff, 0, sizeof(buff));
-
-
-        /* Read the client data into our buff array */
-        if (read(connd, buff, sizeof(buff)-1) > 0) {
-            /* Print any data the client sends to the console */
-            printf("Client: %s\n", buff);
-
-
-            /* Write our reply into buff */
-            memset(buff, 0, sizeof(buff));
-            memcpy(buff, "I hear ya fa shizzle!\n", 23);
-
-
-            /* Reply back to the client */
-            if (write(connd, buff, sizeof(buff)-1) < 0) {
-                fprintf(stderr, "ERROR: failed to write\n");
-            }
-        }
-    } while (ret > 0);
-
-
-    /* Check for a read error condition */
-    if (ret == 0) {
-        printf("Client has closed the connection.\n");
-    }
-    else {
+    /* Read the client data into our buff array */
+    memset(buff, 0, sizeof(buff));
+    if (read(connd, buff, sizeof(buff)-1) < 0) {
         fprintf(stderr, "ERROR: failed to read\n");
+        return -1;
+    }
+
+    /* Print to stdout any data the client sends */
+    printf("Client: %s\n", buff);
+
+
+    /* Write our reply into buff */
+    memset(buff, 0, sizeof(buff));
+    memcpy(buff, "I hear ya fa shizzle!\n", sizeof(buff));
+    len = strnlen(buff, sizeof(buff));
+
+    /* Reply back to the client */
+    if (write(connd, buff, len) != len) {
+        fprintf(stderr, "ERROR: failed to write\n");
+        return -1;
     }
 
 

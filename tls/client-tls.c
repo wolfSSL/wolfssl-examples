@@ -122,22 +122,22 @@ int main(int argc, char** argv)
     fgets(buff, sizeof(buff), stdin);
     len = strnlen(buff, sizeof(buff));
 
-    /* Send the message */
+    /* Send the message to the server */
     if (wolfSSL_write(ssl, buff, len) != len) {
         fprintf(stderr, "ERROR: failed to write\n");
         return -1;
     }
 
 
-    /* Get a response from the server */
+    /* Read the server data into our buff array */
     memset(buff, 0, sizeof(buff));
     if (wolfSSL_read(ssl, buff, sizeof(buff)-1) < 0) {
         fprintf(stderr, "ERROR: failed to read\n");
         return -1;
     }
 
-    /* Print the message to stdout */
-    printf("Recieved:           %s\n", buff);
+    /* Print to stdout any data the server sends */
+    printf("Server: %s\n", buff);
 
 
     /* Cleanup and return */
