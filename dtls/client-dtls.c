@@ -24,9 +24,9 @@
  * Bare-bones example of a DTLS client for instructional/learning purposes.
  */
 
+#include <wolfssl/options.h>
 #include <unistd.h>
 #include <wolfssl/ssl.h>
-#include <wolfssl/options.h>
 #include <netdb.h>
 #include <signal.h>
 #include <sys/socket.h>
@@ -141,5 +141,3 @@ int main (int argc, char** argv)
 
     return 0;
 }
-
-

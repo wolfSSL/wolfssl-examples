@@ -24,6 +24,7 @@
  * Utilizes DTLS 1.2.
  */
 
+#include <wolfssl/options.h>
 #include <stdio.h>                  /* standard in/out procedures */
 #include <stdlib.h>                 /* defines system calls */
 #include <string.h>                 /* necessary for memset */

@@ -134,6 +134,7 @@ int AesEncrypt(Aes* aes, byte* key, int size, FILE* inFile, FILE* outFile)
     free(key);
     fclose(inFile);
     fclose(outFile);
+    wc_FreeRng(&rng);
 
     return ret;
 }
@@ -217,6 +218,7 @@ int AesDecrypt(Aes* aes, byte* key, int size, FILE* inFile, FILE* outFile)
     free(key);
     fclose(inFile);
     fclose(outFile);
+    wc_FreeRng(&rng);
 
     return 0;
 }

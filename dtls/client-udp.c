@@ -24,6 +24,7 @@
  * Bare-bones example of a UDP client for instructional/learning purposes.
  */
 
+#include <wolfssl/options.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
@@ -58,7 +59,11 @@ void DatagramClient (FILE* clientInput, int sockfd,
              printf("Error in receiving");
         }
 
+<<<<<<< HEAD
         recvLine[n] = '\0';
+=======
+        recvLine[n] = 0;
+>>>>>>> b7eaf19a63cf004c83d2e63e161fba9da02afa16
         fputs(recvLine, stdout);
     }
 }
@@ -78,8 +83,12 @@ int main(int argc, char** argv)
        printf("cannot create a socket.");
        return 1;
     }
+<<<<<<< HEAD
+=======
 
-    memset(&servAddr, sizeof(servAddr), 0);
+    memset(&servAddr, 0, sizeof(servAddr));
+>>>>>>> b7eaf19a63cf004c83d2e63e161fba9da02afa16
+
     servAddr.sin_family = AF_INET;
     servAddr.sin_port = htons(SERV_PORT);
     inet_pton(AF_INET, argv[1], &servAddr.sin_addr);

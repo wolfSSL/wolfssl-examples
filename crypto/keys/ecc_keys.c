@@ -63,7 +63,6 @@ int main()
     fclose(derFile);
     wc_ecc_free(&key);
 
-
     /* open and read from der file */
     printf("reading in private key\n");
     derFile = fopen("ecc-key.der", "rb");
@@ -118,7 +117,7 @@ int main()
     /* close stuff up */
     fclose(derFile);
     wc_ecc_free(&key);
-
+    wc_FreeRng(&rng);
     return 0;
 }
 

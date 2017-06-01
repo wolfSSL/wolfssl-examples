@@ -20,11 +20,11 @@
  *
  *=============================================================================
  *
- * Bare-bones example of a threaded DTLS server for instructional/learning purposes.
- * Utilizes DTLS 1.2. and multi-threading
+ * Bare-bones example of a threaded DTLS server for instructional/learning
+ * purposes. Utilizes DTLS 1.2. and multi-threading
  */
 
-
+#include <wolfssl/options.h>
 #include <stdio.h>                  /* standard in/out procedures */
 #include <stdlib.h>                 /* defines system calls */
 #include <string.h>                 /* necessary for memset */
@@ -54,7 +54,7 @@ typedef struct {
     int activefd;
     int size;
     unsigned char b[MSGLEN];
-}threadArgs;
+} threadArgs;
 
 void sig_handler(const int sig)
 {
@@ -80,6 +80,9 @@ int AwaitDGram(void)
     }
     printf("Socket allocated\n");
 
+    /* clear servAddr each loop */
+    memset((char *)&servAddr, 0, sizeof(servAddr));
+
     /* host-to-network-long conversion (htonl) */
     /* host-to-network-short conversion (htons) */
     servAddr.sin_family      = AF_INET;
@@ -95,7 +98,8 @@ int AwaitDGram(void)
     }
 
     /*Bind Socket*/
-    if (bind(listenfd, (struct sockaddr *)&servAddr, sizeof(servAddr)) < 0) {
+    if (bind(listenfd,
+                (struct sockaddr *)&servAddr, sizeof(servAddr)) < 0) {
         printf("Bind failed.\n");
         cleanup = 1;
         return 1;
@@ -103,10 +107,7 @@ int AwaitDGram(void)
 
     printf("Awaiting client connection on port %d\n", SERV_PORT);
 
-    int test_counter = 0;
-
     while (cleanup != 1) {
-        printf("iteration #%d\n", ++test_counter);
 
         threadArgs* args;
         args = (threadArgs *) malloc(sizeof(threadArgs));
@@ -130,6 +131,7 @@ int AwaitDGram(void)
             printf("No clients in que, enter idle state\n");
             continue;
         }
+
         else if (bytesRcvd > 0) {
 
             /* put all the bytes from buf into args */
@@ -170,11 +172,10 @@ int AwaitDGram(void)
         }
         else {
             /* else bytesRcvd = 0 */
+            printf("Recvfrom failed.\n");
             cleanup = 1;
             return 1;
         }
-
-        /* (not actually connected?) */
         printf("Connected!\n");
 
         if (cleanup != 1) {
@@ -198,19 +199,17 @@ int AwaitDGram(void)
 
 void* ThreadControl(void* openSock)
 {
-    printf("------------------------------------------\n"
-           "start of thread control\n");
-
     pthread_detach(pthread_self());
 
     threadArgs* args = (threadArgs*)openSock;
     int             recvLen = 0;                /* length of message     */
     int             activefd = args->activefd;  /* the active descriptor */
-    unsigned char   buff[MSGLEN];               /* the incoming message  */
+    int             msgLen = args->size;        /* the size of message   */
+    unsigned char   buff[msgLen];               /* the incoming message  */
     char            ack[] = "I hear you fashizzle!\n";
     WOLFSSL*         ssl;
 
-    memcpy(buff, args->b, MSGLEN);
+    memcpy(buff, args->b, msgLen);
 
     /* Create the WOLFSSL Object */
     if ((ssl = wolfSSL_new(ctx)) == NULL) {
@@ -221,9 +220,9 @@ void* ThreadControl(void* openSock)
 
     /* set the session ssl to client connection port */
     wolfSSL_set_fd(ssl, activefd);
-    printf("wolfssl fd has been set\n");
-    printf("attempting to call wolfSSL_Accept(ssl)\n");
+
     if (wolfSSL_accept(ssl) != SSL_SUCCESS) {
+
         int e = wolfSSL_get_error(ssl, 0);
 
         printf("error = %d, %s\n", e,
@@ -231,9 +230,7 @@ void* ThreadControl(void* openSock)
         printf("SSL_accept failed.\n");
         return NULL;
     }
-    printf("wolfSSL_accept(ssl) success\n");
-
-    if ((recvLen = wolfSSL_read(ssl, buff, MSGLEN-1)) > 0) {
+    if ((recvLen = wolfSSL_read(ssl, buff, msgLen-1)) > 0) {
         printf("heard %d bytes\n", recvLen);
 
         buff[recvLen] = 0;
@@ -247,9 +244,6 @@ void* ThreadControl(void* openSock)
             return NULL;
         }
     }
-    else {
-        printf("recvLen = %d\n", recvLen);
-    }
     if (wolfSSL_write(ssl, ack, sizeof(ack)) < 0) {
         printf("wolfSSL_write fail.\n");
         cleanup = 1;
@@ -261,6 +255,7 @@ void* ThreadControl(void* openSock)
 
     printf("reply sent \"%s\"\n", ack);
 
+
     wolfSSL_shutdown(ssl);
     wolfSSL_free(ssl);
     close(activefd);
@@ -270,9 +265,6 @@ void* ThreadControl(void* openSock)
     printf("Client left return to idle state\n");
     printf("Exiting thread.\n\n");
     pthread_exit(openSock);
-
-    printf("end of thread control\n"
-           "------------------------------------------\n");
 }
 
 int main(void)

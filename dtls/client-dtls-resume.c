@@ -24,9 +24,9 @@
  * Bare-bones example of a DTLS client for instructional/learning purposes.
  */
 
+#include <wolfssl/options.h>
 #include <unistd.h>
 #include <wolfssl/ssl.h>
-#include <wolfssl/options.h>
 #include <netdb.h>
 #include <signal.h>
 #include <sys/socket.h>
@@ -157,10 +157,12 @@ int main (int argc, char** argv)
         return 1;
     }
 
-    if(wolfSSL_session_reused(sslResume))
+    if (wolfSSL_session_reused(sslResume)) {
     	printf("reused session id\n");
-    else
+    }
+    else {
     	printf("didn't reuse session id!!!\n");
+    }
 
     DatagramClient(sslResume);
 
@@ -175,5 +177,3 @@ int main (int argc, char** argv)
 
     return 0;
 }
-
-

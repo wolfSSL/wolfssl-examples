@@ -1,5 +1,5 @@
 /*
- * client-dtls-nonblocking-2.c
+ * client-dtls-nonblocking.c
  *
  * Copyright (C) 2006-2015 wolfSSL Inc.
  *
@@ -24,11 +24,11 @@
  * Bare-bones example of a DTLS client for instructional/learning purposes.
  */
 
+#include <wolfssl/options.h>
 #include <unistd.h>
 #include <wolfssl/ssl.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <wolfssl/options.h>
 #include <netdb.h>
 #include <signal.h>
 #include <sys/socket.h>
@@ -109,18 +109,20 @@ int main (int argc, char** argv)
 /********************* NonBlockingDTLS_Connect(ssl) code *********************/
     int ret = wolfSSL_connect(ssl);
     int error = wolfSSL_get_error(ssl, 0);
-    int nb_sockfd = (int)wolfSSL_get_fd(ssl);
+    int nb_sockfd = (int) wolfSSL_get_fd(ssl);
     int select_ret;
 
-    while (ret != SSL_SUCCESS && (error == SSL_ERROR_WANT_READ ||
-		error == SSL_ERROR_WANT_WRITE)) {
-	    int currTimeout = 1;
-	    if (error == SSL_ERROR_WANT_READ)
-	        printf("... client would read block\n");
-	    else
-	        printf("... client would write block\n");
-	    currTimeout = wolfSSL_dtls_get_current_timeout(ssl);
-	    //select_ret = dtls_select(sockfd, currTimeout);
+    while (ret != SSL_SUCCESS && (error == SSL_ERROR_WANT_READ || 
+                error == SSL_ERROR_WANT_WRITE)) {
+	int currTimeout = 1;
+	if (error == SSL_ERROR_WANT_READ) {
+	    printf("... client would read block\n");
+        }
+	else {
+	    printf("... client would write block\n");
+        }
+	currTimeout = wolfSSL_dtls_get_current_timeout(ssl);
+	//select_ret = dtls_select(sockfd, currTimeout);
         fd_set recvfds, errfds;
         int    nfds = nb_sockfd +1;
         struct timeval timeout = { (currTimeout > 0) ? currTimeout : 0, 0};
@@ -156,7 +158,7 @@ int main (int argc, char** argv)
 		    wolfSSL_dtls_got_timeout(ssl) >= 0) {
 	        error = 2;
 	    }
-	    else{
+	    else {
 	        error = SSL_FATAL_ERROR;
 	    }
     }
@@ -179,8 +181,9 @@ int main (int argc, char** argv)
         while ( (n = wolfSSL_read(ssl, recvLine, sizeof(recvLine)-1)) <= 0) {
 
 	        int readErr = wolfSSL_get_error(ssl, 0);
-	        if(readErr != SSL_ERROR_WANT_READ)
+	        if(readErr != SSL_ERROR_WANT_READ) {
 	            printf("wolfSSL_read failed");
+                }
         }
 
         recvLine[n] = '\0';
@@ -204,8 +207,8 @@ int main (int argc, char** argv)
     }
 
     if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-	   printf("cannot create a socket.");
-    return 1;
+	    printf("cannot create a socket.");
+        return 1;
     }
 
     close(sockfd);
@@ -214,6 +217,3 @@ int main (int argc, char** argv)
 
     return 0;
 }
-
-
-
