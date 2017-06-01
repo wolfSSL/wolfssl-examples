@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-DWOLFSSL_DTLS
+CFLAGS=-Wall -DWOLFSSL_DTLS
 LIBS=-lwolfssl -lpthread
 
 all: client-udp client-dtls client-dtls-nonblocking client-dtls-resume client-dtls-shared server-udp server-dtls server-dtls-nonblocking server-dtls-threaded
