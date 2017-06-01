@@ -37,31 +37,6 @@
 #define SERV_PORT   11111
 
 /*
- * Handles response to client.
- */
-int Respond(WOLFSSL* ssl)
-{
-    int  n;              /* length of string read */
-    char buf[MAXLINE];   /* string read from client */
-    char response[] = "I hear ya for shizzle";
-    memset(buf, 0, MAXLINE);
-    n = wolfSSL_read(ssl, buf, MAXLINE);
-    if (n > 0) {
-        printf("%s\n", buf);
-        if (wolfSSL_write(ssl, response, strlen(response)) > strlen(response)) {
-            printf("Fatal error : respond: write error\n");
-            return 1;
-        }
-    }
-    if (n < 0) {
-        printf("Fatal error :respond: read error\n");
-        return 1;
-    }
-
-    return 0;
-}
-
-/*
  * Identify which psk key to use.
  */
 static unsigned int my_psk_server_cb(WOLFSSL* ssl, const char* identity,
@@ -84,10 +59,13 @@ static unsigned int my_psk_server_cb(WOLFSSL* ssl, const char* identity,
 
 int main()
 {
+    int  n;              /* length of string read */
     int                 listenfd, connfd;
     int                 opt;
-    struct sockaddr_in  cliAddr, servAddr;
     char                buff[MAXLINE];
+    char buf[MAXLINE];   /* string read from client */
+    char response[] = "I hear ya for shizzle";
+    struct sockaddr_in  cliAddr, servAddr;
     socklen_t           cliLen;
     WOLFSSL_CTX*         ctx;
 
@@ -160,8 +138,25 @@ int main()
                 printf("Fatal error : wolfSSL_new error\n");
                 return 1;
             }
+            
+            /* sets the file descriptor of the socket for the ssl session */
             wolfSSL_set_fd(ssl, connfd);
-            if (Respond(ssl) != 0) {
+            
+            /* making sure buffered to store data sent from client is emprty */
+            memset(buf, 0, MAXLINE);
+            
+            /* reads and displays data sent by client if no errors occur */
+            n = wolfSSL_read(ssl, buf, MAXLINE);
+            if (n > 0) {
+                printf("%s\n", buf);
+                /* server response */
+                if (wolfSSL_write(ssl, response, strlen(response)) > strlen(response)) {
+                    printf("Fatal error : respond: write error\n");
+                    return 1;
+                }
+            }
+            if (n < 0) {
+                printf("Fatal error :respond: read error\n");
                 return 1;
             }
 

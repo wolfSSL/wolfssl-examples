@@ -47,127 +47,6 @@ enum{
     TEST_ERROR_READY
 };
 
-
-/*
- * Pulled in from wolfssl/test.h
- * Select the tcp, used when nonblocking. Checks the status of the connection.
- */
-int tcp_select(int sockfd, int to_sec)
-{
-    fd_set recvfds, errfds;
-    int nfds = sockfd + 1;
-    struct timeval timeout = {to_sec, 0};
-    int result;
-
-    /* reset socket values */
-    FD_ZERO(&recvfds);
-    FD_SET(sockfd, &recvfds);
-    FD_ZERO(&errfds);
-    FD_SET(sockfd, &errfds);
-
-    result = select(nfds, &recvfds, NULL, &errfds, &timeout);
-
-    /* logic for which enumerated value is returned */
-    if (result == 0) {
-        return TEST_TIMEOUT;
-    }
-    else if (result > 0) {
-        if (FD_ISSET(sockfd, &recvfds)) {
-            return TEST_RECV_READY;
-        }
-        else if (FD_ISSET(sockfd, &errfds)) {
-            return TEST_ERROR_READY;
-        }
-    }
-
-    return TEST_SELECT_FAIL;
-}
-
-
-/*
- * Pulled in from examples/server/server.c
- * Function to handle nonblocking. Loops until tcp_select notifies that it's
- * ready for action.
- */
-int NonBlockingSSL(WOLFSSL* ssl)
-{
-    int ret;
-    int error;
-    int select_ret;
-    int sockfd = wolfSSL_get_fd(ssl);
-    ret = wolfSSL_accept(ssl);
-    error = wolfSSL_get_error(ssl, 0);
-    while (ret != SSL_SUCCESS && (error == SSL_ERROR_WANT_READ ||
-                                  error == SSL_ERROR_WANT_WRITE)) {
-        int currTimeout = 1;
-
-        /* print out for user notification */
-        if (error == SSL_ERROR_WANT_READ) {
-            printf("... server would read block\n");
-        }
-        else {
-            printf("... server would write block\n");
-        }
-
-        select_ret = tcp_select(sockfd, currTimeout);
-
-        /* if tcp_select signals ready try to accept otherwise continue loop*/
-        if ((select_ret == TEST_RECV_READY) ||
-            (select_ret == TEST_ERROR_READY)) {
-            ret = wolfSSL_accept(ssl);
-            error = wolfSSL_get_error(ssl, 0);
-        }
-        else if (select_ret == TEST_TIMEOUT) {
-            error = SSL_ERROR_WANT_READ;
-        }
-        else {
-            error = SSL_FATAL_ERROR;
-        }
-    }
-    /* faliure to accept */
-    if (ret != SSL_SUCCESS) {
-        printf("Fatal error : SSL_accept failed\n");
-        ret = SSL_FATAL_ERROR;
-    }
-
-    return ret;
-}
-
-
-/*
- * Handles response to client.
- */
-int Respond(WOLFSSL* ssl)
-{
-    int    n;              /* length of string read */
-    char   buf[MAXLINE];   /* string read from client */
-    char   response[] = "I hear ya for shizzle";
-
-    memset(buf, 0, MAXLINE);
-    do {
-        if (NonBlockingSSL(ssl) != SSL_SUCCESS) {
-            return 1;
-        }
-
-        n = wolfSSL_read(ssl, buf, MAXLINE);
-        if (n > 0) {
-            printf("%s\n", buf);
-        }
-    }
-    while(n < 0);
-
-    if (NonBlockingSSL(ssl) != SSL_SUCCESS) {
-        return 1;
-    }
-
-    if (wolfSSL_write(ssl, response, strlen(response)) != strlen(response)) {
-        printf("Fatal error : respond: write error\n");
-        return 1;
-    }
-
-    return 0;
-}
-
 /*
  * Used for finding psk value.
  */
@@ -192,12 +71,24 @@ static inline unsigned int my_psk_server_cb(WOLFSSL* ssl, const char* identity,
 
 int main()
 {
-    int                 listenfd, connfd;
-    int                 opt;
-    struct sockaddr_in  cliAddr, servAddr;
-    char                buff[MAXLINE];
+    int n;              /* length of string read */
+    int ret;
+    int error;
+    int result;
+    int select_ret;
+    int sockfd;
+    int nfds;
+    int currTimeout = 1;
+    int listenfd, connfd;
+    int opt;
+    char   buff[MAXLINE];  /* buffer for tcp connection */
+    char   buf[MAXLINE];   /* string read from client */
+    char   response[] = "I hear ya for shizzle";
+    fd_set recvfds, errfds;
     socklen_t           cliLen;
     WOLFSSL_CTX*         ctx;
+    struct sockaddr_in  cliAddr, servAddr;
+    struct timeval timeout = {currTimeout, 0};
 
     wolfSSL_Init();
 
@@ -259,8 +150,8 @@ int main()
         }
         else {
             printf("Connection from %s, port %d\n",
-                   inet_ntop(AF_INET, &cliAddr.sin_addr, buff, sizeof(buff)),
-                   ntohs(cliAddr.sin_port));
+                inet_ntop(AF_INET, &cliAddr.sin_addr, buff, sizeof(buff)),
+                ntohs(cliAddr.sin_port));
 
             /* create WOLFSSL object */
             if ((ssl = wolfSSL_new(ctx)) == NULL) {
@@ -268,27 +159,163 @@ int main()
                 return 1;
             }
             wolfSSL_set_fd(ssl, connfd);
-
+            sockfd = wolfSSL_get_fd(ssl);
+            
             /* set wolfSSL and socket to non blocking and respond */
             wolfSSL_set_using_nonblock(ssl, 1);
             if (fcntl(connfd, F_SETFL, O_NONBLOCK) < 0) {
                 printf("Fatal error : fcntl set failed\n");
                 return 1;
             }
-            if (Respond(ssl) != 0) {
-                printf("Fatal error : respond error\n");
-                return 1;
+            
+            ret = wolfSSL_accept(ssl);
+            error = wolfSSL_get_error(ssl, 0);
+            
+            /* clearing buffer for client reponse to prevent unexpected output*/
+            memset(buf, 0, MAXLINE);
+            do {
+    
+                while (ret != SSL_SUCCESS && (error == SSL_ERROR_WANT_READ ||
+                                            error == SSL_ERROR_WANT_WRITE)) {
+
+                    /* print out for user notification */
+                    if (error == SSL_ERROR_WANT_READ) {
+                        printf("... server would read block\n");
+                    }
+                    else {
+                        printf("... server would write block\n");
+                    }
+/* -------------------------------------------------------------------------- */
+/* TCP */
+/* -------------------------------------------------------------------------- */
+                    FD_ZERO(&recvfds);
+                    FD_SET(sockfd, &recvfds);
+                    FD_ZERO(&errfds);
+                    FD_SET(sockfd, &errfds);
+                
+                    nfds = sockfd + 1;
+                    result = select(nfds, &recvfds, NULL, &errfds, &timeout);
+                
+                    if (result == 0) {
+                        select_ret = TEST_TIMEOUT;
+                    }
+                    else if (result > 0) {
+                        if (FD_ISSET(sockfd, &recvfds)) {
+                            select_ret = TEST_RECV_READY;
+                        }
+                        else if (FD_ISSET(sockfd, &errfds)) {
+                            select_ret = TEST_ERROR_READY;
+                        }
+                    }
+                    else {
+                        select_ret = TEST_SELECT_FAIL;
+                    }
+
+          /* if tcp_select signals ready try to accept otherwise continue loop*/
+                    if ((select_ret == TEST_RECV_READY) ||
+                        (select_ret == TEST_ERROR_READY)) {
+                        ret = wolfSSL_accept(ssl);
+                        error = wolfSSL_get_error(ssl, 0);
+                    }
+                    else if (select_ret == TEST_TIMEOUT) {
+                        error = SSL_ERROR_WANT_READ;
+                    }
+                    else {
+                        error = SSL_FATAL_ERROR;
+                    }
+                }
+            /* faliure to accept */
+                if (ret != SSL_SUCCESS) {
+                    printf("Fatal error : SSL_accept failed\n");
+                    ret = SSL_FATAL_ERROR;
+                }
+        
+                if (ret != SSL_SUCCESS) {
+                    return 1;
+                }
+
+                n = wolfSSL_read(ssl, buf, MAXLINE);
+                if (n > 0) {
+                    printf("%s\n", buf);
+                }
+            }
+            while(n < 0);
+
+            while (ret != SSL_SUCCESS && (error == SSL_ERROR_WANT_READ ||
+                                        error == SSL_ERROR_WANT_WRITE)) {
+
+                /* print out for user notification */
+                if (error == SSL_ERROR_WANT_READ) {
+                    printf("... server would read block\n");
+                }
+                else {
+                    printf("... server would write block\n");
+                }
+/* -------------------------------------------------------------------------- */
+/* TCP */
+/* -------------------------------------------------------------------------- */
+                FD_ZERO(&recvfds);
+                FD_SET(sockfd, &recvfds);
+                FD_ZERO(&errfds);
+                FD_SET(sockfd, &errfds);
+        
+                nfds = sockfd + 1;
+                result = select(nfds, &recvfds, NULL, &errfds, &timeout);
+        
+                if (result == 0) {
+                    select_ret = TEST_TIMEOUT;
+                }
+                else if (result > 0) {
+                    if (FD_ISSET(sockfd, &recvfds)) {
+                        select_ret = TEST_RECV_READY;
+                    }
+                    else if (FD_ISSET(sockfd, &errfds)) {
+                        select_ret = TEST_ERROR_READY;
+                    }
+                }
+                else {
+                    select_ret = TEST_SELECT_FAIL;
+                }
+
+        /* if tcp_select signals ready try to accept otherwise continue loop*/
+                if ((select_ret == TEST_RECV_READY) ||
+                    (select_ret == TEST_ERROR_READY)) {
+                    ret = wolfSSL_accept(ssl);
+                    error = wolfSSL_get_error(ssl, 0);
+                }
+                else if (select_ret == TEST_TIMEOUT) {
+                    error = SSL_ERROR_WANT_READ;
+                }
+                else {
+                    error = SSL_FATAL_ERROR;
+                }
             }
 
+        /* faliure to accept */
+            if (ret != SSL_SUCCESS) {
+                printf("Fatal error : SSL_accept failed\n");
+                ret = SSL_FATAL_ERROR;
+            }
+
+            if (ret != SSL_SUCCESS) {  
+                return 1;
+            }
+            if ( wolfSSL_write(ssl, response, strlen(response)) != 
+                                                strlen(response)) {
+                printf("Fatal error : respond: write error\n");
+                return 1;
+            }
+            
             /* closes the connections after responding */
-            wolfSSL_shutdown(ssl);
-            wolfSSL_free(ssl);
             if (close(connfd) == -1) {
                 printf("Fatal error : close error\n");
                 return 1;
             }
+            wolfSSL_shutdown(ssl);
+            wolfSSL_free(ssl);
         }
     }
+    
     /* free up memory used by wolfssl */
     wolfSSL_CTX_free(ctx);
     wolfSSL_Cleanup();
