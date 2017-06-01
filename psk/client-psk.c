@@ -96,7 +96,7 @@ int main(int argc, char **argv)
 
     if (ret != 1) {
         printf("inet_pton error\n");
-		return 1;
+	    return 1;
     }
 
     /* set up pre shared keys */
@@ -125,13 +125,13 @@ int main(int argc, char **argv)
 
     /* write string to the server */
 	if (wolfSSL_write(ssl, sendline, MAXLINE) != sizeof(sendline)) {
-		printf("Write Error to Server\n");
-		return 1;
+	    printf("Write Error to Server\n");
+	    return 1;
     }
     
     /* check if server ended before client could read a response  */
     if (wolfSSL_read(ssl, recvline, MAXLINE) < 0 ) {
-    	printf("Client: Server Terminated Prematurely!\n");
+        printf("Client: Server Terminated Prematurely!\n");
         return 1;
     }
 

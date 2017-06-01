@@ -81,8 +81,8 @@ int main(int argc, char **argv){
 
     /* create and initialize WOLFSSL_CTX structure */
     if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method())) == NULL) {
-    	fprintf(stderr, "SSL_CTX_new error.\n");
-    	return 1;
+        fprintf(stderr, "SSL_CTX_new error.\n");
+        return 1;
     }
 
     /* create a stream socket using tcp,internet protocal IPv4,
@@ -122,13 +122,13 @@ int main(int argc, char **argv){
 
      /* takes inputting string and outputs it to the server */
     if (wolfSSL_write(ssl, sendline, sizeof(sendline)) != sizeof(sendline)) {
-		printf("Write Error to Server\n");
-		return 1;
+	    printf("Write Error to Server\n");
+	    return 1;
     }
 
 	/* flags if the Server stopped before the client could end */
     if (wolfSSL_read(ssl, recvline, MAXLINE) < 0 ) {
-    	printf("Client: Server Terminated Prematurely!\n");
+        printf("Client: Server Terminated Prematurely!\n");
         return 1;
     }
 
@@ -173,13 +173,13 @@ int main(int argc, char **argv){
     }
 
     if (wolfSSL_write(sslResume, sendline, sizeof(sendline)) != sizeof(sendline)) {
-		printf("Write Error to Server\n");
-		return 1;
+	    printf("Write Error to Server\n");
+	    return 1;
     }
 
 	/* flags if the Server stopped before the client could end */
     if (wolfSSL_read(sslResume, recvline, MAXLINE) < 0 ) {
-    	printf("Client: Server Terminated Prematurely!\n");
+        printf("Client: Server Terminated Prematurely!\n");
         return 1;
     }
 

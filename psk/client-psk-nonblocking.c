@@ -79,6 +79,7 @@ int main(int argc, char **argv)
     fd_set recvfds, errfds;
     WOLFSSL_CTX* ctx;
     WOLFSSL* ssl;
+    struct timeval timeout;
     struct sockaddr_in servaddr;
 
     /* must include an ip address of this will flag */
@@ -171,7 +172,8 @@ int main(int argc, char **argv)
             printf("... client would write block\n");
         }
 
-        struct timeval timeout = { (currTimeout > 0) ? currTimeout : 0, 0};
+        timeout.tv_sec = currTimeout;
+        timeout.tv_usec = 0;            /* setting to 0 microseconds */
         sockfd = (int)wolfSSL_get_fd(ssl);
         
         FD_ZERO(&recvfds);
