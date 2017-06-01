@@ -50,13 +50,13 @@ enum {
 
 int main (int argc, char** argv)
 {
-    int     		sockfd = 0;
-    struct  		sockaddr_in servAddr;
-    const char* 	host = argv[1];
-    WOLFSSL* 		ssl = 0;
-    WOLFSSL_CTX* 	ctx = 0;
-    WOLFSSL* 		sslResume = 0;
-    WOLFSSL_SESSION*	session = 0;
+    int     		       sockfd = 0;
+    struct sockaddr_in servAddr;
+    const char* 	     host = argv[1];
+    WOLFSSL* 		       ssl = 0;
+    WOLFSSL_CTX* 	     ctx = 0;
+    WOLFSSL* 		       sslResume = 0;
+    WOLFSSL_SESSION*	 session = 0;
     char            	cert_array[] = "../certs/ca-cert.pem";
     char*           	certs = cert_array;
     char*           	srTest = "testing session resume";
@@ -112,17 +112,17 @@ int main (int argc, char** argv)
     int nb_sockfd = (int) wolfSSL_get_fd(ssl);
     int select_ret;
 
-    while (ret != SSL_SUCCESS && (error == SSL_ERROR_WANT_READ || 
+    while (ret != SSL_SUCCESS && (error == SSL_ERROR_WANT_READ ||
                 error == SSL_ERROR_WANT_WRITE)) {
-	int currTimeout = 1;
-	if (error == SSL_ERROR_WANT_READ) {
-	    printf("... client would read block\n");
+	      int currTimeout = 1;
+	      if (error == SSL_ERROR_WANT_READ) {
+	          printf("... client would read block\n");
         }
-	else {
-	    printf("... client would write block\n");
+	      else {
+	          printf("... client would write block\n");
         }
-	currTimeout = wolfSSL_dtls_get_current_timeout(ssl);
-	//select_ret = dtls_select(sockfd, currTimeout);
+	      currTimeout = wolfSSL_dtls_get_current_timeout(ssl);
+	      //select_ret = dtls_select(sockfd, currTimeout);
         fd_set recvfds, errfds;
         int    nfds = nb_sockfd +1;
         struct timeval timeout = { (currTimeout > 0) ? currTimeout : 0, 0};
@@ -140,31 +140,33 @@ int main (int argc, char** argv)
         if (result == 0)
 	        select_ret = TEST_TIMEOUT;
         else if (result > 0) {
-	        if (FD_ISSET(nb_sockfd, &recvfds))
+	        if (FD_ISSET(nb_sockfd, &recvfds)) {
 	            select_ret = TEST_RECV_READY;
-	        else if (FD_ISSET(nb_sockfd, &errfds))
+          }
+	        else if (FD_ISSET(nb_sockfd, &errfds)) {
 	            select_ret = TEST_ERROR_READY;
+          }
         }
 
-	    if ( ( select_ret == TEST_RECV_READY) ||
-		    (select_ret == TEST_ERROR_READY)) {
-	        ret = wolfSSL_connect(ssl);
-	        error = wolfSSL_get_error(ssl, 0);
-	    }
-	    else if (select_ret == TEST_TIMEOUT && !wolfSSL_dtls(ssl)) {
-	        error = 2;
-	    }
-	    else if (select_ret == TEST_TIMEOUT && wolfSSL_dtls(ssl) &&
-		    wolfSSL_dtls_got_timeout(ssl) >= 0) {
-	        error = 2;
-	    }
-	    else {
-	        error = SSL_FATAL_ERROR;
-	    }
+	      if ( ( select_ret == TEST_RECV_READY) ||
+              (select_ret == TEST_ERROR_READY)) {
+	          ret = wolfSSL_connect(ssl);
+	          error = wolfSSL_get_error(ssl, 0);
+	      }
+	      else if (select_ret == TEST_TIMEOUT && !wolfSSL_dtls(ssl)) {
+	          error = 2;
+	      }
+	      else if (select_ret == TEST_TIMEOUT && wolfSSL_dtls(ssl) &&
+		        wolfSSL_dtls_got_timeout(ssl) >= 0) {
+	          error = 2;
+	      }
+	      else {
+	          error = SSL_FATAL_ERROR;
+	      }
     }
 
     if (ret != SSL_SUCCESS) {
-	    printf("SSL_connect failed with");
+	      printf("SSL_connect failed with");
     }
 
     //DatagramClient(ssl);
@@ -174,23 +176,22 @@ int main (int argc, char** argv)
     while (fgets(sendLine, MAXLINE, stdin) != NULL) {
 
         while  ( ( wolfSSL_write(ssl, sendLine, strlen(sendLine))) !=
-	        strlen(sendLine)) {
-    	    printf("SSL_write failed");
+	          strlen(sendLine)) {
+    	      printf("SSL_write failed");
         }
 
         while ( (n = wolfSSL_read(ssl, recvLine, sizeof(recvLine)-1)) <= 0) {
-
-	        int readErr = wolfSSL_get_error(ssl, 0);
-	        if(readErr != SSL_ERROR_WANT_READ) {
-	            printf("wolfSSL_read failed");
-                }
+	            int readErr = wolfSSL_get_error(ssl, 0);
+	            if(readErr != SSL_ERROR_WANT_READ) {
+	                printf("wolfSSL_read failed");
+              }
         }
 
         recvLine[n] = '\0';
         fputs(recvLine, stdout);
     }
     while ( (wolfSSL_write(ssl, srTest, sizeof(srTest))) != sizeof(srTest)) {
-	    printf("failed to write");
+	      printf("failed to write");
         return 1;
     }
 
@@ -210,7 +211,7 @@ int main (int argc, char** argv)
 	    printf("cannot create a socket.");
         return 1;
     }
-
+  
     close(sockfd);
     wolfSSL_CTX_free(ctx);
     wolfSSL_Cleanup();

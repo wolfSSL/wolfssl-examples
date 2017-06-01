@@ -59,6 +59,8 @@ int main (int argc, char** argv)
 
     /* Initialize wolfSSL before assigning ctx */
     wolfSSL_Init();
+  
+    /* wolfSSL_Debugging_ON(); */
 
     if ( (ctx = wolfSSL_CTX_new(wolfDTLSv1_2_client_method())) == NULL) {
         fprintf(stderr, "wolfSSL_CTX_new error.\n");

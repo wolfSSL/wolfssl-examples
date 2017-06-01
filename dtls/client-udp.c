@@ -59,11 +59,7 @@ void DatagramClient (FILE* clientInput, int sockfd,
              printf("Error in receiving");
         }
 
-<<<<<<< HEAD
         recvLine[n] = '\0';
-=======
-        recvLine[n] = 0;
->>>>>>> b7eaf19a63cf004c83d2e63e161fba9da02afa16
         fputs(recvLine, stdout);
     }
 }
@@ -83,11 +79,8 @@ int main(int argc, char** argv)
        printf("cannot create a socket.");
        return 1;
     }
-<<<<<<< HEAD
-=======
-
+  
     memset(&servAddr, 0, sizeof(servAddr));
->>>>>>> b7eaf19a63cf004c83d2e63e161fba9da02afa16
 
     servAddr.sin_family = AF_INET;
     servAddr.sin_port = htons(SERV_PORT);

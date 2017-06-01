@@ -48,7 +48,7 @@ void DatagramClient (WOLFSSL* ssl)
     while (fgets(sendLine, MAXLINE, stdin) != NULL) {
 
        if ( ( wolfSSL_write(ssl, sendLine, strlen(sendLine))) !=
-	      strlen(sendLine)) {
+          strlen(sendLine)) {
             printf("SSL_write failed");
         }
 
