@@ -1,4 +1,4 @@
-/* client-tls.c
+/* client-tls-resume.c
  *
  * Copyright (C) 2006-2015 wolfSSL Inc.
  *
