@@ -31,6 +31,7 @@
 #include <unistd.h>
 
 
+
 #define DEFAULT_PORT 11111
 
 int main(int argc, char** argv)
@@ -41,11 +42,13 @@ int main(int argc, char** argv)
     size_t             len;
 
 
+
     /* Check for proper calling convention */
     if (argc != 2) {
         printf("usage: %s <IPv4 address>\n", argv[0]);
         return 0;
     }
+
 
 
     /* Create a socket that uses an internet IPv4 address,
@@ -55,6 +58,7 @@ int main(int argc, char** argv)
         fprintf(stderr, "ERROR: failed to create the socket\n");
         return -1;
     }
+
 
 
     /* Initialize the server address struct with zeros */
@@ -71,11 +75,14 @@ int main(int argc, char** argv)
     }
 
 
+
     /* Connect to the server */
-    if (connect(sockfd, (struct sockaddr*) &servAddr, sizeof(servAddr)) < 0) {
+    if (connect(sockfd, (struct sockaddr*) &servAddr, sizeof(servAddr))
+        == -1) {
         fprintf(stderr, "ERROR: failed to connect\n");
         return -1;
     }
+
 
 
     /* Get a message for the server from stdin */
@@ -91,6 +98,7 @@ int main(int argc, char** argv)
     }
 
 
+
     /* Read the server data into our buff array */
     memset(buff, 0, sizeof(buff));
     if (read(sockfd, buff, sizeof(buff)-1) < 0) {
@@ -102,7 +110,8 @@ int main(int argc, char** argv)
     printf("Server: %s\n", buff);
 
 
+
     /* Cleanup and return */
-    close(sockfd);         /* Close the connection to the server     */
-    return 0;              /* Return reporting a success             */
+    close(sockfd);          /* Close the connection to the server       */
+    return 0;               /* Return reporting a success               */
 }

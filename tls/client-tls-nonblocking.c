@@ -23,7 +23,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <errno.h>
 
 /* socket includes */
 #include <sys/socket.h>
@@ -33,6 +32,7 @@
 
 /* wolfSSL */
 #include <wolfssl/ssl.h>
+
 
 
 #define DEFAULT_PORT 11111
@@ -51,6 +51,7 @@ int main(int argc, char** argv)
     WOLFSSL*     ssl;
 
 
+
     /* Check for proper calling convention */
     if (argc != 2) {
         printf("usage: %s <IPv4 address>\n", argv[0]);
@@ -58,8 +59,10 @@ int main(int argc, char** argv)
     }
 
 
+
     /* Initialize wolfSSL */
     wolfSSL_Init();
+
 
 
     /* Create a socket that uses an internet IPv4 address,
@@ -72,7 +75,7 @@ int main(int argc, char** argv)
 
     /* Set the socket options to use nonblocking I/O */
     if (fcntl(sockfd, F_SETFL, O_NONBLOCK) == -1) {
-        fprintf(stderr, "ERROR: failed to set socket options\n");
+        fprintf(stderr, "ERROR: failed to set non-blocking\n");
         return -1;
     }
 
@@ -92,6 +95,7 @@ int main(int argc, char** argv)
     }
 
 
+
     /* Initialize the server address struct with zeros */
     memset(&servAddr, 0, sizeof(servAddr));
 
@@ -106,10 +110,13 @@ int main(int argc, char** argv)
     }
 
 
+
     /* Connect to the server */
-    while (connect(sockfd, (struct sockaddr*) &servAddr, sizeof(servAddr)) < 0) {
+    while (connect(sockfd, (struct sockaddr*) &servAddr, sizeof(servAddr))
+           == -1) {
         /* just keep looping until a connection is made */
     }
+
 
 
     /* Create a WOLFSSL object */
@@ -124,12 +131,20 @@ int main(int argc, char** argv)
     /* make wolfSSL object nonblocking */
     wolfSSL_set_using_nonblock(ssl, 1);
 
-    /* Wait until a connection is made */
-    printf("Waiting for connection...\n");
-    do {
-        wolfSSL_connect(ssl);
-    } while (wolfSSL_want_read(ssl));
-    printf("Connection made\n");
+    /* Connect to wolfSSL on the server side */
+    while (wolfSSL_connect(ssl) != SSL_SUCCESS) {
+        if (wolfSSL_want_read(ssl)) {
+            /* no error, just non-blocking. Carry on. */
+            printf("Waiting for connection...\n");
+
+            sleep(1); /* cut down on spam */
+
+            continue;
+        }
+        fprintf(stderr, "ERROR: failed to connect to wolfSSL\n");
+        return -1;
+    }
+
 
 
     /* Get a message for the server from stdin */
@@ -140,9 +155,14 @@ int main(int argc, char** argv)
 
     /* Send the message to the server */
     while (wolfSSL_write(ssl, buff, len) != len) {
+        if (wolfSSL_want_write(ssl)) {
+            /* no error, just non-blocking. Carry on. */
+            continue;
+        }
         fprintf(stderr, "ERROR: failed to write\n");
         return -1;
     }
+
 
 
     /* Read the server data into our buff array */
@@ -160,9 +180,11 @@ int main(int argc, char** argv)
     printf("Server: %s\n", buff);
 
 
+
     /* Cleanup and return */
-    wolfSSL_free(ssl);     /* Free the wolfSSL object                */
-    wolfSSL_CTX_free(ctx); /* Free the wolfSSL context object        */
-    wolfSSL_Cleanup();     /* Cleanup the wolfSSL environment        */
-    return 0;              /* Return reporting a success             */
+    wolfSSL_free(ssl);      /* Free the wolfSSL object                  */
+    wolfSSL_CTX_free(ctx);  /* Free the wolfSSL context object          */
+    wolfSSL_Cleanup();      /* Cleanup the wolfSSL environment          */
+    close(sockfd);          /* Close the connection to the server       */
+    return 0;               /* Return reporting a success               */
 }

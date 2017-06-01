@@ -34,6 +34,7 @@
 #include <wolfssl/ssl.h>
 
 
+
 #define DEFAULT_PORT 11111
 
 #define CERT_FILE "../certs/server-cert.pem"
@@ -49,14 +50,17 @@ int main()
     socklen_t          size = sizeof(clientAddr);
     char               buff[256];
     size_t             len;
+    int                shutdown = 0;
 
     /* declare wolfSSL objects */
     WOLFSSL_CTX* ctx;
     WOLFSSL*     ssl;
 
 
+
     /* Initialize wolfSSL */
     wolfSSL_Init();
+
 
 
     /* Create a socket that uses an internet IPv4 address,
@@ -66,6 +70,7 @@ int main()
         fprintf(stderr, "ERROR: failed to create the socket\n");
         return -1;
     }
+
 
 
     /* Create and initialize WOLFSSL_CTX */
@@ -98,6 +103,7 @@ int main()
     }
 
 
+
     /* Initialize the server address struct with zeros */
     memset(&servAddr, 0, sizeof(servAddr));
 
@@ -107,12 +113,12 @@ int main()
     servAddr.sin_addr.s_addr = INADDR_ANY;          /* from anywhere   */
 
 
+
     /* Bind the server socket to our port */
     if (bind(sockfd, (struct sockaddr*)&servAddr, sizeof(servAddr)) < 0) {
         fprintf(stderr, "ERROR: failed to bind\n");
         return -1;
     }
-
 
     /* Listen for a new connection, allow 5 pending connections */
     if (listen(sockfd, 5) == -1) {
@@ -121,54 +127,71 @@ int main()
     }
 
 
-    printf("Waiting for a connection...\n");
 
-    /* Accept client connections */
-    if ((connd = accept(sockfd, (struct sockaddr*)&clientAddr, &size)) == -1) {
-        fprintf(stderr, "ERROR: failed to accept the connection\n\n");
-        return -1;
-    }
+    /* Continue to accept clients until shutdown is issued */
+    while (!shutdown) {
+        printf("Waiting for a connection...\n");
 
+        /* Accept client connections */
+        if ((connd = accept(sockfd, (struct sockaddr*)&clientAddr, &size))
+            == -1) {
+            fprintf(stderr, "ERROR: failed to accept the connection\n\n");
+            return -1;
+        }
 
-    /* Create a WOLFSSL object */
-    if ((ssl = wolfSSL_new(ctx)) == NULL) {
-        fprintf(stderr, "ERROR: failed to create WOLFSSL object\n");
-        return -1;
-    }
+        /* Create a WOLFSSL object */
+        if ((ssl = wolfSSL_new(ctx)) == NULL) {
+            fprintf(stderr, "ERROR: failed to create WOLFSSL object\n");
+            return -1;
+        }
 
+        /* Attach wolfSSL to the socket */
+        wolfSSL_set_fd(ssl, connd);
 
-    /* Attach wolfSSL to the socket */
-    wolfSSL_set_fd(ssl, connd);
-
-
-    printf("Client connected successfully\n");
-
-    /* Read the client data into our buff array */
-    memset(buff, 0, sizeof(buff));
-    if (wolfSSL_read(ssl, buff, sizeof(buff)-1) < 0) {
-        fprintf(stderr, "ERROR: failed to read\n");
-        return -1;
-    }
-
-    /* Print to stdout any data the client sends */
-    printf("Client: %s\n", buff);
+        printf("Client connected successfully\n");
 
 
-    /* Write our reply into buff */
-    memset(buff, 0, sizeof(buff));
-    memcpy(buff, "I hear ya fa shizzle!\n", sizeof(buff));
-    len = strnlen(buff, sizeof(buff));
 
-    /* Reply back to the client */
-    if (wolfSSL_write(ssl, buff, len) != len) {
-        fprintf(stderr, "ERROR: failed to write\n");
-        return -1;
+        /* Read the client data into our buff array */
+        memset(buff, 0, sizeof(buff));
+        if (wolfSSL_read(ssl, buff, sizeof(buff)-1) < 0) {
+            fprintf(stderr, "ERROR: failed to read\n");
+            return -1;
+        }
+
+        /* Print to stdout any data the client sends */
+        printf("Client: %s\n", buff);
+
+        /* Check for server shutdown command */
+        if (strncmp(buff, "shutdown", 8) == 0) {
+            printf("Shutdown command issued!\n");
+            shutdown = 1;
+        }
+
+
+
+        /* Write our reply into buff */
+        memset(buff, 0, sizeof(buff));
+        memcpy(buff, "I hear ya fa shizzle!\n", sizeof(buff));
+        len = strnlen(buff, sizeof(buff));
+
+        /* Reply back to the client */
+        if (wolfSSL_write(ssl, buff, len) != len) {
+            fprintf(stderr, "ERROR: failed to write\n");
+            return -1;
+        }
+
+
+
+        /* Cleanup after this connection */
+        wolfSSL_free(ssl);      /* Free the wolfSSL object              */
+        close(connd);           /* Close the connection to the server   */
     }
 
 
     /* Cleanup and return */
-    wolfSSL_free(ssl);     /* Free the wolfSSL object                */
-    wolfSSL_CTX_free(ctx); /* Free the wolfSSL context object        */
-    wolfSSL_Cleanup();     /* Cleanup the wolfSSL environment        */
-    return 0;              /* Return reporting a success             */
+    wolfSSL_CTX_free(ctx);  /* Free the wolfSSL context object          */
+    wolfSSL_Cleanup();      /* Cleanup the wolfSSL environment          */
+    close(sockfd);          /* Close the socket listening for clients   */
+    return 0;               /* Return reporting a success               */
 }

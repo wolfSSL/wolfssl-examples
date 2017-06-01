@@ -34,6 +34,7 @@
 #include <wolfssl/ssl.h>
 
 
+
 #define DEFAULT_PORT 11111
 
 #define CERT_FILE "../certs/ca-cert.pem"
@@ -50,6 +51,7 @@ int main(int argc, char** argv)
     WOLFSSL*     ssl;
 
 
+
     /* Check for proper calling convention */
     if (argc != 2) {
         printf("usage: %s <IPv4 address>\n", argv[0]);
@@ -57,8 +59,10 @@ int main(int argc, char** argv)
     }
 
 
+
     /* Initialize wolfSSL */
     wolfSSL_Init();
+
 
 
     /* Create a socket that uses an internet IPv4 address,
@@ -68,6 +72,7 @@ int main(int argc, char** argv)
         fprintf(stderr, "ERROR: failed to create the socket\n");
         return -1;
     }
+
 
 
     /* Create and initialize WOLFSSL_CTX */
@@ -85,6 +90,7 @@ int main(int argc, char** argv)
     }
 
 
+
     /* Initialize the server address struct with zeros */
     memset(&servAddr, 0, sizeof(servAddr));
 
@@ -99,11 +105,14 @@ int main(int argc, char** argv)
     }
 
 
+
     /* Connect to the server */
-    if (connect(sockfd, (struct sockaddr*) &servAddr, sizeof(servAddr)) < 0) {
+    if (connect(sockfd, (struct sockaddr*) &servAddr, sizeof(servAddr))
+        == -1) {
         fprintf(stderr, "ERROR: failed to connect\n");
         return -1;
     }
+
 
 
     /* Create a WOLFSSL object */
@@ -114,6 +123,13 @@ int main(int argc, char** argv)
 
     /* Attach wolfSSL to the socket */
     wolfSSL_set_fd(ssl, sockfd);
+
+    /* Connect to wolfSSL on the server side */
+    if (wolfSSL_connect(ssl) != SSL_SUCCESS) {
+        fprintf(stderr, "ERROR: failed to connect to wolfSSL\n");
+        return -1;
+    }
+
 
 
     /* Get a message for the server from stdin */
@@ -129,6 +145,7 @@ int main(int argc, char** argv)
     }
 
 
+
     /* Read the server data into our buff array */
     memset(buff, 0, sizeof(buff));
     if (wolfSSL_read(ssl, buff, sizeof(buff)-1) < 0) {
@@ -140,9 +157,11 @@ int main(int argc, char** argv)
     printf("Server: %s\n", buff);
 
 
+
     /* Cleanup and return */
-    wolfSSL_free(ssl);     /* Free the wolfSSL object                */
-    wolfSSL_CTX_free(ctx); /* Free the wolfSSL context object        */
-    wolfSSL_Cleanup();     /* Cleanup the wolfSSL environment        */
-    return 0;              /* Return reporting a success             */
+    wolfSSL_free(ssl);      /* Free the wolfSSL object                  */
+    wolfSSL_CTX_free(ctx);  /* Free the wolfSSL context object          */
+    wolfSSL_Cleanup();      /* Cleanup the wolfSSL environment          */
+    close(sockfd);          /* Close the connection to the server       */
+    return 0;               /* Return reporting a success               */
 }

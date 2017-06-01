@@ -42,6 +42,7 @@ int main()
     socklen_t          size = sizeof(clientAddr);
     char               buff[256];
     size_t             len;
+    int                shutdown = 0;
 
 
 
@@ -63,12 +64,12 @@ int main()
     servAddr.sin_addr.s_addr = INADDR_ANY;          /* from anywhere   */
 
 
+
     /* Bind the server socket to our port */
     if (bind(sockfd, (struct sockaddr*)&servAddr, sizeof(servAddr)) < 0) {
         fprintf(stderr, "ERROR: failed to bind\n");
         return -1;
     }
-
 
     /* Listen for a new connection, allow 5 pending connections */
     if (listen(sockfd, 5) == -1) {
@@ -77,42 +78,59 @@ int main()
     }
 
 
-    printf("Waiting for a connection...\n");
 
-    /* Accept client connections */
-    if ((connd = accept(sockfd, (struct sockaddr*)&clientAddr, &size)) == -1) {
-        fprintf(stderr, "ERROR: failed to accept the connection\n\n");
-        return -1;
-    }
+    /* Continue to accept clients until shutdown is issued */
+    while (!shutdown) {
+        printf("Waiting for a connection...\n");
 
+        /* Accept client connections */
+        if ((connd = accept(sockfd, (struct sockaddr*)&clientAddr, &size))
+            == -1) {
+            fprintf(stderr, "ERROR: failed to accept the connection\n\n");
+            return -1;
+        }
 
-    printf("Client connected successfully\n");
-
-    /* Read the client data into our buff array */
-    memset(buff, 0, sizeof(buff));
-    if (read(connd, buff, sizeof(buff)-1) < 0) {
-        fprintf(stderr, "ERROR: failed to read\n");
-        return -1;
-    }
-
-    /* Print to stdout any data the client sends */
-    printf("Client: %s\n", buff);
+        printf("Client connected successfully\n");
 
 
-    /* Write our reply into buff */
-    memset(buff, 0, sizeof(buff));
-    memcpy(buff, "I hear ya fa shizzle!\n", sizeof(buff));
-    len = strnlen(buff, sizeof(buff));
 
-    /* Reply back to the client */
-    if (write(connd, buff, len) != len) {
-        fprintf(stderr, "ERROR: failed to write\n");
-        return -1;
+        /* Read the client data into our buff array */
+        memset(buff, 0, sizeof(buff));
+        if (read(connd, buff, sizeof(buff)-1) < 0) {
+            fprintf(stderr, "ERROR: failed to read\n");
+            return -1;
+        }
+
+        /* Print to stdout any data the client sends */
+        printf("Client: %s\n", buff);
+
+        /* Check for server shutdown command */
+        if (strncmp(buff, "shutdown", 8) == 0) {
+            printf("Shutdown command issued!\n");
+            shutdown = 1;
+        }
+
+
+
+        /* Write our reply into buff */
+        memset(buff, 0, sizeof(buff));
+        memcpy(buff, "I hear ya fa shizzle!\n", sizeof(buff));
+        len = strnlen(buff, sizeof(buff));
+
+        /* Reply back to the client */
+        if (write(connd, buff, len) != len) {
+            fprintf(stderr, "ERROR: failed to write\n");
+            return -1;
+        }
+
+
+
+        /* Cleanup after this connection */
+        close(connd);           /* Close the connection to the server   */
     }
 
 
     /* Cleanup and return */
-    close(connd);          /* Close the connection to the client     */
-    close(sockfd);         /* Close the socket listening for clients */
-    return 0;              /* Return reporting a success             */
+    close(sockfd);          /* Close the socket listening for clients   */
+    return 0;               /* Return reporting a success               */
 }
