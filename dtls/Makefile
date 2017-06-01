@@ -1,4 +1,4 @@
-CC=clang
+CC=gcc
 CFLAGS=-DWOLFSSL_DTLS
 LIBS=-lwolfssl -lpthread
 
