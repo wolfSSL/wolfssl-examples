@@ -157,7 +157,7 @@ int main()
     /* Read the client data into our buff array */
     memset(buff, 0, sizeof(buff));
     while (wolfSSL_read(ssl, buff, sizeof(buff)-1) < 0) {
-        if (wolfSSL_get_error(ssl, -1) == SSL_ERROR_WANT_READ) {
+        if (wolfSSL_want_read(ssl)) {
             /* no error, just non-blocking. Carry on. */
             continue;
         }
@@ -176,7 +176,7 @@ int main()
 
     /* Reply back to the client */
     while (wolfSSL_write(ssl, buff, len) != len) {
-        if (wolfSSL_get_error(ssl, -1) == SSL_ERROR_WANT_WRITE) {
+        if (wolfSSL_want_write(ssl)) {
             /* no error, just non-blocking. Carry on. */
             continue;
         }
