@@ -42,6 +42,31 @@
   - 2.2.5. Write/Read
   - 2.2.6. Shutdown, Free, Cleanup
   - 2.2.7. Adjust Makefile
+- Chapter 3: Multithreading a DTLS Server with POSIX Threads
+  - 3.1.1. Elements Required for Thread Managment
+  - 3.1.1.1. threadArgs Struct
+  - 3.1.1.2. Thread Creation and Deletion
+  - 3.1.1.3. ThreadHandler Method
+    - 3.1.1.3.1. pthread_detach
+    - 3.1.1.3.2. Instance Variables
+    - 3.1.1.3.3. memcpy
+    - 3.1.1.3.4. 'ssl' Object Creation
+    - 3.1.1.3.5. wolfSSL_accept, wolfSSL_read, wolfSSL_write, etc.
+     - 3.1.1.3.6. Thread Memory Cleanup
+    - 3.1.2. Review
+- Chapter 4: Session Resumpton with DTLS
+  - 4.1.1. Storage of the Previous Session Information
+  - 4.1.2. Memory Cleanup and Management
+  - 4.1.3. Reconnect with Old Session Data
+  - 4.1.4. Cleanup
+- Chapter 5: Convert Server and Client to Nonblocking
+  - 5.1.1. A Note About Functions
+  - 5.1.2. Add New Headers to Top of File
+  - 5.1.3. Add Enum Variables for Testing Functions
+  - 5.1.4. Add a DTLS Selection Function
+  - 5.1.5. Nonblocking DTLS Connect Function
+  - 5.1.6. Adjust Datagram Client Function
+- References
 ##  CHAPTER 1: A Simple UDP Server & Client
 ###  Section 1: By Kaleb Himes
 ####  1.1.1. Introduction and Description of UDP
@@ -305,7 +330,7 @@ void DatagramClient (FILE* clientInput, WOLFSSL* ssl) {
     fputs(recvLine, stdout);
 }
 ```
-This function can be accomplished within main without creating an additional function. 
+This function can be accomplished within main without creating an additional function.
 
 ##  CHAPTER 2: Layering DTLS onto Simple Server and Client
 ###  Section 1:
@@ -651,22 +676,481 @@ Make calls to `wolfSSL_shutdown()`, `wolfSSL_free()`, `wolfSSL_CTX_free()`, and 
 #### 2.2.7. Adjust Makefile
 Include `-DWOLFSSL_DTLS` before `-o` in your compilation line. This will include the DTLS method you chose.
 
-## Chapter 3: (...to add Alex's sections)
+##  Chapter 3: Multithreading a DTLS Server with POSIX Threads
+### Section 1: by Alex Abrahamson
 
-## Chapter 4: (...to add Alex's sections)
+To make a DTLS server multithreaded, the most effective way to do this would be to use POSIX threads.
 
-## CHAPTER 5:
-Convert Server and Client to non-blocking.
+From Wikipedia's [POSIX Threads page](https://en.wikipedia.org/wiki/POSIX_Threads):
+
+> POSIX Threads ... allows a program to control multiple different flows of work that overlap in time. Each flow of work is referred to as a thread, and creation and control over these flows is achieved by making calls to the POSIX Threads API.
+
+In order to multithread a DTLS server, three things will need to be completed.
+1. Elements required for thread management should be added
+2. Creation of a `ThreadHandler` method
+3. Cleanup
+
+(*a quick note: be sure to have gone over signal handling and have code for signal handling in your main method prior to attempting multithread your server. Information on signal handling can be found in section 11.12 of the* [SSL tutorial](https://wolfssl.com/wolfSSL/Docs-wolfssl-manual-11-ssl-tutorial.html))
+
+#### 3.1.1. Elements Required for Thread Management
+The main elements of thread management using `pthread` are
+
+- Data given to each thread created (usually in the form of a struct)
+- Thread creation and deletion method calls (usually `pthread_create`, `pthread_join`, `pthread_detach`, etc.)
+- A thread ID
+- A ThreadHandler method
+
+The following sections go over each of the items listed above.
+
+#### 3.1.1.1. `threadArgs` struct
+
+The `threadArgs` struct is needed to so that we can simultaneously pass multiple pieces of information to our `pthread` being created. It will allow us to pass in a file descriptor, message, size, and whatever else we can think of - but for now it will just contain those three things. Below is the definition of the `threadArgs` struct.
+##### Figure 3.1
+```c
+typedef struct {
+    int activefd;
+    char b[MSGLEN];
+    int size;
+} threadArgs;
+```
+The actual creation of each `threadArgs*` object will be done at the beginning of each iteration of the while loop located within `AwaitDGram`. Inside of that loop, we will create the object, and also dynamically allocate it with `malloc` so that it is accessible to the thread and us from anywhere.
+##### Figure 3.2
+```c
+while (cleanup != 1) {
+	threadArgs* args;
+    args = (threadArgs *) malloc(sizeof(threadArgs));
+      .
+      .
+      .
+}
+```
+
+#### 3.1.1.2. Thread Creation and Deletion
+After a client has connected to the server, we need to create a thread and "spin" it to handle receiving and sending messages (spinning a thread is just spinning it off of the current process and giving it a method to take care of itself). For thread creation, there are two things to do - create a thread ID, and call `pthread_create`.
+
+From the man page of `pthread_create`,
+```
+NAME
+       pthread_create - create a new thread
+
+SYNOPSIS
+       # include <pthread.h>
+
+       int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
+                          void *(*start_routine) (void *), void *arg);
+```
+
+When we call `pthread_create`, it should be done like this:
+```c
+if (cleanup != 1) {
+    pthread_t threadid;
+    pthread_create(&threadid, NULL, ThreadHandler, args);
+}
+```
+*note `ThreadHandler` being passed as the 3rd argument - this is a method we will define*
+
+To control what the thread does when it is deleted/its resources are freed, we will have to define a `ThreadHandler` method.
+
+#### 3.1.1.3. `ThreadHandler` Method
+
+When writing a method to handle thread execution, imagine that every thread is its own server being executed, and that the thread handler method is the `main` method of each of these servers. But it isn't entirely the same as a main method - it takes a void pointer as input, and requires some special features to keep itself in check. A common and simple outline of what a `ThreadHandler` should include is listed below.
+
+1. A `pthread_detach( pthread_self() )` call
+2. Instance variables (file descriptors, message length, reply, `WOLFSSL*` object)
+3. A `memcpy` call
+4. `ssl` object creation
+5. `wolfSSL_accept`, `wolfSSL_read` and `wolfSSL_write` calls with error checking for all three
+6. Memory cleanup (`wolfSSL_shutdown`, `wolfSSL_free`, etc.)
+
+As we go over items **1** through **6**, we'll continue adding meat to our `ThreadHandler` method.
+
+Each commented section will be filled in as each of the following sections is completed.
+
+####  3.1.1.3.1. `pthread_detach`
+Calling `pthread_detach` should be the very first thing done within the method - it specifies that when the thread terminates, its resources will be released. The parameter passed to `pthread_detach` should be the thread itself.
+
+Our `ThreadHandler` code now looks like this:
+
+```c
+void* ThreadHandler(void *input)
+{
+	/* pthread_detach call */
+    pthread_detach( pthread_self() );
+
+    /* Instance variables */
+
+    /* memcpy call */
+
+    /* miscellaneous standard server calls */
+
+    /* Thread memory cleanup */
+}
+```
+
+####  3.1.1.3.2. Instance variables
+In total, there are 7 local variables used inside of `ThreadHandler`. They are all listed below with a brief description of their purposes.
+```c
+threadArgs*     args = (threadArgs*) input;
+int 		    recvLen = 0;			    /* Length of message received */
+int 		    activefd = args->activefd;	/* active file descriptor */
+int 		    msgLen = args->size;		/* Length of message */
+unsigned char 	buff[msgLen];			    /* Incoming message from client */
+char 		    back[] = "MESSAGE RECEIVED"	/* Message sent to client */
+WOLFSSL* 	    ssl;				        /* SSL object */
+```
+
+Putting these variables into our code gives us a new `ThreadHandler` method:
+
+```c
+void* ThreadHandler(void *input)
+{
+	/* pthread_detach call */
+    pthread_detach( pthread_self() );
+
+    /* Instance variables */
+    threadArgs*     args = (threadArgs*) input;
+    int 		    recvLen = 0;			    /* Length of message received */
+    int 		    activefd = args->activefd;	/* active file descriptor */
+    int 		    msgLen = args->size;		/* Length of message */
+    unsigned char 	buff[msgLen];			    /* Incoming message from client */
+    char 		    back[] = "MESSAGE RECEIVED"	/* Message sent to client */
+    WOLFSSL* 	    ssl;				        /* SSL object */
+
+    /* memcpy call */
+
+    /* miscellaneous standard server calls */
+
+    /* Thread memory cleanup */
+}
+```
+####  3.1.1.3.3. `memcpy`
+Calling `memcpy` allows the user to clear out the previous data located in `args->b`. The method should be called like the example is below.
+```c
+memcpy(buff, args->b, msgLen);
+```
+
+Putting this call into our code gives this `ThreadHandler` method:
+```c
+void* ThreadHandler(void *input)
+{
+	/* pthread_detach call */
+    pthread_detach( pthread_self() );
+
+    /* Instance variables */
+    threadArgs*     args = (threadArgs*) input;
+    int 		    recvLen = 0;			    /* Length of message received */
+    int 		    activefd = args->activefd;	/* active file descriptor */
+    int 		    msgLen = args->size;		/* Length of message */
+    unsigned char 	buff[msgLen];			    /* Incoming message from client */
+    char 		    back[] = "MESSAGE RECEIVED"	/* Message sent to client */
+    WOLFSSL* 	    ssl;				        /* SSL object */
+
+    /* memcpy call */
+    memcpy(buff, args->b, msgLen);
+
+    /* miscellaneous standard server calls */
+
+    /* Thread memory cleanup */
+}
+```
+
+####  3.1.1.3.4. 'ssl' Object Creation
+There shouldn't be anything special about the creation of the `ssl` object. It should be identical to a normal creation, but should be assigned inside of `ThreadHandler`. The purpose of creating a `WOLFSSL` object in `ThreadHandler` is that each thread will maintain a DTLS connection to a client.
+
+```c
+void* ThreadHandler(void *input)
+{
+	/* pthread_detach call */
+    pthread_detach( pthread_self() );
+
+    /* Instance variables */
+    threadArgs*     args = (threadArgs*) input;
+    int 		    recvLen = 0;			    /* Length of message received */
+    int 		    activefd = args->activefd;	/* active file descriptor */
+    int 		    msgLen = args->size;		/* Length of message */
+    unsigned char 	buff[msgLen];			    /* Incoming message from client */
+    char 		    back[] = "MESSAGE RECEIVED"	/* Message sent to client */
+    WOLFSSL* 	    ssl;				        /* SSL object */
+
+    /* memcpy call */
+    memcpy(buff, args->b, msgLen);
+
+    /* miscellaneous standard server calls */
+
+    /* Create the WOLFSSL Object */
+    if ((ssl = wolfSSL_new(ctx)) == NULL) {
+        printf("wolfSSL_new error.\n");
+        cleanup = 1;
+        return NULL;
+    }
+
+    /* Thread memory cleanup */
+}
+```
+#### 3.1.1.3.5.`wolfSSL_accept`, `wolfSSL_read`, `wolfSSL_write`, etc.
+For the same reason that each thread will create a `WOLFSSL` object, each thread will also make calls to `wolfSSL_accept`, `wolfSSL_read`, and `wolfSSL_write`. The calls should be almost identical to the regular calls inside of `server-dtls.c`, but with minor changes.
+
+*Important: don't forget to set the file descriptor as well*
+
+- `continue` keywords should be changed to `return NULL`, as `ThreadHandler` does not loop
+- If `wolfSSL_write` returns a negative number in `ThreadHandler`, there should be a `return NULL` instead of `return 1` (`ThreadHandler` is invoked differently from `AwaitDGram`.
+
+ After making these changes and adding them to `ThreadHandler`, it now looks like this:
+
+```c
+void* ThreadHandler(void *input)
+{
+	/* pthread_detach call */
+    pthread_detach( pthread_self() );
+
+    /* Instance variables */
+    threadArgs*     args = (threadArgs*) input;
+    int 		    recvLen = 0;			    /* Length of message received */
+    int 		    activefd = args->activefd;	/* active file descriptor */
+    int 		    msgLen = args->size;		/* Length of message */
+    unsigned char 	buff[msgLen];			    /* Incoming message from client */
+    char 		    back[] = "MESSAGE RECEIVED"	/* Message sent to client */
+    WOLFSSL* 	    ssl;				        /* SSL object */
+
+    /* memcpy call */
+    memcpy(buff, args->b, msgLen);
+
+    /* miscellaneous standard server calls */
+
+    /* Create the WOLFSSL Object */
+    if ((ssl = wolfSSL_new(ctx)) == NULL) {
+        printf("wolfSSL_new error.\n");
+        cleanup = 1;
+        return NULL;
+    }
+
+    wolfSSL_set_fd(ssl, activefd);
+
+    /* Attempt to accept connection */
+    if (wolfSSL_accept(ssl) != SSL_SUCCESS) {
+
+        int e = wolfSSL_get_error(ssl, 0);
+
+        printf("error = %d, %s\n", e, wolfSSL_ERR_reason_error_string(e));
+        printf("SSL_accept failed.\n");
+        return NULL;
+    }
+    /* Attempt to read a message from the client, check for errors twice */
+    if ((recvLen = wolfSSL_read(ssl, buff, msgLen-1)) > 0) {
+        printf("heard %d bytes\n", recvLen);
+
+        buff[recvLen] = 0;
+        printf("I heard this: \"%s\"\n", buff);
+    }
+    else if (recvLen < 0) {
+        int readErr = wolfSSL_get_error(ssl, 0);
+        if(readErr != SSL_ERROR_WANT_READ) {
+            printf("SSL_read failed.\n");
+            cleanup = 1;
+            return NULL;
+        }
+    }
+    /* Send reply to the client */
+    if (wolfSSL_write(ssl, ack, sizeof(ack)) < 0) {
+        printf("wolfSSL_write fail.\n");
+        cleanup = 1;
+        return NULL;
+    }
+    else {
+        printf("Sending reply.\n");
+    }
+
+    printf("reply sent \"%s\"\n", ack);
+
+    /* Thread memory cleanup */
+}
+```
+
+##### 3.1.1.3.6. Thread Memory Cleanup
+To clean up the mess left behind when the client and server are finished with their business, we'll need to free/close the objects created at the beginning of the `ThreadHandler` method, and call a few subtle thread memory management calls. Below is a list of items that need to be freed, and our finished `ThreadHandler` code is immediately following.
+
+- `ssl`
+- `activefd`
+- `input`
+- The current thread
+
+```c
+void* ThreadHandler(void *input)
+{
+	/* pthread_detach call */
+    pthread_detach( pthread_self() );
+
+    /* Instance variables */
+    threadArgs*     args = (threadArgs*) input;
+    int 		    recvLen = 0;			    /* Length of message received */
+    int 		    activefd = args->activefd;	/* active file descriptor */
+    int 		    msgLen = args->size;		/* Length of message */
+    unsigned char 	buff[msgLen];			    /* Incoming message from client */
+    char 		    back[] = "MESSAGE RECEIVED"	/* Message sent to client */
+    WOLFSSL* 	    ssl;				        /* SSL object */
+
+    /* memcpy call */
+    memcpy(buff, args->b, msgLen);
+
+    /* miscellaneous standard server calls */
+
+    /* Create the WOLFSSL Object */
+    if ((ssl = wolfSSL_new(ctx)) == NULL) {
+        printf("wolfSSL_new error.\n");
+        cleanup = 1;
+        return NULL;
+    }
+
+    wolfSSL_set_fd(ssl, activefd);
+
+    /* Attempt to accept connection */
+    if (wolfSSL_accept(ssl) != SSL_SUCCESS) {
+
+        int e = wolfSSL_get_error(ssl, 0);
+
+        printf("error = %d, %s\n", e, wolfSSL_ERR_reason_error_string(e));
+        printf("SSL_accept failed.\n");
+        return NULL;
+    }
+    /* Attempt to read a message from the client, check for errors twice */
+    if ((recvLen = wolfSSL_read(ssl, buff, msgLen-1)) > 0) {
+        printf("heard %d bytes\n", recvLen);
+
+        buff[recvLen] = 0;
+        printf("I heard this: \"%s\"\n", buff);
+    }
+    else if (recvLen < 0) {
+        int readErr = wolfSSL_get_error(ssl, 0);
+        if(readErr != SSL_ERROR_WANT_READ) {
+            printf("SSL_read failed.\n");
+            cleanup = 1;
+            return NULL;
+        }
+    }
+    /* Send reply to the client */
+    if (wolfSSL_write(ssl, ack, sizeof(ack)) < 0) {
+        printf("wolfSSL_write fail.\n");
+        cleanup = 1;
+        return NULL;
+    }
+    else {
+        printf("Sending reply.\n");
+    }
+
+    printf("reply sent \"%s\"\n", ack);
+
+    printf("Client left, return to idle state.\n"
+           "Cleaning up & exiting thread.\n");
+
+    /* Thread memory cleanup */
+    wolfSSL_shutdown(ssl);  /* cleans up the ssl object */
+    wolfSSL_free(ssl);
+    close(activefd);        /* closes activefd (who'd have thought?) */
+    free(input);            /* cleans up the input object */
+    pthread_exit(input);    /* terminates the thread that it is called in */
+}
+```
+And that's it - that is all that is required to create a multithreaded DTLS server.
+
+#### 3.1.2. Review
+
+There were several things added to a DTLS server to enable threading. Below is a concise list of all that was added and done to make a threaded DTLS server.
+- Defined `threadArgs` struct with data about the current client and session
+- Calling `pthread_create` and passing in client/session data with a defined `ThreadHandler` method.
+- A method (ours was called `ThreadHandler`) to tell the threads how to behave
+    - `ThreadHandler` used its own `WOLFSSL` objects and terminated itself at the end of the method
+
+##  Chapter 4: Session Resumption with DTLS
+### Section 1: by Alex Abrahamson
+
+In the event that a connection between a client and a server is lost, it can be useful to resume with the previous session data. To implement this, all the work can be done on the client's side, since the client will be the one with direct access to their session info before a disconnect.
+
+To utilize session resumption, 4 things have to be completed.
+
+1. Storage of the previous session with a new WOLFSSL* object created with the same method call as the previous WOLFSSL* object
+2. Memory cleanup and management of the previously interrupted session
+3. Reconnect with the old session data
+4. Cleanup
+
+(*a quick note: to allow for infinite session resumptions, simply perform these actions inside of a loop.*)
+
+#### 4.1.1. Storage of the Previous Session Information
+When keeping track of previous sessions for resumption, the simplest and easiest way to do this is to create new objects and assign the old session data to them. An example of this is shown below.
+
+```c
+session = wolfSSL_get_session(ssl);
+sslResume = wolfSSL_new(ctx);
+```
+
+The two variables above are the most important for session resumption.
+
+- `session` is an object of type `WOLFSSL_SESSION*`
+- `sslResume` is an object of type `WOLFSSL*`
+
+###  4.1.2. Memory Cleanup and Management
+Now it's time to clean up and clear out all the old objects. To clean up the memory, this can be done in standard fashion with calls to the functions `wolfSSL_shutdown` and `wolfSSL_free` - and don't forget to call `close` on the socket file descriptor.
+
+ An example of this is shown below.
+
+```c
+wolfSSL_shutdown(ssl);
+wolfSSL_free(ssl);
+close(sockfd);
+```
+
+In addition, it is important to clear the memory holding the server address and reassign it. An example of this is shown below.
+
+```c
+memset(&servAddr, 0, sizeof(servAddr));
+servAddr.sin_family = AF_INET;
+servAddr.sin_port = htons(SERV_PORT);
+if ( (inet_pton(AF_INET, host, &servAddr.sin_addr)) < 1) {
+    printf("Error and/or invalid IP address");
+    return 1;
+}
+```
+
+###  4.1.3. Reconnect with Old Session Data
+The reconnection is nearly identical to the way that a client will connect to a server the first time. There are calls to `wolfSSL_dtls_set_peer`, `socket`, `wolfSSL_set_fd`, and so on, but there are also calls to other methods.
+
+All  the method calls needed with new variables and the distinct new method calls are listed below in the order that they need to be called.
+
+1. `wolfSSL_dtls_set_peer(sslResume, &servAddr, sizeof(servAddr))`
+ - This method call uses the old session data (`sslResume`) and with the same server addres. It needs to be called after the `memset` call listed in section 2 (**Memory cleanup and management**).
+2. `socket(AF_INET, SOCK_DGRAM, 0)` will need to be in an identical conditional as the prior call to `socket`.
+3. `wolfSSL_set_fd(sslResume, sockfd)`
+ - This method call uses the old session data (`sslResume`) and with the same socket file descriptor.
+4. `wolfSSL_set_session(sslResume, session)`
+ - This is a new method call. On failure, the return value is (you guessed it) an `SSL_FAILURE` code. On success, it will return (you could try out for jeopardy!) an `SSL_SUCCESS` code.
+5. `wolfSSL_connect(sslResume)` will need to be called in an identical conditional as the prior call to `wolfSSL_connect`.
+6. `wolfSSL_session_reused(sslResume)`
+ - This method call returns the `resuming` value from inside the `sslResume` object.
+ - This method call is used with a conditional to tell the user whether or not a session was reused. An example is shown below.
+```c
+if(wolfSSL_session_reused(sslResume)) {
+    printf("Reused session ID\n");
+} else {
+    printf("Did not reuse session ID\n");
+}
+```
+
+###  4.1.4. Cleanup
+There isn't anything special about cleanup with reused sessions. All that needs to be done is to call `wolfSSL_shutdown` and `wolfssl_free` with the `sslResume` object.
+
+Again, if wanted, this can all be isolated inside a loop that will break upon receiving a signal from the user. To find out more about signal handling, visit the wolfSSL [SSL Tutorial](https://wolfssl.com/wolfSSL/Docs-wolfssl-manual-11-ssl-tutorial.html), specifically section 11.12.
+
+## CHAPTER 5: Convert Server and Client to Nonblocking
 ### Section 1:
-Incomplete pending further research.
-
-### Section 2:
-
-#### 2.1. Add new headers to top of file:
+#### 5.1.1. A Note About Functions
+If you compare this tutorial and the functions we discuss implementing to the available completed example code, you will notice these functions are missing from the example code. The functions have been combined into `main()` in order to allow the code to read linearly and be more understandable. For the purposes of this tutorial, you may still add the noted functions to achieve the same functionality. All of the functions are simply hidden within the main function. Most are commented with their original function names when they occur. This tutorial is in the process of being updated to match this more appropriately.
+#### 5.1.2. Add New Headers to Top of File:
+```c
 # include <errno.h>    /* error checking */
 # include <fcntl.h>    /* set file status flags */
+```
 
-#### 2.2. Add enum variables for testing functions - before first function:
+#### 5.1.3. Add Enum Variables for Testing Functions
+Add the following before the first function:
 ```c
 enum {
     TEST_SELECT_FAIL,
@@ -675,14 +1159,13 @@ enum {
     TEST_ERROR_READY
 };
 ```
-#### 2.3. Add a DTLS selection function
-This is similar to the tcp_select() function in wolfSSL. This function will also call
-select():
+#### 5.1.4. Add a DTLS Selection Function
+This is similar to the `tcp_select()` function in wolfSSL. This function will also call `select()`:
+##### Figure 5.1
 ```c
 /* tcp select using dtls nonblocking function*/
 static int dtls_select(int socketfd, int to_sec)
 {
-
     fd_set         recvfds, errfds;
     int            nfds = socketfd +1;
     struct timeval timeout = { (to_sec > 0) ? to_sec : 0, 0};
@@ -707,9 +1190,9 @@ static int dtls_select(int socketfd, int to_sec)
 }
 ```
 
-
-#### 2.4. NonBlocking DTLS connect function:
-This function calls the connect function and checks for various errors within the connection attempts. We placed it before the DatagramClient() function:
+#### 5.1.5. Nonblocking DTLS Connect Function:
+This function calls the connect function and checks for various errors within the connection attempts. We placed it before the `DatagramClient()` function:
+##### Figure 5.2
 ```c
 /*Connect using Nonblocking - DTLS version*/
 static void NonBlockingDTLS_Connect(WOLFSSL* ssl)
@@ -749,8 +1232,10 @@ static void NonBlockingDTLS_Connect(WOLFSSL* ssl)
     }
 ```
 
-#### 2.5.    Adjust Datagram Client Function (could be located within main method).
-Create while loops for wolfSSL_write() and wolfSSL_read() to check for error
+#### 5.1.6. Adjust Datagram Client Function
+Note that this function could be placed within `main()`.
+Create `while` loops for `wolfSSL_write()` and `wolfSSL_read()` to check for errors.
+##### Figure 5.3
 ```c
 void DatagramClient (FILE* clientInput, WOLFSSL* ssl)
 {
@@ -771,12 +1256,11 @@ void DatagramClient (FILE* clientInput, WOLFSSL* ssl)
 
         recvLine[n] = '\0';
         fputs(recvLine, stdout);
-
 }
 ```
 
-REFERENCES:
+#### REFERENCES:
 
 1. Paul Krzyzanowski, “Programming with UDP sockets”, Copyright 2003-2014, PK.ORG
-
 2. The Open Group, “setsockopt - set the socket options”, Copyright © 1997, The Single UNIX ® Specification, Version 2
+3. https://en.wikipedia.org/wiki/POSIX_Threads
