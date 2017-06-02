@@ -107,6 +107,7 @@ int main (int argc, char** argv)
 
 /*****************************************************************************/
 /*                     Non-blocking code for DTLS connect                    */
+
     int ret = wolfSSL_connect(ssl);
     int error = wolfSSL_get_error(ssl, 0);
     int nb_sockfd = (int) wolfSSL_get_fd(ssl);
@@ -131,6 +132,7 @@ int main (int argc, char** argv)
 
 	    currTimeout = wolfSSL_dtls_get_current_timeout(ssl);
 
+        /* Tcp select using dtls nonblocking functionality */
         FD_ZERO(&recvfds);
         FD_SET(nb_sockfd, &recvfds);
         FD_ZERO(&errfds);
@@ -151,6 +153,7 @@ int main (int argc, char** argv)
                 select_ret = TEST_ERROR_READY;
             }
         }
+        /* End "Tcp select ..." code */
 
 	    if ( ( select_ret == TEST_RECV_READY) ||
              ( select_ret == TEST_ERROR_READY)) {
@@ -177,6 +180,7 @@ int main (int argc, char** argv)
     
 /*****************************************************************************/ 
 /*                  Code for sending datagram to server                      */ 
+
     int  n = 0;
     char sendLine[MAXLINE], recvLine[MAXLINE - 1];
 
@@ -199,30 +203,12 @@ int main (int argc, char** argv)
     }
 /*                                                                           */
 /*****************************************************************************/
-    
-    while ( (wolfSSL_write(ssl, srTest, sizeof(srTest))) != sizeof(srTest)) {
-	    printf("failed to write");
-        return 1;
-    }
-
+  
     wolfSSL_shutdown(ssl);
     wolfSSL_free(ssl);
+    
     close(sockfd);
-
-    memset(&servAddr, 0, sizeof(servAddr));
-    servAddr.sin_family = AF_INET;
-    servAddr.sin_port = htons(SERV_PORT);
-    if (inet_pton(AF_INET, host, &servAddr.sin_addr) < 1) {
-        printf("Error and/or invalid IP address");
-        return 1;
-    }
-
-    if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-        printf("cannot create a socket.");
-        return 1;
-    }
-  
-    close(sockfd);
+    
     wolfSSL_CTX_free(ctx);
     wolfSSL_Cleanup();
 
