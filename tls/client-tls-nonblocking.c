@@ -79,7 +79,7 @@ int main(int argc, char** argv)
         return -1;
     }
 
-<<<<<<< HEAD
+
 
     /* Create and initialize WOLFSSL_CTX */
     if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method())) == NULL) {
