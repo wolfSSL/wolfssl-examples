@@ -108,7 +108,7 @@ int main (int argc, char** argv)
 
 /*****************************************************************************/
 /*                  Code for sending datagram to server                      */
-    /* Loop until the user enters ^D or EOF character */
+    /* Loop until the user is finished */
     while (fgets(sendLine, MAXLINE, stdin) != NULL) {
 
         /* Send sendLine to the server */
@@ -121,10 +121,10 @@ int main (int argc, char** argv)
         n = wolfSSL_read(ssl, recvLine, sizeof(recvLine)-1);
 
         if (n < 0) {
-             int readErr = wolfSSL_get_error(ssl, 0);
-	         if (readErr != SSL_ERROR_WANT_READ) {
-		         printf("wolfSSL_read failed");
-             }
+            int readErr = wolfSSL_get_error(ssl, 0);
+            if (readErr != SSL_ERROR_WANT_READ) {
+                printf("wolfSSL_read failed");
+            }
         }
 
         /* Add a terminating character to the generic server message */
