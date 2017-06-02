@@ -36,10 +36,9 @@ file path.
 ## Table of contents
 
 1. [A simple TCP client/server pair](#tcp)
-
-  1. [Server](#server-tcp)
-  2. [Client](#client-tcp)
-  3. [Compile](#compile-tcp)
+    1. [Server](#server-tcp)
+    2. [Client](#client-tcp)
+    3. [Compile](#compile-tcp)
 
 ## <a name="tcp">A simple TCP client/server pair</a>
 
