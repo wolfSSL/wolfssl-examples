@@ -47,18 +47,18 @@ void DatagramClient (WOLFSSL* ssl)
 
     while (fgets(sendLine, MAXLINE, stdin) != NULL) {
 
-       if ( ( wolfSSL_write(ssl, sendLine, strlen(sendLine))) !=
-          strlen(sendLine)) {
+        if ( (wolfSSL_write(ssl, sendLine, strlen(sendLine))) !=
+            strlen(sendLine)) {
             printf("SSL_write failed");
         }
 
-       n = wolfSSL_read(ssl, recvLine, sizeof(recvLine)-1);
+        n = wolfSSL_read(ssl, recvLine, sizeof(recvLine)-1);
 
-       if (n < 0) {
+        if (n < 0) {
             int readErr = wolfSSL_get_error(ssl, 0);
 	        if(readErr != SSL_ERROR_WANT_READ)
-		        printf("wolfSSL_read failed");
-       }
+            printf("wolfSSL_read failed");
+        }
 
         recvLine[n] = '\0';
         fputs(recvLine, stdout);
