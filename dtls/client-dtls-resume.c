@@ -44,6 +44,7 @@ int main (int argc, char** argv)
     /* standard variables used in a dtls client*/
     int                 sockfd = 0;
     int                 err1;
+    int                 readErr;
     struct sockaddr_in  servAddr;
     const char*         host = argv[1];
     WOLFSSL*            ssl = 0;
@@ -126,7 +127,7 @@ int main (int argc, char** argv)
 
         /* Error checking wolfSSL_read */
         if (recvlen < 0) {
-            int readErr = wolfSSL_get_error(ssl, 0);
+            readErr = wolfSSL_get_error(ssl, 0);
             if (readErr != SSL_ERROR_WANT_READ) {
                 printf("Error: wolfSSL_read failed.\n");
             }

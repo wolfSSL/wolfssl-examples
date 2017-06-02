@@ -154,7 +154,7 @@ int main (int argc, char** argv)
         }
         /* End "Tcp select ..." code */
 
-	    if (  select_ret == TEST_RECV_READY ||
+        if (  select_ret == TEST_RECV_READY ||
               select_ret == TEST_ERROR_READY ) {
             ret = wolfSSL_connect(ssl);
 	        error = wolfSSL_get_error(ssl, 0);
