@@ -34,34 +34,15 @@
 #define     SERV_PORT   11111
 
 /*
- * this function will send the inputted string to the server and then 
+ * this function will send the inputted string to the server and then
  * recieve the string from the server outputing it to the termial
- */ 
-int SendReceive(int sockfd)
-{
-    char sendline[MAXLINE]="Hello Server"; /* string to send to the server */
-    char recvline[MAXLINE]; /* string received from the server */
-
-    /* write string to the server */
-    if (write(sockfd, sendline, strlen(sendline)) != sizeof(sendline)) {
-        printf("Write Error to Server\n");
-        return 1;
-    }
-       
-    /* flags if the server stopped before the client could end */     
-    if (read(sockfd, recvline, MAXLINE) == 0) {
-        printf("Client: Server Terminated Prematurely!\n");
-        return 1;
-    }
-
-    printf("Server Message: %s\n", recvline);
-    
-    return 0;
-}
+ */
 
 int main(int argc, char **argv)
 {
-    int sockfd, ret; 
+    int sockfd, ret;
+    char sendline[MAXLINE]="Hello Server"; /* string to send to the server */
+    char recvline[MAXLINE]; /* string received from the server */
     struct sockaddr_in servaddr;
 
     /* must include an ip address or this will flag */
@@ -72,17 +53,17 @@ int main(int argc, char **argv)
 
     /* create a stream socket using tcp,internet protocal IPv4,
      * full-duplex stream */
-    sockfd = socket(AF_INET, SOCK_STREAM, 0); 
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
     /* places n zero-valued bytes in the address servaddr */
     memset(&servaddr, 0, sizeof(servaddr));
 
     servaddr.sin_family = AF_INET;
-    servaddr.sin_port   = htons(SERV_PORT); 
+    servaddr.sin_port   = htons(SERV_PORT);
 
     /* converts IPv4 addresses from text to binary form */
     ret = inet_pton(AF_INET, argv[1], &servaddr.sin_addr);
-    
+
     if (ret != 1) {
         printf("Not a Valid network address");
         return 1;
@@ -90,19 +71,28 @@ int main(int argc, char **argv)
 
     /* attempts to make a connection on a socket */
     ret = connect(sockfd, (struct sockaddr *) &servaddr, sizeof(servaddr));
-    
+
     if (ret != 0) {
         return 1;
     }
-    
+
     /* takes inputting string and outputs it to the server */
-    ret = SendReceive(sockfd);
-    if (ret != 0){
-        printf("Send Recieve Error");
+    /* write string to the server */
+    if (write(sockfd, sendline, strlen(sendline)) != strlen(sendline)) {
+        printf("Write Error to Server\n");
         return 1;
     }
+
+    /* flags if the server stopped before the client could end */
+    if (read(sockfd, recvline, MAXLINE) == 0) {
+        printf("Client: Server Terminated Prematurely!\n");
+        return 1;
+    }
+
+    printf("Server Message: %s\n", recvline);
+
     /* close socket and connection */
     close(sockfd);
-    
+
     return ret;
 }

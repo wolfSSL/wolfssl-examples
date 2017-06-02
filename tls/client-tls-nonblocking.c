@@ -1,4 +1,4 @@
-/* client-tls.c
+/* client-tls-nonblocking.c
  *
  * Copyright (C) 2006-2015 wolfSSL Inc.
  *
@@ -79,6 +79,7 @@ int main(int argc, char** argv)
         return -1;
     }
 
+<<<<<<< HEAD
 
     /* Create and initialize WOLFSSL_CTX */
     if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method())) == NULL) {
@@ -162,20 +163,6 @@ int main(int argc, char** argv)
     }
 
 
-
-    /* Read the server data into our buff array */
-    memset(buff, 0, sizeof(buff));
-    while (wolfSSL_read(ssl, buff, sizeof(buff)-1) == -1) {
-        if (wolfSSL_want_read(ssl)) {
-            /* no error, just non-blocking. Carry on. */
-            continue;
-        }
-        fprintf(stderr, "ERROR: failed to read\n");
-        return -1;
-    }
-
-    /* Print to stdout any data the server sends */
-    printf("Server: %s\n", buff);
 
 
 

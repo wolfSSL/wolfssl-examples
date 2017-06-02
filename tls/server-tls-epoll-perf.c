@@ -54,11 +54,11 @@
 #define OPTIONS          "?p:v:al:c:k:A:n:N:R:W:B:"
 
 /* The default server certificate. */
-#define SVR_CERT	 "../certs/server-cert.pem"
+#define SVR_CERT "../certs/server-cert.pem"
 /* The default server private key. */
-#define SVR_KEY 	 "../certs/server-key.pem"
+#define SVR_KEY  "../certs/server-key.pem"
 /* The default certificate/CA file for the client. */
-#define CLI_CERT	 "../certs/client-cert.pem"
+#define CLI_CERT "../certs/client-cert.pem"
 
 /* The states of the SSL connection. */
 typedef enum SSLState { ACCEPT, READ, WRITE, CLOSED } SSLState;

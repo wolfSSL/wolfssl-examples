@@ -19,10 +19,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
+#include <wolfssl/options.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <termios.h>
-#include <wolfssl/options.h>
 #include <wolfssl/wolfcrypt/des3.h>
 #include <wolfssl/wolfcrypt/sha256.h>
 #include <wolfssl/wolfcrypt/random.h>
@@ -46,7 +46,7 @@ int GenerateKey(RNG* rng, byte* key, int size, byte* salt, int pad)
         salt[0] = 0;            /* message is padded */
 
     /* stretches key */
-    ret = wc_PBKDF2(key, key, strlen((const char*)key), salt, SALT_SIZE, 4096, 
+    ret = wc_PBKDF2(key, key, strlen((const char*)key), salt, SALT_SIZE, 4096,
         size, SHA256);
     if (ret != 0)
         return -1030;
@@ -55,7 +55,7 @@ int GenerateKey(RNG* rng, byte* key, int size, byte* salt, int pad)
 }
 
 /*
- * Encrypts a file using 3DES 
+ * Encrypts a file using 3DES
  */
 int Des3Encrypt(Des3* des3, byte* key, int size, FILE* inFile, FILE* outFile)
 {
@@ -108,7 +108,7 @@ int Des3Encrypt(Des3* des3, byte* key, int size, FILE* inFile, FILE* outFile)
 
     /* stretches key to fit size */
     ret = GenerateKey(&rng, key, size, salt, padCounter);
-    if (ret != 0) 
+    if (ret != 0)
         return -1040;
 
     /* sets key */
@@ -135,12 +135,13 @@ int Des3Encrypt(Des3* des3, byte* key, int size, FILE* inFile, FILE* outFile)
     free(key);
     fclose(inFile);
     fclose(outFile);
+    wc_FreeRng(&rng);
 
     return 0;
 }
 
 /*
- * Decrypts a file using 3DES 
+ * Decrypts a file using 3DES
  */
 int Des3Decrypt(Des3* des3, byte* key, int size, FILE* inFile, FILE* outFile)
 {
@@ -218,6 +219,7 @@ int Des3Decrypt(Des3* des3, byte* key, int size, FILE* inFile, FILE* outFile)
     free(key);
     fclose(inFile);
     fclose(outFile);
+    wc_FreeRng(&rng);
 
     return 0;
 }
