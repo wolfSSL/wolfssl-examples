@@ -35,7 +35,7 @@
 #define SERV_PORT   11111                   /* define our server port number */
 #define MSGLEN      4096                    /* limit incoming message size */
 
-int main (int argc, char** argv)
+int main (void)
 {
     int           sockfd;                   /* Initialize our socket */
     int           recvLen;                  /* number of bytes recieved */

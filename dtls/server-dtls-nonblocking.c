@@ -43,6 +43,8 @@
 
 static int cleanup;                 /* To handle shutdown */
 
+void sig_handler(const int sig);
+
 /* costumes for select_ret to wear */
 enum {
     TEST_SELECT_FAIL,
@@ -50,6 +52,14 @@ enum {
     TEST_RECV_READY,
     TEST_ERROR_READY
 };
+
+/* For handling ^C interrupts passed by the user */
+void sig_handler(const int sig)
+{
+    printf("\nSIGINT %d handled\n", sig);
+    cleanup = 1;
+    return;
+}
 
 int main(int argc, char** argv)
 {
@@ -87,6 +97,13 @@ int main(int argc, char** argv)
     unsigned char b[MSGLEN];
     struct        sockaddr_in cliAddr;
     socklen_t     clilen;
+
+    /* Code for handling signals */
+    struct sigaction act, oact;
+    act.sa_handler = sig_handler;
+    sigemptyset(&act.sa_mask);
+    act.sa_flags = 0;
+    sigaction(SIGINT, &act, &oact);
 
     /* "./config --enable-debug" and uncomment next line for debugging */
     /* wolfSSL_Debugging_ON(); */

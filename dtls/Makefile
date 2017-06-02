@@ -31,7 +31,6 @@ server-dtls-nonblocking: server-dtls-nonblocking.o
 server-dtls-threaded: server-dtls-threaded.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
-
 .PHONY: clean all
 
 clean:
