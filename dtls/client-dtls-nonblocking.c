@@ -188,10 +188,10 @@ int main (int argc, char** argv)
         }
 
         while ( (n = wolfSSL_read(ssl, recvLine, sizeof(recvLine)-1)) <= 0) {
-	            int readErr = wolfSSL_get_error(ssl, 0);
-	            if(readErr != SSL_ERROR_WANT_READ) {
-	                printf("wolfSSL_read failed");
-              }
+            int readErr = wolfSSL_get_error(ssl, 0);
+	        if(readErr != SSL_ERROR_WANT_READ) {
+	            printf("wolfSSL_read failed");
+            }
         }
 
         recvLine[n] = '\0';
