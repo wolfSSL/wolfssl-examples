@@ -41,6 +41,7 @@
 
 int main (int argc, char** argv)
 {
+    /* standard variables used in a dtls client*/
     int             n = 0;
     int             sockfd = 0;
     struct          sockaddr_in servAddr;
