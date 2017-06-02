@@ -67,22 +67,25 @@ void DatagramClient (WOLFSSL* ssl)
 
 int main (int argc, char** argv)
 {
-    int     		sockfd = 0;
-    struct  		sockaddr_in servAddr;
-    const char* 	host = argv[1];
-    WOLFSSL* 		ssl = 0;
-    WOLFSSL_CTX* 	ctx = 0;
-    WOLFSSL* 		sslResume = 0;
-    WOLFSSL_SESSION*	session = 0;
-    char*    		srTest = "testing session resume";
-    char            cert_array[] = "../certs/ca-cert.pem";
-    char*           certs = cert_array;
+    int                 sockfd = 0;
+    struct sockaddr_in  servAddr;
+    const char*         host = argv[1];
+    WOLFSSL*            ssl = 0;
+    WOLFSSL_CTX*        ctx = 0;
+    WOLFSSL*            sslResume = 0;
+    WOLFSSL_SESSION*    session = 0;
+    char*               srTest = "testing session resume";
+    char                cert_array[] = "../certs/ca-cert.pem";
+    char*               certs = cert_array;
+
     if (argc != 2) {
         printf("usage: udpcli <IP address>\n");
         return 1;
     }
 
     wolfSSL_Init();
+
+    /* Un-comment the following line to enable debugging */
     /* wolfSSL_Debugging_ON(); */
 
     if ( (ctx = wolfSSL_CTX_new(wolfDTLSv1_2_client_method())) == NULL) {
@@ -118,22 +121,56 @@ int main (int argc, char** argv)
 
     wolfSSL_set_fd(ssl, sockfd);
     if (wolfSSL_connect(ssl) != SSL_SUCCESS) {
-	    int err1 = wolfSSL_get_error(ssl, 0);
-	    char buffer[80];
-	    printf("err = %d, %s\n", err1, wolfSSL_ERR_error_string(err1, buffer));
-	    printf("SSL_connect failed");
+        int err1 = wolfSSL_get_error(ssl, 0);
+        char buffer[80];
+        printf("err = %d, %s\n", err1, wolfSSL_ERR_error_string(err1, buffer));
+        printf("SSL_connect failed");
         return 1;
     }
 
-    DatagramClient(ssl);
+/*****************************************************************************/
+/*                     Code for sending datagram to server                   */
+    int     recvlen;
+    char    sendLine[MAXLINE];
+    char    recvLine[MAXLINE - 1];
+
+    /* Loop while the user gives input or until an EOF is read */
+    while( fgets(sendLine, MAXLINE, stdin) != NULL ) {
+
+        /* Attempt to send sendLine to the server */
+        if ( ( wolfSSL_write(ssl, sendLine, strlen(sendLine))) !=
+                strlen(sendLine) ) {
+            printf("Error: wolfSSL_write failed.\n");
+        }
+
+        /* Attempt to read a message from server and store it in recvLine */
+        recvlen = wolfSSL_read(ssl, recvLine, sizeof(recvLine) - 1);
+
+        /* Error checking wolfSSL_read */
+        if (recvlen < 0) {
+            int readErr = wolfSSL_get_error(ssl, 0);
+            if (readErr != SSL_ERROR_WANT_READ) {
+                printf("Error: wolfSSL_read failed.\n");
+            }
+        }
+
+        recvLine[recvlen] = '\0';
+        fputs(recvLine, stdout);
+    }
+/*                                                                           */
+/*****************************************************************************/
+    
+    /* Keep track of the old session information */
     wolfSSL_write(ssl, srTest, sizeof(srTest));
     session = wolfSSL_get_session(ssl);
     sslResume = wolfSSL_new(ctx);
 
+    /* Cleanup the memory used by the old session & ssl object */
     wolfSSL_shutdown(ssl);
     wolfSSL_free(ssl);
     close(sockfd);
 
+    /* Perform setup with new variables/old session information */
     memset(&servAddr, 0, sizeof(servAddr));
     servAddr.sin_family = AF_INET;
     servAddr.sin_port = htons(SERV_PORT);
@@ -150,10 +187,17 @@ int main (int argc, char** argv)
     }
 
     wolfSSL_set_fd(sslResume, sockfd);
+    
+    /* New method call - specifies to the WOLFSSL object to use the  *
+     * given WOLFSSL_SESSION object                                  */
     wolfSSL_set_session(sslResume, session);
 
+    wolfSSL_set_fd(sslResume, sockfd);
     if (wolfSSL_connect(sslResume) != SSL_SUCCESS) {
-	    printf("SSL_connect failed");
+        int err1 = wolfSSL_get_error(sslResume, 0);
+        char buffer[80];
+        printf("err = %d, %s\n", err1, wolfSSL_ERR_error_string(err1, buffer));
+        printf("SSL_connect failed on session reuse\n");
         return 1;
     }
 
@@ -164,10 +208,41 @@ int main (int argc, char** argv)
     	printf("didn't reuse session id!!!\n");
     }
 
-    DatagramClient(sslResume);
+/*****************************************************************************/
+/*                     Code for sending datagram to server                   */
+    int     recvlen;
+    char    sendLine[MAXLINE];
+    char    recvLine[MAXLINE - 1];
+
+    /* Loop while the user gives input or until an EOF is read */
+    while( fgets(sendLine, MAXLINE, stdin) != NULL ) {
+
+        /* Attempt to send sendLine to the server */
+        if ( ( wolfSSL_write(ssl, sendLine, strlen(sendLine))) !=
+                strlen(sendLine) ) {
+            printf("Error: wolfSSL_write failed.\n");
+        }
+
+        /* Attempt to read a message from server and store it in recvLine */
+        recvlen = wolfSSL_read(ssl, recvLine, sizeof(recvLine) - 1);
+
+        /* Error checking wolfSSL_read */
+        if (recvlen < 0) {
+            int readErr = wolfSSL_get_error(ssl, 0);
+            if (readErr != SSL_ERROR_WANT_READ) {
+                printf("Error: wolfSSL_read failed.\n");
+            }
+        }
+
+        recvLine[recvlen] = '\0';
+        fputs(recvLine, stdout);
+    }
+/*                                                                           */
+/*****************************************************************************/
 
     wolfSSL_write(sslResume, srTest, sizeof(srTest));
 
+    /* Cleanup memory used for storing the session information */
     wolfSSL_shutdown(sslResume);
     wolfSSL_free(sslResume);
 
