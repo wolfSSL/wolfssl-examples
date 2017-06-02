@@ -62,7 +62,7 @@ int main (int argc, char** argv)
     char*               srTest = "testing session resume";
 
     if (argc != 2) {
-	    printf("usage: udpcli <IP address>\n");
+        printf("usage: udpcli <IP address>\n");
         return 1;
     }
 
