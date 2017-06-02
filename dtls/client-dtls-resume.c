@@ -41,6 +41,7 @@
 
 int main (int argc, char** argv)
 {
+    /* standard variables used in a dtls client*/
     int                 sockfd = 0;
     struct sockaddr_in  servAddr;
     const char*         host = argv[1];
@@ -51,6 +52,10 @@ int main (int argc, char** argv)
     char*               srTest = "testing session resume";
     char                cert_array[] = "../certs/ca-cert.pem";
     char*               certs = cert_array;
+    /* variables used in a dtls client for session reuse*/
+    int     recvlen;
+    char    sendLine[MAXLINE];
+    char    recvLine[MAXLINE - 1];
 
     if (argc != 2) {
         printf("usage: udpcli <IP address>\n");
@@ -104,9 +109,6 @@ int main (int argc, char** argv)
 
 /*****************************************************************************/
 /*                     Code for sending datagram to server                   */
-    int     recvlen;
-    char    sendLine[MAXLINE];
-    char    recvLine[MAXLINE - 1];
 
     /* Loop while the user gives input or until an EOF is read */
     while( fgets(sendLine, MAXLINE, stdin) != NULL ) {
@@ -184,9 +186,10 @@ int main (int argc, char** argv)
 
 /*****************************************************************************/
 /*                     Code for sending datagram to server                   */
-    int     recvlen;
-    char    sendLine[MAXLINE];
-    char    recvLine[MAXLINE - 1];
+    /* Clear out variables for reuse */
+    revLen = NULL;
+    memset(sendLine, 0, MAXLINE);
+    memset(recvLine, 0, MAXLINE - 1);
 
     /* Loop while the user gives input or until an EOF is read */
     while( fgets(sendLine, MAXLINE, stdin) != NULL ) {
