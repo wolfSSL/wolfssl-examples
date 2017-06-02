@@ -54,18 +54,25 @@ file reference should then be modified to point to the correct location.
 Third, it is recommended that you make a new directory to write your files
 into.
 
+
+
 ## Table of contents
 
-0. [Running these examples](#run)
-0. [Compiling these examples](#compile)
-0. [A simple TCP client/server pair](#tcp)
-    0. [Server](#server-tcp)
-    0. [Client](#client-tcp)
-    0. [Running](#run-tcp)
-0. [Converting to use wolfSSL](#tls)
-    0. [Server](#server-tls)
-    0. [Client](#client-tls)
-    0. [Running](#run-tls)
+1. [Running these examples](#run)
+2. [Compiling these examples](#compile)
+3. [A simple TCP client/server pair](#tcp)
+
+    1. [Server](#server-tcp)
+    2. [Client](#client-tcp)
+    3. [Running](#run-tcp)
+
+4. [Converting to use wolfSSL](#tls)
+
+    1. [Server](#server-tls)
+    2. [Client](#client-tls)
+    3. [Running](#run-tls)
+
+
 
 ## <a name="run">Running these examples</a>
 
@@ -79,6 +86,8 @@ If you have a tool such as Wireshark, you can use it to inspect the connection.
 
 If you have any troubles with compiling or running that do not seem to be due
 to the code, see [the section on compiling](#compile) below.
+
+
 
 ## <a name="compile">Compiling these examples</a>
 
@@ -122,6 +131,8 @@ to statically link against wolfSSL in these examples.
 For `client-tls-writedup`, it is required that wolfSSL be configured with the
 `--enable-writedup` flag. Remember to build and install wolfSSL after
 configuring it with this flag.
+
+
 
 ## <a name="tcp">A simple TCP client/server pair</a>
 
@@ -543,11 +554,13 @@ And that's everything! Our client will just be a quick one-and-done thing.
 
 `server-tcp` can be connected to by the following:
 
-* `client-tcp.c`
+* `client-tcp`
 
 `client-tcp` can connect to the following:
 
-* `server-tcp.c`
+* `server-tcp`
+
+
 
 ## <a name="tls">Converting to use wolfSSL</a>
 
@@ -869,20 +882,20 @@ And we're done. We should now have a fully functional TLS client.
 
 `server-tls` can be connected to by the following:
 
-* `client-tls.c`
-* `client-tls-callback.c`
-* `client-tls-ecdhe.c`
-* `client-tls-nonblocking.c`
-* `client-tls-resume.c`
-* `client-tls-writedup.c`
+* `client-tls`
+* `client-tls-callback`
+* `client-tls-ecdhe`
+* `client-tls-nonblocking`
+* `client-tls-resume`
+* `client-tls-writedup`
 
 `client-tls` can connect to the following:
 
-* `server-tls.c`
-* `server-tls-callback.c`
-* `server-tls-ecdhe.c`
-* `server-tls-nonblocking.c`
-* `server-tls-threaded.c`
+* `server-tls`
+* `server-tls-callback`
+* `server-tls-ecdhe`
+* `server-tls-nonblocking`
+* `server-tls-threaded`
 
 
 
