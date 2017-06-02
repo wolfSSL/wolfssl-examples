@@ -39,32 +39,6 @@
 #define MAXLINE   4096
 #define SERV_PORT 11111
 
-/* Send and receive function */
-void DatagramClient (WOLFSSL* ssl)
-{
-    int  n = 0;
-    char sendLine[MAXLINE], recvLine[MAXLINE - 1];
-
-    while (fgets(sendLine, MAXLINE, stdin) != NULL) {
-
-        if ( (wolfSSL_write(ssl, sendLine, strlen(sendLine))) !=
-            strlen(sendLine)) {
-            printf("SSL_write failed");
-        }
-
-        n = wolfSSL_read(ssl, recvLine, sizeof(recvLine)-1);
-
-        if (n < 0) {
-            int readErr = wolfSSL_get_error(ssl, 0);
-	        if(readErr != SSL_ERROR_WANT_READ)
-            printf("wolfSSL_read failed");
-        }
-
-        recvLine[n] = '\0';
-        fputs(recvLine, stdout);
-    }
-}
-
 int main (int argc, char** argv)
 {
     int                 sockfd = 0;
