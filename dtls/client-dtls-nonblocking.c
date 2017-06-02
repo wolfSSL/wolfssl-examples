@@ -50,6 +50,7 @@ enum {
 
 int main (int argc, char** argv)
 {
+    /* standard variables used in a dtls client*/
     int                 sockfd = 0;
     struct sockaddr_in  servAddr;
     const char*         host = argv[1];
@@ -60,6 +61,11 @@ int main (int argc, char** argv)
     char                cert_array[] = "../certs/ca-cert.pem";
     char*               certs = cert_array;
     char*               srTest = "testing session resume";
+    /* variables used for non-blocking DTLS connect */
+    int ret = wolfSSL_connect(ssl);
+    int error = wolfSSL_get_error(ssl, 0);
+    int nb_sockfd = (int) wolfSSL_get_fd(ssl);
+    int select_ret;
 
     if (argc != 2) {
         printf("usage: udpcli <IP address>\n");
@@ -108,15 +114,10 @@ int main (int argc, char** argv)
 /*****************************************************************************/
 /*                     Non-blocking code for DTLS connect                    */
 
-    int ret = wolfSSL_connect(ssl);
-    int error = wolfSSL_get_error(ssl, 0);
-    int nb_sockfd = (int) wolfSSL_get_fd(ssl);
-    int select_ret;
-
     while (ret != SSL_SUCCESS && (error == SSL_ERROR_WANT_READ ||
                 error == SSL_ERROR_WANT_WRITE)) {
         
-        /* Variables to reset each iteration */
+        /* Variables that will reset upon every iteration */
         int             currTimeout = 1;
         int             nfds = nb_sockfd +1;
         int             result;
