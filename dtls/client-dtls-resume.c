@@ -138,7 +138,7 @@ int main (int argc, char** argv)
     }
 /*                                                                           */
 /*****************************************************************************/
-    
+
     /* Keep track of the old session information */
     wolfSSL_write(ssl, srTest, sizeof(srTest));
     session = wolfSSL_get_session(ssl);
@@ -208,7 +208,7 @@ int main (int argc, char** argv)
 
         /* Error checking wolfSSL_read */
         if (recvlen < 0) {
-            int readErr = wolfSSL_get_error(ssl, 0);
+            readErr = wolfSSL_get_error(ssl, 0);
             if (readErr != SSL_ERROR_WANT_READ) {
                 printf("Error: wolfSSL_read failed.\n");
             }
