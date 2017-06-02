@@ -37,31 +37,12 @@
  * this function will send the inputted string to the server and then
  * recieve the string from the server outputing it to the termial
  */
-int SendReceive(int sockfd)
-{
-    char sendline[MAXLINE]="Hello Server"; /* string to send to the server */
-    char recvline[MAXLINE]; /* string received from the server */
-
-    /* write string to the server */
-    if (write(sockfd, sendline, strlen(sendline)) != strlen(sendline)) {
-        printf("Write Error to Server\n");
-        return 1;
-    }
-
-    /* flags if the server stopped before the client could end */
-    if (read(sockfd, recvline, MAXLINE) == 0) {
-        printf("Client: Server Terminated Prematurely!\n");
-        return 1;
-    }
-
-    printf("Server Message: %s\n", recvline);
-
-    return 0;
-}
 
 int main(int argc, char **argv)
 {
     int sockfd, ret;
+    char sendline[MAXLINE]="Hello Server"; /* string to send to the server */
+    char recvline[MAXLINE]; /* string received from the server */
     struct sockaddr_in servaddr;
 
     /* must include an ip address or this will flag */
@@ -96,11 +77,20 @@ int main(int argc, char **argv)
     }
 
     /* takes inputting string and outputs it to the server */
-    ret = SendReceive(sockfd);
-    if (ret != 0){
-        printf("Send Recieve Error");
+    /* write string to the server */
+    if (write(sockfd, sendline, strlen(sendline)) != strlen(sendline)) {
+        printf("Write Error to Server\n");
         return 1;
     }
+
+    /* flags if the server stopped before the client could end */
+    if (read(sockfd, recvline, MAXLINE) == 0) {
+        printf("Client: Server Terminated Prematurely!\n");
+        return 1;
+    }
+
+    printf("Server Message: %s\n", recvline);
+
     /* close socket and connection */
     close(sockfd);
 

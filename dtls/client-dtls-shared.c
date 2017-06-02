@@ -46,7 +46,6 @@
 #define THREADS 3
 #define SERV_PORT 11111
 
-
 typedef struct SharedDtls {
     wolfSSL_Mutex      shared_mutex;  /* mutex for using */
     WOLFSSL*           ssl;           /* WOLFSSL object being shared */
@@ -58,6 +57,10 @@ typedef struct SharedDtls {
     int                handShakeDone;   /* is the handshake done? */
 } SharedDtls;
 
+static int min (int a, int b)
+{
+    return a > b ? b : a;
+}
 
 int dtls_sendto_cb(WOLFSSL* ssl, char* buf, int sz, void* ctx)
 {
@@ -67,16 +70,10 @@ int dtls_sendto_cb(WOLFSSL* ssl, char* buf, int sz, void* ctx)
                   (const struct sockaddr*)&shared->servAddr, shared->servSz);
 }
 
-
-static int min(int a, int b)
-{
-    return a > b ? b : a;
-}
-
-
 int dtls_recvfrom_cb(WOLFSSL* ssl, char* buf, int sz, void* ctx)
 {
     SharedDtls* shared = (SharedDtls*)ctx;
+    int copied;
 
     if (!shared->handShakeDone) {
         /* get directly from socket */
@@ -84,8 +81,7 @@ int dtls_recvfrom_cb(WOLFSSL* ssl, char* buf, int sz, void* ctx)
     }
     else {
         /* get the "pushed" datagram from our cb buffer instead */
-        int copied = min(sz, shared->recvSz);
-
+        copied = min(sz, shared->recvSz);
         memcpy(buf, shared->recvBuf, copied);
         shared->recvSz -= copied;
 
@@ -93,34 +89,21 @@ int dtls_recvfrom_cb(WOLFSSL* ssl, char* buf, int sz, void* ctx)
     }
 }
 
-
-/* each thread should have a simple id at startup */
-char get_id(SharedDtls* shared)
-{
-    char ids[] = "abcdefgh";
-    char ret;
-    static int index = 0;
-
-    wc_LockMutex(&shared->shared_mutex);
-
-    ret = ids[index++];
-
-    wc_UnLockMutex(&shared->shared_mutex);
-
-    return ret;
-}
-
-
 /* DTLS Send function in its own thread */
 void* DatagramSend(void* arg)
 {
-    int  i;
-    int  sendSz;
-    char sendBuf[MAXBUF];
+    int         i;
+    int         sendSz;
+    char        sendBuf[MAXBUF];
     SharedDtls* shared = (SharedDtls*)arg;
-    char id = get_id(shared);
     WOLFSSL*    ssl = shared->ssl;
+    char        id; /* each thread should have a simple ID at startup */
+    char        ids[] = "abcdefgh";
+    static int  index = 0;
 
+    wc_LockMutex(&shared->shared_mutex);
+    id = ids[index++];
+    wc_UnLockMutex(&shared->shared_mutex);
 
     for (i= 0; i < MAXMSGS; i++) {
 
@@ -140,46 +123,19 @@ void* DatagramSend(void* arg)
     return NULL;
 }
 
-
-/* DTLS Recv function */
-void DatagramRecv(WOLFSSL* ssl, SharedDtls* shared)
-{
-    int i;
-    int  sz = 0;
-    char recvBuf[MAXBUF];
-    char plainBuf[MAXBUF];
-
-    for (i = 0; i < THREADS*MAXMSGS; i++) {
-        /* first get datagram, works in blocking mode too */
-        sz = recvfrom(shared->sd, recvBuf, MAXBUF, 0, NULL, NULL);
-
-        wc_LockMutex(&shared->shared_mutex);
-
-        /* push datagram to our cb, no copy needed! */
-        shared->recvBuf = recvBuf;
-        shared->recvSz = sz;
-
-        /* get plaintext */
-        if ( (sz = (wolfSSL_read(ssl, plainBuf, MAXBUF-1))) < 0) {
-            printf("wolfSSL_write failed");
-        }
-
-        wc_UnLockMutex(&shared->shared_mutex);
-
-        plainBuf[MAXBUF-1] = '\0';
-        printf("got msg %s\n", plainBuf);
-    }
-}
-
-
 int main (int argc, char** argv)
 {
-    int     	sockfd = 0, i;
-    WOLFSSL* 	ssl = 0;
+    int     	 sockfd = 0, i;
+    WOLFSSL* 	 ssl = 0;
     WOLFSSL_CTX* ctx = 0;
-    char*       ca =     "../certs/ca-cert.pem";
-    char*       ecc_ca = "../certs/server-ecc.pem";
-    SharedDtls  shared;
+    char*        ca = "../certs/ca-cert.pem";
+    char*        ecc_ca = "../certs/server-ecc.pem";
+    SharedDtls   shared;
+    SharedDtls*  recvShared = &shared; /* DTLS Recv var */
+    int          sz = 0; /* DTLS Recv var */
+    char         recvBuf[MAXBUF]; /* DTLS Recv var */
+    char         plainBuf[MAXBUF]; /* DTLS Recv var */
+    int          err1;
 
     if (argc != 2) {
         printf("usage: udpcli <IP address>\n");
@@ -238,7 +194,7 @@ int main (int argc, char** argv)
     wolfSSL_SetIOReadCtx(ssl, &shared);
 
     if (wolfSSL_connect(ssl) != SSL_SUCCESS) {
-	    int err1 = wolfSSL_get_error(ssl, 0);
+	    err1 = wolfSSL_get_error(ssl, 0);
 	    printf("err = %d, %s\n", err1, wolfSSL_ERR_reason_error_string(err1));
 	    printf("SSL_connect failed");
         return 1;
@@ -251,7 +207,27 @@ int main (int argc, char** argv)
         pthread_create(&tid[i], NULL, DatagramSend, &shared);
     }
 
-    DatagramRecv(ssl, &shared);
+    /* DTLS Recv */
+    for (i = 0; i < THREADS*MAXMSGS; i++) {
+        /* first get datagram, works in blocking mode too */
+        sz = recvfrom(recvShared->sd, recvBuf, MAXBUF, 0, NULL, NULL);
+
+        wc_LockMutex(&recvShared->shared_mutex);
+
+        /* push datagram to our cb, no copy needed! */
+        recvShared->recvBuf = recvBuf;
+        recvShared->recvSz = sz;
+
+        /* get plaintext */
+        if ( (sz = (wolfSSL_read(ssl, plainBuf, MAXBUF-1))) < 0) {
+            printf("wolfSSL_write failed");
+        }
+
+        wc_UnLockMutex(&recvShared->shared_mutex);
+
+        plainBuf[MAXBUF-1] = '\0';
+        printf("got msg %s\n", plainBuf);
+    }
 
     for (i = 0; i < THREADS; i++) {
         pthread_join(tid[i], NULL);
@@ -266,3 +242,4 @@ int main (int argc, char** argv)
 
     return 0;
 }
+
