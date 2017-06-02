@@ -38,6 +38,8 @@
 #define CERT_FILE "../certs/server-ecc.pem"
 #define KEY_FILE  "../certs/ecc-key.pem"
 
+#define CIPHER_LIST "ECDHE-ECDSA-CHACHA20-POLY1305"
+
 
 
 int main()
@@ -183,7 +185,7 @@ int main()
 
         /* Cleanup after this connection */
         wolfSSL_free(ssl);      /* Free the wolfSSL object              */
-        close(connd);           /* Close the connection to the server   */
+        close(connd);           /* Close the connection to the client   */
     }
 
     printf("Shutdown complete\n");

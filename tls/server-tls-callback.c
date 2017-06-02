@@ -283,7 +283,7 @@ int main()
 
         /* Cleanup after this connection */
         wolfSSL_free(ssl);      /* Free the wolfSSL object              */
-        close(connd);           /* Close the connection to the server   */
+        close(connd);           /* Close the connection to the client   */
     }
 
     printf("Shutdown complete\n");

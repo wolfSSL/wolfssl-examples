@@ -24,21 +24,104 @@ Tutorial
 ========
 
 This portion of the `README` is dedicated to walking you through creating most
-of the files in this directory. Before we begin, a note: all references to
-files are made relative to this `tls/` directory. Any file reference should
-then be modified to point to the correct location. It is also recommended that
-you make a new directory to write your files into. If you make a new
-subdirectory in the `tls/` directory, simply append an extra `../` to the front
-of any file path. Another excellent choice is to make a new directory in the
-root directory of this repository, such that there is no need to change the
-file path.
+of the files in this directory.
+
+Before we begin, there are a few important things to note.
+
+First, code will be referred to in terms of "blocks". Blocks are named by the
+comment at the top of them. Whenever we write code, we should also write the
+comments so that we can identify the blocks. For example, the following code
+contains two blocks:
+
+```c
+    /* Hello, world! */
+    printf("Hello, world!\n");
+
+    /* check ret */
+    ret = foo()
+    if (ret == -1) {
+        printf("foo() returned -1\n");
+    }
+```
+
+When we refer to the "Hello, world!" block, we should look at the `printf()`
+statement. Similarly, when we refer to the "check ret" block, we should look at
+everything from the comment to the bottom of the `if` statement.
+
+Second, all references to files are made relative to this `tls/` directory. Any
+file reference should then be modified to point to the correct location.
+
+Third, it is recommended that you make a new directory to write your files
+into.
 
 ## Table of contents
 
-1. [A simple TCP client/server pair](#tcp)
-    1. [Server](#server-tcp)
-    2. [Client](#client-tcp)
-    3. [Compile](#compile-tcp)
+0. [Running these examples](#run)
+0. [Compiling these examples](#compile)
+0. [A simple TCP client/server pair](#tcp)
+    0. [Server](#server-tcp)
+    0. [Client](#client-tcp)
+    0. [Running](#run-tcp)
+0. [Converting to use wolfSSL](#tls)
+    0. [Server](#server-tls)
+    0. [Client](#client-tls)
+    0. [Running](#run-tls)
+
+## <a name="run">Running these examples</a>
+
+If the client is running on the same machine as the server, use 127.0.0.1 as
+the IPv4 address when calling the client.
+
+Otherwise, if the server is on a remote machine, learn the IPv4 address of that
+machine and use that instead.
+
+If you have a tool such as Wireshark, you can use it to inspect the connection.
+
+If you have any troubles with compiling or running that do not seem to be due
+to the code, see [the section on compiling](#compile) below.
+
+## <a name="compile">Compiling these examples</a>
+
+If you stick to the naming convention, copying the makefile `Makefile` (which
+can be found [here][make]) into the directory where you are working should
+allow you to simply use `make` to compile.
+
+The makefile is written such that it knows when it is appropriate to include
+pthread support and if it is necessary to link against wolfSSL. You also have
+access to `make clean` to remove all of the compiled programs.
+
+A simple call to `make` is equivalent to `make all`, meaning any file `*.c`
+will be compiled. If this is not desired, calling `make X` will only compile
+`X.c`.
+
+Furthermore, for the TLS examples, you are assumed to have installed wolfSSL in
+`/usr/local/`. The makefile will take care of pointing to `/usr/local/include/`
+to find the wolfSSL headers and `/usr/local/lib/` to link against the wolfSSL
+library. This linking is dynamic, however, so `/usr/local/lib/` must be in your
+linker's path. If you are receiving errors at runtime about loading shared
+libraries, run this command from the terminals you are running the TLS examples
+from:
+
+```bash
+export LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):/usr/local/lib
+```
+
+If you have installed wolfSSL in another location, edit `Makefile` so that the
+`LIB_PATH` variable reflects this.
+
+If you have configured wolfSSL to use static linking, comment out the line
+```makefile
+LIBS+=$(DYN_LIB)
+```
+and uncomment the line
+```makefile
+#LIBS+=$(STATIC_LIB)
+```
+to statically link against wolfSSL in these examples.
+
+For `client-tls-writedup`, it is required that wolfSSL be configured with the
+`--enable-writedup` flag. Remember to build and install wolfSSL after
+configuring it with this flag.
 
 ## <a name="tcp">A simple TCP client/server pair</a>
 
@@ -144,8 +227,8 @@ should look a bit like this now:
     return 0;               /* Return reporting a success               */
 ```
 
-Now that we have a socket, let's fill out our address. Just after the `if`
-statement where we set `sockfd`, add these lines:
+Now that we have a socket, let's fill out our address. Just after the "Create a
+socket [...]" block, add these lines:
 
 ```c
     /* Initialize the server address struct with zeros */
@@ -380,7 +463,7 @@ return" section look a bit like this:
 ```
 
 Now we can fill out the address of the server we want to connect to. After the
-`if` statement assigning `sockfd`, add these lines:
+"Create a socket [...]" block, add these lines:
 
 ```c
     /* Initialize the server address struct with zeros */
@@ -456,13 +539,356 @@ and print it to `stdout` so we can see it:
 
 And that's everything! Our client will just be a quick one-and-done thing.
 
-#### <a name="compile-tcp">Compile</a>
+#### <a name="run-tcp">Running</a>
 
-<!-- TODO -->
+`server-tcp` can be connected to by the following:
+
+* `client-tcp.c`
+
+`client-tcp` can connect to the following:
+
+* `server-tcp.c`
+
+## <a name="tls">Converting to use wolfSSL</a>
+
+Now that we have a TCP client/server pair, we can modify them to use TLS 1.2 to
+secure their communication.
+
+#### <a name="server-tls">Server</a>
+
+We'll modify the server first. Copy `server-tcp.c` to a new file,
+`server-tls.c`, that we will modify. The finished version can be found
+[here][s-tls].
+
+The first thing to do is include the wolfSSL header. Just below the "socket
+includes" block, add these lines:
+
+```c
+/* wolfSSL */
+#include <wolfssl/ssl.h>
+```
+
+We're also going to need a few more defines for our file paths. Just below the
+definition of `DEFAULT_PORT` add these lines:
+
+```c
+#define CERT_FILE "../certs/server-cert.pem"
+#define KEY_FILE  "../certs/server-key.pem"
+```
+
+Before continuing on, make sure that these are the correct paths to those
+files.
+
+Now, inside of main, we need two more variables. At the top of `main()`, add
+these lines after the other variable declarations:
+
+```c
+    /* declare wolfSSL objects */
+    WOLFSSL_CTX* ctx;
+    WOLFSSL*     ssl;
+```
+
+And now we can start hooking up wolfSSL. The first thing to do is initialize
+the wolfSSL library. Beneath the variable declarations add the lines:
+
+```c
+    /* Initialize wolfSSL */
+    wolfSSL_Init();
+```
+
+Next we'll set up the wolfSSL context. After the "Create a socket [...]" block
+these lines:
+
+```c
+    /* Create and initialize WOLFSSL_CTX */
+    if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_server_method())) == NULL) {
+        fprintf(stderr, "ERROR: failed to create WOLFSSL_CTX\n");
+        return -1;
+    }
+```
+
+The call to `wolfTLSv1_2_server_method()` inside the call to
+`wolfSSL_CTX_new()` is what makes us use the TLS 1.2 protocol.
+
+Just like we have to close `sockfd` when we're done, we'll have to cleanup
+wolfSSL. Edit the "Cleanup and return" section at the bottom of `main()` to
+look something like this:
+
+```c
+    /* Cleanup and return */
+    wolfSSL_CTX_free(ctx);  /* Free the wolfSSL context object          */
+    wolfSSL_Cleanup();      /* Cleanup the wolfSSL environment          */
+    close(sockfd);          /* Close the socket listening for clients   */
+    return 0;               /* Return reporting a success               */
+```
+
+Though we're not done with `ctx` yet: we have to load in our certificates.
+After the "Create and initialize `WOLFSSL_CTX`" block, add these lines:
+
+```c
+    /* Load server certificates into WOLFSSL_CTX */
+    if (wolfSSL_CTX_use_certificate_file(ctx, CERT_FILE, SSL_FILETYPE_PEM)
+        != SSL_SUCCESS) {
+        fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
+                CERT_FILE);
+        return -1;
+    }
+```
+
+Recall that `CERT_FILE` is one of our own defines.
+
+What the above does is load the certificate file `CERT_FILE` so that the server
+can verify itself to clients. This certificate is known to be in the PEM format
+(indicated by `SSL_FILETYPE_PEM`), and this information is then kept in `ctx`.
+
+Next we need the server to load its private key:
+
+```c
+    /* Load server key into WOLFSSL_CTX */
+    if (wolfSSL_CTX_use_PrivateKey_file(ctx, KEY_FILE, SSL_FILETYPE_PEM)
+        != SSL_SUCCESS) {
+        fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
+                KEY_FILE);
+        return -1;
+    }
+```
+
+Recall that `KEY_FILE` is one of our own defines.
+
+Similar to the call to `wolfSSL_CTX_use_certificate_file()` previously, this
+loads a private key from `KEY_FILE` of the format `SSL_FILETYPE_PEM`, and
+stores the information into `ctx`.
+
+And that's everything for the setup phase. Now we just need add a few things to
+how we handle clients.
+
+After we accept a new client, we need to make a wolfSSL object. Just after the
+"Accept client connections" block, add these lines:
+
+```c
+        /* Create a WOLFSSL object */
+        if ((ssl = wolfSSL_new(ctx)) == NULL) {
+            fprintf(stderr, "ERROR: failed to create WOLFSSL object\n");
+            return -1;
+        }
+
+        /* Attach wolfSSL to the socket */
+        wolfSSL_set_fd(ssl, connd);
+```
+
+This allocates a new wolfSSL object. It will inherit all of the files we
+registered to `ctx`. After that, we give `ssl` the file descriptor `connd` to
+hold onto.
+
+We can't forget to free this object either. Update the "Cleanup after this
+connection" section at the bottom of the loop to look like this:
+
+```c
+        /* Cleanup after this connection */
+        wolfSSL_free(ssl);      /* Free the wolfSSL object              */
+        close(connd);           /* Close the connection to the client   */
+```
+
+From here on, `ssl` is our new `connd` for purposes of communicating with
+clients.
+
+First, this means that we need to replace calls to `read()` with calls to
+`wolfSSL_read()` and replace argument `connd` with `ssl`. The "Read the client
+data [...]" block now should look like this:
+
+```c
+        /* Read the client data into our buff array */
+        memset(buff, 0, sizeof(buff));
+        if (wolfSSL_read(ssl, buff, sizeof(buff)-1) == -1) {
+            fprintf(stderr, "ERROR: failed to read\n");
+            return -1;
+        }
+```
+
+Second, we need to do something similar to our calls to `write()`. The "Reply
+back to the client" block now should look like this:
+
+```c
+        /* Reply back to the client */
+        if (wolfSSL_write(ssl, buff, len) != len) {
+            fprintf(stderr, "ERROR: failed to write\n");
+            return -1;
+        }
+```
+
+And after this, we've successfully modified our TCP server to use wolfSSL for
+TLS 1.2 connections. Now we just need a client to connect with.
+
+#### <a name="client-tls">Client</a>
+
+Now we'll write the client. Copy `client-tcp.c` to a new file, `client-tls.c`,
+that we will modify. The finished version can be found [here][c-tls].
+
+Like the server, the first thing to do is include the wolfSSL header. Just
+below the "socket includes" block, add these lines:
+
+```c
+/* wolfSSL */
+#include <wolfssl/ssl.h>
+```
+
+We're going to need a different definition for `CERT_FILE`, however. Just below
+the definition of `DEFAULT_PORT` add this line:
+
+```c
+#define CERT_FILE "../certs/ca-cert.pem"
+```
+
+Before continuing on, make sure that this is the correct path to that file.
+
+Now, inside of main, we need two more variables. At the top of `main()`, add
+these lines after the other variable declarations:
+
+```c
+    /* declare wolfSSL objects */
+    WOLFSSL_CTX* ctx;
+    WOLFSSL*     ssl;
+```
+
+And now we can start hooking up wolfSSL. The first thing to do is initialize
+the wolfSSL library. This time we'll do it after we check our calling
+convention. Beneath the "Check for proper calling convention" block, add the
+lines:
+
+```c
+    /* Initialize wolfSSL */
+    wolfSSL_Init();
+```
+
+Next we set up `ctx`. After the "Create a socket [...]" block, add these
+lines:
+
+```c
+    /* Create and initialize WOLFSSL_CTX */
+    if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method())) == NULL) {
+        fprintf(stderr, "ERROR: failed to create WOLFSSL_CTX\n");
+        return -1;
+    }
+
+    /* Load client certificates into WOLFSSL_CTX */
+    if (wolfSSL_CTX_load_verify_locations(ctx, CERT_FILE, NULL)
+        != SSL_SUCCESS) {
+        fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
+                CERT_FILE);
+        return -1;
+    }
+```
+
+That "Create and initialize `WOLFSSL_CTX`" block should be familiar from the
+server code.
+
+The "Load client certificates into `WOLFSSL_CTX`" block is how we load
+`CERT_FILE` into `ctx` so that we can verify the identity of the servers we
+connect to. It should be noted that that third argument, here `NULL`, is a path
+to search for certificate files. It should also be noted that all files are
+assumed to be in the PEM format.
+
+Before continuing, we should remember to update our "Cleanup and return" block
+at the bottom of `main()` to free `ctx` and cleanup wolfSSL. It should now look
+like this:
+
+```c
+    /* Cleanup and return */
+    wolfSSL_CTX_free(ctx);  /* Free the wolfSSL context object          */
+    wolfSSL_Cleanup();      /* Cleanup the wolfSSL environment          */
+    close(sockfd);          /* Close the connection to the server       */
+    return 0;               /* Return reporting a success               */
+```
+
+And this concludes the setup. Now we just need to deal with the connection to
+the server. After the "Connect to the server" block, add these lines:
+
+```c
+    /* Create a WOLFSSL object */
+    if ((ssl = wolfSSL_new(ctx)) == NULL) {
+        fprintf(stderr, "ERROR: failed to create WOLFSSL object\n");
+        return -1;
+    }
+
+    /* Attach wolfSSL to the socket */
+    wolfSSL_set_fd(ssl, sockfd);
+
+    /* Connect to wolfSSL on the server side */
+    if (wolfSSL_connect(ssl) != SSL_SUCCESS) {
+        fprintf(stderr, "ERROR: failed to connect to wolfSSL\n");
+        return -1;
+    }
+```
+
+Those first two blocks should be familiar from the server code: we're making an
+SSL object from the context and giving it our connection to the server.
+
+The third block, "Connect to wolfSSL on the server side", is new. It is
+technically optional; If we don't call it, the first time we try to read or
+write though `ssl` it will be invoked anyway. We're going to call it ourself to
+make things easier when modifying this file to add different features in the
+future.
+
+Before continuing, we should remember to update our "Cleanup and return" block
+at the bottom of `main()` to free `ssl`. It should now look like this:
+
+```c
+    /* Cleanup and return */
+    wolfSSL_free(ssl);      /* Free the wolfSSL object                  */
+    wolfSSL_CTX_free(ctx);  /* Free the wolfSSL context object          */
+    wolfSSL_Cleanup();      /* Cleanup the wolfSSL environment          */
+    close(sockfd);          /* Close the connection to the server       */
+    return 0;               /* Return reporting a success               */
+```
+
+Now all we have to do is update our `write()` and `read()` calls to use
+wolfSSL. The "Send the message to the server" block should now look like this:
+
+```c
+    /* Send the message to the server */
+    if (wolfSSL_write(ssl, buff, len) != len) {
+        fprintf(stderr, "ERROR: failed to write\n");
+        return -1;
+    }
+```
+
+And the "Read the server data [...]" block should look like this:
+
+```c
+    /* Read the server data into our buff array */
+    memset(buff, 0, sizeof(buff));
+    if (wolfSSL_read(ssl, buff, sizeof(buff)-1) == -1) {
+        fprintf(stderr, "ERROR: failed to read\n");
+        return -1;
+    }
+```
+
+And we're done. We should now have a fully functional TLS client.
+
+#### <a name="run-tls">Running</a>
+
+`server-tls` can be connected to by the following:
+
+* `client-tls.c`
+* `client-tls-callback.c`
+* `client-tls-ecdhe.c`
+* `client-tls-nonblocking.c`
+* `client-tls-resume.c`
+* `client-tls-writedup.c`
+
+`client-tls` can connect to the following:
+
+* `server-tls.c`
+* `server-tls-callback.c`
+* `server-tls-ecdhe.c`
+* `server-tls-nonblocking.c`
+* `server-tls-threaded.c`
 
 
 
 <!-- References -->
+[make]: https://github.com/wolfssl/wolfssl-examples/blob/master/tls/Makefile
+
 [s-tcp]: https://github.com/wolfssl/wolfssl-examples/blob/master/tls/server-tcp.c
 [c-tcp]: https://github.com/wolfssl/wolfssl-examples/blob/master/tls/client-tcp.c
 
