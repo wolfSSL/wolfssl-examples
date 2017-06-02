@@ -293,7 +293,6 @@ int main(int argc, char** argv)
         printf("Connected!\n");
 
         if (cleanup != 1) {
-            pthread_t threadid;
             /* SPIN A THREAD HERE TO HANDLE "buff" and "reply/ack" */
             pthread_create(&threadid, NULL, ThreadControl, args);
             printf("control passed to ThreadControl.\n");
