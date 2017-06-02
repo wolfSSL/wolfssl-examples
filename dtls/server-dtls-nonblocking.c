@@ -54,25 +54,39 @@ enum {
 int main(int argc, char** argv)
 {
     /* cont short for "continue?", Loc short for "location" */
-    int         cont = 0;
-    char        caCertLoc[] = "../certs/ca-cert.pem";
-    char        servCertLoc[] = "../certs/server-cert.pem";
-    char        servKeyLoc[] = "../certs/server-key.pem";
-    WOLFSSL_CTX* ctx;
+    int           cont = 0;
+    char          caCertLoc[] = "../certs/ca-cert.pem";
+    char          servCertLoc[] = "../certs/server-cert.pem";
+    char          servKeyLoc[] = "../certs/server-key.pem";
+    WOLFSSL_CTX*  ctx;
     /* Await Datagram variables */
-    int     on = 1;
-    int     res = 1;
-    int     recvLen;                 /* length of string read */
-    int     readWriteErr;
-    int     listenfd = 0;            /* Initialize our socket */
-    int     clientfd = 0;            /* client connection */
-    int     len = sizeof(on);
-    char    buff[MSGLEN];            /* string read from client */
-    WOLFSSL* ssl = NULL;              /* Initialize ssl object */
-    struct sockaddr_in servAddr;     /* our server's address */
-    char    ack[] = "I hear you fashizzle\n";
+    int           on = 1;
+    int           res = 1;
+    int           recvLen;                 /* length of string read */
+    int           readWriteErr;
+    int           listenfd = 0;            /* Initialize our socket */
+    int           clientfd = 0;            /* client connection */
+    int           len = sizeof(on);
+    char          buff[MSGLEN];            /* string read from client */
+    WOLFSSL*      ssl = NULL;              /* Initialize ssl object */
+    struct        sockaddr_in servAddr;     /* our server's address */
+    char          ack[] = "I hear you fashizzle\n";
     /* DTLS set nonblocking flag */
-    int flags = fcntl(*(&listenfd), F_GETFL, 0);
+    int           flags = fcntl(*(&listenfd), F_GETFL, 0);
+    /* NonBlockingSSL_Accept variables */
+    int           ret;
+    int           select_ret;
+    int           currTimeout;
+    int           error;
+    int           result;
+    int           nfds;
+    fd_set        recvfds, errfds;
+    struct        timeval timeout;
+    /* udp-read-connect variables */
+    int           bytesRecvd;
+    unsigned char b[MSGLEN];
+    struct        sockaddr_in cliAddr;
+    socklen_t     clilen;
 
     /* "./config --enable-debug" and uncomment next line for debugging */
     /* wolfSSL_Debugging_ON(); */
@@ -107,20 +121,9 @@ int main(int argc, char** argv)
     /* Await Datagram */
     cont = 0;
     while (cleanup != 1) {
-        /* NonBlockingSSL_Accept variables */
-        int ret;
-        int select_ret;
-        int currTimeout;
-        int error;
-        int result;
-        int nfds;
-        fd_set  recvfds, errfds;
-        struct timeval timeout = { (currTimeout > 0) ? currTimeout : 0, 0};
-        /* udp-read-connect variables */
-        int bytesRecvd;
-        unsigned char  b[MSGLEN];
-        struct sockaddr_in cliAddr;
-        socklen_t clilen = sizeof(cliAddr);
+
+        clilen = sizeof(cliAddr);
+        timeout.tv_sec = (currTimeout > 0) ? currTimeout : 0;
 
         /* Create a UDP/IP socket */
         if ((listenfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) {
@@ -334,3 +337,4 @@ int main(int argc, char** argv)
 
     return 0;
 }
+

@@ -57,12 +57,13 @@ void* ThreadControl(void* openSock)
     pthread_detach(pthread_self());
 
     threadArgs* args = (threadArgs*)openSock;
-    int             recvLen = 0;                /* length of message     */
-    int             activefd = args->activefd;  /* the active descriptor */
-    int             msgLen = args->size;        /* the size of message   */
-    unsigned char   buff[msgLen];               /* the incoming message  */
-    char            ack[] = "I hear you fashizzle!\n";
-    WOLFSSL*        ssl;
+    int                recvLen = 0;                /* length of message     */
+    int                activefd = args->activefd;  /* the active descriptor */
+    int                msgLen = args->size;        /* the size of message   */
+    unsigned char      buff[msgLen];               /* the incoming message  */
+    char               ack[] = "I hear you fashizzle!\n";
+    WOLFSSL*           ssl;
+    int                e;                          /* error */
 
     memcpy(buff, args->b, msgLen);
 
@@ -78,7 +79,7 @@ void* ThreadControl(void* openSock)
 
     if (wolfSSL_accept(ssl) != SSL_SUCCESS) {
 
-        int e = wolfSSL_get_error(ssl, 0);
+        e = wolfSSL_get_error(ssl, 0);
 
         printf("error = %d, %s\n", e, wolfSSL_ERR_reason_error_string(e));
         printf("SSL_accept failed.\n");

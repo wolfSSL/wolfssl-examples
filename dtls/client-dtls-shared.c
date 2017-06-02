@@ -57,6 +57,11 @@ typedef struct SharedDtls {
     int                handShakeDone;   /* is the handshake done? */
 } SharedDtls;
 
+static int min (int a, int b)
+{
+    return a > b ? b : a;
+}
+
 int dtls_sendto_cb(WOLFSSL* ssl, char* buf, int sz, void* ctx)
 {
     SharedDtls* shared = (SharedDtls*)ctx;
@@ -68,6 +73,7 @@ int dtls_sendto_cb(WOLFSSL* ssl, char* buf, int sz, void* ctx)
 int dtls_recvfrom_cb(WOLFSSL* ssl, char* buf, int sz, void* ctx)
 {
     SharedDtls* shared = (SharedDtls*)ctx;
+    int copied;
 
     if (!shared->handShakeDone) {
         /* get directly from socket */
@@ -75,7 +81,7 @@ int dtls_recvfrom_cb(WOLFSSL* ssl, char* buf, int sz, void* ctx)
     }
     else {
         /* get the "pushed" datagram from our cb buffer instead */
-        int copied = sz > shared->recvSz ? shared->recvSz : sz;
+        copied = min(sz, shared->recvSz);
         memcpy(buf, shared->recvBuf, copied);
         shared->recvSz -= copied;
 
@@ -86,14 +92,14 @@ int dtls_recvfrom_cb(WOLFSSL* ssl, char* buf, int sz, void* ctx)
 /* DTLS Send function in its own thread */
 void* DatagramSend(void* arg)
 {
-    int  i;
-    int  sendSz;
-    char sendBuf[MAXBUF];
+    int         i;
+    int         sendSz;
+    char        sendBuf[MAXBUF];
     SharedDtls* shared = (SharedDtls*)arg;
-    WOLFSSL* ssl = shared->ssl;
-    char id; /* each thread should have a simple ID at startup */
-    char ids[] = "abcdefgh";
-    static int index = 0;
+    WOLFSSL*    ssl = shared->ssl;
+    char        id; /* each thread should have a simple ID at startup */
+    char        ids[] = "abcdefgh";
+    static int  index = 0;
 
     wc_LockMutex(&shared->shared_mutex);
     id = ids[index++];
@@ -126,9 +132,10 @@ int main (int argc, char** argv)
     char*        ecc_ca = "../certs/server-ecc.pem";
     SharedDtls   shared;
     SharedDtls*  recvShared = &shared; /* DTLS Recv var */
-    int  sz = 0; /* DTLS Recv var */
-    char recvBuf[MAXBUF]; /* DTLS Recv var */
-    char plainBuf[MAXBUF]; /* DTLS Recv var */
+    int          sz = 0; /* DTLS Recv var */
+    char         recvBuf[MAXBUF]; /* DTLS Recv var */
+    char         plainBuf[MAXBUF]; /* DTLS Recv var */
+    int          err1;
 
     if (argc != 2) {
         printf("usage: udpcli <IP address>\n");
@@ -187,7 +194,7 @@ int main (int argc, char** argv)
     wolfSSL_SetIOReadCtx(ssl, &shared);
 
     if (wolfSSL_connect(ssl) != SSL_SUCCESS) {
-	    int err1 = wolfSSL_get_error(ssl, 0);
+	    err1 = wolfSSL_get_error(ssl, 0);
 	    printf("err = %d, %s\n", err1, wolfSSL_ERR_reason_error_string(err1));
 	    printf("SSL_connect failed");
         return 1;
@@ -235,3 +242,4 @@ int main (int argc, char** argv)
 
     return 0;
 }
+
