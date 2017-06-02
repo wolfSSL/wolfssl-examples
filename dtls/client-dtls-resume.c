@@ -43,6 +43,7 @@ int main (int argc, char** argv)
 {
     /* standard variables used in a dtls client*/
     int                 sockfd = 0;
+    int                 err1;
     struct sockaddr_in  servAddr;
     const char*         host = argv[1];
     WOLFSSL*            ssl = 0;
@@ -51,6 +52,7 @@ int main (int argc, char** argv)
     WOLFSSL_SESSION*    session = 0;
     char*               srTest = "testing session resume";
     char                cert_array[] = "../certs/ca-cert.pem";
+    char                buffer[80];
     char*               certs = cert_array;
     /* variables used in a dtls client for session reuse*/
     int     recvlen;
@@ -100,8 +102,8 @@ int main (int argc, char** argv)
 
     wolfSSL_set_fd(ssl, sockfd);
     if (wolfSSL_connect(ssl) != SSL_SUCCESS) {
-        int err1 = wolfSSL_get_error(ssl, 0);
-        char buffer[80];
+        err1 = wolfSSL_get_error(ssl, 0);
+        memset(buffer[80], 0, 80);
         printf("err = %d, %s\n", err1, wolfSSL_ERR_error_string(err1, buffer));
         printf("SSL_connect failed");
         return 1;
@@ -163,15 +165,15 @@ int main (int argc, char** argv)
     }
 
     wolfSSL_set_fd(sslResume, sockfd);
-    
+
     /* New method call - specifies to the WOLFSSL object to use the  *
      * given WOLFSSL_SESSION object                                  */
     wolfSSL_set_session(sslResume, session);
 
     wolfSSL_set_fd(sslResume, sockfd);
     if (wolfSSL_connect(sslResume) != SSL_SUCCESS) {
-        int err1 = wolfSSL_get_error(sslResume, 0);
-        char buffer[80];
+        err1 = wolfSSL_get_error(sslResume, 0);
+        memset(buffer[80], 0, 80);
         printf("err = %d, %s\n", err1, wolfSSL_ERR_error_string(err1, buffer));
         printf("SSL_connect failed on session reuse\n");
         return 1;

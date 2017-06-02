@@ -145,7 +145,9 @@ int main(int argc, char** argv)
     socklen_t     cliLen;
     socklen_t     len = sizeof(on);
     unsigned char buf[MSGLEN];      /* watch for incoming messages */
-  
+    /* variables needed for threading */
+    threadArgs* args;
+
     /* Code for handling signals */
     struct sigaction act, oact;
     act.sa_handler = sig_handler;
@@ -219,7 +221,6 @@ int main(int argc, char** argv)
 
     while (cleanup != 1) {
 
-        threadArgs* args;
         args = (threadArgs *) malloc(sizeof(threadArgs));
 
         cliLen = sizeof(cliAddr);

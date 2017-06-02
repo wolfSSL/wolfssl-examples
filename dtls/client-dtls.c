@@ -44,6 +44,8 @@ int main (int argc, char** argv)
     /* standard variables used in a dtls client*/
     int             n = 0;
     int             sockfd = 0;
+    int             err1;
+    int             readErr;
     struct          sockaddr_in servAddr;
     WOLFSSL*        ssl = 0;
     WOLFSSL_CTX*    ctx = 0;
@@ -78,7 +80,7 @@ int main (int argc, char** argv)
     /* Assign ssl variable */
     ssl = wolfSSL_new(ctx);
     if (ssl == NULL) {
-    	printf("unable to get ssl object");
+        printf("unable to get ssl object");
         return 1;
     }
 
@@ -101,7 +103,7 @@ int main (int argc, char** argv)
     /* Set the file descriptor for ssl and connect with ssl variable */
     wolfSSL_set_fd(ssl, sockfd);
     if (wolfSSL_connect(ssl) != SSL_SUCCESS) {
-	    int err1 = wolfSSL_get_error(ssl, 0);
+	    err1 = wolfSSL_get_error(ssl, 0);
 	    printf("err = %d, %s\n", err1, wolfSSL_ERR_reason_error_string(err1));
 	    printf("SSL_connect failed");
         return 1;
@@ -122,7 +124,7 @@ int main (int argc, char** argv)
         n = wolfSSL_read(ssl, recvLine, sizeof(recvLine)-1);
 
         if (n < 0) {
-            int readErr = wolfSSL_get_error(ssl, 0);
+            readErr = wolfSSL_get_error(ssl, 0);
             if (readErr != SSL_ERROR_WANT_READ) {
                 printf("wolfSSL_read failed");
             }
