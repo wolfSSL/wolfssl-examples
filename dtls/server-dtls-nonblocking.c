@@ -187,6 +187,10 @@ int main(int argc, char** argv)
 
         /* UDP-read-connect */
         do {
+            if (cleanup == 1) {
+                cont = 1;
+                break;
+            }
             bytesRecvd = (int)recvfrom(listenfd, (char*)b, sizeof(b), MSG_PEEK,
                 (struct sockaddr*)&cliAddr, &clilen);
         } while (bytesRecvd <= 0);
@@ -354,4 +358,5 @@ int main(int argc, char** argv)
 
     return 0;
 }
+
 
