@@ -147,6 +147,7 @@ int main(int argc, char** argv)
     unsigned char buf[MSGLEN];      /* watch for incoming messages */
     /* variables needed for threading */
     threadArgs* args;
+    pthread_t threadid;
 
     /* Code for handling signals */
     struct sigaction act, oact;
@@ -220,6 +221,8 @@ int main(int argc, char** argv)
     printf("Awaiting client connection on port %d\n", SERV_PORT);
 
     while (cleanup != 1) {
+
+        memset(&threadid, 0, sizeof(threadid));
 
         args = (threadArgs *) malloc(sizeof(threadArgs));
 

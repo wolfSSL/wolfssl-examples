@@ -56,11 +56,8 @@ int main (int argc, char** argv)
     const char*         host = argv[1];
     WOLFSSL*            ssl = 0;
     WOLFSSL_CTX*        ctx = 0;
-    WOLFSSL*            sslResume = 0;
-    WOLFSSL_SESSION*    session = 0;
     char                cert_array[] = "../certs/ca-cert.pem";
     char*               certs = cert_array;
-    char*               srTest = "testing session resume";
     /* variables used for non-blocking DTLS connect */
     int                 ret = wolfSSL_connect(ssl);
     int                 error = wolfSSL_get_error(ssl, 0);
@@ -120,24 +117,19 @@ int main (int argc, char** argv)
 /*                     Non-blocking code for DTLS connect                    */
 
     while (ret != SSL_SUCCESS && (error == SSL_ERROR_WANT_READ ||
-                error == SSL_ERROR_WANT_WRITE)) {   
-        
+                error == SSL_ERROR_WANT_WRITE)) {
+
         /* Variables that will reset upon every iteration */
-        currTimeout = 1;
+        currTimeout = wolfSSL_dtls_get_current_timeout(ssl);
         nfds = nb_sockfd + 1;
-        result = NULL;
-        recvfds = NULL;
-        errfds = NULL;
-        timeout = { (currTimeout > 0) ? currTimeout : 0, 0};
-        
+        timeout = (struct timeval) { (currTimeout > 0) ? currTimeout : 0, 0};
+
 	    if (error == SSL_ERROR_WANT_READ) {
 	        printf("... client would read block\n");
         }
 	    else {
             printf("... client would write block\n");
         }
-
-	    currTimeout = wolfSSL_dtls_get_current_timeout(ssl);
 
         /* Tcp select using dtls nonblocking functionality */
         FD_ZERO(&recvfds);
@@ -182,11 +174,11 @@ int main (int argc, char** argv)
     if (ret != SSL_SUCCESS) {
         printf("SSL_connect failed with");
     }
-/*                                                                           */    
+/*                                                                           */
 /*****************************************************************************/
-    
-/*****************************************************************************/ 
-/*                  Code for sending datagram to server                      */ 
+
+/*****************************************************************************/
+/*                  Code for sending datagram to server                      */
 
     int  n = 0;
     char sendLine[MAXLINE], recvLine[MAXLINE - 1];
@@ -210,14 +202,15 @@ int main (int argc, char** argv)
     }
 /*                                                                           */
 /*****************************************************************************/
-  
+
     wolfSSL_shutdown(ssl);
     wolfSSL_free(ssl);
-    
+
     close(sockfd);
-    
+
     wolfSSL_CTX_free(ctx);
     wolfSSL_Cleanup();
 
     return 0;
 }
+

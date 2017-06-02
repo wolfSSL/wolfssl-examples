@@ -103,7 +103,7 @@ int main (int argc, char** argv)
     wolfSSL_set_fd(ssl, sockfd);
     if (wolfSSL_connect(ssl) != SSL_SUCCESS) {
         err1 = wolfSSL_get_error(ssl, 0);
-        memset(buffer[80], 0, 80);
+        memset(buffer, 0, 80);
         printf("err = %d, %s\n", err1, wolfSSL_ERR_error_string(err1, buffer));
         printf("SSL_connect failed");
         return 1;
@@ -173,7 +173,7 @@ int main (int argc, char** argv)
     wolfSSL_set_fd(sslResume, sockfd);
     if (wolfSSL_connect(sslResume) != SSL_SUCCESS) {
         err1 = wolfSSL_get_error(sslResume, 0);
-        memset(buffer[80], 0, 80);
+        memset(buffer, 0, 80);
         printf("err = %d, %s\n", err1, wolfSSL_ERR_error_string(err1, buffer));
         printf("SSL_connect failed on session reuse\n");
         return 1;
@@ -189,7 +189,7 @@ int main (int argc, char** argv)
 /*****************************************************************************/
 /*                     Code for sending datagram to server                   */
     /* Clear out variables for reuse */
-    revLen = NULL;
+    recvlen = 0;
     memset(sendLine, 0, MAXLINE);
     memset(recvLine, 0, MAXLINE - 1);
 
