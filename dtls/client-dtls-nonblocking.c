@@ -59,9 +59,9 @@ int main (int argc, char** argv)
     char                cert_array[] = "../certs/ca-cert.pem";
     char*               certs = cert_array;
     /* variables used for non-blocking DTLS connect */
-    int                 ret = wolfSSL_connect(ssl);
-    int                 error = wolfSSL_get_error(ssl, 0);
-    int                 nb_sockfd = (int) wolfSSL_get_fd(ssl);
+    int                 ret;
+    int                 error;
+    int                 nb_sockfd;
     int                 select_ret;
     int                 currTimeout;
     int                 nfds;
@@ -115,6 +115,12 @@ int main (int argc, char** argv)
 
 /*****************************************************************************/
 /*                     Non-blocking code for DTLS connect                    */
+
+    /* Now that ssl and everything has been assigned, (ret, error, and      *
+     * nbsockfd) can be safely assigned as well.                            */
+    ret = wolfSSL_connect(ssl);
+    error = wolfSSL_get_error(ssl, 0);
+    nb_sockfd = (int) wolfSSL_get_fd(ssl);
 
     while (ret != SSL_SUCCESS && (error == SSL_ERROR_WANT_READ ||
                 error == SSL_ERROR_WANT_WRITE)) {
@@ -172,7 +178,7 @@ int main (int argc, char** argv)
     }
 
     if (ret != SSL_SUCCESS) {
-        printf("SSL_connect failed with");
+        printf("SSL_connectrfailed with");
     }
 /*                                                                           */
 /*****************************************************************************/
@@ -213,4 +219,5 @@ int main (int argc, char** argv)
 
     return 0;
 }
+
 
