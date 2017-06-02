@@ -110,6 +110,7 @@ The final value would be placed in the Checksum Field.
 
 ####  1.1.2. Creating a UDP/IP Server
 There are seven initial steps to creating a UDP/IP Server.
+
 ```c
 1. Create the socket
 2. Identify the socket (IE give it a name)
@@ -121,6 +122,7 @@ There are seven initial steps to creating a UDP/IP Server.
 ```
 
 ####  1.1.2.1. Create the Socket
+
 A socket is created with the socket system call.
 
 ##### Figure 1.2: Create a Socket
@@ -164,7 +166,9 @@ if (sockfd < 0) {
 }
 printf("created socket: descriptor=%d\n", sockfd);
 ```
+
 ####  1.1.2.2. Identifty/Name the Socket
+
 By naming the socket we are assigning a transport address to the socket (I.E. a port number in IP networking). This is more commonly referred to as “binding” an address. The bind system call is used to do this. In other words we are giving our server a unique address so that communication with our server can be established much like a person with a mailing address. They can receive communiques (letters) via their mailbox. Our server can do the same once it has a “bound” socket.
 
 The transport address is defined in the socket address structure. Since sockets can receive and send data  using a myriad of communication interfaces, the interface is very general. Rather than accepting a port number as a parameter, it will look for a “sockaddr” (short for socket address)structure whose format is based off the address family we chose.
@@ -233,6 +237,7 @@ The `recvfrom` call is included with the `# include <sys/socket.h>` therefore we
 int recvfrom(int socket, void* restrict buffer, size_t length,
              int flags, struct sockaddr* restrict src_addr, socklen_t *src_len);
 ```
+
 ###### PARAMETERS DEFINED
 1. `int socket`
     The first parameter `socket` is the socket we created and bound in 1.1.2.1 & 1.1.2.2. The port number assigned to that socket via the “bind” tells us what port `recvfrom` will “watch” while awaiting incoming data transmissions.
@@ -373,6 +378,7 @@ With this change we will also rename `addrlen` to `clilen` to remind us that thi
 
 ##### Figure 2.3
 ```c
+
 int                  on = 1;
 int                 res = 1;
 int              connfd = 0;
@@ -527,6 +533,7 @@ to:
 `printf(“some message”); and cleanup = 1;`
  All active error situations will now change to match this format and all future error situations will be of the same format. This will ensure that all memory is freed at the termination of our program.
 
+
 #### 2.1.7.2. Await Datagram Arrival
 Here is where we will now set `clilen = sizeof(cliaddr);` as well. We will declare an `unsigned char` that will behave as `buff` does. `Buff` will now be used by `ssl` to read client messages and the new `buff` (we will just call it `b`) is for one purpose only: to “peek” at any incoming messages. We will not actually read those messages until later on. Right now we just want to see if there is a message waiting to be read or not. We must do this on a UDP server because no actual “connection” takes place… perseh. Packets arrive or they don’t -  that’s how UDP works. Then we will perform some error handling on the fact that there are Datagrams waiting or there aren’t. If none are waiting we will want our `while` loop to cycle and continue to await packet arrivals. If there are packets sitting there then we want to know about it.
 
@@ -587,6 +594,7 @@ if (wolfSSL_accept(ssl) != SSL_SUCCESS) {
     cleanup = 1;
 }
 ```
+
 #### 2.1.7.4. Read the Message, Acknowledge that Message was Read
 So our client is using DTLS version 1.2, we have a message waiting for us… so let’s read it! Then let’s send our client an acknowlegement that we have received their message. Don’t forget to handle any potential errors along the way!
 
@@ -654,6 +662,7 @@ This function will be called between where you built the `sockaddr_in` structure
 #### 2.2.4. Connect
 Add a wolfSSL connect function below the call to `wolfSSL_set_fd()` and pass the `WOLFSSL*` object you created as the argument. Include error checking. Example:
 ##### Figure 2.15
+
 ```c
 if  (wolfSSL_connect(ssl) != SSL_SUCCESS) {
     int err1 = wolfSSL_get_error(ssl, 0);
@@ -770,7 +779,6 @@ Each commented section will be filled in as each of the following sections is co
 Calling `pthread_detach` should be the very first thing done within the method - it specifies that when the thread terminates, its resources will be released. The parameter passed to `pthread_detach` should be the thread itself.
 
 Our `ThreadHandler` code now looks like this:
-
 ```c
 void* ThreadHandler(void *input)
 {
@@ -896,7 +904,6 @@ For the same reason that each thread will create a `WOLFSSL` object, each thread
 - If `wolfSSL_write` returns a negative number in `ThreadHandler`, there should be a `return NULL` instead of `return 1` (`ThreadHandler` is invoked differently from `AwaitDGram`.
 
  After making these changes and adding them to `ThreadHandler`, it now looks like this:
-
 ```c
 void* ThreadHandler(void *input)
 {
@@ -1133,7 +1140,6 @@ if(wolfSSL_session_reused(sslResume)) {
     printf("Did not reuse session ID\n");
 }
 ```
-
 ###  4.1.4. Cleanup
 There isn't anything special about cleanup with reused sessions. All that needs to be done is to call `wolfSSL_shutdown` and `wolfssl_free` with the `sslResume` object.
 
@@ -1159,6 +1165,7 @@ enum {
     TEST_ERROR_READY
 };
 ```
+
 #### 5.1.4. Add a DTLS Selection Function
 This is similar to the `tcp_select()` function in wolfSSL. This function will also call `select()`:
 ##### Figure 5.1
@@ -1193,6 +1200,7 @@ static int dtls_select(int socketfd, int to_sec)
 #### 5.1.5. Nonblocking DTLS Connect Function:
 This function calls the connect function and checks for various errors within the connection attempts. We placed it before the `DatagramClient()` function:
 ##### Figure 5.2
+
 ```c
 /*Connect using Nonblocking - DTLS version*/
 static void NonBlockingDTLS_Connect(WOLFSSL* ssl)

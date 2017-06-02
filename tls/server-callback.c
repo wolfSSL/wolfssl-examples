@@ -160,11 +160,11 @@ int Server(word16 port)
     WOLFSSL*     ssl;
 
     wolfSSL_Init();
-    
+
     /* create ctx and configure certificates */
     if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_server_method())) == NULL)
         err_sys("Fatal error : wolfSSL_CTX_new error");
-   
+
     if (wolfSSL_CTX_use_certificate_file(ctx, svrCert, SSL_FILETYPE_PEM)
                 != SSL_SUCCESS)
         err_sys("can't load server cert file,"
@@ -174,13 +174,13 @@ int Server(word16 port)
                 != SSL_SUCCESS)
         err_sys("can't load server key file, "
                     "Please run from wolfSSL home dir");
-        
+
     /*sets the IO callback methods*/
     wolfSSL_SetIORecv(ctx, CbIORecv);
     wolfSSL_SetIOSend(ctx, CbIOSend);
 
     tcp_accept(&listenfd, &connfd, NULL, port, 1, 0, 0, 0, 1);
-        
+
     if (connfd < 0) {
         err_sys("Fatal error : accept error");
     }
@@ -188,28 +188,28 @@ int Server(word16 port)
         /* create WOLFSSL object and respond */
         if ((ssl = wolfSSL_new(ctx)) == NULL)
             err_sys("Fatal error : wolfSSL_new error");
-  
+
         wolfSSL_set_fd(ssl, connfd);
 
-	    memset(msg, 0, MAXSZ);
-	    n = wolfSSL_read(ssl, msg, MAXSZ - 1);
-	    if (n > 0) {
-	        msg[n] = '\0';
-	        printf("Client sent : %s\n", msg);
-	        if (wolfSSL_write(ssl, reply, strlen(reply)) > strlen(reply))
-	            err_sys("Fatal error : respond: write error");
-	    }
+        memset(msg, 0, MAXSZ);
+        n = wolfSSL_read(ssl, msg, MAXSZ - 1);
+        if (n > 0) {
+            msg[n] = '\0';
+            printf("Client sent : %s\n", msg);
+            if (wolfSSL_write(ssl, reply, strlen(reply)) > strlen(reply))
+                err_sys("Fatal error : respond: write error");
+        }
 
-	    if (n < 0)
-	        err_sys("Fatal error :respond: read error");
-            
+        if (n < 0)
+            err_sys("Fatal error :respond: read error");
+
         /* closes the connections after responding */
         wolfSSL_shutdown(ssl);
         wolfSSL_free(ssl);
         if (close(listenfd) == -1 && close(connfd) == -1)
             err_sys("Fatal error : close error");
     }
-   
+
     /* free up memory used by wolfSSL */
     wolfSSL_CTX_free(ctx);
 

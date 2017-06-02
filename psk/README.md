@@ -9,11 +9,12 @@ TCP/PSK Tutorial
 
     ``read(sockfd, recvline, MAXLINE)`` becomes ``wolfSSL_read(ssl, recvline, MAXLINE)``
 
-3. Change all calls from write() or send() to CySSL_write(), in the simple client
+3. Change all calls from write() or send() to wolfSSL_write(), in the simple client
 
-    ``write(socked, send line,strlen(send line))`` becomes ``wolfSSL_write(ssl, send line, strlen(sendline))``
+    ``write(socked, sendline, strlen(sendline))`` becomes ``wolfSSL_write(ssl, sendline, strlen(sendline))``
 
-4. In the main method initialize wolfSSL and WOLFSSL_CTX.
+4. In the main method initialize wolfSSL and WOLFSSL_CTX. You must initialize wolfSSL before making any other wolfSSL calls.
+   wolfSSL_CTX_new() takes an argument that defines what SSL/TLS protocol to use. In this case ``wolfTLSv1_2_client_method()`` is used to specify TLS 1.2.
 
         wolfSSL_Init();
 
@@ -35,10 +36,11 @@ TCP/PSK Tutorial
             return 1;
         }
 
-6. Cleanup. After each wolfSSL object is done being used you can free it up by calling ``wolfSSL_free(ssl);``
+6. Cleanup. After each wolfSSL object is done being used you can free it up by calling ``wolfSSL_free(ssl);``.
+
 7. When completely done using SSL/TLS, free the WOLFSSL_CTX object by
 
-    ``wolfSSL_CTX_free(CTX);``
+    ``wolfSSL_CTX_free(ctx);``
 
     ``wolfSSL_Cleanup();``
 
@@ -82,7 +84,7 @@ TCP/PSK Tutorial
 
 2. After the function ``wolfSSL_set_fd(ssl,sockfd)``, tell wolfSSL that you want non-blocking to be used. This is done by adding : `` wolfSSL_set_using_nonblock(ssl,1);``
 
-3. Now we much invoke the fcnt callable serve to use non-blocking.
+3. Now we must invoke the fcntl callable serve to use non-blocking.
 
         int flags = fcntl(sockfd, F_GETFL, 0);
         if (flags < 0) {
@@ -190,7 +192,7 @@ Session resumption allows a client/server pair to re-use previously generated cr
         WOLFSSL_SESSION* session   = wolfSSL_get_session(ssl);
         WOLFSSL*         sslResume = wolfSSL_new(ctx);
 
-2. Now we must close wolfSSL SSL and close connections. Alos free the socket and ctx.
+2. Now we must close wolfSSL SSL and close connections i.e. free the socket and ctx.
 
         /* shut down wolfSSL */
         wolfSSL_shutdown(ssl);
@@ -198,10 +200,9 @@ Session resumption allows a client/server pair to re-use previously generated cr
         /* close connection */
         close(sockfd);
 
-        /* cleanup */
+        /* cleanup without wolfSSL_Cleanup() for now */
         wolfSSL_free(ssl);
         wolfSSL_CTX_free(ctx);
-        wolfSSL_Cleanup();
 
 3. Now we are ready to reconnect and start a new socket but we are going to reuse the session id to make things go a little faster.
 
@@ -209,7 +210,7 @@ Session resumption allows a client/server pair to re-use previously generated cr
         sock = socket(AF_INET, SOCK_STREAM, 0);
 
         /* connect to the socket */
-        ret = connect(sock, (struct sockaddr *) &servaddr,         sizeof(servaddr));
+        ret = connect(sock, (struct sockaddr *) &servaddr, sizeof(servaddr));
 
         if (ret != 0){
             return 1;
@@ -245,7 +246,7 @@ Session resumption allows a client/server pair to re-use previously generated cr
         /* shut down socket */
         close(sock);
 
-        /* clean up */
+        /* clean up now with wolfSSL_Cleanup() */
         wolfSSL_free(sslResume);
         wolfSSL_CTX_free(ctx);
         wolfSSL_Cleanup();
@@ -261,13 +262,14 @@ Session resumption allows a client/server pair to re-use previously generated cr
 
 	>(wolfSSL_read on first use also calls wolfSSL_accept if not explicitly called earlier in code.)
 
-3. Change all calls from write() or send() to CySSL_write(), in the simple server
+3. Change all calls from write() or send() to wolfSSL_write(), in the simple server
     ``write(sockfd, sendline, strlen(sendline))`` becomes ``wolfSSL_write(ssl, sendline, strlen(sendline))``
 
 4. Run the wolfSSL method to initalize wolfSSL
     ``wolfSSL_Init()``
 
-5. Create a ctx pointer that contains using the following process.
+5. Create a ctx pointer that contains a server method using the following process. The server method wolfSSLv23_server_method()
+   allows clients with TLS 1+ to connect.
     ```
     WOLFSSL_CTX* ctx;
 
@@ -280,7 +282,7 @@ Session resumption allows a client/server pair to re-use previously generated cr
 	```
     WOLFSSL* ssl;
 
-	wolfSSL_set_fd(ssl, “integer returned from accept”);
+	wolfSSL_set_fd(ssl, “integer (file descriptor) returned from accept”);
 
 	wolfSSL_free(ssl);
 
@@ -310,9 +312,9 @@ The following steps are on how to use PSK in a wolfSSL server
 	>PSK-AES128-CBC-SHA256 creates the cipher list of having pre shared keys with advanced encryption security using 128 bit key
 	>with cipher block chaining using secure hash algorithm.
 
-3. Add the my_psk_server_cb function as follows. This is a function needed that is passed in as an argument to the wolfSSL callback.
+3. Add the my_psk_server_cb function as follows. This is a necessary function that is passed in as an argument to the wolfSSL callback.
 
-```
+    ```
     static inline unsigned int my_psk_client_cb(WOLFSSL* ssl, char* identity, unsigned
                                                 char* key, unsigned int key_max_len) {
     		(void)ssl;
@@ -330,12 +332,12 @@ The following steps are on how to use PSK in a wolfSSL server
 
     		return 4;
     }
-```
+    ```
 
 
 Example Makefile for Simple wolfSSL PSK Client:
 
-```
+    ```
 	CC=gcc
 	OBJ = client-psk.o
 	CFLAG=-Wall
@@ -350,19 +352,19 @@ Example Makefile for Simple wolfSSL PSK Client:
 
 	clean:
 		rm -f *.o client-psk
-```
+    ```
 
 The -lwolfssl will link the wolfSSL Libraries to your program
 
 
-The makefile for the server is going to be similar to that of the client. If the user wants separate makefiles just make a use the same set up of the client makefile and replace every instance of client-psk with server-psk. To combine make files just add a server-psk with similar ending to each time client-psk is referenced and change the target. There will also need to be a target for when compiling all targets.
+The makefile for the server is going to be similar to that of the client. If the user wants separate makefiles just make and use the same set up of the client makefile and replace every instance of client-psk with server-psk. To combine make files just add a server-psk with similar ending to each time client-psk is referenced and change the target. There will also need to be a target for when compiling all targets.
 
-```
+    ```
 	all: server-psk client-psk
 
 	server-psk: server-psk.c
 		$(CC) -Wall -o server-psk server-psk.c -lwolfssl
-```
+    ```
 
 ## Nonblocking psk
 ###### What is nonblocking?
@@ -411,7 +413,7 @@ When a socket is setup as non-blocking, reads and writes to the socket do not ca
 
 
 
-5. Before adding the NonblockingSSL_Connect function into our code we much add a tcp_select function that will be used by the NonblockingSSL_Connect. This is done by adding:
+5. Before adding the NonblockingSSL_Connect function into our code we must add a tcp_select function that will be used by the NonblockingSSL_Connect. This is done by adding:
 
     ```
     /*
@@ -426,29 +428,28 @@ When a socket is setup as non-blocking, reads and writes to the socket do not ca
 
     static inline int tcp_select(int socketfd, int to_sec)
     {
-       fd_set recvfds, errfds;
-       int nfds = socketfd + 1;
-       struct timeval timeout = { (to_sec > 0) ? to_sec : 0, 0};
-       int result;
-
-       FD_ZERO(&recvfds);
-       FD_SET(socketfd, &recvfds);
-       FD_ZERO(&errfds);
-       FD_SET(socketfd, &errfds);
-
-       result = select(nfds, &recvfds, NULL, &errfds, &timeout);
-
-       if (result == 0)
-           return TEST_TIMEOUT;
-       else if (result > 0) {
-           if (FD_ISSET(socketfd, &recvfds))
-               return TEST_RECV_READY;
-           else if(FD_ISSET(socketfd, &errfds))
-               return TEST_ERROR_READY;
-       }
-
-       return TEST_SELECT_FAIL;
-    }
+        fd_set recvfds, errfds;
+        int nfds = socketfd + 1;
+        struct timeval timeout = { (to_sec > 0) ? to_sec : 0, 0};
+        int result;
+    
+        FD_ZERO(&recvfds);
+        FD_SET(socketfd, &recvfds);
+        FD_ZERO(&errfds);
+        FD_SET(socketfd, &errfds);
+    
+        result = select(nfds, &recvfds, NULL, &errfds, &timeout);
+    
+        if (result == 0)
+            return TEST_TIMEOUT;
+        else if (result > 0) {
+            if (FD_ISSET(socketfd, &recvfds))
+                return TEST_RECV_READY;
+            else if(FD_ISSET(socketfd, &errfds))
+                return TEST_ERROR_READY;
+        }
+        return TEST_SELECT_FAIL;
+        }
     ```
 
 
@@ -494,7 +495,7 @@ When a socket is setup as non-blocking, reads and writes to the socket do not ca
 		}
  	}
     ```
-##Tutorial for adding nonblocking to a Server.
+## Tutorial for adding nonblocking to a Server.
 
 Nonblocking on the server side allows for switching between multiple client connections when reading and writing without closing them.
 
@@ -511,6 +512,7 @@ Nonblocking on the server side allows for switching between multiple client conn
 	>Both F_SETFL and O_NONBLOCK are constants from the fcntl.h file.
 
 4. Include a function to select tcp. What this function does is it checks file descriptors for readiness of reading, writing, for pending exceptions, and for timeout. The timeout variable needs to point to struct timeval type. If the timeval members are 0 then the function does not block. The function and its input parameters are listed below.
+
     ``select(int nfds, fd_set* read, fd_set* write, fd_set* exception, struct timeval* time)``
 
 	>For the example server we do not consider write when selecting the tcp so it is set to NULL. For ease the example code uses enumerated values for which state the function select returns. This then makes the next loop discussed easier.
@@ -591,4 +593,4 @@ The main thread accepts clients and for each client accepted a new thread is spa
     }
     ```
 
-5. Void* arg is the argument that gets passed into wolfssal_thread when pthread_create is called. In this example that argument is used to pass the socket value that the client for the current thread is on.
+5. Void* arg is the argument that gets passed into wolfssl_thread when pthread_create is called. In this example that argument is used to pass the socket value that the client for the current thread is on.

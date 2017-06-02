@@ -44,6 +44,15 @@ static int cleanup;                 /* To handle shutdown */
 struct sockaddr_in servAddr;        /* our server's address */
 struct sockaddr_in cliaddr;         /* the client's address */
 
+void sig_handler(const int sig);
+
+void sig_handler(const int sig)
+{
+    printf("\nSIGINT %d handled\n", sig);
+    cleanup = 1;
+    return;
+}
+
 int main(int argc, char** argv)
 {
     /* cont short for "continue?", Loc short for "location" */
@@ -60,10 +69,17 @@ int main(int argc, char** argv)
     int           listenfd = 0;   /* Initialize our socket */
     WOLFSSL*      ssl = NULL;
     socklen_t     cliLen;
-    socklen_t     len = sizeof(on);
+    socklen_t     len = sizeof(int);
     unsigned char b[MSGLEN];      /* watch for incoming messages */
     char          buff[MSGLEN];   /* the incoming message */
     char          ack[] = "I hear you fashizzle!\n";
+    
+    /* Code for handling signals */
+    struct sigaction act, oact;
+    act.sa_handler = sig_handler;
+    sigemptyset(&act.sa_mask);
+    act.sa_flags = 0;
+    sigaction(SIGINT, &act, &oact);
 
     /* "./config --enable-debug" and uncomment next line for debugging */
     /* wolfSSL_Debugging_ON(); */
@@ -97,6 +113,7 @@ int main(int argc, char** argv)
 
     /* Await Datagram */
     while (cleanup != 1) {
+
         /* Create a UDP/IP socket */
         if ((listenfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) {
             printf("Cannot create socket.\n");
@@ -122,8 +139,7 @@ int main(int argc, char** argv)
         }
 
         /*Bind Socket*/
-        if (bind(listenfd,
-                    (struct sockaddr *)&servAddr, sizeof(servAddr)) < 0) {
+        if (bind(listenfd, (struct sockaddr*)&servAddr, sizeof(servAddr)) < 0) {
             printf("Bind failed.\n");
             cleanup = 1;
             cont = 1;
@@ -204,6 +220,12 @@ int main(int argc, char** argv)
         printf("Client left cont to idle state\n");
         cont = 0;
     }
+    
+    /* With the "continue" keywords, it is possible for the loop to exit *
+     * without changing the value of cont                                */
+    if (cleanup == 1) {
+        cont = 1;
+    }
 
     if (cont == 1) {
         wolfSSL_CTX_free(ctx);
@@ -212,3 +234,4 @@ int main(int argc, char** argv)
 
     return 0;
 }
+

@@ -19,11 +19,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 #include    <stdio.h>
-#include    <stdlib.h>                  
+#include    <stdlib.h>
 #include    <string.h>
 #include    <errno.h>
 #include    <arpa/inet.h>
-#include    <wolfssl/ssl.h>          /* wolfSSL security library */
+#include    <wolfssl/ssl.h>         /* wolfSSL security library */
 #include    <fcntl.h>               /* nonblocking I/O library */
 #include    <sys/select.h>
 
@@ -33,7 +33,7 @@
 const char* cert = "../certs/ca-cert.pem";
 
 /*
- * enum used for tcp_select function 
+ * enum used for tcp_select function
  */
 enum {
     TEST_SELECT_FAIL,
@@ -105,7 +105,7 @@ int NonBlockConnect(WOLFSSL* ssl)
     return ret;
 }
 
-/* 
+/*
  * clients initial contact with server. (socket to connect, security layer)
  */
 int ClientGreet(WOLFSSL* ssl)
@@ -113,7 +113,7 @@ int ClientGreet(WOLFSSL* ssl)
     /* data to send to the server, data recieved from the server */
     char sendBuff[MAXDATASIZE], rcvBuff[MAXDATASIZE] = {0};
     int ret = 0;
-int count = 0;
+    int count = 0;
 
     printf("Message for server:\t");
     fgets(sendBuff, MAXDATASIZE, stdin);
@@ -125,16 +125,16 @@ int count = 0;
         return EXIT_FAILURE;
     }
 
-    ret = wolfSSL_read(ssl, rcvBuff, MAXDATASIZE);   
+    ret = wolfSSL_read(ssl, rcvBuff, MAXDATASIZE);
     if (ret <= 0) {
         /* the server failed to send data, or error trying */
         ret = wolfSSL_get_error(ssl, 0);
         while (ret == SSL_ERROR_WANT_READ) {
-count++;
+            count++;
             ret = wolfSSL_read(ssl, rcvBuff, MAXDATASIZE);
             ret = wolfSSL_get_error(ssl, 0);
         }
-printf("counter %d\n", count);
+        printf("counter %d\n", count);
         if (ret < 0) {
             ret = wolfSSL_get_error(ssl, 0);
             printf("Read error. Error: %d\n", ret);
@@ -146,14 +146,14 @@ printf("counter %d\n", count);
     return ret;
 }
 
-/* 
+/*
  * applies TLS 1.2 security layer to data being sent.
  */
 int Security(int sock)
 {
     WOLFSSL_CTX* ctx;
-    WOLFSSL*     ssl;    /* create WOLFSSL object */ 
-    int         ret = 0;
+    WOLFSSL*     ssl;    /* create WOLFSSL object */
+    int          ret = 0;
 
     wolfSSL_Init();      /* initialize wolfSSL */
 
@@ -164,7 +164,7 @@ int Security(int sock)
     }
 
     /* load CA certificates into wolfSSL_CTX. which will verify the server */
-    if (wolfSSL_CTX_load_verify_locations(ctx, cert, 0) != 
+    if (wolfSSL_CTX_load_verify_locations(ctx, cert, 0) !=
             SSL_SUCCESS) {
         printf("Error loading %s. Please check the file.\n", cert);
         return EXIT_FAILURE;
@@ -185,14 +185,14 @@ int Security(int sock)
     wolfSSL_free(ssl);
     wolfSSL_CTX_free(ctx);
     wolfSSL_Cleanup();
-    
+
     return ret;
 }
 
-/* 
- * Command line argumentCount and argumentValues 
+/*
+ * Command line argumentCount and argumentValues
  */
-int main(int argc, char** argv) 
+int main(int argc, char** argv)
 {
     int     sockfd;                         /* socket file descriptor */
     struct  sockaddr_in servAddr;           /* struct for server address */
@@ -211,11 +211,11 @@ int main(int argc, char** argv)
         printf("Failed to create socket. Error: %i\n", ret);
         return EXIT_FAILURE;
     }
-    
+
     fcntl(sockfd, F_SETFL, O_NONBLOCK);     /* sets socket to non-blocking */
     memset(&servAddr, 0, sizeof(servAddr));     /* clears memory block for use */
     servAddr.sin_family = AF_INET;          /* sets addressfamily to internet*/
-    servAddr.sin_port = htons(SERV_PORT);   /* sets port to defined port */  
+    servAddr.sin_port = htons(SERV_PORT);   /* sets port to defined port */
 
     /* looks for the server at the entered address (ip in the command line) */
     if (inet_pton(AF_INET, argv[1], &servAddr.sin_addr) < 1) {
@@ -226,9 +226,9 @@ int main(int argc, char** argv)
     }
 
     /* keeps trying to connect to the socket until it is able to do so */
-    while (ret != 0) 
-        ret = connect(sockfd, (struct sockaddr *) &servAddr, 
-            sizeof(servAddr)); 
+    while (ret != 0)
+        ret = connect(sockfd, (struct sockaddr *) &servAddr,
+            sizeof(servAddr));
 
     Security(sockfd);
 

@@ -41,16 +41,26 @@
 #define SERV_PORT   11111           /* define our server port number */
 #define MSGLEN      4096
 
-WOLFSSL_CTX*        ctx;             /* must be global for ThreadControl */
-static int         cleanup;         /* To handle shutdown */
-struct sockaddr_in cliAddr;         /* the client's address */
-struct sockaddr_in servAddr;        /* our server's address */
+static WOLFSSL_CTX* ctx;                    /* global for ThreadControl*/
+static int          cleanup;                /* To handle shutdown */
+static struct       sockaddr_in cliAddr;    /* the client's address */
+static struct       sockaddr_in servAddr;   /* our server's address */
+
+void sig_handler(const int sig);
+void* ThreadControl(void*);
 
 typedef struct {
     int activefd;
     int size;
     unsigned char b[MSGLEN];
 } threadArgs;
+
+void sig_handler(const int sig)
+{
+    printf("\nSIGINT %d handled\n", sig);
+    cleanup = 1;
+    return;
+}
 
 void* ThreadControl(void* openSock)
 {
@@ -135,6 +145,16 @@ int main(int argc, char** argv)
     socklen_t     cliLen;
     socklen_t     len = sizeof(on);
     unsigned char buf[MSGLEN];      /* watch for incoming messages */
+    /* variables needed for threading */
+    threadArgs* args;
+    pthread_t threadid;
+
+    /* Code for handling signals */
+    struct sigaction act, oact;
+    act.sa_handler = sig_handler;
+    sigemptyset(&act.sa_mask);
+    act.sa_flags = 0;
+    sigaction(SIGINT, &act, &oact);
 
     /* "./config --enable-debug" and uncomment next line for debugging */
     /* wolfSSL_Debugging_ON(); */
@@ -202,7 +222,8 @@ int main(int argc, char** argv)
 
     while (cleanup != 1) {
 
-        threadArgs* args;
+        memset(&threadid, 0, sizeof(threadid));
+
         args = (threadArgs *) malloc(sizeof(threadArgs));
 
         cliLen = sizeof(cliAddr);
@@ -211,8 +232,14 @@ int main(int argc, char** argv)
         * read any real message to struct and pass struct into thread
         * for processing.
         */
+
         bytesRcvd = (int)recvfrom(listenfd, (char *)buf, sizeof(buf), 0,
                 (struct sockaddr*)&cliAddr, &cliLen);
+
+        if (cleanup == 1) {
+            free(args);
+            return 1;
+        }
 
         if (bytesRcvd < 0) {
             printf("No clients in que, enter idle state\n");
@@ -221,6 +248,7 @@ int main(int argc, char** argv)
 
         else if (bytesRcvd > 0) {
 
+            /* put all the bytes from buf into args */
             memcpy(args->b, buf, sizeof(buf));
 
             args->size = bytesRcvd;
@@ -231,21 +259,23 @@ int main(int argc, char** argv)
             }
 
             res = setsockopt(args->activefd, SOL_SOCKET, SO_REUSEADDR, &on,
-                                                                       len);
+                    len);
+
             if (res < 0) {
                 printf("Setsockopt SO_REUSEADDR failed.\n");
                 cleanup = 1;
                 return 1;
             }
-                #ifdef SO_REUSEPORT
-                    res = setsockopt(args->activefd, SOL_SOCKET,
-                                        SO_REUSEPORT, &on, len);
-                    if (res < 0) {
-                        printf("Setsockopt SO_REUSEPORT failed.\n");
-                        cleanup = 1;
-                        return 1;
-                    }
-                #endif
+
+            #ifdef SO_REUSEPORT
+                res = setsockopt(args->activefd, SOL_SOCKET, SO_REUSEPORT, &on,
+                        len);
+                if (res < 0) {
+                    printf("Setsockopt SO_REUSEPORT failed.\n");
+                    cleanup = 1;
+                    return 1;
+                }
+            #endif
 
             if (connect(args->activefd, (const struct sockaddr *)&cliAddr,
                         sizeof(cliAddr)) != 0) {
@@ -255,18 +285,27 @@ int main(int argc, char** argv)
             }
         }
         else {
+            /* else bytesRcvd = 0 */
             printf("Recvfrom failed.\n");
             cleanup = 1;
             return 1;
         }
         printf("Connected!\n");
 
-        pthread_t threadid;
-        /* SPIN A THREAD HERE TO HANDLE "buff" and "reply/ack" */
-        pthread_create(&threadid, NULL, ThreadControl, args);
-        printf("control passed to thread control.\n");
-    }
+        if (cleanup != 1) {
+            /* SPIN A THREAD HERE TO HANDLE "buff" and "reply/ack" */
+            pthread_create(&threadid, NULL, ThreadControl, args);
+            printf("control passed to ThreadControl.\n");
+        }
+        else if (cleanup == 1) {
+            return 1;
+        } else {
+            printf("I don't know what to tell ya man\n");
+        }
 
+        /* clear servAddr each loop */
+        memset((char *)&servAddr, 0, sizeof(servAddr));
+    }
 
     if (cont == 1) {
         wolfSSL_CTX_free(ctx);

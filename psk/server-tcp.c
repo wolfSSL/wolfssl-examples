@@ -1,6 +1,6 @@
 /* server-tcp.c
- * A server ecample using a TCP connection. 
- *  
+ * A server ecample using a TCP connection.
+ *
  * Copyright (C) 2006-2015 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
@@ -34,48 +34,32 @@
 #define LISTENQ     1024
 #define SERV_PORT   11111
 
-/* 
- * Fatal error detected, print out and exit. 
+/*
+ * Fatal error detected, print out and exit.
  */
 void err_sys(const char *err, ...)
 {
     printf("Fatal error : %s\n", err);
 }
 
-/* 
- * Handles response to client.
- */
-void respond(int sockfd)
-{
-    int  n;              /* length of string read */
-    char buf[MAXLINE];   /* string read from client */
-    char response[22] = "I hear ya for shizzle";
-    memset(buf, 0, MAXLINE);
-    n = read(sockfd, buf, MAXLINE);
-    if (n > 0) {
-        printf("%s\n", buf);
-        if (write(sockfd, response, 22) > 22) {
-            err_sys("write error");
-        }
-    }
-    if (n < 0) {
-        err_sys("respond: read error");
-    }
-}
-
 int main()
 {
-    int                 listenfd, connfd;
-    int                 opt;
+    int  listenfd, connfd;
+    int  opt;
+    int  n;              /* length of string read */
+    char buff[MAXLINE];
+    char buf[MAXLINE];   /* string read from client */
+    char response[22] = "I hear ya for shizzle";
     struct sockaddr_in  cliAddr, servAddr;
-    char                buff[MAXLINE];
-    socklen_t           cliLen;
 
-    /* find a socket , 0 for using TCP option */ 
+    socklen_t cliLen;
+
+    /* find a socket , 0 for using TCP option */
     listenfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (listenfd < 0)
+    if (listenfd < 0) {
         err_sys("socket error");
-    
+    }
+
     /* set up server address and port */
     memset(&servAddr, 0, sizeof(servAddr));
     servAddr.sin_family      = AF_INET;
@@ -86,15 +70,16 @@ int main()
     opt = 1;
     setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, (const void*)&opt,
                sizeof(int));
-    if (bind(listenfd, (struct sockaddr *) &servAddr, sizeof(servAddr)) < 0)
+    if (bind(listenfd, (struct sockaddr *) &servAddr, sizeof(servAddr)) < 0) {
         err_sys("bind error");
-    
-    /* listen to the socket */   
+    }
+
+    /* listen to the socket */
     if (listen(listenfd, LISTENQ) < 0) {
         err_sys("listen error");
         return 1;
     }
-    
+
     /* main loop for accepting and responding to clients */
     for ( ; ; ) {
         cliLen = sizeof(cliAddr);
@@ -107,8 +92,19 @@ int main()
             printf("Connection from %s, port %d\n",
                    inet_ntop(AF_INET, &cliAddr.sin_addr, buff, sizeof(buff)),
                    ntohs(cliAddr.sin_port));
-                   
-            respond(connfd);
+            
+            /* empty response buffer to avoid unexpected output */
+            memset(buf, 0, MAXLINE);
+            n = read(connfd, buf, MAXLINE);
+            if (n > 0) {
+                printf("%s\n", buf);
+                if (write(connfd, response, 22) > 22) {
+                    err_sys("write error");
+                }
+            }
+            if (n < 0) {
+                err_sys("respond: read error");
+            }
             /* closes the connections after responding */
             if (close(connfd) == -1) {
                 err_sys("close error");

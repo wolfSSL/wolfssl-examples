@@ -1,6 +1,6 @@
 /* clu_optargs.h
  *
- * Copyright (C) 2006-2016 wolfSSL Inc.
+ * Copyright (C) 2006-2017 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -43,6 +43,8 @@ enum {
     TEXT_OUT,
     SILENT,
     REQUEST,
+    GEN_KEY,
+    OUTPUT,
     HELP1, /* "-help" */
     HELP2, /* "-h" */
 };
@@ -71,6 +73,8 @@ static struct option long_options[] = {
     {"text",    0,                 0, TEXT_OUT  },
     {"silent",  0,                 0, SILENT    },
     {"req",     0,                 0, REQUEST   },
+    {"genkey",  0,                 0, GEN_KEY   },
+    {"output",  0,                 0, OUTPUT    },
     {"help",    0,                 0, HELP1     },
     {"h",       0,                 0, HELP2     },
     {"v",       0,                 0, 'v'       },
