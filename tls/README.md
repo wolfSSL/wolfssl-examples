@@ -72,6 +72,16 @@ into.
     2. [Client](#client-tls)
     3. [Running](#run-tls)
 
+4. [Using callbacks](#callback)
+
+    1. [Running](#run-callback)
+
+4. [Using ECC](#ecc)
+
+    1. [Server](#server-ecc)
+    2. [Client](#client-ecc)
+    3. [Running](#run-ecc)
+
 
 
 ## <a name="run">Running these examples</a>
@@ -882,7 +892,6 @@ And we're done. We should now have a fully functional TLS client.
 
 * `client-tls`
 * `client-tls-callback`
-* `client-tls-ecdhe`
 * `client-tls-nonblocking`
 * `client-tls-resume`
 * `client-tls-writedup`
@@ -891,9 +900,278 @@ And we're done. We should now have a fully functional TLS client.
 
 * `server-tls`
 * `server-tls-callback`
-* `server-tls-ecdhe`
 * `server-tls-nonblocking`
 * `server-tls-threaded`
+
+
+
+## <a name="callback">Using callbacks</a>
+
+The edits required to make wolfSSL use custom functions for getting I/O from a
+socket are identical between the client and server code. As such, pick
+whichever `*-tls.c` you want and copy it to `*-tls-callback.c`. The finished
+version of the server can be found [here][s-tls-c], and the finished version of
+the client can be found [here][c-tls-c].
+
+The first step is to add `errno.h` to the list of "usual suspects". This block
+should now look like this:
+
+```c
+/* the usual suspects */
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <errno.h>
+```
+
+Next, we're going to need write our callbacks functions. These functions will
+be called by wolfSSL whenever it need to read or write data through the
+sockets. These callbacks can be quite sophisticated, but we're going to write
+simple callbacks that tell us how many bytes they read or write.
+
+First, the read callback:
+
+```c
+int my_IORecv(WOLFSSL* ssl, char* buff, int sz, void* ctx)
+{
+    /* By default, ctx will be a pointer to the file descriptor to read from.
+     * This can be changed by calling wolfSSL_SetIOReadCtx(). */
+    int sockfd = *(int*)ctx;
+    int recvd;
+
+
+    /* Receive message from socket */
+    if ((recvd = recv(sockfd, buff, sz, 0)) == -1) {
+        /* error encountered. Be responsible and report it in wolfSSL terms */
+
+        fprintf(stderr, "IO RECEIVE ERROR: ");
+        switch (errno) {
+        #if EAGAIN != EWOULDBLOCK
+        case EAGAIN: /* EAGAIN == EWOULDBLOCK on some systems, but not others */
+        #endif
+        case EWOULDBLOCK:
+            if (!wolfSSL_dtls(ssl) || wolfSSL_get_using_nonblock(ssl)) {
+                fprintf(stderr, "would block\n");
+                return WOLFSSL_CBIO_ERR_WANT_READ;
+            }
+            else {
+                fprintf(stderr, "socket timeout\n");
+                return WOLFSSL_CBIO_ERR_TIMEOUT;
+            }
+        case ECONNRESET:
+            fprintf(stderr, "connection reset\n");
+            return WOLFSSL_CBIO_ERR_CONN_RST;
+        case EINTR:
+            fprintf(stderr, "socket interrupted\n");
+            return WOLFSSL_CBIO_ERR_ISR;
+        case ECONNREFUSED:
+            fprintf(stderr, "connection refused\n");
+            return WOLFSSL_CBIO_ERR_WANT_READ;
+        case ECONNABORTED:
+            fprintf(stderr, "connection aborted\n");
+            return WOLFSSL_CBIO_ERR_CONN_CLOSE;
+        default:
+            fprintf(stderr, "general error\n");
+            return WOLFSSL_CBIO_ERR_GENERAL;
+        }
+    }
+    else if (recvd == 0) {
+        printf("Connection closed\n");
+        return WOLFSSL_CBIO_ERR_CONN_CLOSE;
+    }
+
+    /* successful receive */
+    printf("my_IORecv: received %d bytes from %d\n", sz, sockfd);
+    return recvd;
+}
+```
+
+Next the write callback:
+
+```c
+int my_IOSend(WOLFSSL* ssl, char* buff, int sz, void* ctx)
+{
+    /* By default, ctx will be a pointer to the file descriptor to write to.
+     * This can be changed by calling wolfSSL_SetIOWriteCtx(). */
+    int sockfd = *(int*)ctx;
+    int sent;
+
+
+    /* Receive message from socket */
+    if ((sent = send(sockfd, buff, sz, 0)) == -1) {
+        /* error encountered. Be responsible and report it in wolfSSL terms */
+
+        fprintf(stderr, "IO SEND ERROR: ");
+        switch (errno) {
+        #if EAGAIN != EWOULDBLOCK
+        case EAGAIN: /* EAGAIN == EWOULDBLOCK on some systems, but not others */
+        #endif
+        case EWOULDBLOCK:
+            fprintf(stderr, "would block\n");
+            return WOLFSSL_CBIO_ERR_WANT_READ;
+        case ECONNRESET:
+            fprintf(stderr, "connection reset\n");
+            return WOLFSSL_CBIO_ERR_CONN_RST;
+        case EINTR:
+            fprintf(stderr, "socket interrupted\n");
+            return WOLFSSL_CBIO_ERR_ISR;
+        case EPIPE:
+            fprintf(stderr, "socket EPIPE\n");
+            return WOLFSSL_CBIO_ERR_CONN_CLOSE;
+        default:
+            fprintf(stderr, "general error\n");
+            return WOLFSSL_CBIO_ERR_GENERAL;
+        }
+    }
+    else if (sent == 0) {
+        printf("Connection closed\n");
+        return 0;
+    }
+
+    /* successful send */
+    printf("my_IOSend: sent %d bytes to %d\n", sz, sockfd);
+    return sent;
+}
+```
+
+The most complex part of these callbacks are probably their error reporting.
+wolfSSL expects more error information that we've been doing in these examples
+until now. As such, to be responsible we have to translate the `errno` value
+into terms that wolfSSL expects form its I/O functions.
+
+But that's the hard part. Now all that's left is to register these functions
+with wolfSSL. We can do this at any time between calling `wolfSSL_CTX_new()`
+to get `ctx` and `wolfSSL_new()` to get `ssl`. After we've handled loading
+certificate or key files but before the "Initialize the server address struct
+with zeros" block is a good place. After this, add these lines:
+
+```c
+    /* Register callbacks */
+    wolfSSL_SetIORecv(ctx, my_IORecv);
+    wolfSSL_SetIOSend(ctx, my_IOSend);
+```
+
+And just like that wolfSSL will use our functions to send and receive data. Now
+when this program is run we should see a number of "my\_OISend: sent" and
+"my\_IORecv: recieved" lines in our output.
+
+#### <a name="run-callback">Running</a>
+
+`server-tls-callback` can be connected to by the following:
+
+* `client-tls`
+* `client-tls-callback`
+* `client-tls-nonblocking`
+* `client-tls-resume`
+* `client-tls-writedup`
+
+`client-tls-callback` can connect to the following:
+
+* `server-tls`
+* `server-tls-callback`
+* `server-tls-nonblocking`
+* `server-tls-threaded`
+
+
+
+## <a name="ecc">Using ECC</a>
+
+We can also have wolfSSL use ECC keys.
+
+#### <a name="server-ecc">Server</a>
+
+We'll modify the server first. Copy `server-tls.c` to a new file,
+`server-tls-ecdhe.c`, that we will modify. The finished version can be found
+[here][s-tls-e].
+
+The first change will be to our file locations. Change the defines for
+`CERT_FILE` and `KEY_FILE` to the following:
+
+```c
+#define CERT_FILE "../certs/server-ecc.pem"
+#define KEY_FILE  "../certs/ecc-key.pem"
+```
+
+Furthermore, we'll want to define `CIPHER_LIST`. This will be a list of all
+ciphers we support on this server. The define will look like this:
+
+```c
+#define CIPHER_LIST "ECDHE-ECDSA-CHACHA20-POLY1305"
+```
+
+Finally, all we need to do is set this cipher list. Just after the "Load server
+key into `WOLFSSL_CTX`" block, add these lines:
+
+```c
+    /* Set cipher list */
+    if (wolfSSL_CTX_set_cipher_list(ctx, CIPHER_LIST) != SSL_SUCCESS) {
+        fprintf(stderr, "ERROR: failed to set cipher list\n");
+        return -1;
+    }
+```
+
+And just like that, we're done!
+
+#### <a name="client-ecc">Client</a>
+
+This is one of those cases where we have more to change about the client than
+the server. Copy `client-tls.c` to a new file, `client-tls-ecdhe.c`, that we
+will modify. The finished version can be found [here][c-tls-e].
+
+We start by changing the definition of `CERT_FILE`. It should now look like
+this:
+
+```c
+#define CERT_FILE "../certs/server-ecc.pem"
+```
+
+After this, we need two more files and a cipher list. In total, these new
+defines will look like this:
+
+```c
+#define ECC_FILE    "../certs/client-ecc-cert.pem"
+#define KEY_FILE    "../certs/ecc-client-key.pem"
+#define CIPHER_LIST "ECDHE-ECDSA-CHACHA20-POLY1305"
+```
+
+With these defined, we just need to load them into `ctx`. We're already doing
+this for `CERT_FILE` in the "Load client certificates into `WOLFSSL_CTX`"
+block, so add these blocks just after that:
+
+```c
+    /* Load client ecc certificates into WOLFSSL_CTX */
+    if (wolfSSL_CTX_use_certificate_chain_file(ctx, ECC_FILE) != SSL_SUCCESS) {
+        fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
+                ECC_FILE);
+        return -1;
+    }
+
+    /* Load client ecc key into WOLFSSL_CTX */
+    if (wolfSSL_CTX_use_PrivateKey_file(ctx, KEY_FILE, SSL_FILETYPE_PEM)
+        != SSL_SUCCESS) {
+        fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
+                KEY_FILE);
+        return -1;
+    }
+
+    /* Set cipher list */
+    if (wolfSSL_CTX_set_cipher_list(ctx, CIPHER_LIST) != SSL_SUCCESS) {
+        fprintf(stderr, "ERROR: failed to set cipher list\n");
+        return -1;
+    }
+```
+
+And now the client is set up.
+
+#### <a name="run-callback">Running</a>
+
+`server-tls-ecdhe` can be connected to by the following:
+
+* `client-tls-ecdhe`
+
+`client-tls-ecdhe` can connect to the following:
+
+* `server-tls-ecdhe`
 
 
 
@@ -905,3 +1183,9 @@ And we're done. We should now have a fully functional TLS client.
 
 [s-tls]: https://github.com/wolfssl/wolfssl-examples/blob/master/tls/server-tls.c
 [c-tls]: https://github.com/wolfssl/wolfssl-examples/blob/master/tls/client-tls.c
+
+[s-tls-c]: https://github.com/wolfssl/wolfssl-examples/blob/master/tls/server-tls-callback.c
+[c-tls-c]: https://github.com/wolfssl/wolfssl-examples/blob/master/tls/client-tls-callback.c
+
+[s-tls-e]: https://github.com/wolfssl/wolfssl-examples/blob/master/tls/server-tls-ecdhe.c
+[c-tls-e]: https://github.com/wolfssl/wolfssl-examples/blob/master/tls/client-tls-ecdhe.c
