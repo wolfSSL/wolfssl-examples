@@ -1,4 +1,4 @@
-/* server-tls.c
+/* server-tls-threaded.c
  *
  * Copyright (C) 2006-2015 wolfSSL Inc.
  *
@@ -82,7 +82,7 @@ void* ClientHandler(void* args)
 
     /* Read the client data into our buff array */
     memset(buff, 0, sizeof(buff));
-    if (wolfSSL_read(ssl, buff, sizeof(buff)-1) < 0) {
+    if (wolfSSL_read(ssl, buff, sizeof(buff)-1) == -1) {
         fprintf(stderr, "ERROR: failed to read\n");
         pkg->open = 1;
         pthread_exit(NULL);
@@ -196,7 +196,7 @@ int main()
 
 
     /* Bind the server socket to our port */
-    if (bind(sockfd, (struct sockaddr*)&servAddr, sizeof(servAddr)) < 0) {
+    if (bind(sockfd, (struct sockaddr*)&servAddr, sizeof(servAddr)) == -1) {
         fprintf(stderr, "ERROR: failed to bind\n");
         return -1;
     }

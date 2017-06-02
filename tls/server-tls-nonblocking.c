@@ -114,7 +114,7 @@ int main()
 
 
     /* Bind the server socket to our port */
-    if (bind(sockfd, (struct sockaddr*)&servAddr, sizeof(servAddr)) < 0) {
+    if (bind(sockfd, (struct sockaddr*)&servAddr, sizeof(servAddr)) == -1) {
         fprintf(stderr, "ERROR: failed to bind\n");
         return -1;
     }
@@ -157,7 +157,7 @@ int main()
 
         /* Read the client data into our buff array */
         memset(buff, 0, sizeof(buff));
-        while (wolfSSL_read(ssl, buff, sizeof(buff)-1) < 0) {
+        while (wolfSSL_read(ssl, buff, sizeof(buff)-1) == -1) {
             if (wolfSSL_want_read(ssl)) {
                 /* no error, just non-blocking. Carry on. */
                 continue;

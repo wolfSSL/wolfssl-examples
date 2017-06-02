@@ -165,7 +165,7 @@ int main(int argc, char** argv)
 
     /* Read the server data into our buff array */
     memset(buff, 0, sizeof(buff));
-    while (wolfSSL_read(ssl, buff, sizeof(buff)-1) < 0) {
+    while (wolfSSL_read(ssl, buff, sizeof(buff)-1) == -1) {
         if (wolfSSL_want_read(ssl)) {
             /* no error, just non-blocking. Carry on. */
             continue;

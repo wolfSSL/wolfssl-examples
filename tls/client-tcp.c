@@ -70,7 +70,7 @@ int main(int argc, char** argv)
 
     /* Get the server IPv4 address from the command line call */
     if (inet_pton(AF_INET, argv[1], &servAddr.sin_addr) != 1) {
-        fprintf(stderr, "ERROR: invalid Address\n");
+        fprintf(stderr, "ERROR: invalid address\n");
         return -1;
     }
 
@@ -101,7 +101,7 @@ int main(int argc, char** argv)
 
     /* Read the server data into our buff array */
     memset(buff, 0, sizeof(buff));
-    if (read(sockfd, buff, sizeof(buff)-1) < 0) {
+    if (read(sockfd, buff, sizeof(buff)-1) == -1) {
         fprintf(stderr, "ERROR: failed to read\n");
         return -1;
     }
