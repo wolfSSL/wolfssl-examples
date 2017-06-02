@@ -41,15 +41,15 @@
 
 int main (int argc, char** argv)
 {
-    int             n = 0;                                                      
-    int             sockfd = 0;                                                 
-    struct          sockaddr_in servAddr;                                       
-    WOLFSSL*        ssl = 0;                                                    
-    WOLFSSL_CTX*    ctx = 0;                                                    
-    char            cert_array[]  = "../certs/ca-cert.pem";                     
-    char*           certs = cert_array;                                         
-    char            sendLine[MAXLINE];                                          
-    char            recvLine[MAXLINE - 1]; 
+    int             n = 0;
+    int             sockfd = 0;
+    struct          sockaddr_in servAddr;
+    WOLFSSL*        ssl = 0;
+    WOLFSSL_CTX*    ctx = 0;
+    char            cert_array[]  = "../certs/ca-cert.pem";
+    char*           certs = cert_array;
+    char            sendLine[MAXLINE];
+    char            recvLine[MAXLINE - 1];
 
     /* Program argument checking */
     if (argc != 2) {
