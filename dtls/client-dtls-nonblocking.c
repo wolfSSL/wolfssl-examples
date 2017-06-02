@@ -62,10 +62,15 @@ int main (int argc, char** argv)
     char*               certs = cert_array;
     char*               srTest = "testing session resume";
     /* variables used for non-blocking DTLS connect */
-    int ret = wolfSSL_connect(ssl);
-    int error = wolfSSL_get_error(ssl, 0);
-    int nb_sockfd = (int) wolfSSL_get_fd(ssl);
-    int select_ret;
+    int                 ret = wolfSSL_connect(ssl);
+    int                 error = wolfSSL_get_error(ssl, 0);
+    int                 nb_sockfd = (int) wolfSSL_get_fd(ssl);
+    int                 select_ret;
+    int                 currTimeout;
+    int                 nfds;
+    int                 result;
+    fd_set              recvfds, errfds;
+    struct timeval      timeout;
 
     if (argc != 2) {
         printf("usage: udpcli <IP address>\n");
@@ -115,14 +120,15 @@ int main (int argc, char** argv)
 /*                     Non-blocking code for DTLS connect                    */
 
     while (ret != SSL_SUCCESS && (error == SSL_ERROR_WANT_READ ||
-                error == SSL_ERROR_WANT_WRITE)) {
+                error == SSL_ERROR_WANT_WRITE)) {   
         
         /* Variables that will reset upon every iteration */
-        int             currTimeout = 1;
-        int             nfds = nb_sockfd +1;
-        int             result;
-        fd_set          recvfds, errfds;
-        struct timeval  timeout = { (currTimeout > 0) ? currTimeout : 0, 0};
+        currTimeout = 1;
+        nfds = nb_sockfd + 1;
+        result = NULL;
+        recvfds = NULL;
+        errfds = NULL;
+        timeout = { (currTimeout > 0) ? currTimeout : 0, 0};
         
 	    if (error == SSL_ERROR_WANT_READ) {
 	        printf("... client would read block\n");
@@ -144,7 +150,7 @@ int main (int argc, char** argv)
         select_ret = TEST_SELECT_FAIL;
 
         if (result == 0) {
-	        select_ret = TEST_TIMEOUT;
+            select_ret = TEST_TIMEOUT;
         }
         else if (result > 0) {
             if (FD_ISSET(nb_sockfd, &recvfds)) {
@@ -156,11 +162,11 @@ int main (int argc, char** argv)
         }
         /* End "Tcp select ..." code */
 
-	    if ( ( select_ret == TEST_RECV_READY) ||
-             ( select_ret == TEST_ERROR_READY)) {
+	    if (  select_ret == TEST_RECV_READY ||
+              select_ret == TEST_ERROR_READY ) {
             ret = wolfSSL_connect(ssl);
 	        error = wolfSSL_get_error(ssl, 0);
-	    }
+        }
 	    else if (select_ret == TEST_TIMEOUT && !wolfSSL_dtls(ssl)) {
 	        error = 2;
 	    }
