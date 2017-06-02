@@ -71,18 +71,18 @@ int main (int argc, char** argv)
     /* wolfSSL_Debugging_ON();*/
 
     if ( (ctx = wolfSSL_CTX_new(wolfDTLSv1_2_client_method())) == NULL) {
-	    fprintf(stderr, "wolfSSL_CTX_new error.\n");
-	    return(EXIT_FAILURE);
+        fprintf(stderr, "wolfSSL_CTX_new error.\n");
+        return(EXIT_FAILURE);
     }
 
     if (wolfSSL_CTX_load_verify_locations(ctx,certs, 0) != SSL_SUCCESS) {
-	    fprintf(stderr, "Error loading %s, please check the file.\n", certs);
-	    return(EXIT_FAILURE);
+        fprintf(stderr, "Error loading %s, please check the file.\n", certs);
+        return(EXIT_FAILURE);
     }
 
     ssl = wolfSSL_new(ctx);
     if (ssl == NULL) {
-	    printf("unable to get ssl object");
+        printf("unable to get ssl object");
         return 1;
     }
 
@@ -126,7 +126,7 @@ int main (int argc, char** argv)
 	        printf("... client would read block\n");
         }
 	    else {
-	        printf("... client would write block\n");
+            printf("... client would write block\n");
         }
 
 	    currTimeout = wolfSSL_dtls_get_current_timeout(ssl);
@@ -144,11 +144,11 @@ int main (int argc, char** argv)
 	        select_ret = TEST_TIMEOUT;
         }
         else if (result > 0) {
-	        if (FD_ISSET(nb_sockfd, &recvfds)) {
-	            select_ret = TEST_RECV_READY;
+            if (FD_ISSET(nb_sockfd, &recvfds)) {
+                select_ret = TEST_RECV_READY;
             }
-	        else if (FD_ISSET(nb_sockfd, &errfds)) {
-	            select_ret = TEST_ERROR_READY;
+            else if (FD_ISSET(nb_sockfd, &errfds)) {
+                select_ret = TEST_ERROR_READY;
             }
         }
 
@@ -170,7 +170,7 @@ int main (int argc, char** argv)
     }
 
     if (ret != SSL_SUCCESS) {
-	      printf("SSL_connect failed with");
+        printf("SSL_connect failed with");
     }
 /*                                                                           */    
 /*****************************************************************************/
@@ -183,7 +183,7 @@ int main (int argc, char** argv)
     while (fgets(sendLine, MAXLINE, stdin) != NULL) {
 
         while  ( ( wolfSSL_write(ssl, sendLine, strlen(sendLine))) !=
-	          strlen(sendLine)) {
+              strlen(sendLine)) {
     	      printf("SSL_write failed");
         }
 
@@ -218,7 +218,7 @@ int main (int argc, char** argv)
     }
 
     if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-	    printf("cannot create a socket.");
+        printf("cannot create a socket.");
         return 1;
     }
   
