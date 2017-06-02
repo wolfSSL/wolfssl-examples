@@ -251,10 +251,9 @@ socket [...]" block, add these lines:
     servAddr.sin_addr.s_addr = INADDR_ANY;          /* from anywhere   */
 ```
 
-That initialize-with-zeros step is not strictly necessary, but it's usually a
-good idea, and it doesn't complicate the example too much.
-
-Hopefully those comments illuminate what everything means.
+That "Initialize the sever address sturuct wit zeros" step is not strictly
+necessary, but it's usually a good idea, and it doesn't complicate the example
+too much.
 
 With the address all filled out, the final stage of setting up the server is to
 bind our socket to a port and start listening for connections. In total, this
@@ -293,7 +292,7 @@ start, let's write up a quick skeleton for this part of the code:
 
 
 
-        /* Do comunication here */
+        /* Do communication here */
 
 
 
@@ -356,8 +355,8 @@ message:
         }
 ```
 
-Note that it doesn't end execution or break out of the loop right away. We
-still want to respond to the client with our own message.
+Note that this block doesn't end execution or break out of the loop right away.
+We still want to respond to the client with our own message.
 
 After reading the message from the client, we first write our message into the
 buffer like this:
@@ -446,12 +445,12 @@ lines:
     }
 ```
 
-We expect exactly two arguments: our name and an IPv4 address. We won't be
-confirming that the second argument is a well formed IPv4 address, though. If
-it's not, we'll error out midway through.
+We expect exactly two arguments: the program's name and an IPv4 address. We
+won't be confirming that the second argument is a well formed IPv4 address,
+though. If it's not, we'll error out midway through.
 
 Now that we know the program has been called more-or-less correctly, we'll open
-a socket to represent our client:
+a socket to connect to the server through.
 
 ```c
     /* Create a socket that uses an internet IPv4 address,
@@ -672,8 +671,8 @@ Similar to the call to `wolfSSL_CTX_use_certificate_file()` previously, this
 loads a private key from `KEY_FILE` of the format `SSL_FILETYPE_PEM`, and
 stores the information into `ctx`.
 
-And that's everything for the setup phase. Now we just need add a few things to
-how we handle clients.
+And that's everything for the setup phase. Now we just need to add a few things
+to how we handle clients.
 
 After we accept a new client, we need to make a wolfSSL object. Just after the
 "Accept client connections" block, add these lines:
@@ -796,10 +795,9 @@ That "Create and initialize `WOLFSSL_CTX`" block should be familiar from the
 server code.
 
 The "Load client certificates into `WOLFSSL_CTX`" block is how we load
-`CERT_FILE` into `ctx` so that we can verify the identity of the servers we
-connect to. It should be noted that that third argument, here `NULL`, is a path
-to search for certificate files. It should also be noted that all files are
-assumed to be in the PEM format.
+`CERT_FILE` into `ctx` so that we can verify the certificate of the servers we
+connect to. It should be noted that all files are assumed to be in the PEM
+format.
 
 Before continuing, we should remember to update our "Cleanup and return" block
 at the bottom of `main()` to free `ctx` and cleanup wolfSSL. It should now look
