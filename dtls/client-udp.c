@@ -37,7 +37,7 @@
 
 int main(int argc, char** argv)
 {
-
+    /* standard variables used in a udp client */
     int                     sockfd;
     int                     recvlen;
     struct sockaddr_in      servAddr;
