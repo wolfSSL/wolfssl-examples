@@ -33,8 +33,15 @@
 /* wolfSSL */
 #include <wolfssl/ssl.h>
 
-/* Threads */
+/* threads */
 #include <pthread.h>
+
+#define DEFAULT_PORT 11111
+
+#define MAX_CONCURRENT_THREADS 10
+
+#define CERT_FILE "../certs/server-cert.pem"
+#define KEY_FILE  "../certs/server-key.pem"
 
 
 
@@ -115,14 +122,6 @@ void* ClientHandler(void* args)
 
 
 
-#define DEFAULT_PORT 11111
-
-#define MAX_CONCURRENT_THREADS 10
-
-#define CERT_FILE "../certs/server-cert.pem"
-#define KEY_FILE  "../certs/server-key.pem"
-#define DH_FILE   "../certs/dh2048.pem"
-
 int main()
 {
     int                sockfd;
@@ -181,13 +180,6 @@ int main()
         != SSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
                 KEY_FILE);
-        return -1;
-    }
-
-    /* Set DH params for WOLFSSL_CTX */
-    if (wolfSSL_CTX_SetTmpDH_file(ctx, DH_FILE, SSL_FILETYPE_PEM)
-        != SSL_SUCCESS) {
-        fprintf(stderr, "ERROR: failed to set DH parameters.\n");
         return -1;
     }
 

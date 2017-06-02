@@ -33,13 +33,12 @@
 /* wolfSSL */
 #include <wolfssl/ssl.h>
 
-
-
 #define DEFAULT_PORT 11111
 
 #define CERT_FILE "../certs/server-ecc.pem"
 #define KEY_FILE  "../certs/ecc-key.pem"
-#define CIPHER_LIST "ECDHE-ECDSA-CHACHA20-POLY1305"
+
+
 
 int main()
 {
@@ -186,6 +185,9 @@ int main()
         wolfSSL_free(ssl);      /* Free the wolfSSL object              */
         close(connd);           /* Close the connection to the server   */
     }
+
+    printf("Shutdown complete\n");
+
 
 
     /* Cleanup and return */

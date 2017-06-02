@@ -34,6 +34,11 @@
 /* wolfSSL */
 #include <wolfssl/ssl.h>
 
+#define DEFAULT_PORT 11111
+
+#define CERT_FILE "../certs/server-cert.pem"
+#define KEY_FILE  "../certs/server-key.pem"
+
 
 
 int my_IORecv(WOLFSSL* ssl, char* buff, int sz, void* ctx)
@@ -135,12 +140,6 @@ int my_IOSend(WOLFSSL* ssl, char* buff, int sz, void* ctx)
 
 
 
-#define DEFAULT_PORT 11111
-
-#define CERT_FILE "../certs/server-cert.pem"
-#define KEY_FILE  "../certs/server-key.pem"
-#define DH_FILE   "../certs/dh2048.pem"
-
 int main()
 {
     int                sockfd;
@@ -195,16 +194,12 @@ int main()
         return -1;
     }
 
-    /* Set DH params for WOLFSSL_CTX */
-    if (wolfSSL_CTX_SetTmpDH_file(ctx, DH_FILE, SSL_FILETYPE_PEM)
-        != SSL_SUCCESS) {
-        fprintf(stderr, "ERROR: failed to set DH parameters.\n");
-        return -1;
-    }
+
 
     /* Register callbacks */
     wolfSSL_SetIORecv(ctx, my_IORecv);
     wolfSSL_SetIOSend(ctx, my_IOSend);
+
 
 
     /* Initialize the server address struct with zeros */
@@ -290,6 +285,9 @@ int main()
         wolfSSL_free(ssl);      /* Free the wolfSSL object              */
         close(connd);           /* Close the connection to the server   */
     }
+
+    printf("Shutdown complete\n");
+
 
 
     /* Cleanup and return */

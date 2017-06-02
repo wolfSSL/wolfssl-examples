@@ -17,9 +17,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
- */
-
-/* NOTE: ----------------------------------------------------------------------
+ *
+ * -----------------------------------------------------------------------------
+ * NOTE:
  * wolfSSL needs to be built with --enable-writedup, or else we'll see errors.
  */
 
@@ -39,6 +39,10 @@
 
 /* threads */
 #include <pthread.h>
+
+#define DEFAULT_PORT 11111
+
+#define CERT_FILE "../certs/ca-cert.pem"
 
 
 
@@ -84,10 +88,6 @@ void* WriteHandler(void* args)
 }
 
 
-
-#define DEFAULT_PORT 11111
-
-#define CERT_FILE "../certs/ca-cert.pem"
 
 int main(int argc, char** argv)
 {

@@ -34,6 +34,10 @@
 /* wolfSSL */
 #include <wolfssl/ssl.h>
 
+#define DEFAULT_PORT 11111
+
+#define CERT_FILE "../certs/ca-cert.pem"
+
 
 int my_IORecv(WOLFSSL* ssl, char* buff, int sz, void* ctx)
 {
@@ -134,9 +138,6 @@ int my_IOSend(WOLFSSL* ssl, char* buff, int sz, void* ctx)
 }
 
 
-#define DEFAULT_PORT 11111
-
-#define CERT_FILE "../certs/ca-cert.pem"
 
 int main(int argc, char** argv)
 {
@@ -210,7 +211,8 @@ int main(int argc, char** argv)
 
 
     /* Connect to the server */
-    if (connect(sockfd, (struct sockaddr*) &servAddr, sizeof(servAddr)) < 0) {
+    if (connect(sockfd, (struct sockaddr*) &servAddr, sizeof(servAddr))
+        == -1) {
         fprintf(stderr, "ERROR: failed to connect\n");
         return -1;
     }

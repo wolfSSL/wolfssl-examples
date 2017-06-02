@@ -30,8 +30,9 @@
 #include <netinet/in.h>
 #include <unistd.h>
 
-
 #define DEFAULT_PORT 11111
+
+
 
 int main()
 {
@@ -53,6 +54,7 @@ int main()
         fprintf(stderr, "ERROR: failed to create the socket\n");
         return -1;
     }
+
 
 
     /* Initialize the server address struct with zeros */
@@ -128,6 +130,9 @@ int main()
         /* Cleanup after this connection */
         close(connd);           /* Close the connection to the server   */
     }
+
+    printf("Shutdown complete\n");
+
 
 
     /* Cleanup and return */

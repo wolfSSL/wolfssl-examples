@@ -33,11 +33,11 @@
 /* wolfSSL */
 #include <wolfssl/ssl.h>
 
-
-
 #define DEFAULT_PORT 11111
 
 #define CERT_FILE "../certs/ca-cert.pem"
+
+
 
 int main(int argc, char** argv)
 {
@@ -136,9 +136,7 @@ int main(int argc, char** argv)
         if (wolfSSL_want_read(ssl)) {
             /* no error, just non-blocking. Carry on. */
             printf("Waiting for connection...\n");
-
             sleep(1); /* cut down on spam */
-
             continue;
         }
         fprintf(stderr, "ERROR: failed to connect to wolfSSL\n");

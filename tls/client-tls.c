@@ -33,11 +33,11 @@
 /* wolfSSL */
 #include <wolfssl/ssl.h>
 
-
-
 #define DEFAULT_PORT 11111
 
 #define CERT_FILE "../certs/ca-cert.pem"
+
+
 
 int main(int argc, char** argv)
 {

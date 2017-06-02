@@ -33,7 +33,6 @@
 /* wolfSSL */
 #include <wolfssl/ssl.h>
 
-
 #define DEFAULT_PORT 11111
 
 #define CERT_FILE "../certs/server-ecc.pem"
@@ -41,6 +40,8 @@
 #define ECC_FILE    "../certs/client-ecc-cert.pem"
 #define KEY_FILE    "../certs/ecc-client-key.pem"
 #define CIPHER_LIST "ECDHE-ECDSA-CHACHA20-POLY1305"
+
+
 
 int main(int argc, char** argv)
 {

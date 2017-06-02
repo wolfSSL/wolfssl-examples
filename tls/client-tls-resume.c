@@ -33,11 +33,11 @@
 /* wolfSSL */
 #include <wolfssl/ssl.h>
 
-
-
 #define DEFAULT_PORT 11111
 
 #define CERT_FILE "../certs/ca-cert.pem"
+
+
 
 int main(int argc, char** argv)
 {
@@ -199,7 +199,8 @@ int main(int argc, char** argv)
 
 
     /* Reconnect to the server */
-    if (connect(sockfd, (struct sockaddr*) &servAddr, sizeof(servAddr)) < 0) {
+    if (connect(sockfd, (struct sockaddr*) &servAddr, sizeof(servAddr))
+        == -1) {
         fprintf(stderr, "ERROR: failed to connect\n");
         return -1;
     }
@@ -245,6 +246,9 @@ int main(int argc, char** argv)
         fprintf(stderr, "ERROR: failed to read\n");
         return -1;
     }
+
+    /* Print to stdout any data the server sends */
+    printf("Server: %s\n", buff);
 
 
 
