@@ -50,6 +50,7 @@ void sig_handler(const int sig)
 {
     printf("\nSIGINT %d handled\n", sig);
     cleanup = 1;
+    return;
 }
 
 int main(int argc, char** argv)
