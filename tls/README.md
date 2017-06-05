@@ -72,15 +72,21 @@ into.
     2. [Client](#client-tls)
     3. [Running](#run-tls)
 
-4. [Using callbacks](#callback)
+5. [Using callbacks](#callback)
 
     1. [Running](#run-callback)
 
-4. [Using ECC](#ecc)
+6. [Using ECC](#ecc)
 
     1. [Server](#server-ecc)
     2. [Client](#client-ecc)
     3. [Running](#run-ecc)
+
+7. [Using non-blocking interface](#nonblocking)
+
+    1. [Server](#server-nonblocking)
+    2. [Client](#client-nonblocking)
+    3. [Running](#run-nonblocking)
 
 
 
@@ -846,8 +852,8 @@ SSL object from the context and giving it our connection to the server.
 
 The third block, "Connect to wolfSSL on the server side", is new. It is
 technically optional; If we don't call it, the first time we try to read or
-write though `ssl` it will be invoked anyway. We're going to call it ourself to
-make things easier when modifying this file to add different features in the
+write though `ssl` it will be invoked anyway. We're going to call it ourselves
+to make things easier when modifying this file to add different features in the
 future.
 
 Before continuing, we should remember to update our "Cleanup and return" block
@@ -1175,6 +1181,272 @@ And now the client is set up.
 
 
 
+## <a name="nonblocking">Using non-blocking interface</a>
+
+wolfSSL also supports using non-blocking interfaces.
+
+#### <a name="server-nonblocking">Server</a>
+
+We'll modify the server first. Copy `server-tls.c` to a new file,
+`server-tls-nonblocking.c`, that we will modify. The finished version can be
+found [here][s-tls-n].
+
+The first thing to do is include the errno header. Make "the usual suspects"
+look a bit like this:
+
+```c
+/* the usual suspects */
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <errno.h>
+```
+
+We need `errno.h` so that we can tell the acceptable failure from `accept()`
+from any other failure form `accept()`.
+
+Next, we need to tell the socket to be non-blocking. Just after the "Create a
+socket [...]" block, add these lines:
+
+```c
+    /* Set the socket options to use nonblocking I/O */
+    if (fcntl(sockfd, F_SETFL, O_NONBLOCK) == -1) {
+        fprintf(stderr, "ERROR: failed to set socket options\n");
+        return -1;
+    }
+```
+
+Here, `fcntl()` sets the file status flag (`F_SETFL`) `O_NONBLOCK` for
+`sockfd`.
+
+Now all we need to do is modify how we deal with I/O.
+
+For the "Accept client connections" block, we're going to replace the `if`
+keyword with `while` and check for acceptable failures. In total, the "Accept
+client connections" block should now look something like this:
+
+```c
+        /* Accept client connections */
+        while ((connd = accept(sockfd, (struct sockaddr*)&clientAddr, &size))
+               == -1) {
+            if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                /* no error, just non-blocking. Carry on. */
+                continue;
+            }
+            fprintf(stderr, "ERROR: failed to accept the connection\n\n");
+            return -1;
+        }
+```
+
+The sum total of what we've done above is do the blocking ourselves. In all,
+this means that we haven't really bought ourselves anything by using
+non-blocking, but we are no longer required to sit patiently while `accept()`
+tries to connect. We are now free to do whatever we want to if there is no
+client to accept a connection from at the moment.
+
+When we do get a client, however, we're going to need to indicate that the
+connection should use the non-blocking interface as well. After the "Accept
+client connections" block, add these lines:
+
+```c
+        /* Set the connection options to use nonblocking I/O */
+        if (fcntl(connd, F_SETFL, O_NONBLOCK) == -1) {
+            fprintf(stderr, "ERROR: failed to set socket options\n");
+            return -1;
+        }
+```
+
+This is basically equivalent to the previous `fcntl()` call in meaning, just on
+`connd` instead.
+
+We're also going to tell wolfSSL to use nonblocking. To do that, put these
+lines after "Attach wolfSSL to the socket":
+
+```c
+        /* make wolfSSL object nonblocking */
+        wolfSSL_set_using_nonblock(ssl, 1);
+```
+
+Here we set the "using nonblock" option on `ssl` to true (1).
+
+Next is to deal with reading and writing. Similar to our changes to the "Accept
+client connections" block, we're going to change the `if` keyword to `while`
+and add a check for acceptable failure conditions.
+
+It total, the "Read the client data [...]" should now look a bit like this:
+
+```c
+        /* Read the client data into our buff array */
+        memset(buff, 0, sizeof(buff));
+        while (wolfSSL_read(ssl, buff, sizeof(buff)-1) == -1) {
+            if (wolfSSL_want_read(ssl)) {
+                /* no error, just non-blocking. Carry on. */
+                continue;
+            }
+            fprintf(stderr, "ERROR: failed to read\n");
+            return -1;
+        }
+```
+
+And the "Reply back to the client" block should look a bit like this:
+
+```c
+        /* Reply back to the client */
+        while (wolfSSL_write(ssl, buff, len) != len) {
+            if (wolfSSL_want_write(ssl)) {
+                /* no error, just non-blocking. Carry on. */
+                continue;
+            }
+            fprintf(stderr, "ERROR: failed to write\n");
+            return -1;
+        }
+```
+
+It's important to use the use of `wolfSSL_want_read()` and
+`wolfSSL_want_write()`. Respectively, these calls are equivalent to
+```c
+wolfSSL_get_error(ssl, 0) == SSL_ERROR_WANT_READ
+```
+and
+```c
+wolfSSL_get_error(ssl, 0) == SSL_ERROR_WANT_WRITE
+```
+
+The function calls are meant for convenience, especially because these become
+common errors to check for.
+
+And after that, the server is done. It is now configured to use a non-blocking
+interface.
+
+#### <a name="client-nonblocking">Client</a>
+
+Now we'll write the client. Copy `client-tls.c` to a new file,
+`client-tls-nonblocking.c`, that we will modify. The finished version can be
+found [here][c-tls].
+
+We're not going to need `errno.h` this time, so we'll just jump right to
+setting the socket to be non-blocking. After the "Create a socket [...]" block,
+add these lines:
+
+```c
+    /* Set the socket options to use nonblocking I/O */
+    if (fcntl(sockfd, F_SETFL, O_NONBLOCK) == -1) {
+        fprintf(stderr, "ERROR: failed to set non-blocking\n");
+        return -1;
+    }
+```
+
+To recap from the server code, `fcntl()` sets the file status flag (`F_SETFL`)
+`O_NONBLOCK` for `sockfd`.
+
+And now we establish a connection. We're going to change the "Connect to the
+server" block to be a while loop that will loop until it makes connection. In
+total, this block should now look like this:
+
+```c
+    /* Connect to the server */
+    while (connect(sockfd, (struct sockaddr*) &servAddr, sizeof(servAddr))
+           == -1) {
+        /* just keep looping until a connection is made */
+    }
+```
+
+Like the `accept()` call in the server code, `connect()` would block for us,
+but we're doing it ourselves instead. Similarly, while we're not buying
+ourselves much by doing this, we've opened ourselves up to do something if
+we wanted to.
+
+But once we do connect, we'll have to set `ssl` to be non-blocking as well.
+After the "Attach wolfSSL to the socket" block, add these lines:
+
+```c
+    /* make wolfSSL object nonblocking */
+    wolfSSL_set_using_nonblock(ssl, 1);
+```
+
+And next, we need to connect to wolfSSL on the server side. Once more, we're
+going to change the `if` to a `while`, but this time we're going to do some
+error checking. Change the "Connect to wolfSSL on the server side" block to
+look something like this:
+
+```c
+    /* Connect to wolfSSL on the server side */
+    while (wolfSSL_connect(ssl) != SSL_SUCCESS) {
+        if (wolfSSL_want_read(ssl)) {
+            /* no error, just non-blocking. Carry on. */
+            printf("Waiting for connection...\n");
+            sleep(1); /* cut down on spam */
+            continue;
+        }
+        fprintf(stderr, "ERROR: failed to connect to wolfSSL\n");
+        return -1;
+    }
+```
+
+While in the middle of of connecting, `wolfSSL_connect()` will error with a
+`SSL_ERROR_WANT_READ` error if we're not blocking.
+
+And now we can deal with reading and writing. Like the "Connect to wolfSSL on
+the server side" block, we're going to replace the `if` with `while` and check
+for acceptable failure states.
+
+In total, the "Send the message to the server" block should now look like this:
+
+```c
+    /* Send the message to the server */
+    while (wolfSSL_write(ssl, buff, len) != len) {
+        if (wolfSSL_want_write(ssl)) {
+            /* no error, just non-blocking. Carry on. */
+            continue;
+        }
+        fprintf(stderr, "ERROR: failed to write\n");
+        return -1;
+    }
+```
+
+Note that because it is technically optional to call `wolfSSL_connect()`
+explicitly, if you are using non-blocking and call `wolfSSL_write()` without
+calling `wolfSSL_connect()` first, you may fail with an `SSL_ERROR_WANT_READ`
+error instead because `wolfSSL_write()` called `wolfSSL_connect()`
+automatically.
+
+Regardless, the "Read the server data [...]" block should be edited to look a
+bit like this:
+
+```c
+    /* Read the server data into our buff array */
+    memset(buff, 0, sizeof(buff));
+    while (wolfSSL_read(ssl, buff, sizeof(buff)-1) == -1) {
+        if (wolfSSL_want_read(ssl)) {
+            /* no error, just non-blocking. Carry on. */
+            continue;
+        }
+        fprintf(stderr, "ERROR: failed to read\n");
+        return -1;
+    }
+```
+
+And with that the client is done.
+
+#### <a name="run-callback">Running</a>
+
+`server-tls-nonblocking` can be connected to by the following:
+
+* `client-tls`
+* `client-tls-callback`
+* `client-tls-nonblocking`
+* `client-tls-resume`
+* `client-tls-writedup`
+
+`client-tls-nonblocking` can connect to the following:
+
+* `server-tls`
+* `server-tls-callback`
+* `server-tls-nonblocking`
+* `server-tls-threaded`
+
+
+
 <!-- References -->
 [make]: https://github.com/wolfssl/wolfssl-examples/blob/master/tls/Makefile
 
@@ -1189,3 +1461,6 @@ And now the client is set up.
 
 [s-tls-e]: https://github.com/wolfssl/wolfssl-examples/blob/master/tls/server-tls-ecdhe.c
 [c-tls-e]: https://github.com/wolfssl/wolfssl-examples/blob/master/tls/client-tls-ecdhe.c
+
+[s-tls-n]: https://github.com/wolfssl/wolfssl-examples/blob/master/tls/server-tls-nonblocking.c
+[c-tls-n]: https://github.com/wolfssl/wolfssl-examples/blob/master/tls/client-tls-nonblocking.c
