@@ -36,6 +36,12 @@
 
 /* wolfSSL */
 #include <wolfssl/ssl.h>
+#include <wolfssl/options.h>
+
+/* check for writedup */
+#ifndef HAVE_WRITE_DUP
+    #error "wolfSSL must be configured and installed with --enable-writedup"
+#endif
 
 /* threads */
 #include <pthread.h>
