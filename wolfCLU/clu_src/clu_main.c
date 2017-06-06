@@ -31,8 +31,10 @@
 
 int main(int argc, char** argv)
 {
-    int ret = 0, option = 0, long_index = 0;
-    int i;
+    int     ret;
+    int     option;
+    int     i;
+    int     long_index = 0;
 
     if (argc == 1) {
         printf("Main Help.\n");
@@ -42,12 +44,14 @@ int main(int argc, char** argv)
     /* flexibility: allow users to input any CAPS or lower case,
      * we will do all processing on lower case only. */
     for (i = 0; i < argc; i++) {
-        convert_to_lower(argv[i], (int) XSTRLEN(argv[i]));
+        /* Case sensitive systems. */
+        if (!(i != 4 || i != 6)) {
+            convert_to_lower(argv[i], (int) XSTRLEN(argv[i]));
+        }
     }
 
     while ((option = getopt_long_only(argc, argv,"",
                    long_options, &long_index )) != -1) {
-
 
         switch (option) {
             /* Encrypt */
