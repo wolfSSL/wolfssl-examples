@@ -1168,7 +1168,7 @@ enum {
 ```
 
 #### 5.1.4 Adding nonblocking DTLS connection functionality
-From [Quora](https://www.quora.com/What-exactly-does-it-mean-for-a-web-server-to-be-blocking-versus-non-blocking), 
+From [Quora](https://www.quora.com/What-exactly-does-it-mean-for-a-web-server-to-be-blocking-versus-non-blocking),
 > Many IO related system calls, like read(2), will block, that is not return, until there is activity.  A socket can be placed in "non-blocking mode" which means that these system calls will return immediately if there is nothing pending.
 
 To make our client a nonblocking client, we need to add 2 things (they should come before we attempt to send a datagram to the server, as it would be much more difficult to send a datagram without having a connection!).
@@ -1395,7 +1395,7 @@ As with our client, there are several variables needed for our nonblocking DTLS 
 ```c
     /* DTLS set nonblocking flag */
     int           flags = fcntl(*(&listenfd), F_GETFL, 0);
-    
+
     /* NonBlockingSSL_Accept variables */
     int           ret;
     int           select_ret;
@@ -1405,7 +1405,7 @@ As with our client, there are several variables needed for our nonblocking DTLS 
     int           nfds;
     fd_set        recvfds, errfds;
     struct        timeval timeout;
-    
+
     /* udp-read-connect variables */
     int           bytesRecvd;
     unsigned char b[MSGLEN];
@@ -1413,13 +1413,15 @@ As with our client, there are several variables needed for our nonblocking DTLS 
     socklen_t     clilen;
 ```
 ##### 5.2.4.2 While loop
-As with the client, the while loop has variables that are assigned prior to, at the beginning of, and in the center of the loop. 
+As with the client, the while loop has variables that are assigned prior to, at the beginning of, and in the center of the loop.
 
-For the sake of brevity, they will not all be pointed out and explained - the code will be displayed in **Figure 5.8**, and all that is new will have descriptive sections of comments that explain the differences.
+For brevity, they will not all be pointed out and explained - the code will be displayed in **Figure 5.8**, and all that is new will have descriptive comments that explain the differences.
 
 **Figure 5.8**
 ```c
-    /* Await Datagram */
+/*****************************************************************************/
+/*                           AwaitDatagram code                              */
+    /* This code will loop until a ^C (SIGINT 2) is passed by the user */
     cont = 0;
     while (cleanup != 1) {
 
@@ -1469,9 +1471,8 @@ For the sake of brevity, they will not all be pointed out and explained - the co
         }
 
         printf("Awaiting client connection on port %d\n", SERV_PORT);
-/*****************************************************************************/
-/*                             UDP-read-connect                              */
-/* ... why? */
+
+        /* UDP-read-connect */
         do {
             if (cleanup == 1) {
                 cont = 1;
@@ -1509,19 +1510,19 @@ For the sake of brevity, they will not all be pointed out and explained - the co
         wolfSSL_set_fd(ssl, clientfd);
 
         wolfSSL_set_using_nonblock(ssl, 1);
-/*                                                                           */
-/*****************************************************************************/
+
 /*****************************************************************************/
 /*                      NonBlockingDTLS_Connect code                         */
-        /* NonBlockingSSL_Accept */
-        /* listenfd states where to listen */
+
+        /* listenfd states where to listen ()
         ret = wolfSSL_accept(ssl);
         currTimeout = 1;
         error = wolfSSL_get_error(ssl, 0);
         listenfd = (int) wolfSSL_get_fd(ssl);
         nfds = listenfd + 1;
-        
-        /* the cleanup condition is part of signal handling */
+
+        /* Loop until there has been a successful connection *
+         * or until there has been a signal                  */
         while (cleanup != 1 && (ret != SSL_SUCCESS &&
                     (error == SSL_ERROR_WANT_READ ||
                      error == SSL_ERROR_WANT_WRITE))) {
@@ -1532,13 +1533,12 @@ For the sake of brevity, they will not all be pointed out and explained - the co
                 break;
             }
 
-            /* keep the user updated */
+            /* Keep the user updated */
             if (error == SSL_ERROR_WANT_READ)
                 printf("... server would read block\n");
             else
                 printf("... server would write block\n");
 
-            /* Begin the nonblocking functionality */
             currTimeout = wolfSSL_dtls_get_current_timeout(ssl);
 
             FD_ZERO(&recvfds);
@@ -1546,6 +1546,7 @@ For the sake of brevity, they will not all be pointed out and explained - the co
             FD_ZERO(&errfds);
             FD_SET(listenfd, &errfds);
 
+            /* This is where the term 'nonblocking' comes into use */
             result = select(nfds, &recvfds, NULL, &errfds, &timeout);
 
             if (result == 0) {
@@ -1555,7 +1556,7 @@ For the sake of brevity, they will not all be pointed out and explained - the co
                 if (FD_ISSET(listenfd, &recvfds)) {
                     select_ret = TEST_RECV_READY;
                 }
-                else if(FD_ISSET(listenfd, &errfds)) {
+                else if (FD_ISSET(listenfd, &errfds)) {
                     select_ret = TEST_ERROR_READY;
                 }
             }
@@ -1578,7 +1579,6 @@ For the sake of brevity, they will not all be pointed out and explained - the co
             else {
                 error = SSL_FATAL_ERROR;
             }
-            /* End the nonblocking functionality */
         }
         if (ret != SSL_SUCCESS) {
             printf("SSL_accept failed with %d.\n", ret);
@@ -1592,15 +1592,83 @@ For the sake of brevity, they will not all be pointed out and explained - the co
             printf("NonBlockingSSL_Accept failed.\n");
             cont = 1;
         }
-/*                                                                           */
+/*                    end NonBlockingDTLS_Connect code                       */
 /*****************************************************************************/
+        /* Begin: Reply to the client */
+        recvLen = wolfSSL_read(ssl, buff, sizeof(buff)-1);
+
+        /* Begin do-while read */
+        do {
+            if (cleanup == 1) {
+                memset(buff, 0, sizeof(buff));
+                break;
+            }
+            if (recvLen < 0) {
+                readWriteErr = wolfSSL_get_error(ssl, 0);
+                if (readWriteErr != SSL_ERROR_WANT_READ) {
+                    printf("Read Error, error was: %d.\n", readWriteErr);
+                    cleanup = 1;
+                }
+                else {
+                    recvLen = wolfSSL_read(ssl, buff, sizeof(buff)-1);
+                }
+            }
+        } while (readWriteErr == SSL_ERROR_WANT_READ &&
+                                         recvLen < 0 &&
+                                         cleanup != 1);
+        /* End do-while read */
+
+        if (recvLen > 0) {
+            buff[recvLen] = 0;
+            printf("I heard this:\"%s\"\n", buff);
+        }
+        else {
+            printf("Connection Timed Out.\n");
+        }
+
+        /* Begin do-while write */
+        do {
+            if (cleanup == 1) {
+                memset(&buff, 0, sizeof(buff));
+                break;
+            }
+            readWriteErr = wolfSSL_get_error(ssl, 0);
+            if (wolfSSL_write(ssl, ack, sizeof(ack)) < 0) {
+                printf("Write error.\n");
+                cleanup = 1;
+            }
+            printf("Reply sent:\"%s\"\n", ack);
+        } while(readWriteErr == SSL_ERROR_WANT_WRITE && cleanup != 1);
+        /* End do-while write */
+
+        /* free allocated memory */
+        memset(buff, 0, sizeof(buff));
+        wolfSSL_free(ssl);
+
+        /* End: Reply to the Client */
+    }
+/*                          End await datagram code                          */
+/*****************************************************************************/
+
+    /* End of the main method */
+    if (cont == 1 || cleanup == 1) {
+        wolfSSL_CTX_free(ctx);
+        wolfSSL_Cleanup();
+    }
+
+    return 0;
+}
 ```
 
-#### 5.2.4.3 Final note
+The code above was taken directly from the DTLS server nonblocking file. 
 
+Be sure to keep in mind that the `AwaitDatagram` code is essentially one large loop that will attempt to listen for a client (in a nonblocking fashion) at every iteration, and will close the loop upon a signal passed by the user.
+#### 5.2.4.3 Final note
+And that's it! The server has been made into a nonblocking server, and the client has been made into a nonblocking client.
 #### REFERENCES:
 
 1. Paul Krzyzanowski, “Programming with UDP sockets”, Copyright 2003-2014, PK.ORG
 2. The Open Group, “setsockopt - set the socket options”, Copyright © 1997, The Single UNIX ® Specification, Version 2
 3. https://en.wikipedia.org/wiki/POSIX_Threads
 4. https://www.quora.com/What-exactly-does-it-mean-for-a-web-server-to-be-blocking-versus-non-blocking
+
