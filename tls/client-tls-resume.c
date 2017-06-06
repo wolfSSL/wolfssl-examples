@@ -31,6 +31,7 @@
 #include <unistd.h>
 
 /* wolfSSL */
+#include <wolfssl/options.h>
 #include <wolfssl/ssl.h>
 
 #define DEFAULT_PORT 11111

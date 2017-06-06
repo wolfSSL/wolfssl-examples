@@ -770,6 +770,7 @@ below the "socket includes" block, add these lines:
 
 ```c
 /* wolfSSL */
+#include <wolfssl/options.h>
 #include <wolfssl/ssl.h>
 ```
 
