@@ -44,16 +44,16 @@
   - 2.2.7. Adjust Makefile
 - Chapter 3: Multithreading a DTLS Server with POSIX Threads
   - 3.1.1. Elements Required for Thread Managment
-    - 3.1.1.1. threadArgs Struct
-    - 3.1.1.2. Thread Creation and Deletion
-    - 3.1.1.3. ThreadHandler Method
-      - 3.1.1.3.1. pthread_detach
-      - 3.1.1.3.2. Instance Variables
-      - 3.1.1.3.3. memcpy
-      - 3.1.1.3.4. 'ssl' Object Creation
-      - 3.1.1.3.5. wolfSSL_accept, wolfSSL_read, wolfSSL_write, etc.
-      - 3.1.1.3.6. Thread Memory Cleanup
-  - 3.1.2. Review
+  - 3.1.1.1. threadArgs Struct
+  - 3.1.1.2. Thread Creation and Deletion
+  - 3.1.1.3. ThreadHandler Method
+    - 3.1.1.3.1. pthread_detach
+    - 3.1.1.3.2. Instance Variables
+    - 3.1.1.3.3. memcpy
+    - 3.1.1.3.4. 'ssl' Object Creation
+    - 3.1.1.3.5. wolfSSL_accept, wolfSSL_read, wolfSSL_write, etc.
+     - 3.1.1.3.6. Thread Memory Cleanup
+    - 3.1.2. Review
 - Chapter 4: Session Resumpton with DTLS
   - 4.1.1. Storage of the Previous Session Information
   - 4.1.2. Memory Cleanup and Management
@@ -1670,5 +1670,86 @@ And that's it! The server has been made into a nonblocking server, and the clien
 1. Paul Krzyzanowski, “Programming with UDP sockets”, Copyright 2003-2014, PK.ORG
 2. The Open Group, “setsockopt - set the socket options”, Copyright © 1997, The Single UNIX ® Specification, Version 2
 3. https://en.wikipedia.org/wiki/POSIX_Threads
-4. https://www.quora.com/What-exactly-does-it-mean-for-a-web-server-to-be-blocking-versus-non-blocking
+4. https://www.quora.com/What-exactly-does-it-mean-for-a-web-server-to-be-blocking-versus-non-blocking (FD_ISSET(socketfd, &errfds))
+            return TEST_ERROR_READY;
+    }
+    return TEST_SELECT_FAIL;
+}
+```
+
+#### 5.1.5. Nonblocking DTLS Connect Function:
+This function calls the connect function and checks for various errors within the connection attempts. We placed it before the `DatagramClient()` function:
+##### Figure 5.2
+
+```c
+/*Connect using Nonblocking - DTLS version*/
+static void NonBlockingDTLS_Connect(WOLFSSL* ssl)
+{
+    int      ret = wolfSSL_connect(ssl);
+    int      error = wolfSSL_get_error(ssl, 0);
+    int      sockfd = (int)wolfSSL_get_fd(ssl);
+    int      select_ret;
+    while (ret != SSL_SUCCESS && (error == SSL_ERROR_WANT_READ ||
+                                     error == SSL_ERROR_WANT_WRITE)) {
+        int currTimeout = 1;
+        if (error == SSL_ERROR_WANT_READ)
+            printf("... client would read block\n");
+        else
+            printf("... client would write block\n");
+        currTimeout = wolfSSL_dtls_get_current_timeout(ssl);
+        select_ret = dtls_select(sockfd, currTimeout);
+        if ( ( select_ret == TEST_RECV_READY) ||
+                                   (select_ret == TEST_ERROR_READY)) {
+            ret = wolfSSL_connect(ssl);
+            error = wolfSSL_get_error(ssl, 0);
+        }
+        else if (select_ret == TEST_TIMEOUT && !wolfSSL_dtls(ssl)) {
+            error = 2;
+        }
+        else if (select_ret == TEST_TIMEOUT && wolfSSL_dtls(ssl) &&
+                                    wolfSSL_dtls_got_timeout(ssl) >= 0) {
+            error = 2;
+        }
+        else {
+             error = SSL_FATAL_ERROR;
+        }
+    }
+
+    if (ret != SSL_SUCCESS)
+        err_sys("SSL_connect failed with");
+    }
+```
+
+#### 5.1.6. Adjust Datagram Client Function
+Note that this function could be placed within `main()`.
+Create `while` loops for `wolfSSL_write()` and `wolfSSL_read()` to check for errors.
+##### Figure 5.3
+```c
+void DatagramClient (FILE* clientInput, WOLFSSL* ssl)
+{
+    int     n = 0;
+    char    sendLine[MAXLINE], recvLine[MAXLINE - 1];
+
+    fgets(sendLine, MAXLINE, clientInput);
+
+    while  ( ( wolfSSL_write(ssl, sendLine, strlen(sendLine))) !=
+                                                    strlen(sendLine))
+        err_sys("SSL_write failed");
+
+    while ( (n = wolfSSL_read(ssl, recvLine, sizeof(recvLine)-1)) <= 0) {
+        int readErr = wolfSSL_get_error(ssl, 0);
+        if(readErr != SSL_ERROR_WANT_READ)
+            err_sys("wolfSSL_read failed");
+    }
+
+        recvLine[n] = '\0';
+        fputs(recvLine, stdout);
+}
+```
+
+#### REFERENCES:
+
+1. Paul Krzyzanowski, “Programming with UDP sockets”, Copyright 2003-2014, PK.ORG
+2. The Open Group, “setsockopt - set the socket options”, Copyright © 1997, The Single UNIX ® Specification, Version 2
+3. https://en.wikipedia.org/wiki/POSIX_Threads
 
