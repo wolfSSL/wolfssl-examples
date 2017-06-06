@@ -88,6 +88,10 @@ into.
     2. [Client](#client-nonblocking)
     3. [Running](#run-nonblocking)
 
+8. [Resuming sessions](#resume)
+
+    1. [Running](#run-resume)
+
 
 
 ## <a name="run">Running these examples</a>
@@ -1322,7 +1326,7 @@ interface.
 
 Now we'll write the client. Copy `client-tls.c` to a new file,
 `client-tls-nonblocking.c`, that we will modify. The finished version can be
-found [here][c-tls].
+found [here][c-tls-n].
 
 We're not going to need `errno.h` this time, so we'll just jump right to
 setting the socket to be non-blocking. After the "Create a socket [...]" block,
@@ -1428,7 +1432,7 @@ bit like this:
 
 And with that the client is done.
 
-#### <a name="run-callback">Running</a>
+#### <a name="run-nonblocking">Running</a>
 
 `server-tls-nonblocking` can be connected to by the following:
 
@@ -1439,6 +1443,166 @@ And with that the client is done.
 * `client-tls-writedup`
 
 `client-tls-nonblocking` can connect to the following:
+
+* `server-tls`
+* `server-tls-callback`
+* `server-tls-nonblocking`
+* `server-tls-threaded`
+
+
+
+## <a name="resume">Resuming sessions</a>
+
+wolfSSL allows for clients to resume their session after disconnecting. Copy
+`client-tls.c` to a new file, `client-tls-resume.c`, that we will modify. The
+finished version can be found [here][c-tls-r].
+
+The basics of the procedure are rather simple: save your session information
+and tell wolfSSL to reuse session.
+
+The first thing to do, of course, is to declare our variables. At the top of
+the function, after the other declarations, add these lines:
+
+```c
+    /* declare objects for session resuming */
+    WOLFSSL_SESSION* session;
+    WOLFSSL*         sslRes;
+```
+
+In the above code, `session` is where we'll store our session information, and
+`sslRes` is the new wolfSSL object that we'll use to reconnect to our session.
+
+Between the "Print to `stdout` [...]" block and the "Cleanup and return" block
+is where we'll do all of our work. Here, add these lines:
+
+```c
+    /* Save the session */
+    session = wolfSSL_get_session(ssl);
+
+    /* Close the socket */
+    wolfSSL_free(ssl);
+    close(sockfd);
+
+
+
+    /* --------------------------------------- *
+     * we are now disconnected from the server *
+     * --------------------------------------- */
+```
+
+And now we need to resume our session. Add these lines where we left off:
+
+```c
+    /* Create a new WOLFSSL object to resume with */
+    if ((sslRes = wolfSSL_new(ctx)) == NULL) {
+        fprintf(stderr, "ERROR: failed to create WOLFSSL object\n");
+        return -1;
+    }
+
+    /* Set up to resume the session */
+    if (wolfSSL_set_session(sslRes, session) != SSL_SUCCESS) {
+        fprintf(stderr, "ERROR: failed to set session\n");
+        return -1;
+    }
+```
+
+We've created a new wolfSSL object, this time called `sslRes`, and in the
+second block we set it to use the saved session information. This is all we
+really need to do to resume a session from our end.
+
+The next thing is to get a new socket:
+
+```c
+    /* Get a new socket */
+    if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
+        fprintf(stderr, "ERROR: failed to create the socket\n");
+        return -1;
+    }
+```
+
+Then we need to reconnect to the server:
+
+```c
+    /* Reconnect to the server */
+    if (connect(sockfd, (struct sockaddr*) &servAddr, sizeof(servAddr))
+        == -1) {
+        fprintf(stderr, "ERROR: failed to connect\n");
+        return -1;
+    }
+
+    /* Attach wolfSSL to the socket */
+    wolfSSL_set_fd(sslRes, sockfd);
+
+    /* Reconnect to wolfSSL */
+    if (wolfSSL_connect(sslRes) != SSL_SUCCESS) {
+        fprintf(stderr, "ERROR: failed to connect to wolfSSL\n");
+        return -1;
+    }
+```
+
+Just to convince ourselves that we've resumed the session, let's quickly check
+like this:
+
+```c
+    /* Test if the resume was successful */
+    if (wolfSSL_session_reused(sslRes)) {
+        printf("Session ID reused; Successful resume.\n");
+    }
+    else {
+        printf("Session ID not reused; Failed resume.\n");
+    }
+```
+
+Now that we've convinced ourself of this, we'll ask for another message for the
+server:
+
+```c
+    /* Get a message for the server from stdin */
+    printf("Message for server: ");
+    memset(buff, 0, sizeof(buff));
+    fgets(buff, sizeof(buff), stdin);
+    len = strnlen(buff, sizeof(buff));
+
+    /* Send the message to the server */
+    if (wolfSSL_write(sslRes, buff, len) != len) {
+        fprintf(stderr, "ERROR: failed to write\n");
+        return -1;
+    }
+```
+
+And then we'll read in the server response:
+
+```
+    /* Read the server data into our buff array */
+    memset(buff, 0, sizeof(buff));
+    if (wolfSSL_read(sslRes, buff, sizeof(buff)-1) == -1) {
+        fprintf(stderr, "ERROR: failed to read\n");
+        return -1;
+    }
+
+    /* Print to stdout any data the server sends */
+    printf("Server: %s\n", buff);
+```
+
+The above few blocks of code should look familiar: they are almost identical to
+what we did with `ssl`. The only real differences are in some of the comment
+texts and using `sslRes` instead.
+
+The final thing to do is make sure we are freeing `sslRes`. Update the "Cleanup
+and return" block do this. It should now look something like this:
+
+```c
+    /* Cleanup and return */
+    wolfSSL_free(sslRes);   /* Free the wolfSSL object                  */
+    wolfSSL_CTX_free(ctx);  /* Free the wolfSSL context object          */
+    wolfSSL_Cleanup();      /* Cleanup the wolfSSL environment          */
+    close(sockfd);          /* Close the connection to the server       */
+    return 0;               /* Return reporting a success               */
+```
+
+#### <a name="run-resume">Running</a>
+
+`client-tls-resume` can connect to the following:
 
 * `server-tls`
 * `server-tls-callback`
@@ -1464,3 +1628,5 @@ And with that the client is done.
 
 [s-tls-n]: https://github.com/wolfssl/wolfssl-examples/blob/master/tls/server-tls-nonblocking.c
 [c-tls-n]: https://github.com/wolfssl/wolfssl-examples/blob/master/tls/client-tls-nonblocking.c
+
+[c-tls-r]: https://github.com/wolfssl/wolfssl-examples/blob/master/tls/client-tls-resume.c

@@ -55,6 +55,7 @@ int main(int argc, char** argv)
     WOLFSSL*         sslRes;
 
 
+
     /* Check for proper calling convention */
     if (argc != 2) {
         printf("usage: %s <IPv4 address>\n", argv[0]);
@@ -151,7 +152,7 @@ int main(int argc, char** argv)
 
     /* Read the server data into our buff array */
     memset(buff, 0, sizeof(buff));
-    if (wolfSSL_read(ssl, buff, sizeof(buff)-1) < 0) {
+    if (wolfSSL_read(ssl, buff, sizeof(buff)-1) == -1) {
         fprintf(stderr, "ERROR: failed to read\n");
         return -1;
     }
@@ -221,7 +222,7 @@ int main(int argc, char** argv)
         printf("Session ID reused; Successful resume.\n");
     }
     else {
-        printf("Session ID not reused; Successful resume.\n");
+        printf("Session ID not reused; Failed resume.\n");
     }
 
 
@@ -242,7 +243,7 @@ int main(int argc, char** argv)
 
     /* Read the server data into our buff array */
     memset(buff, 0, sizeof(buff));
-    if (wolfSSL_read(sslRes, buff, sizeof(buff)-1) < 0) {
+    if (wolfSSL_read(sslRes, buff, sizeof(buff)-1) == -1) {
         fprintf(stderr, "ERROR: failed to read\n");
         return -1;
     }
@@ -253,7 +254,7 @@ int main(int argc, char** argv)
 
 
     /* Cleanup and return */
-    wolfSSL_free(ssl);      /* Free the wolfSSL object                  */
+    wolfSSL_free(sslRes);   /* Free the wolfSSL object                  */
     wolfSSL_CTX_free(ctx);  /* Free the wolfSSL context object          */
     wolfSSL_Cleanup();      /* Cleanup the wolfSSL environment          */
     close(sockfd);          /* Close the connection to the server       */
