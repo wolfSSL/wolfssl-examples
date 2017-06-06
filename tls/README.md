@@ -92,6 +92,10 @@ into.
 
     1. [Running](#run-resume)
 
+9. [Using separate read and write objects](#writedup)
+
+    1. [Running](#run-writedup)
+
 
 
 ## <a name="run">Running these examples</a>
@@ -597,8 +601,13 @@ includes" block, add these lines:
 
 ```c
 /* wolfSSL */
+#include <wolfssl/options.h>
 #include <wolfssl/ssl.h>
 ```
+
+The inclusion of `wolfssl/options.h` is technically not needed, but it will
+allow us to test which options were compiled into our installation of wolfSSL
+by means of the `HAVE_X` set of macro definitions.
 
 We're also going to need a few more defines for our file paths. Just below the
 definition of `DEFAULT_PORT` add these lines:
@@ -1611,8 +1620,188 @@ and return" block do this. It should now look something like this:
 
 
 
+## <a name="writedup">Using separate read and write objects</a>
+
+wolfSSL allows you to create a duplicate of a wolfSSL object that is
+write-only, making the original read-only in the process. Copy `client-tls.c`
+to a new file, `client-tls-writedup.c`, that we will modify.
+
+The first thing to do is make sure wolfSSL is compiled correctly. After the
+"wolfSSL" include block, add this preprocessor directive:
+
+```c
+/* check for writedup */
+#ifndef HAVE_WRITE_DUP
+    #error "wolfSSL must be configured and installed with --enable-writedup"
+#endif
+```
+
+The above code is technically not critical, but it will prevent us from
+compiling this example without wolfSSL being properly compiled. As the
+preprocessor macro suggests, we need to configure and install wolfSSL with the
+`--enable-writedup` flag, as this feature is not compiled in by default.
+
+If you have any questions about compiling wolfSSL, please consult the [wolfSSL
+manual][docs], specifically [Chapter 2][build].
+
+Recall that the inclusion of `wolfssl/options.h` allow us to test which options
+were compiled into our installation of wolfSSL. The `#ifndef` then takes
+advantage of this to require that we have wolfSSL compiled with write
+duplication support.
+
+Otherwise, we're going to demonstrate write duplication with some simple
+threading. Add these lines to the list of includes:
+
+```c
+/* threads */
+#include <pthread.h>
+```
+
+This will give us a way of spawning threads and working with them.
+
+And to utilize this, we're going to factor out or I/O code into a pair of
+functions. The first of which is `ReadHandler()`. Add this function above
+`main()`:
+
+```c
+void* ReadHandler(void* args)
+{
+    char     buff[256];
+    WOLFSSL* ssl = (WOLFSSL*)args;
+
+    /* Read the server data into our buff array */
+    memset(buff, 0, sizeof(buff));
+    if (wolfSSL_read(ssl, buff, sizeof(buff)-1) == -1) {
+        fprintf(stderr, "ERROR: failed to read\n");
+        return NULL;
+    }
+
+    /* Print to stdout any data the server sends */
+    printf("Server: %s\n", buff);
+
+    return NULL;
+}
+```
+
+From here, be sure to delete the "Read the server data [...]" block and the
+"Print to `stdout` [...]" block from `main`. We'll replace them with a thread
+calling `ReadHandler()` later.
+
+Next we'll add `WriteHandler()`. Add this function above `main()`:
+
+```c
+void* WriteHandler(void* args)
+{
+    char     buff[256];
+    size_t   len;
+    WOLFSSL* ssl = (WOLFSSL*)args;
+
+    /* Get a message for the server from stdin */
+    printf("Message for server: ");
+    memset(buff, 0, sizeof(buff));
+    fgets(buff, sizeof(buff), stdin);
+    len = strnlen(buff, sizeof(buff));
+
+    /* Send the message to the server */
+    if (wolfSSL_write(ssl, buff, len) != len) {
+        fprintf(stderr, "ERROR: failed to write\n");
+        return NULL;
+    }
+
+    return NULL;
+}
+```
+
+And similarly make sure to delete the "Get a message [...]" block and "Send the
+message to the server" block from `main()`. We'll replace them with a thread
+calling `WriteHandler()` later.
+
+While were at it, delete the declarations of `buff` and `len` from `main()` as
+well.
+
+From here, change every reference of `ssl` in `main()` to `read_ssl`, and add a
+definition for `write_ssl` such that the "declare wolfSSL objects" block now
+looks something like this:
+
+```c
+    /* declare wolfSSL objects */
+    WOLFSSL_CTX* ctx;
+    WOLFSSL*     read_ssl;
+    WOLFSSL*     write_ssl;
+```
+
+And just after this block, add these line:
+
+```c
+    /* declare pthread variable */
+    pthread_t read_thread;
+    pthread_t write_thread;
+```
+
+These variables will be how we get a hold of our threads later.
+
+Moving on, we're going to have to split `read_ssl` into its two parts. Just
+after the "Connect to wolfSSL on the server side" block in `main()`, add these
+lines:
+
+```c
+    /* Duplicate read_ssl, setting it to read-only,
+     * creating write_ssl, which is write-only */
+    if ((write_ssl = wolfSSL_write_dup(read_ssl)) == NULL) {
+        fprintf(stderr, "ERROR: failed write dup\n");
+        return -1;
+    }
+```
+
+After this, we'll update the "Cleanup and return" block to free `write_ssl`.
+This block should now look like this:
+
+```c
+    /* Cleanup and return */
+    wolfSSL_free(read_ssl); /* Free the read wolfSSL object             */
+    wolfSSL_free(write_ssl);/* Free the write wolfSSL object            */
+    wolfSSL_CTX_free(ctx);  /* Free the wolfSSL context object          */
+    wolfSSL_Cleanup();      /* Cleanup the wolfSSL environment          */
+    close(sockfd);          /* Close the connection to the server       */
+    return 0;               /* Return reporting a success               */
+```
+
+Jumping back up a bit, just after the "Duplicate `read_ssl` [...]" block add
+these lines:
+
+```c
+    /* Launch the threads */
+    pthread_create(&read_thread, NULL, ReadHandler, read_ssl);
+    pthread_create(&write_thread, NULL, WriteHandler, write_ssl);
+
+    /* Rejoin the threads */
+    pthread_join(write_thread, NULL);
+    pthread_join(read_thread, NULL);
+```
+
+The first block launches a pair of threads. The first handles reading from the
+server, and the second handles writing to the server. The second block then
+rejoins the threads, waiting until they have completed their execution and
+cleaning up after them.
+
+And from here, this client has successfully been modified to use write
+duplication.
+
+#### <a name="run-resume">Running</a>
+
+`client-tls-writedup` can connect to the following:
+
+* `server-tls`
+* `server-tls-callback`
+* `server-tls-nonblocking`
+* `server-tls-threaded`
+
+
+
 <!-- References -->
 [make]: https://github.com/wolfssl/wolfssl-examples/blob/master/tls/Makefile
+[docs]: https://www.wolfssl.com/wolfSSL/Docs-wolfssl-manual-toc.html
+[build]: https://www.wolfssl.com/wolfSSL/Docs-wolfssl-manual-2-building-wolfssl.html
 
 [s-tcp]: https://github.com/wolfssl/wolfssl-examples/blob/master/tls/server-tcp.c
 [c-tcp]: https://github.com/wolfssl/wolfssl-examples/blob/master/tls/client-tcp.c
@@ -1630,3 +1819,5 @@ and return" block do this. It should now look something like this:
 [c-tls-n]: https://github.com/wolfssl/wolfssl-examples/blob/master/tls/client-tls-nonblocking.c
 
 [c-tls-r]: https://github.com/wolfssl/wolfssl-examples/blob/master/tls/client-tls-resume.c
+
+[c-tls-w]: https://github.com/wolfssl/wolfssl-examples/blob/master/tls/client-tls-writedup.c
