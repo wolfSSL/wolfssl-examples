@@ -365,6 +365,7 @@ We will begin by adding the following libraries to pull from.
 ####  2.1.2. Increase `MSGLEN`
 Next change the size of our `MSGLEN` to 4096 to be more universal. This step is unnecessary if you’re testing against the client.c located in `wolfssl/examples/client` as it will only send a message of length 14 or so. With this said, why not be able to handle a little user input if we want to test against a friend's client for example?
 
+
 ####  2.1.3. Shifting Variables, Adding Functionality
 ####  2.1.3.1. Create `cleanup`
 We will create a global `static int` called `cleanup`. This variable will be our signal to run `wolfSSL_cleanup();` which will free the wolfSSL libraries and all allocated memory at the end of our program.
@@ -510,6 +511,7 @@ return 0;
 #### 2.1.6. Quick Recap
 So we’ve loaded all the certificates and keys we will need to encrypt any and all communications sent between our server and client. This encryption will be of type DTLS version 1.2 as seen in Figure 2.6, where you see `wolfDTLSv1_2_server_method()`. In order for a client to now talk to our DTLS encrypted server they themselves will have to have certificates to verify our encryption, accept our key, and perform a DTLS handshake. See section 2 of this chapter for a tutorial on encrypting a client with DTLS version 1.2.
 
+
 #### 2.1.7. Adding DTLS to Server
 #### 2.1.7.1. Avoid Socket in Use Error
 Our client handling is now running in a `while` loop, so it will continue to listen for clients even after a client has communicated with us and the closed their port. Our program will re-allocate that socket, rebind that socket and continue to await the arrival of more datagrams from that same or different clients. Our first step to avoid potential errors with our program will be to avoid “socket already in use” errors. Initialize two dummy integers, `res` and `on`. set both equal to `1`. Then initialize a `struct` of type `socklen_t` (same as our `clilen` for getting the length of the clients address) call it `len` and set it equal to the size of `on`. We will use these variables to set the socket options to avoid that error.
@@ -654,6 +656,7 @@ As stated in chapter 4 of the wolfSSL manual, DTLS is enabled by using the `--en
 #### 2.2.2. wolfSSL Tutorial
 Walk through chapter 11 in the wolfSSL tutorial. Follow the guides for TLS/SSL using the correct wolfDTLS client method. There are a few adjustments to be made for DTLS, detailed in the next few steps.
 
+
 #### 2.2.2.1. Port Definition
 Make sure you have the correct port defined in your program. For example,
 `# define SERV_PORT 11111` for server with `11111` set as the port.
@@ -787,6 +790,7 @@ When writing a method to handle thread execution, imagine that every thread is i
 As we go over items **1** through **6**, we'll continue adding meat to our `ThreadHandler` method.
 
 Each commented section will be filled in as each of the following sections is completed.
+
 
 ####  3.1.1.3.1. `pthread_detach`
 Calling `pthread_detach` should be the very first thing done within the method - it specifies that when the thread terminates, its resources will be released. The parameter passed to `pthread_detach` should be the thread itself.
@@ -1684,4 +1688,3 @@ And that's it! The server has been made into a nonblocking server, and the clien
 2. The Open Group, “setsockopt - set the socket options”, Copyright © 1997, The Single UNIX ® Specification, Version 2
 3. https://en.wikipedia.org/wiki/POSIX_Threads
 4. https://www.quora.com/What-exactly-does-it-mean-for-a-web-server-to-be-blocking-versus-non-blocking 
-
