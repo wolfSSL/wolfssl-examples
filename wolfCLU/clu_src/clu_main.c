@@ -31,21 +31,32 @@
 
 int main(int argc, char** argv)
 {
-    int     ret;
-    int     option;
-    int     i;
+    int     ret = 0;
+    int     option = 0;
+    int     ignoreIn = 0;
+    int     ignoreOut = 0;
     int     long_index = 0;
+    int     i;
 
     if (argc == 1) {
         printf("Main Help.\n");
         wolfCLU_help();
     }
+    /* Set ignore variables for -in and -out files */
+    ret = wolfCLU_checkForArg("-in", 3, argc, argv);
+    if (ret > 0) {
+        ignoreIn = ret + 1;
+    }
+    ret = wolfCLU_checkForArg("-out", 4, argc, argv);
+    if (ret > 0) {
+        ignoreOut = ret + 1;
+    }
+
 
     /* flexibility: allow users to input any CAPS or lower case,
      * we will do all processing on lower case only. */
     for (i = 0; i < argc; i++) {
-        /* Case sensitive systems. */
-        if (!(i != 4 || i != 6)) {
+        if (i != ignoreIn && i != ignoreOut) {
             convert_to_lower(argv[i], (int) XSTRLEN(argv[i]));
         }
     }
