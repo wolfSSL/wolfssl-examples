@@ -60,12 +60,25 @@
   - 4.1.3. Reconnect with Old Session Data
   - 4.1.4. Cleanup
 - Chapter 5: Convert Server and Client to Nonblocking
-  - 5.1.1. A Note About Functions
-  - 5.1.2. Add New Headers to Top of File
-  - 5.1.3. Add Enum Variables for Testing Functions
-  - 5.1.4. Add a DTLS Selection Function
-  - 5.1.5. Nonblocking DTLS Connect Function
-  - 5.1.6. Adjust Datagram Client Function
+  - 5.1. A Nonblocking DTLS Client
+    - 5.1.1. A Note About Functions
+    - 5.1.2. Add New Headers to Top of File
+    - 5.1.3. Add Enum Variables for Testing Functions
+    - 5.1.4. Adding Nonblocking DTLS Functionality to Client
+      - 5.1.4.1. Variables
+      - 5.1.4.2. Adding a Loop
+    5.1.5. Datagram Sending
+  - 5.2. A Nonblocking DTLS Server
+    - 5.2.1. Add New Headers to Top of File
+    - 5.2.2. Add Enum Variables for Testing Functions
+    - 5.2.3. Handling Signals
+      - 5.2.3.1. Static variable `cleanup`
+      - 5.2.3.2. Defining a Method to Handle Signals
+      - 5.2.3.3. Telling the Program to Use `sig_handler()
+    - 5.2.4. Adding Nonblocking DTLS Functionality to Server
+      - 5.2.4.1. Variables
+      - 5.2.4.2. Adding a Loop
+    - 5.2.5. Final Note
 - References
 ##  CHAPTER 1: A Simple UDP Server & Client
 ###  Section 1: By Kaleb Himes
@@ -1663,93 +1676,12 @@ For brevity, they will not all be pointed out and explained - the code will be d
 The code above was taken directly from the DTLS server nonblocking file. 
 
 Be sure to keep in mind that the `AwaitDatagram` code is essentially one large loop that will attempt to listen for a client (in a nonblocking fashion) at every iteration, and will close the loop upon a signal passed by the user.
-#### 5.2.4.3 Final note
+#### 5.2.5 Final note
 And that's it! The server has been made into a nonblocking server, and the client has been made into a nonblocking client.
 #### REFERENCES:
 
 1. Paul Krzyzanowski, “Programming with UDP sockets”, Copyright 2003-2014, PK.ORG
 2. The Open Group, “setsockopt - set the socket options”, Copyright © 1997, The Single UNIX ® Specification, Version 2
 3. https://en.wikipedia.org/wiki/POSIX_Threads
-4. https://www.quora.com/What-exactly-does-it-mean-for-a-web-server-to-be-blocking-versus-non-blocking (FD_ISSET(socketfd, &errfds))
-            return TEST_ERROR_READY;
-    }
-    return TEST_SELECT_FAIL;
-}
-```
-
-#### 5.1.5. Nonblocking DTLS Connect Function:
-This function calls the connect function and checks for various errors within the connection attempts. We placed it before the `DatagramClient()` function:
-##### Figure 5.2
-
-```c
-/*Connect using Nonblocking - DTLS version*/
-static void NonBlockingDTLS_Connect(WOLFSSL* ssl)
-{
-    int      ret = wolfSSL_connect(ssl);
-    int      error = wolfSSL_get_error(ssl, 0);
-    int      sockfd = (int)wolfSSL_get_fd(ssl);
-    int      select_ret;
-    while (ret != SSL_SUCCESS && (error == SSL_ERROR_WANT_READ ||
-                                     error == SSL_ERROR_WANT_WRITE)) {
-        int currTimeout = 1;
-        if (error == SSL_ERROR_WANT_READ)
-            printf("... client would read block\n");
-        else
-            printf("... client would write block\n");
-        currTimeout = wolfSSL_dtls_get_current_timeout(ssl);
-        select_ret = dtls_select(sockfd, currTimeout);
-        if ( ( select_ret == TEST_RECV_READY) ||
-                                   (select_ret == TEST_ERROR_READY)) {
-            ret = wolfSSL_connect(ssl);
-            error = wolfSSL_get_error(ssl, 0);
-        }
-        else if (select_ret == TEST_TIMEOUT && !wolfSSL_dtls(ssl)) {
-            error = 2;
-        }
-        else if (select_ret == TEST_TIMEOUT && wolfSSL_dtls(ssl) &&
-                                    wolfSSL_dtls_got_timeout(ssl) >= 0) {
-            error = 2;
-        }
-        else {
-             error = SSL_FATAL_ERROR;
-        }
-    }
-
-    if (ret != SSL_SUCCESS)
-        err_sys("SSL_connect failed with");
-    }
-```
-
-#### 5.1.6. Adjust Datagram Client Function
-Note that this function could be placed within `main()`.
-Create `while` loops for `wolfSSL_write()` and `wolfSSL_read()` to check for errors.
-##### Figure 5.3
-```c
-void DatagramClient (FILE* clientInput, WOLFSSL* ssl)
-{
-    int     n = 0;
-    char    sendLine[MAXLINE], recvLine[MAXLINE - 1];
-
-    fgets(sendLine, MAXLINE, clientInput);
-
-    while  ( ( wolfSSL_write(ssl, sendLine, strlen(sendLine))) !=
-                                                    strlen(sendLine))
-        err_sys("SSL_write failed");
-
-    while ( (n = wolfSSL_read(ssl, recvLine, sizeof(recvLine)-1)) <= 0) {
-        int readErr = wolfSSL_get_error(ssl, 0);
-        if(readErr != SSL_ERROR_WANT_READ)
-            err_sys("wolfSSL_read failed");
-    }
-
-        recvLine[n] = '\0';
-        fputs(recvLine, stdout);
-}
-```
-
-#### REFERENCES:
-
-1. Paul Krzyzanowski, “Programming with UDP sockets”, Copyright 2003-2014, PK.ORG
-2. The Open Group, “setsockopt - set the socket options”, Copyright © 1997, The Single UNIX ® Specification, Version 2
-3. https://en.wikipedia.org/wiki/POSIX_Threads
+4. https://www.quora.com/What-exactly-does-it-mean-for-a-web-server-to-be-blocking-versus-non-blocking 
 
