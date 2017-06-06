@@ -60,12 +60,25 @@
   - 4.1.3. Reconnect with Old Session Data
   - 4.1.4. Cleanup
 - Chapter 5: Convert Server and Client to Nonblocking
-  - 5.1.1. A Note About Functions
-  - 5.1.2. Add New Headers to Top of File
-  - 5.1.3. Add Enum Variables for Testing Functions
-  - 5.1.4. Add a DTLS Selection Function
-  - 5.1.5. Nonblocking DTLS Connect Function
-  - 5.1.6. Adjust Datagram Client Function
+  - 5.1. A Nonblocking DTLS Client
+    - 5.1.1. A Note About Functions
+    - 5.1.2. Add New Headers to Top of File
+    - 5.1.3. Add Enum Variables for Testing Functions
+    - 5.1.4. Adding Nonblocking DTLS Functionality to Client
+      - 5.1.4.1. Variables
+      - 5.1.4.2. Adding a Loop
+    5.1.5. Datagram Sending
+  - 5.2. A Nonblocking DTLS Server
+    - 5.2.1. Add New Headers to Top of File
+    - 5.2.2. Add Enum Variables for Testing Functions
+    - 5.2.3. Handling Signals
+      - 5.2.3.1. Static variable `cleanup`
+      - 5.2.3.2. Defining a Method to Handle Signals
+      - 5.2.3.3. Telling the Program to Use `sig_handler()
+    - 5.2.4. Adding Nonblocking DTLS Functionality to Server
+      - 5.2.4.1. Variables
+      - 5.2.4.2. Adding a Loop
+    - 5.2.5. Final Note
 - References
 ##  CHAPTER 1: A Simple UDP Server & Client
 ###  Section 1: By Kaleb Himes
@@ -352,6 +365,7 @@ We will begin by adding the following libraries to pull from.
 ####  2.1.2. Increase `MSGLEN`
 Next change the size of our `MSGLEN` to 4096 to be more universal. This step is unnecessary if you’re testing against the client.c located in `wolfssl/examples/client` as it will only send a message of length 14 or so. With this said, why not be able to handle a little user input if we want to test against a friend's client for example?
 
+
 ####  2.1.3. Shifting Variables, Adding Functionality
 ####  2.1.3.1. Create `cleanup`
 We will create a global `static int` called `cleanup`. This variable will be our signal to run `wolfSSL_cleanup();` which will free the wolfSSL libraries and all allocated memory at the end of our program.
@@ -497,6 +511,7 @@ return 0;
 #### 2.1.6. Quick Recap
 So we’ve loaded all the certificates and keys we will need to encrypt any and all communications sent between our server and client. This encryption will be of type DTLS version 1.2 as seen in Figure 2.6, where you see `wolfDTLSv1_2_server_method()`. In order for a client to now talk to our DTLS encrypted server they themselves will have to have certificates to verify our encryption, accept our key, and perform a DTLS handshake. See section 2 of this chapter for a tutorial on encrypting a client with DTLS version 1.2.
 
+
 #### 2.1.7. Adding DTLS to Server
 #### 2.1.7.1. Avoid Socket in Use Error
 Our client handling is now running in a `while` loop, so it will continue to listen for clients even after a client has communicated with us and the closed their port. Our program will re-allocate that socket, rebind that socket and continue to await the arrival of more datagrams from that same or different clients. Our first step to avoid potential errors with our program will be to avoid “socket already in use” errors. Initialize two dummy integers, `res` and `on`. set both equal to `1`. Then initialize a `struct` of type `socklen_t` (same as our `clilen` for getting the length of the clients address) call it `len` and set it equal to the size of `on`. We will use these variables to set the socket options to avoid that error.
@@ -641,6 +656,7 @@ As stated in chapter 4 of the wolfSSL manual, DTLS is enabled by using the `--en
 #### 2.2.2. wolfSSL Tutorial
 Walk through chapter 11 in the wolfSSL tutorial. Follow the guides for TLS/SSL using the correct wolfDTLS client method. There are a few adjustments to be made for DTLS, detailed in the next few steps.
 
+
 #### 2.2.2.1. Port Definition
 Make sure you have the correct port defined in your program. For example,
 `# define SERV_PORT 11111` for server with `11111` set as the port.
@@ -774,6 +790,7 @@ When writing a method to handle thread execution, imagine that every thread is i
 As we go over items **1** through **6**, we'll continue adding meat to our `ThreadHandler` method.
 
 Each commented section will be filled in as each of the following sections is completed.
+
 
 ####  3.1.1.3.1. `pthread_detach`
 Calling `pthread_detach` should be the very first thing done within the method - it specifies that when the thread terminates, its resources will be released. The parameter passed to `pthread_detach` should be the thread itself.
@@ -1146,9 +1163,10 @@ There isn't anything special about cleanup with reused sessions. All that needs 
 Again, if wanted, this can all be isolated inside a loop that will break upon receiving a signal from the user. To find out more about signal handling, visit the wolfSSL [SSL Tutorial](https://wolfssl.com/wolfSSL/Docs-wolfssl-manual-11-ssl-tutorial.html), specifically section 11.12.
 
 ## CHAPTER 5: Convert Server and Client to Nonblocking
-### Section 1:
+### Section 1: A nonblocking client
 #### 5.1.1. A Note About Functions
 If you compare this tutorial and the functions we discuss implementing to the available completed example code, you will notice these functions are missing from the example code. The functions have been combined into `main()` in order to allow the code to read linearly and be more understandable. For the purposes of this tutorial, you may still add the noted functions to achieve the same functionality. All of the functions are simply hidden within the main function. Most are commented with their original function names when they occur. This tutorial is in the process of being updated to match this more appropriately.
+
 #### 5.1.2. Add New Headers to Top of File:
 ```c
 # include <errno.h>    /* error checking */
@@ -1156,7 +1174,7 @@ If you compare this tutorial and the functions we discuss implementing to the av
 ```
 
 #### 5.1.3. Add Enum Variables for Testing Functions
-Add the following before the first function:
+In both the server and client files, add the following before the first function:
 ```c
 enum {
     TEST_SELECT_FAIL,
@@ -1166,109 +1184,507 @@ enum {
 };
 ```
 
-#### 5.1.4. Add a DTLS Selection Function
-This is similar to the `tcp_select()` function in wolfSSL. This function will also call `select()`:
-##### Figure 5.1
-```c
-/* tcp select using dtls nonblocking function*/
-static int dtls_select(int socketfd, int to_sec)
-{
-    fd_set         recvfds, errfds;
-    int            nfds = socketfd +1;
-    struct timeval timeout = { (to_sec > 0) ? to_sec : 0, 0};
-    int            result;
+#### 5.1.4 Adding nonblocking DTLS connection functionality
+From [Quora](https://www.quora.com/What-exactly-does-it-mean-for-a-web-server-to-be-blocking-versus-non-blocking),
+> Many IO related system calls, like read(2), will block, that is not return, until there is activity.  A socket can be placed in "non-blocking mode" which means that these system calls will return immediately if there is nothing pending.
 
+To make our client a nonblocking client, we need to add 2 things (they should come before we attempt to send a datagram to the server, as it would be much more difficult to send a datagram without having a connection!).
+
+**1. Variables**
+
+**2. A loop that iterates until an `SSL_SUCCESS` or error**
+  - The loop will also have conditional statements inside that check the progress of the nonblocking code - they will be mainly used to determine the outcome of the loop and keep the user updated.
+
+The only part of the functionality that is truly nonblocking is the selection of sockets. It will not wait until there is activity on the server side to return - it will return after a specified amount of time regardless of if it can connect or not.
+
+Before adding anything else, there are 2 method calls to be added. In the `main()` method, add the following chunk **immediately** after the call to `wolfSSL_set_fd(ssl, sockfd)`:
+```c
+wolfSSL_set_using_nonblock(ssl, 1);
+fcntl(sockfd, F_SETFL, O_NONBLOCK);
+```
+##### 5.1.4.1 - Variables
+Almost all the variables that need to be added are `int` types. There are also `fd_set` and `timeval` variables. Instantiation at declaration is not necessary, as most of the variables will be reset at every iteration of the loop in mentioned above in **2**. In addition, some variables are also dependent upon other variables and their data in the `main()` method. **Figure 5...?** shows the variable declarations. They should be declared along with all other variables inside of the `main()` method.
+
+**Figure 5.1**
+```c
+/* Variables used for nonblocking DTLS connect */
+int                 ret;
+int                 error;
+int                 nb_sockfd;
+int                 select_ret;
+int                 currTimeout;
+
+/* Variables used for nonblocking DTLS select */
+int                 nfds;
+int                 result;
+fd_set              recvfds, errfds;
+struct timeval      timeout;
+```
+
+3 of the variables used for nonblocking DTLS connect will be assigned prior to the loop. **Figure 5.2** shows where they are assigned.
+
+**Figure 5.2**
+```c
+fcntl(sockfd, F_SETFL, O_NONBLOCK);
+
+/*****************************************************************************/
+/*                Connect using Nonblocking - DTLS version                   */
+ret = wolfSSL_connect(ssl);             /* Connection test (should fail) */
+error = wolfSSL_get_error(ssl, 0);      /* Find out why connect failed */
+nb_sockfd = (int) wolfSSL_get_fd(ssl);  /* To protect the original socket */
+```
+
+1 variable from nonblocking DTLS connect and 2 from nonblocking DTLS select will be assigned at the beginning of each iteration.
+
+2 variables from nonblocking DTLS select will be assigned in the middle of the loop.
+
+The variable assignments will be shown when the loop is discussed in **Section 5.1.4.2** next.
+
+##### 5.1.4.2 - A loop that iterates until an `SSL_SUCCESS` or error
+The body of the nonblocking DTLS connection and functionality occur within a while loop that continues to loop while `ret` has not succeeded in a connection, and while `error` is at least an `SSL_ERROR_WANT_READ` or an `SSL_ERROR_WANT_WRITE`.
+
+**Figure 5.3**
+```c
+/*****************************************************************************/
+/*                Connect using Nonblocking - DTLS version                   */
+ret = wolfSSL_connect(ssl);             /* Connection test (should fail) */
+error = wolfSSL_get_error(ssl, 0);      /* Find out why connect failed */
+nb_sockfd = (int) wolfSSL_get_fd(ssl);  /* To protect the original socket */
+
+while (ret != SSL_SUCCESS &&
+      (error = SSL_ERROR_WANT_READ || error == SSL_ERROR_WANT_WRITE)) {
+
+    /* Variables that reset every iteration */
+    currTimeout = wolfSSL_dtls_get_current_timeout(ssl);
+    nfds = nb_sockfd + 1;
+    timeout = (struct timeval) { (currTimeout > 0) ? currTimeout : 0, 0};
+
+    /* Keep the user updated */
+    if(error == SSL_ERROR_WANT_READ) {
+        printf("... client would read block.\n");
+    } else {
+        printf("... client would write block.\n");
+    }
+
+    /* nonblocking DTLS select variables that reset every iteration *
+     * (recvfds, nb_sockfd and errfds must be manually reset)       */
     FD_ZERO(&recvfds);
-    FD_SET(socketfd, &recvfds);
+    FD_SET(nb_sockfd, &recvfds);
     FD_ZERO(&errfds);
-    FD_SET(socketfd, &errfds);
+    FD_SET(nb_sockfd, &errfds);
 
     result = select(nfds, &recvfds, NULL, &errfds, &timeout);
 
-    if (result == 0)
-        return TEST_TIMEOUT;
+    select_ret = TEST_SELECT_FAIL;
+
+    if (result == 0) {
+        select_ret = TEST_TIMEOUT;
+    }
     else if (result > 0) {
-        if (FD_ISSET(socketfd, &recvfds))
-            return TEST_RECV_READY;
-        else if (FD_ISSET(socketfd, &errfds))
-            return TEST_ERROR_READY;
+        if (FD_ISSET(nb_sockfd, &recvfds)) {
+            select_ret = TEST_RECV_READY;
+        }
+        else if (FD_ISSET(nb_sockfd, &errfds)) {
+            select_ret = TEST_ERROR_READY;
+        }
     }
-    return TEST_SELECT_FAIL;
+    /* End nonblocking DTLS selection functionality */
+
+    /* Determine the outcome of nonblocking selection */
+    if (  select_ret == TEST_RECV_READY ||
+          select_ret == TEST_ERROR_READY ) {
+        ret = wolfSSL_connect(ssl);
+        error = wolfSSL_get_error(ssl, 0);
+    }
+	else if (select_ret == TEST_TIMEOUT && !wolfSSL_dtls(ssl)) {
+        error = 2;
+    }
+    else if (select_ret == TEST_TIMEOUT && wolfSSL_dtls(ssl) &&
+	      wolfSSL_dtls_got_timeout(ssl) >= 0) {
+        error = 2;
+    }
+    else {
+        error = SSL_FATAL_ERROR;
+    }
 }
+
+/* Confirm that the loop exited properly */
+if (ret != SSL_SUCCESS) {
+    printf("SSL_connect failed with %d\n", ret);
+}
+/*                                                                           */
+/*****************************************************************************/
 ```
 
-#### 5.1.5. Nonblocking DTLS Connect Function:
-This function calls the connect function and checks for various errors within the connection attempts. We placed it before the `DatagramClient()` function:
-##### Figure 5.2
+#### 5.1.5 Datagram sending
+Now the client needs to send a message to the server. If it didn't, then there would have been no point in connecting to the server.
 
+The way that a datagram from a nonblocking DTLS client is sent is identical to the way that a datagram is sent from a regular DTLS client. Remember, what makes a DTLS client nonblocking is how it connects to a server, not how it sends its message.
+
+The datagram sending code is included below for reference in **Figure 5.4.** It requires no special variable usage or extra conditionals/loops in a nonblocking client.
+
+**Figure 5.4**
 ```c
-/*Connect using Nonblocking - DTLS version*/
-static void NonBlockingDTLS_Connect(WOLFSSL* ssl)
-{
-    int      ret = wolfSSL_connect(ssl);
-    int      error = wolfSSL_get_error(ssl, 0);
-    int      sockfd = (int)wolfSSL_get_fd(ssl);
-    int      select_ret;
-    while (ret != SSL_SUCCESS && (error == SSL_ERROR_WANT_READ ||
-                                     error == SSL_ERROR_WANT_WRITE)) {
-        int currTimeout = 1;
-        if (error == SSL_ERROR_WANT_READ)
-            printf("... client would read block\n");
-        else
-            printf("... client would write block\n");
-        currTimeout = wolfSSL_dtls_get_current_timeout(ssl);
-        select_ret = dtls_select(sockfd, currTimeout);
-        if ( ( select_ret == TEST_RECV_READY) ||
-                                   (select_ret == TEST_ERROR_READY)) {
-            ret = wolfSSL_connect(ssl);
-            error = wolfSSL_get_error(ssl, 0);
-        }
-        else if (select_ret == TEST_TIMEOUT && !wolfSSL_dtls(ssl)) {
-            error = 2;
-        }
-        else if (select_ret == TEST_TIMEOUT && wolfSSL_dtls(ssl) &&
-                                    wolfSSL_dtls_got_timeout(ssl) >= 0) {
-            error = 2;
-        }
-        else {
-             error = SSL_FATAL_ERROR;
-        }
-    }
+/* Code for sending a datagram to the server */
+int  n = 0;
+char sendLine[MAXLINE], recvLine[MAXLINE - 1];
 
-    if (ret != SSL_SUCCESS)
-        err_sys("SSL_connect failed with");
-    }
-```
-
-#### 5.1.6. Adjust Datagram Client Function
-Note that this function could be placed within `main()`.
-Create `while` loops for `wolfSSL_write()` and `wolfSSL_read()` to check for errors.
-##### Figure 5.3
-```c
-void DatagramClient (FILE* clientInput, WOLFSSL* ssl)
-{
-    int     n = 0;
-    char    sendLine[MAXLINE], recvLine[MAXLINE - 1];
-
-    fgets(sendLine, MAXLINE, clientInput);
+while (fgets(sendLine, MAXLINE, stdin) != NULL) {
 
     while  ( ( wolfSSL_write(ssl, sendLine, strlen(sendLine))) !=
-                                                    strlen(sendLine))
-        err_sys("SSL_write failed");
+          strlen(sendLine)) {
+    	printf("SSL_write failed");
+    }
 
     while ( (n = wolfSSL_read(ssl, recvLine, sizeof(recvLine)-1)) <= 0) {
         int readErr = wolfSSL_get_error(ssl, 0);
-        if(readErr != SSL_ERROR_WANT_READ)
-            err_sys("wolfSSL_read failed");
+        if(readErr != SSL_ERROR_WANT_READ) {
+            printf("wolfSSL_read failed");
+        }
     }
 
-        recvLine[n] = '\0';
-        fputs(recvLine, stdout);
+    recvLine[n] = '\0';
+    fputs(recvLine, stdout);
+}
+```
+### Section 2: A nonblocking DTLS server
+#### 5.2.1 Add New Headers to Top of File:
+```c
+# include <errno.h>    /* error checking */
+# include <fcntl.h>    /* set file status flags */
+```
+#### 5.2.2 Add Enum Variables for Testing Functions
+In both the server and client files, add the following before the first function:
+```c
+enum {
+    TEST_SELECT_FAIL,
+    TEST_TIMEOUT,
+    TEST_RECV_READY,
+    TEST_ERROR_READY
+};
+```
+#### 5.2.3 Handling signals
+In the server file, it can be useful to get a user's input that tells the server to shut down. This is done with handling signals. To do this, we will need to have a static variable `cleanup` that tells the server when the signal has been passed, a method that will modify `cleanup`, and code that states this method is what needs to be executed when the server is passed a signal.
+##### 5.2.3.1 Static variable `cleanup`
+This variable `cleanup` is just a global static integer. It does not need to be initialized at declaration. Be sure to include in your while loop that you wish to loop until the original condition is true **or** `cleanup` is equal to 1.
+##### 5.2.3.2 Defining a method to handle signals
+To let the program know in an simple way that a signal has passed, all that needs to be done is writing a method that will reassign `cleanup`.
+
+The method needs to take in a `const int` type, and if desired, you can also add a print statement that tells the user what has happened. An example of a `sig_handler` method is shown below in **Figure 5.5**.
+
+**Figure 5.5**
+```c
+/* For handling ^C interrupts or other signals */
+void sig_handler(const int sig)
+{
+    printf("\nSIGINT %d handled\n", sig);
+    cleanup = 1;
+    return;
+}
+```
+##### 5.2.3.3 Telling the program to use `sig_handler()`
+If we just leave the server with the `sig_handler` definition and it looping until cleanup is changed, nothing will actually change when a user passes a signal to the server. To fix this, add the code in **Figure 5.6** immediately after creating the variables in `main()`.
+
+**Figure 5.6**
+```c
+/*Code for handling signals */
+struct sigaction act, oact;
+act.sa_handler = sig_handler;
+sigemptyset(&act.sa_mask);
+act.sa_flags = 0;
+sigaction(SIGINT, &act, &oact);
+```
+#### 5.2.4 Adding nonblocking DTLS connection functionality
+To make our server a nonblocking server, we need to add 2 things. They are the same as the two things we had to add for our client - variables and a while loop.
+
+**1. Variables**
+
+**2. A while loop that loops while cleanup is not 1 and the original conditions are true**
+
+Don't forget that immediately after the call to `wolfSSL_set_fd()`, we need to make a call `wolfSSL_set_using_nonblock()`. The call to this method is shown below.
+```c
+wolfSSL_set_using_nonblock(ssl, 1);
+```
+##### 5.2.4.1 Variables
+As with our client, there are several variables needed for our nonblocking DTLS server. **Figure 5.7** lists them.
+
+**Figure 5.7**
+```c
+    /* DTLS set nonblocking flag */
+    int           flags = fcntl(*(&listenfd), F_GETFL, 0);
+
+    /* NonBlockingSSL_Accept variables */
+    int           ret;
+    int           select_ret;
+    int           currTimeout;
+    int           error;
+    int           result;
+    int           nfds;
+    fd_set        recvfds, errfds;
+    struct        timeval timeout;
+
+    /* udp-read-connect variables */
+    int           bytesRecvd;
+    unsigned char b[MSGLEN];
+    struct        sockaddr_in cliAddr;
+    socklen_t     clilen;
+```
+##### 5.2.4.2 While loop
+As with the client, the while loop has variables that are assigned prior to, at the beginning of, and in the center of the loop.
+
+For brevity, they will not all be pointed out and explained - the code will be displayed in **Figure 5.8**, and all that is new will have descriptive comments that explain the differences.
+
+**Figure 5.8**
+```c
+/*****************************************************************************/
+/*                           AwaitDatagram code                              */
+    /* This code will loop until a ^C (SIGINT 2) is passed by the user */
+    cont = 0;
+    while (cleanup != 1) {
+
+        clilen = sizeof(cliAddr);
+        timeout.tv_sec = (currTimeout > 0) ? currTimeout : 0;
+
+        /* Create a UDP/IP socket */
+        if ((listenfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) {
+            printf("Cannot create socket.\n");
+            cont = 1;
+        }
+
+        printf("Socket allocated\n");
+
+        /* DTLS set nonblocking */
+        if (flags < 0) {
+            printf("fcntl get failed");
+            cleanup = 1;
+        }
+        flags = fcntl(*(&listenfd), F_SETFL, flags | O_NONBLOCK);
+        if (flags < 0) {
+            printf("fcntl set failed.\n");
+            cleanup = 1;
+        }
+
+        /* Clear servAddr each loop */
+        memset((char *)&servAddr, 0, sizeof(servAddr));
+
+        /* host-to-network-long conversion (htonl) */
+        /* host-to-network-short conversion (htons) */
+        servAddr.sin_family = AF_INET;
+        servAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+        servAddr.sin_port = htons(SERV_PORT);
+
+        /* Eliminate socket already in use error */
+        res = setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &on, len);
+        if (res < 0) {
+            printf("Setsockopt SO_REUSEADDR failed.\n");
+            cont = 1;
+        }
+
+        /*Bind Socket*/
+        if (bind(listenfd,
+                    (struct sockaddr *)&servAddr, sizeof(servAddr)) < 0) {
+            printf("Bind failed.\n");
+            cont = 1;
+        }
+
+        printf("Awaiting client connection on port %d\n", SERV_PORT);
+
+        /* UDP-read-connect */
+        do {
+            if (cleanup == 1) {
+                cont = 1;
+                break;
+            }
+            bytesRecvd = (int)recvfrom(listenfd, (char*)b, sizeof(b), MSG_PEEK,
+                (struct sockaddr*)&cliAddr, &clilen);
+        } while (bytesRecvd <= 0);
+
+        if (bytesRecvd > 0) {
+            if (connect(listenfd, (const struct sockaddr*)&cliAddr,
+                        sizeof(cliAddr)) != 0) {
+                printf("udp connect failed.\n");
+            }
+        }
+        else {
+            printf("recvfrom failed.\n");
+        }
+
+        printf("Connected!\n");
+        /* ensure b is empty upon each call */
+        memset(&b, 0, sizeof(b));
+        clientfd = listenfd;
+
+        /* Create the WOLFSSL Object */
+        if (( ssl = wolfSSL_new(ctx)) == NULL) {
+            printf("wolfSSL_new error.\n");
+            cont = 1;
+        }
+
+        /* set clilen to |cliAddr| */
+        printf("Connected!\n");
+
+        /* set the/ session ssl to client connection port */
+        wolfSSL_set_fd(ssl, clientfd);
+
+        wolfSSL_set_using_nonblock(ssl, 1);
+
+/*****************************************************************************/
+/*                      NonBlockingDTLS_Connect code                         */
+
+        /* listenfd states where to listen ()
+        ret = wolfSSL_accept(ssl);
+        currTimeout = 1;
+        error = wolfSSL_get_error(ssl, 0);
+        listenfd = (int) wolfSSL_get_fd(ssl);
+        nfds = listenfd + 1;
+
+        /* Loop until there has been a successful connection *
+         * or until there has been a signal                  */
+        while (cleanup != 1 && (ret != SSL_SUCCESS &&
+                    (error == SSL_ERROR_WANT_READ ||
+                     error == SSL_ERROR_WANT_WRITE))) {
+
+            if (cleanup == 1) {
+                wolfSSL_free(ssl);
+                wolfSSL_shutdown(ssl);
+                break;
+            }
+
+            /* Keep the user updated */
+            if (error == SSL_ERROR_WANT_READ)
+                printf("... server would read block\n");
+            else
+                printf("... server would write block\n");
+
+            currTimeout = wolfSSL_dtls_get_current_timeout(ssl);
+
+            FD_ZERO(&recvfds);
+            FD_SET(listenfd, &recvfds);
+            FD_ZERO(&errfds);
+            FD_SET(listenfd, &errfds);
+
+            /* This is where the term 'nonblocking' comes into use */
+            result = select(nfds, &recvfds, NULL, &errfds, &timeout);
+
+            if (result == 0) {
+                select_ret = TEST_TIMEOUT;
+            }
+            else if (result > 0) {
+                if (FD_ISSET(listenfd, &recvfds)) {
+                    select_ret = TEST_RECV_READY;
+                }
+                else if (FD_ISSET(listenfd, &errfds)) {
+                    select_ret = TEST_ERROR_READY;
+                }
+            }
+            else {
+                select_ret = TEST_SELECT_FAIL;
+            }
+
+            if ((select_ret == TEST_RECV_READY) ||
+                (select_ret == TEST_ERROR_READY)) {
+                ret = wolfSSL_accept(ssl);
+                error = wolfSSL_get_error(ssl, 0);
+            }
+            else if (select_ret == TEST_TIMEOUT && !wolfSSL_dtls(ssl)) {
+                error = SSL_ERROR_WANT_READ;
+            }
+            else if (select_ret == TEST_TIMEOUT && wolfSSL_dtls(ssl) &&
+                    wolfSSL_dtls_got_timeout(ssl) >= 0) {
+                error = SSL_ERROR_WANT_READ;
+            }
+            else {
+                error = SSL_FATAL_ERROR;
+            }
+        }
+        if (ret != SSL_SUCCESS) {
+            printf("SSL_accept failed with %d.\n", ret);
+            cont = 1;
+        }
+        else {
+            cont = 0;
+        }
+
+        if (cont != 0) {
+            printf("NonBlockingSSL_Accept failed.\n");
+            cont = 1;
+        }
+/*                    end NonBlockingDTLS_Connect code                       */
+/*****************************************************************************/
+        /* Begin: Reply to the client */
+        recvLen = wolfSSL_read(ssl, buff, sizeof(buff)-1);
+
+        /* Begin do-while read */
+        do {
+            if (cleanup == 1) {
+                memset(buff, 0, sizeof(buff));
+                break;
+            }
+            if (recvLen < 0) {
+                readWriteErr = wolfSSL_get_error(ssl, 0);
+                if (readWriteErr != SSL_ERROR_WANT_READ) {
+                    printf("Read Error, error was: %d.\n", readWriteErr);
+                    cleanup = 1;
+                }
+                else {
+                    recvLen = wolfSSL_read(ssl, buff, sizeof(buff)-1);
+                }
+            }
+        } while (readWriteErr == SSL_ERROR_WANT_READ &&
+                                         recvLen < 0 &&
+                                         cleanup != 1);
+        /* End do-while read */
+
+        if (recvLen > 0) {
+            buff[recvLen] = 0;
+            printf("I heard this:\"%s\"\n", buff);
+        }
+        else {
+            printf("Connection Timed Out.\n");
+        }
+
+        /* Begin do-while write */
+        do {
+            if (cleanup == 1) {
+                memset(&buff, 0, sizeof(buff));
+                break;
+            }
+            readWriteErr = wolfSSL_get_error(ssl, 0);
+            if (wolfSSL_write(ssl, ack, sizeof(ack)) < 0) {
+                printf("Write error.\n");
+                cleanup = 1;
+            }
+            printf("Reply sent:\"%s\"\n", ack);
+        } while(readWriteErr == SSL_ERROR_WANT_WRITE && cleanup != 1);
+        /* End do-while write */
+
+        /* free allocated memory */
+        memset(buff, 0, sizeof(buff));
+        wolfSSL_free(ssl);
+
+        /* End: Reply to the Client */
+    }
+/*                          End await datagram code                          */
+/*****************************************************************************/
+
+    /* End of the main method */
+    if (cont == 1 || cleanup == 1) {
+        wolfSSL_CTX_free(ctx);
+        wolfSSL_Cleanup();
+    }
+
+    return 0;
 }
 ```
 
+The code above was taken directly from the DTLS server nonblocking file. 
+
+Be sure to keep in mind that the `AwaitDatagram` code is essentially one large loop that will attempt to listen for a client (in a nonblocking fashion) at every iteration, and will close the loop upon a signal passed by the user.
+#### 5.2.5 Final note
+And that's it! The server has been made into a nonblocking server, and the client has been made into a nonblocking client.
 #### REFERENCES:
 
 1. Paul Krzyzanowski, “Programming with UDP sockets”, Copyright 2003-2014, PK.ORG
 2. The Open Group, “setsockopt - set the socket options”, Copyright © 1997, The Single UNIX ® Specification, Version 2
 3. https://en.wikipedia.org/wiki/POSIX_Threads
+4. https://www.quora.com/What-exactly-does-it-mean-for-a-web-server-to-be-blocking-versus-non-blocking 

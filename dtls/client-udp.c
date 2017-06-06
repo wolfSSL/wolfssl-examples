@@ -64,7 +64,7 @@ int main(int argc, char** argv)
 
 /****************************************************************************/
 /*               Code for sending the datagram to the server                */
-    servAddr_in = &servAddr;
+    servAddr_in = (struct sockaddr*) &servAddr;
     servLen = sizeof(servAddr);
 
     /* Loop while user is giving input or until EOF is read */

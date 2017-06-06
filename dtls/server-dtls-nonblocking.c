@@ -135,7 +135,8 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    /* Await Datagram */
+/*****************************************************************************/
+/*                           AwaitDatagram code                              */
     cont = 0;
     while (cleanup != 1) {
 
@@ -161,6 +162,7 @@ int main(int argc, char** argv)
             cleanup = 1;
         }
 
+        /* Clear servAddr each loop */
         memset((char *)&servAddr, 0, sizeof(servAddr));
 
         /* host-to-network-long conversion (htonl) */
@@ -224,7 +226,8 @@ int main(int argc, char** argv)
 
         wolfSSL_set_using_nonblock(ssl, 1);
 
-        /* NonBlockingSSL_Accept */
+/*****************************************************************************/
+/*                      NonBlockingDTLS_Connect code                         */
         ret = wolfSSL_accept(ssl);
         currTimeout = 1;
         error = wolfSSL_get_error(ssl, 0);
@@ -285,7 +288,7 @@ int main(int argc, char** argv)
             }
         }
         if (ret != SSL_SUCCESS) {
-            printf("SSL_accept failed.\n");
+            printf("SSL_accept failed with %d.\n", ret);
             cont = 1;
         }
         else {
@@ -296,7 +299,8 @@ int main(int argc, char** argv)
             printf("NonBlockingSSL_Accept failed.\n");
             cont = 1;
         }
-
+/*                    end NonBlockingDTLS_Connect code                       */
+/*****************************************************************************/
         /* Begin: Reply to the client */
         recvLen = wolfSSL_read(ssl, buff, sizeof(buff)-1);
 
@@ -350,8 +354,10 @@ int main(int argc, char** argv)
 
         /* End: Reply to the Client */
     }
+/*                          End await datagram code                          */
+/*****************************************************************************/
 
-    if (cont == 1) {
+    if (cont == 1 || cleanup == 1) {
         wolfSSL_CTX_free(ctx);
         wolfSSL_Cleanup();
     }
