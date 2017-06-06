@@ -18,157 +18,175 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
-#include    <stdio.h>
-#include    <stdlib.h>
-#include    <string.h>
-#include    <errno.h>
-#include    <arpa/inet.h>
-#include    <wolfssl/options.h>
-#include    <wolfssl/ssl.h>          /* wolfSSL security library */
-#include    <wolfssl/test.h>
 
-#define MAXDATASIZE  4096           /* maximum acceptable amount of data */
-#define SERV_PORT    11111          /* define default port number */
+/* the usual suspects */
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
-const char* cert = "../certs/server-ecc.pem";
+/* socket includes */
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <unistd.h>
 
-/*
- * clients initial contact with server. (socket to connect, security layer)
- */
-int ClientGreet(int sock, WOLFSSL* ssl)
-{
-    /* data to send to the server, data recieved from the server */
-    char    sendBuff[MAXDATASIZE], rcvBuff[MAXDATASIZE] = {0};
-    int     ret = 0;                /* variable for error checking */
+/* wolfSSL */
+#include <wolfssl/ssl.h>
 
-    printf("Message for server:\t");
-    fgets(sendBuff, MAXDATASIZE, stdin);
+#define DEFAULT_PORT 11111
 
-    if (wolfSSL_write(ssl, sendBuff, strlen(sendBuff)) != strlen(sendBuff)) {
-        /* the message is not able to send, or error trying */
-        ret = wolfSSL_get_error(ssl, 0);
-        printf("Write error: Error: %i\n", ret);
-        return EXIT_FAILURE;
-    }
+#define CERT_FILE "../certs/server-ecc.pem"
 
-    if (wolfSSL_read(ssl, rcvBuff, MAXDATASIZE) < 0) {
-        /* the server failed to send data, or error trying */
-        ret = wolfSSL_get_error(ssl, 0);
-        printf("Read error. Error: %i\n", ret);
-        return EXIT_FAILURE;
-    }
-    printf("Recieved: \t%s\n", rcvBuff);
-
-    return ret;
-}
-
-/*
- * applies TLS 1.2 security layer to data being sent.
- */
-int Security(int sock)
-{
-    WOLFSSL_CTX* ctx;
-    WOLFSSL*     ssl;    /* create WOLFSSL object */
-    int         ret = 0;
-    const char* myCert        = "../certs/client-ecc-cert.pem";
-    const char* myKey         = "../certs/ecc-client-key.pem";
-    char* cipherList          = "ECDHE-ECDSA-CHACHA20-POLY1305";
-    char buffer[WOLFSSL_MAX_ERROR_SZ];
-
-    wolfSSL_Init();      /* initialize wolfSSL */
-
-    /* create and initiLize WOLFSSL_CTX structure */
-    if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method())) == NULL) {
-        printf("SSL_CTX_new error.\n");
-        return EXIT_FAILURE;
-    }
-
-    if (wolfSSL_CTX_set_cipher_list(ctx, cipherList) != SSL_SUCCESS)
-            err_sys("client can't set cipher list 1");
-
-    if (wolfSSL_CTX_use_certificate_chain_file(ctx, myCert)
-                                                               != SSL_SUCCESS)
-            err_sys("can't load client cert file, check file and run from"
-                    " wolfSSL home dir");
-
-    if (wolfSSL_CTX_use_PrivateKey_file(ctx, myKey, SSL_FILETYPE_PEM)
-                                         != SSL_SUCCESS)
-            err_sys("can't load client private key file, check file and run "
-                    "from wolfSSL home dir");
-
-    /* load CA certificates into wolfSSL_CTX. which will verify the server */
-    if (wolfSSL_CTX_load_verify_locations(ctx, cert, 0) != SSL_SUCCESS) {
-        printf("Error loading %s. Please check the file.\n", cert);
-        return EXIT_FAILURE;
-    }
-
-    if ((ssl = wolfSSL_new(ctx)) == NULL) {
-        printf("wolfSSL_new error.\n");
-        return EXIT_FAILURE;
-    }
-    wolfSSL_set_fd(ssl, sock);
-
-    ret = wolfSSL_connect(ssl);
-    if (ret == SSL_SUCCESS) {
-        ret = ClientGreet(sock, ssl);
-    } else {
-        printf("Failure:");
-        ret = wolfSSL_get_error(ssl, 0);
-        printf(" ret = %d", ret);
-        printf(" %s\n", wolfSSL_ERR_error_string(ret, buffer));
-    }
+#define ECC_FILE    "../certs/client-ecc-cert.pem"
+#define KEY_FILE    "../certs/ecc-client-key.pem"
+#define CIPHER_LIST "ECDHE-ECDSA-CHACHA20-POLY1305"
 
 
-    /* frees all data before client termination */
-    wolfSSL_free(ssl);
-    wolfSSL_CTX_free(ctx);
-    wolfSSL_Cleanup();
 
-    return ret;
-}
-
-/*
- * Command line argumentCount and argumentValues
- */
 int main(int argc, char** argv)
 {
-    int     sockfd;                         /* socket file descriptor */
-    struct  sockaddr_in servAddr;           /* struct for server address */
-    int     ret = 0;                        /* variable for error checking */
+    int                sockfd;
+    struct sockaddr_in servAddr;
+    char               buff[256];
+    size_t             len;
 
+    /* declare wolfSSL objects */
+    WOLFSSL_CTX* ctx;
+    WOLFSSL*     ssl;
+
+
+
+    /* Check for proper calling convention */
     if (argc != 2) {
-        /* if the number of arguments is not two, error */
-        printf("usage: ./client-tcp  <IP address>\n");
-        return EXIT_FAILURE;
+        printf("usage: %s <IPv4 address>\n", argv[0]);
+        return 0;
     }
 
-    /* internet address family, stream based tcp, default protocol */
-    sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
-    if (sockfd < 0) {
-        printf("Failed to create socket. Error: %i\n", errno);
-        return EXIT_FAILURE;
+
+    /* Initialize wolfSSL */
+    wolfSSL_Init();
+
+
+
+    /* Create a socket that uses an internet IPv4 address,
+     * Sets the socket to be stream based (TCP),
+     * 0 means choose the default protocol. */
+    if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
+        fprintf(stderr, "ERROR: failed to create the socket\n");
+        return -1;
     }
 
-    memset(&servAddr, 0, sizeof(servAddr)); /* clears memory block for use */
-    servAddr.sin_family = AF_INET;          /* sets addressfamily to internet*/
-    servAddr.sin_port = htons(SERV_PORT);   /* sets port to defined port */
 
-    /* looks for the server at the entered address (ip in the command line) */
-    if (inet_pton(AF_INET, argv[1], &servAddr.sin_addr) < 1) {
-        /* checks validity of address */
-        ret = errno;
-        printf("Invalid Address. Error: %i\n", ret);
-        return EXIT_FAILURE;
+
+    /* Create and initialize WOLFSSL_CTX */
+    if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method())) == NULL) {
+        fprintf(stderr, "ERROR: failed to create WOLFSSL_CTX\n");
+        return -1;
     }
 
-    if (connect(sockfd, (struct sockaddr *) &servAddr, sizeof(servAddr)) < 0) {
-        /* if socket fails to connect to the server*/
-        ret = errno;
-        printf("Connect error. Error: %i\n", ret);
-        return EXIT_FAILURE;
+    /* Load client certificates into WOLFSSL_CTX */
+    if (wolfSSL_CTX_load_verify_locations(ctx, CERT_FILE, NULL)
+        != SSL_SUCCESS) {
+        fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
+                CERT_FILE);
+        return -1;
     }
-    Security(sockfd);
 
-    return ret;
+    /* Load client ecc certificates into WOLFSSL_CTX */
+    if (wolfSSL_CTX_use_certificate_chain_file(ctx, ECC_FILE) != SSL_SUCCESS) {
+        fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
+                ECC_FILE);
+        return -1;
+    }
+
+    /* Load client ecc key into WOLFSSL_CTX */
+    if (wolfSSL_CTX_use_PrivateKey_file(ctx, KEY_FILE, SSL_FILETYPE_PEM)
+        != SSL_SUCCESS) {
+        fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
+                KEY_FILE);
+        return -1;
+    }
+
+    /* Set cipher list */
+    if (wolfSSL_CTX_set_cipher_list(ctx, CIPHER_LIST) != SSL_SUCCESS) {
+        fprintf(stderr, "ERROR: failed to set cipher list\n");
+        return -1;
+    }
+
+
+
+    /* Initialize the server address struct with zeros */
+    memset(&servAddr, 0, sizeof(servAddr));
+
+    /* Fill in the server address */
+    servAddr.sin_family = AF_INET;             /* using IPv4      */
+    servAddr.sin_port   = htons(DEFAULT_PORT); /* on DEFAULT_PORT */
+
+    /* Get the server IPv4 address from the command line call */
+    if (inet_pton(AF_INET, argv[1], &servAddr.sin_addr) != 1) {
+        fprintf(stderr, "ERROR: invalid address\n");
+        return -1;
+    }
+
+
+
+    /* Connect to the server */
+    if (connect(sockfd, (struct sockaddr*) &servAddr, sizeof(servAddr))
+        == -1) {
+        fprintf(stderr, "ERROR: failed to connect\n");
+        return -1;
+    }
+
+
+
+    /* Create a WOLFSSL object */
+    if ((ssl = wolfSSL_new(ctx)) == NULL) {
+        fprintf(stderr, "ERROR: failed to create WOLFSSL object\n");
+        return -1;
+    }
+
+    /* Attach wolfSSL to the socket */
+    wolfSSL_set_fd(ssl, sockfd);
+
+    /* Connect to wolfSSL on the server side */
+    if (wolfSSL_connect(ssl) != SSL_SUCCESS) {
+        fprintf(stderr, "ERROR: failed to connect to wolfSSL\n");
+        return -1;
+    }
+
+
+
+    /* Get a message for the server from stdin */
+    printf("Message for server: ");
+    memset(buff, 0, sizeof(buff));
+    fgets(buff, sizeof(buff), stdin);
+    len = strnlen(buff, sizeof(buff));
+
+    /* Send the message to the server */
+    if (wolfSSL_write(ssl, buff, len) != len) {
+        fprintf(stderr, "ERROR: failed to write\n");
+        return -1;
+    }
+
+
+
+    /* Read the server data into our buff array */
+    memset(buff, 0, sizeof(buff));
+    if (wolfSSL_read(ssl, buff, sizeof(buff)-1) == -1) {
+        fprintf(stderr, "ERROR: failed to read\n");
+        return -1;
+    }
+
+    /* Print to stdout any data the server sends */
+    printf("Server: %s\n", buff);
+
+
+
+    /* Cleanup and return */
+    wolfSSL_free(ssl);      /* Free the wolfSSL object                  */
+    wolfSSL_CTX_free(ctx);  /* Free the wolfSSL context object          */
+    wolfSSL_Cleanup();      /* Cleanup the wolfSSL environment          */
+    close(sockfd);          /* Close the connection to the server       */
+    return 0;               /* Return reporting a success               */
 }

@@ -17,264 +17,195 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
- *=============================================================================
- *
- * This is a super basic example of what a TCP Server secured with TLS 1.2
- * that uses non blocking input and output.
-*/
+ */
 
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <string.h>
-#include <netinet/in.h>
+/* the usual suspects */
 #include <stdlib.h>
-#include <sys/fcntl.h>
+#include <stdio.h>
+#include <string.h>
 #include <errno.h>
 
-/* Include the wolfSSL library for our TLS 1.2 security */
+/* socket includes */
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <unistd.h>
+
+/* wolfSSL */
 #include <wolfssl/ssl.h>
 
 #define DEFAULT_PORT 11111
 
-/* Create an enum that we will use to tell our
- * NonBlocking_ReadWriteAccept() method what to do
- */
-enum read_write_t {WRITE, READ, ACCEPT};
+#define CERT_FILE "../certs/server-cert.pem"
+#define KEY_FILE  "../certs/server-key.pem"
 
-int AcceptAndRead(WOLFSSL_CTX* ctx, socklen_t socketfd,
-    struct sockaddr_in clientAddr);
-int TCPSelect(socklen_t socketfd);
-int NonBlocking_ReadWriteAccept(WOLFSSL* ssl, socklen_t socketfd,
-    enum read_write_t rw);
-
-/*  Check if any sockets are ready for reading and writing and set it */
-int TCPSelect(socklen_t socketfd)
-{
-    fd_set recvfds, errfds;
-    int nfds = socketfd + 1;
-    int result;
-
-    FD_ZERO(&recvfds);
-    FD_SET(socketfd, &recvfds);
-    FD_ZERO(&errfds);
-    FD_SET(socketfd, &errfds);
-
-    result = select(nfds, &recvfds, NULL, &errfds, NULL);
-
-    if (result > 0) {
-        if (FD_ISSET(socketfd, &recvfds))
-            return 1; /* RECV READY */
-        else if (FD_ISSET(socketfd, &errfds))
-            return 2; /* ERROR READY */
-    }
-
-    return -1; /* TEST FAILED */
-
-}
-/* Checks if NonBlocking I/O is wanted, if it is wanted it will
- * wait until it's available on the socket before reading or writing */
-int NonBlocking_ReadWriteAccept(WOLFSSL* ssl, socklen_t socketfd,
-    enum read_write_t rw)
-{
-    const char reply[] = "I hear ya fa shizzle!\n";
-    char       buff[256];
-    int        rwret = 0;
-    int        selectRet;
-    int        ret;
-
-
-    /* Clear the buffer memory for anything  possibly left
-       over */
-    memset(&buff, 0, sizeof(buff));
-
-    if (rw == READ)
-        rwret = wolfSSL_read(ssl, buff, sizeof(buff)-1);
-    else if (rw == WRITE)
-        rwret = wolfSSL_write(ssl, reply, sizeof(reply)-1);
-    else if (rw == ACCEPT)
-        rwret = wolfSSL_accept(ssl);
-
-    if (rwret == 0) {
-        printf("The client has closed the connection!\n");
-        return 0;
-    }
-    else if (rwret != SSL_SUCCESS) {
-        int error = wolfSSL_get_error(ssl, 0);
-
-        /* while I/O is not ready, keep waiting */
-        while ((error == SSL_ERROR_WANT_READ ||
-            error == SSL_ERROR_WANT_WRITE)) {
-
-            if (error == SSL_ERROR_WANT_READ)
-                printf("... server would read block\n");
-            else
-                printf("... server would write block\n");
-
-            selectRet = TCPSelect(socketfd);
-
-            if ((selectRet == 1) || (selectRet == 2)) {
-                if (rw == READ)
-                    rwret = wolfSSL_read(ssl, buff, sizeof(buff)-1);
-                else if (rw == WRITE)
-                    rwret = wolfSSL_write(ssl, reply, sizeof(reply)-1);
-                else if (rw == ACCEPT)
-                    rwret = wolfSSL_accept(ssl);
-
-                error = wolfSSL_get_error(ssl, 0);
-            }
-            else {
-                error = SSL_FATAL_ERROR;
-                return -1;
-            }
-        }
-        /* Print any data the client sends to the console */
-        if (rw == READ)
-            printf("Client: %s\n", buff);
-        /* Reply back to the client */
-        else if (rw == WRITE) {
-            if ((ret = wolfSSL_write(ssl, reply, sizeof(reply)-1)) < 0) {
-                printf("wolfSSL_write error = %d\n",
-                    wolfSSL_get_error(ssl, ret));
-            }
-        }
-    }
-
-    return 1;
-}
-
-int AcceptAndRead(WOLFSSL_CTX* ctx, socklen_t socketfd, struct sockaddr_in clientAddr)
-{
-    socklen_t     size = sizeof(clientAddr);
-
-    /* Wait until a client connects */
-    int connd = accept(socketfd, (struct sockaddr *)&clientAddr, &size);
-
-    /* If fails to connect, loop back up and wait for a new connection */
-    if (connd == -1) {
-        printf("failed to accept the connection..\n");
-    }
-    /* If it connects, read in and reply to the client */
-    else {
-        printf("Client connected successfully!\n");
-        WOLFSSL* ssl;
-        if ( (ssl = wolfSSL_new(ctx)) == NULL) {
-            fprintf(stderr, "wolfSSL_new error.\n");
-            exit(EXIT_FAILURE);
-        }
-
-        /* Direct our ssl to our clients connection */
-        wolfSSL_set_fd(ssl, connd);
-
-        /* Sets wolfSSL_accept(ssl) */
-        if(NonBlocking_ReadWriteAccept(ssl, socketfd, ACCEPT) < 0)
-            return 0;
-
-        /*
-         * loop until the connected client disconnects
-         * and read in any messages the client sends
-         */
-        for ( ; ; ) {
-            /* Read data in when I/O is available */
-            if (NonBlocking_ReadWriteAccept(ssl, socketfd, READ) == 0)
-                break;
-            /* Write data out when I/O is available */
-            if (NonBlocking_ReadWriteAccept(ssl, socketfd, WRITE) == 0)
-                break;
-        }
-        wolfSSL_free(ssl);           /* Free the WOLFSSL object */
-    }
-    close(connd);               /* close the connected socket */
-
-    return 0;
-}
 
 
 int main()
 {
-    /*
-     * Creates a socket that uses an internet IP address,
-     * Sets the type to be Stream based (TCP),
-     * 0 means choose the default protocol.
-     */
-    socklen_t socketfd = socket(AF_INET, SOCK_STREAM, 0);
-    int loopExit = 0; /* 0 = False, 1 = True */
-    int ret      = 0;
-    int on       = 1;
+    int                sockfd;
+    int                connd;
+    struct sockaddr_in servAddr;
+    struct sockaddr_in clientAddr;
+    socklen_t          size = sizeof(clientAddr);
+    char               buff[256];
+    size_t             len;
+    int                shutdown = 0;
 
-    /* Create a ctx pointer for our ssl */
+    /* declare wolfSSL objects */
     WOLFSSL_CTX* ctx;
+    WOLFSSL*     ssl;
 
-    /* Server and Client socket address structures */
-    struct sockaddr_in serverAddr = {0}, clientAddr = {0};
 
-    /* Initialize the server address struct to zero */
-    memset((char *)&serverAddr, 0, sizeof(serverAddr));
-
-    /* Fill the server's address family */
-    serverAddr.sin_family      = AF_INET;
-    serverAddr.sin_addr.s_addr = INADDR_ANY;
-    serverAddr.sin_port        = htons(DEFAULT_PORT);
-
-    socklen_t len = sizeof(on);
-
-    /* If positive value, the socket is valid */
-    if (socketfd == -1) {
-        printf("ERROR: failed to create the socket\n");
-        exit(EXIT_FAILURE);        /* Kill the server with exit status 1 */
-    }
-    /* Set the sockets options for use with nonblocking i/o */
-    if (setsockopt(socketfd, SOL_SOCKET, SO_REUSEADDR, &on, len)
-        < 0)
-        printf("setsockopt SO_REUSEADDR failed\n");
 
     /* Initialize wolfSSL */
     wolfSSL_Init();
 
-    /* Create and initialize WOLFSSL_CTX structure */
-    if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_server_method())) == NULL) {
-        fprintf(stderr, "wolfSSL_CTX_new error.\n");
-        exit(EXIT_FAILURE);
+
+
+    /* Create a socket that uses an internet IPv4 address,
+     * Sets the socket to be stream based (TCP),
+     * 0 means choose the default protocol. */
+    if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
+        fprintf(stderr, "ERROR: failed to create the socket\n");
+        return -1;
     }
 
-    /* Load server certificate into WOLFSSL_CTX */
-    if (wolfSSL_CTX_use_certificate_file(ctx, "../certs/server-cert.pem",
-                SSL_FILETYPE_PEM) != SSL_SUCCESS) {
-        fprintf(stderr, "Error loading certs/server-cert.pem, please check"
-                "the file.\n");
-        exit(EXIT_FAILURE);
+    /* Set the socket options to use nonblocking I/O */
+    if (fcntl(sockfd, F_SETFL, O_NONBLOCK) == -1) {
+        fprintf(stderr, "ERROR: failed to set socket options\n");
+        return -1;
+    }
+
+
+
+    /* Create and initialize WOLFSSL_CTX */
+    if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_server_method())) == NULL) {
+        fprintf(stderr, "ERROR: failed to create WOLFSSL_CTX\n");
+        return -1;
+    }
+
+    /* Load server certificates into WOLFSSL_CTX */
+    if (wolfSSL_CTX_use_certificate_file(ctx, CERT_FILE, SSL_FILETYPE_PEM)
+        != SSL_SUCCESS) {
+        fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
+                CERT_FILE);
+        return -1;
     }
 
     /* Load server key into WOLFSSL_CTX */
-    if (wolfSSL_CTX_use_PrivateKey_file(ctx, "../certs/server-key.pem",
-                SSL_FILETYPE_PEM) != SSL_SUCCESS) {
-        fprintf(stderr, "Error loading certs/server-key.pem, please check"
-                "the file.\n");
-        exit(EXIT_FAILURE);
+    if (wolfSSL_CTX_use_PrivateKey_file(ctx, KEY_FILE, SSL_FILETYPE_PEM)
+        != SSL_SUCCESS) {
+        fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
+                KEY_FILE);
+        return -1;
     }
 
-    /* Attach the server socket to our port */
-    if (bind(socketfd, (struct sockaddr *)&serverAddr, sizeof(serverAddr))
-        < 0) {
-        printf("ERROR: failed to bind\n");
-        exit(1);
+
+
+    /* Initialize the server address struct with zeros */
+    memset(&servAddr, 0, sizeof(servAddr));
+
+    /* Fill in the server address */
+    servAddr.sin_family      = AF_INET;             /* using IPv4      */
+    servAddr.sin_port        = htons(DEFAULT_PORT); /* on DEFAULT_PORT */
+    servAddr.sin_addr.s_addr = INADDR_ANY;          /* from anywhere   */
+
+
+
+    /* Bind the server socket to our port */
+    if (bind(sockfd, (struct sockaddr*)&servAddr, sizeof(servAddr)) == -1) {
+        fprintf(stderr, "ERROR: failed to bind\n");
+        return -1;
     }
 
-    printf("Waiting for a connection...\n");
+    /* Listen for a new connection, allow 5 pending connections */
+    if (listen(sockfd, 5) == -1) {
+        fprintf(stderr, "ERROR: failed to listen\n");
+        return -1;
+    }
 
-    /* Continuously accept connects while not currently in an active connection
-       or told to quit */
-    while (loopExit == 0) {
-        /* listen for a new connection, allow 5 pending connections */
-        ret = listen(socketfd, 5);
-        if (ret == 0) {
-            /* Accept client connections and read from them */
-            loopExit = AcceptAndRead(ctx, socketfd, clientAddr);
+
+
+    /* Continue to accept clients until shutdown is issued */
+    while (!shutdown) {
+        printf("Waiting for a connection...\n");
+
+        /* Accept client connections */
+        while ((connd = accept(sockfd, (struct sockaddr*)&clientAddr, &size))
+               == -1) {
+            if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                /* no error, just non-blocking. Carry on. */
+                continue;
+            }
+            fprintf(stderr, "ERROR: failed to accept the connection\n\n");
+            return -1;
         }
+
+        /* Create a WOLFSSL object */
+        if ((ssl = wolfSSL_new(ctx)) == NULL) {
+            fprintf(stderr, "ERROR: failed to create WOLFSSL object\n");
+            return -1;
+        }
+
+        /* Attach wolfSSL to the socket */
+        wolfSSL_set_fd(ssl, connd);
+
+        printf("Client connected successfully\n");
+
+
+
+        /* Read the client data into our buff array */
+        memset(buff, 0, sizeof(buff));
+        while (wolfSSL_read(ssl, buff, sizeof(buff)-1) == -1) {
+            if (wolfSSL_want_read(ssl)) {
+                /* no error, just non-blocking. Carry on. */
+                continue;
+            }
+            fprintf(stderr, "ERROR: failed to read\n");
+            return -1;
+        }
+
+        /* Print to stdout any data the client sends */
+        printf("Client: %s\n", buff);
+
+        /* Check for server shutdown command */
+        if (strncmp(buff, "shutdown", 8) == 0) {
+            printf("Shutdown command issued!\n");
+            shutdown = 1;
+        }
+
+
+
+        /* Write our reply into buff */
+        memset(buff, 0, sizeof(buff));
+        memcpy(buff, "I hear ya fa shizzle!\n", sizeof(buff));
+        len = strnlen(buff, sizeof(buff));
+
+        /* Reply back to the client */
+        while (wolfSSL_write(ssl, buff, len) != len) {
+            if (wolfSSL_want_write(ssl)) {
+                /* no error, just non-blocking. Carry on. */
+                continue;
+            }
+            fprintf(stderr, "ERROR: failed to write\n");
+            return -1;
+        }
+
+
+
+        /* Cleanup after this connection */
+        wolfSSL_free(ssl);      /* Free the wolfSSL object              */
+        close(connd);           /* Close the connection to the client   */
     }
 
-    wolfSSL_CTX_free(ctx);   /* Free WOLFSSL_CTX */
-    wolfSSL_Cleanup();       /* Free wolfSSL */
-    exit(EXIT_SUCCESS);
+    printf("Shutdown complete\n");
+
+
+
+    /* Cleanup and return */
+    wolfSSL_CTX_free(ctx);  /* Free the wolfSSL context object          */
+    wolfSSL_Cleanup();      /* Cleanup the wolfSSL environment          */
+    close(sockfd);          /* Close the socket listening for clients   */
+    return 0;               /* Return reporting a success               */
 }
