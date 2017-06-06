@@ -8,10 +8,10 @@ connection, but modified to utilize wolfSSL to establish a TLS 1.2 connection.
 
 In general, the naming convention of these files mean that if a file is named
 in the form `X-Y.c`, then it's a copy of `X.c` intended to demonstrate Y. The
-exceptions being `server-tls.c` and `client-tls.c`, as noted above.
-Furthermore, the files is formated such that using a diff tool such as
-`vimdiff` to compare `X-Y.c` to `X.c` should highlight only the relevant
-changes required to convert `X.c` into `X-Y.c`
+exceptions being `server-tls.c` and `client-tls.c`, which are based on the
+`*-tcp.c` files as noted above. Furthermore, the files are formated such that
+using a diff tool such as `vimdiff` to compare `X-Y.c` to `X.c` should
+highlight only the relevant changes required to convert `X.c` into `X-Y.c`
 
 The files in this directory are presented to you in hopes that they are useful,
 especially as a basic starting point. It is fully recognized that these
@@ -204,7 +204,7 @@ int main()
 
 
 
-    /* We'll fill in our work here */
+    /* Do work here */
 
 
 
@@ -231,8 +231,8 @@ and finally `shutdown` is for flow control.
 
 Now we'll set up the sockets.
 
-The next step is to get ahold of a socket for our server. Replace the "We'll
-fill in our work here" comment with these lines:
+The next step is to get ahold of a socket for our server. Replace the "Do work
+here" comment with these lines:
 
 ```c
     /* Create a socket that uses an internet IPv4 address,
@@ -279,7 +279,7 @@ socket [...]" block, add these lines:
     servAddr.sin_addr.s_addr = INADDR_ANY;          /* from anywhere   */
 ```
 
-That "Initialize the sever address sturuct wit zeros" step is not strictly
+That "Initialize the sever address struct with zeros" step is not strictly
 necessary, but it's usually a good idea, and it doesn't complicate the example
 too much.
 
@@ -392,7 +392,7 @@ buffer like this:
 ```c
         /* Write our reply into buff */
         memset(buff, 0, sizeof(buff));
-        memcpy(buff, "I hear ya fa shizzle!\n", sizeof(buff));
+        strcpy(buff, "I hear ya fa shizzle!\n");
         len = strnlen(buff, sizeof(buff));
 ```
 
@@ -447,7 +447,7 @@ int main(int argc, char** argv)
 
 
 
-    /* We'll fill in our work here */
+    /* Do work here */
 
 
 
@@ -462,7 +462,7 @@ time rather than ignoring them.
 
 This'll be our first step: verify that the program has been called correctly.
 There are more sophisticated ways of doing this, but we'll use a simple
-solution. Replace the "We'll fill in our work here" comment with the following
+solution. Replace the "Do work here" comment with the following
 lines:
 
 ```c
@@ -1968,7 +1968,7 @@ And finally, in place of the "Do write here" comment, add these blocks:
 ```c
     /* Write our reply into buff */
     memset(buff, 0, sizeof(buff));
-    memcpy(buff, "I hear ya fa shizzle!\n", sizeof(buff));
+    strcpy(buff, "I hear ya fa shizzle!\n");
     len = strnlen(buff, sizeof(buff));
 
     /* Reply back to the client */
