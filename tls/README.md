@@ -96,6 +96,10 @@ into.
 
     1. [Running](#run-writedup)
 
+10. [Using threads to handle clients](#threaded)
+
+    1. [Running](#run-threaded)
+
 
 
 ## <a name="run">Running these examples</a>
@@ -1788,7 +1792,7 @@ cleaning up after them.
 And from here, this client has successfully been modified to use write
 duplication.
 
-#### <a name="run-resume">Running</a>
+#### <a name="run-writedup">Running</a>
 
 `client-tls-writedup` can connect to the following:
 
@@ -1796,6 +1800,316 @@ duplication.
 * `server-tls-callback`
 * `server-tls-nonblocking`
 * `server-tls-threaded`
+
+
+
+## <a name="threaded">Using threads to handle clients</a>
+
+While not technically a wolfSSL feature, we can deal with client connections in
+their own threads as a means of dealing with several clients at once. Copy
+`server-tls.c` to a new file, `server-tls-ecdhe.c`, that we will modify. The
+finished version can be found [here][s-tls-t].
+
+As always, the first step is to make sure our includes are correct. In this
+case, we're going to need to have access to threading, so add this include:
+
+```c
+/* threads */
+#include <pthread.h>
+```
+
+Now, we're going to be adding quite a bit of infrastructure to this file to
+cleanly deal with threads. One of the decisions we need to make is the number
+of concurrent threads to support. After the define for `KEY_FILE`, add this
+define:
+
+```c
+#define MAX_CONCURRENT_THREADS 10
+```
+
+Furthermore, we're going to use a struct package up all of the information that
+the thread needs. We'll call it our "thread argument package", or `targ_pkg`
+for short. Add this struct just below the `MAX_CONCURRENT_THREADS` define:
+
+```c
+/* Thread argument package */
+struct targ_pkg {
+    int          open;
+    pthread_t    tid;
+    int          num;
+    int          connd;
+    WOLFSSL_CTX* ctx;
+    int*         shutdown;
+};
+```
+
+The next step is to write a skeleton for our thread function:
+
+```c
+void* ClientHandler(void* args)
+{
+    struct targ_pkg* pkg = args;
+    WOLFSSL*         ssl;
+    char             buff[256];
+    size_t           len;
+
+
+
+    /* Do connection here */
+
+
+
+    /* Do reading here */
+
+
+
+    /* Do writing here */
+
+
+    /* Cleanup after this connection */
+    wolfSSL_free(ssl);      /* Free the wolfSSL object              */
+    close(pkg->connd);      /* Close the connection to the server   */
+    pkg->open = 1;          /* Indicate that execution is over      */
+    pthread_exit(NULL);     /* End theread execution                */
+}
+```
+
+Furthermore, we can delete the declarations for `buff`, `len`, and `ssl` from
+`main()`, as they now appear in `ClientHandler()`.
+
+We do need to add two variables, however. Add these declarations to the list at
+the top of `main()`:
+
+```c
+    /* declare thread variable */
+    struct targ_pkg thread[MAX_CONCURRENT_THREADS];
+    int             i;
+```
+
+These will be how we manage our threads and make sure we close cleanly.
+
+Now, we're going to factor out almost everything from the "Continue to accept
+clients [...]" loop block, but it's not going to be as simple as cut-and-paste,
+so we'll just delete the entire contents of that loop except for the "Accept
+client connections" block. For that block, replace the inside of its if
+statement with a `continue` statement. Otherwise, we'll convert it into a
+skeleton to fill in later. In all, the loop should now look like this:
+
+```c
+    while (!shutdown) {
+        /* Do find open thread here */
+
+        /* Accept client connections */
+        if ((connd = accept(sockfd, (struct sockaddr*)&clientAddr, &size))
+            == -1) {
+            continue;
+        }
+
+
+
+        /* Do spawn thread here */
+    }
+```
+
+With that out of the way, let's fill in the skeleton of `ClientHandler()`.
+
+First, the "Do connection here" part. Here's where we'll make our wolfSSL
+object. This should be rather familiar. In total, replace that comment with
+these blocks:
+
+```c
+    /* Create a WOLFSSL object */
+    if ((ssl = wolfSSL_new(pkg->ctx)) == NULL) {
+        fprintf(stderr, "ERROR: failed to create WOLFSSL object\n");
+        pkg->open = 1;
+        pthread_exit(NULL);
+    }
+
+    /* Attach wolfSSL to the socket */
+    wolfSSL_set_fd(ssl, pkg->connd);
+
+    printf("Client %d connected successfully\n", pkg->num);
+```
+
+The main differences here are that many of our parameters are wrapped inside of
+our thread argument package `pkg` and our error convention has changed a little
+bit. Now, rather than returning -1, we mark our thread as "open" and then call
+`pthread_exit(NULL)`, which is more-or-less equivalent in this situation.
+
+Next we'll deal with reading. Replace the "Do reading here" comment with these
+blocks:
+
+```c
+    /* Read the client data into our buff array */
+    memset(buff, 0, sizeof(buff));
+    if (wolfSSL_read(ssl, buff, sizeof(buff)-1) == -1) {
+        fprintf(stderr, "ERROR: failed to read\n");
+        pkg->open = 1;
+        pthread_exit(NULL);
+    }
+
+    /* Print to stdout any data the client sends */
+    printf("Client %d: %s\n", pkg->num, buff);
+
+    /* Check for server shutdown command */
+    if (strncmp(buff, "shutdown", 8) == 0) {
+        printf("Shutdown command issued!\n");
+        *pkg->shutdown = 1;
+    }
+```
+
+Once more, this is quite similar to the standard code, but this time when we
+report what the client told us, we also report which client said it. Similarly,
+when we read in "shutdown" from the client, we have to find `shutdown` variable
+through the argument package we provided.
+
+And finally, in place of the "Do write here" comment, add these blocks:
+
+```c
+    /* Write our reply into buff */
+    memset(buff, 0, sizeof(buff));
+    memcpy(buff, "I hear ya fa shizzle!\n", sizeof(buff));
+    len = strnlen(buff, sizeof(buff));
+
+    /* Reply back to the client */
+    if (wolfSSL_write(ssl, buff, len) != len) {
+        fprintf(stderr, "ERROR: failed to write\n");
+        pkg->open = 1;
+        pthread_exit(NULL);
+    }
+```
+
+This is mostly like the original read code.
+
+And with that, we're done with handling clients, and it's time to move on to
+handling threads.
+
+The first thing we're going to do is make our socket non-blocking. To do this,
+after the "Create a socket [...]" block add these lines:
+
+```c
+    /* Set the socket options to use nonblocking I/O */
+    if (fcntl(sockfd, F_SETFL, O_NONBLOCK) == -1) {
+        fprintf(stderr, "ERROR: failed to set socket options\n");
+        return -1;
+    }
+```
+
+If you'd like an explanation of this function, please see the section "[Using
+non-blocking interface](#nonblocking)" from earlier. We're using it because
+don't want to be stuck waiting for another client when the shutdown command
+comes in from a client in a thread. We'll still use the blocking API for
+reading and writing, however.
+
+And before we can start looking for clients, we're going to have to initialize
+our thread array `thread`. A good place to do this is just after the "Listen
+for a new connection [...]" block and before the "Continue to accept clients
+[...]" loop. Here, insert these lines:
+
+```c
+    /* initialise thread array */
+    for (i = 0; i < MAX_CONCURRENT_THREADS; ++i) {
+        thread[i].open = 1;
+        thread[i].num = i;
+        thread[i].ctx = ctx;
+        thread[i].shutdown = &shutdown;
+    }
+```
+
+This sets all of our threads, here represented as the elements of `thread`, to
+their initial state. We're not going to be editing these particular fields
+other than `open`, but they are all needed by `ClientHandler()`.
+
+Otherwise, to let ourselves know that setup is complete, put this statement
+just above the "Continue to accept [...]" loop:
+
+```c
+    printf("Now open for connections\n");
+```
+
+And now we're ready to flesh out that loop skeleton.
+
+Let's replace that "Do find open thread here" comment first. Here, we're going
+to scan through `thread` for any thread marked as open and assign it to a
+client. In place of this comment, add these lines:
+
+```c
+        /* find an open thread or continue if there is none */
+        for (i = 0; i < MAX_CONCURRENT_THREADS && !thread[i].open; ++i);
+        if (i == MAX_CONCURRENT_THREADS) {
+            continue;
+        }
+```
+
+A quick explanation feels appropriate. Here we have an example of a `for` loop
+that has no body. Instead, all of its work happens in the head, as what we want
+is to identify the index of the open thread. If we find one, we violate the
+`!thread[i].open` condition and break the loop. If we don't, `i` will end up
+equal to `MAX_CONCURRENT_THREADS` and the `if` statement catches this and
+returns us to the top of the "Continue to accept [...]" loop.
+
+Next we'll take care of spawning our threads. In place of the "Do spawn thread
+here" comment, add these lines:
+
+```c
+        /* Fill out the relevent thread argument package information */
+        thread[i].open = 0;
+        thread[i].connd = connd;
+
+        /* Launch a thread to deal with the new client */
+        pthread_create(&thread[i].tid, NULL, ClientHandler, &thread[i]);
+
+        /* State that we won't be joining this thread */
+        pthread_detach(thread[i].tid);
+```
+
+In the first block, we set the thread as "not open" and save the file
+descriptor of the connection.
+
+After that, we launch the thread, but we will never be joining with that
+thread, so we need to call `pthread_detach()` to indicate this. Now, when the
+thread finishes execution, it will clean itself up immediately. Otherwise it
+would have stayed allocated in a dead-but-not-buried kind of state until we
+joined it with a call to `pthread_join()` and got any information out of it.
+
+But now there's one last thing to do. If we get the shutdown notice, we don't
+want to immediately end execution: that would kill all the threads we've
+spawned too early. Similarly, we don't want to accept any new clients after
+we're set to shut down.
+
+A solution is to suspend shutdown while threads are still open. To accomplish
+this, add these lines just before we print "Shutdown complete", after the
+"Continue to accept [...]" loop:
+
+```c
+    /* Suspend shutdown until all threads are closed */
+    do {
+        shutdown = 1;
+
+        for (i = 0; i < MAX_CONCURRENT_THREADS; ++i) {
+            if (!thread[i].open) {
+                shutdown = 0;
+            }
+        }
+    } while (!shutdown);
+```
+
+Here, we assume that we're ready to shut down, and if we find even one thread
+that is marked as not open, we once more defer shutdown.
+
+And with that, we're done. We now have a server that can have 10 clients (or
+whatever the value of `MAX_CONCURRENT_THREADS` is) connected at the same
+time.
+
+#### <a name="run-threaded">Running</a>
+
+`server-tls-threaded` can be connected to by the following:
+
+* `client-tls`
+* `client-tls-callback`
+* `client-tls-nonblocking`
+* `client-tls-resume`
+* `client-tls-writedup`
 
 
 
@@ -1822,3 +2136,5 @@ duplication.
 [c-tls-r]: https://github.com/wolfssl/wolfssl-examples/blob/master/tls/client-tls-resume.c
 
 [c-tls-w]: https://github.com/wolfssl/wolfssl-examples/blob/master/tls/client-tls-writedup.c
+
+[s-tls-n]: https://github.com/wolfssl/wolfssl-examples/blob/master/tls/server-tls-threaded.c

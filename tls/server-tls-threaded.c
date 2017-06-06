@@ -39,10 +39,10 @@
 
 #define DEFAULT_PORT 11111
 
-#define MAX_CONCURRENT_THREADS 10
-
 #define CERT_FILE "../certs/server-cert.pem"
 #define KEY_FILE  "../certs/server-key.pem"
+
+#define MAX_CONCURRENT_THREADS 10
 
 
 
