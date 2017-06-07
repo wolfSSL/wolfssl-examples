@@ -1631,20 +1631,24 @@ wolfSSL allows you to create a duplicate of a wolfSSL object that is
 write-only, making the original read-only in the process. Copy `client-tls.c`
 to a new file, `client-tls-writedup.c`, that we will modify.
 
-The first thing to do is make sure wolfSSL is compiled correctly. After the
-"wolfSSL" include block, add this preprocessor directive:
+The first thing to do is make sure wolfSSL is compiled correctly. Just above
+the "Check for proper calling convention block add these lines:
 
 ```c
-/* check for writedup */
-#ifndef HAVE_WRITE_DUP
-    #error "wolfSSL must be configured and installed with --enable-writedup"
-#endif
+    /* check for writedup */
+    #ifndef HAVE_WRITE_DUP
+        #warning wolfSSL must be configured and installed with --enable-writedup
+        fprintf(stderr, "wolfSSL must be configured and installed with "
+                "--enable-writedup");
+        return -1;
+    #endif
 ```
 
-The above code is technically not critical, but it will prevent us from
-compiling this example without wolfSSL being properly compiled. As the
-preprocessor macro suggests, we need to configure and install wolfSSL with the
-`--enable-writedup` flag, as this feature is not compiled in by default.
+The above code will warn us about compiling this example without wolfSSL
+being properly compiled and cause the program itself to only repeat the warning
+and exit. As the preprocessor macro suggests, we need to configure and install
+wolfSSL with the `--enable-writedup` flag to make this example work. This
+feature is not compiled in by default.
 
 If you have any questions about compiling wolfSSL, please consult the [wolfSSL
 manual][docs], specifically [Chapter 2][build].
