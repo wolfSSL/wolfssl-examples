@@ -8,12 +8,23 @@
 
 int wc_test(void* args)
 {
+#ifdef HAVE_WOLFSSL_TEST
 	return wolfcrypt_test(args);
+#else
+    /* wolfSSL test not compiled in! */
+    return -1;
+#endif /* HAVE_WOLFSSL_TEST */
 }
 
 int wc_benchmark_test(void* args)
 {
+
+#ifdef HAVE_WOLFSSL_BENCHMARK
     return benchmark_test(args);
+#else
+    /* wolfSSL benchmark not compiled in! */
+    return -1;
+#endif /* HAVE_WOLFSSL_BENCHMARK */
 }
 
 void enc_wolfSSL_Debugging_ON(void)
@@ -36,6 +47,12 @@ WOLFSSL_METHOD* enc_wolfTLSv1_2_client_method(void)
     return wolfTLSv1_2_client_method();
 }
 
+WOLFSSL_METHOD* enc_wolfTLSv1_2_server_method(void)
+{
+    return wolfTLSv1_2_server_method();
+}
+
+
 WOLFSSL_CTX* enc_wolfSSL_CTX_new(WOLFSSL_METHOD* method)
 {
     if(sgx_is_within_enclave(method, wolfSSL_METHOD_GetObjectSize()) != 1)
@@ -49,6 +66,14 @@ int enc_wolfSSL_CTX_use_certificate_chain_buffer_format(WOLFSSL_CTX* ctx,
     if(sgx_is_within_enclave(ctx, wolfSSL_CTX_GetObjectSize()) != 1)
         abort();
     return wolfSSL_CTX_use_certificate_chain_buffer_format(ctx, buf, sz, type);
+}
+
+int enc_wolfSSL_CTX_use_certificate_buffer(WOLFSSL_CTX* ctx,
+        const unsigned char* buf, long sz, int type)
+{
+    if(sgx_is_within_enclave(ctx, wolfSSL_CTX_GetObjectSize()) != 1)
+        abort();
+    return wolfSSL_CTX_use_certificate_buffer(ctx, buf, sz, type);
 }
 
 int enc_wolfSSL_CTX_use_PrivateKey_buffer(WOLFSSL_CTX* ctx, const unsigned char* buf,
@@ -65,6 +90,12 @@ int enc_wolfSSL_CTX_load_verify_buffer(WOLFSSL_CTX* ctx, const unsigned char* in
     if(sgx_is_within_enclave(ctx, wolfSSL_CTX_GetObjectSize()) != 1)
         abort();
     return wolfSSL_CTX_load_verify_buffer(ctx, in, sz, format);
+}
+
+int enc_wolfSSL_CTX_set_cipher_list(WOLFSSL_CTX* ctx, const char* list) {
+    if(sgx_is_within_enclave(ctx, wolfSSL_CTX_GetObjectSize()) != 1)
+        abort();
+    return wolfSSL_CTX_set_cipher_list(ctx, list);
 }
 
 WOLFSSL* enc_wolfSSL_new( WOLFSSL_CTX* ctx)

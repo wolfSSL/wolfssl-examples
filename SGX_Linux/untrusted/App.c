@@ -23,6 +23,7 @@
 #include "stdafx.h"
 #include "App.h" /* contains include of Enclave_u.h which has wolfSSL header files */
 #include "client-tls.h"
+#include "server-tls.h"
 
 /* Use Debug SGX ? */
 #if _DEBUG
@@ -48,11 +49,23 @@ int main(int argc, char* argv[]) /* not using since just testing w/ wc_test */
     func_args args = { 0 };
 
 	/* only print off if no command line arguments were passed in */
-	if (argc == 1) {
-		printf("Setting up Enclave ... ");
+	if (argc != 2 || strlen(argv[1]) != 2) {
+		printf("Usage:\n"
+               "\t-c Run a TLS client in enclave\n"
+               "\t-s Run a TLS server in enclave\n"
+#ifdef HAVE_WOLFSSL_TEST
+               "\t-t Run wolfCrypt tests only \n"
+#endif /* HAVE_WOLFSSL_TEST */
+
+#ifdef HAVE_WOLFSSL_BENCHMARK
+               "\t-b Run wolfCrypt benchmarks in enclave\n"
+#endif /* HAVE_WOLFSSL_BENCHMARK */
+               );
+        return 0;
 	}
 
-	memset(t, 0, sizeof(sgx_launch_token_t));
+    memset(t, 0, sizeof(sgx_launch_token_t));
+    memset(&args,0,sizeof(args));
 
 	ret = sgx_create_enclave(ENCLAVE_FILENAME, DEBUG_VALUE, &t, &updated, &id, NULL);
 	if (ret != SGX_SUCCESS) {
@@ -60,22 +73,39 @@ int main(int argc, char* argv[]) /* not using since just testing w/ wc_test */
 		return 1;
 	}
 
-    printf("\nCrypt Test:\n");
-    wc_test(id, &sgxStatus, &args);
-    printf("Crypt Test: Return code %d\n", args.return_code);
-    printf("\n\n\n");
 
-    memset(&args,0,sizeof(args));
+    switch(argv[1][1]) {
+        case 'c':
+            printf("Client Test:\n");
+            client_connect(id);
+            break;
 
-    printf("\nBenchmark Test:\n");
-    wc_benchmark_test(id, &sgxStatus, &args);
-    printf("Benchmark Test: Return code %d\n", args.return_code);
-    printf("\n\n\n");
+        case 's':
+            printf("Server Test:\n");
+            server_connect(id);
+            break;
 
-    printf("\nClient Test:\n");
-    client_connect(id);
+#ifdef HAVE_WOLFSSL_TEST
+        case 't':
+            printf("Crypt Test:\n");
+            wc_test(id, &sgxStatus, &args);
+            printf("Crypt Test: Return code %d\n", args.return_code);
+            break;
+#endif /* HAVE_WOLFSSL_TEST */
 
-	return 0;
+#ifdef HAVE_WOLFSSL_BENCHMARK
+       case 'b':
+            printf("\nBenchmark Test:\n");
+            wc_benchmark_test(id, &sgxStatus, &args);
+            printf("Benchmark Test: Return code %d\n", args.return_code);
+            break;
+#endif /* HAVE_WOLFSSL_BENCHMARK */
+        default:
+            printf("Unrecognized option set!\n");
+            break;
+    }
+
+    return 0;
 }
 
 static double current_time()

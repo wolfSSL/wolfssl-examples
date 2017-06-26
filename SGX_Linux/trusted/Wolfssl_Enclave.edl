@@ -7,7 +7,6 @@ enclave {
     include "wolfcrypt/test/test.h"
     include "wolfcrypt/benchmark/benchmark.h"
 
-
     trusted {
         public int wc_test([user_check]void* args);
         public int wc_benchmark_test([user_check]void* args);
@@ -16,6 +15,7 @@ enclave {
 		public void enc_wolfSSL_Debugging_ON(void);
 		public void enc_wolfSSL_Debugging_OFF(void);
 		public WOLFSSL_METHOD* enc_wolfTLSv1_2_client_method(void);
+		public WOLFSSL_METHOD* enc_wolfTLSv1_2_server_method(void);
 		public WOLFSSL_CTX* enc_wolfSSL_CTX_new([user_check] WOLFSSL_METHOD* method);
         public int enc_wolfSSL_CTX_use_PrivateKey_buffer([user_check] WOLFSSL_CTX* ctx,
 												[in, size=sz] const unsigned char* buf,
@@ -29,6 +29,12 @@ enclave {
 												[in, size=sz] const unsigned char* buf,
 												long sz,
 												int type);
+        public int enc_wolfSSL_CTX_use_certificate_buffer([user_check] WOLFSSL_CTX* ctx,
+												[in, size=sz] const unsigned char* buf,
+												long sz,
+												int type);
+        public int enc_wolfSSL_CTX_set_cipher_list([user_check] WOLFSSL_CTX* ctx,
+												[in, string] const char* list);
         public WOLFSSL* enc_wolfSSL_new([user_check] WOLFSSL_CTX* ctx);
 		public int enc_wolfSSL_set_fd([user_check]WOLFSSL* ssl, int fd);
 		public int enc_wolfSSL_connect([user_check]WOLFSSL* ssl);
