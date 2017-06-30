@@ -1,13 +1,4 @@
 ######## Intel(R) SGX SDK Settings ########
-SGX_SDK ?= /opt/intel/sgxsdk
-SGX_MODE ?= SIM
-SGX_ARCH ?= x64
-SGX_WOLFSSL_LIB ?= ./
-
-ifndef WOLFSSL_ROOT
-$(error WOLFSSL_ROOT is not set. Please set to root wolfssl directory.)
-endif
-
 ifeq ($(shell getconf LONG_BIT), 32)
 	SGX_ARCH := x86
 else ifeq ($(findstring -m32, $(CXXFLAGS)), -m32)
@@ -51,15 +42,24 @@ Crypto_Library_Name := sgx_tcrypto
 
 Wolfssl_C_Extra_Flags := -DWOLFSSL_SGX
 Wolfssl_Include_Paths := -I$(WOLFSSL_ROOT)/ \
-						 -I$(WOLFSSL_ROOT)/wolfcrypt/ \
-						 -I$(WOLFSSL_ROOT)/wolfcrypt/test/ \
-						 -I$(WOLFSSL_ROOT)/wolfcrypt/benchmark/ \
+						 -I$(WOLFSSL_ROOT)/wolfcrypt/
 
 
 Wolfssl_Enclave_C_Files := trusted/Wolfssl_Enclave.c
 Wolfssl_Enclave_Include_Paths := -IInclude -Itrusted $(Wolfssl_Include_Paths)\
    								   -I$(SGX_SDK)/include -I$(SGX_SDK)/include/tlibc\
 								   -I$(SGX_SDK)/include/stlport
+
+ifeq ($(HAVE_WOLFSSL_TEST), 1)
+	Wolfssl_Include_Paths += -I$(WOLFSSL_ROOT)/wolfcrypt/test/
+	Wolfssl_C_Extra_Flags += -DHAVE_WOLFSSL_TEST
+endif
+
+ifeq ($(HAVE_WOLFSSL_BENCHMARK), 1)
+	Wolfssl_Include_Paths += -I$(WOLFSSL_ROOT)/wolfcrypt/benchmark/
+	Wolfssl_C_Extra_Flags += -DHAVE_WOLFSSL_BENCHMARK
+endif
+
 
 Flags_Just_For_C := -Wno-implicit-function-declaration -std=c11
 Common_C_Cpp_Flags := $(SGX_COMMON_CFLAGS) -nostdinc -fvisibility=hidden -fpie -fstack-protector $(Wolfssl_Enclave_Include_Paths)-fno-builtin -fno-builtin-printf -I.
@@ -75,6 +75,9 @@ Wolfssl_Enclave_Link_Flags := $(SGX_COMMON_CFLAGS) -Wl,--no-undefined -nostdlib 
 	-Wl,--version-script=trusted/Wolfssl_Enclave.lds
 
 Wolfssl_Enclave_C_Objects := $(Wolfssl_Enclave_C_Files:.c=.o)
+
+
+
 
 ifeq ($(SGX_MODE), HW)
 ifneq ($(SGX_DEBUG), 1)

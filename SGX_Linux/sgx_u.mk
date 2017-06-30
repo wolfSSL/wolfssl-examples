@@ -1,16 +1,5 @@
 ######## Intel(R) SGX SDK Settings ########
-SGX_SDK ?= /opt/intel/sgxsdk
-SGX_MODE ?= SIM
-SGX_ARCH ?= x64
 UNTRUSTED_DIR=untrusted
-SGX_WOLFSSL_LIB ?= ./
-
-ifndef WOLFSSL_ROOT
-$(error WOLFSSL_ROOT is not set. Please set to root wolfssl directory)
-endif
-
-
-
 ifeq ($(shell getconf LONG_BIT), 32)
 	SGX_ARCH := x86
 else ifeq ($(findstring -m32, $(CXXFLAGS)), -m32)
@@ -51,11 +40,21 @@ endif
 
 Wolfssl_C_Extra_Flags := -DWOLFSSL_SGX
 Wolfssl_Include_Paths := -I$(WOLFSSL_ROOT)/ \
-						 -I$(WOLFSSL_ROOT)/wolfcrypt/ \
-						 -I$(WOLFSSL_ROOT)/wolfcrypt/test/ \
-						 -I$(WOLFSSL_ROOT)/wolfcrypt/benchmark/ \
+						 -I$(WOLFSSL_ROOT)/wolfcrypt/
 
-App_C_Files := $(UNTRUSTED_DIR)/App.c $(UNTRUSTED_DIR)/client-tls.c
+ifeq ($(HAVE_WOLFSSL_TEST), 1)
+	Wolfssl_Include_Paths += -I$(WOLFSSL_ROOT)/wolfcrypt/test/
+	Wolfssl_C_Extra_Flags += -DHAVE_WOLFSSL_TEST
+endif
+
+ifeq ($(HAVE_WOLFSSL_BENCHMARK), 1)
+	Wolfssl_Include_Paths += -I$(WOLFSSL_ROOT)/wolfcrypt/benchmark/
+	Wolfssl_C_Extra_Flags += -DHAVE_WOLFSSL_BENCHMARK
+endif
+
+
+
+App_C_Files := $(UNTRUSTED_DIR)/App.c $(UNTRUSTED_DIR)/client-tls.c $(UNTRUSTED_DIR)/server-tls.c
 App_Include_Paths := -IInclude $(Wolfssl_Include_Paths) -I$(UNTRUSTED_DIR) -I$(SGX_SDK)/include
 
 App_C_Flags := $(SGX_COMMON_CFLAGS) -fPIC -Wno-attributes $(App_Include_Paths) $(Wolfssl_C_Extra_Flags)
