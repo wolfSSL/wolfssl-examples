@@ -35,13 +35,21 @@ int main(int argc, char** argv)
     void* devCtx = NULL;
     byte peerSalt[EXCHANGE_SALT_SZ];
     byte buffer[MAX_BTLE_MSG_SIZE];
-    size_t bufLen;
+    word32 bufferSz;
+    byte plain[MAX_BTLE_MSG_SIZE];
+    word32 plainSz;
+    ecc_key myKey, peerKey;
 
     wolfSSL_Init();
 
 #ifdef DEBUG_WOLFSSL
     wolfSSL_Debugging_ON();
 #endif
+
+    /* make my session key */
+    wc_ecc_init(&myKey);
+    wc_ecc_init(&peerKey);
+    wc_ecc_make_key(&rng, 32, &myKey);
 
     /* open BTLE */
     ret = btle_open(&devCtx);
@@ -55,11 +63,23 @@ int main(int argc, char** argv)
         goto cleanup;
     }
 
-    cliCtx = wc_ecc_ctx_new(REQ_RESP_SERVER, &rng);
+    cliCtx = wc_ecc_ctx_new(REQ_RESP_CLIENT, &rng);
     if (cliCtx == NULL) {
         printf("wc_ecc_ctx_new failed!\n");
         ret = -1; goto cleanup;
     }
+
+    /* exchange public keys */
+    /* send my public key */
+    /* export my public key */
+    bufferSz = sizeof(buffer);
+    wc_ecc_export_x963(&myKey, buffer, &bufferSz);
+    ret = btle_send(buffer, bufferSz, devCtx);
+
+    /* Get peer key */
+    ret = btle_recv(buffer, sizeof(buffer), devCtx);
+    bufferSz = ret;
+    ret = wc_ecc_import_x963(buffer, bufferSz, &peerKey);
 
     /* Collect Message to send and get echo */
     while (1) {
@@ -78,17 +98,29 @@ int main(int argc, char** argv)
         wc_ecc_ctx_set_peer_salt(cliCtx, peerSalt);
 
         /* get message to send */
-        fgets((char*)buffer, sizeof(buffer), stdin);
+        bufferSz = sizeof(buffer);
+        fgets((char*)buffer, bufferSz, stdin);
+        bufferSz = strlen((char*)buffer);
 
-        bufLen = strlen((char*)buffer);
+        /* Encrypt message */
+        bufferSz = sizeof(buffer);
+        ret = wc_ecc_encrypt(&myKey, &peerKey, plain, plainSz, buffer, &bufferSz, cliCtx);
 
-        /* send message */
-        btle_send(buffer, bufLen, devCtx);
+        /* Send message */
+        btle_send(buffer, bufferSz, devCtx);
 
-        /* get response (echo) */
-        btle_recv(buffer, bufLen, devCtx);
+        /* get message until null termination found */
+        bufferSz = sizeof(bufferSz);
+        ret = btle_recv(buffer, bufferSz, devCtx);
 
-        if (strstr((char*)buffer, "EXIT"))
+        /* decrypt message */
+        bufferSz = ret;
+        ret = wc_ecc_decrypt(&myKey, &peerKey, buffer, bufferSz, plain, &plainSz, cliCtx);
+
+        printf("Recv %d: %s\n", plainSz, plain);
+
+        /* check for exit flag */
+        if (strstr((char*)plain, "EXIT"))
             break;
 
         /* reset context (reset my salt) */

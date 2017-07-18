@@ -35,13 +35,21 @@ int main(int argc, char** argv)
     void* devCtx = NULL;
     byte peerSalt[EXCHANGE_SALT_SZ];
     byte buffer[MAX_BTLE_MSG_SIZE];
-    size_t bufLen;
+    word32 bufferSz;
+    byte plain[MAX_BTLE_MSG_SIZE];
+    word32 plainSz;
+    ecc_key myKey, peerKey;
 
     wolfSSL_Init();
 
 #ifdef DEBUG_WOLFSSL
     wolfSSL_Debugging_ON();
 #endif
+
+    /* make my session key */
+    wc_ecc_init(&myKey);
+    wc_ecc_init(&peerKey);
+    wc_ecc_make_key(&rng, 32, &myKey);
 
     /* open BTLE */
     ret = btle_open(&devCtx);
@@ -61,6 +69,18 @@ int main(int argc, char** argv)
         ret = -1; goto cleanup;
     }
 
+    /* exchange public keys */
+    /* Get peer key */
+    ret = btle_recv(buffer, sizeof(buffer), devCtx);
+    bufferSz = ret;
+    ret = wc_ecc_import_x963(buffer, bufferSz, &peerKey);
+
+    /* send my public key */
+    /* export my public key */
+    bufferSz = sizeof(buffer);
+    wc_ecc_export_x963(&myKey, buffer, &bufferSz);
+    ret = btle_send(buffer, bufferSz, devCtx);
+
     while (1) {
         mySalt = wc_ecc_ctx_get_own_salt(srvCtx);
         if (mySalt == NULL) {
@@ -75,13 +95,24 @@ int main(int argc, char** argv)
         ret = btle_send(mySalt, EXCHANGE_SALT_SZ, devCtx);
 
         /* get message until null termination found */
-        btle_recv(buffer, sizeof(buffer), devCtx);
+        bufferSz = sizeof(bufferSz);
+        ret = btle_recv(buffer, bufferSz, devCtx);
 
-        bufLen = strlen((char*)buffer);
+        /* decrypt message */
+        bufferSz = ret;
+        ret = wc_ecc_decrypt(&myKey, &peerKey, buffer, bufferSz, plain, &plainSz, srvCtx);
 
-        btle_send(buffer, bufLen, devCtx);
+        printf("Recv %d: %s\n", plainSz, plain);
 
-        if (strstr((char*)buffer, "EXIT"))
+        /* Encrypt message */
+        bufferSz = sizeof(buffer);
+        ret = wc_ecc_encrypt(&myKey, &peerKey, plain, plainSz, buffer, &bufferSz, srvCtx);
+
+        /* Send message */
+        btle_send(buffer, bufferSz, devCtx);
+
+        /* check for exit flag */
+        if (strstr((char*)plain, "EXIT"))
             break;
 
         /* reset context (reset my salt) */

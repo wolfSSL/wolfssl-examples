@@ -20,7 +20,7 @@
  */
 
 
-#define MAX_BTLE_MSG_SIZE   128
+#define MAX_BTLE_MSG_SIZE   1024
 
 int btle_open(void** dev);
 int btle_send(const unsigned char* buf, int len, void* context);
