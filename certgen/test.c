@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <wolfssl/options.h>
+#include <wolfssl/wolfcrypt/ecc.h>
 #include <wolfssl/wolfcrypt/settings.h>
 #include <wolfssl/wolfcrypt/asn_public.h>
 #include <wolfssl/wolfcrypt/asn.h>
@@ -120,6 +121,14 @@ int main(void) {
 
     wc_InitCert(&newCert);
 
+    strncpy(newCert.subject.country, "US", CTC_NAME_SIZE);
+    strncpy(newCert.subject.state, "MT", CTC_NAME_SIZE);
+    strncpy(newCert.subject.locality, "Bozeman", CTC_NAME_SIZE);
+    strncpy(newCert.subject.org, "yourOrgNameHere", CTC_NAME_SIZE);
+    strncpy(newCert.subject.unit, "yourUnitNameHere", CTC_NAME_SIZE);
+    strncpy(newCert.subject.commonName, "www.yourDomain.com", CTC_NAME_SIZE);
+    strncpy(newCert.subject.email, "yourEmail@yourDomain.com", CTC_NAME_SIZE);
+    newCert.isCA    = 0;
     newCert.sigType = CTC_SHA256wECDSA;
 
     ret = wc_SetIssuerBuffer(&newCert, derBuf, derBufSz);
