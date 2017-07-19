@@ -20,30 +20,126 @@
  */
 
 
-#include <fcntl.h>
+#include "btle-sim.h"
+
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/select.h>
+#include <errno.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <fcntl.h>
 #include <unistd.h>
+#include <string.h>
+
+#define BTLE_VER 1
 
 typedef struct {
-    int fd;
+    int role;
+    int fdmiso;
+    int fdmosi;
 } BtleDev_t;
 
+typedef struct {
+    unsigned char  ver;
+    unsigned char  type;
+    unsigned short len;
+} __attribute__ ((packed)) BtleHeader_t;
+
 static BtleDev_t gBtleDev;
-static const char* myfifo = "/tmp/myfifo";
+static const char* kBtleMisoFifo = "/tmp/btleMiso";
+static const char* kBtleMosiFifo = "/tmp/btleMosi";
 
-int btle_open(void** dev)
+//#define BTLE_DEBUG_IO
+
+static int btle_get_write(BtleDev_t* dev)
 {
-    int fd;
+    return (dev->role == BTLE_ROLE_SERVER) ? dev->fdmosi : dev->fdmiso;
+}
 
-    mkfifo(myfifo, 0666);
+static int btle_get_read(BtleDev_t* dev)
+{
+    return (dev->role == BTLE_ROLE_SERVER) ? dev->fdmiso : dev->fdmosi;
+}
 
-    fd = open(myfifo, O_WRONLY);
-    if (fd < 0) {
-        unlink(myfifo);
+static int btle_send_block(BtleDev_t* dev, const void* buf, int len, int fd)
+{
+    int ret;
+    ret = write(fd, buf, len);
+#ifdef BTLE_DEBUG_IO
+    printf("Write: %d\n", ret);
+#endif
+    (void)dev;
+    return ret;
+}
+
+static int btle_recv_block(BtleDev_t* dev, void* buf, int len, int fd)
+{
+    fd_set set;
+    int ret, pos = 0;
+
+    FD_ZERO(&set);
+    FD_SET(fd, &set);
+
+    while (pos < len) {
+        ret = select(fd+1, &set, NULL, NULL, NULL);
+        if (ret == 0)
+            continue;
+        if (ret < 0)
+            return ret;
+
+        if (FD_ISSET(fd, &set)) {
+            ret = read(fd, &buf[pos], len - pos);
+        #ifdef BTLE_DEBUG_IO
+            printf("Read: %d\n", ret);
+        #endif
+            if (ret > 0) {
+                pos += ret;
+            }
+            else {
+                if (errno == EWOULDBLOCK) {
+                    continue;
+                }
+                else {
+                    return ret;
+                }
+            }
+        }
+    }
+    (void)dev;
+
+    return pos;
+}
+
+int btle_open(void** dev, int role)
+{
+    int fdmiso, fdmosi;
+
+    mkfifo(kBtleMisoFifo, 0666);
+    mkfifo(kBtleMosiFifo, 0666);
+
+    if (role == BTLE_ROLE_SERVER) {
+        fdmiso = open(kBtleMisoFifo, O_RDONLY | O_NONBLOCK);
+        fdmosi = open(kBtleMosiFifo, O_WRONLY);
+    }
+    else {
+        fdmosi = open(kBtleMosiFifo, O_RDONLY | O_NONBLOCK);
+        fdmiso = open(kBtleMisoFifo, O_WRONLY);
+    }
+
+    if (fdmiso < 0) {
+        printf("Open %s failed! %d\n", kBtleMisoFifo, errno);
         return -1;
     }
-    gBtleDev.fd = fd;
+    if (fdmosi < 0) {
+        printf("Open %s failed! %d\n", kBtleMosiFifo, errno);
+        close(fdmiso);
+        return -1;
+    }
+
+    gBtleDev.role = role;
+    gBtleDev.fdmiso = fdmiso;
+    gBtleDev.fdmosi = fdmosi;
 
     if (dev)
         *dev = &gBtleDev;
@@ -51,24 +147,76 @@ int btle_open(void** dev)
     return 0;
 }
 
-int btle_send(const unsigned char* buf, int len, void* context)
+int btle_send(const unsigned char* buf, int len, int type, void* context)
 {
     BtleDev_t* dev = (BtleDev_t*)context;
-    write(dev->fd, buf, len);
-
+    BtleHeader_t header;
+    int fd = btle_get_write(dev);
+    int ret;
+    header.ver = BTLE_VER;
+    header.type = type;
+    header.len = len;
+    ret = btle_send_block(dev, &header, sizeof(header), fd);
+    ret = btle_send_block(dev, buf, len, fd);
     return len;
 }
 
-int btle_recv(unsigned char* buf, int len, void* context)
+int btle_recv(unsigned char* buf, int len, int* type, void* context)
 {
     BtleDev_t* dev = (BtleDev_t*)context;
-    return read(dev->fd, buf, len);
+    BtleHeader_t header;
+    int ret;
+    int fd = btle_get_read(dev);
+
+
+    ret = btle_recv_block(dev, &header, sizeof(header), fd);
+    if (ret < 0)
+        return ret;
+
+    if (header.ver != BTLE_VER)
+        return -1;
+
+    if (type)
+        *type = header.type;
+
+    if (len > 0) {
+        ret = header.len;
+        if (ret > len)
+            ret = len;
+
+        ret = btle_recv_block(dev, buf, ret, fd);
+        if (ret < 0)
+            return ret;
+    }
+
+    return header.len;
 }
 
 void btle_close(void* context)
 {
     BtleDev_t* dev = (BtleDev_t*)context;
 
-    close(dev->fd);
-    unlink(myfifo);
+    close(dev->fdmiso);
+    close(dev->fdmosi);
+
+    unlink(kBtleMisoFifo);
+    unlink(kBtleMosiFifo);
+}
+
+int btle_msg_pad(unsigned char* buf, int* len, void* context)
+{
+    BtleDev_t* dev = (BtleDev_t*)context;
+    int newLen = *len;
+    int odd = (newLen % BTLE_BLOCK_SIZE);
+    if (odd != 0) {
+        int addLen = (BTLE_BLOCK_SIZE - odd);
+        newLen += addLen;
+        if (newLen > BTLE_MSG_MAX_SIZE)
+            return -1;
+
+        memset(&buf[*len], 0, addLen);
+    }
+    *len = newLen;
+    (void)dev;
+    return 0;
 }

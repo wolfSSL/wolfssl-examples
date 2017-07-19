@@ -20,9 +20,25 @@
  */
 
 
-#define MAX_BTLE_MSG_SIZE   1024
+#define BTLE_MSG_MAX_SIZE   1024
+#define BTLE_BLOCK_SIZE     16
 
-int btle_open(void** dev);
-int btle_send(const unsigned char* buf, int len, void* context);
-int btle_recv(unsigned char* buf, int len, void* context);
+typedef enum {
+    BTLE_PKT_TYPE_NULL,
+    BTLE_PKT_TYPE_KEY,
+    BTLE_PKT_TYPE_SALT,
+    BTLE_PKT_TYPE_MSG,
+    BTLE_PKT_TYPE_MAX,
+} BtlePacket_t;
+
+typedef enum {
+    BTLE_ROLE_CLIENT,
+    BTLE_ROLE_SERVER,
+} BtleRole_t;
+
+
+int  btle_open(void** dev, int role);
+int  btle_send(const unsigned char* buf, int len, int type, void* context);
+int  btle_recv(unsigned char* buf, int len, int* type, void* context);
 void btle_close(void* context);
+int  btle_msg_pad(unsigned char* buf, int* len, void* context);

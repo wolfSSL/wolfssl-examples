@@ -34,11 +34,12 @@ int main(int argc, char** argv)
     const byte* mySalt;
     void* devCtx = NULL;
     byte peerSalt[EXCHANGE_SALT_SZ];
-    byte buffer[MAX_BTLE_MSG_SIZE];
+    byte buffer[BTLE_MSG_MAX_SIZE];
     word32 bufferSz;
-    byte plain[MAX_BTLE_MSG_SIZE];
+    byte plain[BTLE_MSG_MAX_SIZE];
     word32 plainSz;
     ecc_key myKey, peerKey;
+    int type;
 
     wolfSSL_Init();
 
@@ -47,19 +48,29 @@ int main(int argc, char** argv)
 #endif
 
     /* make my session key */
-    wc_ecc_init(&myKey);
-    wc_ecc_init(&peerKey);
-    wc_ecc_make_key(&rng, 32, &myKey);
+    ret =  wc_ecc_init(&myKey);
+    ret |= wc_ecc_init(&peerKey);
+    if (ret != 0) {
+        printf("wc_ecc_init failed!\n");
+        goto cleanup;
+    }
 
     /* open BTLE */
-    ret = btle_open(&devCtx);
+    ret = btle_open(&devCtx, BTLE_ROLE_CLIENT);
     if (ret != 0) {
+        printf("btle_open failed %d! errno %d\n", ret, errno);
         goto cleanup;
     }
 
     ret = wc_InitRng(&rng);
     if (ret != 0) {
         printf("wc_InitRng failed! %d\n", ret);
+        goto cleanup;
+    }
+
+    ret = wc_ecc_make_key(&rng, 32, &myKey);
+    if (ret != 0) {
+        printf("wc_ecc_make_key failed %d\n", ret);
         goto cleanup;
     }
 
@@ -73,13 +84,33 @@ int main(int argc, char** argv)
     /* send my public key */
     /* export my public key */
     bufferSz = sizeof(buffer);
-    wc_ecc_export_x963(&myKey, buffer, &bufferSz);
-    ret = btle_send(buffer, bufferSz, devCtx);
+    ret = wc_ecc_export_x963(&myKey, buffer, &bufferSz);
+    if (ret != 0) {
+        printf("wc_ecc_export_x963 failed %d\n", ret);
+        goto cleanup;
+    }
+    ret = btle_send(buffer, bufferSz, BTLE_PKT_TYPE_KEY, devCtx);
+    if (ret != bufferSz) {
+        printf("btle_send key failed %d!\n", ret);
+        goto cleanup;
+    }
 
     /* Get peer key */
-    ret = btle_recv(buffer, sizeof(buffer), devCtx);
+    ret = btle_recv(buffer, sizeof(buffer), &type, devCtx);
+    if (ret <= 0) {
+        printf("btle_recv key failed %d\n", ret);
+        goto cleanup;
+    }
+    if (type != BTLE_PKT_TYPE_KEY) {
+        printf("btle_recv expected key!\n");
+        ret = -1; goto cleanup;
+    }
     bufferSz = ret;
     ret = wc_ecc_import_x963(buffer, bufferSz, &peerKey);
+    if (ret != 0) {
+        printf("wc_ecc_import_x963 failed %d\n", ret);
+        goto cleanup;
+    }
 
     /* Collect Message to send and get echo */
     while (1) {
@@ -91,31 +122,66 @@ int main(int argc, char** argv)
         }
 
         /* Send my salt */
-        ret = btle_send(mySalt, EXCHANGE_SALT_SZ, devCtx);
+        ret = btle_send(mySalt, EXCHANGE_SALT_SZ, BTLE_PKT_TYPE_SALT, devCtx);
+        if (ret != EXCHANGE_SALT_SZ) {
+            printf("btle_send salt failed %d!\n", ret);
+            goto cleanup;
+        }
 
         /* Get peer salt */
-        ret = btle_recv(peerSalt, EXCHANGE_SALT_SZ, devCtx);
-        wc_ecc_ctx_set_peer_salt(cliCtx, peerSalt);
+        ret = btle_recv(peerSalt, EXCHANGE_SALT_SZ, &type, devCtx);
+        if (ret <= 0) {
+            printf("btle_recv failed %d! errno %d\n", ret, errno);
+        }
+        if (type != BTLE_PKT_TYPE_SALT) {
+            printf("btle_recv expected salt!\n");
+            ret = -1; goto cleanup;
+        }
+        ret = wc_ecc_ctx_set_peer_salt(cliCtx, peerSalt);
+        if (ret != 0) {
+            printf("wc_ecc_ctx_set_peer_salt failed %d\n", ret);
+            goto cleanup;
+        }
 
         /* get message to send */
-        bufferSz = sizeof(buffer);
-        fgets((char*)buffer, bufferSz, stdin);
-        bufferSz = strlen((char*)buffer);
+        plainSz = sizeof(plain);
+        fgets((char*)plain, plainSz, stdin);
+        plainSz = strlen((char*)plain);
+        ret = btle_msg_pad(plain, (int*)&plainSz, devCtx);
+        if (ret != 0) {
+            printf("btle_msg_pad failed %d\n", ret);
+            goto cleanup;
+        }
 
         /* Encrypt message */
         bufferSz = sizeof(buffer);
         ret = wc_ecc_encrypt(&myKey, &peerKey, plain, plainSz, buffer, &bufferSz, cliCtx);
+        if (ret != 0) {
+            printf("wc_ecc_encrypt failed %d!\n", ret);
+            goto cleanup;
+        }
 
         /* Send message */
-        btle_send(buffer, bufferSz, devCtx);
+        ret = btle_send(buffer, bufferSz, BTLE_PKT_TYPE_MSG, devCtx);
+        if (ret != bufferSz) {
+            printf("btle_send failed %d!\n", ret);
+            goto cleanup;
+        }
 
-        /* get message until null termination found */
+        /* Get message */
         bufferSz = sizeof(bufferSz);
-        ret = btle_recv(buffer, bufferSz, devCtx);
+        ret = btle_recv(buffer, bufferSz, &type, devCtx);
+        if (type != BTLE_PKT_TYPE_MSG) {
+            ret = -1; goto cleanup;
+        }
 
-        /* decrypt message */
+        /* Decrypt message */
         bufferSz = ret;
         ret = wc_ecc_decrypt(&myKey, &peerKey, buffer, bufferSz, plain, &plainSz, cliCtx);
+        if (ret != 0) {
+            printf("wc_ecc_decrypt failed %d!\n", ret);
+            goto cleanup;
+        }
 
         printf("Recv %d: %s\n", plainSz, plain);
 
@@ -125,6 +191,10 @@ int main(int argc, char** argv)
 
         /* reset context (reset my salt) */
         ret = wc_ecc_ctx_reset(cliCtx, &rng);
+        if (ret != 0) {
+            printf("wc_ecc_ctx_reset failed %d\n", ret);
+            goto cleanup;
+        }
     }
 
 cleanup:
