@@ -143,7 +143,7 @@ int main(int argc, char** argv)
         }
 
         /* Get message */
-        bufferSz = sizeof(bufferSz);
+        bufferSz = sizeof(buffer);
         ret = btle_recv(buffer, bufferSz, &type, devCtx);
         if (ret <= 0) {
             printf("btle_recv msg failed %d! errno %d\n", ret, errno);

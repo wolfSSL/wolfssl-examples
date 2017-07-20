@@ -4,9 +4,7 @@ Bluetooth Low Energy (BTLE or BLE) is a leightweight / low power wireless protoc
 
 These examples demonstrate leightweight methods for exchanging data securley over anytype of publically visible link.
 
-The first phase is key establishment, which is done through some type of shared secret mechanism such as ECDH and a HKDF. ECC was choosen for these examples because its leightweight and widely used.
-
-The second phase is encrypted data communication and data integrity.
+The first phase is key establishment, which is done through ECDH and HDKF. ECC was choosen for these examples because its leightweight and widely used. Salt exchanged to provent data reply of messages. The enryption is done with AES CBC. The data integrity is done using HMAC-SHA256.
 
 ## ECC Encrypt/Decrypt Example
 
@@ -14,7 +12,7 @@ See `BTLESecureMessageExchange.pdf` for details.
 
 ### Building
 
-The wolfSSL library must be built and installed using './configure --enable-ecc --enable-eccencrypt && make && sudo make install' or by defining `#define HAVE_ECC` and `#defineHAVE_ECC_ENCRYPT`.
+The wolfSSL library must be built and installed using './configure --enable-ecc --enable-eccencrypt --enable-hkdf && make && sudo make install' or by defining `#define HAVE_ECC`, `#define HAVE_ECC_ENCRYPT` and `HAVE_HKDF`.
 
 ### Usage
 
@@ -25,3 +23,6 @@ Use two consoles and STDIN to exchange data between the client and server.
 ./ecc-client
 ```
 
+### BTLE Simulator
+
+The simulator uses IPC (pipes) to communicate between threads for simualted communication between two devices.

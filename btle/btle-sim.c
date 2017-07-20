@@ -20,6 +20,10 @@
  */
 
 
+#include <wolfssl/options.h>
+#include <wolfssl/wolfcrypt/settings.h>
+#include <wolfssl/ssl.h>
+#include <wolfssl/wolfcrypt/logging.h>
 #include "btle-sim.h"
 
 #include <sys/stat.h>
@@ -50,7 +54,7 @@ static BtleDev_t gBtleDev;
 static const char* kBtleMisoFifo = "/tmp/btleMiso";
 static const char* kBtleMosiFifo = "/tmp/btleMosi";
 
-//#define BTLE_DEBUG_IO
+#define BTLE_DEBUG_IO
 
 static int btle_get_write(BtleDev_t* dev)
 {
@@ -68,6 +72,7 @@ static int btle_send_block(BtleDev_t* dev, const void* buf, int len, int fd)
     ret = write(fd, buf, len);
 #ifdef BTLE_DEBUG_IO
     printf("Write: %d\n", ret);
+    WOLFSSL_BUFFER(buf, len);
 #endif
     (void)dev;
     return ret;
@@ -92,6 +97,7 @@ static int btle_recv_block(BtleDev_t* dev, void* buf, int len, int fd)
             ret = read(fd, &buf[pos], len - pos);
         #ifdef BTLE_DEBUG_IO
             printf("Read: %d\n", ret);
+            WOLFSSL_BUFFER(&buf[pos], len-pos);
         #endif
             if (ret > 0) {
                 pos += ret;

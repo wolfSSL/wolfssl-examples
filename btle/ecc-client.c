@@ -81,7 +81,6 @@ int main(int argc, char** argv)
     }
 
     /* exchange public keys */
-    /* send my public key */
     /* export my public key */
     bufferSz = sizeof(buffer);
     ret = wc_ecc_export_x963(&myKey, buffer, &bufferSz);
@@ -89,6 +88,7 @@ int main(int argc, char** argv)
         printf("wc_ecc_export_x963 failed %d\n", ret);
         goto cleanup;
     }
+    /* send my public key */
     ret = btle_send(buffer, bufferSz, BTLE_PKT_TYPE_KEY, devCtx);
     if (ret != bufferSz) {
         printf("btle_send key failed %d!\n", ret);
@@ -105,6 +105,7 @@ int main(int argc, char** argv)
         printf("btle_recv expected key!\n");
         ret = -1; goto cleanup;
     }
+    /* import peer public key */
     bufferSz = ret;
     ret = wc_ecc_import_x963(buffer, bufferSz, &peerKey);
     if (ret != 0) {
@@ -169,7 +170,7 @@ int main(int argc, char** argv)
         }
 
         /* Get message */
-        bufferSz = sizeof(bufferSz);
+        bufferSz = sizeof(buffer);
         ret = btle_recv(buffer, bufferSz, &type, devCtx);
         if (type != BTLE_PKT_TYPE_MSG) {
             ret = -1; goto cleanup;
