@@ -31,8 +31,8 @@ int main(int argc, char** argv)
     int ret;
     WC_RNG rng;
     ecEncCtx* srvCtx = NULL;
-    const byte* mySalt;
     void* devCtx = NULL;
+    const byte* mySalt;
     byte peerSalt[EXCHANGE_SALT_SZ];
     byte buffer[BTLE_MSG_MAX_SIZE];
     word32 bufferSz;
@@ -106,6 +106,10 @@ int main(int argc, char** argv)
         printf("wc_ecc_export_x963 failed %d\n", ret);
         goto cleanup;
     }
+    /* TODO: Server should hash and sign this public key with a trust ceritifcate (already exchanged) */
+    /* ECC signature is about 65 bytes */
+
+
     ret = btle_send(buffer, bufferSz, BTLE_PKT_TYPE_KEY, devCtx);
     if (ret != bufferSz) {
         printf("btle_send key failed %d!\n", ret);
@@ -129,16 +133,18 @@ int main(int argc, char** argv)
             printf("btle_recv expected salt!\n");
             ret = -1; goto cleanup;
         }
-        ret = wc_ecc_ctx_set_peer_salt(srvCtx, peerSalt);
-        if (ret != 0) {
-            printf("wc_ecc_ctx_set_peer_salt failed %d\n", ret);
-            goto cleanup;
-        }
 
         /* Send my salt */
+        /* You must send mySalt before set_peer_salt, because buffer changes */
         ret = btle_send(mySalt, EXCHANGE_SALT_SZ, BTLE_PKT_TYPE_SALT, devCtx);
         if (ret != EXCHANGE_SALT_SZ) {
             printf("btle_send salt failed %d!\n", ret);
+            goto cleanup;
+        }
+
+        ret = wc_ecc_ctx_set_peer_salt(srvCtx, peerSalt);
+        if (ret != 0) {
+            printf("wc_ecc_ctx_set_peer_salt failed %d\n", ret);
             goto cleanup;
         }
 

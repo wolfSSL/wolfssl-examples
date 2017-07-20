@@ -36,6 +36,7 @@
 #include <unistd.h>
 #include <string.h>
 
+//#define BTLE_DEBUG_IO
 #define BTLE_VER 1
 
 typedef struct {
@@ -54,7 +55,6 @@ static BtleDev_t gBtleDev;
 static const char* kBtleMisoFifo = "/tmp/btleMiso";
 static const char* kBtleMosiFifo = "/tmp/btleMosi";
 
-#define BTLE_DEBUG_IO
 
 static int btle_get_write(BtleDev_t* dev)
 {
@@ -163,7 +163,11 @@ int btle_send(const unsigned char* buf, int len, int type, void* context)
     header.type = type;
     header.len = len;
     ret = btle_send_block(dev, &header, sizeof(header), fd);
+    if (ret < 0)
+        return ret;
     ret = btle_send_block(dev, buf, len, fd);
+    if (ret < 0)
+        return ret;
     return len;
 }
 

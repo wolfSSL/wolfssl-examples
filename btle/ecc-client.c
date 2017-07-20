@@ -1,4 +1,4 @@
-/* ecc-server.c
+/* ecc-client.c
  *
  * Copyright (C) 2006-2017 wolfSSL Inc.
  *
@@ -31,8 +31,8 @@ int main(int argc, char** argv)
     int ret;
     WC_RNG rng;
     ecEncCtx* cliCtx = NULL;
-    const byte* mySalt;
     void* devCtx = NULL;
+    const byte* mySalt;
     byte peerSalt[EXCHANGE_SALT_SZ];
     byte buffer[BTLE_MSG_MAX_SIZE];
     word32 bufferSz;
@@ -105,6 +105,10 @@ int main(int argc, char** argv)
         printf("btle_recv expected key!\n");
         ret = -1; goto cleanup;
     }
+
+    /* TODO: Client should hash and verify this public key against trusted ceritifcate (already exchanged) */
+    /* ECC signature is about 65 bytes */
+
     /* import peer public key */
     bufferSz = ret;
     ret = wc_ecc_import_x963(buffer, bufferSz, &peerKey);
@@ -138,6 +142,7 @@ int main(int argc, char** argv)
             printf("btle_recv expected salt!\n");
             ret = -1; goto cleanup;
         }
+
         ret = wc_ecc_ctx_set_peer_salt(cliCtx, peerSalt);
         if (ret != 0) {
             printf("wc_ecc_ctx_set_peer_salt failed %d\n", ret);
@@ -178,6 +183,7 @@ int main(int argc, char** argv)
 
         /* Decrypt message */
         bufferSz = ret;
+        plainSz = sizeof(plain);
         ret = wc_ecc_decrypt(&myKey, &peerKey, buffer, bufferSz, plain, &plainSz, cliCtx);
         if (ret != 0) {
             printf("wc_ecc_decrypt failed %d!\n", ret);
