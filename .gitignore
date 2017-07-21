@@ -93,3 +93,5 @@ certgen/newCert*
 certgen/run_certgen_example
 
 
+btle/ecc-client
+btle/ecc-server
