@@ -39,3 +39,5 @@ ecc-client: ecc-client.o btle-sim.o $(STATIC_LIB)
 
 clean:
 	rm *.o
+	rm ecc-server
+	rm ecc-client
