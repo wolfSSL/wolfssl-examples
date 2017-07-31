@@ -6,15 +6,17 @@ LIBS     = -L$(LIB_PATH)/lib
 
 # option variables
 DYN_LIB         = -lwolfssl
-STATIC_LIB      = $(LIB_PATH)/lib/libwolfssl.a
-DEBUG_FLAGS     = -g -DDEBUG
+STATIC_LIB      =
+DEBUG_FLAGS     = -g -DDEBUG -DDEBUG_WOLFSSL
 OPTIMIZE        = -Os
 
 # Options
-CFLAGS+=$(DEBUG_FLAGS)
+#CFLAGS+=$(DEBUG_FLAGS)
 #CFLAGS+=$(OPTIMIZE)
 
-#LIBS+=$(DYN_LIB) -lm
+# Static or Dynamic Library
+#STATIC_LIB+=$(LIB_PATH)/lib/libwolfssl.a
+LIBS+=$(DYN_LIB) -lm
 
 
 .PHONY: clean all
@@ -37,3 +39,5 @@ ecc-client: ecc-client.o btle-sim.o $(STATIC_LIB)
 
 clean:
 	rm *.o
+	rm ecc-server
+	rm ecc-client
