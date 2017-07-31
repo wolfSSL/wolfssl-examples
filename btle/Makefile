@@ -7,7 +7,7 @@ LIBS     = -L$(LIB_PATH)/lib
 # option variables
 DYN_LIB         = -lwolfssl
 STATIC_LIB      =
-DEBUG_FLAGS     = -g -DDEBUG
+DEBUG_FLAGS     = -g -DDEBUG -DDEBUG_WOLFSSL
 OPTIMIZE        = -Os
 
 # Options
