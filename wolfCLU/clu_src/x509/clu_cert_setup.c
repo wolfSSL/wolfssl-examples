@@ -21,8 +21,8 @@
 
 #include <stdio.h>
 #include <unistd.h>
-#include <wolfssl/wolfcrypt/types.h>
 #include "clu_include/clu_header_main.h"
+#include <wolfssl/wolfcrypt/types.h>
 #include "clu_include/clu_error_codes.h"
 #include "clu_include/x509/clu_cert.h"
 #include "clu_include/x509/clu_parse.h"
