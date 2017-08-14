@@ -123,8 +123,25 @@ int wolfCLU_genKeySetup(int argc, char** argv)
     #endif /* HAVE_ECC */
     } else if (XSTRNCMP(keyType, "rsa", 3) == 0) {
     #ifndef NO_RSA
+        int directiveArg;
         printf("generate RSA key\n");
-        ret = wolfCLU_genKey_RSA();
+        ret = wolfCLU_checkForArg("-output", 7, argc, argv);
+        if (ret > 0) {
+            if (argv[ret+1] != NULL) {
+                if (XSTRNCMP(argv[ret+1], "pub", 3) == 0)
+                    directiveArg = PUB_ONLY;
+                else if (XSTRNCMP(argv[ret+1], "priv", 4) == 0)
+                    directiveArg = PRIV_ONLY;
+                else if (XSTRNCMP(argv[ret+1], "keypair", 7) == 0)
+                    directiveArg = PRIV_AND_PUB;
+            }
+        } else {
+            printf("No -output <PUB/PRIV/KEYPAIR>\n");
+            printf("DEFAULT: output public and private key pair\n");
+            directiveArg = PRIV_AND_PUB;
+        }
+        ret = wolfCLU_genKey_RSA(&rng, keyOutFName, directiveArg,
+                                 formatArg, 2048, 65537);
     #else
         printf("Invalid option, RSA not enabled.\n");
         printf("Please re-configure wolfSSL with --enable-rsa and "

@@ -149,11 +149,128 @@ int wolfCLU_genKey_ECC()
     return ret;
 }
 
-int wolfCLU_genKey_RSA()
+int wolfCLU_genKey_RSA(RNG* rng, char* fName, int directive, int fmt, int
+                       keySz, long exp)
 {
-    int ret = FEATURE_COMING_SOON;
+    RsaKey key;
+    FILE*  file;
+    int    ret;
 
-    printf("Creating a RSA key: FEATURE COMING SOON\n");
+    int   fNameSz     = XSTRLEN(fName);
+    int   fExtSz      = 6;
+    char  fExtPriv[6] = ".priv\0";
+    char  fExtPub[6]  = ".pub\0\0";
+    char* fOutNameBuf = NULL;
+
+    size_t maxDerBufSz = 5 * keySz * AES_BLOCK_SIZE;
+    char*  derBuf      = NULL;
+    int    derBufSz    = -1;
+
+    if (rng == NULL || fName == NULL)
+        return BAD_FUNC_ARG;
+
+    if (fmt == PEM_FORM) {
+        printf("Der to Pem for rsa key not yet implemented\n");
+        printf("FEATURE COMING SOON!\n");
+        return FEATURE_COMING_SOON;
+    }
+
+    ret = wc_InitRsaKey(&key, HEAP_HINT);
+    if (ret != 0)
+        return ret;
+    ret = wc_MakeRsaKey(&key, keySz, exp, rng);
+    if (ret != 0)
+        return ret;
+
+    /*
+     * Output key(s) to fIle(s)
+     */
+
+    /* set up the file name outut beffer */
+    fOutNameBuf = (char*)XMALLOC(fNameSz + fExtSz, HEAP_HINT,
+                                 DYNAMIC_TYPE_TMP_BUFFER);
+    if (fOutNameBuf == NULL)
+        return MEMORY_E;
+    XMEMSET(fOutNameBuf, 0, fNameSz + fExtSz);
+    XMEMCPY(fOutNameBuf, fName, fNameSz);
+
+    derBuf = (char*)XMALLOC(maxDerBufSz, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    if (derBuf == NULL) {
+        XFREE(fOutNameBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        return MEMORY_E;
+    }
+
+    switch(directive) {
+        case PRIV_AND_PUB:
+            /* Fall through to PRIV_ONLY */
+        case PRIV_ONLY:
+            /* add on the final part of the file name ".priv" */
+            XMEMCPY(fOutNameBuf + fNameSz, fExtPriv, fExtSz);
+            printf("fOutNameBuf = %s\n", fOutNameBuf);
+
+            derBufSz = wc_RsaKeyToDer(&key, derBuf, maxDerBufSz);
+            if (derBufSz < 0) {
+                XFREE(derBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+                return derBufSz;
+            }
+
+            file = fopen(fOutNameBuf, "wb");
+            if (file == XBADFILE) {
+                XFREE(derBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+                return OUTPUT_FILE_ERROR;
+            }
+
+            ret = (int)fwrite(derBuf, 1, derBufSz, file);
+            if (ret <= 0) {
+                XFREE(derBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+                fclose(file);
+                return OUTPUT_FILE_ERROR;
+            }
+            fclose(file);
+
+            if (directive != PRIV_AND_PUB) {
+                break;
+            }
+        case PUB_ONLY:
+            /* add on the final part of the file name ".pub" */
+            XMEMCPY(fOutNameBuf + fNameSz, fExtPub, fExtSz);
+            printf("fOutNameBuf = %s\n", fOutNameBuf);
+
+            derBufSz = wc_RsaKeyToPublicDer(&key, derBuf, maxDerBufSz);
+            if (derBufSz < 0) {
+                XFREE(derBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+                return derBufSz;
+            }
+
+            file = fopen(fOutNameBuf, "wb");
+            if (file == XBADFILE) {
+                XFREE(fOutNameBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+                return OUTPUT_FILE_ERROR;
+            }
+
+            ret = (int) fwrite(derBuf, 1, derBufSz, file);
+            if (ret <= 0) {
+                fclose(file);
+                XFREE(fOutNameBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+                return OUTPUT_FILE_ERROR;
+            }
+            fclose(file);
+            break;
+        default:
+            printf("Invalid directive\n");
+            XFREE(fOutNameBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+            return BAD_FUNC_ARG;
+    }
+
+    XFREE(derBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    XFREE(fOutNameBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    wc_FreeRsaKey(&key);
+
+    if (ret > 0) {
+        /* ret > 0 indicates a successful file write, set to zero for return */
+        ret = 0;
+    }
+
     return ret;
 }
 
