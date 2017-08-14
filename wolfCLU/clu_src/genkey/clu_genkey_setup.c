@@ -71,7 +71,7 @@ int wolfCLU_genKeySetup(int argc, char** argv)
     }
     ret = wolfCLU_checkOutform(format);
     if (ret == PEM_FORM || ret == DER_FORM) {
-        printf("OUTPUT A PEM FILE\n");
+        printf("OUTPUT A %s FILE\n", (ret == PEM_FORM)? "PEM": "DER");
         formatArg = ret;
     } else {
         printf("ERROR: \"%s\" is not a valid file format\n", format);
