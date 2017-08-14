@@ -123,8 +123,14 @@ int wolfCLU_genKeySetup(int argc, char** argv)
     #endif /* HAVE_ECC */
     } else if (XSTRNCMP(keyType, "rsa", 3) == 0) {
     #ifndef NO_RSA
+        /* RSA flags */
         int directiveArg;
+        int sizeArg;
+        int expArg;
+
         printf("generate RSA key\n");
+
+        /* get the directive argument */
         ret = wolfCLU_checkForArg("-output", 7, argc, argv);
         if (ret > 0) {
             if (argv[ret+1] != NULL) {
@@ -140,8 +146,37 @@ int wolfCLU_genKeySetup(int argc, char** argv)
             printf("DEFAULT: output public and private key pair\n");
             directiveArg = PRIV_AND_PUB;
         }
+
+        /* get the size argument */
+        ret = wolfCLU_checkForArg("-size", 5, argc, argv);
+        if (ret > 0) {
+            if (argv[ret+1] != NULL) {
+                char* cur;
+                /* make sure it's an integer */
+                if (*argv[ret+1] == '\0') {
+                    printf("Empty -size argument, using 2048\n");
+                    sizeArg = 2048;
+                }
+                else {
+                    for (cur = argv[ret+1]; *cur && isdigit(*cur); ++cur);
+                    if (*cur == '\0') {
+                        sizeArg = atoi(argv[ret+1]);
+                    }
+                    else {
+                        printf("Invalid -size (%s), using 2048\n",
+                               argv[ret+1]);
+                        sizeArg = 2048;
+                    }
+                }
+            }
+        } else {
+            printf("No -size <SIZE>\n");
+            printf("DEFAULT: use a 2048 RSA key\n");
+            sizeArg = 2048;
+        }
+
         ret = wolfCLU_genKey_RSA(&rng, keyOutFName, directiveArg,
-                                 formatArg, 2048, 65537);
+                                 formatArg, sizeArg, 65537);
     #else
         printf("Invalid option, RSA not enabled.\n");
         printf("Please re-configure wolfSSL with --enable-rsa and "
