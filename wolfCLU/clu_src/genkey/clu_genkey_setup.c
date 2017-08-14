@@ -175,8 +175,36 @@ int wolfCLU_genKeySetup(int argc, char** argv)
             sizeArg = 2048;
         }
 
+        /* get the size argument */
+        ret = wolfCLU_checkForArg("-exponent", 9, argc, argv);
+        if (ret > 0) {
+            if (argv[ret+1] != NULL) {
+                char* cur;
+                /* make sure it's an integer */
+                if (*argv[ret+1] == '\0') {
+                    printf("Empty -exponent argument, using 65537\n");
+                    expArg = 65537;
+                }
+                else {
+                    for (cur = argv[ret+1]; *cur && isdigit(*cur); ++cur);
+                    if (*cur == '\0') {
+                        sizeArg = atoi(argv[ret+1]);
+                    }
+                    else {
+                        printf("Invalid -exponent (%s), using 65537\n",
+                               argv[ret+1]);
+                        expArg = 65537;
+                    }
+                }
+            }
+        } else {
+            printf("No -exponent <SIZE>\n");
+            printf("DEFAULT: use an exponent of 65537\n");
+            expArg = 65537;
+        }
+
         ret = wolfCLU_genKey_RSA(&rng, keyOutFName, directiveArg,
-                                 formatArg, sizeArg, 65537);
+                                 formatArg, sizeArg, expArg);
     #else
         printf("Invalid option, RSA not enabled.\n");
         printf("Please re-configure wolfSSL with --enable-rsa and "

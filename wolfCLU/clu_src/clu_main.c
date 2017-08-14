@@ -100,8 +100,10 @@ int main(int argc, char** argv)
             case IV:        break;
             /* Opt to benchmark all available algorithms */
             case ALL:       break;
-            /* size for hash to output */
+            /* size for hash or RSA key to output */
             case SIZE:      break;
+            /* exponent for generating RSA key */
+            case EXPONENT:  break;
             /* Time to benchmark for 1-10 seconds optional default: 3s */
             case TIME:      break;
             /* Verify results, used with -iv and -key */
