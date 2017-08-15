@@ -29,7 +29,7 @@
 #ifndef NO_RSA
     #include <wolfssl/wolfcrypt/rsa.h>
 #endif
-#ifdef HAVE_ECC_ENCRYPT
+#ifdef HAVE_ECC
     #include <wolfssl/wolfcrypt/ecc.h>
 #endif
 

@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
+#if defined(WOLFSSL_KEY_GEN) && !defined(NO_ASN)
+
 #include "clu_include/clu_header_main.h"
 #include "clu_include/genkey/clu_genkey.h"
 #include "clu_include/x509/clu_cert.h"    /* PER_FORM/DER_FORM */
@@ -144,6 +146,7 @@ int wolfCLU_genKey_ED25519(WC_RNG* rng, char* fOutNm, int directive, int format)
 int wolfCLU_genKey_ECC(RNG* rng, char* fName, int directive, int fmt,
                        int keySz)
 {
+#ifdef HAVE_ECC
     ecc_key key;
     FILE*   file;
     int     ret;
@@ -167,7 +170,6 @@ int wolfCLU_genKey_ECC(RNG* rng, char* fName, int directive, int fmt,
         return FEATURE_COMING_SOON;
     }
 
-    /*ret = wc_ecc_init(&key);*/
     ret = wc_ecc_init_ex(&key, HEAP_HINT, INVALID_DEVID);
     if (ret != 0)
         return ret;
@@ -269,11 +271,21 @@ int wolfCLU_genKey_ECC(RNG* rng, char* fName, int directive, int fmt,
     }
 
     return ret;
+#else
+    (void)rng;
+    (void)fName;
+    (void)directive;
+    (void)fmt;
+    (void)keySz;
+
+    return NOT_COMPILED_IN;
+#endif /* HAVE_ECC */
 }
 
 int wolfCLU_genKey_RSA(RNG* rng, char* fName, int directive, int fmt, int
                        keySz, long exp)
 {
+#ifndef NO_RSA
     RsaKey key;
     FILE*  file;
     int    ret;
@@ -394,6 +406,16 @@ int wolfCLU_genKey_RSA(RNG* rng, char* fName, int directive, int fmt, int
     }
 
     return ret;
+#else
+    (void)rng;
+    (void)fName;
+    (void)directive;
+    (void)fmt;
+    (void)keySz;
+    (void)exp;
+
+    return NOT_COMPILED_IN;
+#endif
 }
 
 /*
@@ -425,4 +447,4 @@ int wolfCLU_genKey_PWDBASED(RNG* rng, byte* pwdKey, int size, byte* salt, int pa
     return 0;
 }
 
-
+#endif /* WOLFSSL_KEY_GEN && !NO_ASN*/

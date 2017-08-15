@@ -100,7 +100,7 @@ int main(int argc, char** argv)
             case IV:        break;
             /* Opt to benchmark all available algorithms */
             case ALL:       break;
-            /* size for hash or RSA key to output */
+            /* size for hash or key to output */
             case SIZE:      break;
             /* exponent for generating RSA key */
             case EXPONENT:  break;
