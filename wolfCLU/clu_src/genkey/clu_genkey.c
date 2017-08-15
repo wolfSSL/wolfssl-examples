@@ -141,11 +141,133 @@ int wolfCLU_genKey_ED25519(WC_RNG* rng, char* fOutNm, int directive, int format)
 }
 #endif /* HAVE_ED25519 */
 
-int wolfCLU_genKey_ECC()
+int wolfCLU_genKey_ECC(RNG* rng, char* fName, int directive, int fmt,
+                       int keySz)
 {
-    int ret = FEATURE_COMING_SOON;
+    ecc_key key;
+    FILE*   file;
+    int     ret;
 
-    printf("Creating a ECC key: FEATURE COMING SOON\n");
+    int   fNameSz     = XSTRLEN(fName);
+    int   fExtSz      = 6;
+    char  fExtPriv[6] = ".priv\0";
+    char  fExtPub[6]  = ".pub\0\0";
+    char* fOutNameBuf = NULL;
+
+    size_t maxDerBufSz = 4 * keySz * AES_BLOCK_SIZE;
+    char*  derBuf      = NULL;
+    int    derBufSz    = -1;
+
+    if (rng == NULL || fName == NULL)
+        return BAD_FUNC_ARG;
+
+    if (fmt == PEM_FORM) {
+        printf("Der to Pem for rsa key not yet implemented\n");
+        printf("FEATURE COMING SOON!\n");
+        return FEATURE_COMING_SOON;
+    }
+
+    /*ret = wc_ecc_init(&key);*/
+    ret = wc_ecc_init_ex(&key, HEAP_HINT, INVALID_DEVID);
+    if (ret != 0)
+        return ret;
+    ret = wc_ecc_make_key(rng, keySz, &key);
+#if defined(WOLFSSL_ASYNC_CRYPT)
+    /* @Audit: is this all correct? */
+    ret = wc_AsyncWait(ret, &key.asyncDev, WC_ASYNC_FLAG_CALL_AGAIN);
+#endif
+    if (ret != 0)
+        return ret;
+
+    /*
+     * Output key(s) to file(s)
+     */
+
+    /* set up the file name outut beffer */
+    fOutNameBuf = (char*)XMALLOC(fNameSz + fExtSz, HEAP_HINT,
+                                 DYNAMIC_TYPE_TMP_BUFFER);
+    if (fOutNameBuf == NULL)
+        return MEMORY_E;
+    XMEMSET(fOutNameBuf, 0, fNameSz + fExtSz);
+    XMEMCPY(fOutNameBuf, fName, fNameSz);
+
+    derBuf = (char*)XMALLOC(maxDerBufSz, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    if (derBuf == NULL) {
+        XFREE(fOutNameBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        return MEMORY_E;
+    }
+
+    switch(directive) {
+        case PRIV_AND_PUB:
+            /* Fall through to PRIV_ONLY */
+        case PRIV_ONLY:
+            /* add on the final part of the file name ".priv" */
+            XMEMCPY(fOutNameBuf + fNameSz, fExtPriv, fExtSz);
+            printf("fOutNameBuf = %s\n", fOutNameBuf);
+
+            derBufSz = wc_EccPrivateKeyToDer(&key, derBuf, maxDerBufSz);
+            if (derBufSz < 0) {
+                XFREE(derBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+                return derBufSz;
+            }
+
+            file = fopen(fOutNameBuf, "wb");
+            if (file == XBADFILE) {
+                XFREE(derBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+                return OUTPUT_FILE_ERROR;
+            }
+
+            ret = (int)fwrite(derBuf, 1, derBufSz, file);
+            if (ret <= 0) {
+                XFREE(derBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+                fclose(file);
+                return OUTPUT_FILE_ERROR;
+            }
+            fclose(file);
+
+            if (directive != PRIV_AND_PUB) {
+                break;
+            }
+        case PUB_ONLY:
+            /* add on the final part of the file name ".pub" */
+            XMEMCPY(fOutNameBuf + fNameSz, fExtPub, fExtSz);
+            printf("fOutNameBuf = %s\n", fOutNameBuf);
+
+            derBufSz = wc_EccPublicKeyToDer(&key, derBuf, maxDerBufSz, 1);
+            if (derBufSz < 0) {
+                XFREE(derBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+                return derBufSz;
+            }
+
+            file = fopen(fOutNameBuf, "wb");
+            if (file == XBADFILE) {
+                XFREE(fOutNameBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+                return OUTPUT_FILE_ERROR;
+            }
+
+            ret = (int) fwrite(derBuf, 1, derBufSz, file);
+            if (ret <= 0) {
+                fclose(file);
+                XFREE(fOutNameBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+                return OUTPUT_FILE_ERROR;
+            }
+            fclose(file);
+            break;
+        default:
+            printf("Invalid directive\n");
+            XFREE(fOutNameBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+            return BAD_FUNC_ARG;
+    }
+
+    XFREE(derBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    XFREE(fOutNameBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    wc_ecc_free(&key);
+
+    if (ret > 0) {
+        /* ret > 0 indicates a successful file write, set to zero for return */
+        ret = 0;
+    }
+
     return ret;
 }
 
@@ -183,7 +305,7 @@ int wolfCLU_genKey_RSA(RNG* rng, char* fName, int directive, int fmt, int
         return ret;
 
     /*
-     * Output key(s) to fIle(s)
+     * Output key(s) to file(s)
      */
 
     /* set up the file name outut beffer */
