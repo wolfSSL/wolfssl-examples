@@ -19,10 +19,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
-#if defined(WOLFSSL_KEY_GEN) && !defined(NO_ASN)
+#include <wolfssl/options.h>
 
 #include "clu_include/clu_header_main.h"
 #include "clu_include/genkey/clu_genkey.h"
+
+#if defined(WOLFSSL_KEY_GEN) && !defined(NO_ASN)
+
 #include "clu_include/x509/clu_cert.h"    /* PER_FORM/DER_FORM */
 #include <wolfssl/wolfcrypt/asn_public.h> /* wc_DerToPem */
 
