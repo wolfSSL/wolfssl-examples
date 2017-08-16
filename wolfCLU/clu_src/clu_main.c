@@ -31,6 +31,8 @@
 
 int main(int argc, char** argv)
 {
+    int     flag = 0;
+    char*   mode = "";
     int     ret = 0;
     int     option = 0;
     int     ignoreIn = 0;
@@ -42,6 +44,7 @@ int main(int argc, char** argv)
         printf("Main Help.\n");
         wolfCLU_help();
     }
+
     /* Set ignore variables for -in and -out files */
     ret = wolfCLU_checkForArg("-in", 3, argc, argv);
     if (ret > 0) {
@@ -52,9 +55,8 @@ int main(int argc, char** argv)
         ignoreOut = ret + 1;
     }
 
-
-    /* flexibility: allow users to input any CAPS or lower case,
-     * we will do all processing on lower case only. */
+    /* flexibility: allow users to input any CAPS or lower case, we will do all
+     * processing on lower case only. except where ignored */
     for (i = 0; i < argc; i++) {
         if (i != ignoreIn && i != ignoreOut) {
             convert_to_lower(argv[i], (int) XSTRLEN(argv[i]));
@@ -65,84 +67,105 @@ int main(int argc, char** argv)
                    long_options, &long_index )) != -1) {
 
         switch (option) {
-            /* Encrypt */
-            case ENCRYPT:  ret = wolfCLU_setup(argc, argv, 'e');
-                            break;
-            /* Decrypt */
-            case DECRYPT:  ret = wolfCLU_setup(argc, argv, 'd');;
-                            break;
-            /* Benchmark */
-            case BENCHMARK:ret = wolfCLU_benchSetup(argc, argv);
-                            break;
-            /* Hash */
-            case HASH:     ret = wolfCLU_hashSetup(argc, argv);
-                            break;
-            /* x509 Certificate processing */
-            case X509:     ret = wolfCLU_certSetup(argc, argv);
-                            break;
-            /* x509 Certificate request */
-            case REQUEST:  ret = wolfCLU_requestSetup(argc, argv);
-                            break;
-            case GEN_KEY:  ret = wolfCLU_genKeySetup(argc, argv);
-                            break;
-/* Ignore the following arguments for now. Will be handled by their respective
- * setups IE Crypto setup, Benchmark setup, or Hash Setup */
 
-            /* File passed in by user */
-            case INFILE:    break;
-            /* Output file */
-            case OUTFILE:   break;
-            /* Password */
-            case PASSWORD:  break;
-            /* Key if used must be in hex */
-            case KEY:       break;
-            /* IV if used must be in hex */
-            case IV:        break;
-            /* Opt to benchmark all available algorithms */
-            case ALL:       break;
-            /* size for hash or key to output */
-            case SIZE:      break;
-            /* exponent for generating RSA key */
-            case EXPONENT:  break;
-            /* Time to benchmark for 1-10 seconds optional default: 3s */
-            case TIME:      break;
-            /* Verify results, used with -iv and -key */
-            case VERIFY:    break;
-            /* Certificate Stuff*/
-            case INFORM:    break;
-            case OUTFORM:   break;
-            case OUTPUT:    break;
-            case NOOUT:     break;
-            case TEXT_OUT:  break;
-            case SILENT:    break;
-            case HELP1:
-                    if (argc == 2) {
-                        printf("Main help menu:\n");
-                        wolfCLU_help();
-                        return 0;
-                    }
-                    break;
-            case HELP2:
-                    if (argc == 2) {
-                        printf("Main help menu:\n");
-                        wolfCLU_help();
-                        return 0;
-                    }
-                    break;
-            /* which version of clu am I using */
-            case VERBOSE:
-                            wolfCLU_verboseHelp();
-                            return 0;
-/*End of ignored arguments */
+            /* @temporary: implement the modes as arguments */
+        case ENCRYPT:
+        case DECRYPT:
+        case BENCHMARK:
+        case HASH:
+        case X509:
+        case REQUEST:
+        case GEN_KEY:
+            if (!flag) flag = option;
+            break;
 
-            case 'v':       wolfCLU_version();
-                            return 0;
+            /*
+             * Ignore the following arguments for now. They will be handled by
+             * their respective setups (e.g. Crypto setup, Benchmark setup, or
+             * Hash Setup)
+             */
 
-             default:
-                            printf("Main help default.\n");
-                            wolfCLU_help();
-                            return 0;
+        case INFILE:   /* File passed in by user                    */
+        case OUTFILE:  /* Output file                               */
+        case PASSWORD: /* Password                                  */
+        case KEY:      /* Key if used must be in hex                */
+        case IV:       /* IV if used must be in hex                 */
+        case ALL:      /* Opt to benchmark all available algorithms */
+        case SIZE:     /* size for hash or key to output            */
+        case EXPONENT: /* exponent for generating RSA key           */
+        case TIME:     /* Time to benchmark for                     */
+        case VERIFY:   /* Verify results, used with -iv and -key    */
+        case INFORM:   /* Certificate Stuff                         */
+        case OUTFORM:
+        case OUTPUT:
+        case NOOUT:
+        case TEXT_OUT:
+        case SILENT:
+            /* do nothing. */
+            break;
+
+            /*
+             * End of ignored arguments
+             */
+
+        case HELP:
+            /* only print for -help if no mode has been declared */
+            if (!flag) {
+                printf("Main help menu:\n");
+                wolfCLU_help();
+                return 0;
+            }
+            break;
+
+        case VERBOSE:
+            wolfCLU_verboseHelp();
+            return 0;
+
+        case 'v':
+            wolfCLU_version();
+            return 0;
+
+        default:
+            printf("Main help default.\n");
+            wolfCLU_help();
+            return 0;
         }
+    }
+
+    /* @temporary: implement mode as a flag */
+    switch (flag) {
+    case 0:
+        printf("No mode provided.\n");
+        ret = 0;
+        break;
+
+    case ENCRYPT:
+        ret = wolfCLU_setup(argc, argv, 'e');
+        break;
+
+    case DECRYPT:
+        ret = wolfCLU_setup(argc, argv, 'd');
+        break;
+
+    case BENCHMARK:
+        ret = wolfCLU_benchSetup(argc, argv);
+        break;
+
+    case HASH:
+        ret = wolfCLU_hashSetup(argc, argv);
+        break;
+
+    case X509:
+        ret = wolfCLU_certSetup(argc, argv);
+        break;
+
+    case REQUEST:
+        ret = wolfCLU_requestSetup(argc, argv);
+        break;
+
+    case GEN_KEY:
+        ret = wolfCLU_genKeySetup(argc, argv);
+        break;
     }
 
     if (ret != 0)
