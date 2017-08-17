@@ -45,24 +45,6 @@ int main(int argc, char** argv)
         wolfCLU_help();
     }
 
-    /* Set ignore variables for -in and -out files */
-    ret = wolfCLU_checkForArg("-in", 3, argc, argv);
-    if (ret > 0) {
-        ignoreIn = ret + 1;
-    }
-    ret = wolfCLU_checkForArg("-out", 4, argc, argv);
-    if (ret > 0) {
-        ignoreOut = ret + 1;
-    }
-
-    /* flexibility: allow users to input any CAPS or lower case, we will do all
-     * processing on lower case only. except where ignored */
-    for (i = 0; i < argc; i++) {
-        if (i != ignoreIn && i != ignoreOut) {
-            convert_to_lower(argv[i], (int) XSTRLEN(argv[i]));
-        }
-    }
-
     while ((option = getopt_long_only(argc, argv,"",
                    long_options, &long_index )) != -1) {
 
@@ -76,8 +58,8 @@ int main(int argc, char** argv)
         case X509:
         case REQUEST:
         case GEN_KEY:
+
             if (!flag) flag = option;
-            break;
 
             /*
              * Ignore the following arguments for now. They will be handled by
@@ -85,8 +67,6 @@ int main(int argc, char** argv)
              * Hash Setup)
              */
 
-        case INFILE:   /* File passed in by user                    */
-        case OUTFILE:  /* Output file                               */
         case PASSWORD: /* Password                                  */
         case KEY:      /* Key if used must be in hex                */
         case IV:       /* IV if used must be in hex                 */
@@ -101,8 +81,17 @@ int main(int argc, char** argv)
         case NOOUT:
         case TEXT_OUT:
         case SILENT:
+
+            /* The cases above have their arguments converted to lower case */
+            if (optarg) convert_to_lower(optarg, (int)XSTRLEN(optarg));
+            /* The cases below won't have their argument's molested */
+
+        case INFILE:   /* File passed in by user                    */
+        case OUTFILE:  /* Output file                               */
+
             /* do nothing. */
-            break;
+
+            break; /* note: this is the first break in the block */
 
             /*
              * End of ignored arguments

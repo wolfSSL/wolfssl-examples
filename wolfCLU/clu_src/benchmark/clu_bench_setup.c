@@ -67,7 +67,7 @@ int wolfCLU_benchSetup(int argc, char** argv)
     /* acceptable option check */
     int optionCheck = 0;
 
-    ret = wolfCLU_checkForArg("-h", 2, argc, argv);
+    ret = wolfCLU_checkForArg("-help", 5, argc, argv);
     if (ret > 0) {
             wolfCLU_benchHelp();
             return 0;
@@ -103,8 +103,8 @@ int wolfCLU_benchSetup(int argc, char** argv)
     }
 
     if (optionCheck != 1) {
-        /* help checking */
         wolfCLU_help();
+        ret = 0;
     }
     else {
         /* benchmarking function */

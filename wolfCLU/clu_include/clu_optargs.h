@@ -79,7 +79,7 @@ static struct option long_options[] = {
     {"noout",   no_argument,       0, NOOUT     },
     {"text",    no_argument,       0, TEXT_OUT  },
     {"silent",  no_argument,       0, SILENT    },
-    {"output",  no_argument,       0, OUTPUT    },
+    {"output",  required_argument, 0, OUTPUT    },
     {"help",    no_argument,       0, HELP      },
     {"h",       no_argument,       0, HELP      },
     {"v",       no_argument,       0, 'v'       },
