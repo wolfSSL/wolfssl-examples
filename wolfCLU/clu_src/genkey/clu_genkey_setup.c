@@ -71,7 +71,7 @@ int wolfCLU_genKeySetup(int argc, char** argv)
     }
     ret = wolfCLU_checkOutform(format);
     if (ret == PEM_FORM || ret == DER_FORM) {
-        printf("OUTPUT A PEM FILE\n");
+        printf("OUTPUT A %s FILE\n", (ret == PEM_FORM)? "PEM": "DER");
         formatArg = ret;
     } else {
         printf("ERROR: \"%s\" is not a valid file format\n", format);
@@ -113,8 +113,59 @@ int wolfCLU_genKeySetup(int argc, char** argv)
 
     } else if (XSTRNCMP(keyType, "ecc", 3) == 0) {
     #ifdef HAVE_ECC
+        /* ECC flags */
+        int directiveArg;
+        int sizeArg;
+
         printf("generate ECC key\n");
-        ret = wolfCLU_genKey_ECC();
+
+        /* get the directive argument */
+        ret = wolfCLU_checkForArg("-output", 7, argc, argv);
+        if (ret > 0) {
+            if (argv[ret+1] != NULL) {
+                if (XSTRNCMP(argv[ret+1], "pub", 3) == 0)
+                    directiveArg = PUB_ONLY;
+                else if (XSTRNCMP(argv[ret+1], "priv", 4) == 0)
+                    directiveArg = PRIV_ONLY;
+                else if (XSTRNCMP(argv[ret+1], "keypair", 7) == 0)
+                    directiveArg = PRIV_AND_PUB;
+            }
+        } else {
+            printf("No -output <PUB/PRIV/KEYPAIR>\n");
+            printf("DEFAULT: output public and private key pair\n");
+            directiveArg = PRIV_AND_PUB;
+        }
+
+        /* get the size argument */
+        ret = wolfCLU_checkForArg("-size", 5, argc, argv);
+        if (ret > 0) {
+            if (argv[ret+1] != NULL) {
+                char* cur;
+                /* make sure it's an integer */
+                if (*argv[ret+1] == '\0') {
+                    printf("Empty -size argument, using 32\n");
+                    sizeArg = 32;
+                }
+                else {
+                    for (cur = argv[ret+1]; *cur && isdigit(*cur); ++cur);
+                    if (*cur == '\0') {
+                        sizeArg = atoi(argv[ret+1]);
+                    }
+                    else {
+                        printf("Invalid -size (%s), using 32\n",
+                               argv[ret+1]);
+                        sizeArg = 32;
+                    }
+                }
+            }
+        } else {
+            printf("No -size <SIZE>\n");
+            printf("DEFAULT: use a 32 ECC key\n");
+            sizeArg = 32;
+        }
+
+        ret = wolfCLU_genKey_ECC(&rng, keyOutFName, directiveArg,
+                                 formatArg, sizeArg);
     #else
         printf("Invalid option, ECC not enabled.\n");
         printf("Please re-configure wolfSSL with --enable-ecc and "
@@ -123,8 +174,88 @@ int wolfCLU_genKeySetup(int argc, char** argv)
     #endif /* HAVE_ECC */
     } else if (XSTRNCMP(keyType, "rsa", 3) == 0) {
     #ifndef NO_RSA
+        /* RSA flags */
+        int directiveArg;
+        int sizeArg;
+        int expArg;
+
         printf("generate RSA key\n");
-        ret = wolfCLU_genKey_RSA();
+
+        /* get the directive argument */
+        ret = wolfCLU_checkForArg("-output", 7, argc, argv);
+        if (ret > 0) {
+            if (argv[ret+1] != NULL) {
+                if (XSTRNCMP(argv[ret+1], "pub", 3) == 0)
+                    directiveArg = PUB_ONLY;
+                else if (XSTRNCMP(argv[ret+1], "priv", 4) == 0)
+                    directiveArg = PRIV_ONLY;
+                else if (XSTRNCMP(argv[ret+1], "keypair", 7) == 0)
+                    directiveArg = PRIV_AND_PUB;
+            }
+        } else {
+            printf("No -output <PUB/PRIV/KEYPAIR>\n");
+            printf("DEFAULT: output public and private key pair\n");
+            directiveArg = PRIV_AND_PUB;
+        }
+
+        /* get the size argument */
+        ret = wolfCLU_checkForArg("-size", 5, argc, argv);
+        if (ret > 0) {
+            if (argv[ret+1] != NULL) {
+                char* cur;
+                /* make sure it's an integer */
+                if (*argv[ret+1] == '\0') {
+                    printf("Empty -size argument, using 2048\n");
+                    sizeArg = 2048;
+                }
+                else {
+                    for (cur = argv[ret+1]; *cur && isdigit(*cur); ++cur);
+                    if (*cur == '\0') {
+                        sizeArg = atoi(argv[ret+1]);
+                    }
+                    else {
+                        printf("Invalid -size (%s), using 2048\n",
+                               argv[ret+1]);
+                        sizeArg = 2048;
+                    }
+                }
+            }
+        } else {
+            printf("No -size <SIZE>\n");
+            printf("DEFAULT: use a 2048 RSA key\n");
+            sizeArg = 2048;
+        }
+
+        /* get the exponent argument */
+        ret = wolfCLU_checkForArg("-exponent", 9, argc, argv);
+        if (ret > 0) {
+            if (argv[ret+1] != NULL) {
+                char* cur;
+                /* make sure it's an integer */
+                if (*argv[ret+1] == '\0') {
+                    printf("Empty -exponent argument, using 65537\n");
+                    expArg = 65537;
+                }
+                else {
+                    for (cur = argv[ret+1]; *cur && isdigit(*cur); ++cur);
+                    if (*cur == '\0') {
+                        sizeArg = atoi(argv[ret+1]);
+                    }
+                    else {
+                        printf("Invalid -exponent (%s), using 65537\n",
+                               argv[ret+1]);
+                        expArg = 65537;
+                    }
+                }
+            }
+        } else {
+            printf("No -exponent <SIZE>\n");
+            printf("DEFAULT: use an exponent of 65537\n");
+            expArg = 65537;
+        }
+
+        ret = wolfCLU_genKey_RSA(&rng, keyOutFName, directiveArg,
+                                 formatArg, sizeArg, expArg);
     #else
         printf("Invalid option, RSA not enabled.\n");
         printf("Please re-configure wolfSSL with --enable-rsa and "

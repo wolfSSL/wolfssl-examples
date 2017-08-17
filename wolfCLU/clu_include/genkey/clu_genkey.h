@@ -26,6 +26,12 @@
 #ifdef HAVE_ED25519
     #include <wolfssl/wolfcrypt/ed25519.h>
 #endif
+#ifndef NO_RSA
+    #include <wolfssl/wolfcrypt/rsa.h>
+#endif
+#ifdef HAVE_ECC
+    #include <wolfssl/wolfcrypt/ecc.h>
+#endif
 
 #define SALT_SIZE       8
 
@@ -44,11 +50,34 @@ int wolfCLU_genKey_ED25519(WC_RNG* rng, char* fOutNm, int directive,
                                                                     int format);
 #endif
 
-/* Generate an ECC key */
-int wolfCLU_genKey_ECC(void);
+/**
+ * generates an ECC key
+ *
+ * @param rng       random number generator
+ * @param fName     name of the file to write to
+ * @param directive which key to output, public or private, maybe both
+ * @param fmt       output format (PEM/DER)
+ * @param keySz     size of the ECC key
+ *
+ * return   0 on success, non-zero on error
+ */
+int wolfCLU_genKey_ECC(RNG* rng, char* fName, int directive, int fmt,
+                       int keySz);
 
-/* Generate an RSA key */
-int wolfCLU_genKey_RSA(void);
+/**
+ * generates an RSA key
+ *
+ * @param rng       random number generator
+ * @param fName     name of the file to write to
+ * @param directive which key to output, public or private, maybe both
+ * @param fmt       output format (PEM/DER)
+ * @param keySz     size of the RSA key
+ * @param exp       RSA public exponent
+ *
+ * return   0 on success, non-zero on error
+ */
+int wolfCLU_genKey_RSA(RNG* rng, char* fName, int directive, int fmt,
+                       int keySz, long exp);
 
 /* generates key based on password provided 
  * 
