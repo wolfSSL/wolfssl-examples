@@ -110,7 +110,7 @@ int wolfCLU_hashSetup(int argc, char** argv)
     if (ret > 0) {
         /* size of output */
 #ifndef HAVE_BLAKE2
-        printf("%s: -size is only valid when blake2 in enabled.\n", argv[0]);
+        printf("%s: -size is only valid when blake2 is enabled.\n", argv[0]);
 #else
         size = atoi(argv[ret+1]);
         if (size <= 0 || size > 64) {
