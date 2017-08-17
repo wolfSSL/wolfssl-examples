@@ -98,7 +98,7 @@ int wolfCLU_setup(int argc, char** argv, char action)
             return MEMORY_E;
         }
 
-        /* get argumets form command line */
+        /* get argumets from command line */
 
         ret = wolfCLU_checkForArg("-out", 4, argc, argv);
         if (ret > 0) {
