@@ -57,7 +57,7 @@ static struct option long_options[] = {
     /* @temporary: implement modes as flags */
     {"encrypt", required_argument, 0, ENCRYPT   },
     {"decrypt", required_argument, 0, DECRYPT   },
-    {"bench",   required_argument, 0, BENCHMARK },
+    {"bench",   no_argument,       0, BENCHMARK },
     {"hash",    required_argument, 0, HASH      },
     {"x509",    no_argument,       0, X509      },
     {"req",     required_argument, 0, REQUEST   },
