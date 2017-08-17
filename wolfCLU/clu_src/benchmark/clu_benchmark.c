@@ -63,6 +63,13 @@ int wolfCLU_benchmark(int timer, int* option)
     wc_InitRng(&rng);
 
     signal(SIGALRM, wolfCLU_stop);
+
+    /* @fragile:
+     * this function assumes that it perfectly knows the order and length of
+     * the option array in clu_src/benchmark/clu_bench_setup.c. Looping over a
+     * switch on an enum would be much more robust.
+     */
+
     i = 0;
 #ifndef NO_AES
     /* aes test */

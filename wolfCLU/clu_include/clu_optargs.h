@@ -22,10 +22,15 @@
 
 /* Enumerated types for long arguments */
 enum {
+    /* @temporary: implement modes as arguments */
     ENCRYPT = 1000,
     DECRYPT,
     BENCHMARK,
     HASH,
+    X509,
+    REQUEST,
+    GEN_KEY,
+
     INFILE,
     OUTFILE,
     PASSWORD,
@@ -37,52 +42,50 @@ enum {
     TIME,
     VERIFY,
     VERBOSE,
-    X509,
     INFORM,
     OUTFORM,
     NOOUT,
     TEXT_OUT,
     SILENT,
-    REQUEST,
-    GEN_KEY,
     OUTPUT,
-    HELP1, /* "-help" */
-    HELP2, /* "-h" */
+    HELP,
 };
 
 /* Structure for holding long arguments */
 static struct option long_options[] = {
 
+    /* @temporary: implement modes as flags */
     {"encrypt", required_argument, 0, ENCRYPT   },
     {"decrypt", required_argument, 0, DECRYPT   },
-    {"bench",   required_argument, 0, BENCHMARK },
+    {"bench",   no_argument,       0, BENCHMARK },
     {"hash",    required_argument, 0, HASH      },
+    {"x509",    no_argument,       0, X509      },
+    {"req",     required_argument, 0, REQUEST   },
+    {"genkey",  required_argument, 0, GEN_KEY   },
+
     {"in",      required_argument, 0, INFILE    },
     {"out",     required_argument, 0, OUTFILE   },
     {"pwd",     required_argument, 0, PASSWORD  },
     {"key",     required_argument, 0, KEY       },
     {"iv",      required_argument, 0, IV        },
-    {"all",     0,                 0, ALL       },
+    {"all",     no_argument,       0, ALL       },
     {"size",    required_argument, 0, SIZE      },
     {"exponent",required_argument, 0, EXPONENT  },
     {"time",    required_argument, 0, TIME      },
-    {"verify",  0,                 0, VERIFY    },
-    {"verbose", 0,                 0, VERBOSE   },
-    {"x509",    0,                 0, X509      },
+    {"verify",  no_argument,       0, VERIFY    },
+    {"verbose", no_argument,       0, VERBOSE   },
     {"inform",  required_argument, 0, INFORM    },
     {"outform", required_argument, 0, OUTFORM   },
-    {"noout",   0,                 0, NOOUT     },
-    {"text",    0,                 0, TEXT_OUT  },
-    {"silent",  0,                 0, SILENT    },
-    {"req",     0,                 0, REQUEST   },
-    {"genkey",  0,                 0, GEN_KEY   },
-    {"output",  0,                 0, OUTPUT    },
-    {"help",    0,                 0, HELP1     },
-    {"h",       0,                 0, HELP2     },
-    {"v",       0,                 0, 'v'       },
-    {"version", 0,                 0, 'v'       },
-    {0, 0, 0, 0}
+    {"noout",   no_argument,       0, NOOUT     },
+    {"text",    no_argument,       0, TEXT_OUT  },
+    {"silent",  no_argument,       0, SILENT    },
+    {"output",  required_argument, 0, OUTPUT    },
+    {"help",    no_argument,       0, HELP      },
+    {"h",       no_argument,       0, HELP      },
+    {"v",       no_argument,       0, 'v'       },
+    {"version", no_argument,       0, 'v'       },
 
+    {0, 0, 0, 0} /* terminal element */
 };
 
 /* method for converting arguments to lower case */
