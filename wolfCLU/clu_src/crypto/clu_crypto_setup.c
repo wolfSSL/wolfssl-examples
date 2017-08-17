@@ -60,151 +60,143 @@ int wolfCLU_setup(int argc, char** argv, char action)
     if (action == 'd')
         dCheck = 1;
 
-    for (i = 2; i < argc; i++) {
-        if (XSTRNCMP(argv[i], "-help", 5) == 0 || XSTRNCMP(argv[i], "-h", 2)
-                                                                         == 0) {
-            if (eCheck == 1) {
-                /*wolfCLU_encryptHelp*/
-                wolfCLU_encryptHelp();
-                return 0;
-            } else {
-                /*wolfCLU_decryptHelp*/
-                wolfCLU_decryptHelp();
-                return 0;
-            }
+    ret = wolfCLU_checkForArg("-h", 2, argc, argv);
+    if (ret > 0) {
+        if (eCheck == 1) {
+            wolfCLU_encryptHelp();
+            return 0;
+        } else {
+            wolfCLU_decryptHelp();
+            return 0;
         }
     }
 
     name = argv[2];
+    if (name == NULL) {
+        return FATAL_ERROR;
+    }
+
     /* gets blocksize, algorithm, mode, and key size from name argument */
     block = wolfCLU_getAlgo(name, &alg, &mode, &size);
 
     if (block != FATAL_ERROR) {
+        /* initialize memory buffers */
+
         pwdKey = (byte*) XMALLOC(size, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
         if (pwdKey == NULL)
             return MEMORY_E;
+
         iv = (byte*) XMALLOC(block, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
         if (iv == NULL) {
             wolfCLU_freeBins(pwdKey, NULL, NULL, NULL, NULL);
             return MEMORY_E;
         }
+
         key = (byte*) XMALLOC(size, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
         if (key == NULL) {
             wolfCLU_freeBins(pwdKey, iv, NULL, NULL, NULL);
             return MEMORY_E;
         }
 
-        /* Start at the third flag entered */
-        i = 3;
-        do {
-            if (argv[i] == NULL){
-                break;
-            }
-            else if (XSTRNCMP(argv[i], "-out", 4) == 0 && argv[i+1] != NULL) {
-                /* output file */
-                out = argv[i+1];
-                outCheck = 1;
-                i+=2;
-                /* it is mandatory that this be set last */
-                continue;
-            }
+        /* get argumets form command line */
 
-            else if (XSTRNCMP(argv[i], "-in", 3) == 0 && argv[i+1] != NULL) {
-                 /* input file/text */
-                in = argv[i+1];
-                inCheck = 1;
-                /* continue while out check not equal 1 */
-                i+=2;
-                continue;
-            }
+        ret = wolfCLU_checkForArg("-out", 4, argc, argv);
+        if (ret > 0) {
+            /* output file */
+            out = argv[ret+1];
+            outCheck = 1;
+        }
 
-            else if (XSTRNCMP(argv[i], "-pwd", 4) == 0 && argv[i+1] != NULL) {
-                /* password pwdKey */
-                XMEMCPY(pwdKey, argv[i+1], size);
-                pwdKeyChk = 1;
-                keyType = 1;
-                i+=2;
-                continue;
+        ret = wolfCLU_checkForArg("-in", 3, argc, argv);
+        if (ret > 0) {
+            /* input file/text */
+            in = argv[ret+1];
+            inCheck = 1;
+        }
+
+        ret = wolfCLU_checkForArg("-pwd", 3, argc, argv);
+        if (ret > 0) {
+            /* password pwdKey */
+            XMEMCPY(pwdKey, argv[ret+1], size);
+            pwdKeyChk = 1;
+            keyType = 1;
+        }
+
+        ret = wolfCLU_checkForArg("-verify", 7, argc, argv);
+        if (ret > 0) {
+            /* using hexidecimal format */
+            inputHex = 1;
+        }
+
+        ret = wolfCLU_checkForArg("-iv", 3, argc, argv);
+        if (ret > 0) {
+            /* iv for encryption */
+            if (pwdKeyChk == 1) {
+                printf("Invalid option, attempting to use IV with password"
+                       " based key.");
+                wolfCLU_freeBins(pwdKey, iv, key, NULL, NULL);
+                return FATAL_ERROR;
             }
-            else if (XSTRNCMP(argv[i], "-verify", 7) == 0) {
-                /* using hexidecimal format */
-                inputHex = 1;
-                i++;
-                continue;
-            }
-            else if (XSTRNCMP(argv[i], "-iv", 3) == 0 && argv[i+1] != NULL) {
-                /* iv for encryption */
-                if (pwdKeyChk == 1) {
-                    printf("Invalid option, attempting to use IV with password"
-                           " based key.");
-                    wolfCLU_freeBins(pwdKey, iv, key, NULL, NULL);
-                    return FATAL_ERROR;
-                }
-                 ivSize = block*2;
-                if (XSTRLEN(argv[i+1]) != ivSize) {
-                    printf("Invalid IV. Must match algorithm block size.\n");
-                    printf("Invalid IV size was: %d.\n",
-                                                       (int) strlen(argv[i+1]));
-                    printf("size of IV expected was: %d.\n", ivSize);
-                    wolfCLU_freeBins(pwdKey, iv, key, NULL, NULL);
-                    return FATAL_ERROR;
-                }
-                else {
-                    char ivString[XSTRLEN(argv[i+1])];
-                    XSTRNCPY(ivString, argv[i+1], XSTRLEN(argv[i+1]));
-                    ret = wolfCLU_hexToBin(ivString, &iv, &ivSize,
-                                            NULL, NULL, NULL,
-                                            NULL, NULL, NULL,
-                                            NULL, NULL, NULL);
-                    if (ret != 0) {
-                        printf("failed during conversion of IV, ret = %d\n",
-                                                                           ret);
-                        wolfCLU_freeBins(pwdKey, iv, key, NULL, NULL);
-                        return -1;
-                    }
-                    ivCheck = 1;
-                    i+=2;
-                    continue;
-                }
-            }
-            else if (XSTRNCMP(argv[i], "-key", 4) == 0 && argv[i+1] != NULL) {
-                /* 2 characters = 1 byte. 1 byte = 8 bits
-                 * number of characters / 2 = bytes
-                 * bytes * 8 = bits
-                 */
-                numBits = (int) (XSTRLEN(argv[i+1]) / 2 ) * 8;
-                /* Key for encryption */
-                if ((int)numBits != size) {
-                    printf("Length of key provided was: %d.\n", numBits);
-                    printf("Length of key expected was: %d.\n", size);
-                    printf("Invalid Key. Must match algorithm key size.\n");
-                    wolfCLU_freeBins(pwdKey, iv, key, NULL, NULL);
-                    return FATAL_ERROR;
-                }
-                else {
-                    char keyString[strlen(argv[i+1])];
-                    XSTRNCPY(keyString, argv[i+1], XSTRLEN(argv[i+1]));
-                    ret = wolfCLU_hexToBin(keyString, &key, &numBits,
-                                            NULL, NULL, NULL,
-                                            NULL, NULL, NULL,
-                                            NULL, NULL, NULL);
-                     if (ret != 0) {
-                        printf("failed during conversion of Key, ret = %d\n",
-                                                                           ret);
-                        wolfCLU_freeBins(pwdKey, iv, key, NULL, NULL);
-                        return -1;
-                    }
-                    keyCheck = 1;
-                    keyType = 2;
-                    i+=2;
-                    continue;
-                }
+            ivSize = block*2;
+            if (XSTRLEN(argv[ret+1]) != ivSize) {
+                printf("Invalid IV. Must match algorithm block size.\n");
+                printf("Invalid IV size was: %d.\n",
+                       (int) strlen(argv[ret+1]));
+                printf("size of IV expected was: %d.\n", ivSize);
+                wolfCLU_freeBins(pwdKey, iv, key, NULL, NULL);
+                return FATAL_ERROR;
             }
             else {
-                i++; continue;
+                char ivString[XSTRLEN(argv[ret+1])];
+                XSTRNCPY(ivString, argv[ret+1], XSTRLEN(argv[ret+1]));
+                ret = wolfCLU_hexToBin(ivString, &iv, &ivSize,
+                                       NULL, NULL, NULL,
+                                       NULL, NULL, NULL,
+                                       NULL, NULL, NULL);
+                if (ret != 0) {
+                    printf("failed during conversion of IV, ret = %d\n",
+                           ret);
+                    wolfCLU_freeBins(pwdKey, iv, key, NULL, NULL);
+                    return -1;
+                }
+                ivCheck = 1;
             }
+        }
 
-        }while(i < 15);
+        ret = wolfCLU_checkForArg("-key", 4, argc, argv);
+        if (ret > 0) {
+            /* 2 characters = 1 byte. 1 byte = 8 bits
+             * number of characters / 2 = bytes
+             * bytes * 8 = bits
+             */
+            numBits = (int) (XSTRLEN(argv[ret+1]) / 2 ) * 8;
+            /* Key for encryption */
+            if ((int)numBits != size) {
+                printf("Length of key provided was: %d.\n", numBits);
+                printf("Length of key expected was: %d.\n", size);
+                printf("Invalid Key. Must match algorithm key size.\n");
+                wolfCLU_freeBins(pwdKey, iv, key, NULL, NULL);
+                return FATAL_ERROR;
+            }
+            else {
+                char keyString[strlen(argv[ret+1])];
+                XSTRNCPY(keyString, argv[ret+1], XSTRLEN(argv[ret+1]));
+                ret = wolfCLU_hexToBin(keyString, &key, &numBits,
+                                       NULL, NULL, NULL,
+                                       NULL, NULL, NULL,
+                                       NULL, NULL, NULL);
+                if (ret != 0) {
+                    printf("failed during conversion of Key, ret = %d\n",
+                           ret);
+                    wolfCLU_freeBins(pwdKey, iv, key, NULL, NULL);
+                    return -1;
+                }
+                keyCheck = 1;
+                keyType = 2;
+            }
+        }
+
+
 
         if (pwdKeyChk == 0 && keyCheck == 0) {
             if (dCheck == 1) {
