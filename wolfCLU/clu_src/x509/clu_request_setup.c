@@ -21,7 +21,7 @@
 
 #include "clu_include/x509/clu_request.h"
 
-int wolfCLU_requestSetup(int argc, char** argv)
+int wolfCLU_requestSetup(int argc, char** argv, int offset)
 {
     return 0;
 }

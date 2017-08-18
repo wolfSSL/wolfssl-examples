@@ -21,7 +21,7 @@
 
 #include "clu_include/clu_header_main.h"
 
-int wolfCLU_setup(int argc, char** argv, char action)
+int wolfCLU_setup(int argc, char** argv, int offset, char action)
 {
     char     outNameE[256];     /* default outFile for encrypt */
     char     outNameD[256];     /* default outfile for decrypt */
@@ -71,7 +71,7 @@ int wolfCLU_setup(int argc, char** argv, char action)
         }
     }
 
-    name = argv[2];
+    name = argv[offset + 1];
     if (name == NULL) {
         return FATAL_ERROR;
     }

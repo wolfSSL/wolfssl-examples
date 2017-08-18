@@ -22,15 +22,6 @@
 
 /* Enumerated types for long arguments */
 enum {
-    /* @temporary: implement modes as arguments */
-    ENCRYPT = 1000,
-    DECRYPT,
-    BENCHMARK,
-    HASH,
-    X509,
-    REQUEST,
-    GEN_KEY,
-
     INFILE,
     OUTFILE,
     PASSWORD,
@@ -53,16 +44,6 @@ enum {
 
 /* Structure for holding long arguments */
 static struct option long_options[] = {
-
-    /* @temporary: implement modes as flags */
-    {"encrypt", required_argument, 0, ENCRYPT   },
-    {"decrypt", required_argument, 0, DECRYPT   },
-    {"bench",   no_argument,       0, BENCHMARK },
-    {"hash",    required_argument, 0, HASH      },
-    {"x509",    no_argument,       0, X509      },
-    {"req",     required_argument, 0, REQUEST   },
-    {"genkey",  required_argument, 0, GEN_KEY   },
-
     {"in",      required_argument, 0, INFILE    },
     {"out",     required_argument, 0, OUTFILE   },
     {"pwd",     required_argument, 0, PASSWORD  },

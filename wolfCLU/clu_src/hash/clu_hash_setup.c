@@ -24,7 +24,7 @@
 /*
  * hash argument function
  */
-int wolfCLU_hashSetup(int argc, char** argv)
+int wolfCLU_hashSetup(int argc, char** argv, int offset)
 {
     int     ret        =   0;   /* return variable, counter */
     int     i          =   0;   /* loop variable */
@@ -50,9 +50,9 @@ int wolfCLU_hashSetup(int argc, char** argv)
         "blake2b",
 #endif
 #ifndef NO_CODING
-    #ifdef WOLFSSL_BASE64_ENCODE
+#ifdef WOLFSSL_BASE64_ENCODE
         "base64enc",
-    #endif
+#endif
         "base64dec",
 #endif
         NULL /* terminal element (also stops the array from being 0-size */
@@ -77,8 +77,8 @@ int wolfCLU_hashSetup(int argc, char** argv)
 
     for (i = 0; i < (int)algsSz; ++i) {
         /* checks for acceptable algorithms */
-        if (XSTRNCMP(argv[2], algs[i], XSTRLEN(algs[i])) == 0) {
-            alg = argv[2];
+        if (XSTRNCMP(argv[offset+1], algs[i], XSTRLEN(algs[i])) == 0) {
+            alg = argv[offset+1];
             algCheck = 1;
         }
     }

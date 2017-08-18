@@ -31,8 +31,7 @@
 
 int main(int argc, char** argv)
 {
-    int     flag = 0;
-    char*   mode = "";
+    int     helpCheck = 0;
     int     ret = 0;
     int     option = 0;
     int     ignoreIn = 0;
@@ -49,17 +48,6 @@ int main(int argc, char** argv)
                    long_options, &long_index )) != -1) {
 
         switch (option) {
-
-            /* @temporary: implement the modes as arguments */
-        case ENCRYPT:
-        case DECRYPT:
-        case BENCHMARK:
-        case HASH:
-        case X509:
-        case REQUEST:
-        case GEN_KEY:
-
-            if (!flag) flag = option;
 
             /*
              * Ignore the following arguments for now. They will be handled by
@@ -98,12 +86,7 @@ int main(int argc, char** argv)
              */
 
         case HELP:
-            /* only print for -help if no mode has been declared */
-            if (!flag) {
-                printf("Main help menu:\n");
-                wolfCLU_help();
-                return 0;
-            }
+            helpCheck = 1;
             break;
 
         case VERBOSE:
@@ -122,39 +105,34 @@ int main(int argc, char** argv)
     }
 
     /* @temporary: implement mode as a flag */
-    switch (flag) {
-    case 0:
-        printf("No mode provided.\n");
-        ret = 0;
-        break;
-
-    case ENCRYPT:
-        ret = wolfCLU_setup(argc, argv, 'e');
-        break;
-
-    case DECRYPT:
-        ret = wolfCLU_setup(argc, argv, 'd');
-        break;
-
-    case BENCHMARK:
-        ret = wolfCLU_benchSetup(argc, argv);
-        break;
-
-    case HASH:
-        ret = wolfCLU_hashSetup(argc, argv);
-        break;
-
-    case X509:
-        ret = wolfCLU_certSetup(argc, argv);
-        break;
-
-    case REQUEST:
-        ret = wolfCLU_requestSetup(argc, argv);
-        break;
-
-    case GEN_KEY:
-        ret = wolfCLU_genKeySetup(argc, argv);
-        break;
+    /* @temporary: implement modes as flags */
+    if (XSTRNCMP(argv[optind], "encrypt", 7) == 0) {
+        ret = wolfCLU_setup(argc, argv, optind, 'e');
+    }
+    else if (XSTRNCMP(argv[optind], "decrypt", 7) == 0) {
+        ret = wolfCLU_setup(argc, argv, optind, 'd');
+    }
+    else if (XSTRNCMP(argv[optind], "bench", 5) == 0) {
+        ret = wolfCLU_benchSetup(argc, argv, optind);
+    }
+    else if (XSTRNCMP(argv[optind], "hash", 4) == 0) {
+        ret = wolfCLU_hashSetup(argc, argv, optind);
+    }
+    else if (XSTRNCMP(argv[optind], "x509", 4) == 0) {
+        ret = wolfCLU_certSetup(argc, argv, optind);
+    }
+    else if (XSTRNCMP(argv[optind], "req", 3) == 0) {
+        ret = wolfCLU_requestSetup(argc, argv, optind);
+    }
+    else if (XSTRNCMP(argv[optind], "genkey", 6) == 0) {
+        ret = wolfCLU_genKeySetup(argc, argv, optind);
+    }
+    else if (helpCheck == 1) {
+        wolfCLU_help();
+    }
+    else {
+        printf("%s: '%s' is not a valid mode. Please consult -help\n",
+               argv[0], argv[optind]);
     }
 
     if (ret != 0)

@@ -21,7 +21,7 @@
 
 #include "clu_include/clu_header_main.h"
 
-int wolfCLU_benchSetup(int argc, char** argv)
+int wolfCLU_benchSetup(int argc, char** argv, int offset)
 {
     int     ret     =   0;          /* return variable */
     int     time    =   3;          /* timer variable */
@@ -95,10 +95,11 @@ int wolfCLU_benchSetup(int argc, char** argv)
 
     /* pull as many of the algorithms out of the argv as posible */
     for (i = 0; i < (int)algsSz; ++i) {
-        ret = wolfCLU_checkForArg(algs[i], XSTRLEN(algs[i]), argc, argv);
-        if (ret > 0) {
-            option[i] = 1;
-            optionCheck = 1;
+        for (j = offset; j > argc; ++j) {
+            if (XSTRNCMP(argv[j], algs[i], XSTRLEN(algs[i]))) {
+                option[i] = 1;
+                optionCheck = 1;
+            }
         }
     }
 
