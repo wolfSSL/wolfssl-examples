@@ -23,18 +23,58 @@
 #include "clu_include/genkey/clu_genkey.h"
 #include "clu_include/x509/clu_cert.h"  /* argument checking */
 
+const struct { char *name; int len; int id; } ecc_curves[] = {
+    { "default",         7,  ECC_CURVE_DEF       },
+    { "secp192r1",       9,  ECC_SECP192R1       },
+    { "prime192v2",      10, ECC_PRIME192V2      },
+    { "prime192v3",      10, ECC_PRIME192V3      },
+    { "prime239v1",      10, ECC_PRIME239V1      },
+    { "prime239v2",      10, ECC_PRIME239V2      },
+    { "prime239v3",      10, ECC_PRIME239V3      },
+    { "secp256r1",       9,  ECC_SECP256R1       },
+    { "prime256v1",      10, ECC_SECP256R1       },
+    { "secp112r1",       9,  ECC_SECP112R1       },
+    { "secp112r2",       9,  ECC_SECP112R2       },
+    { "secp128r1",       9,  ECC_SECP128R1       },
+    { "secp128r2",       9,  ECC_SECP128R2       },
+    { "secp160r1",       9,  ECC_SECP160R1       },
+    { "secp160r2",       9,  ECC_SECP160R2       },
+    { "secp224r1",       9,  ECC_SECP224R1       },
+    { "secp384r1",       9,  ECC_SECP384R1       },
+    { "secp521r1",       9,  ECC_SECP521R1       },
+    { "secp160k1",       9,  ECC_SECP160K1       },
+    { "secp192k1",       9,  ECC_SECP192K1       },
+    { "secp224k1",       9,  ECC_SECP224K1       },
+    { "secp256k1",       9,  ECC_SECP256K1       },
+    { "brainpoolp160r1", 15, ECC_BRAINPOOLP160R1 },
+    { "brainpoolp192r1", 15, ECC_BRAINPOOLP192R1 },
+    { "brainpoolp224r1", 15, ECC_BRAINPOOLP224R1 },
+    { "brainpoolp256r1", 15, ECC_BRAINPOOLP256R1 },
+    { "brainpoolp320r1", 15, ECC_BRAINPOOLP320R1 },
+    { "brainpoolp384r1", 15, ECC_BRAINPOOLP384R1 },
+    { "brainpoolp512r1", 15, ECC_BRAINPOOLP512R1 },
+#ifdef HAVE_CURVE25519
+    { "x25519",          6,  ECC_X25519          },
+#endif
+#ifdef HAVE_X448
+    { "x448",            4,  ECC_X448            },
+#endif
+#ifdef WOLFSSL_CUSTOM_CURVES
+    { "custom",          6,  ECC_CURVE_CUSTOM    },
+#endif
+};
+int num_ecc_curves = sizeof(ecc_curves) / sizeof(ecc_curves[0]);
+
 int wolfCLU_genKeySetup(int argc, char** argv)
 {
     char     keyOutFName[MAX_FILENAME_SZ];  /* default outFile for genKey */
     char     defaultFormat[4] = "der\0";
-    FILE*    fStream;
     WC_RNG   rng;
 
     char*    keyType = NULL;       /* keyType */
     char*    format  = defaultFormat;
 
     int      formatArg  =   DER_FORM;
-    int      size       =   0;  /* keysize */
     int      ret        =   0;  /* return variable */
     int      i          =   0;  /* loop counter */
 
@@ -46,43 +86,9 @@ int wolfCLU_genKeySetup(int argc, char** argv)
 
     ret = wolfCLU_checkForArg("-list_curves", 12, argc, argv);
     if (ret > 0) {
-        printf("  default\n"); /* ECC_CURVE_DEF */
-        printf("  secp192r1\n");
-        printf("  prime192v2\n");
-        printf("  prime192v3\n");
-        printf("  prime239v1\n");
-        printf("  prime239v2\n");
-        printf("  prime239v3\n");
-        printf("  secp256r1\n");
-        printf("  secp112r1\n");
-        printf("  secp112r2\n");
-        printf("  secp128r1\n");
-        printf("  secp128r2\n");
-        printf("  secp160r1\n");
-        printf("  secp160r2\n");
-        printf("  secp224r1\n");
-        printf("  secp384r1\n");
-        printf("  secp521r1\n");
-        printf("  secp160k1\n");
-        printf("  secp192k1\n");
-        printf("  secp224k1\n");
-        printf("  secp256k1\n");
-        printf("  brainpoolp160r1\n");
-        printf("  brainpoolp192r1\n");
-        printf("  brainpoolp224r1\n");
-        printf("  brainpoolp256r1\n");
-        printf("  brainpoolp320r1\n");
-        printf("  brainpoolp384r1\n");
-        printf("  brainpoolp512r1\n");
-    #ifdef HAVE_CURVE25519
-        printf("  x25519\n");
-    #endif
-    #ifdef HAVE_X448
-        printf("  x448\n");
-    #endif
-    #ifdef WOLFSSL_CUSTOM_CURVES
-        printf("  custom\n"); /* ECC_CURVE_CUSTOM */
-    #endif
+        for (i = 0; i < num_ecc_curves; ++i) {
+            printf("  %s\n", ecc_curves[i].name);
+        }
         return 0;
     }
 
@@ -210,114 +216,14 @@ int wolfCLU_genKeySetup(int argc, char** argv)
         /* get the directive argument */
         ret = wolfCLU_checkForArg("-curve", 6, argc, argv);
         if (ret > 0) {
-            /* Note: if you add something to this list, also add it to the
-             * -list_curves output above */
-
-            if (XSTRNCMP(argv[ret+1], "default", 9) == 0) {
-                curveId = ECC_CURVE_DEF;
-            }
-            else if (XSTRNCMP(argv[ret+1], "secp192r1", 9) == 0) {
-                curveId = ECC_SECP192R1;
-            }
-            else if (XSTRNCMP(argv[ret+1], "prime192v2", 10) == 0) {
-                curveId = ECC_PRIME192V2;
-            }
-            else if (XSTRNCMP(argv[ret+1], "prime192v3", 10) == 0) {
-                curveId = ECC_PRIME192V3;
-            }
-            else if (XSTRNCMP(argv[ret+1], "prime239v1", 10) == 0) {
-                curveId = ECC_PRIME239V1;
-            }
-            else if (XSTRNCMP(argv[ret+1], "prime239v2", 10) == 0) {
-                curveId = ECC_PRIME239V2;
-            }
-            else if (XSTRNCMP(argv[ret+1], "prime239v3", 10) == 0) {
-                curveId = ECC_PRIME239V3;
-            }
-            else if (XSTRNCMP(argv[ret+1], "secp256r1", 9) == 0 ||
-                     XSTRNCMP(argv[ret+1], "prime256v1", 10) == 0) {
-                curveId = ECC_SECP256R1;
-            }
-            else if (XSTRNCMP(argv[ret+1], "secp112r1", 9) == 0) {
-                curveId = ECC_SECP112R1;
-            }
-            else if (XSTRNCMP(argv[ret+1], "secp112r2", 9) == 0) {
-                curveId = ECC_SECP112R2;
-            }
-            else if (XSTRNCMP(argv[ret+1], "secp128r1", 9) == 0) {
-                curveId = ECC_SECP128R1;
-            }
-            else if (XSTRNCMP(argv[ret+1], "secp128r2", 9) == 0) {
-                curveId = ECC_SECP128R2;
-            }
-            else if (XSTRNCMP(argv[ret+1], "secp160r1", 9) == 0) {
-                curveId = ECC_SECP160R1;
-            }
-            else if (XSTRNCMP(argv[ret+1], "secp160r2", 9) == 0) {
-                curveId = ECC_SECP160R2;
-            }
-            else if (XSTRNCMP(argv[ret+1], "secp224r1", 9) == 0) {
-                curveId = ECC_SECP224R1;
-            }
-            else if (XSTRNCMP(argv[ret+1], "secp384r1", 9) == 0) {
-                curveId = ECC_SECP384R1;
-            }
-            else if (XSTRNCMP(argv[ret+1], "secp521r1", 9) == 0) {
-                curveId = ECC_SECP521R1;
-            }
-            else if (XSTRNCMP(argv[ret+1], "secp160k1", 9) == 0) {
-                curveId = ECC_SECP160K1;
-            }
-            else if (XSTRNCMP(argv[ret+1], "secp192k1", 9) == 0) {
-                curveId = ECC_SECP192K1;
-            }
-            else if (XSTRNCMP(argv[ret+1], "secp224k1", 9) == 0) {
-                curveId = ECC_SECP224K1;
-            }
-            else if (XSTRNCMP(argv[ret+1], "secp256k1", 9) == 0) {
-                curveId = ECC_SECP256K1;
-            }
-            else if (XSTRNCMP(argv[ret+1], "brainpoolp160r1", 15) == 0) {
-                curveId = ECC_BRAINPOOLP160R1;
-            }
-            else if (XSTRNCMP(argv[ret+1], "brainpoolp192r1", 15) == 0) {
-                curveId = ECC_BRAINPOOLP192R1;
-            }
-            else if (XSTRNCMP(argv[ret+1], "brainpoolp224r1", 15) == 0) {
-                curveId = ECC_BRAINPOOLP224R1;
-            }
-            else if (XSTRNCMP(argv[ret+1], "brainpoolp256r1", 15) == 0) {
-                curveId = ECC_BRAINPOOLP256R1;
-            }
-            else if (XSTRNCMP(argv[ret+1], "brainpoolp320r1", 15) == 0) {
-                curveId = ECC_BRAINPOOLP320R1;
-            }
-            else if (XSTRNCMP(argv[ret+1], "brainpoolp384r1", 15) == 0) {
-                curveId = ECC_BRAINPOOLP384R1;
-            }
-            else if (XSTRNCMP(argv[ret+1], "brainpoolp512r1", 15) == 0) {
-                curveId = ECC_BRAINPOOLP512R1;
-            }
-        #ifdef HAVE_CURVE25519
-            else if (XSTRNCMP(argv[ret+1], "x25519", 6) == 0) {
-                curveId = ECC_X25519;
-            }
-        #endif
-        #ifdef HAVE_X448
-            else if (XSTRNCMP(argv[ret+1], "x448", 4) == 0) {
-                curveId = ECC_X448;
-            }
-        #endif
-        #ifdef WOLFSSL_CUSTOM_CURVES
-            else if (XSTRNCMP(argv[ret+1], "custom", 12) == 0) {
-                curveId = ECC_CURVE_CUSTOM;
-            }
-        #endif
-            else {
-                printf("%s: '%s' is not a valid curve. Use -list_curves to "
-                       "get a list of valid curves.\n", argv[0], argv[ret+1]);
-                printf("DEFAULT: using \"default\" for default curve.\n");
-                curveId = ECC_CURVE_DEF;
+            for (i = 0; i < num_ecc_curves; ++i) {
+                if (XSTRNCMP(argv[ret+1], ecc_curves[i].name,
+                             ecc_curves[i].len) == 0) {
+                    printf("DEBUG: got '%s' (id %d)\n", ecc_curves[i].name,
+                           ecc_curves[i].id);
+                    curveId = ecc_curves[i].id;
+                    break;
+                }
             }
         } else {
             printf("No -curve <ID>\n");
