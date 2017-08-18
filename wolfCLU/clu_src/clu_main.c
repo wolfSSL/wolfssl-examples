@@ -73,6 +73,8 @@ int main(int argc, char** argv)
         case ALL:      /* Opt to benchmark all available algorithms */
         case SIZE:     /* size for hash or key to output            */
         case EXPONENT: /* exponent for generating RSA key           */
+        case CURVE:    /* curve for generating ECC key              */
+        case LIST_CURVES: /* list curves for generating ECC keys    */
         case TIME:     /* Time to benchmark for                     */
         case VERIFY:   /* Verify results, used with -iv and -key    */
         case INFORM:   /* Certificate Stuff                         */
