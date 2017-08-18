@@ -53,6 +53,7 @@ int wolfCLU_certSetup(int argc, char** argv, int offset)
     char* inform;           /* the input format */
     char* outform;          /* the output format */
 
+    (void)offset;
 
 /*---------------------------------------------------------------------------*/
 /* help */

@@ -47,6 +47,10 @@ int wolfCLU_genKeySetup(int argc, char** argv, int offset)
     XMEMSET(keyOutFName, 0, MAX_FILENAME_SZ);
 
     keyType = argv[offset+1];
+    if (keyType == NULL) {
+        printf("No key type provided.\n");
+        return USER_INPUT_ERROR;
+    }
 
     ret = wc_InitRng(&rng);
 

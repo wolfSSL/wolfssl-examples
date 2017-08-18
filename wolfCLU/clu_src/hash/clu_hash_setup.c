@@ -75,7 +75,11 @@ int wolfCLU_hashSetup(int argc, char** argv, int offset)
         return 0;
     }
 
-    for (i = 0; i < (int)algsSz; ++i) {
+    if (argv[offset+1] == NULL) {
+        printf("No algorithm provided\n");
+        return FATAL_ERROR;
+    }
+    else for (i = 0; i < (int)algsSz; ++i) {
         /* checks for acceptable algorithms */
         if (XSTRNCMP(argv[offset+1], algs[i], XSTRLEN(algs[i])) == 0) {
             alg = argv[offset+1];

@@ -23,6 +23,10 @@
 
 int wolfCLU_requestSetup(int argc, char** argv, int offset)
 {
+    (void)argc;
+    (void)argv;
+    (void)offset;
+
     return 0;
 }
 
