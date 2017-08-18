@@ -104,9 +104,14 @@ int main(int argc, char** argv)
         }
     }
 
-    /* @temporary: implement mode as a flag */
-    /* @temporary: implement modes as flags */
-    if (XSTRNCMP(argv[optind], "encrypt", 7) == 0) {
+    /* look for modes */
+
+    if (argv[optind] == NULL) {
+        if (helpCheck == 1) {
+            wolfCLU_help();
+        }
+    }
+    else if (XSTRNCMP(argv[optind], "encrypt", 7) == 0) {
         ret = wolfCLU_setup(argc, argv, optind, 'e');
     }
     else if (XSTRNCMP(argv[optind], "decrypt", 7) == 0) {
@@ -126,9 +131,6 @@ int main(int argc, char** argv)
     }
     else if (XSTRNCMP(argv[optind], "genkey", 6) == 0) {
         ret = wolfCLU_genKeySetup(argc, argv, optind);
-    }
-    else if (helpCheck == 1) {
-        wolfCLU_help();
     }
     else {
         printf("%s: '%s' is not a valid mode. Please consult -help\n",
