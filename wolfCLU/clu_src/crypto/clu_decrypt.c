@@ -22,7 +22,7 @@
 #include "clu_include/clu_header_main.h"
 #include "clu_include/genkey/clu_genkey.h"
 
-#define MAX             1024
+#define MAX_LEN             1024
 
 int wolfCLU_decrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size, 
         char* in, char* out, byte* iv, int block, int keyType)
@@ -54,7 +54,7 @@ int wolfCLU_decrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
     int     i            = 0;           /* loop variable */
     int     pad          = 0;           /* the length to pad */
     int     length;                     /* length of message */
-    int     tempMax = MAX;              /* equal to MAX until feof */
+    int     tempMax = MAX_LEN;              /* equal to MAX_LEN until feof */
     int     sbSize = SALT_SIZE + block; /* size of salt and iv together */
 
     /* opens input file */
@@ -78,17 +78,17 @@ int wolfCLU_decrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
     /* if there is a remainder, 
      * round up else no round 
      */
-    if (length % MAX > 0) {
-        lastLoopFlag = (length/MAX) + 1;
+    if (length % MAX_LEN > 0) {
+        lastLoopFlag = (length/MAX_LEN) + 1;
     }
     else {
-        lastLoopFlag =  length/MAX;
+        lastLoopFlag =  length/MAX_LEN;
     }
 
-    input = (byte*) XMALLOC(MAX, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    input = (byte*) XMALLOC(MAX_LEN, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
     if (input == NULL)
         return MEMORY_E;
-    output = (byte*) XMALLOC(MAX, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    output = (byte*) XMALLOC(MAX_LEN, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
     if (output == NULL) {
         wolfCLU_freeBins(input, NULL, NULL, NULL, NULL);
     }
@@ -142,7 +142,7 @@ int wolfCLU_decrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
         }
 
         /* Read in 1kB */
-        if ((ret = (int) fread(input, 1, MAX, inFile)) != MAX) {
+        if ((ret = (int) fread(input, 1, MAX_LEN, inFile)) != MAX_LEN) {
             if (feof(inFile)) {
                 tempMax = ret;
             }
@@ -239,8 +239,8 @@ int wolfCLU_decrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
         length -= tempMax;
     }
     /* closes the opened files and frees memory */
-    XMEMSET(input, 0, MAX);
-    XMEMSET (output, 0, MAX);
+    XMEMSET(input, 0, MAX_LEN);
+    XMEMSET (output, 0, MAX_LEN);
     wolfCLU_freeBins(input, output, NULL, NULL, NULL);
     XMEMSET(key, 0, size);
     /* Use the wolfssl wc_FreeRng to free rng */

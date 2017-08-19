@@ -22,7 +22,7 @@
 #include "clu_include/clu_header_main.h"
 #include "clu_include/genkey/clu_genkey.h"
 
-#define MAX             1024
+#define MAX_LEN             1024
 
 int wolfCLU_encrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
         char* in, char* out, byte* iv, int block, int ivCheck, int inputHex)
@@ -57,9 +57,9 @@ int wolfCLU_encrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
     int     hexRet          = 0;    /* hex -> bin return*/
 
     word32  tempInputL      = 0;    /* temporary input Length */
-    word32  tempMax         = MAX;  /* controls encryption amount */
+    word32  tempMax         = MAX_LEN;  /* controls encryption amount */
 
-    char    inputString[MAX];       /* the input string */
+    char    inputString[MAX_LEN];       /* the input string */
     char*   userInputBuffer = NULL; /* buffer when input is not a file */
 
 
@@ -142,10 +142,10 @@ int wolfCLU_encrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
     fclose(outFile);
 
     /* MALLOC 1kB buffers */
-    input = (byte*) XMALLOC(MAX, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    input = (byte*) XMALLOC(MAX_LEN, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
     if (input == NULL)
         return MEMORY_E;
-    output = (byte*) XMALLOC(MAX, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    output = (byte*) XMALLOC(MAX_LEN, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
     if (output == NULL) {
         wolfCLU_freeBins(input, NULL, NULL, NULL, NULL);
         return MEMORY_E;
@@ -155,11 +155,11 @@ int wolfCLU_encrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
     while (length > 0) {
         /* Read in 1kB to input[] */
         if (inputHex == 1)
-            ret = (int) fread(inputString, 1, MAX, inFile);
+            ret = (int) fread(inputString, 1, MAX_LEN, inFile);
         else
-            ret = (int) fread(input, 1, MAX, inFile);
+            ret = (int) fread(input, 1, MAX_LEN, inFile);
 
-        if (ret != MAX) {
+        if (ret != MAX_LEN) {
             /* check for end of file */
             if (feof(inFile)) {
 
@@ -280,7 +280,7 @@ int wolfCLU_encrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
             wolfCLU_freeBins(input, output, NULL, NULL, NULL);
             return FWRITE_ERROR;
         }
-        if (ret > MAX) {
+        if (ret > MAX_LEN) {
             printf("Wrote too much to file.\n");
             if (input != NULL)
                 XMEMSET(input, 0, tempMax);

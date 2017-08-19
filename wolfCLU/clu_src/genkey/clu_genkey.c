@@ -161,7 +161,7 @@ int wolfCLU_genKey_ECC(RNG* rng, char* fName, int directive, int fmt,
     char* fOutNameBuf = NULL;
 
     size_t maxDerBufSz = 4 * keySz * AES_BLOCK_SIZE;
-    char*  derBuf      = NULL;
+    byte*  derBuf      = NULL;
     int    derBufSz    = -1;
 
     if (rng == NULL || fName == NULL)
@@ -196,7 +196,7 @@ int wolfCLU_genKey_ECC(RNG* rng, char* fName, int directive, int fmt,
     XMEMSET(fOutNameBuf, 0, fNameSz + fExtSz);
     XMEMCPY(fOutNameBuf, fName, fNameSz);
 
-    derBuf = (char*)XMALLOC(maxDerBufSz, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    derBuf = XMALLOC(maxDerBufSz, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
     if (derBuf == NULL) {
         XFREE(fOutNameBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
         return MEMORY_E;
@@ -300,7 +300,7 @@ int wolfCLU_genKey_RSA(RNG* rng, char* fName, int directive, int fmt, int
     char* fOutNameBuf = NULL;
 
     size_t maxDerBufSz = 5 * keySz * AES_BLOCK_SIZE;
-    char*  derBuf      = NULL;
+    byte*  derBuf      = NULL;
     int    derBufSz    = -1;
 
     if (rng == NULL || fName == NULL)
@@ -331,7 +331,7 @@ int wolfCLU_genKey_RSA(RNG* rng, char* fName, int directive, int fmt, int
     XMEMSET(fOutNameBuf, 0, fNameSz + fExtSz);
     XMEMCPY(fOutNameBuf, fName, fNameSz);
 
-    derBuf = (char*)XMALLOC(maxDerBufSz, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    derBuf = XMALLOC(maxDerBufSz, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
     if (derBuf == NULL) {
         XFREE(fOutNameBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
         return MEMORY_E;
