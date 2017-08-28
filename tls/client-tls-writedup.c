@@ -35,8 +35,8 @@
 #include <unistd.h>
 
 /* wolfSSL */
-#include <wolfssl/ssl.h>
 #include <wolfssl/options.h>
+#include <wolfssl/ssl.h>
 
 /* check for writedup */
 #ifndef HAVE_WRITE_DUP
