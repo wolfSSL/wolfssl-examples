@@ -331,7 +331,7 @@ int wolfCLU_genKey_RSA(RNG* rng, char* fName, int directive, int fmt, int
     XMEMSET(fOutNameBuf, 0, fNameSz + fExtSz);
     XMEMCPY(fOutNameBuf, fName, fNameSz);
 
-    derBuf = XMALLOC(maxDerBufSz, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    derBuf = (byte*) XMALLOC(maxDerBufSz, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
     if (derBuf == NULL) {
         XFREE(fOutNameBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
         return MEMORY_E;
