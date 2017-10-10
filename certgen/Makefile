@@ -13,12 +13,16 @@ CFLAGS=-Wall
 LIBS=-lwolfssl
 
 
-all:run_certgen_example
+all:certgen_example csr_example
 
-run_certgen_example:test.o
+certgen_example:certgen_example.o
+	$(CC) -o $@ $^ $(CFLAGS) $(CPPFLAGS) $(LIBS)
+
+csr_example:csr_example.o
 	$(CC) -o $@ $^ $(CFLAGS) $(CPPFLAGS) $(LIBS)
 
 .PHONY: clean all
 
 clean:
 	rm -f *.o test.o run*
+	rm newCert.*
