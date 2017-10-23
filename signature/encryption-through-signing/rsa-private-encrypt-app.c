@@ -72,7 +72,8 @@ int main(void)
     /* Sign the AES key effectively "Encrypting it with the private key" */
     ret = wc_RsaSSL_Sign(in, inLen, out, outSz, &key, &rng);
     check_ret(ret, "wc_RsaSSL_Sign");
-// WRITE OUT TO FILE!
+
+    /* Output to file */
     fStream = fopen(fName, "wb");
     if (!fStream) {
         printf("Failed to open file: %s\n", fName);
@@ -81,15 +82,6 @@ int main(void)
     ret = (int) fwrite(out, 1, RSA_TEST_BYTES, fStream);
     check_ret(ret, "fwrite the rsa key to file");
     fclose(fStream);
-
-//    idx = (word32)ret;
-//IDX should be 256 here!
-//    XMEMSET(plain, 0, plainSz);
-
-//    ret = wc_RsaSSL_Verify(out, idx, plain, plainSz, &key);
-//    check_ret(ret, "wc_RsaSSL_Verify");
-//check_buf((char*)out, "out"); OUT=ENCRYPTED
-//check_buf((char*)plain, "plain"); PLAIN=DECRYPTED
 
     return ret;
 }
