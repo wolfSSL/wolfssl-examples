@@ -48,7 +48,7 @@ int main(void)
 
     /* Decode the public key from buffer "tmp" into RsaKey stucture "key"  */
     ret = wc_RsaPublicKeyDecode(tmp, &idx, &key, (word32)bytes);
-    check_ret(ret, "wc_RsaPrivateKeyDecode");
+    check_ret(ret, "wc_RsaPublicKeyDecode");
 
     fStream = fopen(fName, "rb");
     if (!fStream) {
@@ -56,8 +56,11 @@ int main(void)
         return -99;
     }
     ret = (int) fread(out, 1, RSA_TEST_BYTES, fStream);
-    check_ret(ret, "fread the rsa key to file");
     fclose(fStream);
+    if (ret <= 0) {
+        printf("Something went wrong, please check the file: %s\n", fName);
+        return ret;
+    }
 
     idx = (word32)ret; /* number of bytes read in from the file */
     XMEMSET(plain, 0, plainSz);
