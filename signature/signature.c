@@ -32,6 +32,7 @@
 #include <stdio.h>
 
 #define RSA_KEY_SIZE    2048
+#define DER_FILE_BUFFER 2048 /* max DER size */
 
 void hexdump(const void *buffer, word32 len, byte cols)
 {
@@ -173,14 +174,15 @@ int rsa_load_der_file(const char* derFile, RsaKey *rsaKey)
     int ret = EXIT_FAILURE;
     FILE *file;
     byte *buffer = NULL;
+    word32 bufSize = DER_FILE_BUFFER;
     word32 bytes = 0;
     word32 idx = 0;
 
     file = fopen(derFile, "rb");
     if (file) {
-        buffer = malloc(RSA_KEY_SIZE);
+        buffer = malloc(bufSize);
         if(buffer) {
-            bytes = fread(buffer, 1, RSA_KEY_SIZE, file);
+            bytes = fread(buffer, 1, bufSize, file);
             fclose(file);
         }
     }
@@ -210,8 +212,19 @@ int rsa_sign_verify_test(enum wc_HashType hash_type, enum wc_SignatureType sig_t
 #endif
 
     /* Init */
-    wc_InitRng(&rng);
-    wc_InitRsaKey(&rsaKey, NULL);
+    ret = wc_InitRng(&rng);
+    if (ret != 0) {
+        printf("Init RNG failed! %d\n", ret);
+        ret = EXIT_FAILURE;
+        goto exit;
+    }
+
+    ret = wc_InitRsaKey(&rsaKey, NULL);
+    if (ret != 0) {
+        printf("Init RSA key failed! %d\n", ret);
+        ret = EXIT_FAILURE;
+        goto exit;
+    }
 
     printf("RSA Key Size %d\n", RSA_KEY_SIZE);
 
@@ -223,7 +236,7 @@ int rsa_sign_verify_test(enum wc_HashType hash_type, enum wc_SignatureType sig_t
     }
 
     /* Display key data */
-    rsaKeyLen = RSA_KEY_SIZE;
+    rsaKeyLen = DER_FILE_BUFFER;
     rsaKeyBuf = malloc(rsaKeyLen);
     ret = wc_RsaKeyToDer(&rsaKey, rsaKeyBuf, rsaKeyLen);
     if (ret <= 0) {
@@ -235,7 +248,7 @@ int rsa_sign_verify_test(enum wc_HashType hash_type, enum wc_SignatureType sig_t
     printf("RSA Key: Len %d\n", rsaKeyLen);
     hexdump(rsaKeyBuf, rsaKeyLen, 16);
 
-    rsaPubKeyLen = RSA_KEY_SIZE;
+    rsaPubKeyLen = DER_FILE_BUFFER;
     rsaPubKeyBuf = malloc(rsaPubKeyLen);
     ret = wc_RsaKeyToPublicDer(&rsaKey, rsaPubKeyBuf, rsaPubKeyLen);
     if (ret <= 0) {
