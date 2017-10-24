@@ -80,8 +80,10 @@ int main(void)
         return -99;
     }
     ret = (int) fwrite(out, 1, RSA_TEST_BYTES, fStream);
-    check_ret(ret, "fwrite the rsa key to file");
     fclose(fStream);
+    if (ret <= 0) {
+        printf("Something went wrong writing to file %s\n", fName);
+    }
 
     return ret;
 }
