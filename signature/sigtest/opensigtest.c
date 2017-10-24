@@ -139,17 +139,19 @@ int SignVerify_OpenSSL(void)
             iRetval = 0;
          }
 #if 1
-         // Verify Signature with "expected_signature_results"
-         iRetval = RSA_verify(NID_sha1, abDigest, SHA1_HASH_LEN, &expected_signed_results[0], SIGNED_LEN, rsa);
-         if(iRetval != 1)
-         {
-            printf("CRYPTO: Internal error, EXPECTED signature does not verify\n");
-            iRetval = -2;
-         }
-         else
-         {
-            printf("CRYPTO: EXPECTED signature verify OK! %d\n", iRetval);
-            iRetval = 0;
+         if (iRetval == 0) {
+            // Verify Signature with "expected_signature_results"
+            iRetval = RSA_verify(NID_sha1, abDigest, SHA1_HASH_LEN, &expected_signed_results[0], SIGNED_LEN, rsa);
+            if(iRetval != 1)
+            {
+              printf("CRYPTO: Internal error, EXPECTED signature does not verify\n");
+              iRetval = -2;
+            }
+            else
+            {
+              printf("CRYPTO: EXPECTED signature verify OK! %d\n", iRetval);
+              iRetval = 0;
+            }
          }
 #endif
       }

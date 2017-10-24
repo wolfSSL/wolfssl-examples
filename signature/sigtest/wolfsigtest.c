@@ -187,7 +187,7 @@ int main(int argc, char** argv)
        /* Use digest for RSA verify */
        ret = wc_RsaSSL_Verify(Sig_buf, Sig_len, DigestVer_buf, DigestVer_len, &rsakey);
        if (ret != Digest_len || XMEMCMP(DigestVer_buf, Digest_buf, Digest_len) != 0) {
-          printf("RSA Verify Failed! %d\n", ret);
+            printf("RSA Verify Failed! %d\n", ret);
        }
        else {
            printf("RSA Verify Success!\n");
@@ -196,9 +196,11 @@ int main(int argc, char** argv)
        print_buf("Ecpected Verify Data:", DigestVer_buf, DigestVer_len);
        print_buf("RSA Verify Data:", Digest_buf, Digest_len);
 
-       ret = wc_SignatureVerify(hash_type, sig_type, Digest_given, sizeof(Digest_given), Sig_buf, Sig_len, &rsakey, sizeof(rsakey));
-       printf("Sig Verification: %s (%d)\n", (ret == wc_HashGetDigestSize(hash_type)) ? "Pass" : "Fail", ret);
-       print_buf("Sig Verify Data:", Digest_buf, Digest_len);
+       if (ret == 0) {
+           ret = wc_SignatureVerify(hash_type, sig_type, Digest_given, sizeof(Digest_given), Sig_buf, Sig_len, &rsakey, sizeof(rsakey));
+           printf("Sig Verification: %s (%d)\n", (ret == wc_HashGetDigestSize(hash_type)) ? "Pass" : "Fail", ret);
+           print_buf("Sig Verify Data:", Digest_buf, Digest_len);
+       }
    }
 
    /* Verify against expected signature */

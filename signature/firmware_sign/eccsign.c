@@ -5,23 +5,6 @@
 #include <wolfssl/wolfcrypt/ecc.h>
 #include <wolfssl/wolfcrypt/random.h>
 
-/*
-./configure --enable-ecc && make && sudo make install
-gcc -Wall eccsign.c -lwolfssl -o eccsign
-
-./eccsign
-Firmware Signature 0: Ret 0, HashLen 32, SigLen 71
-Firmware Signature 1: Ret 0, HashLen 32, SigLen 71
-Firmware Signature 2: Ret 0, HashLen 32, SigLen 71
-Firmware Signature 3: Ret 0, HashLen 32, SigLen 72
-Firmware Signature 4: Ret 0, HashLen 32, SigLen 71
-Firmware Signature 5: Ret 0, HashLen 32, SigLen 71
-Firmware Signature 6: Ret 0, HashLen 32, SigLen 71
-Firmware Signature 7: Ret 0, HashLen 32, SigLen 70
-Firmware Signature 8: Ret 0, HashLen 32, SigLen 70
-Firmware Signature 9: Ret 0, HashLen 32, SigLen 70
-*/
-
 static const int gFwLen = (1024 * 1024);
 static const int gFwChunkLen = 128;
 static byte gFwBuf[gFwLen];
@@ -84,7 +67,7 @@ static int HashFirmware(byte* hashBuf)
             sz = gFwChunkLen;
 
         /* update hash */
-        ret = wc_Sha256Update(&sha, &gFwBuf[idx], sz);
+        ret = wc_Sha256Update(&sha, &gFwBuf[idx], (word32)sz);
         if (ret != 0)
             break;
 
@@ -101,7 +84,7 @@ static int HashFirmware(byte* hashBuf)
     return ret;
 }
 
-static int SignFirmware(byte* hashBuf, int hashLen, byte* sigBuf, word32* sigLen)
+static int SignFirmware(byte* hashBuf, word32 hashLen, byte* sigBuf, word32* sigLen)
 {
     int ret = 0;
     WC_RNG rng;
@@ -136,7 +119,7 @@ int main(void)
 {
     int ret;
     byte hashBuf[SHA256_DIGEST_SIZE];
-    int hashLen = SHA256_DIGEST_SIZE;
+    word32 hashLen = SHA256_DIGEST_SIZE;
     byte sigBuf[ECC_MAX_SIG_SIZE];
     word32 sigLen = ECC_MAX_SIG_SIZE;
     int i;
