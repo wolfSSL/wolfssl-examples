@@ -40,8 +40,9 @@
 
 /* check for writedup */
 #ifndef HAVE_WRITE_DUP
-    #error "wolfSSL must be configured and installed with --enable-writedup"
-#endif
+    #warning "wolfSSL must be configured and installed with --enable-writedup"
+    int main(int argc, char** argv) { printf("Not compiled in\n"); return 0; }
+#else
 
 /* threads */
 #include <pthread.h>
@@ -216,3 +217,5 @@ int main(int argc, char** argv)
     close(sockfd);          /* Close the connection to the server       */
     return 0;               /* Return reporting a success               */
 }
+
+#endif
