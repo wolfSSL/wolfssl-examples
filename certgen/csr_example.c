@@ -69,7 +69,7 @@ int main(void)
 
     req.sigType = CTC_SHA256wECDSA;
     ret = wc_SignCert(req.bodySz, req.sigType, der, sizeof(der), NULL, &key, &rng);
-    if (ret != 0) {
+    if (ret <= 0) {
         printf("Sign Cert failed: %d\n", ret);
         goto exit;
     }
