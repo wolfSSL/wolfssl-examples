@@ -1,20 +1,57 @@
-To build this example configure wolfssl with --enable-certgen
+# Certficate Generation and Signing examples
+
+To build this example configure wolfssl with `./configure --enable-certgen --enable-certreq` or add the defines:
+
+```
+#define WOLFSSL_CERT_REQ
+#define WOLFSSL_CERT_GEN
+```
+
+To build use `make`. To cleanup use `make clean`.
 
 If having issues building please check comments in the Makefile for setting
 up your environment
 
+
+## Certificate Generation Example
+
 To run the test do:
 
 ```
-make
-./run_certgen_example
+./certgen_example
+Open and read in der formatted certificate
+Successfully read 1198 bytes
+
+Getting the caKey from ./ca-key.der
+Successfully read 121 bytes
+Init ecc Key
+Decode the private key
+Successfully retrieved caKey
+
+initializing the rng
+Generating a new ecc key
+Successfully created new ecc key
+
+Setting new cert issuer to subject of signer
+MakeCert returned 479
+SignCert returned 570
+Successfully created new certificate
+Writing newly generated certificate to file "./newCert.der"
+Successfully output 570 bytes
+Convert the der cert to pem formatted cert
+Resulting pem buffer is 826 bytes
+Successfully converted the der to pem. Result is in:  ./newCert.pem
+
+Tests passed
 ```
 
 You should see the following output when the cert is converted to human
 readable format.
 
 ```
-ertificate:
+openssl x509 -inform pem -in newCert.pem -text
+
+Certificate:
     Data:
         Version: 3 (0x2)
         Serial Number: 81179639550048334 (0x1206873ba5ff84e)
@@ -57,3 +94,23 @@ GV+4MAoGCCqGSM49BAMCA0gAMEUCIHURDOezcyCI0mdp8hpG+9JnMcfHWLSd4kiV
 
 ```
 
+
+## Certificate Signing Request (CSR) Example
+
+```
+./csr_example
+-----BEGIN EC PRIVATE KEY-----
+MHcCAQEEIMyXi4zh0EKTfZv2Mdyz9TR97aY8zmuP/Mt41Y8UczfsoAoGCCqGSM49
+AwEHoUQDQgAENfB16kF8KZuVQC0744AgiSY5bpuLRegTXJ4JTgCzSWaSHLXZC+CJ
+a/0yDzI6bQtDdzNZ0M+0/O+VolN10GaAZw==
+-----END EC PRIVATE KEY-----
+-----BEGIN CERTIFICATE REQUEST-----
+MIIBSTCB8QIBAjCBjjELMAkGA1UEBhMCVVMxCzAJBgNVBAgMAk9SMREwDwYDVQQH
+DAhQb3J0bGFuZDEOMAwGA1UECgwFeWFTU0wxFDASBgNVBAsMC0RldmVsb3BtZW50
+MRgwFgYDVQQDDA93d3cud29sZnNzbC5jb20xHzAdBgkqhkiG9w0BCQEWEGluZm9A
+d29sZnNzbC5jb20wWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAAQ18HXqQXwpm5VA
+LTvjgCCJJjlum4tF6BNcnglOALNJZpIctdkL4Ilr/TIPMjptC0N3M1nQz7T875Wi
+U3XQZoBnoAAwCgYIKoZIzj0EAwIDRwAwRAIgVh5iGYVmbwR4fhdjzCMI06wn2lGS
+SmRM6YTRfMWRoSICIAlMGjRJlBKB9dlmukCdlHH3GXNOiKw1+iP/kApE8tRm
+-----END CERTIFICATE REQUEST-----
+```
