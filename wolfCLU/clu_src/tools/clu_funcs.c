@@ -79,8 +79,9 @@ void wolfCLU_verboseHelp()
 
     /* hash options */
     const char* algsenc[] = {        /* list of acceptable algorithms */
+    "Algorihms:"
 #ifndef NO_MD5
-        "md5"
+        ,"md5"
 #endif
 #ifndef NO_SHA
         ,"sha"
@@ -107,8 +108,9 @@ void wolfCLU_verboseHelp()
 
     /* benchmark options */
     const char* algsother[] = {      /* list of acceptable algorithms */
+        "ALGS: "
 #ifndef NO_AES
-        "aes-cbc"
+        , "aes-cbc"
 #endif
 #ifdef WOLFSSL_AES_COUNTER
         , "aes-ctr"
@@ -234,8 +236,9 @@ void wolfCLU_hashHelp()
     printf("\n");
     /* hash options */
     const char* algsenc[] = {        /* list of acceptable algorithms */
+    "Algorithms: "
 #ifndef NO_MD5
-        "md5"
+        ,"md5"
 #endif
 #ifndef NO_SHA
         ,"sha"
@@ -280,8 +283,9 @@ void wolfCLU_benchHelp()
 
     /* benchmark options */
     const char* algsother[] = {      /* list of acceptable algorithms */
+        "ALGS: "
 #ifndef NO_AES
-        "aes-cbc"
+        , "aes-cbc"
 #endif
 #ifdef WOLFSSL_AES_COUNTER
         , "aes-ctr"
@@ -340,6 +344,24 @@ void wolfCLU_certHelp()
 }
 
 void wolfCLU_genKeyHelp() {
+
+        const char* keysother[] = { /* list of acceptable key types */
+        "KEYS: "
+    #ifdef HAVE_ED25519
+        ,"ed25519"
+    #endif
+    #ifdef HAVE_ECC
+        ,"ecc"
+    #endif
+    #ifdef HAVE_CURVE25519
+        ,"curve25519"
+    #endif
+        };
+
+        printf("Available keys with current configure settings:\n");
+        for(i = 0; i < (int) sizeof(keysother)/(int) sizeof(keysother[0]); i++) {
+            printf("%s\n", keysother[i]);
+        }
     printf("\n\n");
     printf("***************************************************************\n");
     printf("\ngenkey USAGE:\nwolfssl -genkey <keytype> -out <filename> -outform"
@@ -364,8 +386,9 @@ int wolfCLU_getAlgo(char* name, char** alg, char** mode, int* size)
     char*   sz          = 0;        /* key size provided */
 
     const char* acceptAlgs[]  = {   /* list of acceptable algorithms */
+        "ALGS: "
 #ifndef NO_AES
-        "aes"
+        , "aes"
 #endif
 #ifndef NO_DES3
         , "3des"
@@ -406,38 +429,50 @@ int wolfCLU_getAlgo(char* name, char** alg, char** mode, int* size)
     *size = atoi(sz);
 
     /* checks key sizes for acceptability */
-#ifndef NO_AES
     if (strcmp(*alg, "aes") == 0) {
+    #ifdef NO_AES
+        printf("AES not compiled in.\n");
+        return NOT_COMPILED_IN;
+    #else
         ret = AES_BLOCK_SIZE;
         if (*size != 128 && *size != 192 && *size != 256) {
             printf("Invalid AES pwdKey size. Should be: %d\n", ret);
             ret = FATAL_ERROR;
         }
+    #endif
     }
-#endif
-#ifndef NO_DES3
+
     else if (strcmp(*alg, "3des") == 0) {
+    #ifdef NO_DES3
+        printf("3DES not compiled in.\n");
+        return NOT_COMPILED_IN;
+    #else
         ret = DES3_BLOCK_SIZE;
         if (*size != 56 && *size != 112 && *size != 168) {
             printf("Invalid 3DES pwdKey size\n");
             ret = FATAL_ERROR;
         }
+    #endif
     }
-#endif
-#ifdef HAVE_CAMELLIA
+
     else if (strcmp(*alg, "camellia") == 0) {
+    #ifndef HAVE_CAMELIA
+        printf("CAMELIA not compile in.\n");
+        return NOT_COMPILED_IN;
+    #else
         ret = CAMELLIA_BLOCK_SIZE;
         if (*size != 128 && *size != 192 && *size != 256) {
             printf("Invalid Camellia pwdKey size\n");
             ret = FATAL_ERROR;
         }
+    #endif
     }
-#endif
-
+    
     else {
         printf("Invalid algorithm: %s\n", *alg);
         ret = FATAL_ERROR;
     }
+
     return ret;
 }
 

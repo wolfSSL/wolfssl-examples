@@ -159,8 +159,12 @@ int wolfCLU_genKey_ECC(RNG* rng, char* fName, int directive, int fmt,
     char  fExtPriv[6] = ".priv\0";
     char  fExtPub[6]  = ".pub\0\0";
     char* fOutNameBuf = NULL;
-
+    
+    #ifdef NO_AES
+    size_t maxDerBufSz = 4 * keySz * keySz-42;
+    #else
     size_t maxDerBufSz = 4 * keySz * AES_BLOCK_SIZE;
+    #endif
     byte*  derBuf      = NULL;
     int    derBufSz    = -1;
 
@@ -299,7 +303,11 @@ int wolfCLU_genKey_RSA(RNG* rng, char* fName, int directive, int fmt, int
     char  fExtPub[6]  = ".pub\0\0";
     char* fOutNameBuf = NULL;
 
-    size_t maxDerBufSz = 5 * keySz * AES_BLOCK_SIZE;
+    #ifdef NO_AES
+    size_t maxDerBufSz = 4 * keySz * keySz-42;
+    #else
+    size_t maxDerBufSz = 4 * keySz * AES_BLOCK_SIZE;
+    #endif
     byte*  derBuf      = NULL;
     int    derBufSz    = -1;
 
@@ -443,7 +451,7 @@ int wolfCLU_genKey_PWDBASED(RNG* rng, byte* pwdKey, int size, byte* salt, int pa
 
     /* stretches pwdKey */
     ret = (int) wc_PBKDF2(pwdKey, pwdKey, (int) strlen((const char*)pwdKey), salt, SALT_SIZE,
-                                                            4096, size, SHA256);
+                                                            4096, size, WC_SHA256);
     if (ret != 0)
         return ret;
 
