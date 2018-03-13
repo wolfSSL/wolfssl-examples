@@ -58,7 +58,8 @@ int main(int argc, char** argv)
 
     /* declare wolfSSL objects */
     WOLFSSL_CTX* ctx;
-    WOLFSSL*     ssl;
+    WOLFSSL*     ssl = NULL; /* init to NULL, wolfSSL_free can account for it */
+
 /*----------------------------------------------------------------------------*/
 /* updates from the original example client-tls.c */
 /*----------------------------------------------------------------------------*/
@@ -154,16 +155,27 @@ int main(int argc, char** argv)
     }
 
     /* check parse with extra certs kept */
-    ret = wolfSSL_PKCS12_parse(pkcs12, pass, &pkey, &cert, &ca);
-    if (ret != WOLFSSL_SUCCESS) {
+    if ((ret = wolfSSL_PKCS12_parse(pkcs12, pass, &pkey, &cert, &ca))
+                                                           != WOLFSSL_SUCCESS) {
         printf("Failed to parse the PKCS12 data. ret = %d\n", ret);
         ret = APP_ERR;
-        goto client_example_end_no_ssl;
+        goto client_example_end;
     }
 
     /* NOTE: these two calls are optional, only required for mutual auth */
-    wolfSSL_CTX_use_PrivateKey(ctx, pkey); /* optional */
-    wolfSSL_CTX_use_certificate(ctx, cert); /* optional */
+    /*optional, load key that cooresponds to client cert */
+    if ((ret = wolfSSL_CTX_use_PrivateKey(ctx, pkey)) != SSL_SUCCESS) {
+        printf("Failed to load the privateKey. ret = %d\n", ret);
+        ret = APP_ERR;
+        goto client_example_end;
+    }
+
+    /* optional load a client cert */
+    if ((ret = wolfSSL_CTX_use_certificate(ctx, cert)) != SSL_SUCCESS) {
+        printf("Failed to load certificate. ret = %d\n", ret);
+        ret = APP_ERR;
+        goto client_example_end;
+    }
 
     /* This step is REQUIRED to validate the peer being connected to */
     if (ca != NULL) {
@@ -180,8 +192,15 @@ int main(int argc, char** argv)
                     root_ca_buf = (byte*) wolfSSL_X509_get_der(tmp,
                                                              &root_ca_buf_size);
 
-                    wolfSSL_CTX_load_verify_buffer(ctx, root_ca_buf,
-                                           root_ca_buf_size, SSL_FILETYPE_ASN1);
+                    if ((ret = wolfSSL_CTX_load_verify_buffer(ctx, root_ca_buf,
+                                                       root_ca_buf_size,
+                                                       SSL_FILETYPE_ASN1)
+                                                       ) != SSL_SUCCESS) {
+                        printf("Failed to load CA. ret = %d\n", ret);
+                        ret = APP_ERR;
+                        goto client_example_end;
+                    }
+
                     wolfSSL_X509_free(tmp);
                 } else {
                     wolfSSL_X509_free(tmp);
@@ -196,7 +215,7 @@ int main(int argc, char** argv)
     if ((ssl = wolfSSL_new(ctx)) == NULL) {
         fprintf(stderr, "ERROR: failed to create WOLFSSL object\n");
         ret = -1;
-        goto client_example_end_no_ssl;
+        goto client_example_end;
     }
 
     /* Attach wolfSSL to the socket */
@@ -235,7 +254,6 @@ int main(int argc, char** argv)
 client_example_end:
     /* Cleanup and return */
     wolfSSL_free(ssl);      /* Free the wolfSSL object                  */
-client_example_end_no_ssl:
     wolfSSL_EVP_PKEY_free(pkey);
     wolfSSL_X509_free(cert);
     wc_PKCS12_free(pkcs12);
