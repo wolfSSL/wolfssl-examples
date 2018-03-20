@@ -582,23 +582,14 @@ int wolfCLU_checkForArg(char* searchTerm, int length, int argc, char** argv)
         if (argv[i] == NULL) {
             ret = 0;
             break; /* stop checking if no more args*/
-        } else if (XSTRNCMP(argv[i], searchTerm, length) == 0) {
-            /* EXCEPTIONS: */
-            if (XSTRNCMP(searchTerm, "-in", 3) == 0 &&
-                XSTRNCMP(searchTerm, "-inform", 7) != 0) {
-                if (XSTRNCMP(argv[i], "-inform", 7) == 0) {
-                    continue;
-                }
-            }
-            if (XSTRNCMP(searchTerm, "-out", 3) == 0 &&
-                XSTRNCMP(searchTerm, "-outform", 8) != 0 &&
-                XSTRNCMP(searchTerm, "-output", 7) != 0) {
-                if (XSTRNCMP(argv[i], "-outform", 8) == 0 ||
-                    XSTRNCMP(argv[i], "-output", 7) == 0) {
-                    continue;
-                }
-            }
-            /* END EXCEPTIONS */
+        } else if (XSTRNCMP(searchTerm, "-help", length) == 0 && 
+                   XSTRNCMP(argv[i], "-help", XSTRLEN(argv[i])) == 0) {
+
+           return 1;
+            
+        } else if (XSTRNCMP(argv[i], searchTerm, length) == 0 &&
+                   XSTRNCMP(argv[i], searchTerm, XSTRLEN(argv[i])) == 0) {
+            
             ret = i;
             if (argFound == 1) {
                 printf("ERROR: argument found twice: \"%s\"\n", searchTerm);

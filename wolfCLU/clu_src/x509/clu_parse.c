@@ -31,6 +31,7 @@
 enum {
     PEM = 0,
     DER = 1,
+    TEXT = 2,
 };
 
 int wolfCLU_inpemOutpem(char* infile, char* outfile, int silent_flag)
@@ -61,6 +62,11 @@ int wolfCLU_inderOutder(char* infile, char* outfile, int silent_flag)
     return ret;
 }
 
+int wolfCLU_inpemOuttext(char* infile, char* outfile, int silent_flag) {
+    int ret;
+    ret = wolfCLU_parseFile(infile, PEM, outfile, TEXT, silent_flag);
+}
+
 int wolfCLU_parseFile(char* infile, int inform, char* outfile, int outform,
                                                                 int silent_flag)
 {
@@ -76,17 +82,52 @@ int wolfCLU_parseFile(char* infile, int inform, char* outfile, int outform,
     /* MALLOC buffer for the certificate to be processed */
     inBuf = (byte*) XMALLOC(MAX_CERT_SIZE, HEAP_HINT,
                                                    DYNAMIC_TYPE_TMP_BUFFER);
+
     if (inBuf == NULL) return MEMORY_E;
     XMEMSET(inBuf, 0, MAX_CERT_SIZE);
 
     instream    = fopen(infile, "rb");
-    outstream   = fopen(outfile, "wb");
-
+    if (XSTRNCMP(outfile, "stdout", 6) == 0) {
+        outstream = stdout;
+    }
+    else {
+        outstream  = fopen(outfile, "wb");
+    }
+    
 /*----------------------------------------------------------------------------*/
 /* read in der, output der */
 /*----------------------------------------------------------------------------*/
     if ( (inform & outform) == 1) {
         printf("in parse: in = der, out = der\n");
+    }
+/*----------------------------------------------------------------------------*/
+/* read in pem, output pem formatted human-readable-text */
+/*----------------------------------------------------------------------------*/    
+    else if ( inform == PEM && outform == TEXT ) {
+        X509* x509;
+        BIO* bio;
+        
+        x509 = wolfSSL_X509_load_certificate_file(infile, SSL_FILETYPE_PEM);
+        bio = wolfSSL_BIO_new(wolfSSL_BIO_s_file());
+        
+        // checking if output file was given, if not write to stdout
+        wolfSSL_BIO_set_fp(bio, outstream, BIO_NOCLOSE);
+        
+        if(x509 == NULL){
+            printf("x509 Failure Still Null\n");
+        }
+
+        if(bio == NULL){
+            printf("BIO Failure Still Null\n");
+        }
+        
+        ret = wolfSSL_X509_print(bio, x509);
+        if (ret == SSL_FAILURE) {
+            printf("Failed to write x509 cert.\n");
+            goto clu_parse_cleanup;
+        }
+        wolfSSL_BIO_free(bio);
+        wolfSSL_X509_free(x509);
     }
 /*----------------------------------------------------------------------------*/
 /* read in der, output pem */
@@ -118,7 +159,7 @@ int wolfCLU_parseFile(char* infile, int inform, char* outfile, int outform,
             goto clu_parse_cleanup;
         }
 
-        /* write the result of conversion to the outfile specified */
+        /* write the result of conversion to the outfile specifile */
         ret = fwrite(outBuf, 1, outBufSz, outstream);
         if (ret <= 0) {
             wolfCLU_freeBins(inBuf, outBuf, NULL, NULL, NULL);
@@ -181,10 +222,10 @@ int wolfCLU_parseFile(char* infile, int inform, char* outfile, int outform,
     else {
         printf("in parse: in = pem, out = pem\n");
     }
-
     ret = 0;
-clu_parse_cleanup:
 
+clu_parse_cleanup:
+    
     fclose(outstream);
     fclose(instream);
 
