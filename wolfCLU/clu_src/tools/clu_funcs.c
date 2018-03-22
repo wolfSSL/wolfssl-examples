@@ -457,7 +457,7 @@ int wolfCLU_getAlgo(char* name, char** alg, char** mode, int* size)
 
     else if (strcmp(*alg, "camellia") == 0) {
     #ifndef HAVE_CAMELIA
-        printf("CAMELIA not compile in.\n");
+        printf("CAMELIA not compiled in.\n");
         return NOT_COMPILED_IN;
     #else
         ret = CAMELLIA_BLOCK_SIZE;

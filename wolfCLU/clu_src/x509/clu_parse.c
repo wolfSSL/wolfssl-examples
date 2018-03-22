@@ -159,7 +159,7 @@ int wolfCLU_parseFile(char* infile, int inform, char* outfile, int outform,
             goto clu_parse_cleanup;
         }
 
-        /* write the result of conversion to the outfile specifile */
+        /* write the result of conversion to the outfile specified */
         ret = fwrite(outBuf, 1, outBufSz, outstream);
         if (ret <= 0) {
             wolfCLU_freeBins(inBuf, outBuf, NULL, NULL, NULL);
