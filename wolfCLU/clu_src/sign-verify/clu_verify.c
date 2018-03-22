@@ -64,8 +64,7 @@ byte* wolfCLU_generate_public_key(char* privKey, byte* outBuf, int* outBufSz) {
     *outBufSz = ret;
     return outBuf;
 #else
-    *outBufSz = NOT_COMPILED_IN;
-    return outBuf;
+    return NOT_COMPILED_IN;
 #endif
 }
 
@@ -158,15 +157,92 @@ int wolfCLU_verify_signature_rsa(byte* sig, char* out, int sigSz, char* keyPath,
     
     return ret;
 #else
-    printf("RSA is not compiled in.\n");
     return NOT_COMPILED_IN;
 #endif
 }
 
 int wolfCLU_verify_signature_ecc(byte* sig, int sigSz, byte* hash, int hashSz, 
                                  char* keyPath) {
+
+#ifdef HAVE_ECC
+    int ret;
+    int keyFileSz;
+    int stat = 0;
+    word32 index = 0;
     
-    return 0;
+    FILE* keyPathFile;
+    ecc_key key;
+    WC_RNG rng;
+    byte* keyBuf;
+    
+    XMEMSET(&rng, 0, sizeof(rng));
+    XMEMSET(&key, 0, sizeof(key));
+    
+    ret = wc_ecc_init(&key);
+    if (ret != 0) {
+        printf("Failed to initialize ecc key.\nRet: %d", ret);
+        return ret;
+    }
+    
+    /* read in and store ecc key */
+    keyPathFile = fopen(keyPath, "rb");
+    fseek(keyPathFile, 0, SEEK_END);
+    keyFileSz = ftell(keyPathFile);
+    keyBuf = malloc(keyFileSz*sizeof(keyBuf));
+    fseek(keyPathFile, 0, SEEK_SET);
+    fread(keyBuf, 1, keyFileSz, keyPathFile);
+    fclose(keyPathFile);
+    
+    /* retrieving public key and storing in the ecc key */
+    ret = wc_EccPublicKeyDecode(keyBuf, &index, &key, keyFileSz);
+    if (ret < 0 ) {
+        printf("Failed to decode public key.\nRET: %d\n", ret);
+        return ret;
+    }
+    
+    ret = wc_ecc_verify_hash(sig, sigSz, hash, hashSz, &stat, &key);
+    if (ret < 0) {
+        printf("Failed to verify data with RSA public key.\nRET: %d\n", ret);
+        return ret;
+    } else if (stat == 1) {
+        printf("Valid Signature.\n");
+    } else {
+        printf("Invalid Signature.\n");
+    }
+    
+    return ret;
+#else
+    return NOT_COMPILED_IN;
+#endif
 }
 
 int wolfCLU_sign_data_ed25519(byte*, word32, byte*, word32, char*);
+
+/*
+working example*/
+int main() {
+    FILE* f = fopen("./signatureECC.txt", "rb");
+    int f_Sz;
+    byte* data;
+    
+    fseek(f, 0, SEEK_END);
+    f_Sz = ftell(f);
+    data = malloc(f_Sz*sizeof(data));
+    fseek(f, 0, SEEK_SET);
+    fread(data, 1, f_Sz, f);
+    fclose(f);
+    
+    FILE* h = fopen("./hash.txt", "rb");
+    int h_Sz;
+    byte* hash;
+    
+    fseek(h, 0, SEEK_END);
+    h_Sz = ftell(h);
+    hash = malloc(h_Sz*sizeof(hash));
+    fseek(h, 0, SEEK_SET);
+    fread(hash, 1, h_Sz, h);
+    fclose(h);
+    
+    wolfCLU_verify_signature_ecc(data, f_Sz, hash, h_Sz, "./myEccKey64.pub");
+}
+
