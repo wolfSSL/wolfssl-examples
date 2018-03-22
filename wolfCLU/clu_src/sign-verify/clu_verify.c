@@ -1,9 +1,7 @@
-#include <wolfssl/options.h>
-#include <wolfssl/wolfcrypt/rsa.h>
+#include "clu_include/sign-verify/clu_verify.h"
 #include <wolfssl/wolfcrypt/types.h>
 #include <wolfssl/ssl.h>
 #include "clu_include/clu_header_main.h"
-#include "clu_include/sign-verify/clu_verify.h"
 
 enum {
     RSA_SIGN,
@@ -12,7 +10,7 @@ enum {
 };
 
 byte* wolfCLU_generate_public_key(char* privKey, byte* outBuf, int* outBufSz) {
-    
+#ifndef NO_RSA
     int ret;
     int privFileSz;
     word32 index = 0;
@@ -65,6 +63,10 @@ byte* wolfCLU_generate_public_key(char* privKey, byte* outBuf, int* outBufSz) {
     }
     *outBufSz = ret;
     return outBuf;
+#else
+    *outBufSz = NOT_COMPILED_IN;
+    return outBuf;
+#endif
 }
 
 int wolfCLU_verify_signature(char* sig, char* out, char* keyPath, int keyType, int pubIn) {
@@ -96,7 +98,8 @@ int wolfCLU_verify_signature(char* sig, char* out, char* keyPath, int keyType, i
 }
 
 int wolfCLU_verify_signature_rsa(byte* sig, char* out, int sigSz, char* keyPath, int pubIn) {
-    
+
+#ifndef NO_RSA    
     int ret;
     int keyFileSz;
     word32 index = 0;
@@ -154,26 +157,16 @@ int wolfCLU_verify_signature_rsa(byte* sig, char* out, int sigSz, char* keyPath,
     }
     
     return ret;
+#else
+    printf("RSA is not compiled in.\n");
+    return NOT_COMPILED_IN;
+#endif
 }
 
-int wolfCLU_sign_data_ecc(byte*, word32, byte*, word32, char*);
+int wolfCLU_verify_signature_ecc(byte* sig, int sigSz, byte* hash, int hashSz, 
+                                 char* keyPath) {
+    
+    return 0;
+}
 
 int wolfCLU_sign_data_ed25519(byte*, word32, byte*, word32, char*);
-
-/*
-working example
-int main() {
-    FILE* f = fopen("./signature.txt", "rb");
-    int f_Sz;
-    byte* data;
-    
-    fseek(f, 0, SEEK_END);
-    f_Sz = ftell(f);
-    data = malloc(f_Sz*sizeof(data));
-    fseek(f, 0, SEEK_SET);
-    fread(data, 1, f_Sz, f);
-    fclose(f);
-    
-    wolfCLU_verify_signature_rsa(data, f_Sz, "./myrsakey2048.priv", 0);
-} */
-

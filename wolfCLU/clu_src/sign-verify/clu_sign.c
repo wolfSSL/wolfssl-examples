@@ -1,8 +1,6 @@
-#include <wolfssl/options.h>
-#include <wolfssl/wolfcrypt/rsa.h>
+#include "clu_include/sign-verify/clu_sign.h"
 #include <wolfssl/wolfcrypt/types.h>
 #include <wolfssl/ssl.h>
-#include "clu_include/sign-verify/clu_sign.h"
 #include "clu_include/clu_header_main.h"
 
 int wolfCLU_sign_data(char* in, char* out, char* privKey, int keyType) {
@@ -39,6 +37,7 @@ int wolfCLU_sign_data(char* in, char* out, char* privKey, int keyType) {
 }
 
 int wolfCLU_sign_data_rsa(byte* data, char* out, word32 dataSz, char* privKey) {
+#ifndef NO_RSA
         int ret;
         int privFileSz;
         size_t rsaKeySz;
@@ -98,21 +97,12 @@ int wolfCLU_sign_data_rsa(byte* data, char* out, word32 dataSz, char* privKey) {
         }
         
         return 0;
+#else
+        return NOT_COMPILED_IN;
+#endif
 }
 
-/* working example
+int wolfCLU_sign_data_ecc(byte* data, char* out, word32 fSz, char* privKey) {
 
-int main() {
-    FILE* f = fopen("./mydata.txt", "rb");
-    int f_Sz;
-    byte* data;
-    
-    fseek(f, 0, SEEK_END);
-    f_Sz = ftell(f);
-    data = malloc(f_Sz*sizeof(data));
-    fseek(f, 0, SEEK_SET);
-    fread(data, 1, f_Sz, f);
-    fclose(f);
-    wolfCLU_sign_data_rsa(data, f_Sz, "./myRsaKey4096.priv");        
+        return 0;
 }
-*/
