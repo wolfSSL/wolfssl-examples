@@ -38,11 +38,6 @@
 #include <wolfssl/options.h>
 #include <wolfssl/ssl.h>
 
-/* check for writedup */
-#ifndef HAVE_WRITE_DUP
-    #error "wolfSSL must be configured and installed with --enable-writedup"
-#endif
-
 /* threads */
 #include <pthread.h>
 
@@ -51,7 +46,7 @@
 #define CERT_FILE "../certs/ca-cert.pem"
 
 
-
+#ifdef HAVE_WRITE_DUP
 void* ReadHandler(void* args)
 {
     char     buff[256];
@@ -92,11 +87,12 @@ void* WriteHandler(void* args)
 
     return NULL;
 }
-
+#endif
 
 
 int main(int argc, char** argv)
 {
+#ifdef HAVE_WRITE_DUP
     int                sockfd;
     struct sockaddr_in servAddr;
 
@@ -214,5 +210,10 @@ int main(int argc, char** argv)
     wolfSSL_CTX_free(ctx);  /* Free the wolfSSL context object          */
     wolfSSL_Cleanup();      /* Cleanup the wolfSSL environment          */
     close(sockfd);          /* Close the connection to the server       */
+#else
+    printf("wolfSSL not configured with --enable-writedup.\n"
+           "Please re-configure and re-install wolfSSL to try out"
+           "this example!\n");
+#endif
     return 0;               /* Return reporting a success               */
 }
