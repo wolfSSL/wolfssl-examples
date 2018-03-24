@@ -39,10 +39,10 @@
 
 #define DEFAULT_PORT 11111
 
-#define MAX_CONCURRENT_THREADS 10
-
 #define CERT_FILE "../certs/server-cert.pem"
 #define KEY_FILE  "../certs/server-key.pem"
+
+#define MAX_CONCURRENT_THREADS 10
 
 
 
@@ -102,7 +102,7 @@ void* ClientHandler(void* args)
 
     /* Write our reply into buff */
     memset(buff, 0, sizeof(buff));
-    memcpy(buff, "I hear ya fa shizzle!\n", sizeof(buff));
+    strcpy(buff, "I hear ya fa shizzle!\n");
     len = strnlen(buff, sizeof(buff));
 
     /* Reply back to the client */

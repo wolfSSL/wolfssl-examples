@@ -143,6 +143,12 @@ int main()
             return -1;
         }
 
+        /* Set the connection options to use nonblocking I/O */
+        if (fcntl(connd, F_SETFL, O_NONBLOCK) == -1) {
+            fprintf(stderr, "ERROR: failed to set socket options\n");
+            return -1;
+        }
+
         /* Create a WOLFSSL object */
         if ((ssl = wolfSSL_new(ctx)) == NULL) {
             fprintf(stderr, "ERROR: failed to create WOLFSSL object\n");
@@ -151,6 +157,9 @@ int main()
 
         /* Attach wolfSSL to the socket */
         wolfSSL_set_fd(ssl, connd);
+
+        /* make wolfSSL object nonblocking */
+        wolfSSL_set_using_nonblock(ssl, 1);
 
         printf("Client connected successfully\n");
 
@@ -180,7 +189,7 @@ int main()
 
         /* Write our reply into buff */
         memset(buff, 0, sizeof(buff));
-        memcpy(buff, "I hear ya fa shizzle!\n", sizeof(buff));
+        strcpy(buff, "I hear ya fa shizzle!\n");
         len = strnlen(buff, sizeof(buff));
 
         /* Reply back to the client */

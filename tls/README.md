@@ -8,10 +8,10 @@ connection, but modified to utilize wolfSSL to establish a TLS 1.2 connection.
 
 In general, the naming convention of these files mean that if a file is named
 in the form `X-Y.c`, then it's a copy of `X.c` intended to demonstrate Y. The
-exceptions being `server-tls.c` and `client-tls.c`, as noted above.
-Furthermore, the files is formated such that using a diff tool such as
-`vimdiff` to compare `X-Y.c` to `X.c` should highlight only the relevant
-changes required to convert `X.c` into `X-Y.c`
+exceptions being `server-tls.c` and `client-tls.c`, which are based on the
+`*-tcp.c` files as noted above. Furthermore, the files are formated such that
+using a diff tool such as `vimdiff` to compare `X-Y.c` to `X.c` should
+highlight only the relevant changes required to convert `X.c` into `X-Y.c`
 
 The files in this directory are presented to you in hopes that they are useful,
 especially as a basic starting point. It is fully recognized that these
@@ -72,15 +72,33 @@ into.
     2. [Client](#client-tls)
     3. [Running](#run-tls)
 
-4. [Using callbacks](#callback)
+5. [Using callbacks](#callback)
 
     1. [Running](#run-callback)
 
-4. [Using ECC](#ecc)
+6. [Using ECC](#ecc)
 
     1. [Server](#server-ecc)
     2. [Client](#client-ecc)
     3. [Running](#run-ecc)
+
+7. [Using non-blocking interface](#nonblocking)
+
+    1. [Server](#server-nonblocking)
+    2. [Client](#client-nonblocking)
+    3. [Running](#run-nonblocking)
+
+8. [Resuming sessions](#resume)
+
+    1. [Running](#run-resume)
+
+9. [Using separate read and write objects](#writedup)
+
+    1. [Running](#run-writedup)
+
+10. [Using threads to handle clients](#threaded)
+
+    1. [Running](#run-threaded)
 
 
 
@@ -186,7 +204,7 @@ int main()
 
 
 
-    /* We'll fill in our work here */
+    /* Do work here */
 
 
 
@@ -213,8 +231,8 @@ and finally `shutdown` is for flow control.
 
 Now we'll set up the sockets.
 
-The next step is to get ahold of a socket for our server. Replace the "We'll
-fill in our work here" comment with these lines:
+The next step is to get ahold of a socket for our server. Replace the "Do work
+here" comment with these lines:
 
 ```c
     /* Create a socket that uses an internet IPv4 address,
@@ -261,7 +279,7 @@ socket [...]" block, add these lines:
     servAddr.sin_addr.s_addr = INADDR_ANY;          /* from anywhere   */
 ```
 
-That "Initialize the sever address sturuct wit zeros" step is not strictly
+That "Initialize the sever address struct with zeros" step is not strictly
 necessary, but it's usually a good idea, and it doesn't complicate the example
 too much.
 
@@ -374,7 +392,7 @@ buffer like this:
 ```c
         /* Write our reply into buff */
         memset(buff, 0, sizeof(buff));
-        memcpy(buff, "I hear ya fa shizzle!\n", sizeof(buff));
+        strcpy(buff, "I hear ya fa shizzle!\n");
         len = strnlen(buff, sizeof(buff));
 ```
 
@@ -429,7 +447,7 @@ int main(int argc, char** argv)
 
 
 
-    /* We'll fill in our work here */
+    /* Do work here */
 
 
 
@@ -444,7 +462,7 @@ time rather than ignoring them.
 
 This'll be our first step: verify that the program has been called correctly.
 There are more sophisticated ways of doing this, but we'll use a simple
-solution. Replace the "We'll fill in our work here" comment with the following
+solution. Replace the "Do work here" comment with the following
 lines:
 
 ```c
@@ -587,8 +605,13 @@ includes" block, add these lines:
 
 ```c
 /* wolfSSL */
+#include <wolfssl/options.h>
 #include <wolfssl/ssl.h>
 ```
+
+The inclusion of `wolfssl/options.h` is technically not needed, but it will
+allow us to test which options were compiled into our installation of wolfSSL
+by means of the `HAVE_X` set of macro definitions.
 
 We're also going to need a few more defines for our file paths. Just below the
 definition of `DEFAULT_PORT` add these lines:
@@ -751,6 +774,7 @@ below the "socket includes" block, add these lines:
 
 ```c
 /* wolfSSL */
+#include <wolfssl/options.h>
 #include <wolfssl/ssl.h>
 ```
 
@@ -846,8 +870,8 @@ SSL object from the context and giving it our connection to the server.
 
 The third block, "Connect to wolfSSL on the server side", is new. It is
 technically optional; If we don't call it, the first time we try to read or
-write though `ssl` it will be invoked anyway. We're going to call it ourself to
-make things easier when modifying this file to add different features in the
+write though `ssl` it will be invoked anyway. We're going to call it ourselves
+to make things easier when modifying this file to add different features in the
 future.
 
 Before continuing, we should remember to update our "Cleanup and return" block
@@ -1175,8 +1199,928 @@ And now the client is set up.
 
 
 
+## <a name="nonblocking">Using non-blocking interface</a>
+
+wolfSSL also supports using non-blocking interfaces.
+
+#### <a name="server-nonblocking">Server</a>
+
+We'll modify the server first. Copy `server-tls.c` to a new file,
+`server-tls-nonblocking.c`, that we will modify. The finished version can be
+found [here][s-tls-n].
+
+The first thing to do is include the errno header. Make "the usual suspects"
+look a bit like this:
+
+```c
+/* the usual suspects */
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <errno.h>
+```
+
+We need `errno.h` so that we can tell the acceptable failure from `accept()`
+from any other failure form `accept()`.
+
+Next, we need to tell the socket to be non-blocking. Just after the "Create a
+socket [...]" block, add these lines:
+
+```c
+    /* Set the socket options to use nonblocking I/O */
+    if (fcntl(sockfd, F_SETFL, O_NONBLOCK) == -1) {
+        fprintf(stderr, "ERROR: failed to set socket options\n");
+        return -1;
+    }
+```
+
+Here, `fcntl()` sets the file status flag (`F_SETFL`) `O_NONBLOCK` for
+`sockfd`.
+
+Now all we need to do is modify how we deal with I/O.
+
+For the "Accept client connections" block, we're going to replace the `if`
+keyword with `while` and check for acceptable failures. In total, the "Accept
+client connections" block should now look something like this:
+
+```c
+        /* Accept client connections */
+        while ((connd = accept(sockfd, (struct sockaddr*)&clientAddr, &size))
+               == -1) {
+            if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                /* no error, just non-blocking. Carry on. */
+                continue;
+            }
+            fprintf(stderr, "ERROR: failed to accept the connection\n\n");
+            return -1;
+        }
+```
+
+The sum total of what we've done above is do the blocking ourselves. In all,
+this means that we haven't really bought ourselves anything by using
+non-blocking, but we are no longer required to sit patiently while `accept()`
+tries to connect. We are now free to do whatever we want to if there is no
+client to accept a connection from at the moment.
+
+When we do get a client, however, we're going to need to indicate that the
+connection should use the non-blocking interface as well. After the "Accept
+client connections" block, add these lines:
+
+```c
+        /* Set the connection options to use nonblocking I/O */
+        if (fcntl(connd, F_SETFL, O_NONBLOCK) == -1) {
+            fprintf(stderr, "ERROR: failed to set socket options\n");
+            return -1;
+        }
+```
+
+This is basically equivalent to the previous `fcntl()` call in meaning, just on
+`connd` instead.
+
+We're also going to tell wolfSSL to use nonblocking. To do that, put these
+lines after "Attach wolfSSL to the socket":
+
+```c
+        /* make wolfSSL object nonblocking */
+        wolfSSL_set_using_nonblock(ssl, 1);
+```
+
+Here we set the "using nonblock" option on `ssl` to true (1).
+
+Next is to deal with reading and writing. Similar to our changes to the "Accept
+client connections" block, we're going to change the `if` keyword to `while`
+and add a check for acceptable failure conditions.
+
+It total, the "Read the client data [...]" should now look a bit like this:
+
+```c
+        /* Read the client data into our buff array */
+        memset(buff, 0, sizeof(buff));
+        while (wolfSSL_read(ssl, buff, sizeof(buff)-1) == -1) {
+            if (wolfSSL_want_read(ssl)) {
+                /* no error, just non-blocking. Carry on. */
+                continue;
+            }
+            fprintf(stderr, "ERROR: failed to read\n");
+            return -1;
+        }
+```
+
+And the "Reply back to the client" block should look a bit like this:
+
+```c
+        /* Reply back to the client */
+        while (wolfSSL_write(ssl, buff, len) != len) {
+            if (wolfSSL_want_write(ssl)) {
+                /* no error, just non-blocking. Carry on. */
+                continue;
+            }
+            fprintf(stderr, "ERROR: failed to write\n");
+            return -1;
+        }
+```
+
+It's important to use the use of `wolfSSL_want_read()` and
+`wolfSSL_want_write()`. Respectively, these calls are equivalent to
+```c
+wolfSSL_get_error(ssl, 0) == SSL_ERROR_WANT_READ
+```
+and
+```c
+wolfSSL_get_error(ssl, 0) == SSL_ERROR_WANT_WRITE
+```
+
+The function calls are meant for convenience, especially because these become
+common errors to check for.
+
+And after that, the server is done. It is now configured to use a non-blocking
+interface.
+
+#### <a name="client-nonblocking">Client</a>
+
+Now we'll write the client. Copy `client-tls.c` to a new file,
+`client-tls-nonblocking.c`, that we will modify. The finished version can be
+found [here][c-tls-n].
+
+We're not going to need `errno.h` this time, so we'll just jump right to
+setting the socket to be non-blocking. After the "Create a socket [...]" block,
+add these lines:
+
+```c
+    /* Set the socket options to use nonblocking I/O */
+    if (fcntl(sockfd, F_SETFL, O_NONBLOCK) == -1) {
+        fprintf(stderr, "ERROR: failed to set non-blocking\n");
+        return -1;
+    }
+```
+
+To recap from the server code, `fcntl()` sets the file status flag (`F_SETFL`)
+`O_NONBLOCK` for `sockfd`.
+
+And now we establish a connection. We're going to change the "Connect to the
+server" block to be a while loop that will loop until it makes connection. In
+total, this block should now look like this:
+
+```c
+    /* Connect to the server */
+    while (connect(sockfd, (struct sockaddr*) &servAddr, sizeof(servAddr))
+           == -1) {
+        /* just keep looping until a connection is made */
+    }
+```
+
+Like the `accept()` call in the server code, `connect()` would block for us,
+but we're doing it ourselves instead. Similarly, while we're not buying
+ourselves much by doing this, we've opened ourselves up to do something if
+we wanted to.
+
+But once we do connect, we'll have to set `ssl` to be non-blocking as well.
+After the "Attach wolfSSL to the socket" block, add these lines:
+
+```c
+    /* make wolfSSL object nonblocking */
+    wolfSSL_set_using_nonblock(ssl, 1);
+```
+
+And next, we need to connect to wolfSSL on the server side. Once more, we're
+going to change the `if` to a `while`, but this time we're going to do some
+error checking. Change the "Connect to wolfSSL on the server side" block to
+look something like this:
+
+```c
+    /* Connect to wolfSSL on the server side */
+    while (wolfSSL_connect(ssl) != SSL_SUCCESS) {
+        if (wolfSSL_want_read(ssl)) {
+            /* no error, just non-blocking. Carry on. */
+            printf("Waiting for connection...\n");
+            sleep(1); /* cut down on spam */
+            continue;
+        }
+        fprintf(stderr, "ERROR: failed to connect to wolfSSL\n");
+        return -1;
+    }
+```
+
+While in the middle of of connecting, `wolfSSL_connect()` will error with a
+`SSL_ERROR_WANT_READ` error if we're not blocking.
+
+And now we can deal with reading and writing. Like the "Connect to wolfSSL on
+the server side" block, we're going to replace the `if` with `while` and check
+for acceptable failure states.
+
+In total, the "Send the message to the server" block should now look like this:
+
+```c
+    /* Send the message to the server */
+    while (wolfSSL_write(ssl, buff, len) != len) {
+        if (wolfSSL_want_write(ssl)) {
+            /* no error, just non-blocking. Carry on. */
+            continue;
+        }
+        fprintf(stderr, "ERROR: failed to write\n");
+        return -1;
+    }
+```
+
+Note that because it is technically optional to call `wolfSSL_connect()`
+explicitly, if you are using non-blocking and call `wolfSSL_write()` without
+calling `wolfSSL_connect()` first, you may fail with an `SSL_ERROR_WANT_READ`
+error instead because `wolfSSL_write()` called `wolfSSL_connect()`
+automatically.
+
+Regardless, the "Read the server data [...]" block should be edited to look a
+bit like this:
+
+```c
+    /* Read the server data into our buff array */
+    memset(buff, 0, sizeof(buff));
+    while (wolfSSL_read(ssl, buff, sizeof(buff)-1) == -1) {
+        if (wolfSSL_want_read(ssl)) {
+            /* no error, just non-blocking. Carry on. */
+            continue;
+        }
+        fprintf(stderr, "ERROR: failed to read\n");
+        return -1;
+    }
+```
+
+And with that the client is done.
+
+#### <a name="run-nonblocking">Running</a>
+
+`server-tls-nonblocking` can be connected to by the following:
+
+* `client-tls`
+* `client-tls-callback`
+* `client-tls-nonblocking`
+* `client-tls-resume`
+* `client-tls-writedup`
+
+`client-tls-nonblocking` can connect to the following:
+
+* `server-tls`
+* `server-tls-callback`
+* `server-tls-nonblocking`
+* `server-tls-threaded`
+
+
+
+## <a name="resume">Resuming sessions</a>
+
+wolfSSL allows for clients to resume their session after disconnecting. Copy
+`client-tls.c` to a new file, `client-tls-resume.c`, that we will modify. The
+finished version can be found [here][c-tls-r].
+
+The basics of the procedure are rather simple: save your session information
+and tell wolfSSL to reuse session.
+
+The first thing to do, of course, is to declare our variables. At the top of
+the function, after the other declarations, add these lines:
+
+```c
+    /* declare objects for session resuming */
+    WOLFSSL_SESSION* session;
+    WOLFSSL*         sslRes;
+```
+
+In the above code, `session` is where we'll store our session information, and
+`sslRes` is the new wolfSSL object that we'll use to reconnect to our session.
+
+Between the "Print to `stdout` [...]" block and the "Cleanup and return" block
+is where we'll do all of our work. Here, add these lines:
+
+```c
+    /* Save the session */
+    session = wolfSSL_get_session(ssl);
+
+    /* Close the socket */
+    wolfSSL_free(ssl);
+    close(sockfd);
+
+
+
+    /* --------------------------------------- *
+     * we are now disconnected from the server *
+     * --------------------------------------- */
+```
+
+And now we need to resume our session. Add these lines where we left off:
+
+```c
+    /* Create a new WOLFSSL object to resume with */
+    if ((sslRes = wolfSSL_new(ctx)) == NULL) {
+        fprintf(stderr, "ERROR: failed to create WOLFSSL object\n");
+        return -1;
+    }
+
+    /* Set up to resume the session */
+    if (wolfSSL_set_session(sslRes, session) != SSL_SUCCESS) {
+        fprintf(stderr, "ERROR: failed to set session\n");
+        return -1;
+    }
+```
+
+We've created a new wolfSSL object, this time called `sslRes`, and in the
+second block we set it to use the saved session information. This is all we
+really need to do to resume a session from our end.
+
+The next thing is to get a new socket:
+
+```c
+    /* Get a new socket */
+    if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
+        fprintf(stderr, "ERROR: failed to create the socket\n");
+        return -1;
+    }
+```
+
+Then we need to reconnect to the server:
+
+```c
+    /* Reconnect to the server */
+    if (connect(sockfd, (struct sockaddr*) &servAddr, sizeof(servAddr))
+        == -1) {
+        fprintf(stderr, "ERROR: failed to connect\n");
+        return -1;
+    }
+
+    /* Attach wolfSSL to the socket */
+    wolfSSL_set_fd(sslRes, sockfd);
+
+    /* Reconnect to wolfSSL */
+    if (wolfSSL_connect(sslRes) != SSL_SUCCESS) {
+        fprintf(stderr, "ERROR: failed to connect to wolfSSL\n");
+        return -1;
+    }
+```
+
+Just to convince ourselves that we've resumed the session, let's quickly check
+like this:
+
+```c
+    /* Test if the resume was successful */
+    if (wolfSSL_session_reused(sslRes)) {
+        printf("Session ID reused; Successful resume.\n");
+    }
+    else {
+        printf("Session ID not reused; Failed resume.\n");
+    }
+```
+
+Now that we've convinced ourself of this, we'll ask for another message for the
+server:
+
+```c
+    /* Get a message for the server from stdin */
+    printf("Message for server: ");
+    memset(buff, 0, sizeof(buff));
+    fgets(buff, sizeof(buff), stdin);
+    len = strnlen(buff, sizeof(buff));
+
+    /* Send the message to the server */
+    if (wolfSSL_write(sslRes, buff, len) != len) {
+        fprintf(stderr, "ERROR: failed to write\n");
+        return -1;
+    }
+```
+
+And then we'll read in the server response:
+
+```
+    /* Read the server data into our buff array */
+    memset(buff, 0, sizeof(buff));
+    if (wolfSSL_read(sslRes, buff, sizeof(buff)-1) == -1) {
+        fprintf(stderr, "ERROR: failed to read\n");
+        return -1;
+    }
+
+    /* Print to stdout any data the server sends */
+    printf("Server: %s\n", buff);
+```
+
+The above few blocks of code should look familiar: they are almost identical to
+what we did with `ssl`. The only real differences are in some of the comment
+texts and using `sslRes` instead.
+
+The final thing to do is make sure we are freeing `sslRes`. Update the "Cleanup
+and return" block do this. It should now look something like this:
+
+```c
+    /* Cleanup and return */
+    wolfSSL_free(sslRes);   /* Free the wolfSSL object                  */
+    wolfSSL_CTX_free(ctx);  /* Free the wolfSSL context object          */
+    wolfSSL_Cleanup();      /* Cleanup the wolfSSL environment          */
+    close(sockfd);          /* Close the connection to the server       */
+    return 0;               /* Return reporting a success               */
+```
+
+#### <a name="run-resume">Running</a>
+
+`client-tls-resume` can connect to the following:
+
+* `server-tls`
+* `server-tls-callback`
+* `server-tls-nonblocking`
+* `server-tls-threaded`
+
+
+
+## <a name="writedup">Using separate read and write objects</a>
+
+wolfSSL allows you to create a duplicate of a wolfSSL object that is
+write-only, making the original read-only in the process. Copy `client-tls.c`
+to a new file, `client-tls-writedup.c`, that we will modify.
+
+The first thing to do is make sure wolfSSL is compiled correctly. Just above
+the "Check for proper calling convention block add these lines:
+
+```c
+    /* check for writedup */
+    #ifndef HAVE_WRITE_DUP
+        #warning wolfSSL must be configured and installed with --enable-writedup
+        fprintf(stderr, "wolfSSL must be configured and installed with "
+                "--enable-writedup");
+        return -1;
+    #endif
+```
+
+The above code will warn us about compiling this example without wolfSSL
+being properly compiled and cause the program itself to only repeat the warning
+and exit. As the preprocessor macro suggests, we need to configure and install
+wolfSSL with the `--enable-writedup` flag to make this example work. This
+feature is not compiled in by default.
+
+If you have any questions about compiling wolfSSL, please consult the [wolfSSL
+manual][docs], specifically [Chapter 2][build].
+
+Recall that the inclusion of `wolfssl/options.h` allow us to test which options
+were compiled into our installation of wolfSSL. The `#ifndef` then takes
+advantage of this to require that we have wolfSSL compiled with write
+duplication support.
+
+Otherwise, we're going to demonstrate write duplication with some simple
+threading. Add these lines to the list of includes:
+
+```c
+/* threads */
+#include <pthread.h>
+```
+
+This will give us a way of spawning threads and working with them.
+
+And to utilize this, we're going to factor out or I/O code into a pair of
+functions. The first of which is `ReadHandler()`. Add this function above
+`main()`:
+
+```c
+void* ReadHandler(void* args)
+{
+    char     buff[256];
+    WOLFSSL* ssl = (WOLFSSL*)args;
+
+    /* Read the server data into our buff array */
+    memset(buff, 0, sizeof(buff));
+    if (wolfSSL_read(ssl, buff, sizeof(buff)-1) == -1) {
+        fprintf(stderr, "ERROR: failed to read\n");
+        return NULL;
+    }
+
+    /* Print to stdout any data the server sends */
+    printf("Server: %s\n", buff);
+
+    return NULL;
+}
+```
+
+From here, be sure to delete the "Read the server data [...]" block and the
+"Print to `stdout` [...]" block from `main`. We'll replace them with a thread
+calling `ReadHandler()` later.
+
+Next we'll add `WriteHandler()`. Add this function above `main()`:
+
+```c
+void* WriteHandler(void* args)
+{
+    char     buff[256];
+    size_t   len;
+    WOLFSSL* ssl = (WOLFSSL*)args;
+
+    /* Get a message for the server from stdin */
+    printf("Message for server: ");
+    memset(buff, 0, sizeof(buff));
+    fgets(buff, sizeof(buff), stdin);
+    len = strnlen(buff, sizeof(buff));
+
+    /* Send the message to the server */
+    if (wolfSSL_write(ssl, buff, len) != len) {
+        fprintf(stderr, "ERROR: failed to write\n");
+        return NULL;
+    }
+
+    return NULL;
+}
+```
+
+And similarly make sure to delete the "Get a message [...]" block and "Send the
+message to the server" block from `main()`. We'll replace them with a thread
+calling `WriteHandler()` later.
+
+While were at it, delete the declarations of `buff` and `len` from `main()` as
+well.
+
+From here, change every reference of `ssl` in `main()` to `read_ssl`, and add a
+definition for `write_ssl` such that the "declare wolfSSL objects" block now
+looks something like this:
+
+```c
+    /* declare wolfSSL objects */
+    WOLFSSL_CTX* ctx;
+    WOLFSSL*     read_ssl;
+    WOLFSSL*     write_ssl;
+```
+
+And just after this block, add these line:
+
+```c
+    /* declare pthread variable */
+    pthread_t read_thread;
+    pthread_t write_thread;
+```
+
+These variables will be how we get a hold of our threads later.
+
+Moving on, we're going to have to split `read_ssl` into its two parts. Just
+after the "Connect to wolfSSL on the server side" block in `main()`, add these
+lines:
+
+```c
+    /* Duplicate read_ssl, setting it to read-only,
+     * creating write_ssl, which is write-only */
+    if ((write_ssl = wolfSSL_write_dup(read_ssl)) == NULL) {
+        fprintf(stderr, "ERROR: failed write dup\n");
+        return -1;
+    }
+```
+
+After this, we'll update the "Cleanup and return" block to free `write_ssl`.
+This block should now look like this:
+
+```c
+    /* Cleanup and return */
+    wolfSSL_free(read_ssl); /* Free the read wolfSSL object             */
+    wolfSSL_free(write_ssl);/* Free the write wolfSSL object            */
+    wolfSSL_CTX_free(ctx);  /* Free the wolfSSL context object          */
+    wolfSSL_Cleanup();      /* Cleanup the wolfSSL environment          */
+    close(sockfd);          /* Close the connection to the server       */
+    return 0;               /* Return reporting a success               */
+```
+
+Jumping back up a bit, just after the "Duplicate `read_ssl` [...]" block add
+these lines:
+
+```c
+    /* Launch the threads */
+    pthread_create(&read_thread, NULL, ReadHandler, read_ssl);
+    pthread_create(&write_thread, NULL, WriteHandler, write_ssl);
+
+    /* Rejoin the threads */
+    pthread_join(write_thread, NULL);
+    pthread_join(read_thread, NULL);
+```
+
+The first block launches a pair of threads. The first handles reading from the
+server, and the second handles writing to the server. The second block then
+rejoins the threads, waiting until they have completed their execution and
+cleaning up after them.
+
+And from here, this client has successfully been modified to use write
+duplication.
+
+#### <a name="run-writedup">Running</a>
+
+`client-tls-writedup` can connect to the following:
+
+* `server-tls`
+* `server-tls-callback`
+* `server-tls-nonblocking`
+* `server-tls-threaded`
+
+
+
+## <a name="threaded">Using threads to handle clients</a>
+
+While not technically a wolfSSL feature, we can deal with client connections in
+their own threads as a means of dealing with several clients at once. Copy
+`server-tls.c` to a new file, `server-tls-ecdhe.c`, that we will modify. The
+finished version can be found [here][s-tls-t].
+
+As always, the first step is to make sure our includes are correct. In this
+case, we're going to need to have access to threading, so add this include:
+
+```c
+/* threads */
+#include <pthread.h>
+```
+
+Now, we're going to be adding quite a bit of infrastructure to this file to
+cleanly deal with threads. One of the decisions we need to make is the number
+of concurrent threads to support. After the define for `KEY_FILE`, add this
+define:
+
+```c
+#define MAX_CONCURRENT_THREADS 10
+```
+
+Furthermore, we're going to use a struct package up all of the information that
+the thread needs. We'll call it our "thread argument package", or `targ_pkg`
+for short. Add this struct just below the `MAX_CONCURRENT_THREADS` define:
+
+```c
+/* Thread argument package */
+struct targ_pkg {
+    int          open;
+    pthread_t    tid;
+    int          num;
+    int          connd;
+    WOLFSSL_CTX* ctx;
+    int*         shutdown;
+};
+```
+
+The next step is to write a skeleton for our thread function:
+
+```c
+void* ClientHandler(void* args)
+{
+    struct targ_pkg* pkg = args;
+    WOLFSSL*         ssl;
+    char             buff[256];
+    size_t           len;
+
+
+
+    /* Do connection here */
+
+
+
+    /* Do reading here */
+
+
+
+    /* Do writing here */
+
+
+    /* Cleanup after this connection */
+    wolfSSL_free(ssl);      /* Free the wolfSSL object              */
+    close(pkg->connd);      /* Close the connection to the server   */
+    pkg->open = 1;          /* Indicate that execution is over      */
+    pthread_exit(NULL);     /* End theread execution                */
+}
+```
+
+Furthermore, we can delete the declarations for `buff`, `len`, and `ssl` from
+`main()`, as they now appear in `ClientHandler()`.
+
+We do need to add two variables, however. Add these declarations to the list at
+the top of `main()`:
+
+```c
+    /* declare thread variable */
+    struct targ_pkg thread[MAX_CONCURRENT_THREADS];
+    int             i;
+```
+
+These will be how we manage our threads and make sure we close cleanly.
+
+Now, we're going to factor out almost everything from the "Continue to accept
+clients [...]" loop block, but it's not going to be as simple as cut-and-paste,
+so we'll just delete the entire contents of that loop except for the "Accept
+client connections" block. For that block, replace the inside of its if
+statement with a `continue` statement. Otherwise, we'll convert it into a
+skeleton to fill in later. In all, the loop should now look like this:
+
+```c
+    while (!shutdown) {
+        /* Do find open thread here */
+
+        /* Accept client connections */
+        if ((connd = accept(sockfd, (struct sockaddr*)&clientAddr, &size))
+            == -1) {
+            continue;
+        }
+
+
+
+        /* Do spawn thread here */
+    }
+```
+
+With that out of the way, let's fill in the skeleton of `ClientHandler()`.
+
+First, the "Do connection here" part. Here's where we'll make our wolfSSL
+object. This should be rather familiar. In total, replace that comment with
+these blocks:
+
+```c
+    /* Create a WOLFSSL object */
+    if ((ssl = wolfSSL_new(pkg->ctx)) == NULL) {
+        fprintf(stderr, "ERROR: failed to create WOLFSSL object\n");
+        pkg->open = 1;
+        pthread_exit(NULL);
+    }
+
+    /* Attach wolfSSL to the socket */
+    wolfSSL_set_fd(ssl, pkg->connd);
+
+    printf("Client %d connected successfully\n", pkg->num);
+```
+
+The main differences here are that many of our parameters are wrapped inside of
+our thread argument package `pkg` and our error convention has changed a little
+bit. Now, rather than returning -1, we mark our thread as "open" and then call
+`pthread_exit(NULL)`, which is more-or-less equivalent in this situation.
+
+Next we'll deal with reading. Replace the "Do reading here" comment with these
+blocks:
+
+```c
+    /* Read the client data into our buff array */
+    memset(buff, 0, sizeof(buff));
+    if (wolfSSL_read(ssl, buff, sizeof(buff)-1) == -1) {
+        fprintf(stderr, "ERROR: failed to read\n");
+        pkg->open = 1;
+        pthread_exit(NULL);
+    }
+
+    /* Print to stdout any data the client sends */
+    printf("Client %d: %s\n", pkg->num, buff);
+
+    /* Check for server shutdown command */
+    if (strncmp(buff, "shutdown", 8) == 0) {
+        printf("Shutdown command issued!\n");
+        *pkg->shutdown = 1;
+    }
+```
+
+Once more, this is quite similar to the standard code, but this time when we
+report what the client told us, we also report which client said it. Similarly,
+when we read in "shutdown" from the client, we have to find `shutdown` variable
+through the argument package we provided.
+
+And finally, in place of the "Do write here" comment, add these blocks:
+
+```c
+    /* Write our reply into buff */
+    memset(buff, 0, sizeof(buff));
+    strcpy(buff, "I hear ya fa shizzle!\n");
+    len = strnlen(buff, sizeof(buff));
+
+    /* Reply back to the client */
+    if (wolfSSL_write(ssl, buff, len) != len) {
+        fprintf(stderr, "ERROR: failed to write\n");
+        pkg->open = 1;
+        pthread_exit(NULL);
+    }
+```
+
+This is mostly like the original read code.
+
+And with that, we're done with handling clients, and it's time to move on to
+handling threads.
+
+The first thing we're going to do is make our socket non-blocking. To do this,
+after the "Create a socket [...]" block add these lines:
+
+```c
+    /* Set the socket options to use nonblocking I/O */
+    if (fcntl(sockfd, F_SETFL, O_NONBLOCK) == -1) {
+        fprintf(stderr, "ERROR: failed to set socket options\n");
+        return -1;
+    }
+```
+
+If you'd like an explanation of this function, please see the section "[Using
+non-blocking interface](#nonblocking)" from earlier. We're using it because
+don't want to be stuck waiting for another client when the shutdown command
+comes in from a client in a thread. We'll still use the blocking API for
+reading and writing, however.
+
+And before we can start looking for clients, we're going to have to initialize
+our thread array `thread`. A good place to do this is just after the "Listen
+for a new connection [...]" block and before the "Continue to accept clients
+[...]" loop. Here, insert these lines:
+
+```c
+    /* initialise thread array */
+    for (i = 0; i < MAX_CONCURRENT_THREADS; ++i) {
+        thread[i].open = 1;
+        thread[i].num = i;
+        thread[i].ctx = ctx;
+        thread[i].shutdown = &shutdown;
+    }
+```
+
+This sets all of our threads, here represented as the elements of `thread`, to
+their initial state. We're not going to be editing these particular fields
+other than `open`, but they are all needed by `ClientHandler()`.
+
+Otherwise, to let ourselves know that setup is complete, put this statement
+just above the "Continue to accept [...]" loop:
+
+```c
+    printf("Now open for connections\n");
+```
+
+And now we're ready to flesh out that loop skeleton.
+
+Let's replace that "Do find open thread here" comment first. Here, we're going
+to scan through `thread` for any thread marked as open and assign it to a
+client. In place of this comment, add these lines:
+
+```c
+        /* find an open thread or continue if there is none */
+        for (i = 0; i < MAX_CONCURRENT_THREADS && !thread[i].open; ++i);
+        if (i == MAX_CONCURRENT_THREADS) {
+            continue;
+        }
+```
+
+A quick explanation feels appropriate. Here we have an example of a `for` loop
+that has no body. Instead, all of its work happens in the head, as what we want
+is to identify the index of the open thread. If we find one, we violate the
+`!thread[i].open` condition and break the loop. If we don't, `i` will end up
+equal to `MAX_CONCURRENT_THREADS` and the `if` statement catches this and
+returns us to the top of the "Continue to accept [...]" loop.
+
+Next we'll take care of spawning our threads. In place of the "Do spawn thread
+here" comment, add these lines:
+
+```c
+        /* Fill out the relevent thread argument package information */
+        thread[i].open = 0;
+        thread[i].connd = connd;
+
+        /* Launch a thread to deal with the new client */
+        pthread_create(&thread[i].tid, NULL, ClientHandler, &thread[i]);
+
+        /* State that we won't be joining this thread */
+        pthread_detach(thread[i].tid);
+```
+
+In the first block, we set the thread as "not open" and save the file
+descriptor of the connection.
+
+After that, we launch the thread, but we will never be joining with that
+thread, so we need to call `pthread_detach()` to indicate this. Now, when the
+thread finishes execution, it will clean itself up immediately. Otherwise it
+would have stayed allocated in a dead-but-not-buried kind of state until we
+joined it with a call to `pthread_join()` and got any information out of it.
+
+But now there's one last thing to do. If we get the shutdown notice, we don't
+want to immediately end execution: that would kill all the threads we've
+spawned too early. Similarly, we don't want to accept any new clients after
+we're set to shut down.
+
+A solution is to suspend shutdown while threads are still open. To accomplish
+this, add these lines just before we print "Shutdown complete", after the
+"Continue to accept [...]" loop:
+
+```c
+    /* Suspend shutdown until all threads are closed */
+    do {
+        shutdown = 1;
+
+        for (i = 0; i < MAX_CONCURRENT_THREADS; ++i) {
+            if (!thread[i].open) {
+                shutdown = 0;
+            }
+        }
+    } while (!shutdown);
+```
+
+Here, we assume that we're ready to shut down, and if we find even one thread
+that is marked as not open, we once more defer shutdown.
+
+And with that, we're done. We now have a server that can have 10 clients (or
+whatever the value of `MAX_CONCURRENT_THREADS` is) connected at the same
+time.
+
+#### <a name="run-threaded">Running</a>
+
+`server-tls-threaded` can be connected to by the following:
+
+* `client-tls`
+* `client-tls-callback`
+* `client-tls-nonblocking`
+* `client-tls-resume`
+* `client-tls-writedup`
+
+
+
 <!-- References -->
 [make]: https://github.com/wolfssl/wolfssl-examples/blob/master/tls/Makefile
+[docs]: https://www.wolfssl.com/wolfSSL/Docs-wolfssl-manual-toc.html
+[build]: https://www.wolfssl.com/wolfSSL/Docs-wolfssl-manual-2-building-wolfssl.html
 
 [s-tcp]: https://github.com/wolfssl/wolfssl-examples/blob/master/tls/server-tcp.c
 [c-tcp]: https://github.com/wolfssl/wolfssl-examples/blob/master/tls/client-tcp.c
@@ -1189,3 +2133,12 @@ And now the client is set up.
 
 [s-tls-e]: https://github.com/wolfssl/wolfssl-examples/blob/master/tls/server-tls-ecdhe.c
 [c-tls-e]: https://github.com/wolfssl/wolfssl-examples/blob/master/tls/client-tls-ecdhe.c
+
+[s-tls-n]: https://github.com/wolfssl/wolfssl-examples/blob/master/tls/server-tls-nonblocking.c
+[c-tls-n]: https://github.com/wolfssl/wolfssl-examples/blob/master/tls/client-tls-nonblocking.c
+
+[c-tls-r]: https://github.com/wolfssl/wolfssl-examples/blob/master/tls/client-tls-resume.c
+
+[c-tls-w]: https://github.com/wolfssl/wolfssl-examples/blob/master/tls/client-tls-writedup.c
+
+[s-tls-n]: https://github.com/wolfssl/wolfssl-examples/blob/master/tls/server-tls-threaded.c

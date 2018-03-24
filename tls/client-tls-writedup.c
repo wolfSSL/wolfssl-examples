@@ -107,6 +107,14 @@ int main(int argc, char** argv)
 
 
 
+    /* check for writedup */
+    #ifndef HAVE_WRITE_DUP
+        #warning wolfSSL must be configured and installed with --enable-writedup
+        fprintf(stderr, "wolfSSL must be configured and installed with "
+                "--enable-writedup");
+        return -1;
+    #endif
+
     /* Check for proper calling convention */
     if (argc != 2) {
         printf("usage: %s <IPv4 address>\n", argv[0]);
