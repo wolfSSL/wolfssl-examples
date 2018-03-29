@@ -79,7 +79,7 @@ void wolfCLU_verboseHelp()
 
     /* hash options */
     const char* algsenc[] = {        /* list of acceptable algorithms */
-    "Algorihms:"
+    "Algorithms:"
 #ifndef NO_MD5
         ,"md5"
 #endif
@@ -347,14 +347,14 @@ void wolfCLU_genKeyHelp() {
 
         const char* keysother[] = { /* list of acceptable key types */
         "KEYS: "
+    #ifndef NO_RSA
+        ",rsa"
+    #endif
     #ifdef HAVE_ED25519
         ,"ed25519"
     #endif
     #ifdef HAVE_ECC
         ,"ecc"
-    #endif
-    #ifdef HAVE_CURVE25519
-        ,"curve25519"
     #endif
         };
 
@@ -386,7 +386,7 @@ int wolfCLU_getAlgo(char* name, char** alg, char** mode, int* size)
     char*   sz          = 0;        /* key size provided */
 
     const char* acceptAlgs[]  = {   /* list of acceptable algorithms */
-        "ALGS: "
+        "Algorithms: "
 #ifndef NO_AES
         , "aes"
 #endif

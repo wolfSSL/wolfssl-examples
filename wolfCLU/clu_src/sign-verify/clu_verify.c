@@ -1,3 +1,24 @@
+/* clu_verify.c
+ *
+ * Copyright (C) 2006-2017 wolfSSL Inc.
+ *
+ * This file is part of wolfSSL. (formerly known as CyaSSL)
+ *
+ * wolfSSL is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * wolfSSL is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+ */
+
 #include "clu_include/sign-verify/clu_verify.h"
 #include <wolfssl/wolfcrypt/types.h>
 #include <wolfssl/ssl.h>
@@ -48,7 +69,7 @@ byte* wolfCLU_generate_public_key(char* privKey, byte* outBuf, int* outBufSz) {
         return outBuf;
     }
     
-    // set output buffer to twice the private key size to ensure enough space
+    /* set output buffer to twice the private key size to ensure enough space */
     *outBufSz = 2*wc_RsaEncryptSize(&key);
     
     /* setting up output buffer based on privateKeyFile size */
@@ -68,7 +89,12 @@ byte* wolfCLU_generate_public_key(char* privKey, byte* outBuf, int* outBufSz) {
 #endif
 }
 
-int wolfCLU_verify_signature(char* sig, char* out, char* keyPath, int keyType, int pubIn) {
+int wolfCLU_verify_signature(char* sig, char* hash, 
+                             char* out, char* keyPath, int keyType, int pubIn) {
+
+    int hSz;
+    FILE* h;
+    byte* h_mssg;
 
     int ret = -1;
     int fSz;
@@ -85,15 +111,29 @@ int wolfCLU_verify_signature(char* sig, char* out, char* keyPath, int keyType, i
 
     switch(keyType) {
         case RSA_SIGN:
-            wolfCLU_verify_signature_rsa(data, out, fSz, keyPath, pubIn);
+            ret = wolfCLU_verify_signature_rsa(data, out, fSz, keyPath, pubIn);
             break;
             
         case ECC_SIGN:
+            hSz;
+            h = fopen(hash,"rb");
+            
+            fseek(h, 0, SEEK_END);
+            hSz = ftell(h);
+
+            h_mssg = malloc(hSz*sizeof(h_mssg));
+
+            fseek(h, 0, SEEK_SET);
+            fread(h_mssg, 1, hSz, h);
+            fclose(h);
+            ret = wolfCLU_verify_signature_ecc(data, fSz, h_mssg, hSz, keyPath);
             break;
             
         case ED25519_SIGN:
+            ret = wolfCLU_verify_signature_ed25519(data, fSz, h_mssg, hSz, keyPath);
             break;
     }
+    return ret;
 }
 
 int wolfCLU_verify_signature_rsa(byte* sig, char* out, int sigSz, char* keyPath, int pubIn) {
@@ -202,7 +242,7 @@ int wolfCLU_verify_signature_ecc(byte* sig, int sigSz, byte* hash, int hashSz,
     
     ret = wc_ecc_verify_hash(sig, sigSz, hash, hashSz, &stat, &key);
     if (ret < 0) {
-        printf("Failed to verify data with RSA public key.\nRET: %d\n", ret);
+        printf("Failed to verify data with Ecc public key.\nRET: %d\n", ret);
         return ret;
     } else if (stat == 1) {
         printf("Valid Signature.\n");
@@ -216,33 +256,9 @@ int wolfCLU_verify_signature_ecc(byte* sig, int sigSz, byte* hash, int hashSz,
 #endif
 }
 
-int wolfCLU_sign_data_ed25519(byte*, word32, byte*, word32, char*);
-
-/*
-working example*/
-int main() {
-    FILE* f = fopen("./signatureECC.txt", "rb");
-    int f_Sz;
-    byte* data;
-    
-    fseek(f, 0, SEEK_END);
-    f_Sz = ftell(f);
-    data = malloc(f_Sz*sizeof(data));
-    fseek(f, 0, SEEK_SET);
-    fread(data, 1, f_Sz, f);
-    fclose(f);
-    
-    FILE* h = fopen("./hash.txt", "rb");
-    int h_Sz;
-    byte* hash;
-    
-    fseek(h, 0, SEEK_END);
-    h_Sz = ftell(h);
-    hash = malloc(h_Sz*sizeof(hash));
-    fseek(h, 0, SEEK_SET);
-    fread(hash, 1, h_Sz, h);
-    fclose(h);
-    
-    wolfCLU_verify_signature_ecc(data, f_Sz, hash, h_Sz, "./myEccKey64.pub");
+int wolfCLU_verify_signature_ed25519(byte* data, int fSz, 
+                              byte* mssg, int mSz, char* path) {
+                              
+    printf("ERROR: FEATURE COMING SOON! (not yet implemented)\n");
+    return FEATURE_COMING_SOON;
 }
-

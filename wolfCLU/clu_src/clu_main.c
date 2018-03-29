@@ -60,6 +60,8 @@ int main(int argc, char** argv)
         case REQUEST:
         case GEN_KEY:
         case RSA:
+        case ECC:
+        case ED25519:
 
             if (!flag) flag = option;
 
@@ -93,6 +95,7 @@ int main(int argc, char** argv)
         case INFILE:   /* File passed in by user                    */
         case OUTFILE:  /* Output file                               */
         case INKEY:
+        case SIGNATURE:
 
             /* do nothing. */
 
@@ -162,6 +165,14 @@ int main(int argc, char** argv)
         break;
     
     case RSA:
+        ret = wolfCLU_sign_verify_setup(argc, argv);
+        break;
+    
+    case ECC:
+        ret = wolfCLU_sign_verify_setup(argc, argv);
+        break;
+    
+    case ED25519:
         ret = wolfCLU_sign_verify_setup(argc, argv);
         break;
     

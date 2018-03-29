@@ -104,13 +104,13 @@ int wolfCLU_parseFile(char* infile, int inform, char* outfile, int outform,
 /* read in pem, output pem formatted human-readable-text */
 /*----------------------------------------------------------------------------*/    
     else if ( inform == PEM && outform == TEXT ) {
-        X509* x509;
-        BIO* bio;
+        WOLFSSL_X509* x509;
+        WOLFSSL_BIO* bio;
         
         x509 = wolfSSL_X509_load_certificate_file(infile, SSL_FILETYPE_PEM);
         bio = wolfSSL_BIO_new(wolfSSL_BIO_s_file());
         
-        // checking if output file was given, if not write to stdout
+        /* checking if output file was given, if not write to stdout */
         wolfSSL_BIO_set_fp(bio, outstream, BIO_NOCLOSE);
         
         if(x509 == NULL){

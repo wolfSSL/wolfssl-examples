@@ -1,3 +1,24 @@
+/* clu_sign.c
+ *
+ * Copyright (C) 2006-2017 wolfSSL Inc.
+ *
+ * This file is part of wolfSSL. (formerly known as CyaSSL)
+ *
+ * wolfSSL is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * wolfSSL is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+ */
+
 #include "clu_include/sign-verify/clu_sign.h"
 #include <wolfssl/wolfcrypt/types.h>
 #include <wolfssl/ssl.h>
@@ -24,11 +45,11 @@ int wolfCLU_sign_data(char* in, char* out, char* privKey, int keyType) {
         break;
         
     case ECC_SIGN:
-        //wolfCLU_sign_data_ecc(data, out, fSz, privKey);
+        ret = wolfCLU_sign_data_ecc(data, out, fSz, privKey);
         break;
         
     case ED25519_SIGN:
-        //wolfCLU_sign_data_ed25519(data, out, fSz, privKey);
+        ret = wolfCLU_sign_data_ed25519(data, out, fSz, privKey);
         break;
     
     }
@@ -79,10 +100,18 @@ int wolfCLU_sign_data_rsa(byte* data, char* out, word32 dataSz, char* privKey) {
         XMEMSET(&outBuf, 0, sizeof(outBuf));
         
         ret = wc_InitRng(&rng);
+        #ifdef WC_RSA_BLINDING
+        ret = wc_RsaSetRNG(&key, &rng);
+        if (ret < 0) {
+            printf("Failed to initialize rng.\nRET: %d\n", ret);
+            return ret;
+        }
+        #else
         if (ret != 0) {
             printf("Failed to initialize rng.\nRET: %d\n", ret);
             return ret;
         }
+        #endif
         
         ret = wc_RsaSSL_Sign(data, dataSz, outBuf, sizeof(outBuf), &key, &rng);
         if (ret < 0) {
@@ -140,7 +169,7 @@ int wolfCLU_sign_data_ecc(byte* data, char* out, word32 fSz, char* privKey) {
         fread(keyBuf, 1, privFileSz, privKeyFile);
         fclose(privKeyFile);
 
-        /* retrieving private key and storing in the RsaKey */
+        /* retrieving private key and storing in the Ecc Key */
         ret = wc_EccPrivateKeyDecode(keyBuf, &index, &key, privFileSz);
         if (ret != 0 ) {
             printf("Failed to decode private key.\nRET: %d\n", ret);
@@ -169,20 +198,11 @@ int wolfCLU_sign_data_ecc(byte* data, char* out, word32 fSz, char* privKey) {
 #else
     return NOT_COMPILED_IN;
 #endif
-    }
-/* working example*/
-
-int main() {
-    FILE* f = fopen("./hash.txt", "rb");
-    word32 f_Sz;
-    byte* data;
-    
-    fseek(f, 0, SEEK_END);
-    f_Sz = ftell(f);
-    data = malloc(f_Sz*sizeof(data));
-    fseek(f, 0, SEEK_SET);
-    fread(data, 1, f_Sz, f);
-    fclose(f);
-    wolfCLU_sign_data_ecc(data, "signatureECC.txt", f_Sz, "./myEccKey64.priv");        
 }
 
+int wolfCLU_sign_data_ed25519 (byte* data, char* out, 
+                               word32 fSz, char* privKey) {
+
+    printf("ERROR: FEATURE COMING SOON! (not yet implemented)\n");
+    return FEATURE_COMING_SOON;
+}
