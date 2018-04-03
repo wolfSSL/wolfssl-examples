@@ -32,9 +32,9 @@
 #endif
 
 enum {
-    RSA_SIGN,
-    ECC_SIGN,
-    ED25519_SIGN,
+    RSA_SIG_VER,
+    ECC_SIG_VER,
+    ED25519_SIG_VER,
 };
 
 int wolfCLU_sign_data(char*, char*, char*, int);

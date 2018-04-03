@@ -41,20 +41,12 @@ int wolfCLU_sign_verify_setup(int argc, char** argv)
     int     pubInCheck = 0;
     int     sigCheck = 0;
     
-    /* help checking
-    ret = wolfCLU_checkForArg("-help", 5, argc, argv);
-    if (ret > 0) {
-        wolfCLU_hashHelp();
-        return 0;
-    }
-    */
-    
     if (wolfCLU_checkForArg("-rsa", 4, argc, argv) > 0) {
-        algCheck = RSA_SIGN;
+        algCheck = RSA_SIG_VER;
     } else if (wolfCLU_checkForArg("-ed25519", 8, argc, argv) > 0) {
-        algCheck = ED25519_SIGN;
+        algCheck = ED25519_SIG_VER;
     } else if (wolfCLU_checkForArg("-ecc", 4, argc, argv) > 0) {
-        algCheck = ECC_SIGN;
+        algCheck = ECC_SIG_VER;
     } else {
         return FATAL_ERROR;
     }
@@ -69,6 +61,22 @@ int wolfCLU_sign_verify_setup(int argc, char** argv)
     if (ret > 0) {
         /* output file */
         verifyCheck = 1;
+    }
+    
+    /* help checking */
+    ret = wolfCLU_checkForArg("-help", 5, argc, argv);
+    if (ret > 0) {
+        if (signCheck == 1) {
+            wolfCLU_signHelp(algCheck);
+        }
+        else if (verifyCheck == 1) {
+            wolfCLU_verifyHelp(algCheck);
+        }
+        else {
+            wolfCLU_signHelp(algCheck);
+            wolfCLU_verifyHelp(algCheck);
+        }
+        return 0;
     }
 
     ret = wolfCLU_checkForArg("-inkey", 6, argc, argv);
@@ -88,6 +96,8 @@ int wolfCLU_sign_verify_setup(int argc, char** argv)
     else {
         printf("Please specify an -inkey <key> option when "
                "signing or verifying.\n");
+        wolfCLU_signHelp(algCheck);
+        wolfCLU_verifyHelp(algCheck);
         return ret;
     }
     
@@ -127,9 +137,9 @@ int wolfCLU_sign_verify_setup(int argc, char** argv)
         sig[XSTRLEN(argv[ret+1])] = '\0';
         sigCheck = 1;
     }
-    else if (verifyCheck == 1 && algCheck != RSA_SIGN) {
-        printf("Please specify -signature <sig> when verifying"
-               " with ECC or ED25519.\n");
+    else if (verifyCheck == 1) {
+        printf("Please specify -signature <sig> when verifying.\n");
+        wolfCLU_verifyHelp(algCheck);
         return ret;
     }
     
@@ -138,14 +148,17 @@ int wolfCLU_sign_verify_setup(int argc, char** argv)
         /* output file */
         out = argv[ret+1];
     } else {
-        if(algCheck == RSA_SIGN) {
+        if(algCheck == RSA_SIG_VER) {
             printf("Please specify an output file when "
                    "signing or verifing with RSA.\n");
+            wolfCLU_signHelp(algCheck);
+            wolfCLU_verifyHelp(algCheck);
             return ret;
         }
-        else if (algCheck == ECC_SIGN && verifyCheck == 0) {
+        else if (algCheck == ECC_SIG_VER && verifyCheck == 0) {
             printf("Please specify an output file when "
                    "signing with ECC.\n");
+            wolfCLU_signHelp(algCheck);
             return ret;
         }
         else {
@@ -155,15 +168,21 @@ int wolfCLU_sign_verify_setup(int argc, char** argv)
     }
 
     if (inCheck == 0) {
-        printf("Must have input as either a file or standard I/O\n");
-        return FATAL_ERROR;
+        if (algCheck == RSA_SIG_VER && verifyCheck == 1) {
+            /* ignore no -in. RSA verify doesn't check original message */
+        } else {
+            printf("Must have input as either a file or standard I/O\n");
+            return FATAL_ERROR;
+        }
     }
     
     if (signCheck == 1) {
         ret = wolfCLU_sign_data(in, out, priv, algCheck);
     }
     else if (verifyCheck == 1) {
+    
         ret = wolfCLU_verify_signature(sig, in, out, priv, algCheck, pubInCheck);
+        
         if(ret >= 0) {
             return 0;
         }

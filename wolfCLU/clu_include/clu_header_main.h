@@ -147,6 +147,16 @@ void wolfCLU_benchHelp(void);
  */
 void wolfCLU_genKeyHelp(void);
 
+/*
+ * sign help function
+ */
+void wolfCLU_signHelp(int);
+
+/*
+ * verify help function
+ */
+void wolfCLU_verifyHelp(int);
+
 /* find algorithm for encryption/decryption
  * 
  * @param name the whole line sent from user. Example: "aes-cbc-128"

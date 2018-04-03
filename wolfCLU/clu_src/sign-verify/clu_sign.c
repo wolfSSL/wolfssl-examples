@@ -40,15 +40,15 @@ int wolfCLU_sign_data(char* in, char* out, char* privKey, int keyType) {
 
     switch(keyType) {
     
-    case RSA_SIGN:
+    case RSA_SIG_VER:
         ret = wolfCLU_sign_data_rsa(data, out, fSz, privKey);
         break;
         
-    case ECC_SIGN:
+    case ECC_SIG_VER:
         ret = wolfCLU_sign_data_ecc(data, out, fSz, privKey);
         break;
         
-    case ED25519_SIGN:
+    case ED25519_SIG_VER:
         ret = wolfCLU_sign_data_ed25519(data, out, fSz, privKey);
         break;
     

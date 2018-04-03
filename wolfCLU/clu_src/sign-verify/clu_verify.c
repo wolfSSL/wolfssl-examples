@@ -20,15 +20,11 @@
  */
 
 #include "clu_include/sign-verify/clu_verify.h"
+#include "clu_include/sign-verify/clu_sign.h" /* for RSA_SIG_VER, ECC_SIG_VER, 
+                                                      ED25519_SIG_VER */
 #include <wolfssl/wolfcrypt/types.h>
 #include <wolfssl/ssl.h>
 #include "clu_include/clu_header_main.h"
-
-enum {
-    RSA_SIGN,
-    ECC_SIGN,
-    ED25519_SIGN,
-};
 
 byte* wolfCLU_generate_public_key(char* privKey, byte* outBuf, int* outBufSz) {
 #ifndef NO_RSA
@@ -95,26 +91,25 @@ int wolfCLU_verify_signature(char* sig, char* hash,
     int hSz;
     FILE* h;
     byte* h_mssg;
-
     int ret = -1;
     int fSz;
+    
     FILE* f = fopen(sig,"rb");
     
     fseek(f, 0, SEEK_END);
     fSz = ftell(f);
 
     byte data[fSz];
-
     fseek(f, 0, SEEK_SET);
     fread(data, 1, fSz, f);
     fclose(f);
 
     switch(keyType) {
-        case RSA_SIGN:
+        case RSA_SIG_VER:
             ret = wolfCLU_verify_signature_rsa(data, out, fSz, keyPath, pubIn);
             break;
             
-        case ECC_SIGN:
+        case ECC_SIG_VER:
             hSz;
             h = fopen(hash,"rb");
             
@@ -129,7 +124,7 @@ int wolfCLU_verify_signature(char* sig, char* hash,
             ret = wolfCLU_verify_signature_ecc(data, fSz, h_mssg, hSz, keyPath);
             break;
             
-        case ED25519_SIGN:
+        case ED25519_SIG_VER:
             ret = wolfCLU_verify_signature_ed25519(data, fSz, h_mssg, hSz, keyPath);
             break;
     }

@@ -22,6 +22,8 @@
 #include "clu_include/clu_header_main.h"
 #include "clu_include/version.h"
 #include "clu_include/x509/clu_cert.h" /* for PEM_FORM and DER_FORM */
+#include "clu_include/sign-verify/clu_sign.h" /* for RSA_SIG_VER, ECC_SIG_VER, 
+                                                       ED25519_SIG_VER */
 
 #define SALT_SIZE       8
 #define DES3_BLOCK_SIZE 24
@@ -44,6 +46,8 @@ int     i          =   0;       /* loop variable */
     printf("-hash           Hash a file or input\n");
     printf("-bench          Benchmark one of the algorithms\n");
     printf("-x509           X509 certificate processing\n");
+    printf("-rsa            Rsa signing and signature verification\n");
+    printf("-ecc            Ecc signing and signature verification\n");
     printf("\n");
     /*optional flags*/
     printf("Optional Flags.\n\n");
@@ -62,12 +66,14 @@ int     i          =   0;       /* loop variable */
     printf("-output         used with -genkey option to specify which keys to\n"
            "                output [PUB/PRIV/KEYPAIR]\n");
 
-    printf("\nFor encryption:   wolfssl -encrypt -help\n");
+    printf("\nFor encryption: wolfssl -encrypt -help\n");
     printf("For decryption:   wolfssl -decrypt -help\n");
     printf("For hashing:      wolfssl -hash -help\n");
     printf("For benchmarking: wolfssl -bench -help\n");
     printf("For x509:         wolfssl -x509 -help\n");
-    printf("For key creation: wolfssl -genkey -help\n\n");
+    printf("For key creation: wolfssl -genkey -help\n");
+    printf("For RSA sign/ver: wolfssl -rsa -help\n");
+    printf("For ECC sign/ver: wolfssl -ecc -help\n");
  }
 
 /*
@@ -373,6 +379,103 @@ void wolfCLU_genKeyHelp() {
            " and mykey.pub\nChanging the -output option to just PRIV would only"
            "\noutput the mykey.priv and using just PUB would only output"
            "\nmykey.pub\n\n");
+}
+
+void wolfCLU_signHelp(int keyType) {
+
+    const char* keysother[] = { /* list of acceptable key types */
+        "KEYS: "
+        #ifndef NO_RSA
+        ,"rsa"
+        #endif
+        #ifdef HAVE_ED25519
+        ,"ed25519"
+        #endif
+        #ifdef HAVE_ECC
+        ,"ecc"
+        #endif
+        };
+
+        printf("\nAvailable keys with current configure settings:\n");
+        for(i = 0; i < (int) sizeof(keysother)/(int) sizeof(keysother[0]); i++) {
+            printf("%s\n", keysother[i]);
+        }
+        
+        printf("\n***************************************************************\n");
+        switch(keyType) {
+            #ifndef NO_RSA
+            case RSA_SIG_VER:
+                printf("RSA Sign Usage: \nwolfssl -rsa -sign -inkey <priv_key>"
+                       " -in <filename> -out <filename>\n\n");
+                printf("***************************************************************\n");
+                break;
+            #endif
+            #ifdef HAVE_ED25519
+            case ED25519_SIG_VER:
+                printf("ED25519 Sign Usage: COMING SOON\n\n");
+                printf("***************************************************************\n");
+                break;
+            #endif
+            #ifdef HAVE_ECC
+            case ECC_SIG_VER:
+                printf("ECC Sign Usage: \nwolfssl -ecc -sign -inkey <priv_key>"
+                       " -in <filename> -out <filename>\n\n");
+                break;
+            #endif
+            default:
+                printf("No valid key type defined.\n\n");
+        }
+}
+
+void wolfCLU_verifyHelp(int keyType) {
+    const char* keysother[] = { /* list of acceptable key types */
+        "KEYS: "
+        #ifndef NO_RSA
+        ,"rsa"
+        #endif
+        #ifdef HAVE_ED25519
+        ,"ed25519"
+        #endif
+        #ifdef HAVE_ECC
+        ,"ecc"
+        #endif
+        };
+
+        printf("\nAvailable keys with current configure settings:\n");
+        for(i = 0; i < (int) sizeof(keysother)/(int) sizeof(keysother[0]); i++) {
+            printf("%s\n", keysother[i]);
+        }
+        
+        printf("\n***************************************************************\n");
+        switch(keyType) {
+            #ifndef NO_RSA
+            case RSA_SIG_VER:
+                printf("RSA Verify with Private Key:\n"
+                        "wolfssl -rsa -verify -inkey <priv_key>"
+                        " -signature <filename> -out <filename>\n\n");
+                printf("***************************************************************\n");
+                printf("RSA Verify with Public Key\n"
+                       "wolfssl -rsa -verify -inkey <pub_key>"
+                       " -signature <filename> -out <filename> -pubin\n\n");
+                printf("***************************************************************\n");
+                break;
+            #endif
+            #ifdef HAVE_ED25519
+            case ED25519_SIG_VER:
+                printf("ED25519 Verify Usage: COMING SOON\n\n");
+                printf("***************************************************************\n");
+                break;
+            #endif
+            #ifdef HAVE_ECC
+            case ECC_SIG_VER:
+                printf("ECC Verify with Public Key\n"
+                       "wolfssl -ecc -verify -inkey <pub_key>"
+                       " -signature <signature> -in <original>\n\n");
+                break;
+            #endif
+            default:
+                printf("No valid key type defined.\n\n");
+        }
 }
 
 /*
