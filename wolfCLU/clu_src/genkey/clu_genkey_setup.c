@@ -112,7 +112,7 @@ int wolfCLU_genKeySetup(int argc, char** argv)
     #endif /* HAVE_ED25519 */
 
     } else if (XSTRNCMP(keyType, "ecc", 3) == 0) {
-    #ifdef HAVE_ECC
+    #if defined(HAVE_ECC) && defined(WOLFSSL_KEY_GEN)
         /* ECC flags */
         int directiveArg;
         int sizeArg;
@@ -173,7 +173,7 @@ int wolfCLU_genKeySetup(int argc, char** argv)
         return NOT_COMPILED_IN;
     #endif /* HAVE_ECC */
     } else if (XSTRNCMP(keyType, "rsa", 3) == 0) {
-    #ifndef NO_RSA
+    #if defined(NO_RSA) && defined(WOLFSSL_KEY_GEN)
         /* RSA flags */
         int directiveArg;
         int sizeArg;

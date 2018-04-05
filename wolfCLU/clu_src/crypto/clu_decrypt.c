@@ -116,7 +116,7 @@ int wolfCLU_decrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
             /* replicates old pwdKey if pwdKeys match */
             if (keyType == 1) {
                 if (wc_PBKDF2(key, pwdKey, (int) strlen((const char*)pwdKey), salt, 
-                            SALT_SIZE, 4096, size, SHA256) != 0) {
+                            SALT_SIZE, 4096, size, WC_SHA256) != 0) {
                     printf("pwdKey set error.\n");
                     wolfCLU_freeBins(input, output, NULL, NULL, NULL);
                     return ENCRYPT_ERROR;
