@@ -445,8 +445,8 @@ int wolfCLU_genKey_PWDBASED(RNG* rng, byte* pwdKey, int size, byte* salt, int pa
         salt[0] = 0;
 
     /* stretches pwdKey */
-    ret = (int) wc_PBKDF2(pwdKey, pwdKey, (int) strlen((const char*)pwdKey), salt, SALT_SIZE,
-                                                            4096, size, WC_SHA256);
+    ret = (int) wc_PBKDF2(pwdKey, pwdKey, (int) strlen((const char*)pwdKey),
+                          salt, SALT_SIZE, CLU_4K_TYPE, size, CLU_SHA256);
     if (ret != 0)
         return ret;
 
