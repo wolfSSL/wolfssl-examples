@@ -39,6 +39,7 @@
 #include <wolfssl/wolfcrypt/error-crypt.h>
 #include <wolfssl/error-ssl.h>
 #include <wolfssl/wolfcrypt/hash.h>
+#include <wolfssl/version.h>
 
 #ifndef NO_MD5
     #include <wolfssl/wolfcrypt/md5.h>
@@ -71,6 +72,12 @@
 #define MEGABYTE (1024*1024)
 #define MAX_THREADS 64
 #define MAX_FILENAME_SZ 256
+#define CLU_4K_TYPE 4096
+#if LIBWOLFSSL_VERSION_HEX >= 50413568 /* int val of hex 0x0301400 = 50413568 */
+    #define CLU_SHA256 WC_SHA256
+#else
+    #define CLU_SHA256 SHA256
+#endif
 
 #include <wolfssl/wolfcrypt/types.h>
 
