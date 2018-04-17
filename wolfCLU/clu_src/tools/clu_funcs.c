@@ -681,7 +681,7 @@ void wolfCLU_stats(double start, int blockSize, int64_t blocks)
 void wolfCLU_version()
 {
     printf("\nYou are using version %s of the wolfssl Command Line Utility.\n\n"
-        , LIBWOLFSSL_VERSION_STRING);
+        , CLUWOLFSSL_VERSION_STRING);
 }
 
 int wolfCLU_checkForArg(char* searchTerm, int length, int argc, char** argv)
