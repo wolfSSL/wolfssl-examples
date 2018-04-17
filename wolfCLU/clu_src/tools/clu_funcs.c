@@ -354,7 +354,7 @@ void wolfCLU_genKeyHelp() {
         const char* keysother[] = { /* list of acceptable key types */
         "KEYS: "
     #ifndef NO_RSA
-        ",rsa"
+        ,"rsa"
     #endif
     #ifdef HAVE_ED25519
         ,"ed25519"
@@ -412,7 +412,8 @@ void wolfCLU_signHelp(int keyType) {
             #endif
             #ifdef HAVE_ED25519
             case ED25519_SIG_VER:
-                printf("ED25519 Sign Usage: COMING SOON\n\n");
+                printf("ED25519 Sign Usage: \nwolfssl -ed25519 -sign -inkey "
+                       "<priv_key> -in <filename> -out <filename>\n\n");
                 printf("***************************************************************\n");
                 break;
             #endif
@@ -462,7 +463,15 @@ void wolfCLU_verifyHelp(int keyType) {
             #endif
             #ifdef HAVE_ED25519
             case ED25519_SIG_VER:
-                printf("ED25519 Verify Usage: COMING SOON\n\n");
+                printf("ED25519 Verifiy with Private Key\n"
+                       "wolfssl -ed25519 -verify -inkey "
+                       "<priv_key> -signature <filename> -in <original>"
+                       "\n\n");
+                printf("***************************************************************\n");
+                printf("ED25519 Verifiy with Public Key\n"
+                       "wolfssl -ed25519 -verify -inkey "
+                       "<pub_key> -signature <filename> -in <original> -pubin"
+                       "\n\n");
                 printf("***************************************************************\n");
                 break;
             #endif

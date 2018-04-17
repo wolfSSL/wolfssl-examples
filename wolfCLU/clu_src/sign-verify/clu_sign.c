@@ -203,6 +203,74 @@ int wolfCLU_sign_data_ecc(byte* data, char* out, word32 fSz, char* privKey) {
 int wolfCLU_sign_data_ed25519 (byte* data, char* out, 
                                word32 fSz, char* privKey) {
 
-    printf("ERROR: FEATURE COMING SOON! (not yet implemented)\n");
-    return FEATURE_COMING_SOON;
+    #ifdef HAVE_ED25519
+        int ret;
+        int privFileSz;
+        size_t edKeySz;
+        word32 index = 0;
+        word32 outLen;
+        word32 pubLen;
+        
+        FILE* privKeyFile;
+        
+        ed25519_key key;
+        WC_RNG rng;
+        
+        XMEMSET(&rng, 0, sizeof(rng));
+        XMEMSET(&key, 0, sizeof(key));
+        
+        /* init the ED25519 key */
+        ret = wc_ed25519_init(&key);
+        if (ret != 0) {
+            printf("Failed to initialize ed25519 key\nRET: %d\n", ret);
+            return ret;
+        }
+        
+        ret = wc_InitRng(&rng);
+        if (ret != 0) {
+            printf("Failed to initialize rng.\nRET: %d\n", ret);
+            return ret;
+        }
+
+        /* read in and store private key */
+        privKeyFile = fopen(privKey, "rb");
+        fseek(privKeyFile, 0, SEEK_END);
+        privFileSz = ftell(privKeyFile);
+        byte keyBuf[privFileSz];
+        fseek(privKeyFile, 0, SEEK_SET);
+        fread(keyBuf, 1, privFileSz, privKeyFile);
+        fclose(privKeyFile);
+
+        /* retrieving private key and storing in the ED25519 Key */
+        ret = wc_ed25519_import_private_key(keyBuf,
+                                        ED25519_KEY_SIZE,
+                                        keyBuf + ED25519_KEY_SIZE,
+                                        ED25519_KEY_SIZE, &key);
+        if (ret != 0 ) {
+            printf("Failed to import private key.\nRET: %d\n", ret);
+            return ret;
+        }
+        
+        /* setting up output buffer based on key size */
+        byte outBuf[ED25519_SIG_SIZE];
+        XMEMSET(&outBuf, 0, sizeof(outBuf));
+        outLen = sizeof(outBuf);
+
+        /* signing input with ED25519 priv key to produce signature */
+        ret = wc_ed25519_sign_msg(data, fSz, outBuf, &outLen, &key);
+        if (ret < 0) {
+            printf("Failed to sign data with ED25519 private key.\nRET: %d\n", ret);
+            return ret;
+        }
+        else {
+            FILE* s;
+            s = fopen(out, "wb");
+            fwrite(outBuf, 1, sizeof(outBuf), s);
+            fclose(s);
+        }
+        
+        return ret;
+#else
+    return NOT_COMPILED_IN;
+#endif
 }
