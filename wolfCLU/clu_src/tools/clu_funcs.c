@@ -48,6 +48,7 @@ int     i          =   0;       /* loop variable */
     printf("-x509           X509 certificate processing\n");
     printf("-rsa            Rsa signing and signature verification\n");
     printf("-ecc            Ecc signing and signature verification\n");
+    printf("-ed25519        Ed25519 signing and signature verification\n");
     printf("\n");
     /*optional flags*/
     printf("Optional Flags.\n\n");
@@ -74,6 +75,7 @@ int     i          =   0;       /* loop variable */
     printf("For key creation: wolfssl -genkey -help\n");
     printf("For RSA sign/ver: wolfssl -rsa -help\n");
     printf("For ECC sign/ver: wolfssl -ecc -help\n");
+    printf("For ED25519 sign/ver: wolfssl -ed25519 -help\n");
  }
 
 /*

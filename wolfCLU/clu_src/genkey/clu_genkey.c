@@ -161,7 +161,8 @@ int wolfCLU_genKey_ECC(RNG* rng, char* fName, int directive, int fmt,
     char* fOutNameBuf = NULL;
     
     #ifdef NO_AES
-    size_t maxDerBufSz = 4 * keySz * keySz-42;
+    /* use 16 bytes for AES block size */
+    size_t maxDerBufSz = 4 * keySz * 16;
     #else
     size_t maxDerBufSz = 4 * keySz * AES_BLOCK_SIZE;
     #endif
@@ -304,7 +305,8 @@ int wolfCLU_genKey_RSA(RNG* rng, char* fName, int directive, int fmt, int
     char* fOutNameBuf = NULL;
 
     #ifdef NO_AES
-    size_t maxDerBufSz = 4 * keySz * keySz-42;
+    /* use 16 bytes for AES block size */
+    size_t maxDerBufSz = 4 * keySz * 16;
     #else
     size_t maxDerBufSz = 4 * keySz * AES_BLOCK_SIZE;
     #endif
