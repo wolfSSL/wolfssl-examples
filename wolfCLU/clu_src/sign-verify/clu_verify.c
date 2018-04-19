@@ -169,7 +169,7 @@ int wolfCLU_verify_signature(char* sig, char* hash,
             fseek(h, 0, SEEK_SET);
             fread(h_mssg, 1, hSz, h);
             fclose(h);
-            ret = wolfCLU_verify_signature_ecc(data, fSz, h_mssg, hSz, keyPath);
+            ret = wolfCLU_verify_signature_ecc(data, fSz, h_mssg, hSz, keyPath, pubIn);
             break;
             
         case ED25519_SIG_VER:
@@ -256,7 +256,7 @@ int wolfCLU_verify_signature_rsa(byte* sig, char* out, int sigSz, char* keyPath,
 }
 
 int wolfCLU_verify_signature_ecc(byte* sig, int sigSz, byte* hash, int hashSz, 
-                                 char* keyPath) {
+                                 char* keyPath, int pubIn) {
 
 #ifdef HAVE_ECC
     int ret;
@@ -277,7 +277,7 @@ int wolfCLU_verify_signature_ecc(byte* sig, int sigSz, byte* hash, int hashSz,
         printf("Failed to initialize ecc key.\nRet: %d", ret);
         return ret;
     }
-
+    
     /* read in and store ecc key */
     keyPathFile = fopen(keyPath, "rb");
     fseek(keyPathFile, 0, SEEK_END);
@@ -285,15 +285,23 @@ int wolfCLU_verify_signature_ecc(byte* sig, int sigSz, byte* hash, int hashSz,
     keyBuf = malloc(keyFileSz);
     fseek(keyPathFile, 0, SEEK_SET);
     fread(keyBuf, 1, keyFileSz, keyPathFile);
-    fclose(keyPathFile);   
-
-    /* retrieving public key and storing in the ecc key */
-    ret = wc_EccPublicKeyDecode(keyBuf, &index, &key, keyFileSz);
-    if (ret < 0 ) {
-        printf("Failed to decode public key.\nRET: %d\n", ret);
-        return ret;
+    fclose(keyPathFile);
+    if (pubIn == 1) {
+        /* retrieving public key and storing in the ecc key */
+        ret = wc_EccPublicKeyDecode(keyBuf, &index, &key, keyFileSz);
+        if (ret < 0 ) {
+            printf("Failed to decode public key.\nRET: %d\n", ret);
+            return ret;
+        }   
+    } else {
+        /* retrieving private key and storing in the Ecc Key */
+        ret = wc_EccPrivateKeyDecode(keyBuf, &index, &key, keyFileSz);
+        if (ret != 0 ) {
+            printf("Failed to decode private key.\nRET: %d\n", ret);
+            return ret;
+        }
     }
-    
+        
     ret = wc_ecc_verify_hash(sig, sigSz, hash, hashSz, &stat, &key);
     if (ret < 0) {
         printf("Failed to verify data with Ecc public key.\nRET: %d\n", ret);
