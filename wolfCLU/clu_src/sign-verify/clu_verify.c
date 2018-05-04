@@ -173,6 +173,7 @@ int wolfCLU_verify_signature(char* sig, char* hash,
             break;
             
         case ED25519_SIG_VER:
+        #ifdef HAVE_ED25519
             hSz;
             h = fopen(hash,"rb");
             
@@ -185,6 +186,7 @@ int wolfCLU_verify_signature(char* sig, char* hash,
             fread(h_mssg, 1, hSz, h);
             fclose(h);
             ret = wolfCLU_verify_signature_ed25519(data, ED25519_SIG_SIZE, h_mssg, hSz, keyPath, pubIn);
+        #endif
             break;
     }
     return ret;
