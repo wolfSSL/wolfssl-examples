@@ -147,7 +147,7 @@ int wolfCLU_genKey_ED25519(WC_RNG* rng, char* fOutNm, int directive, int format)
 #endif /* HAVE_ED25519 */
 
 int wolfCLU_genKey_ECC(RNG* rng, char* fName, int directive, int fmt,
-                       int keySz)
+                       int keySz, int curveId)
 {
 #ifdef HAVE_ECC
     ecc_key key;
@@ -176,7 +176,7 @@ int wolfCLU_genKey_ECC(RNG* rng, char* fName, int directive, int fmt,
     ret = wc_ecc_init_ex(&key, HEAP_HINT, INVALID_DEVID);
     if (ret != 0)
         return ret;
-    ret = wc_ecc_make_key(rng, keySz, &key);
+    ret = wc_ecc_make_key_ex(rng, keySz, &key, curveId);
 #if defined(WOLFSSL_ASYNC_CRYPT)
     /* @Audit: is this all correct? */
     ret = wc_AsyncWait(ret, &key.asyncDev, WC_ASYNC_FLAG_CALL_AGAIN);
