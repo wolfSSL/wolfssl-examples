@@ -39,11 +39,12 @@ int     i          =   0;       /* loop variable */
     printf("-help           Help, print out this help menu\n");
     printf("\n");
     printf("Only set one of the following.\n\n");
-    printf("-encrypt        Encrypt a file or some user input\n");
-    printf("-decrypt        Decrypt an encrypted file\n");
-    printf("-hash           Hash a file or input\n");
-    printf("-bench          Benchmark one of the algorithms\n");
-    printf("-x509           X509 certificate processing\n");
+    printf("encrypt         Encrypt a file or some user input\n");
+    printf("decrypt         Decrypt an encrypted file\n");
+    printf("hash            Hash a file or input\n");
+    printf("bench           Benchmark one of the algorithms\n");
+    printf("x509            X509 certificate processing\n");
+    printf("genkey          Generate a key\n");
     printf("\n");
     /*optional flags*/
     printf("Optional Flags.\n\n");
@@ -59,15 +60,15 @@ int     i          =   0;       /* loop variable */
     printf("-verbose        display a more verbose help menu\n");
     printf("-inform         input format of the certificate file [PEM/DER]\n");
     printf("-outform        format to output [PEM/DER]\n");
-    printf("-output         used with -genkey option to specify which keys to\n"
+    printf("-output         used with genkey option to specify which keys to\n"
            "                output [PUB/PRIV/KEYPAIR]\n");
-
-    printf("\nFor encryption:   wolfssl -encrypt -help\n");
-    printf("For decryption:   wolfssl -decrypt -help\n");
-    printf("For hashing:      wolfssl -hash -help\n");
-    printf("For benchmarking: wolfssl -bench -help\n");
-    printf("For x509:         wolfssl -x509 -help\n");
-    printf("For key creation: wolfssl -genkey -help\n\n");
+    printf("\n");
+    printf("For encryption:   wolfssl encrypt -help\n");
+    printf("For decryption:   wolfssl decrypt -help\n");
+    printf("For hashing:      wolfssl hash -help\n");
+    printf("For benchmarking: wolfssl bench -help\n");
+    printf("For x509:         wolfssl x509 -help\n");
+    printf("For key creation: wolfssl genkey -help\n\n");
  }
 
 /*
@@ -191,10 +192,10 @@ void wolfCLU_encryptHelp()
             "camellia-cbc-256\n\n");
 #endif
     printf("***************************************************************\n");
-    printf("\nENCRYPT USAGE: wolfssl -encrypt <-algorithm> -in <filename> "
+    printf("\nENCRYPT USAGE: wolfssl encrypt <-algorithm> -in <filename> "
            "-pwd <password> -out <output file name>\n\n");
     printf("***************************************************************\n");
-    printf("\nEXAMPLE: \n\nwolfssl -encrypt aes-cbc-128 -pwd Thi$i$myPa$$w0rd"
+    printf("\nEXAMPLE: \n\nwolfssl encrypt aes-cbc-128 -pwd Thi$i$myPa$$w0rd"
            " -in somefile.txt -out encryptedfile.txt\n\n");
 }
 
@@ -219,10 +220,10 @@ void wolfCLU_decryptHelp()
             "camellia-cbc-256\n\n");
 #endif
     printf("***************************************************************\n");
-    printf("\nDECRYPT USAGE: wolfssl -decrypt <algorithm> -in <encrypted file> "
+    printf("\nDECRYPT USAGE: wolfssl decrypt <algorithm> -in <encrypted file> "
            "-pwd <password> -out <output file name>\n\n");
     printf("***************************************************************\n");
-    printf("\nEXAMPLE: \n\nwolfssl -decrypt aes-cbc-128 -pwd Thi$i$myPa$$w0rd"
+    printf("\nEXAMPLE: \n\nwolfssl decrypt aes-cbc-128 -pwd Thi$i$myPa$$w0rd"
            " -in encryptedfile.txt -out decryptedfile.txt\n\n");
 }
 
@@ -266,9 +267,9 @@ void wolfCLU_hashHelp()
     }
             /* encryption/decryption help lists options */
     printf("***************************************************************\n");
-    printf("\nUSAGE: wolfssl -hash <-algorithm> -in <file to hash>\n");
+    printf("\nUSAGE: wolfssl hash <-algorithm> -in <file to hash>\n");
     printf("***************************************************************\n");
-    printf("\nEXAMPLE: \n\nwolfssl -hash sha -in <some file>\n\n");
+    printf("\nEXAMPLE: \n\nwolfssl hash sha -in <some file>\n\n");
 }
 
 /*
@@ -320,10 +321,10 @@ void wolfCLU_benchHelp()
     printf("\n");
             /* encryption/decryption help lists options */
     printf("***************************************************************\n");
-    printf("USAGE: wolfssl -bench [alg] -time [time in seconds [1-10]]\n"
-           "       or\n       wolfssl -bench -time 10 -all (to test all)\n");
+    printf("USAGE: wolfssl bench [alg] -time [time in seconds [1-10]]\n"
+           "       or\n       wolfssl bench -time 10 -all (to test all)\n");
     printf("***************************************************************\n");
-    printf("\nEXAMPLE: \n\nwolfssl -bench aes-cbc -time 10"
+    printf("\nEXAMPLE: \n\nwolfssl bench aes-cbc -time 10"
            " -in encryptedfile.txt -out decryptedfile.txt\n\n");
 }
 
@@ -331,10 +332,10 @@ void wolfCLU_certHelp()
 {
     printf("\n\n");
     printf("***************************************************************\n");
-    printf("\nX509 USAGE: wolfssl -x509 -inform <PEM or DER> -in <filename> "
+    printf("\nX509 USAGE: wolfssl x509 -inform <PEM or DER> -in <filename> "
            "-outform <PEM or DER> -out <output file name> \n\n");
     printf("***************************************************************\n");
-    printf("\nEXAMPLE: \n\nwolfssl -x509 -inform pem -in testing-certs/"
+    printf("\nEXAMPLE: \n\nwolfssl x509 -inform pem -in testing-certs/"
            "ca-cert.pem -outform der -out testing-certs/ca-cert-converted.der"
            "\n\n");
 }
@@ -342,10 +343,10 @@ void wolfCLU_certHelp()
 void wolfCLU_genKeyHelp() {
     printf("\n\n");
     printf("***************************************************************\n");
-    printf("\ngenkey USAGE:\nwolfssl -genkey <keytype> -out <filename> -outform"
+    printf("\ngenkey USAGE:\nwolfssl genkey <keytype> -out <filename> -outform"
            " <PEM or DER> -output <PUB/PRIV/KEYPAIR> \n\n");
     printf("***************************************************************\n");
-    printf("\nEXAMPLE: \n\nwolfssl -genkey ed25519 -out mykey -outform der "
+    printf("\nEXAMPLE: \n\nwolfssl genkey ed25519 -out mykey -outform der "
            " -output KEYPAIR"
            "\n\nThe above command would output the files: mykey.priv "
            " and mykey.pub\nChanging the -output option to just PRIV would only"

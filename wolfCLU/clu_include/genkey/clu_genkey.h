@@ -42,7 +42,7 @@ enum {
 };
 
 /* handles incoming arguments for certificate generation */
-int wolfCLU_genKeySetup(int argc, char** argv);
+int wolfCLU_genKeySetup(int argc, char** argv, int offset);
 
 #ifdef HAVE_ED25519
 /* Generate an ED25519 key */

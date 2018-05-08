@@ -35,7 +35,7 @@ enum {
     NOOUT_SET    = 5,
 };
 
-int wolfCLU_certSetup(int argc, char** argv)
+int wolfCLU_certSetup(int argc, char** argv, int offset)
 {
     int i, ret;
     int text_flag    = 0;   /* does user desire human readable cert info */
@@ -53,6 +53,7 @@ int wolfCLU_certSetup(int argc, char** argv)
     char* inform;           /* the input format */
     char* outform;          /* the output format */
 
+    (void)offset;
 
 /*---------------------------------------------------------------------------*/
 /* help */

@@ -101,23 +101,26 @@
  *
  * @param argc holds all command line input
  * @param argv each holds one value from the command line input
+ * @param offset offset to where the non-flag arguments start
  * @param action forwarded from wolfCLU_main (-e, -d, -h, or -b)
  */
-int wolfCLU_setup(int argc, char** argv, char action);
+int wolfCLU_setup(int argc, char** argv, int offset, char action);
 
 /* hash argument function
  *
  * @param argc holds all command line input
  * @param argv each holds one value from the command line input
+ * @param offset offset to where the non-flag arguments start
  */
-int wolfCLU_hashSetup(int argc, char** argv);
+int wolfCLU_hashSetup(int argc, char** argv, int offset);
 
 /* benchmark argument function
  *
  * @param argc holds all command line input
  * @param argv each holds one value from the command line input
+ * @param offset offset to where the non-flag arguments start
  */
-int wolfCLU_benchSetup(int argc, char** argv);
+int wolfCLU_benchSetup(int argc, char** argv, int offset);
 
 /*
  * generic help function

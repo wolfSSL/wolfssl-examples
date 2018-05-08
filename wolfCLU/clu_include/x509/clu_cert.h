@@ -28,7 +28,7 @@ enum {
 };
 
 /* handles incoming arguments for certificate generation */
-int wolfCLU_certSetup(int argc, char** argv);
+int wolfCLU_certSetup(int argc, char** argv, int offset);
 
 /* print help info */
 void wolfCLU_certHelp();

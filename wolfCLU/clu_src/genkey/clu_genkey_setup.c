@@ -23,7 +23,7 @@
 #include "clu_include/genkey/clu_genkey.h"
 #include "clu_include/x509/clu_cert.h"  /* argument checking */
 
-int wolfCLU_genKeySetup(int argc, char** argv)
+int wolfCLU_genKeySetup(int argc, char** argv, int offset)
 {
     char     keyOutFName[MAX_FILENAME_SZ];  /* default outFile for genKey */
     char     defaultFormat[4] = "der\0";
@@ -46,7 +46,11 @@ int wolfCLU_genKeySetup(int argc, char** argv)
 
     XMEMSET(keyOutFName, 0, MAX_FILENAME_SZ);
 
-    keyType = argv[2];
+    keyType = argv[offset+1];
+    if (keyType == NULL) {
+        printf("No key type provided.\n");
+        return USER_INPUT_ERROR;
+    }
 
     ret = wc_InitRng(&rng);
 

@@ -13,15 +13,15 @@ test_return() {
 }
 
 test_case() {
-    echo "testing: ./wolfssl -x509 $1"
-    OUTPUT=$(./wolfssl -x509 $1)
+    echo "testing: ./wolfssl x509 $1"
+    OUTPUT=$(./wolfssl x509 $1)
     RESULT=$?
     test_return $RESULT "$OUTPUT"
 }
 
 cert_test_case() {
-    echo "testing: ./wolfssl -x509 $1"
-    OUTPUT=$(./wolfssl -x509 $1)
+    echo "testing: ./wolfssl x509 $1"
+    OUTPUT=$(./wolfssl x509 $1)
     RESULT=$?
     echo "RESULT: $RESULT"
     diff $2 $3
