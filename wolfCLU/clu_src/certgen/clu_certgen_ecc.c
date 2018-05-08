@@ -1,6 +1,6 @@
 #include "clu_include/certgen/clu_certgen.h"
 
-void free_things(byte** a, byte** b, byte** c, ecc_key* d, ecc_key* e,
+void free_things_ecc(byte** a, byte** b, byte** c, ecc_key* d, ecc_key* e,
                                                                      WC_RNG* f);
 
 int make_self_signed_ecc_certificate(char* keyPath, char* certOut) {
@@ -120,41 +120,41 @@ int make_self_signed_ecc_certificate(char* keyPath, char* certOut) {
 /*---------------------------------------------------------------------------*/
 /* convert the der to a pem and write it to a file */
 /*---------------------------------------------------------------------------*/
-    {
-        int pemBufSz;
+    int pemBufSz;
 
-        printf("Convert the der cert to pem formatted cert\n");
+    printf("Convert the der cert to pem formatted cert\n");
 
-        byte* pemBuf = (byte*) XMALLOC(FOURK_SZ, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-        if (pemBuf == NULL) {
-            printf("Failed to initialize pem buffer.\n");
-            return -1;
-        }
-
-        XMEMSET(pemBuf, 0, FOURK_SZ);
-
-        pemBufSz = wc_DerToPem(certBuf, certBufSz, pemBuf, FOURK_SZ, CERT_TYPE);
-        if (pemBufSz < 0) {
-            printf("Failed to convert from der to pem.\n");
-            return -1;
-        }
-
-        printf("Resulting pem buffer is %d bytes\n", pemBufSz);
-
-        FILE* pemFile = fopen(certOut, "wb");
-        if (!pemFile) {
-            printf("failed to open file: %s\n", certOut);
-            return -1;
-        }
-        fwrite(pemBuf, 1, pemBufSz, pemFile);
-        fclose(pemFile);
-        printf("Successfully converted the der to pem. Result is in:  %s\n\n",
-                                                                     certOut);
+    byte* pemBuf = (byte*) XMALLOC(FOURK_SZ, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    if (pemBuf == NULL) {
+        printf("Failed to initialize pem buffer.\n");
+        return -1;
     }
 
+    XMEMSET(pemBuf, 0, FOURK_SZ);
+
+    pemBufSz = wc_DerToPem(certBuf, certBufSz, pemBuf, FOURK_SZ, CERT_TYPE);
+    if (pemBufSz < 0) {
+        printf("Failed to convert from der to pem.\n");
+        return -1;
+    }
+
+    printf("Resulting pem buffer is %d bytes\n", pemBufSz);
+
+    FILE* pemFile = fopen(certOut, "wb");
+    if (!pemFile) {
+        printf("failed to open file: %s\n", certOut);
+        return -1;
+    }
+    fwrite(pemBuf, 1, pemBufSz, pemFile);
+    fclose(pemFile);
+    printf("Successfully converted the der to pem. Result is in:  %s\n\n",
+                                                                 certOut);
+    
+    free_things_ecc(&pemBuf, &certBuf, NULL, &key, NULL, &rng);
+    return 1;
 }
 
-void free_things(byte** a, byte** b, byte** c, ecc_key* d, ecc_key* e,
+void free_things_ecc(byte** a, byte** b, byte** c, ecc_key* d, ecc_key* e,
                                                                       WC_RNG* f)
 {
     if (a != NULL) {
