@@ -494,8 +494,8 @@ void wolfCLU_verifyHelp(int keyType) {
 void wolfCLU_certgenHelp() {
     printf("\n\n");
     printf("***************************************************************\n");
-    printf("\ncertgen USAGE:\nwolfssl -req <keytype> -in <filename> -out"
-           " <filename> -ecc/-rsa/-ed25519 \n\n");
+    printf("\ncertgen USAGE:\nwolfssl -req -ecc/-rsa/-ed25519 -in <filename> -out"
+           " <filename> \n\n");
     printf("***************************************************************\n");
     printf("\nEXAMPLE: \n\nwolfssl -req ecc -in mykey -out cert.pem "
            "\n\nThe above command would output the file: cert.pem");

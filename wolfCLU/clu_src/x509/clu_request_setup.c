@@ -21,7 +21,7 @@
 
 #include "clu_include/clu_header_main.h"
 #include "clu_include/x509/clu_request.h"
-#include "clu_include/certgen/clu_certgen_ecc.h"
+#include "clu_include/certgen/clu_certgen.h"
 
 int wolfCLU_requestSetup(int argc, char** argv)
 {
@@ -36,22 +36,23 @@ int wolfCLU_requestSetup(int argc, char** argv)
     int     keyCheck =   0;     /* input check */
     int     algCheck =   0;     /* algorithm type */
     
-    // TODO remove hard coded
-    if (wolfCLU_checkForArg("rsa", 3, argc, argv) > 0) {
-        algCheck = 1;
-    } else if (wolfCLU_checkForArg("ed25519", 7, argc, argv) > 0) {
-        algCheck = 2;
-    } else if (wolfCLU_checkForArg("ecc", 3, argc, argv) > 0) {
-        algCheck = 3;
-    } else {
-        return FATAL_ERROR;
-    }
-    
     /* help checking */
     ret = wolfCLU_checkForArg("-help", 5, argc, argv);
     if (ret > 0) {
         wolfCLU_certgenHelp();
         return 0;
+    }
+    
+    // TODO remove hard coded
+    if (wolfCLU_checkForArg("-rsa", 3, argc, argv) > 0) {
+        algCheck = 1;
+    } else if (wolfCLU_checkForArg("-ed25519", 7, argc, argv) > 0) {
+        algCheck = 2;
+    } else if (wolfCLU_checkForArg("-ecc", 3, argc, argv) > 0) {
+        algCheck = 3;
+    } else {
+        wolfCLU_certgenHelp();
+        return FATAL_ERROR;
     }
 
     ret = wolfCLU_checkForArg("-in", 3, argc, argv);
@@ -95,9 +96,9 @@ int wolfCLU_requestSetup(int argc, char** argv)
     
     // TODO remove hard coded values
     if (algCheck == 1) {
-        ret = make_self_signed_ecc_certificate(in, out);
+        ret = make_self_signed_rsa_certificate(in, out);
     } else if (algCheck == 2) {
-        ret = make_self_signed_ecc_certificate(in, out);
+        ret = make_self_signed_ed25519_certificate(in, out);
     } else if (algCheck == 3) {
         ret = make_self_signed_ecc_certificate(in, out);
     }

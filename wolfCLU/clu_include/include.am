@@ -13,5 +13,5 @@ nobase_include_HEADERS+=clu_include/clu_header_main.h \
                         clu_include/sign-verify/clu_sign.h \
                         clu_include/sign-verify/clu_verify.h \
                         clu_include/sign-verify/clu_sign_verify_setup.h \
-                        clu_include/certgen/clu_certgen_ecc.h
+                        clu_include/certgen/clu_certgen.h
 

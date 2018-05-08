@@ -11,3 +11,7 @@
 #define FOURK_SZ 4096
 
 int make_self_signed_ecc_certificate(char*, char*);
+
+int make_self_signed_rsa_certificate(char*, char*);
+
+int make_self_signed_ed25519_certificate(char*, char*);

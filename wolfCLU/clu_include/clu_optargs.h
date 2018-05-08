@@ -68,7 +68,7 @@ static struct option long_options[] = {
     {"bench",     no_argument,       0, BENCHMARK },
     {"hash",      required_argument, 0, HASH      },
     {"x509",      no_argument,       0, X509      },
-    {"req",       required_argument, 0, REQUEST   },
+    {"req",       no_argument,       0, REQUEST   },
     {"genkey",    required_argument, 0, GEN_KEY   },
     {"rsa",       no_argument,       0, RSA       },
     {"ecc",       no_argument,       0, ECC       },

@@ -1,4 +1,4 @@
-#include "clu_include/certgen/clu_certgen_ecc.h"
+#include "clu_include/certgen/clu_certgen.h"
 
 void free_things(byte** a, byte** b, byte** c, ecc_key* d, ecc_key* e,
                                                                      WC_RNG* f);
