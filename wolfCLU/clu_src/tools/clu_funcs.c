@@ -46,6 +46,7 @@ int     i          =   0;       /* loop variable */
     printf("-hash           Hash a file or input\n");
     printf("-bench          Benchmark one of the algorithms\n");
     printf("-x509           X509 certificate processing\n");
+    printf("-req            Request for certificate generation\n");
     printf("-rsa            Rsa signing and signature verification\n");
     printf("-ecc            Ecc signing and signature verification\n");
     printf("-ed25519        Ed25519 signing and signature verification\n");
@@ -73,6 +74,7 @@ int     i          =   0;       /* loop variable */
     printf("For benchmarking: wolfssl -bench -help\n");
     printf("For x509:         wolfssl -x509 -help\n");
     printf("For key creation: wolfssl -genkey -help\n");
+    printf("For certificate creation: wolfssl -req -help\n");
     printf("For RSA sign/ver: wolfssl -rsa -help\n");
     printf("For ECC sign/ver: wolfssl -ecc -help\n");
     printf("For ED25519 sign/ver: wolfssl -ed25519 -help\n");
@@ -487,6 +489,16 @@ void wolfCLU_verifyHelp(int keyType) {
             default:
                 printf("No valid key type defined.\n\n");
         }
+}
+
+void wolfCLU_certgenHelp() {
+    printf("\n\n");
+    printf("***************************************************************\n");
+    printf("\ncertgen USAGE:\nwolfssl -req <keytype> -in <filename> -out"
+           " <filename> -ecc/-rsa/-ed25519 \n\n");
+    printf("***************************************************************\n");
+    printf("\nEXAMPLE: \n\nwolfssl -req ecc -in mykey -out cert.pem "
+           "\n\nThe above command would output the file: cert.pem");
 }
 
 /*

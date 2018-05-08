@@ -1,13 +1,4 @@
-#include <stdio.h>
-#include <wolfssl/options.h>
-#include <wolfssl/wolfcrypt/settings.h>
-#include <wolfssl/wolfcrypt/ecc.h>
-#include <wolfssl/wolfcrypt/asn_public.h>
-#include <wolfssl/wolfcrypt/asn.h>
-#include <wolfssl/wolfcrypt/error-crypt.h>
-
-#define HEAP_HINT NULL
-#define FOURK_SZ 4096
+#include "clu_include/certgen/clu_certgen_ecc.h"
 
 void free_things(byte** a, byte** b, byte** c, ecc_key* d, ecc_key* e,
                                                                      WC_RNG* f);
@@ -130,7 +121,6 @@ int make_self_signed_ecc_certificate(char* keyPath, char* certOut) {
 /* convert the der to a pem and write it to a file */
 /*---------------------------------------------------------------------------*/
     {
-        char pemOutput[] = "./newCert.pem";
         int pemBufSz;
 
         printf("Convert the der cert to pem formatted cert\n");
@@ -151,7 +141,7 @@ int make_self_signed_ecc_certificate(char* keyPath, char* certOut) {
 
         printf("Resulting pem buffer is %d bytes\n", pemBufSz);
 
-        FILE* pemFile = fopen(pemOutput, "wb");
+        FILE* pemFile = fopen(certOut, "wb");
         if (!pemFile) {
             printf("failed to open file: %s\n", certOut);
             return -1;
@@ -159,7 +149,7 @@ int make_self_signed_ecc_certificate(char* keyPath, char* certOut) {
         fwrite(pemBuf, 1, pemBufSz, pemFile);
         fclose(pemFile);
         printf("Successfully converted the der to pem. Result is in:  %s\n\n",
-                                                                     pemOutput);
+                                                                     certOut);
     }
 
 }
