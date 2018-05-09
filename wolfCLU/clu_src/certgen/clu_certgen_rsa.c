@@ -75,7 +75,7 @@ int make_self_signed_rsa_certificate(char* keyPath, char* certOut) {
     strncpy(newCert.subject.email, email, CTC_NAME_SIZE);
     newCert.daysValid = atoi(daysValid);
     newCert.isCA    = 0;
-    newCert.sigType = CTC_SHA256wECDSA;
+    newCert.sigType = CTC_SHA256wRSA;
     
     byte* certBuf = (byte*) XMALLOC(FOURK_SZ, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
     if (certBuf == NULL) {
