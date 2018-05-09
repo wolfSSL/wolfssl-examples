@@ -137,7 +137,7 @@ int wolfCLU_verify_signature(char* sig, char* hash,
 
     int hSz;
     int fSz;
-    int ret = -1;
+    int ret;
     
     FILE* h;
     FILE* f = fopen(sig,"rb");
@@ -158,7 +158,6 @@ int wolfCLU_verify_signature(char* sig, char* hash,
             break;
             
         case ECC_SIG_VER:
-            hSz;
             h = fopen(hash,"rb");
             
             fseek(h, 0, SEEK_END);
@@ -173,8 +172,6 @@ int wolfCLU_verify_signature(char* sig, char* hash,
             break;
             
         case ED25519_SIG_VER:
-        #ifdef HAVE_ED25519
-            hSz;
             h = fopen(hash,"rb");
             
             fseek(h, 0, SEEK_END);
@@ -185,9 +182,12 @@ int wolfCLU_verify_signature(char* sig, char* hash,
             fseek(h, 0, SEEK_SET);
             fread(h_mssg, 1, hSz, h);
             fclose(h);
-            ret = wolfCLU_verify_signature_ed25519(data, ED25519_SIG_SIZE, h_mssg, hSz, keyPath, pubIn);
-        #endif
+            ret = wolfCLU_verify_signature_ed25519(data, fSz, h_mssg, hSz, keyPath, pubIn);
             break;
+        
+        default:
+            printf("No valid verify algorithm selected.\n");
+            ret = -1;
     }
     return ret;
 }

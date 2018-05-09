@@ -65,6 +65,7 @@ int wolfCLU_inderOutder(char* infile, char* outfile, int silent_flag)
 int wolfCLU_inpemOuttext(char* infile, char* outfile, int silent_flag) {
     int ret;
     ret = wolfCLU_parseFile(infile, PEM, outfile, TEXT, silent_flag);
+    return ret;
 }
 
 int wolfCLU_parseFile(char* infile, int inform, char* outfile, int outform,

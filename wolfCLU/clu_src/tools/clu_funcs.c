@@ -374,10 +374,10 @@ void wolfCLU_genKeyHelp() {
         }
     printf("\n\n");
     printf("***************************************************************\n");
-    printf("\ngenkey USAGE:\nwolfssl -genkey <keytype> -out <filename> -outform"
-           " <PEM or DER> -output <PUB/PRIV/KEYPAIR> \n\n");
+    printf("\ngenkey USAGE:\nwolfssl -genkey <keytype> -size(optional) <bits> "
+           "-out <filename> -outform <PEM or DER> -output <PUB/PRIV/KEYPAIR> \n\n");
     printf("***************************************************************\n");
-    printf("\nEXAMPLE: \n\nwolfssl -genkey ed25519 -out mykey -outform der "
+    printf("\nEXAMPLE: \n\nwolfssl -genkey rsa -size 2048 -out mykey -outform der "
            " -output KEYPAIR"
            "\n\nThe above command would output the files: mykey.priv "
            " and mykey.pub\nChanging the -output option to just PRIV would only"
@@ -457,11 +457,11 @@ void wolfCLU_verifyHelp(int keyType) {
             case RSA_SIG_VER:
                 printf("RSA Verify with Private Key:\n"
                         "wolfssl -rsa -verify -inkey <priv_key>"
-                        " -signature <filename> -out <filename>\n\n");
+                        " -sigfile <filename> -out <filename>\n\n");
                 printf("***************************************************************\n");
                 printf("RSA Verify with Public Key\n"
                        "wolfssl -rsa -verify -inkey <pub_key>"
-                       " -signature <filename> -out <filename> -pubin\n\n");
+                       " -sigfile <filename> -out <filename> -pubin\n\n");
                 printf("***************************************************************\n");
                 break;
             #endif
@@ -469,12 +469,12 @@ void wolfCLU_verifyHelp(int keyType) {
             case ED25519_SIG_VER:
                 printf("ED25519 Verifiy with Private Key\n"
                        "wolfssl -ed25519 -verify -inkey "
-                       "<priv_key> -signature <filename> -in <original>"
+                       "<priv_key> -sigfile <filename> -in <original>"
                        "\n\n");
                 printf("***************************************************************\n");
                 printf("ED25519 Verifiy with Public Key\n"
                        "wolfssl -ed25519 -verify -inkey "
-                       "<pub_key> -signature <filename> -in <original> -pubin"
+                       "<pub_key> -sigfile <filename> -in <original> -pubin"
                        "\n\n");
                 printf("***************************************************************\n");
                 break;
@@ -483,7 +483,7 @@ void wolfCLU_verifyHelp(int keyType) {
             case ECC_SIG_VER:
                 printf("ECC Verify with Public Key\n"
                        "wolfssl -ecc -verify -inkey <pub_key>"
-                       " -signature <signature> -in <original>\n\n");
+                       " -sigfile <signature> -in <original>\n\n");
                 break;
             #endif
             default:
@@ -555,7 +555,7 @@ int wolfCLU_getAlgo(char* name, char** alg, char** mode, int* size)
     *size = atoi(sz);
 
     /* checks key sizes for acceptability */
-    if (strcmp(*alg, "aes") == 0) {
+    if (XSTRNCMP(*alg, "aes", 3) == 0) {
     #ifdef NO_AES
         printf("AES not compiled in.\n");
         return NOT_COMPILED_IN;
@@ -568,7 +568,7 @@ int wolfCLU_getAlgo(char* name, char** alg, char** mode, int* size)
     #endif
     }
 
-    else if (strcmp(*alg, "3des") == 0) {
+    else if (XSTRNCMP(*alg, "3des", 4) == 0) {
     #ifdef NO_DES3
         printf("3DES not compiled in.\n");
         return NOT_COMPILED_IN;
@@ -581,7 +581,7 @@ int wolfCLU_getAlgo(char* name, char** alg, char** mode, int* size)
     #endif
     }
 
-    else if (strcmp(*alg, "camellia") == 0) {
+    else if (XSTRNCMP(*alg, "camellia", 8) == 0) {
     #ifndef HAVE_CAMELIA
         printf("CAMELIA not compiled in.\n");
         return NOT_COMPILED_IN;

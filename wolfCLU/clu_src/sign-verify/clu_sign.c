@@ -25,7 +25,7 @@
 #include "clu_include/clu_header_main.h"
 
 int wolfCLU_sign_data(char* in, char* out, char* privKey, int keyType) {
-    int ret = -1;
+    int ret;
     int fSz;
     FILE* f = fopen(in,"rb");
     
@@ -52,6 +52,9 @@ int wolfCLU_sign_data(char* in, char* out, char* privKey, int keyType) {
         ret = wolfCLU_sign_data_ed25519(data, out, fSz, privKey);
         break;
     
+    default: 
+        printf("No valid sign algorithm selected.\n");
+        ret = -1;
     }
     
     return ret;

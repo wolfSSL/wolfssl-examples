@@ -95,7 +95,7 @@ int main(int argc, char** argv)
         case INFILE:   /* File passed in by user                    */
         case OUTFILE:  /* Output file                               */
         case INKEY:
-        case SIGNATURE:
+        case SIGFILE:
 
             /* do nothing. */
 

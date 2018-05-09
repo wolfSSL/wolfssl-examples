@@ -173,7 +173,7 @@ int wolfCLU_genKeySetup(int argc, char** argv)
         return NOT_COMPILED_IN;
     #endif /* HAVE_ECC */
     } else if (XSTRNCMP(keyType, "rsa", 3) == 0) {
-    #if defined(NO_RSA) && defined(WOLFSSL_KEY_GEN)
+    #if !defined(NO_RSA) && defined(WOLFSSL_KEY_GEN)
         /* RSA flags */
         int directiveArg;
         int sizeArg;
