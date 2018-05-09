@@ -123,7 +123,7 @@ int wolfCLU_sign_verify_setup(int argc, char** argv)
         inCheck = 1;
     }
     
-    ret = wolfCLU_checkForArg("-signature", 10, argc, argv);
+    ret = wolfCLU_checkForArg("-sigfile", 8, argc, argv);
     if (ret > 0) {
         sig = XMALLOC(strlen(argv[ret+1]), HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
         if (sig == NULL) {
@@ -138,7 +138,7 @@ int wolfCLU_sign_verify_setup(int argc, char** argv)
         sigCheck = 1;
     }
     else if (verifyCheck == 1) {
-        printf("Please specify -signature <sig> when verifying.\n");
+        printf("Please specify -sigfile <sig> when verifying.\n");
         wolfCLU_verifyHelp(algCheck);
         return ret;
     }

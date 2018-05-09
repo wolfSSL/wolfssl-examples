@@ -32,7 +32,7 @@
 #ifdef HAVE_ED25519
 int wolfCLU_genKey_ED25519(WC_RNG* rng, char* fOutNm, int directive, int format)
 {
-    int ret = -1;                        /* return value */
+    int ret;                             /* return value */
     int fOutNmSz = XSTRLEN(fOutNm);      /* file name without append */
     int fOutNmAppendSz = 6;              /* # of bytes to append to file name */
     int flag_outputPub = 0;              /* set if outputting both priv/pub */
