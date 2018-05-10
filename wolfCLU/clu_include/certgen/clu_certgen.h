@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <wolfssl/options.h>
 #include <wolfssl/wolfcrypt/settings.h>
+#include <wolfssl/wolfcrypt/asn.h>
+#include <wolfssl/wolfcrypt/asn_public.h>
+#include <wolfssl/wolfcrypt/error-crypt.h>
 #ifdef HAVE_ED25519
     #include <wolfssl/wolfcrypt/ed25519.h>
 #endif
@@ -9,10 +12,7 @@
 #endif
 #ifdef HAVE_ECC
     #include <wolfssl/wolfcrypt/ecc.h>
-    #include <wolfssl/wolfcrypt/asn_public.h>
 #endif
-#include <wolfssl/wolfcrypt/asn_public.h>
-#include <wolfssl/wolfcrypt/error-crypt.h>
 
 #define HEAP_HINT NULL
 #define FOURK_SZ 4096

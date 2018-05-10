@@ -75,7 +75,7 @@ int make_self_signed_ecc_certificate(char* keyPath, char* certOut) {
     strncpy(newCert.subject.email, email, CTC_NAME_SIZE);
     newCert.daysValid = atoi(daysValid);
     newCert.isCA    = 0;
-    newCert.sigType = CTC_SHA256wECDSA;
+    newCert.sigType = key.dp->oidSum;
     
     byte* certBuf = (byte*) XMALLOC(FOURK_SZ, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
     if (certBuf == NULL) {
@@ -85,7 +85,7 @@ int make_self_signed_ecc_certificate(char* keyPath, char* certOut) {
 
     XMEMSET(certBuf, 0, FOURK_SZ);
     int certBufSz = FOURK_SZ;
-
+    
     ret = wc_MakeCert(&newCert, certBuf, FOURK_SZ, NULL, &key, &rng); //ecc certificate
     if (ret < 0) {
         printf("Failed to make certificate.\n");
