@@ -100,27 +100,27 @@ int wolfCLU_hash(char* in, char* out, char* alg, int size)
     }
 #endif
 #ifndef NO_SHA
-    else if (strcmp(alg, "sha") == 0) {
+    if (strcmp(alg, "sha") == 0) {
         ret = wc_ShaHash(input, length, output);
     }
 #endif
 #ifndef NO_SHA256
-    else if (strcmp(alg, "sha256") == 0) {
+    if (strcmp(alg, "sha256") == 0) {
         ret = wc_Sha256Hash(input, length, output);
     }
 #endif
 #ifdef WOLFSSL_SHA384
-    else if (strcmp(alg, "sha384") == 0) {
+    if (strcmp(alg, "sha384") == 0) {
         ret = wc_Sha384Hash(input, length, output);
     }
 #endif
 #ifdef WOLFSSL_SHA512
-    else if (strcmp(alg, "sha512") == 0) {
+    if (strcmp(alg, "sha512") == 0) {
         ret = wc_Sha512Hash(input, length, output);
     }
 #endif
 #ifdef HAVE_BLAKE2
-    else if (strcmp(alg, "blake2b") == 0) {
+    if (strcmp(alg, "blake2b") == 0) {
         ret = wc_InitBlake2b(&hash, size);
         if (ret != 0) return ret;
         ret = wc_Blake2bUpdate(&hash, input, length);
@@ -132,12 +132,12 @@ int wolfCLU_hash(char* in, char* out, char* alg, int size)
 
 #ifndef NO_CODING
 #ifdef WOLFSSL_BASE64_ENCODE
-    else if (strcmp(alg, "base64enc") == 0) {
+    if (strcmp(alg, "base64enc") == 0) {
         ret = Base64_Encode(input, length, output, (word32*)&size);
         outputAsHexString = 0;
     }
 #endif /* WOLFSSL_BASE64_ENCODE */
-    else if (strcmp(alg, "base64dec") == 0) {
+    if (strcmp(alg, "base64dec") == 0) {
         ret = Base64_Decode(input, length, output, (word32*)&size);
         outputAsHexString = 0;
     }

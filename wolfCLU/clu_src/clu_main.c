@@ -25,6 +25,7 @@
 #include "clu_include/clu_error_codes.h"
 #include "clu_include/x509/clu_request.h"
 #include "clu_include/genkey/clu_genkey.h"
+#include "clu_include/sign-verify/clu_sign_verify_setup.h"
 /* enumerate optionals beyond ascii range to dis-allow use of alias IE we
  * do not want "-e" to work for encrypt, user must use "encrypt"
  */
@@ -58,6 +59,9 @@ int main(int argc, char** argv)
         case X509:
         case REQUEST:
         case GEN_KEY:
+        case RSA:
+        case ECC:
+        case ED25519:
 
             if (!flag) flag = option;
 
@@ -74,6 +78,7 @@ int main(int argc, char** argv)
         case SIZE:     /* size for hash or key to output            */
         case EXPONENT: /* exponent for generating RSA key           */
         case TIME:     /* Time to benchmark for                     */
+        case SIGN:
         case VERIFY:   /* Verify results, used with -iv and -key    */
         case INFORM:   /* Certificate Stuff                         */
         case OUTFORM:
@@ -81,6 +86,7 @@ int main(int argc, char** argv)
         case NOOUT:
         case TEXT_OUT:
         case SILENT:
+        case PUBIN:
 
             /* The cases above have their arguments converted to lower case */
             if (optarg) convert_to_lower(optarg, (int)XSTRLEN(optarg));
@@ -88,6 +94,8 @@ int main(int argc, char** argv)
 
         case INFILE:   /* File passed in by user                    */
         case OUTFILE:  /* Output file                               */
+        case INKEY:
+        case SIGFILE:
 
             /* do nothing. */
 
@@ -155,8 +163,21 @@ int main(int argc, char** argv)
     case GEN_KEY:
         ret = wolfCLU_genKeySetup(argc, argv);
         break;
+    
+    case RSA:
+        ret = wolfCLU_sign_verify_setup(argc, argv);
+        break;
+    
+    case ECC:
+        ret = wolfCLU_sign_verify_setup(argc, argv);
+        break;
+    
+    case ED25519:
+        ret = wolfCLU_sign_verify_setup(argc, argv);
+        break;
+    
     }
-
+    
     if (ret != 0)
         printf("Error returned: %d.\n", ret);
 

@@ -32,7 +32,7 @@
 #ifdef HAVE_ED25519
 int wolfCLU_genKey_ED25519(WC_RNG* rng, char* fOutNm, int directive, int format)
 {
-    int ret = -1;                        /* return value */
+    int ret;                             /* return value */
     int fOutNmSz = XSTRLEN(fOutNm);      /* file name without append */
     int fOutNmAppendSz = 6;              /* # of bytes to append to file name */
     int flag_outputPub = 0;              /* set if outputting both priv/pub */
@@ -159,8 +159,13 @@ int wolfCLU_genKey_ECC(RNG* rng, char* fName, int directive, int fmt,
     char  fExtPriv[6] = ".priv\0";
     char  fExtPub[6]  = ".pub\0\0";
     char* fOutNameBuf = NULL;
-
+    
+    #ifdef NO_AES
+    /* use 16 bytes for AES block size */
+    size_t maxDerBufSz = 4 * keySz * 16;
+    #else
     size_t maxDerBufSz = 4 * keySz * AES_BLOCK_SIZE;
+    #endif
     byte*  derBuf      = NULL;
     int    derBufSz    = -1;
 
@@ -299,7 +304,12 @@ int wolfCLU_genKey_RSA(RNG* rng, char* fName, int directive, int fmt, int
     char  fExtPub[6]  = ".pub\0\0";
     char* fOutNameBuf = NULL;
 
-    size_t maxDerBufSz = 5 * keySz * AES_BLOCK_SIZE;
+    #ifdef NO_AES
+    /* use 16 bytes for AES block size */
+    size_t maxDerBufSz = 4 * keySz * 16;
+    #else
+    size_t maxDerBufSz = 4 * keySz * AES_BLOCK_SIZE;
+    #endif
     byte*  derBuf      = NULL;
     int    derBufSz    = -1;
 

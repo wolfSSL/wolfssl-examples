@@ -28,11 +28,12 @@
 #include "clu_include/x509/clu_parse.h"
 
 enum {
-    INPEM_OUTPEM = 1,
-    INPEM_OUTDER = 2,
-    INDER_OUTPEM = 3,
-    INDER_OUTDER = 4,
-    NOOUT_SET    = 5,
+    INPEM_OUTPEM  = 1,
+    INPEM_OUTDER  = 2,
+    INDER_OUTPEM  = 3,
+    INDER_OUTDER  = 4,
+    INPEM_OUTTEXT = 5,
+    NOOUT_SET     = 6,
 };
 
 int wolfCLU_certSetup(int argc, char** argv)
@@ -62,7 +63,16 @@ int wolfCLU_certSetup(int argc, char** argv)
         wolfCLU_certHelp();
         return 0;
     }
-
+/*---------------------------------------------------------------------------*/
+/* text */
+/*---------------------------------------------------------------------------*/
+    ret = wolfCLU_checkForArg("-text", 5, argc, argv);
+    if (ret > 0) {
+        /* set flag for converting to human readable.
+         * return NOT_YET_IMPLEMENTED error
+         */
+        text_flag = 1;
+    } /* Optional flag do not return error */
 /*---------------------------------------------------------------------------*/
 /* inform pem/der/??OTHER?? */
 /*---------------------------------------------------------------------------*/
@@ -87,18 +97,19 @@ int wolfCLU_certSetup(int argc, char** argv)
     ret = wolfCLU_checkForArg("-outform", 8, argc, argv);
     if (ret > 0) {
         outform = argv[ret+1];
-    } else {
+        ret = wolfCLU_checkOutform(outform);
+        if (ret == PEM_FORM) {
+            outpem_flag = 1;
+        } else if (ret == DER_FORM) {
+            outder_flag = 1;
+        } else {
+            return ret;
+        }
+    } else if (text_flag == 0) {
         return ret;
     }
 
-    ret = wolfCLU_checkOutform(outform);
-    if (ret == PEM_FORM) {
-        outpem_flag = 1;
-    } else if (ret == DER_FORM) {
-        outder_flag = 1;
-    } else {
-        return ret;
-    }
+    
 
 /*---------------------------------------------------------------------------*/
 /* in file */
@@ -128,7 +139,7 @@ int wolfCLU_certSetup(int argc, char** argv)
          * then write outfile */
         outfile_flag = 1;
         outfile = argv[ret+1];
-    } else {
+    } else if (text_flag == 0) {
         return ret;
     }
 
@@ -147,16 +158,6 @@ int wolfCLU_certSetup(int argc, char** argv)
         noout_flag = 1;
     } /* Optional flag do not return error */
 /*---------------------------------------------------------------------------*/
-/* text */
-/*---------------------------------------------------------------------------*/
-    ret = wolfCLU_checkForArg("-text", 5, argc, argv);
-    if (ret > 0) {
-        /* set flag for converting to human readable.
-         * return NOT_YET_IMPLEMENTED error
-         */
-        text_flag = 1;
-    } /* Optional flag do not return error */
-/*---------------------------------------------------------------------------*/
 /* silent */
 /*---------------------------------------------------------------------------*/
     ret = wolfCLU_checkForArg("-silent", 7, argc, argv);
@@ -169,8 +170,9 @@ int wolfCLU_certSetup(int argc, char** argv)
 /*---------------------------------------------------------------------------*/
 /* END ARG PROCESSING */
 /*---------------------------------------------------------------------------*/
-    ret = error_check(inpem_flag, inder_flag, outpem_flag, outder_flag,
-                                                                    noout_flag);
+    ret = error_check(inpem_flag, inder_flag, 
+                      outpem_flag, outder_flag,
+                      text_flag, noout_flag);
 
     switch (ret) {
         case INPEM_OUTPEM:
@@ -193,6 +195,16 @@ int wolfCLU_certSetup(int argc, char** argv)
             if (infile_flag) wolfCLU_inderOutder(infile, outfile, silent_flag);
             else return INPUT_FILE_ERROR;
             break;
+        case INPEM_OUTTEXT:
+            ret = 0;
+            if (outfile_flag) {
+                wolfCLU_inpemOuttext(infile, outfile, silent_flag);
+            } else {
+                printf("Outfile not set, using stdout\n");
+                outfile = "stdout";
+                wolfCLU_inpemOuttext(infile, outfile, silent_flag);
+            }
+            break;
         case NOOUT_SET:
             ret = 0;
             break;
@@ -210,8 +222,9 @@ int wolfCLU_certSetup(int argc, char** argv)
  * @arg outpem_flag: is outform set to pem
  * @arg outder_flag: is outform set to der
  */
-int error_check(int inpem_flag, int inder_flag, int outpem_flag,
-                                                int outder_flag, int noout_flag)
+int error_check(int inpem_flag, int inder_flag, 
+                int outpem_flag, int outder_flag, 
+                int text_flag, int noout_flag)
 {
     int ret = USER_INPUT_ERROR;
     int tmp;
@@ -259,6 +272,10 @@ int error_check(int inpem_flag, int inder_flag, int outpem_flag,
             return USER_INPUT_ERROR;
         }
         return INDER_OUTDER;
+    }
+    ret = (inpem_flag & text_flag);
+    if (ret) {
+        return INPEM_OUTTEXT; 
     }
     ret = (outder_flag & outpem_flag);
     if (ret) {

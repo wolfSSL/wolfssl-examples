@@ -6,7 +6,8 @@ This is the wolfSSL: Command Line Utility (wolfCLU).
 
 To use this feature, please configure and install wolfssl with the following commands:
 
-    ./configure --enable-pwdbased --enable-opensslextra && make && make check
+    ./configure --enable-pwdbased --enable-opensslextra --enable-keygen --enable-ed25519
+     && make && make check
 
 If that succeeds, run:
 
@@ -21,6 +22,8 @@ hexidecimal values.
 
 `--enable-base64encode` enables Base64 encoding (not on by default)
 
+`--enable-keygen` enables key generation (not on by default)
+
 
 Additional features that can be included when configuring wolfssl for
 encryption or decryption are:
@@ -34,7 +37,6 @@ encryption or decryption are:
 Additional features that can be included when configuring wolfssl for
 key generation are:
 
-        --enable-ed25519
 
 
 ##wolfCLU Install

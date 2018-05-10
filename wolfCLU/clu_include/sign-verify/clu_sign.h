@@ -1,4 +1,4 @@
-/* clu_cert.h
+/* clu_sign.h
  *
  * Copyright (C) 2006-2017 wolfSSL Inc.
  *
@@ -19,22 +19,29 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
-#include <wolfssl/wolfcrypt/random.h>
-#include <wolfssl/wolfcrypt/error-crypt.h>
+#include <wolfssl/options.h>
+#ifdef HAVE_ED25519
+    #include <wolfssl/wolfcrypt/ed25519.h>
+#endif
+#ifndef NO_RSA
+    #include <wolfssl/wolfcrypt/rsa.h>
+#endif
+#ifdef HAVE_ECC
+    #include <wolfssl/wolfcrypt/ecc.h>
+    #include <wolfssl/wolfcrypt/asn_public.h>
+#endif
 
 enum {
-    PEM_FORM,
-    DER_FORM,
+    RSA_SIG_VER,
+    ECC_SIG_VER,
+    ED25519_SIG_VER,
 };
 
-/* handles incoming arguments for certificate generation */
-int wolfCLU_certSetup(int argc, char** argv);
+int wolfCLU_sign_data(char*, char*, char*, int);
 
-/* print help info */
-void wolfCLU_certHelp();
 
-/* check for user input errors */
-int error_check(int inpem_flag, int inder_flag, 
-                int outpem_flag, int outder_flag, 
-                int text_flag, int noout_flag);
+int wolfCLU_sign_data_rsa(byte*, char*, word32, char*);
+int wolfCLU_sign_data_ecc(byte*, char*, word32, char*);
+int wolfCLU_sign_data_ed25519(byte*, char*, word32, char*);
+
 

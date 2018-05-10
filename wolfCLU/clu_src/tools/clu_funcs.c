@@ -22,6 +22,8 @@
 #include "clu_include/clu_header_main.h"
 #include "clu_include/version.h"
 #include "clu_include/x509/clu_cert.h" /* for PEM_FORM and DER_FORM */
+#include "clu_include/sign-verify/clu_sign.h" /* for RSA_SIG_VER, ECC_SIG_VER, 
+                                                       ED25519_SIG_VER */
 
 #define SALT_SIZE       8
 #define DES3_BLOCK_SIZE 24
@@ -44,6 +46,9 @@ int     i          =   0;       /* loop variable */
     printf("-hash           Hash a file or input\n");
     printf("-bench          Benchmark one of the algorithms\n");
     printf("-x509           X509 certificate processing\n");
+    printf("-rsa            Rsa signing and signature verification\n");
+    printf("-ecc            Ecc signing and signature verification\n");
+    printf("-ed25519        Ed25519 signing and signature verification\n");
     printf("\n");
     /*optional flags*/
     printf("Optional Flags.\n\n");
@@ -62,12 +67,15 @@ int     i          =   0;       /* loop variable */
     printf("-output         used with -genkey option to specify which keys to\n"
            "                output [PUB/PRIV/KEYPAIR]\n");
 
-    printf("\nFor encryption:   wolfssl -encrypt -help\n");
+    printf("\nFor encryption: wolfssl -encrypt -help\n");
     printf("For decryption:   wolfssl -decrypt -help\n");
     printf("For hashing:      wolfssl -hash -help\n");
     printf("For benchmarking: wolfssl -bench -help\n");
     printf("For x509:         wolfssl -x509 -help\n");
-    printf("For key creation: wolfssl -genkey -help\n\n");
+    printf("For key creation: wolfssl -genkey -help\n");
+    printf("For RSA sign/ver: wolfssl -rsa -help\n");
+    printf("For ECC sign/ver: wolfssl -ecc -help\n");
+    printf("For ED25519 sign/ver: wolfssl -ed25519 -help\n");
  }
 
 /*
@@ -79,8 +87,9 @@ void wolfCLU_verboseHelp()
 
     /* hash options */
     const char* algsenc[] = {        /* list of acceptable algorithms */
+    "Algorithms:"
 #ifndef NO_MD5
-        "md5"
+        ,"md5"
 #endif
 #ifndef NO_SHA
         ,"sha"
@@ -107,8 +116,9 @@ void wolfCLU_verboseHelp()
 
     /* benchmark options */
     const char* algsother[] = {      /* list of acceptable algorithms */
+        "ALGS: "
 #ifndef NO_AES
-        "aes-cbc"
+        , "aes-cbc"
 #endif
 #ifdef WOLFSSL_AES_COUNTER
         , "aes-ctr"
@@ -234,8 +244,9 @@ void wolfCLU_hashHelp()
     printf("\n");
     /* hash options */
     const char* algsenc[] = {        /* list of acceptable algorithms */
+    "Algorithms: "
 #ifndef NO_MD5
-        "md5"
+        ,"md5"
 #endif
 #ifndef NO_SHA
         ,"sha"
@@ -280,8 +291,9 @@ void wolfCLU_benchHelp()
 
     /* benchmark options */
     const char* algsother[] = {      /* list of acceptable algorithms */
+        "ALGS: "
 #ifndef NO_AES
-        "aes-cbc"
+        , "aes-cbc"
 #endif
 #ifdef WOLFSSL_AES_COUNTER
         , "aes-ctr"
@@ -340,17 +352,141 @@ void wolfCLU_certHelp()
 }
 
 void wolfCLU_genKeyHelp() {
+
+        const char* keysother[] = { /* list of acceptable key types */
+        "KEYS: "
+    #ifndef NO_RSA
+        ,"rsa"
+    #endif
+    #ifdef HAVE_ED25519
+        ,"ed25519"
+    #endif
+    #ifdef HAVE_ECC
+        ,"ecc"
+    #endif
+        };
+
+        printf("Available keys with current configure settings:\n");
+        for(i = 0; i < (int) sizeof(keysother)/(int) sizeof(keysother[0]); i++) {
+            printf("%s\n", keysother[i]);
+        }
     printf("\n\n");
     printf("***************************************************************\n");
-    printf("\ngenkey USAGE:\nwolfssl -genkey <keytype> -out <filename> -outform"
-           " <PEM or DER> -output <PUB/PRIV/KEYPAIR> \n\n");
+    printf("\ngenkey USAGE:\nwolfssl -genkey <keytype> -size(optional) <bits> "
+           "-out <filename> -outform <PEM or DER> -output <PUB/PRIV/KEYPAIR> \n\n");
     printf("***************************************************************\n");
-    printf("\nEXAMPLE: \n\nwolfssl -genkey ed25519 -out mykey -outform der "
+    printf("\nEXAMPLE: \n\nwolfssl -genkey rsa -size 2048 -out mykey -outform der "
            " -output KEYPAIR"
            "\n\nThe above command would output the files: mykey.priv "
            " and mykey.pub\nChanging the -output option to just PRIV would only"
            "\noutput the mykey.priv and using just PUB would only output"
            "\nmykey.pub\n\n");
+}
+
+void wolfCLU_signHelp(int keyType) {
+
+    const char* keysother[] = { /* list of acceptable key types */
+        "KEYS: "
+        #ifndef NO_RSA
+        ,"rsa"
+        #endif
+        #ifdef HAVE_ED25519
+        ,"ed25519"
+        #endif
+        #ifdef HAVE_ECC
+        ,"ecc"
+        #endif
+        };
+
+        printf("\nAvailable keys with current configure settings:\n");
+        for(i = 0; i < (int) sizeof(keysother)/(int) sizeof(keysother[0]); i++) {
+            printf("%s\n", keysother[i]);
+        }
+        
+        printf("\n***************************************************************\n");
+        switch(keyType) {
+            #ifndef NO_RSA
+            case RSA_SIG_VER:
+                printf("RSA Sign Usage: \nwolfssl -rsa -sign -inkey <priv_key>"
+                       " -in <filename> -out <filename>\n\n");
+                printf("***************************************************************\n");
+                break;
+            #endif
+            #ifdef HAVE_ED25519
+            case ED25519_SIG_VER:
+                printf("ED25519 Sign Usage: \nwolfssl -ed25519 -sign -inkey "
+                       "<priv_key> -in <filename> -out <filename>\n\n");
+                printf("***************************************************************\n");
+                break;
+            #endif
+            #ifdef HAVE_ECC
+            case ECC_SIG_VER:
+                printf("ECC Sign Usage: \nwolfssl -ecc -sign -inkey <priv_key>"
+                       " -in <filename> -out <filename>\n\n");
+                break;
+            #endif
+            default:
+                printf("No valid key type defined.\n\n");
+        }
+}
+
+void wolfCLU_verifyHelp(int keyType) {
+    const char* keysother[] = { /* list of acceptable key types */
+        "KEYS: "
+        #ifndef NO_RSA
+        ,"rsa"
+        #endif
+        #ifdef HAVE_ED25519
+        ,"ed25519"
+        #endif
+        #ifdef HAVE_ECC
+        ,"ecc"
+        #endif
+        };
+
+        printf("\nAvailable keys with current configure settings:\n");
+        for(i = 0; i < (int) sizeof(keysother)/(int) sizeof(keysother[0]); i++) {
+            printf("%s\n", keysother[i]);
+        }
+        
+        printf("\n***************************************************************\n");
+        switch(keyType) {
+            #ifndef NO_RSA
+            case RSA_SIG_VER:
+                printf("RSA Verify with Private Key:\n"
+                        "wolfssl -rsa -verify -inkey <priv_key>"
+                        " -sigfile <filename> -out <filename>\n\n");
+                printf("***************************************************************\n");
+                printf("RSA Verify with Public Key\n"
+                       "wolfssl -rsa -verify -inkey <pub_key>"
+                       " -sigfile <filename> -out <filename> -pubin\n\n");
+                printf("***************************************************************\n");
+                break;
+            #endif
+            #ifdef HAVE_ED25519
+            case ED25519_SIG_VER:
+                printf("ED25519 Verifiy with Private Key\n"
+                       "wolfssl -ed25519 -verify -inkey "
+                       "<priv_key> -sigfile <filename> -in <original>"
+                       "\n\n");
+                printf("***************************************************************\n");
+                printf("ED25519 Verifiy with Public Key\n"
+                       "wolfssl -ed25519 -verify -inkey "
+                       "<pub_key> -sigfile <filename> -in <original> -pubin"
+                       "\n\n");
+                printf("***************************************************************\n");
+                break;
+            #endif
+            #ifdef HAVE_ECC
+            case ECC_SIG_VER:
+                printf("ECC Verify with Public Key\n"
+                       "wolfssl -ecc -verify -inkey <pub_key>"
+                       " -sigfile <signature> -in <original>\n\n");
+                break;
+            #endif
+            default:
+                printf("No valid key type defined.\n\n");
+        }
 }
 
 /*
@@ -364,8 +500,9 @@ int wolfCLU_getAlgo(char* name, char** alg, char** mode, int* size)
     char*   sz          = 0;        /* key size provided */
 
     const char* acceptAlgs[]  = {   /* list of acceptable algorithms */
+        "Algorithms: "
 #ifndef NO_AES
-        "aes"
+        , "aes"
 #endif
 #ifndef NO_DES3
         , "3des"
@@ -406,38 +543,50 @@ int wolfCLU_getAlgo(char* name, char** alg, char** mode, int* size)
     *size = atoi(sz);
 
     /* checks key sizes for acceptability */
-#ifndef NO_AES
-    if (strcmp(*alg, "aes") == 0) {
+    if (XSTRNCMP(*alg, "aes", 3) == 0) {
+    #ifdef NO_AES
+        printf("AES not compiled in.\n");
+        return NOT_COMPILED_IN;
+    #else
         ret = AES_BLOCK_SIZE;
         if (*size != 128 && *size != 192 && *size != 256) {
             printf("Invalid AES pwdKey size. Should be: %d\n", ret);
             ret = FATAL_ERROR;
         }
+    #endif
     }
-#endif
-#ifndef NO_DES3
-    else if (strcmp(*alg, "3des") == 0) {
+
+    else if (XSTRNCMP(*alg, "3des", 4) == 0) {
+    #ifdef NO_DES3
+        printf("3DES not compiled in.\n");
+        return NOT_COMPILED_IN;
+    #else
         ret = DES3_BLOCK_SIZE;
         if (*size != 56 && *size != 112 && *size != 168) {
             printf("Invalid 3DES pwdKey size\n");
             ret = FATAL_ERROR;
         }
+    #endif
     }
-#endif
-#ifdef HAVE_CAMELLIA
-    else if (strcmp(*alg, "camellia") == 0) {
+
+    else if (XSTRNCMP(*alg, "camellia", 8) == 0) {
+    #ifndef HAVE_CAMELIA
+        printf("CAMELIA not compiled in.\n");
+        return NOT_COMPILED_IN;
+    #else
         ret = CAMELLIA_BLOCK_SIZE;
         if (*size != 128 && *size != 192 && *size != 256) {
             printf("Invalid Camellia pwdKey size\n");
             ret = FATAL_ERROR;
         }
+    #endif
     }
-#endif
-
+    
     else {
         printf("Invalid algorithm: %s\n", *alg);
         ret = FATAL_ERROR;
     }
+
     return ret;
 }
 
@@ -547,23 +696,14 @@ int wolfCLU_checkForArg(char* searchTerm, int length, int argc, char** argv)
         if (argv[i] == NULL) {
             ret = 0;
             break; /* stop checking if no more args*/
-        } else if (XSTRNCMP(argv[i], searchTerm, length) == 0) {
-            /* EXCEPTIONS: */
-            if (XSTRNCMP(searchTerm, "-in", 3) == 0 &&
-                XSTRNCMP(searchTerm, "-inform", 7) != 0) {
-                if (XSTRNCMP(argv[i], "-inform", 7) == 0) {
-                    continue;
-                }
-            }
-            if (XSTRNCMP(searchTerm, "-out", 3) == 0 &&
-                XSTRNCMP(searchTerm, "-outform", 8) != 0 &&
-                XSTRNCMP(searchTerm, "-output", 7) != 0) {
-                if (XSTRNCMP(argv[i], "-outform", 8) == 0 ||
-                    XSTRNCMP(argv[i], "-output", 7) == 0) {
-                    continue;
-                }
-            }
-            /* END EXCEPTIONS */
+        } else if (XSTRNCMP(searchTerm, "-help", length) == 0 && 
+                   XSTRNCMP(argv[i], "-help", XSTRLEN(argv[i])) == 0) {
+
+           return 1;
+            
+        } else if (XSTRNCMP(argv[i], searchTerm, length) == 0 &&
+                   XSTRNCMP(argv[i], searchTerm, XSTRLEN(argv[i])) == 0) {
+            
             ret = i;
             if (argFound == 1) {
                 printf("ERROR: argument found twice: \"%s\"\n", searchTerm);
