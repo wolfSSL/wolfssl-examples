@@ -62,6 +62,11 @@ int main(int argc, char** argv)
         case RSA:
         case ECC:
         case ED25519:
+        case CERT_SHA:
+        case CERT_SHA224:
+        case CERT_SHA256:
+        case CERT_SHA384:
+        case CERT_SHA512:
 
             if (!flag) flag = option;
 

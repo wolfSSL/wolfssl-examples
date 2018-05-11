@@ -35,6 +35,7 @@ int wolfCLU_requestSetup(int argc, char** argv)
     char*   alg;                /* algorithm being used */
     int     keyCheck =   0;     /* input check */
     int     algCheck =   0;     /* algorithm type */
+    int     oid;
     
     /* help checking */
     ret = wolfCLU_checkForArg("-help", 5, argc, argv);
@@ -88,6 +89,18 @@ int wolfCLU_requestSetup(int argc, char** argv)
             wolfCLU_certgenHelp();
             return ret;
     }
+    
+    if (wolfCLU_checkForArg("-sha224", 7, argc, argv) != 0) {
+        oid = SHA_HASH224;
+    } else if (wolfCLU_checkForArg("-sha256", 7, argc, argv) != 0) {
+        oid = SHA_HASH256;
+    } else if (wolfCLU_checkForArg("-sha384", 7, argc, argv) != 0) {
+        oid = SHA_HASH384;
+    } else if (wolfCLU_checkForArg("-sha512", 7, argc, argv) != 0) {
+        oid = SHA_HASH512;
+    } else {
+        oid = SHA_HASH;
+    }
 
     if (keyCheck == 0) {
         printf("Must have input as either a file or standard I/O\n");
@@ -96,11 +109,11 @@ int wolfCLU_requestSetup(int argc, char** argv)
     
     // TODO remove hard coded values
     if (algCheck == 1) {
-        ret = make_self_signed_rsa_certificate(in, out);
+        ret = make_self_signed_rsa_certificate(in, out, oid);
     } else if (algCheck == 2) {
         ret = make_self_signed_ed25519_certificate(in, out);
     } else if (algCheck == 3) {
-        ret = make_self_signed_ecc_certificate(in, out);
+        ret = make_self_signed_ecc_certificate(in, out, oid);
     }
     
     XFREE(in, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);

@@ -495,10 +495,10 @@ void wolfCLU_certgenHelp() {
     printf("\n\n");
     printf("***************************************************************\n");
     printf("\ncertgen USAGE:\nwolfssl -req -ecc/-rsa/-ed25519 -in <filename> -out"
-           " <filename> \n\n");
+           " <filename> -sha/sha224/sha256/sha384/sha512\n\n");
     printf("***************************************************************\n");
-    printf("\nEXAMPLE: \n\nwolfssl -req ecc -in mykey -out cert.pem "
-           "\n\nThe above command would output the file: cert.pem");
+    printf("\nEXAMPLE: \n\nwolfssl -req ecc -in mykey -out cert.pem -sha256 "
+           "\n\nThe above command would output the file: cert.pem\n");
 }
 
 /*

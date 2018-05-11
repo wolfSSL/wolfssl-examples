@@ -3,7 +3,7 @@
 void free_things_rsa(byte** a, byte** b, byte** c, RsaKey* d, RsaKey* e,
                                                                      WC_RNG* f);
                                                                      
-int make_self_signed_rsa_certificate(char* keyPath, char* certOut) {
+int make_self_signed_rsa_certificate(char* keyPath, char* certOut, int oid) {
     int ret = 0;
     word32 index = 0;
     
@@ -75,7 +75,24 @@ int make_self_signed_rsa_certificate(char* keyPath, char* certOut) {
     strncpy(newCert.subject.email, email, CTC_NAME_SIZE);
     newCert.daysValid = atoi(daysValid);
     newCert.isCA    = 0;
-    newCert.sigType = CTC_SHA256wRSA; /*@TODO request sig type from user*/
+    
+    switch(oid) {
+        case SHA_HASH:
+            newCert.sigType = CTC_SHAwRSA;
+            break;
+        case SHA_HASH224:
+            newCert.sigType = CTC_SHA224wRSA;
+            break;
+        case SHA_HASH256:
+            newCert.sigType = CTC_SHA256wRSA;
+            break;
+        case SHA_HASH384:
+            newCert.sigType = CTC_SHA384wRSA;
+            break;
+        case SHA_HASH512:
+            newCert.sigType = CTC_SHA512wRSA;
+            break;
+    }
     
     byte* certBuf = (byte*) XMALLOC(FOURK_SZ, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
     if (certBuf == NULL) {

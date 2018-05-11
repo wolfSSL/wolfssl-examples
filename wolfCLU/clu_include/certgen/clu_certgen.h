@@ -17,8 +17,16 @@
 #define HEAP_HINT NULL
 #define FOURK_SZ 4096
 
-int make_self_signed_ecc_certificate(char*, char*);
+enum {
+    SHA_HASH,
+    SHA_HASH224,
+    SHA_HASH256,
+    SHA_HASH384,
+    SHA_HASH512
+};
 
-int make_self_signed_rsa_certificate(char*, char*);
+int make_self_signed_ecc_certificate(char*, char*, int);
+
+int make_self_signed_rsa_certificate(char*, char*, int);
 
 int make_self_signed_ed25519_certificate(char*, char*);

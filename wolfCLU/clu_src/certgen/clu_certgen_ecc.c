@@ -3,7 +3,7 @@
 void free_things_ecc(byte** a, byte** b, byte** c, ecc_key* d, ecc_key* e,
                                                                      WC_RNG* f);
 
-int make_self_signed_ecc_certificate(char* keyPath, char* certOut) {
+int make_self_signed_ecc_certificate(char* keyPath, char* certOut, int oid) {
     int ret = 0;
     word32 index = 0;
     
@@ -75,11 +75,27 @@ int make_self_signed_ecc_certificate(char* keyPath, char* certOut) {
     strncpy(newCert.subject.email, email, CTC_NAME_SIZE);
     newCert.daysValid = atoi(daysValid);
     newCert.isCA    = 0;
-    newCert.sigType = key.dp->oidSum;
+    switch(oid) {
+        case SHA_HASH:
+            newCert.sigType = CTC_SHAwECDSA;
+            break;
+        case SHA_HASH224:
+            newCert.sigType = CTC_SHA224wECDSA;
+            break;
+        case SHA_HASH256:
+            newCert.sigType = CTC_SHA256wECDSA;
+            break;
+        case SHA_HASH384:
+            newCert.sigType = CTC_SHA384wECDSA;
+            break;
+        case SHA_HASH512:
+            newCert.sigType = CTC_SHA512wECDSA;
+            break;
+    }
     
     byte* certBuf = (byte*) XMALLOC(FOURK_SZ, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
     if (certBuf == NULL) {
-        printf("Failed to initialize buffer to stort certificate.\n");
+        printf("Failed to initialize buffer to store certificate.\n");
         return -1;
     }
 
