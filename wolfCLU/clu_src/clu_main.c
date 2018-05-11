@@ -183,7 +183,7 @@ int main(int argc, char** argv)
     
     }
     
-    if (ret != 0)
+    if (ret <= 0)
         printf("Error returned: %d.\n", ret);
 
     return ret;
