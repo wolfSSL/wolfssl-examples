@@ -164,6 +164,12 @@ void wolfCLU_signHelp(int);
  */
 void wolfCLU_verifyHelp(int);
 
+/*
+ * certgen help function
+ */
+void wolfCLU_certgenHelp();
+
+
 /* find algorithm for encryption/decryption
  * 
  * @param name the whole line sent from user. Example: "aes-cbc-128"
