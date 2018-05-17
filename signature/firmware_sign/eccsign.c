@@ -13,6 +13,9 @@ static int gMyKeyInit = 0;
 static const int gSignTimes = 10;
 
 //#define ENABLE_BUF_PRINT
+#define ECC_KEY_SIZE  48
+#define ECC_KEY_CURVE ECC_SECP384R1
+
 
 #ifdef ENABLE_BUF_PRINT
 static void PrintBuffer(const byte* buffer, word32 length)
@@ -97,7 +100,7 @@ static int SignFirmware(byte* hashBuf, word32 hashLen, byte* sigBuf, word32* sig
     if (gMyKeyInit == 0) {
         ret = wc_ecc_init(&gMyKey);
         if (ret == 0) {
-            ret = wc_ecc_make_key(&rng, 32, &gMyKey);
+            ret = wc_ecc_make_key_ex(&rng, ECC_KEY_SIZE, &gMyKey, ECC_KEY_CURVE);
             if (ret == 0) {
                 gMyKeyInit = 1;
                 printf("KeyGen Done\n");
@@ -108,6 +111,13 @@ static int SignFirmware(byte* hashBuf, word32 hashLen, byte* sigBuf, word32* sig
     /* sign hash */
     if (ret == 0) {
         ret = wc_ecc_sign_hash(hashBuf, hashLen, sigBuf, sigLen, &rng, &gMyKey);
+        printf("Sign ret %d, sigLen %d\n", ret, *sigLen);
+    }
+    if (ret == 0) {
+        int is_valid_sig = 0;
+        ret = wc_ecc_verify_hash(sigBuf, *sigLen, hashBuf, hashLen,
+            &is_valid_sig, &gMyKey);
+        printf("Verify ret %d, is_valid_sig %d\n", ret, is_valid_sig);
     }
 
     wc_FreeRng(&rng);
