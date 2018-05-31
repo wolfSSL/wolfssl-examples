@@ -49,6 +49,8 @@
 
 int main(int argc, char** argv)
 {
+    int ret = 0;
+
     #if defined(OPENSSL_EXTRA) && !defined(NO_PWDBASED) && !defined(NO_ASN) \
         && !defined(NO_DES3)
     int                sockfd;
@@ -68,7 +70,7 @@ int main(int argc, char** argv)
     char pass[] = "wolfSSL test";
     FILE *f;
     int firstLoop = 1;
-    int root_ca_buf_size = -1, bytes, ret;
+    int root_ca_buf_size = -1, bytes;
     byte* root_ca_buf;
 
     WOLFSSL_BIO*         bio;
@@ -79,6 +81,7 @@ int main(int argc, char** argv)
 
     WOLF_STACK_OF(WOLFSSL_X509)* ca;
 /*----------------------------------------------------------------------------*/
+    (void) ret; /* ignore unused  */
 
     /* Check for proper calling convention */
     if (argc != 2) {
@@ -264,7 +267,7 @@ client_example_end:
     close(sockfd);          /* Close the connection to the server       */
     #else
       #ifndef OPENSSL_EXTRA
-        printf("wolfSSL not configured with --enable-opensslextra\n"
+        printf("wolfSSL not configured with --enable-opensslextra\n");
       #endif
 
       #ifdef NO_PWDBASED
