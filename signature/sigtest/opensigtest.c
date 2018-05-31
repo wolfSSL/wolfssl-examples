@@ -124,6 +124,7 @@ int SignVerify_OpenSSL(void)
 
          // Sign hash (128 bytes)
          iRetval = RSA_sign(NID_sha1, abDigest, sizeof(abDigest), &signedData[0], &iSigLen, rsa);
+         printf("RSA Sign result %d\n", iRetval);
          print_buf("OpenSSL Signed data results:", &signedData[0], iSigLen);
 
          // Verify Signature

@@ -2,9 +2,10 @@ CC=gcc
 CFLAGS=-Wall
 LIBS=
 
-OPENSSL_FLAGS=-I/usr/local/ssl/include
+OPENSSL_DIR=/usr/local/opt
+OPENSSL_FLAGS=-I$(OPENSSL_DIR)/openssl/include
 WOLFSSL_FLAGS=
-OPENSSL_LIB=-lcrypto -lssl
+OPENSSL_LIB=-L$(OPENSSL_DIR)/openssl/lib -lcrypto -lssl
 WOLFSSL_LIB=-lwolfssl
 
 all:wolfsigtest opensigtest
