@@ -96,3 +96,7 @@ certgen/run_certgen_example
 
 btle/ecc-client
 btle/ecc-server
+
+signature/sigtest/wolfsigtest
+signature/sigtest/opensigtest
+signature/firmware_sign/eccsign
