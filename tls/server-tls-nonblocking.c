@@ -52,6 +52,7 @@ int main()
     char               buff[256];
     size_t             len;
     int                shutdown = 0;
+    int                ret;
 
     /* declare wolfSSL objects */
     WOLFSSL_CTX* ctx;
@@ -152,8 +153,15 @@ int main()
         /* Attach wolfSSL to the socket */
         wolfSSL_set_fd(ssl, connd);
 
-        printf("Client connected successfully\n");
+        /* Establish TLS connection */
+        ret = wolfSSL_accept(ssl);
+        if (ret != SSL_SUCCESS) {
+            fprintf(stderr, "wolfSSL_accept error = %d\n",
+                wolfSSL_get_error(ssl, ret));
+            return -1;
+        }
 
+        printf("Client connected successfully\n");
 
 
         /* Read the client data into our buff array */

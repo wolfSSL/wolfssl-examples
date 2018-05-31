@@ -64,7 +64,7 @@ void* ClientHandler(void* args)
     WOLFSSL*         ssl;
     char             buff[256];
     size_t           len;
-
+    int              ret;
 
 
     /* Create a WOLFSSL object */
@@ -77,8 +77,16 @@ void* ClientHandler(void* args)
     /* Attach wolfSSL to the socket */
     wolfSSL_set_fd(ssl, pkg->connd);
 
-    printf("Client %d connected successfully\n", pkg->num);
+    /* Establish TLS connection */
+    ret = wolfSSL_accept(ssl);
+    if (ret != SSL_SUCCESS) {
+        fprintf(stderr, "wolfSSL_accept error = %d\n",
+            wolfSSL_get_error(ssl, ret));
+        pkg->open = 1;
+        pthread_exit(NULL);
+    }
 
+    printf("Client %d connected successfully\n", pkg->num);
 
 
     /* Read the client data into our buff array */
