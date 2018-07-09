@@ -6,6 +6,27 @@
 #include "sgx_trts.h"
 
 
+#if defined(XMALLOC_USER) || defined(XMALLOC_OVERRIDE)
+    #warning verfication of heap hint pointers needed when overriding default malloc/free
+#endif
+
+#if defined(WOLFSSL_STATIC_MEMORY)
+/* check on heap hint when used, aborts if pointer is not in Enclave.
+ * In the default case where wolfSSL_Malloc is used the heap hint pointer is not
+ * used.*/
+static void checkHeapHint(WOLFSSL_CTX* ctx, WOLFSSL* ssl)
+{
+    void* heap;
+    if ((heap = wolfSSL_CTX_getHeap(ctx, ssl)) != NULL) {
+        if(sgx_is_within_enclave(heap, sizeof(WOLFSSL_HEAP_HINT)) != 1)
+            abort();
+        if(sgx_is_within_enclave(heap->memory, sizeof(WOLFSSL_HEAP)) != 1)
+            abort();
+    }
+}
+#endif /* WOLFSSL_STATIC_MEMORY */
+
+
 int wc_test(void* args)
 {
 #ifdef HAVE_WOLFSSL_TEST
@@ -65,6 +86,11 @@ int enc_wolfSSL_CTX_use_certificate_chain_buffer_format(WOLFSSL_CTX* ctx,
 {
     if(sgx_is_within_enclave(ctx, wolfSSL_CTX_GetObjectSize()) != 1)
         abort();
+
+#if defined(WOLFSSL_STATIC_MEMORY)
+    checkHeapHint(ctx, NULL);
+#endif
+
     return wolfSSL_CTX_use_certificate_chain_buffer_format(ctx, buf, sz, type);
 }
 
@@ -73,6 +99,11 @@ int enc_wolfSSL_CTX_use_certificate_buffer(WOLFSSL_CTX* ctx,
 {
     if(sgx_is_within_enclave(ctx, wolfSSL_CTX_GetObjectSize()) != 1)
         abort();
+
+#if defined(WOLFSSL_STATIC_MEMORY)
+    checkHeapHint(ctx, NULL);
+#endif
+
     return wolfSSL_CTX_use_certificate_buffer(ctx, buf, sz, type);
 }
 
@@ -81,6 +112,11 @@ int enc_wolfSSL_CTX_use_PrivateKey_buffer(WOLFSSL_CTX* ctx, const unsigned char*
 {
     if(sgx_is_within_enclave(ctx, wolfSSL_CTX_GetObjectSize()) != 1)
         abort();
+
+#if defined(WOLFSSL_STATIC_MEMORY)
+    checkHeapHint(ctx, NULL);
+#endif
+
     return wolfSSL_CTX_use_PrivateKey_buffer(ctx, buf, sz, type);
 }
 
@@ -89,12 +125,22 @@ int enc_wolfSSL_CTX_load_verify_buffer(WOLFSSL_CTX* ctx, const unsigned char* in
 {
     if(sgx_is_within_enclave(ctx, wolfSSL_CTX_GetObjectSize()) != 1)
         abort();
+
+#if defined(WOLFSSL_STATIC_MEMORY)
+    checkHeapHint(ctx, NULL);
+#endif
+
     return wolfSSL_CTX_load_verify_buffer(ctx, in, sz, format);
 }
 
 int enc_wolfSSL_CTX_set_cipher_list(WOLFSSL_CTX* ctx, const char* list) {
     if(sgx_is_within_enclave(ctx, wolfSSL_CTX_GetObjectSize()) != 1)
         abort();
+
+#if defined(WOLFSSL_STATIC_MEMORY)
+    checkHeapHint(ctx, NULL);
+#endif
+
     return wolfSSL_CTX_set_cipher_list(ctx, list);
 }
 
@@ -109,6 +155,11 @@ int enc_wolfSSL_set_fd(WOLFSSL* ssl, int fd)
 {
     if(sgx_is_within_enclave(ssl, wolfSSL_GetObjectSize()) != 1)
         abort();
+
+#if defined(WOLFSSL_STATIC_MEMORY)
+    checkHeapHint(NULL, ssl);
+#endif
+
     return wolfSSL_set_fd(ssl, fd);
 }
 
@@ -116,6 +167,11 @@ int enc_wolfSSL_connect(WOLFSSL* ssl)
 {
     if(sgx_is_within_enclave(ssl, wolfSSL_GetObjectSize()) != 1)
         abort();
+
+#if defined(WOLFSSL_STATIC_MEMORY)
+    checkHeapHint(NULL, ssl);
+#endif
+
     return wolfSSL_connect(ssl);
 }
 
@@ -123,6 +179,11 @@ int enc_wolfSSL_write(WOLFSSL* ssl, const void* in, int sz)
 {
     if(sgx_is_within_enclave(ssl, wolfSSL_GetObjectSize()) != 1)
         abort();
+
+#if defined(WOLFSSL_STATIC_MEMORY)
+    checkHeapHint(NULL, ssl);
+#endif
+
     return wolfSSL_write(ssl, in, sz);
 }
 
@@ -130,6 +191,11 @@ int enc_wolfSSL_get_error(WOLFSSL* ssl, int ret)
 {
     if(sgx_is_within_enclave(ssl, wolfSSL_GetObjectSize()) != 1)
         abort();
+
+#if defined(WOLFSSL_STATIC_MEMORY)
+    checkHeapHint(NULL, ssl);
+#endif
+
     return wolfSSL_get_error(ssl, ret);
 }
 
@@ -137,6 +203,11 @@ int enc_wolfSSL_read(WOLFSSL* ssl, void* data, int sz)
 {
     if(sgx_is_within_enclave(ssl, wolfSSL_GetObjectSize()) != 1)
         abort();
+
+#if defined(WOLFSSL_STATIC_MEMORY)
+    checkHeapHint(NULL, ssl);
+#endif
+
     return wolfSSL_read(ssl, data, sz);
 }
 
@@ -144,6 +215,11 @@ void enc_wolfSSL_free(WOLFSSL* ssl)
 {
     if(sgx_is_within_enclave(ssl, wolfSSL_GetObjectSize()) != 1)
         abort();
+
+#if defined(WOLFSSL_STATIC_MEMORY)
+    checkHeapHint(NULL, ssl);
+#endif
+
     wolfSSL_free(ssl);
 }
 
@@ -151,6 +227,11 @@ void enc_wolfSSL_CTX_free(WOLFSSL_CTX* ctx)
 {
     if(sgx_is_within_enclave(ctx, wolfSSL_CTX_GetObjectSize()) != 1)
         abort();
+
+#if defined(WOLFSSL_STATIC_MEMORY)
+    checkHeapHint(ctx, NULL);
+#endif
+
     wolfSSL_CTX_free(ctx);
 }
 

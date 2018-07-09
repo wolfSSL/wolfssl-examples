@@ -7,6 +7,13 @@ simple Enclave. First create wolfssl.lib from <wolfssl-root>/IDE/WIN-SGX
 then copy wolfssl.lib to SGX_example/. Steps for creating wolfssl.lib can be
 found in the main wolfSSL directory. <wolfssl-root>/IDE/WIN-SGX/ReadMe.txt.
 
+Note that the example passes pointers using [user_check]. For more information
+about what [user_check] is, and precautions needed when developing an application
+that uses it, see Intel documentation located here
+https://software.intel.com/en-us/sgx-sdk-dev-reference-attribute-user-check. An
+application could be developed to completely avoid passing the WOLFSSL_CTX
+pointer between trusted and untrusted code for more security.
+
 ![location for wolfssl.lib](README-images/wolfssl-lib.PNG)
 
 After creating and moving wolfssl.lib add the include path to wolfSSL header
