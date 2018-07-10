@@ -16,8 +16,8 @@
  * used.*/
 static void checkHeapHint(WOLFSSL_CTX* ctx, WOLFSSL* ssl)
 {
-    void* heap;
-    if ((heap = wolfSSL_CTX_getHeap(ctx, ssl)) != NULL) {
+    WOLFSSL_HEAP_HINT* heap;
+    if ((heap = (WOLFSSL_HEAP_HINT*)wolfSSL_CTX_GetHeap(ctx, ssl)) != NULL) {
         if(sgx_is_within_enclave(heap, sizeof(WOLFSSL_HEAP_HINT)) != 1)
             abort();
         if(sgx_is_within_enclave(heap->memory, sizeof(WOLFSSL_HEAP)) != 1)
