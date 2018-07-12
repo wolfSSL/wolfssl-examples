@@ -32,7 +32,7 @@ int hash_firmware_verify(const byte* fwAddr, word32 fwLen, const byte* sigBuf, w
 
     pos = 0;
     while (fwLen > 0) {
-        int len = fwLen;
+        word32 len = fwLen;
 
         if (len > MAX_BLOCK_SIZE)
             len = MAX_BLOCK_SIZE;

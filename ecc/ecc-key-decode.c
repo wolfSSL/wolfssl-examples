@@ -37,7 +37,10 @@ int main(void)
     bytes = fread(derBuffer, 1, 4096, file);
     fclose(file);
 
-    printf("bytes = %d\n", (int) bytes);
+    printf("read bytes = %d\n", (int) bytes);
+    if (bytes <= 0) {
+        return -1;
+    }
 
     InitDecodedCert(&decodedCert, derBuffer, (word32) bytes, 0);
 
@@ -54,6 +57,8 @@ int main(void)
     check_ret("wc_EccPublicKeyDecode", ret);
 
     printf("publickey size: %d\n", wc_ecc_size(&eccKey));
+
+    FreeDecodedCert(&decodedCert);
 
     wolfCrypt_Cleanup();
 

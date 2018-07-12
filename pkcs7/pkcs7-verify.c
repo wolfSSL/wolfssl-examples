@@ -14,6 +14,9 @@ int main(int argc, char** argv)
     byte* derBuf = NULL;
     word32 derSz = 0;
 
+    (void)argc;
+    (void)argv;
+
 #ifdef DEBUG_WOLFSSL
     wolfSSL_Debugging_ON();
 #endif
@@ -32,6 +35,11 @@ int main(int argc, char** argv)
 
         rc = (int)fread(derBuf, 1, derSz, derFile);
         fclose(derFile);
+
+        if (rc != derSz) {
+            printf("Failed to read der file!\n");
+            return -1;
+        }
     }
 
     printf("Der %d\n", derSz);

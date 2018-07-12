@@ -12,7 +12,7 @@
 static RNG rng;
 static ecc_key genKey;
 
-void* do_it(void* args)
+static void* do_it(void* args)
 {
     int ret;
 
@@ -24,6 +24,8 @@ void* do_it(void* args)
     }
 
     ShowMemoryTracker();
+
+    (void)args;
 
     return 0;
 }
@@ -39,6 +41,8 @@ int main()
     StackSizeCheck(NULL, do_it);
     printf("sizeof RNG = %lu\n", sizeof(RNG));
     printf("sizeof ecc_key = %lu\n", sizeof(ecc_key));
+
+    wc_FreeRng(&rng);
 
     return 0;
 }
