@@ -2,12 +2,15 @@ CC=gcc
 CFLAGS=-Wall -DWOLFSSL_DTLS
 LIBS=-lwolfssl -lpthread
 
-all: client-udp client-dtls client-dtls-nonblocking client-dtls-resume client-dtls-shared server-udp server-dtls server-dtls-nonblocking server-dtls-threaded
+all: client-udp client-dtls client-dtls-nonblocking client-dtls-resume client-dtls-shared server-udp server-dtls server-dtls-nonblocking server-dtls-threaded client-dtls-ipv6 server-dtls-ipv6
 
 client-udp: client-udp.o
 	$(CC) -o $@ $^ $(CFLAGS)
 
 client-dtls: client-dtls.o
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+
+client-dtls-ipv6: client-dtls-ipv6.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 client-dtls-nonblocking: client-dtls-nonblocking.o
@@ -25,6 +28,9 @@ server-udp: server-udp.o
 server-dtls: server-dtls.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
+server-dtls-ipv6: server-dtls-ipv6.o
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+
 server-dtls-nonblocking: server-dtls-nonblocking.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
@@ -34,4 +40,4 @@ server-dtls-threaded: server-dtls-threaded.o
 .PHONY: clean all
 
 clean:
-	rm -f *.o client-udp client-dtls client-dtls-nonblocking client-dtls-resume client-dtls-shared server-udp server-dtls server-dtls-nonblocking server-dtls-threaded
+	rm -f *.o client-udp client-dtls client-dtls-nonblocking client-dtls-resume client-dtls-shared server-udp server-dtls server-dtls-nonblocking server-dtls-threaded server-dtls-ipv6 client-dtls-ipv6
