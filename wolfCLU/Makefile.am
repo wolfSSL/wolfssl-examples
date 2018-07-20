@@ -41,6 +41,7 @@ man_MANS+= manpages/wolfssl.1
 include clu_src/include.am
 include clu_include/include.am
 include tests/x509/include.am
+include tests/genkey_sign_ver/include.am
 #####include data/include.am
 
 
