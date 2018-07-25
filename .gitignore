@@ -100,3 +100,10 @@ btle/ecc-server
 signature/sigtest/wolfsigtest
 signature/sigtest/opensigtest
 signature/firmware_sign/eccsign
+
+ecc/ecc-key-decode
+ecc/ecc-sign
+ecc/ecc-stack
+ecc/ecc-verify
+pkcs7/pkcs7-verify
+*.dSYM
