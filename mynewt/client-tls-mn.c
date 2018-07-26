@@ -87,7 +87,7 @@ time_cli(int argc, char **argv)
     }
     time = strtoul(argv[1], &eptr, 0);
     if (*eptr != '\0') {
-        console_printf("Invalid port %s\n", argv[3]);
+        console_printf("Invalid time %s\n", argv[3]);
         return 0;
     }
 
