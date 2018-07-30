@@ -1,0 +1,42 @@
+# Copyright (C) 2018 wolfSSL Inc.
+# 
+# This file is part of wolfSSL.
+# 
+# wolfSSL is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# wolfSSL is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
+# 
+
+# Settings this app defines.
+syscfg.defs:
+
+# Settings this app overrides.
+syscfg.vals:
+    # Enable the shell task.
+    SHELL_TASK: 1
+
+    # Include names for statistics.
+    STATS_NAMES: 1
+
+    # Log reboot messages to a flash circular buffer.
+    REBOOT_LOG_FCB: 1
+    LOG_FCB: 1
+
+    CONFIG_FCB: 1
+
+    # Enable shell commands.
+    STATS_CLI: 1
+    LOG_CLI: 1
+    CONFIG_CLI: 1
+
+    ETH_0: 1
