@@ -36,7 +36,7 @@
 
 #define DEFAULT_PORT 11111
 
-#define CERT_FILE "../certs/server-ecc.pem"
+#define CERT_FILE "../certs/ca-ecc-cert.pem"
 
 #define ECC_FILE    "../certs/client-ecc-cert.pem"
 #define KEY_FILE    "../certs/ecc-client-key.pem"
