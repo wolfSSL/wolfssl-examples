@@ -2,6 +2,12 @@
 
 This repository contains an example application, written in C, which demonstrates how to link with the wolfSSL lightweight SSL/TLS library with a simple Enclave using Linux. The example has been tested with Ubuntu 16.04.
 
+Note that the example passes pointers using [user_check]. For more information
+about what [user_check] is, and precautions needed when developing an application
+that uses it, see Intel documentation located here
+https://software.intel.com/en-us/sgx-sdk-dev-reference-attribute-user-check. An
+application could be developed to completely avoid passing the WOLFSSL_CTX
+pointer between trusted and untrusted code for more security.
 
 ## Prerequisites
 
