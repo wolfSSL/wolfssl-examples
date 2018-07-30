@@ -112,7 +112,7 @@ int wc_rsa_init(RsaKey* rsaKey)
 	}
 
 	#ifdef WC_RSA_BLINDING
-	wc_RsaSetRNG(rsaKey, rng);
+	wc_RsaSetRNG(rsaKey, &rng);
 	#endif
 
 	return 0;
