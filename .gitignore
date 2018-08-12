@@ -107,3 +107,5 @@ ecc/ecc-stack
 ecc/ecc-verify
 pkcs7/pkcs7-verify
 *.dSYM
+certmanager/certloadverifybuffer
+certmanager/certverify
