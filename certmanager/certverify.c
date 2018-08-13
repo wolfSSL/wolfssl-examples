@@ -1,8 +1,8 @@
-/* standalone.c
+/* certverify.c
  *
- * Copyright (C) 2006-2015 wolfSSL Inc.
+ * Copyright (C) 2006-2018 wolfSSL Inc.
  *
- * This file is part of wolfSSL. (formerly known as CyaSSL)
+ * This file is part of wolfSSL.
  *
  * wolfSSL is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
  */
 
 #include <stdio.h>
@@ -27,18 +27,22 @@
 int main(void)
 {
     int ret;
-    WOLFSSL_CERT_MANAGER* cm = 0;
+    WOLFSSL_CERT_MANAGER* cm = NULL;
 
     const char* caCert     = "../certs/ca-cert.pem";
     const char* verifyCert = "../certs/server-cert.pem";
 
 #ifdef HAVE_CRL
-    
     const char* crlPem     = "../certs/crl/crl.pem";
     const char* caCertDer  = "../certs/ca-cert.der";
     FILE* file;
     byte buf[4096];
     int bufSz;
+#endif
+
+    wolfSSL_Init();
+#ifdef DEBUG_WOLFSSL
+    wolfSSL_Debugging_ON();
 #endif
 
     cm = wolfSSL_CertManagerNew();
@@ -47,7 +51,7 @@ int main(void)
         return -1;
     }
 
-    ret = wolfSSL_CertManagerLoadCA(cm, caCert, 0);
+    ret = wolfSSL_CertManagerLoadCA(cm, caCert, NULL);
     if (ret != SSL_SUCCESS) {
         printf("wolfSSL_CertManagerLoadCA() failed (%d): %s\n",
                 ret, wolfSSL_ERR_reason_error_string(ret));
@@ -98,8 +102,8 @@ int main(void)
 #endif
 
 exit:
-    if (cm) {
-        wolfSSL_CertManagerFree(cm);
-    }
+    wolfSSL_CertManagerFree(cm);
+    wolfSSL_Cleanup();
+
     return ret;
 }
