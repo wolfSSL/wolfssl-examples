@@ -157,13 +157,17 @@ static wolfSSL_method_func SSL_GetMethod(int version)
     #endif
 
     #ifndef NO_TLS
+        #ifdef WOLFSSL_ALLOW_TLSV10
         case 1:
             method = wolfTLSv1_client_method_ex;
             break;
+        #endif
 
+        #ifndef NO_OLD_TLS
         case 2:
             method = wolfTLSv1_1_client_method_ex;
             break;
+        #endif
     #endif
 #endif
 
