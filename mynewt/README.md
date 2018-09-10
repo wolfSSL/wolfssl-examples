@@ -92,3 +92,22 @@ wolfssl read
 wolfssl clear
 net close
 ```
+
+# jenkins script
+## setup for jenkins node
+
+install below softwares
+
+- git
+- expect
+- bash
+- screen
+- [newt](https://mynewt.apache.org/latest/get_started/native_install/index.html)(v1.4.1 over)
+
+## Usage
+
+execute `jenkins.sh` script on jenkins.
+
+```
+./mynewt/jenkins.sh
+```

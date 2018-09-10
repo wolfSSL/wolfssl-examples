@@ -1,0 +1,62 @@
+#!/usr/bin/env expect
+
+set timeout 10
+
+set tty [lindex $argv 0]
+spawn screen $tty
+
+send "\n"
+expect {
+    timeout {exit 2}
+    -re ".* compat>"
+}
+
+send "net tcp\n"
+expect {
+    timeout {exit 3}
+    -re ".* mn_socket\\(TCP\\) = 0.*\n.* compat>"
+}
+
+send "net connect\n"
+expect {
+    timeout {exit 4}
+    -re ".* net_test_writable 0 - 0.*"
+}
+
+send "wolfssl init\n"
+expect {
+    timeout {exit 5}
+    -re ".* compat>"
+}
+
+send "wolfssl connect\n"
+expect {
+    timeout {exit 6}
+    -re ".* wolfSSL_connect\\(\\) = 1.*\n.* compat>"
+}
+
+send "wolfssl write\n"
+expect {
+    timeout {exit 7}
+    -re ".* wolfSSL_write\\(\\) = .*\n.* compat>"
+}
+
+send "wolfssl read\n"
+expect {
+    timeout {exit 8}
+    -re ".* compat>"
+}
+
+send "wolfssl clear\n"
+expect {
+    timeout {exit 9}
+    -re ".* compat>"
+}
+
+send "net close\n"
+expect {
+    timeout {exit 10}
+    -re ".* mn_close\\(\\) = 0.*\n.* compat>"
+}
+
+exit 0
