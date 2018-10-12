@@ -5,10 +5,16 @@
 ### Build and install wolfSSL
 
 ```
-./configure --enable-pkcs7 && make && sudo make install
+$ ./configure --enable-pkcs7
+$ make
+$ sudo make install
 ```
 
 ### Build Example
+
+Running `make` will try to compile all C source files into their own
+respective example application. Each source file can be compiled separately
+if desired, for example:
 
 ```
 make

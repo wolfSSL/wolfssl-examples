@@ -2,7 +2,7 @@
 CC       = gcc
 LIB_PATH = /usr/local
 CFLAGS   = -Wall -I$(LIB_PATH)/include
-LIBS     = -L$(LIB_PATH)/lib -lm
+LIBS     = -L$(LIB_PATH)/lib -lwolfssl -lm -lz
 
 # option variables
 DYN_LIB         = -lwolfssl
@@ -33,4 +33,11 @@ debug: all
 	$(CC) -o $@ $< $(CFLAGS) $(LIBS)
 
 clean:
-	rm -f $(TARGETS)
+	rm -f $(TARGETS) signedData_attrs.der signedData_noattrs.der \
+        signedFirmwarePkgData.der signedFirmwarePkgData_attrs.der \
+        signedFirmwarePkgData_noattrs.der \
+        signedEncryptedFPD_attrs.der signedEncryptedFPD_noattrs.der \
+        signedCompressedFPD_attrs.der signedCompressedFPD_noattrs.der \
+        signedEncryptedCompressedFPD_attrs.der signedEncryptedCompressedFPD_noattrs.der \
+        envelopedDataKTRI.der envelopedDataKARI.der \
+        envelopedDataPWRI.der envelopedDataORI.der
