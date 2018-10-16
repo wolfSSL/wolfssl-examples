@@ -21,6 +21,9 @@
 
 /*
 * An implementation of RSA PSS digital signature using wolfSSL
+* Usage:
+./rsa-pss -s sign.txt
+./rsa-pss -v sign.txt
 */
 
 #include <stdio.h>
@@ -31,7 +34,8 @@
 #include <wolfssl/ssl.h>
 #include <wolfssl/wolfcrypt/rsa.h>
 
-static const char* kRsaPubKey = "./rsa-public.key";
+static const char* kRsaSignOpt = "-s";
+static const char* kRsaPubKey = "./rsa-public.der";
 #define MAX_DER_SIZE 2048
 #define RSA_KEY_SIZE 2048
 
@@ -42,58 +46,95 @@ int main(int argc, char** argv)
     const char* szMessage = "This is the string to be signed";
     unsigned char pSignature[RSA_KEY_SIZE/8];
     unsigned char pDecrypted[RSA_KEY_SIZE/8];
-    int status = 0;
+    int ret = 0;
     int sz;
     word32 idx = 0;
     unsigned char derBuf[MAX_DER_SIZE];
+    FILE* f;
 
-    pRsaKey = malloc(sizeof(RsaKey));
     wolfSSL_Debugging_ON();
 
     wolfSSL_Init();
 
-    wc_InitRsaKey(pRsaKey, NULL);
-    wc_InitRng(&rng);
-    wc_RsaSetRNG(pRsaKey, &rng);
+    pRsaKey = malloc(sizeof(RsaKey));
+    if (!pRsaKey) {
+        printf("RSA_generate_key failed with error\n");
+        return MEMORY_E;
+    }
 
-    if (memcmp(argv[1], "-o", 2) == 0) {
+    ret = wc_InitRsaKey(pRsaKey, NULL);
+    if (ret != 0) {
+        printf("Init RSA key failed %d\n", ret);
+        return ret;
+    }
+
+    ret = wc_InitRng(&rng);
+    if (ret != 0) {
+        printf("Init RNG failed %d\n", ret);
+        wc_FreeRsaKey(pRsaKey);
+        return ret;
+    }
+
+    ret = wc_RsaSetRNG(pRsaKey, &rng);
+    if (ret != 0) {
+        printf("Set RSA RNG failed %d\n", ret);
+        goto prog_end;
+    }
+
+    if (memcmp(argv[1], kRsaSignOpt, 2) == 0) {
         printf("generating RSA key to make a PSS signature\n");
         /* Generate an RSA key pair */
         if (wc_MakeRsaKey(pRsaKey, RSA_KEY_SIZE, 0x010001, &rng) != 0) {
             printf("failed to create rsa key\n");
         }
 
-        if (pRsaKey)
-        {
-            FILE* f;
+        if (pRsaKey) {
             f = fopen(kRsaPubKey, "wb");
             printf("writing public key to %s\n", kRsaPubKey);
             if (f == NULL) {
-                printf("unable to write out private key\n");
+                printf("unable to write out public key\n");
             }
             else {
-                sz = wc_RsaKeyToDer(pRsaKey, derBuf, sizeof(derBuf));
+                sz = wc_RsaKeyToPublicDer(pRsaKey, derBuf, sizeof(derBuf));
                 if (sz <= 0) {
-                    printf("error with rsa load der %d\n", sz);
+                    printf("error with rsa to public der %d\n", sz);
+                    goto prog_end;
                 }
-                fwrite(derBuf, 1, sz, f);
+                else {
+                    fwrite(derBuf, 1, sz, f);
+                }
                 fclose(f);
             }
         }
     }
     else {
+        f = fopen(kRsaPubKey, "rb");
         printf("reading in RSA key to verify signature\n");
-        sz = wolfSSL_PemPubKeyToDer(kRsaPubKey, derBuf, sizeof(derBuf));
-        wc_RsaPublicKeyDecode(derBuf, &idx, pRsaKey, sz);
-    }
-    if (!pRsaKey)
-    {
-        printf("RSA_generate_key failed with error\n");
-        goto prog_end;
+        if (f == NULL) {
+            printf("unable to open public key\n");
+        }
+        else {
+            fseek(f, 0, SEEK_END);
+            sz = ftell(f);
+            if (sz > sizeof(derBuf)) {
+                printf("File %s exceeds max size\n", kRsaPubKey);
+                fclose(f);
+                return BUFFER_E;
+            }
+            fseek(f, 0, SEEK_SET);
+            fread(derBuf, 1, sz, f);
+            fclose(f);
+
+            ret = wc_RsaPublicKeyDecode(derBuf, &idx, pRsaKey, sz);
+            if (ret < 0) {
+                printf("Failed to load public rsa key der buffer %d\n", ret);
+                goto prog_end;
+            }
+        }
     }
 
-    if (memcmp(argv[1], "-o", 2) == 0) {
-        FILE* f = fopen(argv[2], "wb");
+    if (memcmp(argv[1], kRsaSignOpt, 2) == 0) {
+        f = fopen(argv[2], "wb");
         printf("Creating PSS signature and writing to %s\n", argv[2]);
         if (f == NULL) {
             printf("error opening output file %s\n", argv[2]);
@@ -101,52 +142,61 @@ int main(int argc, char** argv)
         }
 
         /* perform digital signature */
-        status = wc_RsaPSS_Sign((byte*)szMessage, sizeof(szMessage),
+        ret = wc_RsaPSS_Sign((byte*)szMessage, sizeof(szMessage),
                 pSignature, sizeof(pSignature),
                 WC_HASH_TYPE_SHA256, WC_MGF1SHA256, pRsaKey, &rng);
-        if (status <= 0)
-        {
-            printf("RSA_private_encrypt failed with error %d\n", status);
+        if (ret <= 0) {
+            printf("RSA_private_encrypt failed with error %d\n", ret);
             goto prog_end;
         }
+        sz = ret;
 
-        fwrite(pSignature, 1, status, f);
+        fwrite(pSignature, 1, sz, f);
         fclose(f);
     }
     else {
-        FILE* f;
+        byte* pt;
+
         f = fopen(argv[2], "rb");
         if (f == NULL) {
             printf("unable to open %s\n", argv[2]);
             goto prog_end;
         }
-        fread(pSignature, 1, sizeof(pSignature), f);
+
+        fseek(f, 0, SEEK_END);
+        sz = ftell(f);
+        if (sz > sizeof(pSignature)) {
+            fclose(f);
+            return BUFFER_E;
+        }
+        fseek(f, 0, SEEK_SET);
+        fread(pSignature, 1, sz, f);
         fclose(f);
 
         /* now we will verify the signature
         Start by a RAW decrypt of the signature
         */
-        byte* pt = pDecrypted;
-        status = wc_RsaPSS_VerifyInline(pSignature, sizeof(pSignature), &pt,
+        pt = pDecrypted;
+        ret = wc_RsaPSS_VerifyInline(pSignature, sizeof(pSignature), &pt,
                 WC_HASH_TYPE_SHA256, WC_MGF1SHA256, pRsaKey);
-        if (status <= 0)
-        {
-            printf("RSA_public_decrypt failed with error %d\n", status);
+        if (ret <= 0) {
+            printf("RSA_public_decrypt failed with error %d\n", ret);
             goto prog_end;
         }
-        else
-        {
+        else {
             printf("RSA PSS verify success\n");
         }
    }
 
 prog_end:
 
-   if (pRsaKey)
-       free(pRsaKey);
+    wc_FreeRsaKey(pRsaKey);
 
-   wolfSSL_Cleanup();
+    if (pRsaKey)
+        free(pRsaKey);
 
-   return 0;
+    wolfSSL_Cleanup();
+
+    return 0;
 }
 

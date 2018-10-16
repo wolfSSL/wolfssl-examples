@@ -146,5 +146,5 @@ pkcs11/softhsm2.conf
 pkcs11/softhsm2
 
 crypto/rsa-pss/rsa-pss
-crypto/rsa-pss/rsa-public.key
+crypto/rsa-pss/rsa-public.der
 crypto/rsa-pss/sign.txt
