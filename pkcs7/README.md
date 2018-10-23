@@ -187,6 +187,28 @@ of the bundle will be printed out to the terminal window.
 Successfully encoded EnvelopedData bundle (envelopedDataKARI.der)
 ```
 
+### EnvelopedData using KEKRI RecipientInfo
+
+Example file: `envelopedData-kekri.c`
+Generated bundle file: `envelopedDataKEKRI.der`
+
+This example creates a PKCS#7/CMS EnvelopedData bundle that includes a KEKRI
+RecipientInfo type. It uses AES256-CBC as the encryption algorithm, and
+specifies the enveloped content type as DATA. After creating the bundle,
+it decodes the enveloped bundle and verifies the operation was successful.
+
+The generated EnvelopedData bundle is written out to a file for analysis and
+additional debugging.
+
+If wolfSSL has been configured and compiled with debug support, the bytes
+of the bundle will be printed out to the terminal window.
+
+```
+./envelopedData-kekri
+Successfully encoded EnvelopedData bundle (envelopedDataKEKRI.der)
+Successfully decoded EnvelopedData bundle (envelopedDataKEKRI.der)
+```
+
 ### EnvelopedData using PWRI RecipientInfo
 
 Example file: `envelopedData-pwri.c`
@@ -274,6 +296,28 @@ of the bundle will be printed out to the terminal window.
 ```
 ./authEnvelopedData-kari
 Successfully encoded AuthEnvelopedData bundle (authEnvelopedDataKARI.der)
+```
+
+### AuthEnvelopedData using KEKRI RecipientInfo
+
+Example file: `authEnvelopedData-kekri.c`
+Generated bundle file: `authEnvelopedDataKEKRI.der`
+
+This example creates a PKCS#7/CMS AuthEnvelopedData bundle that includes a KEKRI
+RecipientInfo type. It uses AES256-GCM as the encryption algorithm, and
+specifies the enveloped content type as DATA. After creating the bundle,
+it decodes the enveloped bundle and verifies the operation was successful.
+
+The generated EnvelopedData bundle is written out to a file for analysis and
+additional debugging.
+
+If wolfSSL has been configured and compiled with debug support, the bytes
+of the bundle will be printed out to the terminal window.
+
+```
+./authEnvelopedData-kekri
+Successfully encoded AuthEnvelopedData bundle (authEnvelopedDataKEKRI.der)
+Successfully decoded AuthEnvelopedData bundle (authEnvelopedDataKEKRI.der)
 ```
 
 ### AuthEnvelopedData using PWRI RecipientInfo

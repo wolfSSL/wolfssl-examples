@@ -40,7 +40,7 @@ clean:
         signedCompressedFPD_attrs.der signedCompressedFPD_noattrs.der \
         signedEncryptedCompressedFPD_attrs.der signedEncryptedCompressedFPD_noattrs.der \
         envelopedDataKTRI.der envelopedDataKARI.der \
-        envelopedDataPWRI.der envelopedDataORI.der \
+        envelopedDataPWRI.der envelopedDataORI.der envelopedDataKEKRI.der \
         authEnvelopedDataKARI.der authEnvelopedDataKTRI.der \
         authEnvelopedDataORI.der authEnvelopedDataPWRI.der encryptedData.der \
-        compressedData.der
+        authEnvelopedDataKEKRI.der compressedData.der

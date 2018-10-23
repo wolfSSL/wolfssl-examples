@@ -110,12 +110,15 @@ ecc/ecc-verify
 pkcs7/pkcs7-verify
 pkcs7/authEnvelopedData-kari
 pkcs7/authEnvelopedData-ktri
+pkcs7/authEnvelopedData-kekri
 pkcs7/authEnvelopedData-ori
 pkcs7/authEnvelopedData-pwri
 pkcs7/encryptedData
+pkcs7/compressedData
 pkcs7/*.der
 pkcs7/envelopedData-kari
 pkcs7/envelopedData-ktri
+pkcs7/envelopedData-kekri
 pkcs7/envelopedData-pwri
 pkcs7/envelopedData-ori
 pkcs7/signedData
