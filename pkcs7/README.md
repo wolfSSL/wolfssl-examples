@@ -45,6 +45,57 @@ make
 sudo make install
 ```
 
+Most of the examples listed below output a DER-encoded version of the
+PKCS#7/CMS bundle that was generated. These DER-encoded files can be used to
+do further analysis, or debugging with external tools.  Two helpful tools
+for doing this include the `openssl cms` application and the `dumpasn1` app.
+
+Debugging with `dumpasn1` ([dumpasn1 source file](https://www.cs.auckland.ac.nz/~pgut001/dumpasn1.c))
+
+```
+$ dumpasn1 encryptedData.der
+ 0  80: SEQUENCE {
+ 2   9:   OBJECT IDENTIFIER encryptedData (1 2 840 113549 1 7 6)
+13  67:   [0] {
+15  65:     SEQUENCE {
+17   1:       INTEGER 0
+20  60:       SEQUENCE {
+22   9:         OBJECT IDENTIFIER data (1 2 840 113549 1 7 1)
+33  29:         SEQUENCE {
+35   9:           OBJECT IDENTIFIER aes256-CBC (2 16 840 1 101 3 4 1 42)
+46  16:           OCTET STRING 08 83 47 90 5D 9F D6 AA DC 25 CE B2 87 9A 10 CF
+      :           }
+64  16:         [0] 3C 22 EA 61 64 FB 21 30 77 8A CE B0 5A A7 35 DE
+      :         }
+      :       }
+      :     }
+      :   }
+
+0 warnings, 0 errors.
+```
+
+Debugging with `openssl cms`
+
+```
+$ openssl cms -inform der -in envelopedData.der -cmsout -print -noout
+CMS_ContentInfo: 
+  contentType: pkcs7-encryptedData (1.2.840.113549.1.7.6)
+  d.encryptedData: 
+    version: <ABSENT>
+    encryptedContentInfo: 
+      contentType: pkcs7-data (1.2.840.113549.1.7.1)
+      contentEncryptionAlgorithm: 
+        algorithm: aes-256-cbc (2.16.840.1.101.3.4.1.42)
+        parameter: OCTET STRING:
+          0000 - 08 83 47 90 5d 9f d6 aa-dc 25 ce b2 87 9a 10   ..G.]....%.....
+          000f - cf                                             .
+        encryptedContent: 
+          0000 - 3c 22 ea 61 64 fb 21 30-77 8a ce b0 5a a7 35   <".ad.!0w...Z.5
+          000f - de                                             .
+  unprotectedAttrs:
+    <EMPTY>
+```
+
 ## Examples Description and Usage
 
 ### pkcs7-verify
