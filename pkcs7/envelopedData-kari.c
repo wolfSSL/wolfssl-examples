@@ -115,7 +115,8 @@ static int envelopedData_encrypt(byte* cert, word32 certSz, byte* key,
         return -1;
 
     } else {
-        printf("Successfully encoded EnvelopedData bundle.\n");
+        printf("Successfully encoded EnvelopedData bundle (%s)\n",
+               encodedFileKARI);
 
         if (write_file_buffer(encodedFileKARI, out, ret) != 0) {
             printf("ERROR: error writing encoded to output file\n");
@@ -196,8 +197,10 @@ int main(int argc, char** argv)
     if (encryptedSz < 0)
         return -1;
 
+#ifdef DEBUG_WOLFSSL
     printf("EnvelopedData DER (%d byte):\n", encryptedSz);
     WOLFSSL_BUFFER(encrypted, encryptedSz);
+#endif
 
     decryptedSz = envelopedData_decrypt(encrypted, encryptedSz,
                                         cert, certSz, key, keySz,
@@ -205,8 +208,10 @@ int main(int argc, char** argv)
     if (decryptedSz < 0)
         return -1;
 
+#ifdef DEBUG_WOLFSSL
     printf("Decrypted content (%d byte):\n", decryptedSz);
     WOLFSSL_BUFFER(decrypted, decryptedSz);
+#endif
 
     (void)argc;
     (void)argv;

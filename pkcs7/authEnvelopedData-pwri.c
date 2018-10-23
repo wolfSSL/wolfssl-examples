@@ -1,4 +1,4 @@
-/* envelopedData-pwri.c
+/* authEnvelopedData-pwri.c
  *
  * Copyright (C) 2006-2018 wolfSSL Inc.
  *
@@ -26,7 +26,7 @@
 #define certFile "../certs/client-ecc-cert.der"
 #define keyFile  "../certs/ecc-client-key.der"
 
-#define encodedFilePWRI "envelopedDataPWRI.der"
+#define encodedFilePWRI "authEnvelopedDataPWRI.der"
 
 static const byte data[] = { /* Hello World */
     0x48,0x65,0x6c,0x6c,0x6f,0x20,0x57,0x6f,
@@ -83,8 +83,8 @@ static int write_file_buffer(const char* fileName, byte* in, word32 inSz)
     return 0;
 }
 
-static int envelopedData_encrypt(byte* cert, word32 certSz, byte* key,
-                                 word32 keySz, byte* out, word32 outSz)
+static int authEnvelopedData_encrypt(byte* cert, word32 certSz, byte* key,
+                                     word32 keySz, byte* out, word32 outSz)
 {
     int ret;
     PKCS7* pkcs7;
@@ -102,7 +102,7 @@ static int envelopedData_encrypt(byte* cert, word32 certSz, byte* key,
     pkcs7->content     = (byte*)data;
     pkcs7->contentSz   = sizeof(data);
     pkcs7->contentOID  = DATA;
-    pkcs7->encryptOID  = AES256CBCb;
+    pkcs7->encryptOID  = AES256GCMb;
 
     /* add recipient using password (PWRI type) */
     ret = wc_PKCS7_AddRecipient_PWRI(pkcs7, (byte*)password,
@@ -116,15 +116,15 @@ static int envelopedData_encrypt(byte* cert, word32 certSz, byte* key,
         return -1;
     }
 
-    /* encode envelopedData, returns size */
-    ret = wc_PKCS7_EncodeEnvelopedData(pkcs7, out, outSz);
+    /* encode authEnvelopedData, returns size */
+    ret = wc_PKCS7_EncodeAuthEnvelopedData(pkcs7, out, outSz);
     if (ret <= 0) {
-        printf("wc_PKCS7_EncodeEnvelopedData() failed, ret = %d\n", ret);
+        printf("wc_PKCS7_EncodeAuthEnvelopedData() failed, ret = %d\n", ret);
         wc_PKCS7_Free(pkcs7);
         return -1;
 
     } else {
-        printf("Successfully encoded EnvelopedData bundle (%s)\n",
+        printf("Successfully encoded AuthEnvelopedData bundle (%s)\n",
                encodedFilePWRI);
 
         if (write_file_buffer(encodedFilePWRI, out, ret) != 0) {
@@ -138,9 +138,9 @@ static int envelopedData_encrypt(byte* cert, word32 certSz, byte* key,
     return ret;
 }
 
-static int envelopedData_decrypt(byte* in, word32 inSz, byte* cert,
-                                word32 certSz, byte* key, word32 keySz,
-                                byte* out, word32 outSz)
+static int authEnvelopedData_decrypt(byte* in, word32 inSz, byte* cert,
+                                     word32 certSz, byte* key, word32 keySz,
+                                     byte* out, word32 outSz)
 {
     int ret;
     PKCS7* pkcs7;
@@ -158,10 +158,10 @@ static int envelopedData_decrypt(byte* in, word32 inSz, byte* cert,
         return -1;
     }
 
-    /* decode envelopedData, returns size */
-    ret = wc_PKCS7_DecodeEnvelopedData(pkcs7, in, inSz, out, outSz);
+    /* decode authEnvelopedData, returns size */
+    ret = wc_PKCS7_DecodeAuthEnvelopedData(pkcs7, in, inSz, out, outSz);
     if (ret <= 0) {
-        printf("ERROR: wc_PKCS7_DecodeEnvelopedData(), ret = %d\n", ret);
+        printf("ERROR: wc_PKCS7_DecodeAuthEnvelopedData(), ret = %d\n", ret);
         wc_PKCS7_Free(pkcs7);
         return -1;
     }
@@ -194,19 +194,19 @@ int main(int argc, char** argv)
     if (ret != 0)
         return -1;
 
-    encryptedSz = envelopedData_encrypt(cert, certSz, key, keySz,
-                                        encrypted, sizeof(encrypted));
+    encryptedSz = authEnvelopedData_encrypt(cert, certSz, key, keySz,
+                                            encrypted, sizeof(encrypted));
     if (encryptedSz < 0)
         return -1;
 
 #ifdef DEBUG_WOLFSSL
-    printf("EnvelopedData DER (%d byte):\n", encryptedSz);
+    printf("AuthEnvelopedData DER (%d byte):\n", encryptedSz);
     WOLFSSL_BUFFER(encrypted, encryptedSz);
 #endif
 
-    decryptedSz = envelopedData_decrypt(encrypted, encryptedSz,
-                                        cert, certSz, key, keySz,
-                                        decrypted, sizeof(decrypted));
+    decryptedSz = authEnvelopedData_decrypt(encrypted, encryptedSz,
+                                            cert, certSz, key, keySz,
+                                            decrypted, sizeof(decrypted));
     if (decryptedSz < 0)
         return -1;
 

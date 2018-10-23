@@ -24,6 +24,8 @@
 #include <wolfssl/wolfcrypt/error-crypt.h>
 #include <wolfssl/wolfcrypt/logging.h>
 
+#define encryptedFile "encryptedData.der"
+
 static const byte data[] = { /* Hello World */
     0x48,0x65,0x6c,0x6c,0x6f,0x20,0x57,0x6f,
     0x72,0x6c,0x64
@@ -35,6 +37,27 @@ static const byte aes256Key[] = {
     0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,
     0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08
 };
+
+static int write_file_buffer(const char* fileName, byte* in, word32 inSz)
+{
+    int ret;
+    FILE* file;
+
+    file = fopen(fileName, "wb");
+    if (file == NULL) {
+        printf("ERROR: opening file for writing: %s\n", fileName);
+        return -1;
+    }
+
+    ret = (int)fwrite(in, 1, inSz, file);
+    if (ret == 0) {
+        printf("ERROR: writing buffer to output file\n");
+        return -1;
+    }
+    fclose(file);
+
+    return 0;
+}
 
 static int encryptedData_encrypt(byte* out, word32 outSz)
 {
@@ -57,6 +80,14 @@ static int encryptedData_encrypt(byte* out, word32 outSz)
     if (ret <= 0) {
         wc_PKCS7_Free(pkcs7);
         return -1;
+    } else {
+        printf("Successfully encoded EncryptedData bundle (%s)\n",
+               encryptedFile);
+
+        if (write_file_buffer(encryptedFile, out, ret) != 0) {
+            printf("ERROR: error writing encoded to output file\n");
+            return -1;
+        }
     }
 
     wc_PKCS7_Free(pkcs7);
@@ -104,16 +135,20 @@ int main(int argc, char** argv)
     if (encryptedSz < 0)
         return -1;
 
-    printf("EncryptedData DER (%d byte):\n", encryptedSz);
+#ifdef DEBUG_WOLFSSL
+    printf("EncryptedData DER (%d bytes):\n", encryptedSz);
     WOLFSSL_BUFFER(encrypted, encryptedSz);
+#endif
 
     decryptedSz = encryptedData_decrypt(encrypted, encryptedSz,
                                         decrypted, sizeof(decrypted));
     if (decryptedSz < 0)
         return -1;
 
-    printf("DecryptedData DER (%d byte):\n", decryptedSz);
+#ifdef DEBUG_WOLFSSL
+    printf("DecryptedData DER (%d bytes):\n", decryptedSz);
     WOLFSSL_BUFFER(decrypted, decryptedSz);
+#endif
 
     (void)argc;
     (void)argv;
