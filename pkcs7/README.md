@@ -56,10 +56,10 @@ Successfully encoded EncryptedData bundle (encryptedData.der)
 
 ### EnvelopedData using KTRI RecipientInfo
 
-Example file: `envelopedData-ktri.c
+Example file: `envelopedData-ktri.c`
 
 ```
-./envelopedData-ktri 
+./envelopedData-ktri
 Successfully encoded EnvelopedData bundle (envelopedDataKTRI.der)
 ```
 
@@ -88,5 +88,101 @@ Example file: `envelopedData-ori.c`
 ```
 ./envelopedData-ori
 Successfully encoded EnvelopedData bundle (envelopedDataORI.der)
+```
+
+### AuthEnvelopedData using KTRI RecipientInfo
+
+Example file: `authEnvelopedData-ktri.c`
+
+```
+./authEnvelopedData-ktri
+Successfully encoded AuthEnvelopedData bundle (authEnvelopedDataKTRI.der)
+```
+
+### AuthEnvelopedData using KARI RecipientInfo
+
+Example file: `authEnvelopedData-kari.c`
+
+```
+./authEnvelopedData-kari
+Successfully encoded AuthEnvelopedData bundle (authEnvelopedDataKARI.der)
+```
+
+### AuthEnvelopedData using PWRI RecipientInfo
+
+Example file: `authEnvelopedData-pwri.c`
+
+```
+./authEnvelopedData-pwri
+Successfully encoded AuthEnvelopedData bundle (authEnvelopedDataPWRI.der)
+```
+
+### AuthEnvelopedData using ORI RecipientInfo
+
+Example file: `authEnvelopedData-ori.c`
+
+```
+./authEnvelopedData-ori
+Successfully encoded AuthEnvelopedData bundle (authEnvelopedDataORI.der)
+```
+
+### SignedData
+
+Example file: `signedData.c`
+
+```
+./signedData
+Successfully encoded SignedData bundle (signedData_noattrs.der)
+Successfully verified SignedData bundle.
+Successfully encoded SignedData bundle (signedData_attrs.der)
+Successfully verified SignedData bundle.
+```
+
+### SignedData encapsulating FirmwarePkgData
+
+Example file: `signedData-FirmwarePkgData.c`
+
+```
+./signedData-FirmwarePkgData
+Successfully encoded Signed FirmwarePkgData bundle (signedFirmwarePkgData_noattrs.der)
+Successfully verified SignedData bundle.
+Successfully encoded Signed FirmwarePkgData bundle (signedFirmwarePkgData_attrs.der)
+Successfully verified SignedData bundle.
+```
+
+### SignedData encapsulating Encrypted FirmwarePkgData
+
+Example file: `signedData-EncryptedFirmwarePkgData.c`
+
+```
+./signedData-EncryptedFirmwarePkgData
+Successfully encoded Signed Encrypted FirmwarePkgData (signedEncryptedFPD_noattrs.der)
+Successfully extracted and verified bundle contents
+Successfully encoded Signed Encrypted FirmwarePkgData (signedEncryptedFPD_attrs.der)
+Successfully extracted and verified bundle contents
+```
+
+### SignedData encapsulating Compressed FirmwarePkgData
+
+Example file: `signedData-CompressedFirmwarePkgData.c`
+
+```
+./signedData-CommpressedFirmwarePkgData
+Successfully encoded Signed Compressed FirmwarePkgData (signedCompressedFPD_noattrs.der)
+Successfully extracted and verified bundle contents
+Successfully encoded Signed Compressed FirmwarePkgData (signedCompressedFPD_attrs.der)
+Successfully extracted and verified bundle contents
+```
+
+### SignedData encapsulating Encrypted Compressed FirmwarePkgData
+
+Example file: `signedData-EncryptedCompressedFirmwarePkgData.c`
+
+```
+./signedData-EncryptedCommpressedFirmwarePkgData
+Successfully encoded Signed Encrypted Compressed FirmwarePkgData (signedEncryptedCompressedFPD_noattrs.der)
+Successfully extracted and verified bundle contents
+Successfully encoded Signed Encrypted Compressed FirmwarePkgData (signedEncryptedCompressedFPD_attrs.der)
+Successfully extracted and verified bundle contents
 ```
 

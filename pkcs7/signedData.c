@@ -127,9 +127,13 @@ static int signedData_sign_noattrs(byte* cert, word32 certSz, byte* key,
         return -1;
 
     } else {
-        printf("Successfully encoded SignedData bundle.\n");
+        printf("Successfully encoded SignedData bundle (%s)\n",
+               encodedFileNoAttrs);
+
+#ifdef DEBUG_WOLFSSL
         printf("Encoded DER (%d bytes):\n", ret);
         WOLFSSL_BUFFER(out, ret);
+#endif
 
         if (write_file_buffer(encodedFileNoAttrs, out, ret) != 0) {
             printf("ERROR: error writing encoded to output file\n");
@@ -203,9 +207,13 @@ static int signedData_sign_attrs(byte* cert, word32 certSz, byte* key,
         return -1;
 
     } else {
-        printf("Successfully encoded SignedData bundle.\n");
+        printf("Successfully encoded SignedData bundle (%s)\n",
+               encodedFileAttrs);
+
+#ifdef DEBUG_WOLFSSL
         printf("Encoded DER (%d bytes):\n", ret);
         WOLFSSL_BUFFER(out, ret);
+#endif
 
         if (write_file_buffer(encodedFileAttrs, out, ret) != 0) {
             printf("ERROR: error writing encoded to output file\n");
@@ -240,8 +248,11 @@ static int signedData_verify(byte* in, word32 inSz, byte* cert,
         return -1;
     } else {
         printf("Successfully verified SignedData bundle.\n");
+
+#ifdef DEBUG_WOLFSSL
         printf("Decoded content (%d bytes):\n", pkcs7->contentSz);
         WOLFSSL_BUFFER(pkcs7->content, pkcs7->contentSz);
+#endif
     }
 
     wc_PKCS7_Free(pkcs7);

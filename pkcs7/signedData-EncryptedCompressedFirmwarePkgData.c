@@ -1,4 +1,4 @@
-/* signedEncryptedCompressedFirmwarePkgData.c
+/* signedData-EncryptedCompressedFirmwarePkgData.c
  *
  * Copyright (C) 2006-2018 wolfSSL Inc.
  *
@@ -134,9 +134,13 @@ static int signedData_sign_noattrs(byte* cert, word32 certSz, byte* privateKey,
 
     } else {
         printf("Successfully encoded Signed Encrypted Compressed "
-                "FirmwarePkgData.\n");
+                "FirmwarePkgData (%s)\n",
+               encodedFileNoAttrs);
+
+#ifdef DEBUG_WOLFSSL
         printf("Encoded DER (%d bytes):\n", ret);
         WOLFSSL_BUFFER(out, ret);
+#endif
 
         if (write_file_buffer(encodedFileNoAttrs, out, ret) != 0) {
             printf("ERROR: error writing encoded to output file\n");
@@ -198,9 +202,12 @@ static int signedData_sign_attrs(byte* cert, word32 certSz, byte* privateKey,
 
     } else {
         printf("Successfully encoded Signed Encrypted Compressed "
-                "FirmwarePkgData.\n");
+                "FirmwarePkgData (%s)\n", encodedFileAttrs);
+
+#ifdef DEBUG_WOLFSSL
         printf("Encoded DER (%d bytes):\n", ret);
         WOLFSSL_BUFFER(out, ret);
+#endif
 
         if (write_file_buffer(encodedFileAttrs, out, ret) != 0) {
             printf("ERROR: error writing encoded to output file\n");
@@ -272,8 +279,11 @@ static int signedData_verify(byte* in, word32 inSz, byte* cert,
 
     } else {
         printf("Successfully extracted and verified bundle contents\n");
+
+#ifdef DEBUG_WOLFSSL
         printf("Decoded content (%d bytes):\n", ret);
         WOLFSSL_BUFFER(out, ret);
+#endif
     }
 
     wc_PKCS7_Free(pkcs7);
