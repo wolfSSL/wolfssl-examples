@@ -126,6 +126,25 @@ of the bundle will be printed out to the terminal window.
 Successfully encoded EncryptedData bundle (encryptedData.der)
 ```
 
+### CompressedData
+
+Example file: `compressedData.c`
+Generated bundle file: `compressedData.der`
+
+This example creates a PKCS#7/CMS CompressedData bundle. After creating the
+bundle, it decodes, uncompresses, and verifies the bundle.
+
+The generated CompressedData bundle is written out to a file for analysis and
+additional debugging.
+
+If wolfSSL has been configured and compiled with debug support, the bytes
+of the bundle will be printed out to the terminal window.
+
+```
+./compressedData
+Successfully encoded CompressedData bundle (compressedData.der)
+```
+
 ### EnvelopedData using KTRI RecipientInfo
 
 Example file: `envelopedData-ktri.c`

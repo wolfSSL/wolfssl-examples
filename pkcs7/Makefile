@@ -42,4 +42,5 @@ clean:
         envelopedDataKTRI.der envelopedDataKARI.der \
         envelopedDataPWRI.der envelopedDataORI.der \
         authEnvelopedDataKARI.der authEnvelopedDataKTRI.der \
-        authEnvelopedDataORI.der authEnvelopedDataPWRI.der encryptedData.der
+        authEnvelopedDataORI.der authEnvelopedDataPWRI.der encryptedData.der \
+        compressedData.der
