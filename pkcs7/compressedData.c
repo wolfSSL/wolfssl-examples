@@ -96,9 +96,15 @@ static int compressedData_decode(byte* in, word32 inSz, byte* out, word32 outSz)
 
     /* decode compressedData, returns size */
     ret = wc_PKCS7_DecodeCompressedData(pkcs7, in, inSz, out, outSz);
-    if (ret <= 0) {
+    if (ret <= 0 || (XMEMCMP(out, data, ret) != 0)) {
+        printf("Failed to decode CompressedData bundle (%s)\n",
+               compressedFile);
         wc_PKCS7_Free(pkcs7);
         return -1;
+
+    } else {
+        printf("Successfully decoded CompressedData bundle (%s)\n",
+               compressedFile);
     }
 
     wc_PKCS7_Free(pkcs7);

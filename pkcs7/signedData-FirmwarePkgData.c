@@ -210,10 +210,12 @@ static int signedData_verify(byte* in, word32 inSz, byte* cert,
     /* decode signedData, returns size */
     ret = wc_PKCS7_VerifySignedData(pkcs7, in, inSz);
 
-    if (ret < 0) {
+    if (ret < 0 || (pkcs7->contentSz != sizeof(data)) ||
+        (XMEMCMP(pkcs7->content, data, pkcs7->contentSz) != 0)) {
         printf("ERROR: Failed to verify SignedData bundle, ret = %d\n", ret);
         wc_PKCS7_Free(pkcs7);
         return -1;
+
     } else {
         printf("Successfully verified SignedData bundle.\n");
 

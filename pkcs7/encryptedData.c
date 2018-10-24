@@ -109,9 +109,14 @@ static int encryptedData_decrypt(byte* in, word32 inSz, byte* out, word32 outSz)
 
     /* decrypt encryptedData, returns size */
     ret = wc_PKCS7_DecodeEncryptedData(pkcs7, in, inSz, out, outSz);
-    if (ret <= 0) {
+    if (ret <= 0 || (XMEMCMP(out, data, ret) != 0)) {
+        printf("Failed to decode EncryptedData bundle (%s)\n", encryptedFile);
         wc_PKCS7_Free(pkcs7);
         return -1;
+
+    } else {
+        printf("Successfully decoded EncryptedData bundle (%s)\n",
+               encryptedFile);
     }
 
     wc_PKCS7_Free(pkcs7);
