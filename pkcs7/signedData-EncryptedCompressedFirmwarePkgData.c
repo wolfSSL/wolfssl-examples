@@ -21,8 +21,8 @@
  * DESCRIPTION:
  *
  * This file includes an example of generating a PKCS7/CMS signedData
- * bundle which encapsulates a compressedData content type, which then
- * encapsulates an encryptedData content type. The compressedData
+ * bundle which encapsulates an encryptedData content type, which then
+ * encapsulates an compressedData content type. The compressedData
  * that is encapsulated has a content type of FirmwarePkgData. It uses the
  * single-shot API to do this.
  *
