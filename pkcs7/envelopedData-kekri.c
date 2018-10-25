@@ -82,7 +82,7 @@ static int envelopedData_encrypt(byte* out, word32 outSz)
     pkcs7->ukmSz       = 0;
 
     /* add recipient (KEKRI type) */
-    ret = wc_PKCS7_AddRecipient_KEKRI(pkcs7, AES128_WRAP, aes256Key,
+    ret = wc_PKCS7_AddRecipient_KEKRI(pkcs7, AES256_WRAP, aes256Key,
                                       sizeof(aes256Key), keyId, sizeof(keyId),
                                       NULL, NULL, 0, NULL, 0, 0);
     if (ret < 0) {
