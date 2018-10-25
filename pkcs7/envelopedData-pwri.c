@@ -23,9 +23,6 @@
 #include <wolfssl/wolfcrypt/error-crypt.h>
 #include <wolfssl/wolfcrypt/logging.h>
 
-#define certFile "../certs/client-ecc-cert.der"
-#define keyFile  "../certs/ecc-client-key.der"
-
 #define encodedFilePWRI "envelopedDataPWRI.der"
 
 static const byte data[] = { /* Hello World */
@@ -34,33 +31,6 @@ static const byte data[] = { /* Hello World */
 };
 
 const char password[] = "wolfsslPassword";
-
-static int load_certs(byte* cert, word32* certSz, byte* key, word32* keySz)
-{
-    FILE* file;
-
-    /* certificate file */
-    file = fopen(certFile, "rb");
-    if (!file) {
-        printf("ERROR: failed to open file: %s\n", certFile);
-        return -1;
-    }
-
-    *certSz = (word32)fread(cert, 1, *certSz, file);
-    fclose(file);
-
-    /* key file */
-    file = fopen(keyFile, "rb");
-    if (!file) {
-        printf("ERROR: failed to open file: %s\n", keyFile);
-        return -1;
-    }
-
-    *keySz = (word32)fread(key, 1, *keySz, file);
-    fclose(file);
-
-    return 0;
-}
 
 static int write_file_buffer(const char* fileName, byte* in, word32 inSz)
 {
@@ -83,8 +53,7 @@ static int write_file_buffer(const char* fileName, byte* in, word32 inSz)
     return 0;
 }
 
-static int envelopedData_encrypt(byte* cert, word32 certSz, byte* key,
-                                 word32 keySz, byte* out, word32 outSz)
+static int envelopedData_encrypt(byte* out, word32 outSz)
 {
     int ret;
     PKCS7* pkcs7;
@@ -138,9 +107,7 @@ static int envelopedData_encrypt(byte* cert, word32 certSz, byte* key,
     return ret;
 }
 
-static int envelopedData_decrypt(byte* in, word32 inSz, byte* cert,
-                                word32 certSz, byte* key, word32 keySz,
-                                byte* out, word32 outSz)
+static int envelopedData_decrypt(byte* in, word32 inSz, byte* out, word32 outSz)
 {
     int ret;
     PKCS7* pkcs7;
@@ -179,12 +146,8 @@ static int envelopedData_decrypt(byte* in, word32 inSz, byte* cert,
 
 int main(int argc, char** argv)
 {
-    int ret;
     int encryptedSz, decryptedSz;
-    word32 certSz, keySz;
 
-    byte cert[2048];
-    byte key[2048];
     byte encrypted[1024];
     byte decrypted[1024];
     
@@ -192,14 +155,7 @@ int main(int argc, char** argv)
     wolfSSL_Debugging_ON();
 #endif
 
-    certSz = sizeof(cert);
-    keySz = sizeof(key);
-    ret = load_certs(cert, &certSz, key, &keySz);
-    if (ret != 0)
-        return -1;
-
-    encryptedSz = envelopedData_encrypt(cert, certSz, key, keySz,
-                                        encrypted, sizeof(encrypted));
+    encryptedSz = envelopedData_encrypt(encrypted, sizeof(encrypted));
     if (encryptedSz < 0)
         return -1;
 
@@ -209,7 +165,6 @@ int main(int argc, char** argv)
 #endif
 
     decryptedSz = envelopedData_decrypt(encrypted, encryptedSz,
-                                        cert, certSz, key, keySz,
                                         decrypted, sizeof(decrypted));
     if (decryptedSz < 0)
         return -1;
