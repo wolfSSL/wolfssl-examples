@@ -1,0 +1,272 @@
+#!/bin/bash
+
+# Copyright (C) 2006-2018 wolfSSL Inc.
+#
+# This script verifies the DER-encoded PKCS7/CMS bundles created by the
+# example applications using the openssl command line tool.
+#
+# Tested on Ubuntu 17.10 64-bit, using bash shell
+#
+# Run from the "wolfssl-examples/pkcs7" directory:
+#
+# $ cd wolfssl-examples/pkcs7
+# $ make
+# $ ./scripts/openssl-verify.sh
+#
+# This script relies on the scripts/runall.sh script, and calls it
+# automatically to run the PKCS7/CMS example applications which will
+# generate the necessary DER-encoded bundles.
+
+EXPECTED_INNER_CONTENT="Hello World"
+AES256_KEY="0102030405060708010203040506070801020304050607080102030405060708"
+AES256_KEYID="02020304"
+
+RSA_RECIP_CERT="../certs/client-cert.pem"
+RSA_RECIP_KEY="../certs/client-key.pem"
+
+ECC_RECIP_CERT="../certs/client-ecc-cert.pem"
+ECC_RECIP_KEY="../certs/ecc-client-key.pem"
+
+
+# Check that openssl command exists
+if ! [ -x "$(command -v openssl)" ]; then
+    echo 'Error: openssl is not installed.' >&2
+    exit 1
+fi
+
+
+# Run all example applications that exist
+eval "./scripts/runall.sh"
+
+echo ''
+echo '---------------------------------------------'
+echo 'Testing against installed version of openssl:'
+eval 'openssl version'
+
+
+# Try to verify generated EncryptedData bundle(s)
+echo -e "\nVerifying EncryptedData Bundles:"
+if [ -f 'encryptedData.der' ]; then
+    OUTPUT=$(openssl cms -EncryptedData_decrypt -in encryptedData.der -inform der -secretkey $AES256_KEY)
+
+    if [ "$OUTPUT" == "$EXPECTED_INNER_CONTENT" ]; then
+        echo -e '\tencryptedData.der:\t\t\t\tPASSED!'
+    else
+        echo -e '\tencryptedData.der:\t\t\t\tFAILED!'
+        echo -e "\t... output = $OUTPUT, expected '$EXPECTED_INNER_CONTENT'"
+    fi
+fi
+
+
+# Trying to verify CompressedData bundle(s)
+echo -e "\nVerifying CompressedData Bundles:"
+if [ -f 'compressedData.der' ]; then
+    OUTPUT=$(openssl cms -uncompress -in compressedData.der -inform der)
+
+    if [ "$OUTPUT" == "$EXPECTED_INNER_CONTENT" ]; then
+        echo -e '\tcompressedData.der:\t\t\t\tPASSED!'
+    else
+        echo -e '\tcompressedData.der:\t\t\t\tFAILED!'
+        echo -e "\t... output = $OUTPUT, expected '$EXPECTED_INNER_CONTENT'"
+    fi
+fi
+
+
+# Trying to verify EnvelopedData bundle(s), except ORI recipient type
+echo -e "\nVerifying EnvelopedData Bundles:"
+if [ -f 'envelopedDataKTRI.der' ]; then
+    OUTPUT=$(openssl cms -decrypt -in envelopedDataKTRI.der -inform der -recip $RSA_RECIP_CERT -inkey $RSA_RECIP_KEY)
+
+    if [ "$OUTPUT" == "$EXPECTED_INNER_CONTENT" ]; then
+        echo -e '\tenvelopedDataKTRI.der:\t\t\t\tPASSED!'
+    else
+        echo -e '\tenvelopedDataKTRI.der:\t\t\t\tFAILED!'
+        echo -e "\t... output = $OUTPUT, expected '$EXPECTED_INNER_CONTENT'"
+    fi
+fi
+
+if [ -f 'envelopedDataKARI.der' ]; then
+    OUTPUT=$(openssl cms -decrypt -in envelopedDataKARI.der -inform der -recip $ECC_RECIP_CERT -inkey $ECC_RECIP_KEY)
+
+    if [ "$OUTPUT" == "$EXPECTED_INNER_CONTENT" ]; then
+        echo -e '\tenvelopedDataKARI.der:\t\t\t\tPASSED!'
+    else
+        echo -e '\tenvelopedDataKARI.der:\t\t\t\tFAILED!'
+        echo -e "\t... output = $OUTPUT, expected '$EXPECTED_INNER_CONTENT'"
+    fi
+fi
+
+if [ -f 'envelopedDataKEKRI.der' ]; then
+    OUTPUT=$(openssl cms -decrypt -in envelopedDataKEKRI.der -inform der -secretkey $AES256_KEY -secretkeyid $AES256_KEYID)
+
+    if [ "$OUTPUT" == "$EXPECTED_INNER_CONTENT" ]; then
+        echo -e '\tenvelopedDataKEKRI.der:\t\t\t\tPASSED!'
+    else
+        echo -e '\tenvelopedDataKEKRI.der:\t\t\t\tFAILED!'
+        echo -e "\t... output = $OUTPUT, expected '$EXPECTED_INNER_CONTENT'"
+    fi
+fi
+
+if [ -f 'envelopedDataPWRI.der' ]; then
+    OUTPUT=$(openssl cms -decrypt -in envelopedDataPWRI.der -inform der -pwri_password "wolfsslPassword")
+
+    if [ "$OUTPUT" == "$EXPECTED_INNER_CONTENT" ]; then
+        echo -e '\tenvelopedDataPWRI.der:\t\t\t\tPASSED!'
+    else
+        echo -e '\tenvelopedDataPWRI.der:\t\t\t\tFAILED!'
+        echo -e "\t... output = $OUTPUT, expected '$EXPECTED_INNER_CONTENT'"
+    fi
+fi
+
+# Trying to verify AuthEnvelopedData bundle(s) - TODO
+echo -e "\nVerifying AuthEnvelopedData Bundles:"
+echo -e "\t[SKIPPING - openssl app doesn't support yet]"
+
+# Trying to verify SignedData bundle(s)
+echo -e "\nVerifying SignedData Bundles:"
+if [ -f 'signedData_attrs.der' ]; then
+    OUTPUT=$(openssl cms -verify -in signedData_attrs.der -inform der -CAfile $RSA_RECIP_CERT 2>/dev/null)
+
+    if [ "$OUTPUT" == "$EXPECTED_INNER_CONTENT" ]; then
+        echo -e '\tsignedData_attrs.der:\t\t\t\tPASSED!'
+    else
+        echo -e '\tsignedData_attrs.der:\t\t\t\tFAILED!'
+        echo -e "\t... output = $OUTPUT, expected '$EXPECTED_INNER_CONTENT'"
+    fi
+fi
+
+if [ -f 'signedData_noattrs.der' ]; then
+    OUTPUT=$(openssl cms -verify -in signedData_noattrs.der -inform der -CAfile $RSA_RECIP_CERT 2>/dev/null)
+
+    if [ "$OUTPUT" == "$EXPECTED_INNER_CONTENT" ]; then
+        echo -e '\tsignedData_noattrs.der:\t\t\t\tPASSED!'
+    else
+        echo -e '\tsignedData_noattrs.der:\t\t\t\tFAILED!'
+        echo -e "\t... output = $OUTPUT, expected '$EXPECTED_INNER_CONTENT'"
+    fi
+fi
+
+if [ -f 'signedFirmwarePkgData_attrs.der' ]; then
+    OUTPUT=$(openssl cms -verify -in signedFirmwarePkgData_attrs.der -inform der -CAfile $RSA_RECIP_CERT 2>/dev/null)
+
+    if [ "$OUTPUT" == "$EXPECTED_INNER_CONTENT" ]; then
+        echo -e '\tsignedFirmwarePkgData_attrs.der:\t\tPASSED!'
+    else
+        echo -e '\tsignedFirmwarePkgData_attrs.der:\t\tFAILED!'
+        echo -e "\t... output = $OUTPUT, expected '$EXPECTED_INNER_CONTENT'"
+    fi
+fi
+
+if [ -f 'signedFirmwarePkgData_noattrs.der' ]; then
+    OUTPUT=$(openssl cms -verify -in signedFirmwarePkgData_noattrs.der -inform der -CAfile $RSA_RECIP_CERT 2>/dev/null)
+
+    if [ "$OUTPUT" == "$EXPECTED_INNER_CONTENT" ]; then
+        echo -e '\tsignedFirmwarePkgData_noattrs.der:\t\tPASSED!'
+    else
+        echo -e '\tsignedFirmwarePkgData_noattrs.der:\t\tFAILED!'
+        echo -e "\t... output = $OUTPUT, expected '$EXPECTED_INNER_CONTENT'"
+    fi
+fi
+
+if [ -f 'signedEncryptedFPD_attrs.der' ]; then
+    # 1. verify signedData to extract inner EncryptedData
+    OUTPUT=$(openssl cms -verify -in signedEncryptedFPD_attrs.der -inform der -CAfile $RSA_RECIP_CERT -out scripts/innertmp.der -outform der 2>/dev/null)
+
+    # 2. decrypt inner EncryptedData
+    OUTPUT=$(openssl cms -EncryptedData_decrypt -in scripts/innertmp.der -inform der -secretkey $AES256_KEY)
+    rm -f scripts/innertmp.der
+
+    if [ "$OUTPUT" == "$EXPECTED_INNER_CONTENT" ]; then
+        echo -e '\tsignedEncryptedFPD_attrs.der:\t\t\tPASSED!'
+    else
+        echo -e '\tsignedEncryptedFPD_attrs.der:\t\t\tFAILED!'
+        echo -e "\t... output = $OUTPUT, expected '$EXPECTED_INNER_CONTENT'"
+    fi
+fi
+
+if [ -f 'signedEncryptedFPD_noattrs.der' ]; then
+    # 1. verify signedData to extract inner EncryptedData
+    OUTPUT=$(openssl cms -verify -in signedEncryptedFPD_noattrs.der -inform der -CAfile $RSA_RECIP_CERT -out scripts/innertmp.der -outform der 2>/dev/null)
+
+    # 2. decrypt inner EncryptedData
+    OUTPUT=$(openssl cms -EncryptedData_decrypt -in scripts/innertmp.der -inform der -secretkey $AES256_KEY)
+    rm -f scripts/innertmp.der
+
+    if [ "$OUTPUT" == "$EXPECTED_INNER_CONTENT" ]; then
+        echo -e '\tsignedEncryptedFPD_noattrs.der:\t\t\tPASSED!'
+    else
+        echo -e '\tsignedEncryptedFPD_noattrs.der:\t\t\tFAILED!'
+        echo -e "\t... output = $OUTPUT, expected '$EXPECTED_INNER_CONTENT'"
+    fi
+fi
+
+if [ -f 'signedCompressedFPD_attrs.der' ]; then
+    # 1. verify signedData to extract inner EncryptedData
+    OUTPUT=$(openssl cms -verify -in signedCompressedFPD_attrs.der -inform der -CAfile $RSA_RECIP_CERT -out scripts/innertmp.der -outform der 2>/dev/null)
+
+    # 2. decrypt inner CompressedData
+    OUTPUT=$(openssl cms -uncompress -in scripts/innertmp.der -inform der)
+    rm -f scripts/innertmp.der
+
+    if [ "$OUTPUT" == "$EXPECTED_INNER_CONTENT" ]; then
+        echo -e '\tsignedCompressedFPD_attrs.der:\t\t\tPASSED!'
+    else
+        echo -e '\tsignedCompressedFPD_attrs.der:\t\t\tFAILED!'
+        echo -e "\t... output = $OUTPUT, expected '$EXPECTED_INNER_CONTENT'"
+    fi
+fi
+
+if [ -f 'signedCompressedFPD_noattrs.der' ]; then
+    # 1. verify signedData to extract inner EncryptedData
+    OUTPUT=$(openssl cms -verify -in signedCompressedFPD_noattrs.der -inform der -CAfile $RSA_RECIP_CERT -out scripts/innertmp.der -outform der 2>/dev/null)
+
+    # 2. decrypt inner CompressedData
+    OUTPUT=$(openssl cms -uncompress -in scripts/innertmp.der -inform der)
+    rm -f scripts/innertmp.der
+
+    if [ "$OUTPUT" == "$EXPECTED_INNER_CONTENT" ]; then
+        echo -e '\tsignedCompressedFPD_noattrs.der:\t\tPASSED!'
+    else
+        echo -e '\tsignedCompressedFPD_noattrs.der:\t\tFAILED!'
+        echo -e "\t... output = $OUTPUT, expected '$EXPECTED_INNER_CONTENT'"
+    fi
+fi
+
+if [ -f 'signedEncryptedCompressedFPD_attrs.der' ]; then
+    # 1. verify signedData to extract inner CompressedData
+    OUTPUT=$(openssl cms -verify -in signedEncryptedCompressedFPD_attrs.der -inform der -CAfile $RSA_RECIP_CERT -out scripts/innertmp.der -outform der 2>/dev/null)
+
+    # 2. decrypt inner EncryptedData
+    OUTPUT=$(openssl cms -EncryptedData_decrypt -in scripts/innertmp.der -inform der -out scripts/innertmp.der -outform der -secretkey $AES256_KEY)
+
+    # 3. decode inner CompressedData
+    OUTPUT=$(openssl cms -uncompress -in scripts/innertmp.der -inform der)
+    rm -f scripts/innertmp.der
+
+    if [ "$OUTPUT" == "$EXPECTED_INNER_CONTENT" ]; then
+        echo -e '\tsignedEncryptedCompressedFPD_attrs.der:\t\tPASSED!'
+    else
+        echo -e '\tsignedEncryptedCompressedFPD_attrs.der:\t\tFAILED!'
+        echo -e "\t... output = $OUTPUT, expected '$EXPECTED_INNER_CONTENT'"
+    fi
+fi
+
+if [ -f 'signedEncryptedCompressedFPD_noattrs.der' ]; then
+    # 1. verify signedData to extract inner CompressedData
+    OUTPUT=$(openssl cms -verify -in signedEncryptedCompressedFPD_noattrs.der -inform der -CAfile $RSA_RECIP_CERT -out scripts/innertmp.der -outform der 2>/dev/null)
+
+    # 2. decrypt inner EncryptedData
+    OUTPUT=$(openssl cms -EncryptedData_decrypt -in scripts/innertmp.der -inform der -out scripts/innertmp.der -outform der -secretkey $AES256_KEY)
+
+    # 3. decode inner CompressedData
+    OUTPUT=$(openssl cms -uncompress -in scripts/innertmp.der -inform der)
+    rm -f scripts/innertmp.der
+
+    if [ "$OUTPUT" == "$EXPECTED_INNER_CONTENT" ]; then
+        echo -e '\tsignedEncryptedCompressedFPD_noattrs.der:\tPASSED!'
+    else
+        echo -e '\tsignedEncryptedCompressedFPD_noattrs.der:\tFAILED!'
+        echo -e "\t... output = $OUTPUT, expected '$EXPECTED_INNER_CONTENT'"
+    fi
+fi
+
