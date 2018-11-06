@@ -37,4 +37,20 @@ formatted files.
    importing the public and private keys. App will then sign a msg with the
    private key and verify that signature using the public key
 
+------------------ UPDATE -----------------
+November 13 2018:
+
+Added rsa_buffer directory
+
+rsa_buffer directory contains:
+
+1. App "sign.c" to generate a signature using a DER encoded private key into a
+   buffer. Prints out a hex encoding of signature.
+
+2. App "verify.c" to verify a signature using a DER encoded public key in and
+   binary signature in buffers.
+
+3. Script sign_vfy.sh builds sign, creates a signature with "sign", builds
+   verify with message and signature generated and verifies the signature with
+   "verify".
 
