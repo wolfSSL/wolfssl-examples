@@ -23,6 +23,8 @@
 #include <wolfssl/wolfcrypt/error-crypt.h>
 #include <wolfssl/wolfcrypt/logging.h>
 
+#if defined(HAVE_PKCS7) && !defined(NO_PWDBASED)
+
 #define encodedFilePWRI "envelopedDataPWRI.der"
 
 static const byte data[] = { /* Hello World */
@@ -142,8 +144,6 @@ static int envelopedData_decrypt(byte* in, word32 inSz, byte* out, word32 outSz)
     return ret;
 }
 
-#ifdef HAVE_PKCS7
-
 int main(int argc, char** argv)
 {
     int encryptedSz, decryptedSz;
@@ -188,5 +188,5 @@ int main(int argc, char** argv)
     return 0;
 }
 
-#endif
+#endif /* HAVE_PKCS7 & !NO_PWDBASED */
 

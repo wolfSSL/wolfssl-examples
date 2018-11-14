@@ -41,6 +41,9 @@
 #define encodedFileNoAttrs "signedCompressedFPD_noattrs.der"
 #define encodedFileAttrs   "signedCompressedFPD_attrs.der"
 
+#if defined(HAVE_PKCS7) && defined(HAVE_LIBZ) && \
+    !defined(NO_PKCS7_COMPRESSED_DATA)
+
 static const byte data[] = { /* Hello World */
     0x48,0x65,0x6c,0x6c,0x6f,0x20,0x57,0x6f,
     0x72,0x6c,0x64
@@ -251,8 +254,6 @@ static int signedData_verify(byte* in, word32 inSz, byte* cert,
     return ret;
 }
 
-#ifdef HAVE_PKCS7
-
 int main(int argc, char** argv)
 {
     int ret;
@@ -312,5 +313,5 @@ int main(int argc, char** argv)
     return 0;
 }
 
-#endif
+#endif /* HAVE_PKCS7 & HAVE_LIBZ & !NO_PKCS7_COMPRESSED_DATA */
 

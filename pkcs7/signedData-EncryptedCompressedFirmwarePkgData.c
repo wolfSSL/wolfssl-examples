@@ -39,6 +39,9 @@
 #include <wolfssl/wolfcrypt/error-crypt.h>
 #include <wolfssl/wolfcrypt/logging.h>
 
+#if defined(HAVE_PKCS7) && defined(HAVE_LIBZ) && \
+    !defined(NO_PKCS7_ENCRYPTED_DATA) && !defined(NO_PKCS7_COMPRESSED_DATA)
+
 #define certFile "../certs/client-cert.der"
 #define keyFile  "../certs/client-key.der"
 #define encodedFileNoAttrs "signedEncryptedCompressedFPD_noattrs.der"
@@ -291,8 +294,6 @@ static int signedData_verify(byte* in, word32 inSz, byte* cert,
     return ret;
 }
 
-#ifdef HAVE_PKCS7
-
 int main(int argc, char** argv)
 {
     int ret;
@@ -356,5 +357,5 @@ int main(int argc, char** argv)
     return 0;
 }
 
-#endif
+#endif /* HAVE_PKCS7 & HAVE_LIBZ & !NO_PKCS7_ENCRYPTED_DATA */
 
