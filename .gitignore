@@ -100,6 +100,8 @@ btle/ecc-server
 signature/sigtest/wolfsigtest
 signature/sigtest/opensigtest
 signature/firmware_sign/eccsign
+signature/rsa_buffer/sign
+signature/rsa_buffer/verify
 
 ecc/ecc-key-decode
 ecc/ecc-sign
@@ -109,3 +111,7 @@ pkcs7/pkcs7-verify
 *.dSYM
 certmanager/certloadverifybuffer
 certmanager/certverify
+
+rsa/sign
+rsa/verify
+
