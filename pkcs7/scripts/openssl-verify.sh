@@ -18,6 +18,7 @@
 # generate the necessary DER-encoded bundles.
 
 EXPECTED_INNER_CONTENT="Hello World"
+INNER_CONTENT_FILE="content.txt"
 AES256_KEY="0102030405060708010203040506070801020304050607080102030405060708"
 AES256_KEYID="02020304"
 
@@ -266,6 +267,28 @@ if [ -f 'signedEncryptedCompressedFPD_noattrs.der' ]; then
         echo -e '\tsignedEncryptedCompressedFPD_noattrs.der:\tPASSED!'
     else
         echo -e '\tsignedEncryptedCompressedFPD_noattrs.der:\tFAILED!'
+        echo -e "\t... output = $OUTPUT, expected '$EXPECTED_INNER_CONTENT'"
+    fi
+fi
+
+if [ -f 'signedData_detached_attrs.der' ]; then
+    OUTPUT=$(openssl cms -verify -in signedData_detached_attrs.der -inform der -CAfile $RSA_RECIP_CERT -content $INNER_CONTENT_FILE 2>/dev/null)
+
+    if [ "$OUTPUT" == "$EXPECTED_INNER_CONTENT" ]; then
+        echo -e '\tsignedData_detached_attrs.der:\t\t\tPASSED!'
+    else
+        echo -e '\tsignedData_detached_attrs.der:\t\t\tFAILED!'
+        echo -e "\t... output = $OUTPUT, expected '$EXPECTED_INNER_CONTENT'"
+    fi
+fi
+
+if [ -f 'signedData_detached_noattrs.der' ]; then
+    OUTPUT=$(openssl cms -verify -in signedData_detached_noattrs.der -inform der -CAfile $RSA_RECIP_CERT -content $INNER_CONTENT_FILE 2>/dev/null)
+
+    if [ "$OUTPUT" == "$EXPECTED_INNER_CONTENT" ]; then
+        echo -e '\tsignedData_detached_noattrs.der:\t\tPASSED!'
+    else
+        echo -e '\tsignedData_detached_noattrs.der:\t\tFAILED!'
         echo -e "\t... output = $OUTPUT, expected '$EXPECTED_INNER_CONTENT'"
     fi
 fi

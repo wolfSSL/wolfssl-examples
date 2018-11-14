@@ -123,6 +123,7 @@ pkcs7/envelopedData-pwri
 pkcs7/envelopedData-ori
 pkcs7/signedData
 pkcs7/signedData-FirmwarePkgData
+pkcs7/signedData-DetachedSignature
 pkcs7/signedData-EncryptedFirmwarePkgData
 pkcs7/signedData-CompressedFirmwarePkgData
 pkcs7/signedData-EncryptedCompressedFirmwarePkgData

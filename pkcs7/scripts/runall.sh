@@ -43,6 +43,7 @@ fileArray=(
     "signedData-EncryptedCompressedFirmwarePkgData"
     "signedData-EncryptedFirmwarePkgData"
     "signedData-FirmwarePkgData"
+    "signedData-DetachedSignature"
     )
 
 echo "Running example applications..."

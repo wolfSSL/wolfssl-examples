@@ -28,6 +28,15 @@ gcc -o pkcs7 pkcs7.c -Wall -I/usr/local/include -Os -L/usr/local/lib -lm -lwolfs
 gcc -o ecc-verify ecc-verify.c -Wall -I/usr/local/include -Os -L/usr/local/lib -lm -lwolfssl
 ```
 
+Some of the examples which use the CompressedData content type require the
+zlib library to be installed. The default Makefile has the linking against
+(-lz) commented out. Before making the CompressedData example, please
+uncomment the following line in Makefile:
+
+```
+#ZLIB    += -lz
+```
+
 ### Debugging
 
 To enable debug messages change the Makefile to:
@@ -466,6 +475,33 @@ Successfully encoded Signed Compressed FirmwarePkgData (signedCompressedFPD_noat
 Successfully extracted and verified bundle contents
 Successfully encoded Signed Compressed FirmwarePkgData (signedCompressedFPD_attrs.der)
 Successfully extracted and verified bundle contents
+```
+
+### SignedData with Detached Signature
+
+Example file: `signedData-DetachedSignature.c`
+Generated bundle files: `signedData_detached_noattrs.der`,
+                        `signedData_detached_attrs.der`
+
+This example creates a PKCS#7/CMS SignedData bundle that does not include
+the EncapsulatedContent eContent. This is known as a detached signature, and
+is useful when signing a large amount of data to decrease the size of the
+CMS bundle. It uses RSA with SHA256 as the signature algorithm, and specifies
+the signed content type as DATA. After creating the bundle, the app decodes it
+and verifies the operation was successful.
+
+The generated SignedData bundles are written out to a file for analysis and
+additional debugging.
+
+If wolfSSL has been configured and compiled with debug support, the bytes
+of the bundle will be printed out to the terminal window.
+
+```
+./signedData-DetachedSignature
+Successfully encoded SignedData bundle (signedData_detached_noattrs.der)
+Successfully verified SignedData bundle.
+Successfully encoded SignedData bundle (signedData_detached_attrs.der)
+Successfully verified SignedData bundle.
 ```
 
 ### SignedData encapsulating Encrypted Compressed FirmwarePkgData
