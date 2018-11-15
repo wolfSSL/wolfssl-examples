@@ -79,7 +79,7 @@ add_library(wolfssl SHARED
             ${wolfssl_DIR}/wolfcrypt/src/wolfmath.c
             ${wolfssl_DIR}/src/crl.c
             ${wolfssl_DIR}/src/internal.c
-            ${wolfssl_DIR}/src/io.c
+            ${wolfssl_DIR}/src/wolfio.c
             ${wolfssl_DIR}/src/keys.c
             ${wolfssl_DIR}/src/ocsp.c
             ${wolfssl_DIR}/src/sniffer.c
