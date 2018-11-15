@@ -293,3 +293,25 @@ if [ -f 'signedData_detached_noattrs.der' ]; then
     fi
 fi
 
+if [ -f 'signedData_cryptodev_attrs.der' ]; then
+    OUTPUT=$(openssl cms -verify -in signedData_cryptodev_attrs.der -inform der -CAfile $RSA_RECIP_CERT 2>/dev/null)
+
+    if [ "$OUTPUT" == "$EXPECTED_INNER_CONTENT" ]; then
+        echo -e '\tsignedData_cryptodev_attrs.der:\t\t\tPASSED!'
+    else
+        echo -e '\tsignedData_cryptodev_attrs.der:\t\t\tFAILED!'
+        echo -e "\t... output = $OUTPUT, expected '$EXPECTED_INNER_CONTENT'"
+    fi
+fi
+
+if [ -f 'signedData_cryptodev_noattrs.der' ]; then
+    OUTPUT=$(openssl cms -verify -in signedData_cryptodev_noattrs.der -inform der -CAfile $RSA_RECIP_CERT 2>/dev/null)
+
+    if [ "$OUTPUT" == "$EXPECTED_INNER_CONTENT" ]; then
+        echo -e '\tsignedData_cryptodev_noattrs.der:\t\tPASSED!'
+    else
+        echo -e '\tsignedData_cryptodev_noattrs.der:\t\tFAILED!'
+        echo -e "\t... output = $OUTPUT, expected '$EXPECTED_INNER_CONTENT'"
+    fi
+fi
+

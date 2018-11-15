@@ -122,6 +122,7 @@ pkcs7/envelopedData-kekri
 pkcs7/envelopedData-pwri
 pkcs7/envelopedData-ori
 pkcs7/signedData
+pkcs7/signedData-cryptodev
 pkcs7/signedData-FirmwarePkgData
 pkcs7/signedData-DetachedSignature
 pkcs7/signedData-EncryptedFirmwarePkgData

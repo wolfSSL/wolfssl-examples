@@ -477,6 +477,36 @@ Successfully encoded Signed Compressed FirmwarePkgData (signedCompressedFPD_attr
 Successfully extracted and verified bundle contents
 ```
 
+### SignedData using CryptoDev Callback
+
+Example file: `signedData-cryptodev.c`
+Generated bundle files: `signedData_cryptodev_noattrs.der`,
+                        `signedData_cryptodev_attrs.der`
+
+This example creates a PKCS#7/CMS SignedData bundle using the wolfCrypt
+CryptoDev callback. CryptoDev allows a user to register a callback to do
+cryptographic operations outside of wolfCrypt proper. This can be useful
+in order to take advantage of hardware-based cryptography instead of the
+default software implementation.
+
+It uses RSA with SHA256 as the signature algorithm, and specifies
+the signed content type as DATA. After creating the bundle, the app decodes it
+and verifies the operation was successful.
+
+The generated SignedData bundles are written out to a file for analysis and
+additional debugging.
+
+If wolfSSL has been configured and compiled with debug support, the bytes
+of the bundle will be printed out to the terminal window.
+
+```
+./signedData-cryptodev
+Successfully encoded SignedData bundle (signedData_cryptodev_noattrs.der)
+Successfully verified SignedData bundle.
+Successfully encoded SignedData bundle (signedData_cryptodev_attrs.der)
+Successfully verified SignedData bundle.
+```
+
 ### SignedData with Detached Signature
 
 Example file: `signedData-DetachedSignature.c`

@@ -42,6 +42,7 @@ clean:
         signedCompressedFPD_attrs.der signedCompressedFPD_noattrs.der \
         signedEncryptedCompressedFPD_attrs.der signedEncryptedCompressedFPD_noattrs.der \
         signedData_detached_attrs.der signedData_detached_noattrs.der \
+        signedData_cryptodev_attrs.der signedData_cryptodev_noattrs.der \
         envelopedDataKTRI.der envelopedDataKARI.der \
         envelopedDataPWRI.der envelopedDataORI.der envelopedDataKEKRI.der \
         authEnvelopedDataKARI.der authEnvelopedDataKTRI.der \
