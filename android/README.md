@@ -135,11 +135,11 @@ In order to build the wolfSSL JNI Android Studio sample application,
 you need to:
 * Install Android Studio, along with Android NDK support
 
-### Compiling and Running the wolfssljni-ndk-gradle
+### Compiling and Running the wolfssljni-ndk-gradle or wolfcryptjni-ndk-gradle
 
 After the development environment has been set up, follow these instructions
-to compile and install the wolfCrypt JNI + wolfSSL bundle on
-the Emulator:
+to compile and install either the wolfSSL JNI + wolfSSL bundle, or the
+wolfCrypt JNI + wolfSSL bundle on the Emulator:
 
 1) Change directories into the android/wolfssljni-ndk-sample directory
 

@@ -26,6 +26,16 @@
 **/*.swp
 
 # Android files
+android/wolfcryptjni-ndk-gradle/.gradle
+android/wolfcryptjni-ndk-gradle/.idea
+android/wolfcryptjni-ndk-gradle/local.properties
+android/wolfcryptjni-ndk-gradle/app/.externalNativeBuild
+android/wolfcryptjni-ndk-gradle/app/build
+android/wolfssljni-ndk-gradle/.gradle
+android/wolfssljni-ndk-gradle/.idea
+android/wolfssljni-ndk-gradle/local.properties
+android/wolfssljni-ndk-gradle/app/.externalNativeBuild
+android/wolfssljni-ndk-gradle/app/build
 android/wolfssljni-ndk-sample/bin
 android/wolfssljni-ndk-sample/build.xml
 android/wolfssljni-ndk-sample/gen
