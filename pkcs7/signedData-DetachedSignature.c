@@ -19,10 +19,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 #include <wolfssl/options.h>
+#include <wolfssl/version.h>
 #include <wolfssl/wolfcrypt/settings.h>
 #include <wolfssl/wolfcrypt/pkcs7.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
 #include <wolfssl/wolfcrypt/logging.h>
+
+/* Detached signature support was only in wolfSSL versions after 3.15.5 */
+#if defined(HAVE_PKCS7) && (LIBWOLFSSL_VERSION_HEX > 0x03015005)
 
 #define certFile "../certs/client-cert.der"
 #define keyFile  "../certs/client-key.der"
@@ -278,8 +282,6 @@ static int signedData_verify(byte* in, word32 inSz, byte* cert,
     return ret;
 }
 
-#ifdef HAVE_PKCS7
-
 int main(int argc, char** argv)
 {
     int ret;
@@ -335,7 +337,7 @@ int main(int argc, char** argv)
 
 int main(int argc, char** argv)
 {
-    printf("Must build wolfSSL using ./configure --enable-pkcs7\n");
+    printf("Must build wolfSSL (> 3.15.5) using ./configure --enable-pkcs7\n");
     return 0;
 }
 
