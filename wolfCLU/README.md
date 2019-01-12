@@ -6,7 +6,8 @@ This is the wolfSSL: Command Line Utility (wolfCLU).
 
 To use this feature, please configure and install wolfssl with the following commands:
 
-    ./configure --enable-pwdbased --enable-opensslextra --enable-keygen --enable-ed25519
+    ./configure --enable-pwdbased --enable-opensslextra --enable-keygen \
+                --enable-ed25519 --enable-certgen \
      && make && make check
 
 If that succeeds, run:

@@ -33,7 +33,7 @@ enum {
     RSA,
     ECC,
     ED25519,
-    
+
     CERT_SHA,
     CERT_SHA224,
     CERT_SHA256,

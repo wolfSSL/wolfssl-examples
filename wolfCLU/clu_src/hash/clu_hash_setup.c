@@ -88,10 +88,14 @@ int wolfCLU_hashSetup(int argc, char** argv)
         return FATAL_ERROR;
     }
 
+    /* returns location of the arg in question if present */
     ret = wolfCLU_checkForArg("-in", 3, argc, argv);
     if (ret > 0) {
         /* input file/text */
-        in = XMALLOC(strlen(argv[i+1])+1, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        int argLen = (int) XSTRLEN(argv[ret+1]);
+        int fullLen = (int) ((argLen + 1) * sizeof(char));
+
+        in = XMALLOC(fullLen, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
         if (in == NULL)
             return MEMORY_E;
 
