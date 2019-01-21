@@ -711,11 +711,11 @@ int wolfCLU_checkForArg(char* searchTerm, int length, int argc, char** argv)
         } else if (XSTRNCMP(searchTerm, "-help", length) == 0 &&
                    XSTRNCMP(argv[i], "-help", XSTRLEN(argv[i])) == 0 &&
                    (int) XSTRLEN(argv[i]) > 0) {
-
-           ret = 1;
+           return 1;
 
         } else if (XSTRNCMP(argv[i], searchTerm, length) == 0 &&
                    XSTRNCMP(argv[i], searchTerm, XSTRLEN(argv[i])) == 0) {
+
             ret = i;
             if (argFound == 1) {
                 printf("ERROR: argument found twice: \"%s\"\n", searchTerm);
