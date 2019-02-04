@@ -357,18 +357,21 @@ int wolfCLU_genKey_RSA(RNG* rng, char* fName, int directive, int fmt, int
 
             derBufSz = wc_RsaKeyToDer(&key, derBuf, maxDerBufSz);
             if (derBufSz < 0) {
+                XFREE(fOutNameBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
                 XFREE(derBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
                 return derBufSz;
             }
 
             file = fopen(fOutNameBuf, "wb");
             if (file == XBADFILE) {
+                XFREE(fOutNameBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
                 XFREE(derBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
                 return OUTPUT_FILE_ERROR;
             }
 
             ret = (int)fwrite(derBuf, 1, derBufSz, file);
             if (ret <= 0) {
+                XFREE(fOutNameBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
                 XFREE(derBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
                 fclose(file);
                 return OUTPUT_FILE_ERROR;
@@ -385,6 +388,7 @@ int wolfCLU_genKey_RSA(RNG* rng, char* fName, int directive, int fmt, int
 
             derBufSz = wc_RsaKeyToPublicDer(&key, derBuf, maxDerBufSz);
             if (derBufSz < 0) {
+                XFREE(fOutNameBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
                 XFREE(derBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
                 return derBufSz;
             }
@@ -392,6 +396,7 @@ int wolfCLU_genKey_RSA(RNG* rng, char* fName, int directive, int fmt, int
             file = fopen(fOutNameBuf, "wb");
             if (file == XBADFILE) {
                 XFREE(fOutNameBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+                XFREE(derBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
                 return OUTPUT_FILE_ERROR;
             }
 
@@ -399,6 +404,7 @@ int wolfCLU_genKey_RSA(RNG* rng, char* fName, int directive, int fmt, int
             if (ret <= 0) {
                 fclose(file);
                 XFREE(fOutNameBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+                XFREE(derBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
                 return OUTPUT_FILE_ERROR;
             }
             fclose(file);
@@ -406,6 +412,7 @@ int wolfCLU_genKey_RSA(RNG* rng, char* fName, int directive, int fmt, int
         default:
             printf("Invalid directive\n");
             XFREE(fOutNameBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+            XFREE(derBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
             return BAD_FUNC_ARG;
     }
 
