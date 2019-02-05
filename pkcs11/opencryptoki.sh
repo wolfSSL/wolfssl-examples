@@ -9,6 +9,9 @@ echo
 echo "# ECC example"
 ./pkcs11_ecc /usr/local/lib/opencryptoki/libopencryptoki.so 3 SoftToken cryptoki
 echo
+echo "# Generate ECC example"
+./pkcs11_genecc /usr/local/lib/opencryptoki/libopencryptoki.so 3 SoftToken cryptoki
+echo
 echo "# AES-GCM example"
 ./pkcs11_aesgcm /usr/local/lib/opencryptoki/libopencryptoki.so 3 SoftToken cryptoki
 echo

@@ -13,6 +13,9 @@ echo
 echo "# ECC example"
 ./pkcs11_ecc /usr/local/lib/softhsm/libsofthsm2.so $SOFTHSM2_SLOTID SoftToken cryptoki
 echo
+echo "# Generate ECC example"
+./pkcs11_genecc /usr/local/lib/softhsm/libsofthsm2.so $SOFTHSM2_SLOTID SoftToken cryptoki
+echo
 echo "# AES-GCM example"
 ./pkcs11_aesgcm /usr/local/lib/softhsm/libsofthsm2.so $SOFTHSM2_SLOTID SoftToken cryptoki
 echo
