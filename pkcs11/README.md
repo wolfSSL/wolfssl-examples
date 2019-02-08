@@ -65,7 +65,7 @@ SoftToken" | pkcsconf -I -c 3
 
 echo "87654321
 cryptoki
-cryptoki " | pkcsconf -P -c 3
+cryptoki" | pkcsconf -P -c 3
 
 echo "cryptoki
 cryptoki
@@ -80,4 +80,29 @@ sudo /usr/local/sbin/pkcsslotd
 # Change to wolfssl-examples/pkcs11 directory
 
 ./opencryptoki.sh
+
+
+
+### Server TLS PKCS #11
+
+The example server-tls-pkcs11 is a server that uses a private key that has been
+stored on the PKCS #11 device.
+
+The id of the private key is two hex bytes: 0x00, 0x01
+
+Change this to be the id that you set when importing the key.
+
+## SoftHSM version 2
+
+# Import private key
+
+softhsm2-util --import ../certs/server-keyPkcs8.pem --slot $SOFTHSM2_SLOTID --id 0001 --label rsa2048
+
+## Run server and client
+
+./server-tls-pkcs11 <Path to SoftHSMv2 library> $SOFTHSM2_SLOTID SoftToken cryptoki
+
+# In wolfSSL directory
+./examples/client/client
+
 
