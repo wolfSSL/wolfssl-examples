@@ -1,7 +1,6 @@
-/*
- * client-dtls-callback.c
+/* client-dtls-callback.c
  *
- * Copyright (C) 2006-2015 wolfSSL Inc.
+ * Copyright (C) 2006-2019 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -22,31 +21,35 @@
  *=============================================================================
  *
  * Bare-bones example of a DTLS client for instructional/learning purposes.
+ * Utilizes DTLS 1.2 and custom IO callbacks.
  */
 
-#include <wolfssl/options.h>
-#include <unistd.h>
+#ifndef WOLFSSL_USER_SETTINGS
+    #include <wolfssl/options.h>
+#endif
+#include <wolfssl/wolfcrypt/settings.h>
 #include <wolfssl/ssl.h>
-#include <netdb.h>
-#include <signal.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
-#define MAXLINE   4096
-#define SERV_PORT 11111
+#include <stdio.h>                  /* standard in/out procedures */
+#include <stdlib.h>                 /* defines system calls */
+#include <string.h>                 /* necessary for memset */
+#include <netdb.h>
+#include <sys/socket.h>             /* used for all socket calls */
+#include <netinet/in.h>             /* used for sockaddr_in */
+#include <arpa/inet.h>
+#include <errno.h>
+#include <signal.h>
+#include <unistd.h>
+
+#define SERV_PORT   11111           /* define our server port number */
+#define MSGLEN      4096
+
 
 typedef struct SharedDtls {
     WOLFSSL*           ssl;           /* WOLFSSL object being shared */
     int                sd;            /* socket fd */
     struct sockaddr_in servAddr;      /* server sockaddr */
     socklen_t          servSz;        /* length of servAddr */
-    char*              recvBuf;       /* I/O recv cb buffer */
-    int                recvSz;          /* bytes in recvBuf */
-    int                handShakeDone;   /* is the handshake done? */
 } SharedDtls;
 
 
@@ -54,16 +57,17 @@ int my_IORecv(WOLFSSL* ssl, char* buff, int sz, void* ctx)
 {
     SharedDtls* shared = (SharedDtls*)ctx;
     int recvd;
+    struct sockaddr addr;
+    socklen_t addrSz = sizeof(addr);
 
-    printf("my_IORecv sz %d\n", sz);
+    printf("my_IORecv fd %d, buf %d\n", shared->sd, sz);
 
-
-    /* Receive message from socket */
-    recvd = recvfrom(shared->sd, buff, sz, 0, NULL, NULL);
+    /* Receive datagram */
+    recvd = recvfrom(shared->sd, buff, sz, 0, &addr, &addrSz);
     if (recvd == -1) {
         /* error encountered. Be responsible and report it in wolfSSL terms */
 
-        fprintf(stderr, "IO RECEIVE ERROR: ");
+        fprintf(stderr, "IO RECEIVE ERROR: %d\n", errno);
         switch (errno) {
         #if EAGAIN != EWOULDBLOCK
         case EAGAIN: /* EAGAIN == EWOULDBLOCK on some systems, but not others */
@@ -99,10 +103,8 @@ int my_IORecv(WOLFSSL* ssl, char* buff, int sz, void* ctx)
         return WOLFSSL_CBIO_ERR_CONN_CLOSE;
     }
 
-    printf("my_IORecv recvd %d \n", recvd);
-
     /* successful receive */
-    printf("my_IORecv: received %d bytes from %d\n", sz, shared->sd);
+    printf("my_IORecv: received %d bytes from %d\n", recvd, shared->sd);
     return recvd;
 }
 
@@ -111,17 +113,22 @@ int my_IOSend(WOLFSSL* ssl, char* buff, int sz, void* ctx)
 {
     SharedDtls* shared = (SharedDtls*)ctx;
     int sent;
+    const struct sockaddr* addr = NULL;
+    socklen_t addrSz = 0;
 
-    printf("my_IOSend sz %d\n", sz);
+    if (shared) {
+        addr = (const struct sockaddr*)&shared->servAddr;
+        addrSz = shared->servSz;
+    }
 
+    printf("my_IOSend fd %d, buf %d\n", shared->sd, sz);
 
-    sent = sendto(shared->sd, buff, sz, 0,
-                  (const struct sockaddr*)&shared->servAddr, shared->servSz);
-    /* Send message to socket */
+    /* Send datagram */
+    sent = sendto(shared->sd, buff, sz, 0, addr, addrSz);
     if (sent == -1) {
         /* error encountered. Be responsible and report it in wolfSSL terms */
 
-        fprintf(stderr, "IO SEND ERROR: ");
+        fprintf(stderr, "IO SEND ERROR: %d\n", errno);
         switch (errno) {
         #if EAGAIN != EWOULDBLOCK
         case EAGAIN: /* EAGAIN == EWOULDBLOCK on some systems, but not others */
@@ -148,29 +155,23 @@ int my_IOSend(WOLFSSL* ssl, char* buff, int sz, void* ctx)
         return 0;
     }
 
-    printf("my_IOSend sent %d\n", sent);
-
     /* successful send */
-    printf("my_IOSend: sent %d bytes to %d\n", sz, shared->sd);
+    printf("my_IOSend: sent %d bytes to %d\n", sent, shared->sd);
     return sent;
 }
 
 
 int main (int argc, char** argv)
 {
-    /* standard variables used in a dtls client*/
-    int             n = 0;
-    int             sockfd = 0;
-    int             err1;
-    int             readErr;
-    //struct          sockaddr_in servAddr;
-    WOLFSSL*        ssl = 0;
-    WOLFSSL_CTX*    ctx = 0;
-    char            cert_array[]  = "../certs/ca-cert.pem";
-    char*           certs = cert_array;
-    char            sendLine[MAXLINE];
-    char            recvLine[MAXLINE - 1];
-    SharedDtls   shared;
+    /* standard variables used in a dtls client */
+    int           ret = 0, err;
+    int           sockfd = -1;
+    WOLFSSL*      ssl = NULL;
+    WOLFSSL_CTX*  ctx = NULL;
+    const char*   ca_cert  = "../certs/ca-cert.pem";
+    char          buff[MSGLEN];
+    int           buffLen;
+    SharedDtls    shared;
 
     /* Program argument checking */
     if (argc != 2) {
@@ -186,7 +187,7 @@ int main (int argc, char** argv)
 
     if ( (ctx = wolfSSL_CTX_new(wolfDTLSv1_2_client_method())) == NULL) {
         fprintf(stderr, "wolfSSL_CTX_new error.\n");
-        return 1;
+        goto exit;
     }
 
     /* Register callbacks */
@@ -194,88 +195,96 @@ int main (int argc, char** argv)
     wolfSSL_CTX_SetIOSend(ctx, my_IOSend);
 
 
-    /* Load certificates into ctx variable */
-    if (wolfSSL_CTX_load_verify_locations(ctx, certs, 0)
+    /* Load CA certificates into ctx variable */
+    if (wolfSSL_CTX_load_verify_locations(ctx, ca_cert, 0)
 	    != SSL_SUCCESS) {
-        fprintf(stderr, "Error loading %s, please check the file.\n", certs);
-        return 1;
+        fprintf(stderr, "Error loading %s, please check the file.\n", ca_cert);
+        goto exit;
     }
 
     /* Assign ssl variable */
     ssl = wolfSSL_new(ctx);
     if (ssl == NULL) {
         printf("unable to get ssl object");
-        return 1;
+        goto exit;
     }
+    memset(&shared, 0, sizeof(shared));
+    shared.ssl = ssl;
 
 
     /* servAddr setup */
-    memset(&shared.servAddr, 0, sizeof(shared.servAddr));
+    shared.servSz = sizeof(shared.servAddr);
     shared.servAddr.sin_family = AF_INET;
     shared.servAddr.sin_port = htons(SERV_PORT);
     if (inet_pton(AF_INET, argv[1], &shared.servAddr.sin_addr) < 1) {
         printf("Error and/or invalid IP address");
-        return 1;
+        goto exit;
     }
 
     if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
        printf("cannot create a socket.");
-       return 1;
+       goto exit;
     }
-
     shared.sd = sockfd;
-    shared.servSz = sizeof(shared.servAddr);
-    shared.ssl = ssl;
-    shared.handShakeDone = 0;
 
     wolfSSL_SetIOWriteCtx(ssl, &shared);
     wolfSSL_SetIOReadCtx(ssl, &shared);
 
-    //wolfSSL_dtls_set_peer(ssl, &servAddr, sizeof(servAddr));
-
-    /* Set the file descriptor for ssl and connect with ssl variable */
-    //wolfSSL_set_fd(ssl, sockfd);
     if (wolfSSL_connect(ssl) != SSL_SUCCESS) {
-	    err1 = wolfSSL_get_error(ssl, 0);
-	    printf("err = %d, %s\n", err1, wolfSSL_ERR_reason_error_string(err1));
-	    printf("SSL_connect failed");
-        return 1;
+	    err = wolfSSL_get_error(ssl, 0);
+	    printf("err = %d, %s\n", err, wolfSSL_ERR_reason_error_string(err));
+	    printf("SSL_connect failed\n");
+        goto exit;
     }
 
-/*****************************************************************************/
-/*                  Code for sending datagram to server                      */
-    /* Loop until the user is finished */
-    while (fgets(sendLine, MAXLINE, stdin) != NULL) {
+    /**************************************************************************/
+    /*                  Code for sending datagram to server                   */
+    if (fgets(buff, sizeof(buff), stdin) != NULL) {
 
-        /* Send sendLine to the server */
-        if ( ( wolfSSL_write(ssl, sendLine, strlen(sendLine)))
-                != strlen(sendLine)) {
-            printf("SSL_write failed");
-        }
-
-        /* n is the # of bytes received */
-        n = wolfSSL_read(ssl, recvLine, sizeof(recvLine)-1);
-
-        if (n < 0) {
-            readErr = wolfSSL_get_error(ssl, 0);
-            if (readErr != SSL_ERROR_WANT_READ) {
-                printf("wolfSSL_read failed");
+        /* Send buffer to the server */
+        buffLen = strlen(buff);
+        if (( wolfSSL_write(ssl, buff, buffLen)) != buffLen) {
+            err = wolfSSL_get_error(ssl, 0);
+            if (err != SSL_ERROR_WANT_WRITE) {
+                printf("err = %d, %s\n", err, wolfSSL_ERR_reason_error_string(err));
+                printf("SSL_write failed\n");
+                goto exit;
             }
         }
 
-        /* Add a terminating character to the generic server message */
-        recvLine[n] = '\0';
-        fputs(recvLine, stdout);
-    }
-/*                End code for sending datagram to server                    */
-/*****************************************************************************/
+        /* ret is the # of bytes received */
+        ret = wolfSSL_read(ssl, buff, sizeof(buff)-1);
+        if (ret < 0) {
+            err = wolfSSL_get_error(ssl, 0);
+            if (err != SSL_ERROR_WANT_READ) {
+                printf("err = %d, %s\n", err, wolfSSL_ERR_reason_error_string(err));
+                printf("SSL_read failed\n");
+                goto exit;
+            }
+        }
+        buffLen = ret;
+        ret = 0;
 
+        /* Add a terminating character to the generic server message */
+        buff[buffLen] = '\0';
+        fputs(buff, stdout);
+    }
+    /*                End code for sending datagram to server                 */
+    /**************************************************************************/
+
+exit:
     /* Housekeeping */
-    wolfSSL_shutdown(ssl);
-    wolfSSL_free(ssl);
-    close(sockfd);
-    wolfSSL_CTX_free(ctx);
+    if (ssl) {
+        wolfSSL_shutdown(ssl);
+        wolfSSL_free(ssl);
+    }
+    if (sockfd != -1) {
+        close(sockfd);
+    }
+    if (ctx) {
+        wolfSSL_CTX_free(ctx);
+    }
     wolfSSL_Cleanup();
 
-    return 0;
+    return ret;
 }

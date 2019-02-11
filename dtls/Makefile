@@ -22,6 +22,10 @@ client-dtls-resume: client-dtls-resume.o
 client-dtls-shared: client-dtls-shared.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
+client-dtls-callback: client-dtls-callback.o
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+
+
 server-udp: server-udp.o
 	$(CC) -o $@ $^ $(CFLAGS)
 
@@ -35,9 +39,6 @@ server-dtls-nonblocking: server-dtls-nonblocking.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 server-dtls-threaded: server-dtls-threaded.o
-	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
-
-client-dtls-callback: client-dtls-callback.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 server-dtls-callback: server-dtls-callback.o

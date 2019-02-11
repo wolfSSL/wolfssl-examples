@@ -1,6 +1,6 @@
 /* server-dtls-callback.c
  *
- * Copyright (C) 2006-2015 wolfSSL Inc.
+ * Copyright (C) 2006-2019 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -21,10 +21,15 @@
  *=============================================================================
  *
  * Bare-bones example of a DTLS server for instructional/learning purposes.
- * Utilizes DTLS 1.2.
+ * Utilizes DTLS 1.2 and custom IO callbacks.
  */
 
-#include <wolfssl/options.h>
+#ifndef WOLFSSL_USER_SETTINGS
+    #include <wolfssl/options.h>
+#endif
+#include <wolfssl/wolfcrypt/settings.h>
+#include <wolfssl/ssl.h>
+
 #include <stdio.h>                  /* standard in/out procedures */
 #include <stdlib.h>                 /* defines system calls */
 #include <string.h>                 /* necessary for memset */
@@ -32,7 +37,6 @@
 #include <sys/socket.h>             /* used for all socket calls */
 #include <netinet/in.h>             /* used for sockaddr_in */
 #include <arpa/inet.h>
-#include <wolfssl/ssl.h>
 #include <errno.h>
 #include <signal.h>
 #include <unistd.h>
@@ -40,13 +44,8 @@
 #define SERV_PORT   11111           /* define our server port number */
 #define MSGLEN      4096
 
-static int cleanup;                 /* To handle shutdown */
-struct sockaddr_in servAddr;        /* our server's address */
-struct sockaddr_in cliaddr;         /* the client's address */
-
-void sig_handler(const int sig);
-
-void sig_handler(const int sig)
+static int cleanup = 0;                /* To handle shutdown */
+static void sig_handler(const int sig)
 {
     printf("\nSIGINT %d handled\n", sig);
     cleanup = 1;
@@ -56,11 +55,8 @@ void sig_handler(const int sig)
 typedef struct SharedDtls {
     WOLFSSL*           ssl;           /* WOLFSSL object being shared */
     int                sd;            /* socket fd */
-    struct sockaddr_in servAddr;      /* server sockaddr */
-    socklen_t          servSz;        /* length of servAddr */
-    char*              recvBuf;       /* I/O recv cb buffer */
-    int                recvSz;          /* bytes in recvBuf */
-    int                handShakeDone;   /* is the handshake done? */
+    struct sockaddr_in cliAddr;       /* server sockaddr */
+    socklen_t          cliSz;         /* length of servAddr */
 } SharedDtls;
 
 
@@ -68,14 +64,17 @@ int my_IORecv(WOLFSSL* ssl, char* buff, int sz, void* ctx)
 {
     SharedDtls* shared = (SharedDtls*)ctx;
     int recvd;
+    struct sockaddr addr;
+    socklen_t addrSz = sizeof(addr);
 
-    printf("Server Recv %d\n", sz);
+    printf("Server Recv fd %d, buf %d\n", shared->sd, sz);
 
-    recvd = recvfrom(shared->sd, buff, sz, 0, NULL, NULL);
+    /* Receive datagram */
+    recvd = recvfrom(shared->sd, buff, sz, 0, &addr, &addrSz);
     if (recvd == -1) {
         /* error encountered. Be responsible and report it in wolfSSL terms */
 
-        fprintf(stderr, "IO RECEIVE ERROR: ");
+        fprintf(stderr, "IO RECEIVE ERROR: %d\n", errno);
         switch (errno) {
         #if EAGAIN != EWOULDBLOCK
         case EAGAIN: /* EAGAIN == EWOULDBLOCK on some systems, but not others */
@@ -94,6 +93,7 @@ int my_IORecv(WOLFSSL* ssl, char* buff, int sz, void* ctx)
             return WOLFSSL_CBIO_ERR_CONN_RST;
         case EINTR:
             fprintf(stderr, "socket interrupted\n");
+            cleanup = 1;
             return WOLFSSL_CBIO_ERR_ISR;
         case ECONNREFUSED:
             fprintf(stderr, "connection refused\n");
@@ -111,10 +111,8 @@ int my_IORecv(WOLFSSL* ssl, char* buff, int sz, void* ctx)
         return WOLFSSL_CBIO_ERR_CONN_CLOSE;
     }
 
-    printf("Server Recvd %d\n", recvd);
-
     /* successful receive */
-    printf("my_IORecv: received %d bytes from %d\n", sz, shared->sd);
+    printf("my_IORecv: received %d bytes from %d\n", recvd, shared->sd);
     return recvd;
 }
 
@@ -122,17 +120,22 @@ int my_IOSend(WOLFSSL* ssl, char* buff, int sz, void* ctx)
 {
     SharedDtls* shared = (SharedDtls*)ctx;
     int sent;
+    const struct sockaddr* addr = NULL;
+    socklen_t addrSz = 0;
 
-    printf("Server Send %d\n", sz);
+    if (shared) {
+        addr = (const struct sockaddr*)&shared->cliAddr;
+        addrSz = shared->cliSz;
+    }
 
+    printf("Server Send fd %d, sz %d\n", shared->sd, sz);
 
-    sent = sendto(shared->sd, buff, sz, 0,
-                  (const struct sockaddr*)&shared->servAddr, shared->servSz);
-    /* Send message to socket */
+    /* Send datagram */
+    sent = sendto(shared->sd, buff, sz, 0, addr, addrSz);
     if (sent == -1) {
         /* error encountered. Be responsible and report it in wolfSSL terms */
 
-        fprintf(stderr, "IO SEND ERROR: ");
+        fprintf(stderr, "IO SEND ERROR: %d\n", errno);
         switch (errno) {
         #if EAGAIN != EWOULDBLOCK
         case EAGAIN: /* EAGAIN == EWOULDBLOCK on some systems, but not others */
@@ -159,35 +162,27 @@ int my_IOSend(WOLFSSL* ssl, char* buff, int sz, void* ctx)
         return 0;
     }
 
-    printf("Server Sent %d\n", sent);
-
     /* successful send */
-    printf("my_IOSend: sent %d bytes to %d\n", sz, shared->sd);
+    printf("my_IOSend: sent %d bytes to %d\n", sent, shared->sd);
     return sent;
 }
 
 
 int main(int argc, char** argv)
 {
-    /* cont short for "continue?", Loc short for "location" */
-    int         cont = 0;
-    char        caCertLoc[] = "../certs/ca-cert.pem";
-    char        servCertLoc[] = "../certs/server-cert.pem";
-    char        servKeyLoc[] = "../certs/server-key.pem";
-    WOLFSSL_CTX* ctx;
-    /* Variables for awaiting datagram */
-    int           on = 1;
-    int           res = 1;
-    int           connfd = 0;
-    int           recvLen = 0;    /* length of message */
+    int           ret = 0, err;
+    const char    caCertLoc[] =   "../certs/ca-cert.pem";
+    const char    servCertLoc[] = "../certs/server-cert.pem";
+    const char    servKeyLoc[] =  "../certs/server-key.pem";
+    WOLFSSL_CTX*  ctx = NULL;
     WOLFSSL*      ssl = NULL;
-    socklen_t     cliLen;
-    socklen_t     len = sizeof(int);
-    unsigned char b[MSGLEN];      /* watch for incoming messages */
     char          buff[MSGLEN];   /* the incoming message */
-    char          ack[] = "I hear you fashizzle!\n";
-    int listenfd = 0;   /* Initialize our socket */
-    SharedDtls   shared;
+    int           buffLen;
+    int           listenfd = -1;   /* Initialize our socket */
+    int           on;
+    socklen_t     len;
+    SharedDtls    shared;
+    struct sockaddr_in servAddr;
 
     /* Code for handling signals */
     struct sigaction act, oact;
@@ -205,161 +200,160 @@ int main(int argc, char** argv)
     /* Set ctx to DTLS 1.2 */
     if ((ctx = wolfSSL_CTX_new(wolfDTLSv1_2_server_method())) == NULL) {
         printf("wolfSSL_CTX_new error.\n");
-        return 1;
+        ret = -1;
+        goto exit;
     }
     /* Load CA certificates */
-    if (wolfSSL_CTX_load_verify_locations(ctx,caCertLoc,0) !=
-            SSL_SUCCESS) {
+    ret = wolfSSL_CTX_load_verify_locations(ctx, caCertLoc, NULL);
+    if (ret != SSL_SUCCESS) {
         printf("Error loading %s, please check the file.\n", caCertLoc);
-        return 1;
+        goto exit;
     }
     /* Load server certificates */
-    if (wolfSSL_CTX_use_certificate_file(ctx, servCertLoc, SSL_FILETYPE_PEM) !=
-                                                                 SSL_SUCCESS) {
+    ret = wolfSSL_CTX_use_certificate_file(ctx, servCertLoc, SSL_FILETYPE_PEM);
+    if (ret != SSL_SUCCESS) {
         printf("Error loading %s, please check the file.\n", servCertLoc);
-        return 1;
+        goto exit;
     }
     /* Load server Keys */
-    if (wolfSSL_CTX_use_PrivateKey_file(ctx, servKeyLoc,
-                SSL_FILETYPE_PEM) != SSL_SUCCESS) {
+    ret = wolfSSL_CTX_use_PrivateKey_file(ctx, servKeyLoc, SSL_FILETYPE_PEM);
+    if (ret != SSL_SUCCESS) {
         printf("Error loading %s, please check the file.\n", servKeyLoc);
-        return 1;
+        goto exit;
     }
 
     /* Register callbacks */
     wolfSSL_CTX_SetIORecv(ctx, my_IORecv);
     wolfSSL_CTX_SetIOSend(ctx, my_IOSend);
 
-
     /* Await Datagram */
     while (cleanup != 1) {
-
         /* Create a UDP/IP socket */
-        if ((listenfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) {
-            printf("Cannot create socket.\n");
-            cleanup = 1;
+        ret = socket(AF_INET, SOCK_DGRAM, 0);
+        if (ret < 0 ) {
+            printf("Cannot create socket %d.\n", ret);
+            goto exit;
         }
+        listenfd = ret;
         printf("Socket allocated\n");
 
-        /* clear servAddr each loop */
-        memset((char *)&servAddr, 0, sizeof(servAddr));
-
-        /* host-to-network-long conversion (htonl) */
-        /* host-to-network-short conversion (htons) */
+        /* setup servAddr */
+        memset(&servAddr, 0, sizeof(servAddr));
         servAddr.sin_family      = AF_INET;
         servAddr.sin_addr.s_addr = htonl(INADDR_ANY);
         servAddr.sin_port        = htons(SERV_PORT);
 
         /* Eliminate socket already in use error */
-        res = setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &on, len);
-        if (res < 0) {
-            printf("Setsockopt SO_REUSEADDR failed.\n");
-            cleanup = 1;
-            cont = 1;
+        on = 1;
+        len = sizeof(on);
+        ret = setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &on, len);
+        if (ret < 0) {
+            printf("Setsockopt SO_REUSEADDR failed %d.\n", errno);
+            goto exit;
         }
 
-        /*Bind Socket*/
-        if (bind(listenfd, (struct sockaddr*)&servAddr, sizeof(servAddr)) < 0) {
-            printf("Bind failed.\n");
-            cleanup = 1;
-            cont = 1;
+        /* Bind Socket */
+        ret = bind(listenfd, (struct sockaddr*)&servAddr, sizeof(servAddr));
+        if (ret < 0) {
+            printf("Bind failed %d.\n", errno);
+            goto exit;
         }
+
 
         printf("Awaiting client connection on port %d\n", SERV_PORT);
 
-        cliLen = sizeof(cliaddr);
-        connfd = (int)recvfrom(listenfd, (char *)&b, sizeof(b), MSG_PEEK,
-                (struct sockaddr*)&shared.servAddr, &cliLen);
+        memset(&shared, 0, sizeof(shared));
+        shared.sd = listenfd;
+        shared.cliSz = sizeof(shared.cliAddr);
+        ret = (int)recvfrom(listenfd, (char*)buff, sizeof(buff), MSG_PEEK,
+                (struct sockaddr*)&shared.cliAddr, &shared.cliSz);
 
-        if (connfd < 0) {
-            printf("No clients in que, enter idle state\n");
+        if (ret < 0) {
+            printf("No clients in queue, enter idle state\n");
             continue;
         }
-        else if (connfd > 0) {
-            if (connect(listenfd, (const struct sockaddr *)&shared.servAddr,
-                        sizeof(shared.servAddr)) != 0) {
-                printf("Udp connect failed.\n");
-                cleanup = 1;
-                cont = 1;
-            }
+        else if (ret > 0) {
+            printf("Connected!\n");
         }
         else {
-            printf("Recvfrom failed.\n");
-            cleanup = 1;
-            cont = 1;
+            printf("Recvfrom failed %d.\n", errno);
+            break;
         }
-        printf("Connected!\n");
 
         /* Create the WOLFSSL Object */
         if ((ssl = wolfSSL_new(ctx)) == NULL) {
             printf("wolfSSL_new error.\n");
-            cleanup = 1;
-            cont = 1;
+            break;
         }
-
-        shared.sd = listenfd;
-        shared.servSz = sizeof(shared.servAddr);
         shared.ssl = ssl;
-        shared.handShakeDone = 0;
 
         wolfSSL_SetIOWriteCtx(ssl, &shared);
         wolfSSL_SetIOReadCtx(ssl, &shared);
 
-        /* set the session ssl to client connection port */
-        //wolfSSL_set_fd(ssl, listenfd);
-
         if (wolfSSL_accept(ssl) != SSL_SUCCESS) {
-
-            int e = wolfSSL_get_error(ssl, 0);
-
-            printf("error = %d, %s\n", e, wolfSSL_ERR_reason_error_string(e));
+            err = wolfSSL_get_error(ssl, 0);
+            printf("error = %d, %s\n", err, wolfSSL_ERR_reason_error_string(err));
             printf("SSL_accept failed.\n");
+
+            wolfSSL_shutdown(ssl);
+            wolfSSL_free(ssl);
+            ssl = NULL;
+            close(listenfd);
+            listenfd = -1;
+
             continue;
         }
-        if ((recvLen = wolfSSL_read(ssl, buff, sizeof(buff)-1)) > 0) {
-            printf("heard %d bytes\n", recvLen);
+        if ((ret = wolfSSL_read(ssl, buff, sizeof(buff)-1)) > 0) {
+            printf("heard %d bytes\n", ret);
+            buffLen = ret;
 
-            buff[recvLen] = 0;
+            buff[buffLen] = '\0';
             printf("I heard this: \"%s\"\n", buff);
+            ret = 0;
         }
-        else if (recvLen < 0) {
-            int readErr = wolfSSL_get_error(ssl, 0);
-            if(readErr != SSL_ERROR_WANT_READ) {
+        else if (ret < 0) {
+            err = wolfSSL_get_error(ssl, 0);
+            if (err != SSL_ERROR_WANT_READ) {
+                printf("error = %d, %s\n", err, wolfSSL_ERR_reason_error_string(err));
                 printf("SSL_read failed.\n");
-                cleanup = 1;
-                cont = 1;
+                break;
             }
         }
-        if (wolfSSL_write(ssl, ack, sizeof(ack)) < 0) {
-            printf("wolfSSL_write fail.\n");
-            cleanup = 1;
-            cont = 1;
-        }
-        else {
-            printf("Sending reply.\n");
+
+        printf("Sending echo reply\n");
+        ret = wolfSSL_write(ssl, buff, buffLen);
+        if (ret < 0) {
+            err = wolfSSL_get_error(ssl, 0);
+            if (err != SSL_ERROR_WANT_WRITE) {
+                printf("error = %d, %s\n", err, wolfSSL_ERR_reason_error_string(err));
+                printf("wolfSSL_write fail.\n");
+                break;
+            }
         }
 
-        printf("reply sent \"%s\"\n", ack);
-
-        wolfSSL_set_fd(ssl, 0);
         wolfSSL_shutdown(ssl);
         wolfSSL_free(ssl);
+        ssl = NULL;
+        close(listenfd);
+        listenfd = -1;
 
-        printf("Client left cont to idle state\n");
-        cont = 0;
+        printf("Client done, waiting for next connection\n");
     }
 
-    /* With the "continue" keywords, it is possible for the loop to exit *
-     * without changing the value of cont                                */
-    if (cleanup == 1) {
-        cont = 1;
-    }
+exit:
 
-    if (cont == 1) {
+    if (ssl) {
+        wolfSSL_shutdown(ssl);
+        wolfSSL_free(ssl);
+    }
+    if (listenfd != -1) {
+        close(listenfd);
+    }
+    if (ctx) {
         wolfSSL_CTX_free(ctx);
-        wolfSSL_Cleanup();
     }
+    wolfSSL_Cleanup();
 
-    return 0;
+    return ret;
 }
 
