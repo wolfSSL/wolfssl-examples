@@ -1,15 +1,12 @@
+# Using PKCS #11 with wolfSSL
 
+## Initializing PKCS #11 library
 
-## Using PKCS #11 with wolfSSL
+In order to use a PKCS #11 device it is necessary to load the device specific PKCS #11 shared (or dynamic) library.
 
-# Initializing PKCS #11 library
+The wolfSSL API `wc_Pkcs11_Initialize()` takes the path to the library and initializes a Pkcs11Dev instance for accessing tokens.
 
-In order to use a PKCS #11 device it is necessary to load the device specific
-PKCS #11 shared (or dynamic) library.
-
-The wolfSSL API wc_Pkcs11_Initialize() takes the path to the library and
-initializes a Pkcs11Dev instance for accessing tokens.
-
+```
 /**
  * Load library, get function list and initialize PKCS#11.
  *
@@ -23,29 +20,34 @@ initializes a Pkcs11Dev instance for accessing tokens.
  *          0 on success.
  */
 int wc_Pkcs11_Initialize(Pkcs11Dev* dev, const char* library, void* heap);
+```
 
-# Finalizing PKCS #11 library
+## Finalizing PKCS #11 library
 
 When the device is not longer required then Pkcs11Dev instance can be finalized.
+
 This unloads the shared library.
 
+```
 /**
  * Close the Pkcs#11 library.
  *
  * @param  dev  [in]  Device object.
  */
 void wc_Pkcs11_Finalize(Pkcs11Dev* dev);
+```
 
-# Initializing a token
+## Initializing a token
 
-PKCS #11 defines tokens to be in slots. wolfSSL assumes that the token is in a
-slot and abstracts slots away.
+PKCS #11 defines tokens to be in slots. wolfSSL assumes that the token is in a slot and abstracts slots away.
 
-To initialize a token instance using the API wc_Pkcs11Token_Init().
-The slot number of the token need not be supplied if the token name is unique.
-Pass -1 for the slotId to find token by name on any slot.
+To initialize a token instance using the API `wc_Pkcs11Token_Init()`.
+
+The slot number of the token need not be supplied if the token name is unique. Pass -1 for the slotId to find token by name on any slot.
+
 The userPin must be supplied to login into a session.
 
+```
 /**
  * Set up a token for use.
  *
@@ -64,11 +66,13 @@ The userPin must be supplied to login into a session.
  */
 int wc_Pkcs11Token_Init(Pkcs11Token* token, Pkcs11Dev* dev, int slotId,
     const char* tokenName, const unsigned char* userPin, int userPinSz);
+```
 
-# Finalize token
+## Finalize token
 
 Finalizing a token will close all session on the token and zeroize any User PIN.
 
+```
 /**
  * Finalize token.
  * Closes all sessions on token.
@@ -76,16 +80,17 @@ Finalizing a token will close all session on the token and zeroize any User PIN.
  * @param  token  [in]  Token object.
  */
 void wc_Pkcs11Token_Final(Pkcs11Token* token);
+```
 
-# Open Session
+## Open Session
 
 A session needs to be opened on a token in order for operations to be performed.
-If keys need to persist across operations in a session or you need to manage
-sessions in the application then opening a session using the API
-wc_Pkcs11Token_Open().
+
+If keys need to persist across operations in a session or you need to manage sessions in the application then opening a session using the API `wc_Pkcs11Token_Open()`.
 
 A session can be opened for reading and writing by setting the flag to 1.
 
+```
 /**
  * Open a session on the token to be used for all operations.
  *
@@ -96,15 +101,17 @@ A session can be opened for reading and writing by setting the flag to 1.
  *          0 on success.
  */
 int wc_Pkcs11Token_Open(Pkcs11Token* token, int readWrite);
+```
 
-
-# Close Session
+## Close Session
 
 If you opened a session in your application then you should close it too.
-Use the API wc_Pkcs11Token_Close() to close the session. wolfSSL will create
-a session to perform any new cryptographic operations.
+
+Use the API `wc_Pkcs11Token_Close()` to close the session. wolfSSL will create a session to perform any new cryptographic operations.
+
 Any keys in the session will be lost.
 
+```
 /**
  * Close the token's session.
  * All object, like keys, will be destoyed.
@@ -112,15 +119,15 @@ Any keys in the session will be lost.
  * @param  token    [in]  Token object.
  */
 void wc_Pkcs11Token_Close(Pkcs11Token* token);
+```
 
-# Registering a PKCS #11 device
+## Registering a PKCS #11 device
 
-Cryptographic operations will be performed on a PKCS #11 device when initialized
-with a device identifier associated with a token.
-An application chooses a number that will be the device identifier and
-associates the PKCS #11 callback and Pkcs11Token pointer using the API
-wc_CryptoDev_RegisterDevice().
+Cryptographic operations will be performed on a PKCS #11 device when initialized with a device identifier associated with a token.
 
+An application chooses a number that will be the device identifier and associates the PKCS #11 callback and Pkcs11Token pointer using the API `wc_CryptoDev_RegisterDevice()`.
+
+```
 e.g.:
     int         ret;
     int         devId = 1;
@@ -129,36 +136,32 @@ e.g.:
     ret = wc_CryptoDev_RegisterDevice(devId, wc_Pkcs11_CryptoDevCb, &token);
     if (ret != 0)
         fprintf(stderr, "Failed to register token");
+```
 
-# Initializing ECDSA Cryptographic Operation
+## Initializing ECDSA Cryptographic Operation
 
-To initialize ECC signing or verification operration to use the PKCS #11 token,
-use the API wc_ecc_init_ex().
+To initialize ECC signing or verification operation to use the PKCS #11 token, use the API `wc_ecc_init_ex()`.
 
+```
 e.g:
     int     ret;
     ecc_key key;
     int     devId = 1;
 
     ret = wc_ecc_init_ex(&key, NULL, devId);
+```
+
+## Using a Private Key
+
+To use an EC private key, load as normal. (Keys can be generated on the device and the private key will not come off.)
+
+Perform the cryptographic operation as normal and the private key will be loaded onto the token in the session if required.
 
 
-# Using a Private Key
+## Performing other PKCS #11 operations
 
-To use an EC private key, load as normal.
-(Keys can be generated on the device and the private key will not come off.)
+The function list is available as the field `func` in Pkcs11Dev, Pkcs11Token and Pkcs11Session.
 
-Perform the cryptographic operation as normal and the private key will be loaded
-onto the token in the session if required.
+The Slot Id is available in Pkcs11Token and Pkcs11Session as `slotId`.
 
-
-# Performing other PKCS #11 operations
-
-The function list is available as the field func in Pkcs11Dev, Pkcs11Token and
-Pkcs11Session.
-
-The Slot Id is availabe in Pkcs11Token and Pkcs11Session as slotId.
-
-The session handle is available in Pkcs11Token and Pkcs11Session aa handle.
-
-
+The session handle is available in Pkcs11Token and Pkcs11Session as `handle`.
