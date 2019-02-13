@@ -95,7 +95,7 @@ int server_tls(int devId)
     }
 
     /* Load server key into WOLFSSL_CTX */
-    if (wolfSSL_CTX_use_PrivateKey_id(ctx, privKeyId, 2, 2048) != SSL_SUCCESS) {
+    if (wolfSSL_CTX_use_PrivateKey_id(ctx, privKeyId, 2, devId, 2048) != SSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to set id.\n");
         return -1;
     }

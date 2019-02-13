@@ -100,9 +100,19 @@ softhsm2-util --import ../certs/server-keyPkcs8.pem --slot $SOFTHSM2_SLOTID --id
 
 ## Run server and client
 
+### Build wolfSSL
+
+./autogen.sh
+./configure --enable-pkcs11
+make
+sudo make install
+
+### Build Server Example
+
+make
 ./server-tls-pkcs11 <Path to SoftHSMv2 library> $SOFTHSM2_SLOTID SoftToken cryptoki
 
-# In wolfSSL directory
+### Run Client
 ./examples/client/client
 
 
