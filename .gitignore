@@ -136,3 +136,12 @@ certmanager/certverify
 rsa/sign
 rsa/verify
 
+pkcs11/pkcs11_test
+pkcs11/pkcs11_rsa
+pkcs11/pkcs11_ecc
+pkcs11/pkcs11_genecc
+pkcs11/pkcs11_aesgcm
+pkcs11/server-tls-pkcs11
+pkcs11/softhsm2.conf
+pkcs11/softhsm2
+
