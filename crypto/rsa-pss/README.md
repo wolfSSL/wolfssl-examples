@@ -5,7 +5,7 @@
 ### Build wolfSSL
 
 ```
-./configure --enable-rsapss --enable-keygen --enable-certgen --enable-certext
+./configure --enable-rsapss --enable-keygen
 make
 sudo make install
 ```
