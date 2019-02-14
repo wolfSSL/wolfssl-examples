@@ -41,7 +41,7 @@
 #define PRIV_KEY_ID  {0x00, 0x01}
 
 #ifndef WOLFCRYPT_ONLY
-int server_tls(int devId)
+int server_tls(int devId, Pkcs11Token* token)
 {
     int                sockfd;
     int                connd;
@@ -96,7 +96,7 @@ int server_tls(int devId)
 
     /* Load server key into WOLFSSL_CTX */
     if (wolfSSL_CTX_use_PrivateKey_id(ctx, privKeyId, sizeof(privKeyId), devId,
-            2048) != SSL_SUCCESS) {
+            2048/8) != SSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to set id.\n");
         return -1;
     }
@@ -135,6 +135,13 @@ int server_tls(int devId)
         if ((connd = accept(sockfd, (struct sockaddr*)&clientAddr, &size))
             == -1) {
             fprintf(stderr, "ERROR: failed to accept the connection\n\n");
+            return -1;
+        }
+
+        /* Create a WOLFSSL object */
+        if ((ret = wc_Pkcs11Token_Open(token, 1)) != 0) {
+            fprintf(stderr, "ERROR: failed to open session on token (%d)\n",
+                ret);
             return -1;
         }
 
@@ -193,6 +200,7 @@ int server_tls(int devId)
 
         /* Cleanup after this connection */
         wolfSSL_free(ssl);      /* Free the wolfSSL object              */
+        wc_Pkcs11Token_Close(token);
         close(connd);           /* Close the connection to the client   */
     }
 
@@ -258,7 +266,7 @@ int main(int argc, char* argv[])
             }
             if (ret == 0) {
             #if !defined(WOLFCRYPT_ONLY)
-                ret = server_tls(devId);
+                ret = server_tls(devId, &token);
                 if (ret != 0)
                     ret = 1;
             #endif
