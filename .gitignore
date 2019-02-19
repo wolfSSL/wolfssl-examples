@@ -142,6 +142,7 @@ pkcs11/pkcs11_ecc
 pkcs11/pkcs11_genecc
 pkcs11/pkcs11_aesgcm
 pkcs11/pkcs11_aescbc
+pkcs11/pkcs11_hmac
 pkcs11/server-tls-pkcs11
 pkcs11/softhsm2.conf
 pkcs11/softhsm2
