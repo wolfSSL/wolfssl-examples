@@ -15,6 +15,9 @@ echo
 echo "# AES-GCM example"
 ./pkcs11_aesgcm /usr/local/lib/opencryptoki/libopencryptoki.so 3 SoftToken cryptoki
 echo
+echo "# AES-CBC example"
+./pkcs11_aescbc /usr/local/lib/opencryptoki/libopencryptoki.so 3 SoftToken cryptoki
+echo
 echo "# PKCS #11 test"
 ./pkcs11_test /usr/local/lib/opencryptoki/libopencryptoki.so 3 SoftToken cryptoki
 

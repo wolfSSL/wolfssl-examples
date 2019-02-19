@@ -667,6 +667,120 @@ int aesgcm_test(int devId, Pkcs11Token* token)
 }
 #endif
 
+#if !defined(NO_AES) && defined(HAVE_AES_CBC)
+int aescbc_test(int devId, Pkcs11Token* token)
+{
+    Aes           aes;
+    unsigned char key[AES_256_KEY_SIZE];
+    int           ret = 0;
+    unsigned char data[32];
+    unsigned char enc[32];
+    unsigned char dec[32];
+    unsigned char iv[AES_BLOCK_SIZE];
+    unsigned char exp[32] = {
+        0x84, 0xf9, 0xc2, 0x0e, 0x61, 0x4f, 0x86, 0x07,
+        0xbc, 0x13, 0xef, 0xeb, 0x59, 0x4b, 0xdf, 0x5a,
+        0x34, 0xa8, 0xbd, 0xc7, 0x29, 0x66, 0xa4, 0x03,
+        0x5f, 0x8a, 0x7d, 0x85, 0xda, 0xc8, 0x9a, 0xc1
+    };
+    unsigned char exp256[32] = {
+        0x3f, 0xb8, 0x65, 0xa2, 0xe2, 0x74, 0x04, 0x94,
+        0xff, 0xff, 0x67, 0xa0, 0x3e, 0x83, 0x0e, 0xa3,
+        0xa3, 0x9a, 0x4f, 0xd2, 0x33, 0x58, 0xf5, 0x90,
+        0x04, 0x8c, 0xd8, 0x9a, 0xd6, 0x61, 0x19, 0x4a
+    };
+
+    memset(key, 9, sizeof(key));
+    memset(data, 9, sizeof(data));
+    memset(iv, 9, sizeof(iv));
+
+    /* AES128-CBC */
+    ret = wc_AesInit_Id(&aes, NULL, 0, NULL, devId);
+    if (ret == 0) {
+        ret = wc_AesSetKey(&aes, key, AES_128_KEY_SIZE, iv, AES_ENCRYPTION);
+        if (ret != 0)
+            fprintf(stderr, "Set Key failed: %d\n", ret);
+    }
+    if (ret == 0) {
+        ret = wc_AesCbcEncrypt(&aes, enc, data, sizeof(data));
+        if (ret != 0)
+            fprintf(stderr, "Encrypt failed: %d\n", ret);
+    }
+    if (ret == 0) {
+        if (memcmp(enc, exp, sizeof(exp)) != 0) {
+            fprintf(stderr, "Encrypted data didn't match expected\n");
+            ret = -1;
+        }
+    }
+    if (ret == 0) {
+        ret = wc_AesSetKey(&aes, key, AES_128_KEY_SIZE, iv, AES_DECRYPTION);
+        if (ret != 0)
+            fprintf(stderr, "Set Key failed: %d\n", ret);
+    }
+    if (ret == 0) {
+        ret = wc_AesCbcDecrypt(&aes, dec, enc, sizeof(enc));
+        if (ret != 0)
+            fprintf(stderr, "Decrypt failed: %d\n", ret);
+    }
+    if (ret == 0) {
+        if (memcmp(dec, data, ret) != 0) {
+            fprintf(stderr, "Decrypted data didn't match plaintext\n");
+            ret = -1;
+        }
+    }
+
+    if (ret == 0) {
+        wc_Pkcs11Token_Open(token, 1);
+        /* AES256-CBC */
+        if (ret == 0)
+            ret = wc_AesInit_Id(&aes, (unsigned char*)"AES123", 6, NULL, devId);
+        if (ret == 0) {
+            ret = wc_AesSetKey(&aes, key, AES_256_KEY_SIZE, iv, AES_ENCRYPTION);
+            if (ret != 0)
+                fprintf(stderr, "Set Key failed: %d\n", ret);
+        }
+        if (ret == 0) {
+            ret = wc_Pkcs11StoreKey(token, PKCS11_KEY_TYPE_AES_CBC, 1,
+                (void*)&aes);
+            if (ret == NOT_COMPILED_IN)
+                ret = 0;
+            if (ret != 0)
+                fprintf(stderr, "Store Key failed: %d\n", ret);
+        }
+        if (ret == 0) {
+            ret = wc_AesCbcEncrypt(&aes, enc, data, sizeof(data));
+            if (ret != 0)
+                fprintf(stderr, "Encrypt failed: %d\n", ret);
+        }
+        if (ret == 0) {
+            if (memcmp(enc, exp256, sizeof(exp256)) != 0) {
+                fprintf(stderr, "Encrypted data didn't match expected\n");
+                ret = -1;
+            }
+        }
+        if (ret == 0) {
+            ret = wc_AesSetKey(&aes, key, AES_256_KEY_SIZE, iv, AES_DECRYPTION);
+            if (ret != 0)
+                fprintf(stderr, "Set Key failed: %d\n", ret);
+        }
+        if (ret == 0) {
+            ret = wc_AesCbcDecrypt(&aes, dec, enc, sizeof(enc));
+            if (ret != 0)
+                fprintf(stderr, "Decrypt failed: %d\n", ret);
+        }
+        if (ret == 0) {
+            if (memcmp(dec, data, ret) != 0) {
+                fprintf(stderr, "Decrypted data didn't match plaintext\n");
+                ret = -1;
+            }
+        }
+        wc_Pkcs11Token_Close(token);
+    }
+
+    return ret;
+}
+#endif
+
 int pkcs11_test(int devId, Pkcs11Token* token)
 {
     int ret = 0;
@@ -799,6 +913,12 @@ int pkcs11_test(int devId, Pkcs11Token* token)
     if (ret == 0) {
         fprintf(stderr, "AES-GCM encrypt/decrypt\n");
         ret = aesgcm_test(devId, token);
+    }
+#endif
+#if !defined(NO_AES) && defined(HAVE_AES_CBC)
+    if (ret == 0) {
+        fprintf(stderr, "AES-CBC encrypt/decrypt\n");
+        ret = aescbc_test(devId, token);
     }
 #endif
 
