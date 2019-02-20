@@ -5,14 +5,14 @@
 ### Build and install wolfSSL
 
 ```
-./configure --enable-ecc --enable-ecccustcurves CFLAGS="-DWOLFSSL_TEST_CERT" && make && sudo make install
+./configure --enable-ecc --enable-ecccustcurves CFLAGS="-DWOLFSSL_TEST_CERT -DWOLFSSL_DER_TO_PEM -DHAVE_ECC_KOBLITZ" && make && sudo make install
 ```
 
 ### Build Example
 
 ```
 make
-
+gcc -o ecc-key-decode ecc-key-decode.c -Wall -I/usr/local/include -Os -L/usr/local/lib -lm -lwolfssl
 gcc -o ecc-key-decode ecc-key-decode.c -Wall -I/usr/local/include -Os -L/usr/local/lib -lm -lwolfssl
 gcc -o ecc-sign ecc-sign.c -Wall -I/usr/local/include -Os -L/usr/local/lib -lm -lwolfssl
 gcc -o ecc-stack ecc-stack.c -Wall -I/usr/local/include -Os -L/usr/local/lib -lm -lwolfssl
@@ -28,7 +28,16 @@ CFLAGS+=$(DEBUG_FLAGS)
 #CFLAGS+=$(OPTIMIZE)
 ```
 
-Build wolfSSL using: `./configure --enable-ecc --enable-ecccustcurves --enable-debug CFLAGS="-DWOLFSSL_TEST_CERT" && make && sudo make install`
+Build wolfSSL adding `--enable-debug` to the ./configure.
+
+To enable using the static library change the Makefile to:
+
+```
+LIBS+=$(STATIC_LIB)
+#LIBS+=$(DYN_LIB)
+```
+
+Build wolfSSL adding `--disable-shared` to the ./configure.
 
 
 ## Usage
@@ -43,7 +52,6 @@ bytes = 781
 decodedCert.pubKeySize 91
 publickey size: 32
 Success
-
 ```
 
 ### `ecc-sign`
@@ -83,7 +91,6 @@ Firmware Signature 8: Ret 0, HashLen 32, SigLen 103
 Sign ret 0, sigLen 102
 Verify ret 0, is_valid_sig 1
 Firmware Signature 9: Ret 0, HashLen 32, SigLen 102
-
 ```
 
 ### `ecc-stack`
@@ -110,3 +117,31 @@ This example demonstrates using a Koblitz (SECP256K1) curve.
 ./ecc-verify
 hash_firmware_verify: 0
 ```
+
+### `ecc-key-decode`
+
+This example shows exporting an ECC private key and public key.
+
+```
+./ecc-key-export
+ECC Key Generated: 256 bits, curve ECC_SECP256K1
+ECC Private Key Exported to ./ECC_SECP256K1.der
+ECC Private Key Exported to ./ECC_SECP256K1.pem
+ECC Public Key Exported to ./ECC_SECP256K1_pub.der
+ECC Public Key Exported to ./ECC_SECP256K1_pub.pem
+```
+
+Example commands for parsing the generated ECC keys (see `./parsekeys.sh`):
+
+```
+openssl ec -inform der -in ECC_SECP256K1.der -text
+openssl ec -inform pem -in ECC_SECP256K1.pem -text
+
+openssl ec -inform der -in ECC_SECP256K1_pub.der -text -pubin
+openssl ec -inform pem -in ECC_SECP256K1_pub.pem -text -pubin
+```
+
+
+## Support
+
+For questions please email us at support@wolfssl.com.

@@ -85,6 +85,9 @@ int main(void)
     fwrite(der, derSz, 1, fp);
     fclose(fp);
 
+    printf("ECC Private Key Exported to %s\n",
+        "./" XSTRINGIFY(TEST_ECC_KEY_CURVE) ".der");
+
 #ifdef WOLFSSL_DER_TO_PEM
     memset(pem, 0, sizeof(pem));
     ret = wc_DerToPem(der, derSz, pem, sizeof(pem), ECC_PRIVATEKEY_TYPE);
@@ -102,6 +105,9 @@ int main(void)
     }
     fwrite(pem, pemSz, 1, fp);
     fclose(fp);
+
+    printf("ECC Private Key Exported to %s\n",
+        "./" XSTRINGIFY(TEST_ECC_KEY_CURVE) ".pem");
 #endif
 
     memset(der, 0, sizeof(der));
@@ -112,14 +118,17 @@ int main(void)
     }
     derSz = ret;
 
-    fp = fopen("./" XSTRINGIFY(TEST_ECC_KEY_CURVE) "pub.der", "wb");
+    fp = fopen("./" XSTRINGIFY(TEST_ECC_KEY_CURVE) "_pub.der", "wb");
     if (!fp) {
         printf("Error openening %s for write\n",
-            "./" XSTRINGIFY(TEST_ECC_KEY_CURVE) "pub.der");
+            "./" XSTRINGIFY(TEST_ECC_KEY_CURVE) "_pub.der");
         return -1;
     }
     fwrite(der, derSz, 1, fp);
     fclose(fp);
+
+    printf("ECC Public Key Exported to %s\n",
+        "./" XSTRINGIFY(TEST_ECC_KEY_CURVE) "_pub.der");
 
 #ifdef WOLFSSL_DER_TO_PEM
     memset(pem, 0, sizeof(pem));
@@ -130,15 +139,18 @@ int main(void)
     }
     pemSz = ret;
 
-    fp = fopen("./" XSTRINGIFY(TEST_ECC_KEY_CURVE) "pub.pem", "wb");
+    fp = fopen("./" XSTRINGIFY(TEST_ECC_KEY_CURVE) "_pub.pem", "wb");
     if (!fp) {
         printf("Error openening %s for write\n",
-            "./" XSTRINGIFY(TEST_ECC_KEY_CURVE) "pub.pem");
+            "./" XSTRINGIFY(TEST_ECC_KEY_CURVE) "_pub.pem");
         return -1;
     }
     fwrite(pem, pemSz, 1, fp);
     fclose(fp);
 #endif
+
+    printf("ECC Public Key Exported to %s\n",
+        "./" XSTRINGIFY(TEST_ECC_KEY_CURVE) "_pub.pem");
 
     wc_ecc_free(&key);
     wc_FreeRng(&rng);
