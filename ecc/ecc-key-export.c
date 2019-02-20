@@ -134,6 +134,10 @@ int main(void)
     memset(pem, 0, sizeof(pem));
     ret = wc_DerToPem(der, derSz, pem, sizeof(pem), ECC_PUBLICKEY_TYPE);
     if (ret < 0) {
+        /* try old type */
+        ret = wc_DerToPem(der, derSz, pem, sizeof(pem), PUBLICKEY_TYPE);
+    }
+    if (ret < 0) {
         printf("wc_DerToPem error %s (%d)\n", wc_GetErrorString(ret), ret);
         return -1;
     }
@@ -147,10 +151,10 @@ int main(void)
     }
     fwrite(pem, pemSz, 1, fp);
     fclose(fp);
-#endif
 
     printf("ECC Public Key Exported to %s\n",
         "./" XSTRINGIFY(TEST_ECC_KEY_CURVE) "_pub.pem");
+#endif
 
     wc_ecc_free(&key);
     wc_FreeRng(&rng);
