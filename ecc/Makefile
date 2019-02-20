@@ -34,3 +34,5 @@ debug: all
 
 clean:
 	rm -f $(TARGETS)
+	rm -f ECC*.der
+	rm -f ECC*.pem
