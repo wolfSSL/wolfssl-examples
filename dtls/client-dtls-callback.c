@@ -43,7 +43,15 @@
 
 #define SERV_PORT   11111           /* define our server port number */
 #define MSGLEN      4096
+#define DTLS_MTU    1500
 
+static int cleanup = 0;                /* To handle shutdown */
+static void sig_handler(const int sig)
+{
+    printf("\nSIGINT %d handled\n", sig);
+    cleanup = 1;
+    return;
+}
 
 typedef struct SharedDtls {
     WOLFSSL*           ssl;           /* WOLFSSL object being shared */
@@ -86,7 +94,9 @@ int my_IORecv(WOLFSSL* ssl, char* buff, int sz, void* ctx)
             return WOLFSSL_CBIO_ERR_CONN_RST;
         case EINTR:
             fprintf(stderr, "socket interrupted\n");
-            return WOLFSSL_CBIO_ERR_ISR;
+            cleanup = 1;
+            return WOLFSSL_CBIO_ERR_GENERAL;
+            /* NOTE: Don't return WOLFSSL_CBIO_ERR_ISR. It keeps trying to recv */
         case ECONNREFUSED:
             fprintf(stderr, "connection refused\n");
             return WOLFSSL_CBIO_ERR_WANT_READ;
@@ -141,7 +151,9 @@ int my_IOSend(WOLFSSL* ssl, char* buff, int sz, void* ctx)
             return WOLFSSL_CBIO_ERR_CONN_RST;
         case EINTR:
             fprintf(stderr, "socket interrupted\n");
-            return WOLFSSL_CBIO_ERR_ISR;
+            cleanup = 1;
+            return WOLFSSL_CBIO_ERR_GENERAL;
+            /* NOTE: Don't return WOLFSSL_CBIO_ERR_ISR. It keeps trying to send */
         case EPIPE:
             fprintf(stderr, "socket EPIPE\n");
             return WOLFSSL_CBIO_ERR_CONN_CLOSE;
@@ -178,6 +190,13 @@ int main (int argc, char** argv)
         printf("usage: udpcli <IP address>\n");
         return 1;
     }
+
+    /* Code for handling signals */
+    struct sigaction act, oact;
+    act.sa_handler = sig_handler;
+    sigemptyset(&act.sa_mask);
+    act.sa_flags = 0;
+    sigaction(SIGINT, &act, &oact);
 
     wolfSSL_Debugging_ON();
 
@@ -252,7 +271,7 @@ int main (int argc, char** argv)
             }
         }
 
-        /* ret is the # of bytes received */
+        /* Receive message from server */
         ret = wolfSSL_read(ssl, buff, sizeof(buff)-1);
         if (ret < 0) {
             err = wolfSSL_get_error(ssl, 0);

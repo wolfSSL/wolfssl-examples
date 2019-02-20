@@ -43,6 +43,7 @@
 
 #define SERV_PORT   11111           /* define our server port number */
 #define MSGLEN      4096
+#define DTLS_MTU    1500
 
 static int cleanup = 0;                /* To handle shutdown */
 static void sig_handler(const int sig)
@@ -57,6 +58,8 @@ typedef struct SharedDtls {
     int                sd;            /* socket fd */
     struct sockaddr_in cliAddr;       /* server sockaddr */
     socklen_t          cliSz;         /* length of servAddr */
+    byte               rxBuf[DTLS_MTU];
+    word32             rxSz;
 } SharedDtls;
 
 
@@ -69,8 +72,20 @@ int my_IORecv(WOLFSSL* ssl, char* buff, int sz, void* ctx)
 
     printf("Server Recv fd %d, buf %d\n", shared->sd, sz);
 
-    /* Receive datagram */
-    recvd = recvfrom(shared->sd, buff, sz, 0, &addr, &addrSz);
+    /* handle "peek" rx data */
+    if (shared->rxSz > 0) {
+        recvd = shared->rxSz;
+        if (recvd > sz)
+            recvd = sz;
+        memcpy(buff, shared->rxBuf, recvd);
+        shared->rxSz -= recvd;
+        memcpy(shared->rxBuf, &shared->rxBuf[recvd], shared->rxSz);
+    }
+    else {
+        /* Receive datagram */
+        recvd = recvfrom(shared->sd, buff, sz, 0, &addr, &addrSz);
+    }
+
     if (recvd == -1) {
         /* error encountered. Be responsible and report it in wolfSSL terms */
 
@@ -94,7 +109,8 @@ int my_IORecv(WOLFSSL* ssl, char* buff, int sz, void* ctx)
         case EINTR:
             fprintf(stderr, "socket interrupted\n");
             cleanup = 1;
-            return WOLFSSL_CBIO_ERR_ISR;
+            return WOLFSSL_CBIO_ERR_GENERAL;
+            /* NOTE: Don't return WOLFSSL_CBIO_ERR_ISR. It keeps trying to recv */
         case ECONNREFUSED:
             fprintf(stderr, "connection refused\n");
             return WOLFSSL_CBIO_ERR_WANT_READ;
@@ -148,7 +164,9 @@ int my_IOSend(WOLFSSL* ssl, char* buff, int sz, void* ctx)
             return WOLFSSL_CBIO_ERR_CONN_RST;
         case EINTR:
             fprintf(stderr, "socket interrupted\n");
-            return WOLFSSL_CBIO_ERR_ISR;
+            cleanup = 1;
+            return WOLFSSL_CBIO_ERR_GENERAL;
+            /* NOTE: Don't return WOLFSSL_CBIO_ERR_ISR. It keeps trying to send */
         case EPIPE:
             fprintf(stderr, "socket EPIPE\n");
             return WOLFSSL_CBIO_ERR_CONN_CLOSE;
@@ -227,7 +245,7 @@ int main(int argc, char** argv)
     wolfSSL_CTX_SetIOSend(ctx, my_IOSend);
 
     /* Await Datagram */
-    while (cleanup != 1) {
+    while (cleanup == 0) {
         /* Create a UDP/IP socket */
         ret = socket(AF_INET, SOCK_DGRAM, 0);
         if (ret < 0 ) {
@@ -265,14 +283,16 @@ int main(int argc, char** argv)
         memset(&shared, 0, sizeof(shared));
         shared.sd = listenfd;
         shared.cliSz = sizeof(shared.cliAddr);
-        ret = (int)recvfrom(listenfd, (char*)buff, sizeof(buff), MSG_PEEK,
-                (struct sockaddr*)&shared.cliAddr, &shared.cliSz);
 
+        ret = (int)recvfrom(listenfd, (char*)shared.rxBuf, sizeof(shared.rxBuf), 0,
+                (struct sockaddr*)&shared.cliAddr, &shared.cliSz);
         if (ret < 0) {
             printf("No clients in queue, enter idle state\n");
             continue;
         }
         else if (ret > 0) {
+            shared.rxSz = ret;
+            ret = 0;
             printf("Connected!\n");
         }
         else {
@@ -303,35 +323,40 @@ int main(int argc, char** argv)
 
             continue;
         }
-        if ((ret = wolfSSL_read(ssl, buff, sizeof(buff)-1)) > 0) {
-            printf("heard %d bytes\n", ret);
-            buffLen = ret;
 
-            buff[buffLen] = '\0';
-            printf("I heard this: \"%s\"\n", buff);
-            ret = 0;
-        }
-        else if (ret < 0) {
-            err = wolfSSL_get_error(ssl, 0);
-            if (err != SSL_ERROR_WANT_READ) {
-                printf("error = %d, %s\n", err, wolfSSL_ERR_reason_error_string(err));
-                printf("SSL_read failed.\n");
-                break;
+        /* echo until shutdown received */
+        while (cleanup == 0 && ret == 0) {
+            ret = wolfSSL_read(ssl, buff, sizeof(buff)-1);
+            if (ret > 0) {
+                printf("heard %d bytes\n", ret);
+                buffLen = ret;
+
+                buff[buffLen] = '\0';
+                printf("I heard this: \"%s\"\n", buff);
+                ret = 0;
             }
-        }
-
-        printf("Sending echo reply\n");
-        ret = wolfSSL_write(ssl, buff, buffLen);
-        if (ret < 0) {
-            err = wolfSSL_get_error(ssl, 0);
-            if (err != SSL_ERROR_WANT_WRITE) {
-                printf("error = %d, %s\n", err, wolfSSL_ERR_reason_error_string(err));
-                printf("wolfSSL_write fail.\n");
-                break;
+            else {
+                err = wolfSSL_get_error(ssl, 0);
+                if (err != SSL_ERROR_WANT_READ) {
+                    printf("error = %d, %s\n", err, wolfSSL_ERR_reason_error_string(err));
+                    printf("SSL_read failed.\n");
+                    break;
+                }
             }
+
+            printf("Sending echo reply\n");
+            ret = wolfSSL_write(ssl, buff, buffLen);
+            if (ret < 0) {
+                err = wolfSSL_get_error(ssl, 0);
+                if (err != SSL_ERROR_WANT_WRITE) {
+                    printf("error = %d, %s\n", err, wolfSSL_ERR_reason_error_string(err));
+                    printf("wolfSSL_write fail.\n");
+                    break;
+                }
+            }
+            ret = 0; /* success */
         }
 
-        wolfSSL_shutdown(ssl);
         wolfSSL_free(ssl);
         ssl = NULL;
         close(listenfd);

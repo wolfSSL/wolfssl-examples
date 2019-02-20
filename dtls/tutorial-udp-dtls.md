@@ -43,7 +43,7 @@
   - 2.2.6. Shutdown, Free, Cleanup
   - 2.2.7. Adjust Makefile
 - Chapter 3: Multithreading a DTLS Server with POSIX Threads
-  - 3.1.1. Elements Required for Thread Managment
+  - 3.1.1. Elements Required for Thread Management
   - 3.1.1.1. threadArgs Struct
   - 3.1.1.2. Thread Creation and Deletion
   - 3.1.1.3. ThreadHandler Method
@@ -54,7 +54,7 @@
     - 3.1.1.3.5. wolfSSL_accept, wolfSSL_read, wolfSSL_write, etc.
      - 3.1.1.3.6. Thread Memory Cleanup
     - 3.1.2. Review
-- Chapter 4: Session Resumpton with DTLS
+- Chapter 4: Session Resumption with DTLS
   - 4.1.1. Storage of the Previous Session Information
   - 4.1.2. Memory Cleanup and Management
   - 4.1.3. Reconnect with Old Session Data
@@ -98,7 +98,7 @@ In summary, these are the key points regarding UDP:
 - No compensation for lost packets
 - Packets may arrive out of order
 - No congestion control
-- Overall, UDP is lightweight but unreliable. Some applications where UDP is used include DNS, NFS, and SNMP.`
+- Overall, UDP is lightweight but unreliable. Some applications where UDP is used include DNS, NFS, and SNMP.
 
 UDP header consists of 4 fields, each of which is 16 bits.
 1. Field 1 contains information about the port from which the message originated.
@@ -167,7 +167,7 @@ For this tutorial we want to select domain `(domain = AF_NET)` and the datagram 
 
 ##### Figure 1.3: Setting Protocol
 ```c
-# include <sys/socket.h>
+#include <sys/socket.h>
 …
 int sockfd;
 
@@ -257,7 +257,7 @@ int recvfrom(int socket, void* restrict buffer, size_t length,
 2. `void* restrict buffer`
     The incoming data will be placed into memory at buffer.
 3. `size_t length`
-    No more than `length` bytes will be transferred (that`s the size of your buffer).
+    No more than `length` bytes will be transferred (that's the size of your buffer).
 4. `int flags`
     For this tutorial we can ignore this last flags. However this parameter will allow us to “peek” at an incoming message without removing it from the queue or block until the request is fully satisfied. To ignore these flags, simply place a zero in as the parameter. See the man page for `recvfrom` to see an  in-depth description of this parameter.
 5. `struct sockaddr* restrict src_addr`
@@ -266,7 +266,7 @@ int recvfrom(int socket, void* restrict buffer, size_t length,
     The size of the memory at `src_addr`. If `src_addr` is `NULL`, then `src_len` should also be `NULL`.
     Example:
     ```c
-    struct sockaddr_in* cliaddr;`
+    struct sockaddr_in* cliaddr;
     socklen_t addrlen;
     addrlen = sizeof(struct sockaddr_in);
     ```
@@ -356,10 +356,10 @@ This function can be accomplished within main without creating an additional fun
 We will begin by adding the following libraries to pull from.
 ##### Figure 2.1
 ```c
-# include <wolfssl/ssl.h>
-# include <errno.h>
-# include <signal.h>
-# include <unistd.h>
+#include <wolfssl/ssl.h>
+#include <errno.h>
+#include <signal.h>
+#include <unistd.h>
 ```
 
 ####  2.1.2. Increase `MSGLEN`
@@ -392,7 +392,6 @@ With this change we will also rename `addrlen` to `clilen` to remind us that thi
 
 ##### Figure 2.3
 ```c
-
 int                  on = 1;
 int                 res = 1;
 int              connfd = 0;
@@ -404,11 +403,10 @@ socklen_t len =  sizeof(on);
 unsigned char       b[1500];    /* watch for incoming messages */
 char           buff[MSGLEN];    /* the incoming message */
 char ack[] = "I hear you fashizzle!\n";
-}
 ```
 
 #### 2.1.4.3. Loop Shift
-With the layering on of dtls we will need to re-allocate our socket and re-bind our socket for each client connection. Since we will need to free up all memory allocated to handle these connections and additional security our loop will now change to a `while` loop instead of a `for` loop. We will loop on the condition that `cleanup != 1`. If `cleanup == 1` we will run `wolfSSL_cleanup()`.
+With the layering on of DTLS we will need to re-allocate our socket and re-bind our socket for each client connection. Since we will need to free up all memory allocated to handle these connections and additional security our loop will now change to a `while` loop instead of a `for` loop. We will loop on the condition that `cleanup != 1`. If `cleanup == 1` we will run `wolfSSL_cleanup()`.
 
 So while not 1 we will keep our socket open and continue listening for packets to arrive. Start a `while` in your main function. Move the current code from main into the loop. At this point, you should have a loop similar to this inside your main function:
 
@@ -521,6 +519,7 @@ Our client handling is now running in a `while` loop, so it will continue to lis
 ```c
 int setsockopt(int socket, int level, int option_name, const void*option_value, socklen_t option_len);
 ```
+
 `res = setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &on, len);`
 
 The `setsockopt()` function sets the option specified by the `option_name` argument, at the protocol level specified by the `level` argument, to the value pointed to by the `option_value` argument for the socket associated with the file descriptor specified by the `socket` argument.
@@ -603,7 +602,7 @@ wolfSSL_set_fd(ssl, listenfd);
 if (wolfSSL_accept(ssl) != SSL_SUCCESS) {
     int err = wolfSSL_get_error(ssl, 0);
     char buffer[80];
-    printf("error = %d, %s\n", err, wolfSSL_ERR_error_string(err, buffe    r));
+    printf("error = %d, %s\n", err, wolfSSL_ERR_error_string(err, buffer));
     buffer[sizeof(buffer)-1]= 0;
     printf("SSL_accept failed.\n");
     cleanup = 1;
@@ -611,7 +610,7 @@ if (wolfSSL_accept(ssl) != SSL_SUCCESS) {
 ```
 
 #### 2.1.7.4. Read the Message, Acknowledge that Message was Read
-So our client is using DTLS version 1.2, we have a message waiting for us… so let’s read it! Then let’s send our client an acknowlegement that we have received their message. Don’t forget to handle any potential errors along the way!
+So our client is using DTLS version 1.2, we have a message waiting for us… so let’s read it! Then let’s send our client an acknowledgment that we have received their message. Don’t forget to handle any potential errors along the way!
 
 ##### Figure 2.12
 ```c
@@ -647,7 +646,7 @@ wolfSSL_shutdown(ssl);
 wolfSSL_free(ssl);
 printf("Client left return to idle state\n");
 ```
-This concludes Section 1 of Chapter 2 on “Layering DTLS onto a UDP Server”. Secition 2 will now cover Layering DTLS onto a UDP Client.
+This concludes Section 1 of Chapter 2 on “Layering DTLS onto a UDP Server”. Section 2 will now cover Layering DTLS onto a UDP Client.
 
 ### Section 2:
 #### 2.2.1. Enable DTLS
@@ -742,7 +741,7 @@ The actual creation of each `threadArgs*` object will be done at the beginning o
 ##### Figure 3.2
 ```c
 while (cleanup != 1) {
-	threadArgs* args;
+    threadArgs* args;
     args = (threadArgs *) malloc(sizeof(threadArgs));
       .
       .
@@ -759,7 +758,7 @@ NAME
        pthread_create - create a new thread
 
 SYNOPSIS
-       # include <pthread.h>
+       #include <pthread.h>
 
        int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
                           void *(*start_routine) (void *), void *arg);
@@ -799,7 +798,7 @@ Our `ThreadHandler` code now looks like this:
 ```c
 void* ThreadHandler(void *input)
 {
-	/* pthread_detach call */
+    /* pthread_detach call */
     pthread_detach( pthread_self() );
 
     /* Instance variables */
@@ -816,12 +815,12 @@ void* ThreadHandler(void *input)
 In total, there are 7 local variables used inside of `ThreadHandler`. They are all listed below with a brief description of their purposes.
 ```c
 threadArgs*     args = (threadArgs*) input;
-int 		    recvLen = 0;			    /* Length of message received */
-int 		    activefd = args->activefd;	/* active file descriptor */
-int 		    msgLen = args->size;		/* Length of message */
-unsigned char 	buff[msgLen];			    /* Incoming message from client */
-char 		    back[] = "MESSAGE RECEIVED"	/* Message sent to client */
-WOLFSSL* 	    ssl;				        /* SSL object */
+int             recvLen = 0;                /* Length of message received */
+int             activefd = args->activefd;  /* active file descriptor */
+int             msgLen = args->size;        /* Length of message */
+unsigned char   buff[msgLen];               /* Incoming message from client */
+char            back[] = "MESSAGE RECEIVED" /* Message sent to client */
+WOLFSSL*        ssl;                        /* SSL object */
 ```
 
 Putting these variables into our code gives us a new `ThreadHandler` method:
@@ -829,17 +828,17 @@ Putting these variables into our code gives us a new `ThreadHandler` method:
 ```c
 void* ThreadHandler(void *input)
 {
-	/* pthread_detach call */
+    /* pthread_detach call */
     pthread_detach( pthread_self() );
 
     /* Instance variables */
     threadArgs*     args = (threadArgs*) input;
-    int 		    recvLen = 0;			    /* Length of message received */
-    int 		    activefd = args->activefd;	/* active file descriptor */
-    int 		    msgLen = args->size;		/* Length of message */
-    unsigned char 	buff[msgLen];			    /* Incoming message from client */
-    char 		    back[] = "MESSAGE RECEIVED"	/* Message sent to client */
-    WOLFSSL* 	    ssl;				        /* SSL object */
+    int             recvLen = 0;                /* Length of message received */
+    int             activefd = args->activefd;  /* active file descriptor */
+    int             msgLen = args->size;        /* Length of message */
+    unsigned char   buff[msgLen];               /* Incoming message from client */
+    char            back[] = "MESSAGE RECEIVED" /* Message sent to client */
+    WOLFSSL*        ssl;                        /* SSL object */
 
     /* memcpy call */
 
@@ -858,17 +857,17 @@ Putting this call into our code gives this `ThreadHandler` method:
 ```c
 void* ThreadHandler(void *input)
 {
-	/* pthread_detach call */
+    /* pthread_detach call */
     pthread_detach( pthread_self() );
 
     /* Instance variables */
     threadArgs*     args = (threadArgs*) input;
-    int 		    recvLen = 0;			    /* Length of message received */
-    int 		    activefd = args->activefd;	/* active file descriptor */
-    int 		    msgLen = args->size;		/* Length of message */
-    unsigned char 	buff[msgLen];			    /* Incoming message from client */
-    char 		    back[] = "MESSAGE RECEIVED"	/* Message sent to client */
-    WOLFSSL* 	    ssl;				        /* SSL object */
+    int             recvLen = 0;                /* Length of message received */
+    int             activefd = args->activefd;  /* active file descriptor */
+    int             msgLen = args->size;        /* Length of message */
+    unsigned char   buff[msgLen];               /* Incoming message from client */
+    char            back[] = "MESSAGE RECEIVED" /* Message sent to client */
+    WOLFSSL*        ssl;                        /* SSL object */
 
     /* memcpy call */
     memcpy(buff, args->b, msgLen);
@@ -885,17 +884,17 @@ There shouldn't be anything special about the creation of the `ssl` object. It s
 ```c
 void* ThreadHandler(void *input)
 {
-	/* pthread_detach call */
+    /* pthread_detach call */
     pthread_detach( pthread_self() );
 
     /* Instance variables */
     threadArgs*     args = (threadArgs*) input;
-    int 		    recvLen = 0;			    /* Length of message received */
-    int 		    activefd = args->activefd;	/* active file descriptor */
-    int 		    msgLen = args->size;		/* Length of message */
-    unsigned char 	buff[msgLen];			    /* Incoming message from client */
-    char 		    back[] = "MESSAGE RECEIVED"	/* Message sent to client */
-    WOLFSSL* 	    ssl;				        /* SSL object */
+    int             recvLen = 0;                /* Length of message received */
+    int             activefd = args->activefd;  /* active file descriptor */
+    int             msgLen = args->size;        /* Length of message */
+    unsigned char   buff[msgLen];               /* Incoming message from client */
+    char            back[] = "MESSAGE RECEIVED" /* Message sent to client */
+    WOLFSSL*        ssl;                        /* SSL object */
 
     /* memcpy call */
     memcpy(buff, args->b, msgLen);
@@ -924,17 +923,17 @@ For the same reason that each thread will create a `WOLFSSL` object, each thread
 ```c
 void* ThreadHandler(void *input)
 {
-	/* pthread_detach call */
+    /* pthread_detach call */
     pthread_detach( pthread_self() );
 
     /* Instance variables */
     threadArgs*     args = (threadArgs*) input;
-    int 		    recvLen = 0;			    /* Length of message received */
-    int 		    activefd = args->activefd;	/* active file descriptor */
-    int 		    msgLen = args->size;		/* Length of message */
-    unsigned char 	buff[msgLen];			    /* Incoming message from client */
-    char 		    back[] = "MESSAGE RECEIVED"	/* Message sent to client */
-    WOLFSSL* 	    ssl;				        /* SSL object */
+    int             recvLen = 0;                /* Length of message received */
+    int             activefd = args->activefd;  /* active file descriptor */
+    int             msgLen = args->size;        /* Length of message */
+    unsigned char   buff[msgLen];               /* Incoming message from client */
+    char            back[] = "MESSAGE RECEIVED" /* Message sent to client */
+    WOLFSSL*        ssl;                        /* SSL object */
 
     /* memcpy call */
     memcpy(buff, args->b, msgLen);
@@ -1001,17 +1000,17 @@ To clean up the mess left behind when the client and server are finished with th
 ```c
 void* ThreadHandler(void *input)
 {
-	/* pthread_detach call */
+    /* pthread_detach call */
     pthread_detach( pthread_self() );
 
     /* Instance variables */
     threadArgs*     args = (threadArgs*) input;
-    int 		    recvLen = 0;			    /* Length of message received */
-    int 		    activefd = args->activefd;	/* active file descriptor */
-    int 		    msgLen = args->size;		/* Length of message */
-    unsigned char 	buff[msgLen];			    /* Incoming message from client */
-    char 		    back[] = "MESSAGE RECEIVED"	/* Message sent to client */
-    WOLFSSL* 	    ssl;				        /* SSL object */
+    int             recvLen = 0;                /* Length of message received */
+    int             activefd = args->activefd;  /* active file descriptor */
+    int             msgLen = args->size;        /* Length of message */
+    unsigned char   buff[msgLen];               /* Incoming message from client */
+    char            back[] = "MESSAGE RECEIVED" /* Message sent to client */
+    WOLFSSL*        ssl;                        /* SSL object */
 
     /* memcpy call */
     memcpy(buff, args->b, msgLen);
@@ -1140,7 +1139,7 @@ The reconnection is nearly identical to the way that a client will connect to a 
 All  the method calls needed with new variables and the distinct new method calls are listed below in the order that they need to be called.
 
 1. `wolfSSL_dtls_set_peer(sslResume, &servAddr, sizeof(servAddr))`
- - This method call uses the old session data (`sslResume`) and with the same server addres. It needs to be called after the `memset` call listed in section 2 (**Memory cleanup and management**).
+ - This method call uses the old session data (`sslResume`) and with the same server address. It needs to be called after the `memset` call listed in section 2 (**Memory cleanup and management**).
 2. `socket(AF_INET, SOCK_DGRAM, 0)` will need to be in an identical conditional as the prior call to `socket`.
 3. `wolfSSL_set_fd(sslResume, sockfd)`
  - This method call uses the old session data (`sslResume`) and with the same socket file descriptor.
@@ -1151,7 +1150,7 @@ All  the method calls needed with new variables and the distinct new method call
  - This method call returns the `resuming` value from inside the `sslResume` object.
  - This method call is used with a conditional to tell the user whether or not a session was reused. An example is shown below.
 ```c
-if(wolfSSL_session_reused(sslResume)) {
+if (wolfSSL_session_reused(sslResume)) {
     printf("Reused session ID\n");
 } else {
     printf("Did not reuse session ID\n");
@@ -1221,7 +1220,7 @@ fd_set              recvfds, errfds;
 struct timeval      timeout;
 ```
 
-3 of the variables used for nonblocking DTLS connect will be assigned prior to the loop. **Figure 5.2** shows where they are assigned.
+Three of the variables used for nonblocking DTLS connect will be assigned prior to the loop. **Figure 5.2** shows where they are assigned.
 
 **Figure 5.2**
 ```c
@@ -1260,7 +1259,7 @@ while (ret != SSL_SUCCESS &&
     timeout = (struct timeval) { (currTimeout > 0) ? currTimeout : 0, 0};
 
     /* Keep the user updated */
-    if(error == SSL_ERROR_WANT_READ) {
+    if (error == SSL_ERROR_WANT_READ) {
         printf("... client would read block.\n");
     } else {
         printf("... client would write block.\n");
@@ -1296,11 +1295,11 @@ while (ret != SSL_SUCCESS &&
         ret = wolfSSL_connect(ssl);
         error = wolfSSL_get_error(ssl, 0);
     }
-	else if (select_ret == TEST_TIMEOUT && !wolfSSL_dtls(ssl)) {
+    else if (select_ret == TEST_TIMEOUT && !wolfSSL_dtls(ssl)) {
         error = 2;
     }
     else if (select_ret == TEST_TIMEOUT && wolfSSL_dtls(ssl) &&
-	      wolfSSL_dtls_got_timeout(ssl) >= 0) {
+          wolfSSL_dtls_got_timeout(ssl) >= 0) {
         error = 2;
     }
     else {
@@ -1333,7 +1332,7 @@ while (fgets(sendLine, MAXLINE, stdin) != NULL) {
 
     while  ( ( wolfSSL_write(ssl, sendLine, strlen(sendLine))) !=
           strlen(sendLine)) {
-    	printf("SSL_write failed");
+        printf("SSL_write failed");
     }
 
     while ( (n = wolfSSL_read(ssl, recvLine, sizeof(recvLine)-1)) <= 0) {
@@ -1350,8 +1349,8 @@ while (fgets(sendLine, MAXLINE, stdin) != NULL) {
 ### Section 2: A nonblocking DTLS server
 #### 5.2.1 Add New Headers to Top of File:
 ```c
-# include <errno.h>    /* error checking */
-# include <fcntl.h>    /* set file status flags */
+#include <errno.h>    /* error checking */
+#include <fcntl.h>    /* set file status flags */
 ```
 #### 5.2.2 Add Enum Variables for Testing Functions
 In both the server and client files, add the following before the first function:
@@ -1410,24 +1409,24 @@ As with our client, there are several variables needed for our nonblocking DTLS 
 
 **Figure 5.7**
 ```c
-    /* DTLS set nonblocking flag */
-    int           flags = fcntl(*(&listenfd), F_GETFL, 0);
+/* DTLS set nonblocking flag */
+int           flags = fcntl(*(&listenfd), F_GETFL, 0);
 
-    /* NonBlockingSSL_Accept variables */
-    int           ret;
-    int           select_ret;
-    int           currTimeout;
-    int           error;
-    int           result;
-    int           nfds;
-    fd_set        recvfds, errfds;
-    struct        timeval timeout;
+/* NonBlockingSSL_Accept variables */
+int           ret;
+int           select_ret;
+int           currTimeout;
+int           error;
+int           result;
+int           nfds;
+fd_set        recvfds, errfds;
+struct        timeval timeout;
 
-    /* udp-read-connect variables */
-    int           bytesRecvd;
-    unsigned char b[MSGLEN];
-    struct        sockaddr_in cliAddr;
-    socklen_t     clilen;
+/* udp-read-connect variables */
+int           bytesRecvd;
+unsigned char b[MSGLEN];
+struct        sockaddr_in cliAddr;
+socklen_t     clilen;
 ```
 ##### 5.2.4.2 While loop
 As with the client, the while loop has variables that are assigned prior to, at the beginning of, and in the center of the loop.
@@ -1438,250 +1437,251 @@ For brevity, they will not all be pointed out and explained - the code will be d
 ```c
 /*****************************************************************************/
 /*                           AwaitDatagram code                              */
-    /* This code will loop until a ^C (SIGINT 2) is passed by the user */
-    cont = 0;
-    while (cleanup != 1) {
+/* This code will loop until a ^C (SIGINT 2) is passed by the user */
+cont = 0;
+while (cleanup != 1) {
 
-        clilen = sizeof(cliAddr);
-        timeout.tv_sec = (currTimeout > 0) ? currTimeout : 0;
+    clilen = sizeof(cliAddr);
+    timeout.tv_sec = (currTimeout > 0) ? currTimeout : 0;
 
-        /* Create a UDP/IP socket */
-        if ((listenfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) {
-            printf("Cannot create socket.\n");
+    /* Create a UDP/IP socket */
+    if ((listenfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) {
+        printf("Cannot create socket.\n");
+        cont = 1;
+    }
+
+    printf("Socket allocated\n");
+
+    /* DTLS set nonblocking */
+    if (flags < 0) {
+        printf("fcntl get failed");
+        cleanup = 1;
+    }
+    flags = fcntl(*(&listenfd), F_SETFL, flags | O_NONBLOCK);
+    if (flags < 0) {
+        printf("fcntl set failed.\n");
+        cleanup = 1;
+    }
+
+    /* Clear servAddr each loop */
+    memset((char *)&servAddr, 0, sizeof(servAddr));
+
+    /* host-to-network-long conversion (htonl) */
+    /* host-to-network-short conversion (htons) */
+    servAddr.sin_family = AF_INET;
+    servAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    servAddr.sin_port = htons(SERV_PORT);
+
+    /* Eliminate socket already in use error */
+    res = setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &on, len);
+    if (res < 0) {
+        printf("Setsockopt SO_REUSEADDR failed.\n");
+        cont = 1;
+    }
+
+    /*Bind Socket*/
+    if (bind(listenfd,
+                (struct sockaddr *)&servAddr, sizeof(servAddr)) < 0) {
+        printf("Bind failed.\n");
+        cont = 1;
+    }
+
+    printf("Awaiting client connection on port %d\n", SERV_PORT);
+
+    /* UDP-read-connect */
+    do {
+        if (cleanup == 1) {
             cont = 1;
+            break;
         }
+        bytesRecvd = (int)recvfrom(listenfd, (char*)b, sizeof(b), MSG_PEEK,
+            (struct sockaddr*)&cliAddr, &clilen);
+    } while (bytesRecvd <= 0);
 
-        printf("Socket allocated\n");
-
-        /* DTLS set nonblocking */
-        if (flags < 0) {
-            printf("fcntl get failed");
-            cleanup = 1;
+    if (bytesRecvd > 0) {
+        if (connect(listenfd, (const struct sockaddr*)&cliAddr,
+                    sizeof(cliAddr)) != 0) {
+            printf("udp connect failed.\n");
         }
-        flags = fcntl(*(&listenfd), F_SETFL, flags | O_NONBLOCK);
-        if (flags < 0) {
-            printf("fcntl set failed.\n");
-            cleanup = 1;
-        }
+    }
+    else {
+        printf("recvfrom failed.\n");
+    }
 
-        /* Clear servAddr each loop */
-        memset((char *)&servAddr, 0, sizeof(servAddr));
+    printf("Connected!\n");
+    /* ensure b is empty upon each call */
+    memset(&b, 0, sizeof(b));
+    clientfd = listenfd;
 
-        /* host-to-network-long conversion (htonl) */
-        /* host-to-network-short conversion (htons) */
-        servAddr.sin_family = AF_INET;
-        servAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-        servAddr.sin_port = htons(SERV_PORT);
+    /* Create the WOLFSSL Object */
+    if (( ssl = wolfSSL_new(ctx)) == NULL) {
+        printf("wolfSSL_new error.\n");
+        cont = 1;
+    }
 
-        /* Eliminate socket already in use error */
-        res = setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &on, len);
-        if (res < 0) {
-            printf("Setsockopt SO_REUSEADDR failed.\n");
-            cont = 1;
-        }
+    /* set clilen to |cliAddr| */
+    printf("Connected!\n");
 
-        /*Bind Socket*/
-        if (bind(listenfd,
-                    (struct sockaddr *)&servAddr, sizeof(servAddr)) < 0) {
-            printf("Bind failed.\n");
-            cont = 1;
-        }
+    /* set the/ session ssl to client connection port */
+    wolfSSL_set_fd(ssl, clientfd);
 
-        printf("Awaiting client connection on port %d\n", SERV_PORT);
-
-        /* UDP-read-connect */
-        do {
-            if (cleanup == 1) {
-                cont = 1;
-                break;
-            }
-            bytesRecvd = (int)recvfrom(listenfd, (char*)b, sizeof(b), MSG_PEEK,
-                (struct sockaddr*)&cliAddr, &clilen);
-        } while (bytesRecvd <= 0);
-
-        if (bytesRecvd > 0) {
-            if (connect(listenfd, (const struct sockaddr*)&cliAddr,
-                        sizeof(cliAddr)) != 0) {
-                printf("udp connect failed.\n");
-            }
-        }
-        else {
-            printf("recvfrom failed.\n");
-        }
-
-        printf("Connected!\n");
-        /* ensure b is empty upon each call */
-        memset(&b, 0, sizeof(b));
-        clientfd = listenfd;
-
-        /* Create the WOLFSSL Object */
-        if (( ssl = wolfSSL_new(ctx)) == NULL) {
-            printf("wolfSSL_new error.\n");
-            cont = 1;
-        }
-
-        /* set clilen to |cliAddr| */
-        printf("Connected!\n");
-
-        /* set the/ session ssl to client connection port */
-        wolfSSL_set_fd(ssl, clientfd);
-
-        wolfSSL_set_using_nonblock(ssl, 1);
+    wolfSSL_set_using_nonblock(ssl, 1);
 
 /*****************************************************************************/
 /*                      NonBlockingDTLS_Connect code                         */
 
-        /* listenfd states where to listen ()
-        ret = wolfSSL_accept(ssl);
-        currTimeout = 1;
-        error = wolfSSL_get_error(ssl, 0);
-        listenfd = (int) wolfSSL_get_fd(ssl);
-        nfds = listenfd + 1;
+    /* listenfd states where to listen ()
+    ret = wolfSSL_accept(ssl);
+    currTimeout = 1;
+    error = wolfSSL_get_error(ssl, 0);
+    listenfd = (int) wolfSSL_get_fd(ssl);
+    nfds = listenfd + 1;
 
-        /* Loop until there has been a successful connection *
-         * or until there has been a signal                  */
-        while (cleanup != 1 && (ret != SSL_SUCCESS &&
-                    (error == SSL_ERROR_WANT_READ ||
-                     error == SSL_ERROR_WANT_WRITE))) {
+    /* Loop until there has been a successful connection *
+     * or until there has been a signal                  */
+    while (cleanup != 1 && (ret != SSL_SUCCESS &&
+                (error == SSL_ERROR_WANT_READ ||
+                 error == SSL_ERROR_WANT_WRITE))) {
 
-            if (cleanup == 1) {
-                wolfSSL_free(ssl);
-                wolfSSL_shutdown(ssl);
-                break;
-            }
-
-            /* Keep the user updated */
-            if (error == SSL_ERROR_WANT_READ)
-                printf("... server would read block\n");
-            else
-                printf("... server would write block\n");
-
-            currTimeout = wolfSSL_dtls_get_current_timeout(ssl);
-
-            FD_ZERO(&recvfds);
-            FD_SET(listenfd, &recvfds);
-            FD_ZERO(&errfds);
-            FD_SET(listenfd, &errfds);
-
-            /* This is where the term 'nonblocking' comes into use */
-            result = select(nfds, &recvfds, NULL, &errfds, &timeout);
-
-            if (result == 0) {
-                select_ret = TEST_TIMEOUT;
-            }
-            else if (result > 0) {
-                if (FD_ISSET(listenfd, &recvfds)) {
-                    select_ret = TEST_RECV_READY;
-                }
-                else if (FD_ISSET(listenfd, &errfds)) {
-                    select_ret = TEST_ERROR_READY;
-                }
-            }
-            else {
-                select_ret = TEST_SELECT_FAIL;
-            }
-
-            if ((select_ret == TEST_RECV_READY) ||
-                (select_ret == TEST_ERROR_READY)) {
-                ret = wolfSSL_accept(ssl);
-                error = wolfSSL_get_error(ssl, 0);
-            }
-            else if (select_ret == TEST_TIMEOUT && !wolfSSL_dtls(ssl)) {
-                error = SSL_ERROR_WANT_READ;
-            }
-            else if (select_ret == TEST_TIMEOUT && wolfSSL_dtls(ssl) &&
-                    wolfSSL_dtls_got_timeout(ssl) >= 0) {
-                error = SSL_ERROR_WANT_READ;
-            }
-            else {
-                error = SSL_FATAL_ERROR;
-            }
+        if (cleanup == 1) {
+            wolfSSL_free(ssl);
+            wolfSSL_shutdown(ssl);
+            break;
         }
-        if (ret != SSL_SUCCESS) {
-            printf("SSL_accept failed with %d.\n", ret);
-            cont = 1;
+
+        /* Keep the user updated */
+        if (error == SSL_ERROR_WANT_READ)
+            printf("... server would read block\n");
+        else
+            printf("... server would write block\n");
+
+        currTimeout = wolfSSL_dtls_get_current_timeout(ssl);
+
+        FD_ZERO(&recvfds);
+        FD_SET(listenfd, &recvfds);
+        FD_ZERO(&errfds);
+        FD_SET(listenfd, &errfds);
+
+        /* This is where the term 'nonblocking' comes into use */
+        result = select(nfds, &recvfds, NULL, &errfds, &timeout);
+
+        if (result == 0) {
+            select_ret = TEST_TIMEOUT;
+        }
+        else if (result > 0) {
+            if (FD_ISSET(listenfd, &recvfds)) {
+                select_ret = TEST_RECV_READY;
+            }
+            else if (FD_ISSET(listenfd, &errfds)) {
+                select_ret = TEST_ERROR_READY;
+            }
         }
         else {
-            cont = 0;
+            select_ret = TEST_SELECT_FAIL;
         }
 
-        if (cont != 0) {
-            printf("NonBlockingSSL_Accept failed.\n");
-            cont = 1;
+        if ((select_ret == TEST_RECV_READY) ||
+            (select_ret == TEST_ERROR_READY)) {
+            ret = wolfSSL_accept(ssl);
+            error = wolfSSL_get_error(ssl, 0);
         }
+        else if (select_ret == TEST_TIMEOUT && !wolfSSL_dtls(ssl)) {
+            error = SSL_ERROR_WANT_READ;
+        }
+        else if (select_ret == TEST_TIMEOUT && wolfSSL_dtls(ssl) &&
+                wolfSSL_dtls_got_timeout(ssl) >= 0) {
+            error = SSL_ERROR_WANT_READ;
+        }
+        else {
+            error = SSL_FATAL_ERROR;
+        }
+    }
+    if (ret != SSL_SUCCESS) {
+        printf("SSL_accept failed with %d.\n", ret);
+        cont = 1;
+    }
+    else {
+        cont = 0;
+    }
+
+    if (cont != 0) {
+        printf("NonBlockingSSL_Accept failed.\n");
+        cont = 1;
+    }
 /*                    end NonBlockingDTLS_Connect code                       */
 /*****************************************************************************/
-        /* Begin: Reply to the client */
-        recvLen = wolfSSL_read(ssl, buff, sizeof(buff)-1);
+    /* Begin: Reply to the client */
+    recvLen = wolfSSL_read(ssl, buff, sizeof(buff)-1);
 
-        /* Begin do-while read */
-        do {
-            if (cleanup == 1) {
-                memset(buff, 0, sizeof(buff));
-                break;
-            }
-            if (recvLen < 0) {
-                readWriteErr = wolfSSL_get_error(ssl, 0);
-                if (readWriteErr != SSL_ERROR_WANT_READ) {
-                    printf("Read Error, error was: %d.\n", readWriteErr);
-                    cleanup = 1;
-                }
-                else {
-                    recvLen = wolfSSL_read(ssl, buff, sizeof(buff)-1);
-                }
-            }
-        } while (readWriteErr == SSL_ERROR_WANT_READ &&
-                                         recvLen < 0 &&
-                                         cleanup != 1);
-        /* End do-while read */
-
-        if (recvLen > 0) {
-            buff[recvLen] = 0;
-            printf("I heard this:\"%s\"\n", buff);
+    /* Begin do-while read */
+    do {
+        if (cleanup == 1) {
+            memset(buff, 0, sizeof(buff));
+            break;
         }
-        else {
-            printf("Connection Timed Out.\n");
-        }
-
-        /* Begin do-while write */
-        do {
-            if (cleanup == 1) {
-                memset(&buff, 0, sizeof(buff));
-                break;
-            }
+        if (recvLen < 0) {
             readWriteErr = wolfSSL_get_error(ssl, 0);
-            if (wolfSSL_write(ssl, ack, sizeof(ack)) < 0) {
-                printf("Write error.\n");
+            if (readWriteErr != SSL_ERROR_WANT_READ) {
+                printf("Read Error, error was: %d.\n", readWriteErr);
                 cleanup = 1;
             }
-            printf("Reply sent:\"%s\"\n", ack);
-        } while(readWriteErr == SSL_ERROR_WANT_WRITE && cleanup != 1);
-        /* End do-while write */
+            else {
+                recvLen = wolfSSL_read(ssl, buff, sizeof(buff)-1);
+            }
+        }
+    } while (readWriteErr == SSL_ERROR_WANT_READ &&
+                                     recvLen < 0 &&
+                                     cleanup != 1);
+    /* End do-while read */
 
-        /* free allocated memory */
-        memset(buff, 0, sizeof(buff));
-        wolfSSL_free(ssl);
-
-        /* End: Reply to the Client */
+    if (recvLen > 0) {
+        buff[recvLen] = 0;
+        printf("I heard this:\"%s\"\n", buff);
     }
+    else {
+        printf("Connection Timed Out.\n");
+    }
+
+    /* Begin do-while write */
+    do {
+        if (cleanup == 1) {
+            memset(&buff, 0, sizeof(buff));
+            break;
+        }
+        readWriteErr = wolfSSL_get_error(ssl, 0);
+        if (wolfSSL_write(ssl, ack, sizeof(ack)) < 0) {
+            printf("Write error.\n");
+            cleanup = 1;
+        }
+        printf("Reply sent:\"%s\"\n", ack);
+    } while(readWriteErr == SSL_ERROR_WANT_WRITE && cleanup != 1);
+    /* End do-while write */
+
+    /* free allocated memory */
+    memset(buff, 0, sizeof(buff));
+    wolfSSL_free(ssl);
+
+    /* End: Reply to the Client */
+}
 /*                          End await datagram code                          */
 /*****************************************************************************/
 
-    /* End of the main method */
-    if (cont == 1 || cleanup == 1) {
-        wolfSSL_CTX_free(ctx);
-        wolfSSL_Cleanup();
-    }
-
-    return 0;
+/* End of the main method */
+if (cont == 1 || cleanup == 1) {
+    wolfSSL_CTX_free(ctx);
+    wolfSSL_Cleanup();
 }
+
+return 0;
 ```
 
 The code above was taken directly from the DTLS server nonblocking file. 
 
 Be sure to keep in mind that the `AwaitDatagram` code is essentially one large loop that will attempt to listen for a client (in a nonblocking fashion) at every iteration, and will close the loop upon a signal passed by the user.
+
 #### 5.2.5 Final note
 And that's it! The server has been made into a nonblocking server, and the client has been made into a nonblocking client.
+
 #### REFERENCES:
 
 1. Paul Krzyzanowski, “Programming with UDP sockets”, Copyright 2003-2014, PK.ORG
