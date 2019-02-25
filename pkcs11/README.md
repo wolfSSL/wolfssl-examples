@@ -135,7 +135,7 @@ See [PKCS11.md](./PKCS11.md) in this folder.
 	`./opencryptoki.sh`
 
 
-## TLS Server Example with PKCS #11
+## TLS Server Example with PKCS #11 (RSA)
 
 The example `server-tls-pkcs11` is a server that uses a private key that has been stored on the PKCS #11 device.
 
@@ -154,7 +154,30 @@ Change this to be the id that you set when importing the key.
 2. Run server and client
 
 	`./server-tls-pkcs11 /usr/local/lib/softhsm/libsofthsm2.so $SOFTHSM2_SLOTID SoftToken cryptoki`
+
+	From wolfssl root:
+	`./examples/client/client`
+
+## TLS Server Example with PKCS #11 (ECC)
+
+The example `server-tls-pkcs11-ecc` is a server that uses a private key that has been stored on the PKCS #11 device.
+
+The id of the private key is two hex bytes: `0x00, 0x01`
+
+Change this to be the id that you set when importing the key.
+
+1. SoftHSM version 2
+
+	Import private key:
 	
+	`softhsm2-util --import ../certs/ecc-keyPkcs8.pem --slot $SOFTHSM2_SLOTID --id 0001 --label ecp256`
+
+	Enter PIN: cryptoki
+
+2. Run server and client
+
+	`./server-tls-pkcs11-ecc /usr/local/lib/softhsm/libsofthsm2.so $SOFTHSM2_SLOTID SoftToken cryptoki`
+
 	From wolfssl root:
 	`./examples/client/client`
 
