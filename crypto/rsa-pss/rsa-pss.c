@@ -217,6 +217,7 @@ prog_end:
     if (pRsaKey)
         free(pRsaKey);
 
+    wc_FreeRng(&rng);
     wolfSSL_Cleanup();
 
     return 0;
