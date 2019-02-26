@@ -21,6 +21,7 @@
 *.i*86
 *.x86_64
 *.hex
+*app
 
 # IDE Temp Files
 **/*.swp
@@ -79,18 +80,12 @@ android/wolfssljni-ndk-sample/proguard-project.txt
 crypto/3des/3des-file-encrypt
 crypto/aes/aes-file-encrypt
 crypto/camellia/camellia-encrypt
-crypto/keys/ecc_keys
 
 */file-client/start-client
 */file-server/start-server
 
-#Example der and x963 files
-crypto/keys/*.der
-crypto/keys/*.x963
 
 signature/signature
-signature/ED25519/gen_key_files
-signature/ED25519/sign_and_verify
 
 #cergen
 certgen/test.o
@@ -152,7 +147,15 @@ pkcs11/server-tls-pkcs11
 pkcs11/softhsm2.conf
 pkcs11/softhsm2
 
-crypto/rsa-pss/rsa-pss
-crypto/rsa-pss/rsa-public.der
-crypto/rsa-pss/sign.txt
-crypto/rsa/rsa-nb
+pk/rsa-pss/rsa-pss
+pk/rsa-pss/rsa-public.der
+pk/rsa-pss/sign.txt
+pk/rsa/rsa-nb
+pk/ecc/ecc_keys
+#Example der and x963 files
+pk/ecc/*.der
+pk/ecc/*.x963
+pk/ED25519/gen_key_files
+pk/ED25519/sign_and_verify
+
+wolfCLU/tests/somejunk/*somejunk*.txt
