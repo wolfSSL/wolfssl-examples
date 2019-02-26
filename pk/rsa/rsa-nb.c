@@ -60,7 +60,7 @@ static int load_file_to_buffer(const char* filename, byte** fileBuf, int* fileLe
     printf("File %s is %d bytes\n", filename, *fileLen);
 
     /* Allocate buffer for image */
-    *fileBuf = malloc((unsigned long) *fileLen);
+    *fileBuf = malloc((size_t) *fileLen);
     if(!*fileBuf) {
         printf("File buffer malloc failed!\n");
         ret = EXIT_FAILURE;
