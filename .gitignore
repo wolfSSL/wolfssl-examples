@@ -21,6 +21,7 @@
 *.i*86
 *.x86_64
 *.hex
+*app
 
 # IDE Temp Files
 **/*.swp
@@ -75,6 +76,7 @@ android/wolfssljni-ndk-sample/proguard-project.txt
 /tls/server-tls-nonblocking
 /tls/server-tls-threaded
 /tls/client-tls-pkcs12
+/tls/client-tls-cacb
 
 crypto/3des/3des-file-encrypt
 crypto/aes/aes-file-encrypt
@@ -152,7 +154,9 @@ pkcs11/server-tls-pkcs11
 pkcs11/softhsm2.conf
 pkcs11/softhsm2
 
-crypto/rsa-pss/rsa-pss
-crypto/rsa-pss/rsa-public.der
-crypto/rsa-pss/sign.txt
-crypto/rsa/rsa-nb
+pk/rsa-pss/rsa-pss
+pk/rsa-pss/rsa-public.der
+pk/rsa-pss/sign.txt
+pk/rsa/rsa-nb
+
+wolfCLU/tests/somejunk/*somejunk*.txt
