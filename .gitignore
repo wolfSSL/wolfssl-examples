@@ -21,6 +21,7 @@
 *.i*86
 *.x86_64
 *.hex
+*app
 
 # IDE Temp Files
 **/*.swp
@@ -152,7 +153,9 @@ pkcs11/server-tls-pkcs11
 pkcs11/softhsm2.conf
 pkcs11/softhsm2
 
-crypto/rsa-pss/rsa-pss
-crypto/rsa-pss/rsa-public.der
-crypto/rsa-pss/sign.txt
-crypto/rsa/rsa-nb
+pk/rsa-pss/rsa-pss
+pk/rsa-pss/rsa-public.der
+pk/rsa-pss/sign.txt
+pk/rsa/rsa-nb
+
+wolfCLU/tests/somejunk/*somejunk*.txt
