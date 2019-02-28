@@ -21,6 +21,7 @@
 
 #include <wolfssl/options.h>
 #include <wolfssl/ssl.h>
+#include <wolfssl/error-ssl.h>
 
 #include "sockets.h"
 #include "tls-info.h"
@@ -168,6 +169,10 @@ static int wolfssl_recv(WOLFSSL* ssl)
 
     if (total > 0 && err == WOLFSSL_ERROR_WANT_READ)
         ret = 0;
+    if (ret == -1 && err == SOCKET_PEER_CLOSED_E) {
+        printf("Peer closed socket\n");
+        ret = 0;
+    }
 
     return ret;
 }
