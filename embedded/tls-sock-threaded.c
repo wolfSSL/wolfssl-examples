@@ -65,7 +65,7 @@ static int wolfssl_client_new(WOLFSSL_CTX** ctx, WOLFSSL** ssl)
         /* Load client certificates into WOLFSSL_CTX */
         if (wolfSSL_CTX_load_verify_buffer(client_ctx, CA_CERTS, CA_CERTS_LEN,
                 WOLFSSL_FILETYPE_ASN1) != WOLFSSL_SUCCESS) {
-            printf("ERROR: failed to load CA certiifcate\n");
+            printf("ERROR: failed to load CA certificate\n");
             ret = -1;
         }
     }
@@ -133,7 +133,7 @@ static int wolfssl_server_new(WOLFSSL_CTX** ctx, WOLFSSL** ssl)
         /* Load client certificates into WOLFSSL_CTX */
         if (wolfSSL_CTX_use_certificate_buffer(server_ctx, SERVER_CERT,
                 SERVER_CERT_LEN, WOLFSSL_FILETYPE_ASN1) != WOLFSSL_SUCCESS) {
-            printf("ERROR: failed to load server certiifcate\n");
+            printf("ERROR: failed to load server certificate\n");
             ret = -1;
         }
     }
@@ -281,7 +281,7 @@ static void join_thread(THREAD_TYPE thread)
 /* Accept the TCP connection from the client. */
 int wolfssl_server_accept_tcp(WOLFSSL* ssl, SOCKET_T* fd, SOCKET_T* acceptfd)
 {
-    int ret = 0;  
+    int ret = 0;
     SOCKET_T      sockfd   = WOLFSSL_SOCKET_INVALID;
     SOCKET_T      clientfd = WOLFSSL_SOCKET_INVALID;
     word16        port = wolfSSLPort;
@@ -292,7 +292,7 @@ int wolfssl_server_accept_tcp(WOLFSSL* ssl, SOCKET_T* fd, SOCKET_T* acceptfd)
 
     if (ret == 0)
         ret = tcp_accept(&sockfd, &clientfd);
-    if (ret == 0) { 
+    if (ret == 0) {
         *acceptfd = clientfd;
         ret = tcp_set_nonblocking(&clientfd);
     }
@@ -335,7 +335,7 @@ static THREAD_RETURN WOLFSSL_THREAD server_thread(void* args)
     }
     if (ret == 1)
         ret = 0;
-    /* Send HTTP repsonse */
+    /* Send HTTP response */
     if (ret == 0)
         ret = wolfssl_send(server_ssl, msgHTTPIndex);
 
@@ -409,7 +409,7 @@ static int client()
 
     printf("Client Return: %d\n", ret);
 
-    /* Free client conenction data */
+    /* Free client connection data */
     wolfssl_free(client_ctx, client_ssl);
 
     if (sockfd != WOLFSSL_SOCKET_INVALID)

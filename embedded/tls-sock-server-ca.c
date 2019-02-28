@@ -60,7 +60,7 @@ static int wolfssl_server_ctx_new(WOLFSSL_CTX** ctx)
         /* Load client certificates into WOLFSSL_CTX */
         if (wolfSSL_CTX_use_certificate_buffer(server_ctx, SERVER_CERT,
                 SERVER_CERT_LEN, WOLFSSL_FILETYPE_ASN1) != WOLFSSL_SUCCESS) {
-            printf("ERROR: failed to load server certiifcate\n");
+            printf("ERROR: failed to load server certificate\n");
             ret = -1;
         }
     }
@@ -81,7 +81,7 @@ static int wolfssl_server_ctx_new(WOLFSSL_CTX** ctx)
         /* Load server certificates into WOLFSSL_CTX */
         if (wolfSSL_CTX_load_verify_buffer(server_ctx, CLIENT_CERT,
                 CLIENT_CERT_LEN, WOLFSSL_FILETYPE_ASN1) != WOLFSSL_SUCCESS) {
-            printf("ERROR: failed to load CA certiifcate\n");
+            printf("ERROR: failed to load CA certificate\n");
             ret = -1;
         }
     }
@@ -201,11 +201,11 @@ static int wolfssl_server_listen_tcp(SOCKET_T* fd)
 static int wolfssl_server_accept_tcp(WOLFSSL* ssl, SOCKET_T fd,
                                      SOCKET_T* acceptfd)
 {
-    int      ret = 0;  
+    int      ret = 0;
     SOCKET_T clientfd = WOLFSSL_SOCKET_INVALID;
 
     ret = tcp_accept(&fd, &clientfd);
-    if (ret == 0) { 
+    if (ret == 0) {
         *acceptfd = clientfd;
         ret = tcp_set_nonblocking(&clientfd);
     }
@@ -243,7 +243,7 @@ static int server(WOLFSSL_CTX* server_ctx, SOCKET_T sockfd)
         /* Receive HTTP request */
         if (ret == 0)
             ret = wolfssl_recv(server_ssl);
-        /* Send HTTP repsonse */
+        /* Send HTTP response */
         if (ret == 0)
             ret = wolfssl_send(server_ssl, msgHTTPIndex);
 
