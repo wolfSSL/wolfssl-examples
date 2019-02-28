@@ -22,6 +22,8 @@ echo
 echo "# AES-CBC example"
 ./pkcs11_aescbc /usr/local/lib/softhsm/libsofthsm2.so $SOFTHSM2_SLOTID SoftToken cryptoki
 echo
+echo "# HMAC example"
+./pkcs11_hmac /usr/local/lib/softhsm/libsofthsm2.so $SOFTHSM2_SLOTID SoftToken cryptoki
 echo
 echo "# PKCS#11 test"
 ./pkcs11_test /usr/local/lib/softhsm/libsofthsm2.so $SOFTHSM2_SLOTID SoftToken cryptoki

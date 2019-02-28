@@ -258,7 +258,7 @@ int get_public_key(RsaKey* key, Pkcs11Token* token, CK_SESSION_HANDLE session,
       {CKA_PUBLIC_EXPONENT, NULL_PTR, 0}
     };
     CK_RV rv;
- 
+
     rv = token->func->C_GetAttributeValue(session, pubKey, template, 2);
     if (rv == CKR_OK) {
         modSz = template[0].ulValueLen;
@@ -267,7 +267,7 @@ int get_public_key(RsaKey* key, Pkcs11Token* token, CK_SESSION_HANDLE session,
         template[0].pValue = mod;
         exp = (CK_BYTE_PTR) malloc(expSz);
         template[1].pValue = exp;
- 
+
         rv = token->func->C_GetAttributeValue(session, pubKey, template, 2);
     }
     if (rv == CKR_OK)
@@ -308,7 +308,7 @@ int gen_rsa_key(Pkcs11Token* token, RsaKey* key, unsigned char* id, int idLen,
         mech.mechanism      = CKM_RSA_PKCS_KEY_PAIR_GEN;
         mech.ulParameterLen = 0;
         mech.pParameter     = NULL;
- 
+
         rv = token->func->C_GenerateKeyPair(token->handle, &mech, pubKeyTmpl, 4,
             privKeyTmpl, privTmplCnt, &pubKey, &privKey);
         if (rv != CKR_OK)
@@ -781,6 +781,159 @@ int aescbc_test(int devId, Pkcs11Token* token)
 }
 #endif
 
+#ifndef NO_HMAC
+int hmac_op(unsigned char* key, int keyLen, int hashAlg, unsigned char* data,
+            int dataLen, unsigned char* exp, int expLen, int devId,
+            Pkcs11Token* token)
+{
+    int           ret;
+    Hmac          hmac;
+    unsigned char res[WC_MAX_DIGEST_SIZE];
+
+    wc_Pkcs11Token_Open(token, 1);
+    /* HMAC */
+    ret = wc_HmacInit_Id(&hmac, (unsigned char*)"AES123", 6, NULL, devId);
+    if (ret == 0) {
+        ret = wc_HmacSetKey(&hmac, hashAlg, key, keyLen);
+        if (ret != 0)
+            fprintf(stderr, "Set Key failed: %d\n", ret);
+    }
+    if (ret == 0) {
+        ret = wc_Pkcs11StoreKey(token, PKCS11_KEY_TYPE_HMAC, 0,
+            (void*)&hmac);
+        if (ret == NOT_COMPILED_IN)
+            ret = 0;
+        if (ret != 0)
+            fprintf(stderr, "Store Key failed: %d\n", ret);
+    }
+    if (ret == 0) {
+        ret = wc_HmacUpdate(&hmac, data, dataLen);
+        if (ret != 0)
+            fprintf(stderr, "HMAC Update failed: %d\n", ret);
+    }
+    if (ret == 0) {
+        ret = wc_HmacFinal(&hmac, res);
+        if (ret != 0)
+            fprintf(stderr, "HMAC Update failed: %d\n", ret);
+    }
+    if (ret == 0) {
+        if (memcmp(res, exp, expLen) != 0) {
+            fprintf(stderr, "HMAC result didn't match expected\n");
+            ret = -1;
+        }
+    }
+    wc_Pkcs11Token_Close(token);
+
+    return ret;
+}
+
+int hmac_test(int devId, Pkcs11Token* token)
+{
+    int           ret = 0;
+    unsigned char key[WC_MAX_DIGEST_SIZE];
+    unsigned char data[57];
+#if !defined(NO_MD5)
+    unsigned char exp_md5[MD5_DIGEST_SIZE] = {
+        0x58, 0x8e, 0xd2, 0x4e, 0x04, 0x1f, 0xf4, 0xc6,
+        0x98, 0x7c, 0x8e, 0xdc, 0xe5, 0xb1, 0xbc, 0x4b
+    };
+#endif
+#if !defined(NO_SHA)
+    unsigned char exp_sha[SHA_DIGEST_SIZE] = {
+        0x2f, 0x69, 0xc1, 0xf9, 0xe1, 0x97, 0x04, 0xe4,
+        0x75, 0x9f, 0x1c, 0x2a, 0x85, 0x87, 0x7e, 0x6b,
+        0xa7, 0x9f, 0xe1, 0x13
+    };
+#endif
+#if defined(WOLFSSL_SHA224)
+    unsigned char exp_sha224[SHA224_DIGEST_SIZE] = {
+        0x86, 0xa8, 0xfc, 0xfd, 0xd5, 0x95, 0xf2, 0xa6,
+        0x45, 0x89, 0x3b, 0x8b, 0x4c, 0x0d, 0xd1, 0x81,
+        0x20, 0x6b, 0x71, 0x2d, 0x7c, 0x88, 0x31, 0xa8,
+        0x17, 0x9f, 0xc7, 0x66
+    };
+#endif
+#if !defined(NO_SHA256)
+    unsigned char exp_sha256[SHA256_DIGEST_SIZE] = {
+        0x04, 0x9e, 0x43, 0x3c, 0x48, 0x7c, 0x31, 0x11,
+        0x54, 0x90, 0x43, 0xf6, 0x2f, 0x97, 0x42, 0x80,
+        0x3d, 0x22, 0x47, 0x1d, 0x4f, 0xc9, 0xb8, 0xa0,
+        0x02, 0x13, 0x2f, 0x8a, 0x31, 0xc2, 0x6e, 0xbe
+    };
+#endif
+#if defined(WOLFSSL_SHA384)
+    unsigned char exp_sha384[SHA384_DIGEST_SIZE] = {
+        0x0b, 0x4c, 0x32, 0x58, 0x7b, 0x00, 0xb7, 0xfa,
+        0x82, 0x9f, 0xf0, 0x1d, 0x10, 0x85, 0xbc, 0x2e,
+        0xe0, 0x4a, 0x71, 0x91, 0xd6, 0x9a, 0x93, 0xc2,
+        0xd9, 0xd9, 0xca, 0xf6, 0xbd, 0x86, 0x2c, 0xc2,
+        0xd8, 0xaf, 0x40, 0xf9, 0x47, 0x39, 0xf4, 0x09,
+        0xee, 0x56, 0x8b, 0x1a, 0xa5, 0xaf, 0xb4, 0x93
+    };
+#endif
+#if defined(WOLFSSL_SHA512)
+    unsigned char exp_sha512[SHA512_DIGEST_SIZE] = {
+        0x94, 0x7b, 0x97, 0x0f, 0x48, 0x68, 0xd1, 0x88,
+        0x08, 0x09, 0xcf, 0xea, 0xae, 0x3e, 0xba, 0xa2,
+        0x3f, 0xf4, 0x9d, 0x73, 0x78, 0x15, 0x34, 0x44,
+        0xaf, 0x14, 0x96, 0x9d, 0x38, 0x82, 0x1f, 0x37,
+        0x59, 0x3d, 0xbc, 0x66, 0x8d, 0xe3, 0x9f, 0x28,
+        0x33, 0x4f, 0x13, 0x30, 0x4d, 0xe1, 0x5e, 0x9f,
+        0x29, 0x1d, 0xac, 0x51, 0x65, 0x3b, 0xcd, 0x98,
+        0x58, 0x42, 0xa2, 0xe6, 0xa9, 0x30, 0xed, 0xc3
+    };
+#endif
+
+    memset(key, 9, sizeof(key));
+    memset(data, 9, sizeof(data));
+
+#ifndef NO_MD5
+    if (ret == 0) {
+        fprintf(stderr, "HMAC-MD5\n");
+        ret = hmac_op(key, MD5_DIGEST_SIZE, WC_MD5, data, sizeof(data), exp_md5,
+            sizeof(exp_md5), devId, token);
+    }
+#endif
+#ifndef NO_SHA
+    if (ret == 0) {
+        fprintf(stderr, "HMAC-SHA\n");
+        ret = hmac_op(key, SHA_DIGEST_SIZE, WC_SHA, data, sizeof(data), exp_sha,
+            sizeof(exp_sha), devId, token);
+    }
+#endif
+#ifdef WOLFSSL_SHA224
+    if (ret == 0) {
+        fprintf(stderr, "HMAC-SHA224\n");
+        ret = hmac_op(key, SHA224_DIGEST_SIZE, WC_SHA224, data, sizeof(data),
+            exp_sha224, sizeof(exp_sha224), devId, token);
+    }
+#endif
+#ifndef NO_SHA256
+    if (ret == 0) {
+        fprintf(stderr, "HMAC-SHA256\n");
+        ret = hmac_op(key, SHA256_DIGEST_SIZE, WC_SHA256, data, sizeof(data),
+            exp_sha256, sizeof(exp_sha256), devId, token);
+    }
+#endif
+#ifdef WOLFSSL_SHA384
+    if (ret == 0) {
+        fprintf(stderr, "HMAC-SHA384\n");
+        ret = hmac_op(key, SHA384_DIGEST_SIZE, WC_SHA384, data, sizeof(data),
+            exp_sha384, sizeof(exp_sha384), devId, token);
+    }
+#endif
+#ifdef WOLFSSL_SHA512
+    if (ret == 0) {
+        fprintf(stderr, "HMAC-SHA512\n");
+        ret = hmac_op(key, SHA512_DIGEST_SIZE, WC_SHA512, data, sizeof(data),
+            exp_sha512, sizeof(exp_sha512), devId, token);
+    }
+#endif
+
+    return ret;
+}
+#endif
+
 int pkcs11_test(int devId, Pkcs11Token* token)
 {
     int ret = 0;
@@ -919,6 +1072,12 @@ int pkcs11_test(int devId, Pkcs11Token* token)
     if (ret == 0) {
         fprintf(stderr, "AES-CBC encrypt/decrypt\n");
         ret = aescbc_test(devId, token);
+    }
+#endif
+#ifndef NO_HMAC
+    if (ret == 0) {
+        fprintf(stderr, "HMAC\n");
+        ret = hmac_test(devId, token);
     }
 #endif
 
