@@ -170,7 +170,7 @@ Change this to be the id that you set when importing the key.
 
 	Import private key:
 	
-	`softhsm2-util --import ../certs/ecc-keyPkcs8.pem --slot $SOFTHSM2_SLOTID --id 0001 --label ecp256`
+	`softhsm2-util --import ../certs/ecc-keyPkcs8.pem --slot $SOFTHSM2_SLOTID --id 0002 --label ecp256`
 
 	Enter PIN: cryptoki
 
@@ -179,7 +179,7 @@ Change this to be the id that you set when importing the key.
 	`./server-tls-pkcs11-ecc /usr/local/lib/softhsm/libsofthsm2.so $SOFTHSM2_SLOTID SoftToken cryptoki`
 
 	From wolfssl root:
-	`./examples/client/client`
+	`./examples/client/client -A ./certs/ca-ecc-cert.pem`
 
 
 ## Support

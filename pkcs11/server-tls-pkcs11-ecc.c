@@ -38,7 +38,7 @@
 #define DEFAULT_PORT 11111
 
 #define CERT_FILE    "../certs/server-ecc.pem"
-#define PRIV_KEY_ID  {0x00, 0x01}
+#define PRIV_KEY_ID  {0x00, 0x02}
 
 #ifndef WOLFCRYPT_ONLY
 int server_tls(int devId, Pkcs11Token* token)
