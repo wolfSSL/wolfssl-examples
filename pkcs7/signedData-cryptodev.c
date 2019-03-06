@@ -23,7 +23,7 @@
 #include <wolfssl/wolfcrypt/pkcs7.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
 #include <wolfssl/wolfcrypt/logging.h>
-#include <wolfssl/wolfcrypt/cryptodev.h>
+#include <wolfssl/wolfcrypt/cryptocb.h>
 
 #define certFile "../certs/client-cert.der"
 #define keyFile  "../certs/client-key.der"
