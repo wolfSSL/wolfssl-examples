@@ -9,11 +9,13 @@ CC=gcc
 #LIBS=-L/Users/khimes/work/testDir/wolf-install-dir-for-testing/lib -lwolfssl
 #END EXAMPLE
 
-CFLAGS=-Wall
-LIBS=-lwolfssl
+#WOLF_INSTALL_DIR=/usr/local
+WOLF_INSTALL_DIR=/Users/kalebhimes/work/testDir/wolf-install-dir-for-testing
+CFLAGS=-I$(WOLF_INSTALL_DIR)/include -Wall
+LIBS=-L$(WOLF_INSTALL_DIR)/lib -lwolfssl
 
 
-all:certgen_example csr_example
+all:certgen_example csr_example csr_w_ed25519_example
 
 certgen_example:certgen_example.o
 	$(CC) -o $@ $^ $(CFLAGS) $(CPPFLAGS) $(LIBS)
@@ -21,8 +23,11 @@ certgen_example:certgen_example.o
 csr_example:csr_example.o
 	$(CC) -o $@ $^ $(CFLAGS) $(CPPFLAGS) $(LIBS)
 
+csr_w_ed25519_example:csr_w_ed25519_example.o
+	$(CC) -o $@ $^ $(CFLAGS) $(CPPFLAGS) $(LIBS)
+
 .PHONY: clean all
 
 clean:
-	rm -f *.o test.o run*
+	rm -f *.o certgen_example csr_example csr_w_ed25519_example
 	rm newCert.*

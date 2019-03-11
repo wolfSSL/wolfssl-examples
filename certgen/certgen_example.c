@@ -9,10 +9,16 @@
 #define HEAP_HINT NULL
 #define FOURK_SZ 4096
 
+#if defined(WOLFSSL_CERT_REQ) && defined(WOLFSSL_CERT_GEN)
 void free_things(byte** a, byte** b, byte** c, ecc_key* d, ecc_key* e,
-                                                                     WC_RNG* f);
+                 WC_RNG* f);
+#endif
 
 int main(void) {
+#if !defined(WOLFSSL_CERT_REQ) || !defined(WOLFSSL_CERT_GEN)
+  printf("Please compile wolfSSL with --enable-certreq --enable-certgen\n");
+  return 0;
+#else
 
     int ret = 0;
 
@@ -240,5 +246,5 @@ void free_things(byte** a, byte** b, byte** c, ecc_key* d, ecc_key* e,
     wc_ecc_free(d);
     wc_ecc_free(e);
     wc_FreeRng(f);
-
+#endif
 }
