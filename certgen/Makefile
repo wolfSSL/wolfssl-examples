@@ -9,8 +9,7 @@ CC=gcc
 #LIBS=-L/Users/khimes/work/testDir/wolf-install-dir-for-testing/lib -lwolfssl
 #END EXAMPLE
 
-#WOLF_INSTALL_DIR=/usr/local
-WOLF_INSTALL_DIR=/Users/kalebhimes/work/testDir/wolf-install-dir-for-testing
+WOLF_INSTALL_DIR=/usr/local
 CFLAGS=-I$(WOLF_INSTALL_DIR)/include -Wall
 LIBS=-L$(WOLF_INSTALL_DIR)/lib -lwolfssl
 
