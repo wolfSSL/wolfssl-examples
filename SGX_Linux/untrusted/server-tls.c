@@ -54,6 +54,7 @@ int server_connect(sgx_enclave_id_t id)
     char               buff[256];
     size_t             len;
     int                ret = 0;                        /* variable for error checking */
+    const char*        reply = "I hear ya fa shizzle!\n";
 
     /* declare wolfSSL objects */
     WOLFSSL_CTX* ctx;
@@ -168,7 +169,7 @@ int server_connect(sgx_enclave_id_t id)
 
     /* Write our reply into buff */
     memset(buff, 0, sizeof(buff));
-    memcpy(buff, "I hear ya fa shizzle!\n", sizeof(buff));
+    memcpy(buff, reply, strlen(reply));
     len = strnlen(buff, sizeof(buff));
 
     /* Reply back to the client */

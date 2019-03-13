@@ -44,6 +44,7 @@ int main()
     char               buff[256];
     size_t             len;
     int                shutdown = 0;
+    const char*        reply = "I hear ya fa shizzle!\n";
 
 
 
@@ -116,7 +117,7 @@ int main()
 
         /* Write our reply into buff */
         memset(buff, 0, sizeof(buff));
-        memcpy(buff, "I hear ya fa shizzle!\n", sizeof(buff));
+        memcpy(buff, reply, strlen(reply));
         len = strnlen(buff, sizeof(buff));
 
         /* Reply back to the client */
