@@ -53,6 +53,7 @@ int server_tls(int devId, Pkcs11Token* token)
     int                shutdown = 0;
     int                ret;
     unsigned char      privKeyId[] = PRIV_KEY_ID;
+    const char*        reply = "I hear ya fa shizzle!\n";
 
     /* declare wolfSSL objects */
     WOLFSSL_CTX* ctx;
@@ -187,7 +188,7 @@ int server_tls(int devId, Pkcs11Token* token)
 
         /* Write our reply into buff */
         memset(buff, 0, sizeof(buff));
-        memcpy(buff, "I hear ya fa shizzle!\n", sizeof(buff));
+        memcpy(buff, reply, strlen(reply));
         len = strnlen(buff, sizeof(buff));
 
         /* Reply back to the client */

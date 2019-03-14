@@ -65,6 +65,7 @@ void* ClientHandler(void* args)
     char             buff[256];
     size_t           len;
     int              ret;
+    const char*        reply = "I hear ya fa shizzle!\n";
 
 
     /* Create a WOLFSSL object */
@@ -110,7 +111,7 @@ void* ClientHandler(void* args)
 
     /* Write our reply into buff */
     memset(buff, 0, sizeof(buff));
-    memcpy(buff, "I hear ya fa shizzle!\n", sizeof(buff));
+    memcpy(buff, reply, strlen(reply));
     len = strnlen(buff, sizeof(buff));
 
     /* Reply back to the client */
