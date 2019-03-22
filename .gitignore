@@ -101,6 +101,7 @@ signature/sigtest/opensigtest
 signature/firmware_sign/eccsign
 signature/rsa_buffer/sign
 signature/rsa_buffer/verify
+signature/rsa_vfy_only/verify
 
 ecc/ecc-key-decode
 ecc/ecc-key-export
