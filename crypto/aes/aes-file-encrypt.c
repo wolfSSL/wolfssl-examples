@@ -1,6 +1,6 @@
 /* aes-file-encrypt.c
  *
- * Copyright (C) 2006-2015 wolfSSL Inc.
+ * Copyright (C) 2006-2019 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -54,7 +54,7 @@ int GenerateKey(RNG* rng, byte* key, int size, byte* salt, int pad)
 }
 
 /*
- * Encrypts a file using AES 
+ * Encrypts a file using AES
  */
 int AesEncrypt(Aes* aes, byte* key, int size, FILE* inFile, FILE* outFile)
 {
@@ -107,7 +107,7 @@ int AesEncrypt(Aes* aes, byte* key, int size, FILE* inFile, FILE* outFile)
 
     /* stretches key to fit size */
     ret = GenerateKey(&rng, key, size, salt, padCounter);
-    if (ret != 0) 
+    if (ret != 0)
         return -1040;
 
     /* sets key */
@@ -140,7 +140,7 @@ int AesEncrypt(Aes* aes, byte* key, int size, FILE* inFile, FILE* outFile)
 }
 
 /*
- * Decryptsr a file using AES 
+ * Decryptsr a file using AES
  */
 int AesDecrypt(Aes* aes, byte* key, int size, FILE* inFile, FILE* outFile)
 {
@@ -283,7 +283,7 @@ int main(int argc, char** argv)
     Aes    aes;
     byte*  key;       /* user entered key */
     FILE*  inFile;
-    FILE*  outFile;
+    FILE*  outFile = NULL;
 
     const char* in;
     const char* out;
@@ -336,7 +336,7 @@ int main(int argc, char** argv)
     else if (ret == 0 && choice != 'n') {
         key = malloc(size);    /* sets size memory of key */
         ret = NoEcho((char*)key, size);
-        if (choice == 'e') 
+        if (choice == 'e')
             AesEncrypt(&aes, key, size, inFile, outFile);
         else if (choice == 'd')
             AesDecrypt(&aes, key, size, inFile, outFile);
@@ -345,6 +345,6 @@ int main(int argc, char** argv)
         printf("Must select either -e or -d for encryption and decryption\n");
         ret = -110;
     }
-    
+
     return ret;
 }

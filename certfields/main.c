@@ -1,6 +1,6 @@
 /* main.c
  *
- * Copyright (C) 2006-2016 wolfSSL Inc.
+ * Copyright (C) 2006-2019 wolfSSL Inc.
  *
  * This file is part of wolfSSL.
  *
@@ -110,27 +110,27 @@ int main(void)
 
     nameSz = wolfSSL_X509_NAME_get_text_by_NID(name, ASN_COMMON_NAME,
                                             commonName, sizeof(commonName));
-    printf("CN = %s\n", commonName);
+    printf("CN = %s (%d)\n", commonName, nameSz);
 
     nameSz = wolfSSL_X509_NAME_get_text_by_NID(name, ASN_COUNTRY_NAME,
                                             countryName, sizeof(countryName));
-    printf("COUNTRY = %s\n", countryName);
+    printf("COUNTRY = %s (%d)\n", countryName, nameSz);
 
     nameSz = wolfSSL_X509_NAME_get_text_by_NID(name, ASN_LOCALITY_NAME,
                                             localityName, sizeof(localityName));
-    printf("LOCALITY = %s\n", localityName);
+    printf("LOCALITY = %s (%d)\n", localityName, nameSz);
 
     nameSz = wolfSSL_X509_NAME_get_text_by_NID(name, ASN_STATE_NAME,
                                             stateName, sizeof(stateName));
-    printf("STATE = %s\n", stateName);
+    printf("STATE = %s (%d)\n", stateName, nameSz);
 
     nameSz = wolfSSL_X509_NAME_get_text_by_NID(name, ASN_ORG_NAME,
                                             orgName, sizeof(orgName));
-    printf("ORG = %s\n", orgName);
+    printf("ORG = %s (%d)\n", orgName, nameSz);
 
     nameSz = wolfSSL_X509_NAME_get_text_by_NID(name, ASN_ORGUNIT_NAME,
                                             orgUnit, sizeof(orgUnit));
-    printf("ORG UNIT = %s\n", orgUnit);
+    printf("ORG UNIT = %s (%d)\n", orgUnit, nameSz);
 
     wolfSSL_EVP_PKEY_free(pubKeyTmp);
     wolfSSL_X509_free(cert);

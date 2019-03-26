@@ -4,7 +4,7 @@ How to use 3des-file-encrypt.c
       'make', and then install by typing 'sudo make install'.
    b. In the crypto/3des directory run the Makefile by typing 'make'.
 2)  Make a file to encode. Can be any file (ex. .txt .in .out .file etc.)
-3)  run the excecutable, for help run with -h flag. Basic command is as follows:
+3)  run the executable, for help run with -h flag. Basic command is as follows:
         ./3des-file-encrypt <-option> <KeySize> <input.file> <output.file>
 
         KeySize examples: 56, 112, or 168
@@ -17,6 +17,6 @@ How to use 3des-file-encrypt.c
         key is entered into the command line, it will use "0123456789abcdef"
         by default.
 
-4)  Running 'make clean' will delete the excecutable as well as any created
+4)  Running 'make clean' will delete the executable as well as any created
     files. Making sure that the only files left are '3des-file-encrypt.c',
     'Makefile', and 'README'.

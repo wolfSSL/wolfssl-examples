@@ -1,6 +1,6 @@
 /* camellia-encrypt.c
  *
- * Copyright (C) 2006-2015 wolfSSL Inc.
+ * Copyright (C) 2006-2019 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -45,7 +45,7 @@ int GenerateKey(RNG* rng, byte* key, int size, byte* salt, int pad)
         salt[0] = 0;            /* message is padded */
 
     /* stretches key */
-    ret = wc_PBKDF2(key, key, strlen((const char*)key), salt, SALT_SIZE, 4096, 
+    ret = wc_PBKDF2(key, key, strlen((const char*)key), salt, SALT_SIZE, 4096,
         size, SHA256);
     if (ret != 0)
         return -1030;
@@ -54,9 +54,9 @@ int GenerateKey(RNG* rng, byte* key, int size, byte* salt, int pad)
 }
 
 /*
- * Encrypts a file using Camellia 
+ * Encrypts a file using Camellia
  */
-int CamelliaEncrypt(Camellia* cam, byte* key, int size, FILE* inFile, 
+int CamelliaEncrypt(Camellia* cam, byte* key, int size, FILE* inFile,
     FILE* outFile)
 {
     RNG     rng;
@@ -108,7 +108,7 @@ int CamelliaEncrypt(Camellia* cam, byte* key, int size, FILE* inFile,
 
     /* stretches key to fit size */
     ret = GenerateKey(&rng, key, size, salt, padCounter);
-    if (ret != 0) 
+    if (ret != 0)
         return -1040;
 
     /* sets key */
@@ -139,9 +139,9 @@ int CamelliaEncrypt(Camellia* cam, byte* key, int size, FILE* inFile,
 }
 
 /*
- * Decrypts a file using Camellia 
+ * Decrypts a file using Camellia
  */
-int CamelliaDecrypt(Camellia* cam, byte* key, int size, FILE* inFile, 
+int CamelliaDecrypt(Camellia* cam, byte* key, int size, FILE* inFile,
     FILE* outFile)
 {
     RNG     rng;
@@ -181,7 +181,7 @@ int CamelliaDecrypt(Camellia* cam, byte* key, int size, FILE* inFile,
     }
 
     /* replicates old key if keys match */
-    ret = wc_PBKDF2(key, key, strlen((const char*)key), salt, SALT_SIZE, 4096, 
+    ret = wc_PBKDF2(key, key, strlen((const char*)key), salt, SALT_SIZE, 4096,
         size, SHA256);
     if (ret != 0)
         return -1050;
@@ -280,7 +280,7 @@ int main(int argc, char** argv)
     Camellia   cam;
     byte*  key;       /* user entered key */
     FILE*  inFile;
-    FILE*  outFile;
+    FILE*  outFile = NULL;
 
     const char* in;
     const char* out;
@@ -342,6 +342,6 @@ int main(int argc, char** argv)
     else if (choice == 'n') {
         printf("Must select either -e or -d for encryption and decryption\n");
     }
-    
+
     return ret;
 }

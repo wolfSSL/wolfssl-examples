@@ -1,6 +1,6 @@
 /* 3des-file-encrypt.c
  *
- * Copyright (C) 2006-2015 wolfSSL Inc.
+ * Copyright (C) 2006-2019 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -182,7 +182,7 @@ int Des3Decrypt(Des3* des3, byte* key, int size, FILE* inFile, FILE* outFile)
     }
 
     /* replicates old key if keys match */
-    ret = wc_PBKDF2(key, key, strlen((const char*)key), salt, SALT_SIZE, 4096, 
+    ret = wc_PBKDF2(key, key, strlen((const char*)key), salt, SALT_SIZE, 4096,
         size, SHA256);
     if (ret != 0)
         return -1050;
@@ -284,7 +284,7 @@ int main(int argc, char** argv)
     Des3   des3;
     byte*  key;       /* user entered key */
     FILE*  inFile;
-    FILE*  outFile;
+    FILE*  outFile = NULL;
 
     const char* in;
     const char* out;

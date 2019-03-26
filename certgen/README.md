@@ -1,4 +1,4 @@
-# Certficate Generation and Signing examples
+# Certificate Generation and Signing examples
 
 To build this example configure wolfssl with `./configure --enable-certgen --enable-certreq` or add the defines:
 

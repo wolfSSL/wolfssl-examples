@@ -1,3 +1,25 @@
+/* ecc_sign.c
+ *
+ * Copyright (C) 2006-2019 wolfSSL Inc.
+ *
+ * This file is part of wolfSSL.
+ *
+ * wolfSSL is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * wolfSSL is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
+ */
+
+
 #include <wolfssl/options.h>
 #include <wolfssl/wolfcrypt/settings.h>
 
@@ -5,9 +27,10 @@
 #include <wolfssl/wolfcrypt/ecc.h>
 #include <wolfssl/wolfcrypt/random.h>
 
-static const int gFwLen = (1024 * 1024);
+#define MAX_FIRMWARE_LEN (1024 * 1024)
+static const int gFwLen = MAX_FIRMWARE_LEN;
 static const int gFwChunkLen = 128;
-static byte gFwBuf[gFwLen];
+static byte gFwBuf[MAX_FIRMWARE_LEN];
 static ecc_key gMyKey;
 static int gMyKeyInit = 0;
 static const int gSignTimes = 10;

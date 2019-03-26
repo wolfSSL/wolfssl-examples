@@ -1,4 +1,4 @@
-/* ecc_keys.h
+/* ecc_keys.c
  *
  * Copyright (C) 2006-2015 wolfSSL Inc.
  *

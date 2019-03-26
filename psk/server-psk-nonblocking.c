@@ -75,7 +75,7 @@ int main()
     int ret;
     int error;
     int result;
-    int select_ret;
+    int select_ret = 0;
     int sockfd;
     int nfds;
     int currTimeout = 1;
@@ -160,21 +160,21 @@ int main()
             }
             wolfSSL_set_fd(ssl, connfd);
             sockfd = wolfSSL_get_fd(ssl);
-            
+
             /* set wolfSSL and socket to non blocking and respond */
             wolfSSL_set_using_nonblock(ssl, 1);
             if (fcntl(connfd, F_SETFL, O_NONBLOCK) < 0) {
                 printf("Fatal error : fcntl set failed\n");
                 return 1;
             }
-            
+
             ret = wolfSSL_accept(ssl);
             error = wolfSSL_get_error(ssl, 0);
-            
+
             /* clearing buffer for client reponse to prevent unexpected output*/
             memset(buf, 0, MAXLINE);
             do {
-    
+
                 while (ret != SSL_SUCCESS && (error == SSL_ERROR_WANT_READ ||
                                             error == SSL_ERROR_WANT_WRITE)) {
 
@@ -192,10 +192,10 @@ int main()
                     FD_SET(sockfd, &recvfds);
                     FD_ZERO(&errfds);
                     FD_SET(sockfd, &errfds);
-                
+
                     nfds = sockfd + 1;
                     result = select(nfds, &recvfds, NULL, &errfds, &timeout);
-                
+
                     if (result == 0) {
                         select_ret = TEST_TIMEOUT;
                     }
@@ -229,7 +229,7 @@ int main()
                     printf("Fatal error : SSL_accept failed\n");
                     ret = SSL_FATAL_ERROR;
                 }
-        
+
                 if (ret != SSL_SUCCESS) {
                     return 1;
                 }
@@ -258,10 +258,10 @@ int main()
                 FD_SET(sockfd, &recvfds);
                 FD_ZERO(&errfds);
                 FD_SET(sockfd, &errfds);
-        
+
                 nfds = sockfd + 1;
                 result = select(nfds, &recvfds, NULL, &errfds, &timeout);
-        
+
                 if (result == 0) {
                     select_ret = TEST_TIMEOUT;
                 }
@@ -297,15 +297,15 @@ int main()
                 ret = SSL_FATAL_ERROR;
             }
 
-            if (ret != SSL_SUCCESS) {  
+            if (ret != SSL_SUCCESS) {
                 return 1;
             }
-            if ( wolfSSL_write(ssl, response, strlen(response)) != 
+            if ( wolfSSL_write(ssl, response, strlen(response)) !=
                                                 strlen(response)) {
                 printf("Fatal error : respond: write error\n");
                 return 1;
             }
-            
+
             /* closes the connections after responding */
             if (close(connfd) == -1) {
                 printf("Fatal error : close error\n");
@@ -315,7 +315,7 @@ int main()
             wolfSSL_free(ssl);
         }
     }
-    
+
     /* free up memory used by wolfssl */
     wolfSSL_CTX_free(ctx);
     wolfSSL_Cleanup();
