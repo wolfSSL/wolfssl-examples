@@ -28,16 +28,16 @@ LINUX_SPECIFIC=client-tls-perf \
 
 
 # Intel QuickAssist
-QAT_PATH=../../QAT1.6
+QAT_PATH=../../QAT1.7
 QAT_FLAGS=-DDO_CRYPTO -DUSER_SPACE \
-	-I$(QAT_PATH)/quickassist/include \
-	-I$(QAT_PATH)/quickassist/include/lac \
-	-I$(QAT_PATH)/quickassist/utilities/osal/include \
-	-I$(QAT_PATH)/quickassist/utilities/osal/src/linux/user_space/include \
-	-I$(QAT_PATH)/quickassist/lookaside/access_layer/include \
-	-I$(QAT_PATH)/quickassist/lookaside/access_layer/src/common/include
-QAT_LIBS=-L$(QAT_PATH) -ladf_proxy -losal -licp_qa_al_s -lpthread
-
+    -I$(QAT_PATH)/quickassist/include \
+    -I$(QAT_PATH)/quickassist/include/lac \
+    -I$(QAT_PATH)/quickassist/utilities/osal/include \
+    -I$(QAT_PATH)/quickassist/utilities/osal/src/linux/user_space/include \
+    -I$(QAT_PATH)/quickassist/lookaside/access_layer/include \
+    -I$(QAT_PATH)/quickassist/lookaside/access_layer/src/common/include \
+    -I$(QAT_PATH)/quickassist/utilities/libusdm_drv
+QAT_LIBS=-L$(QAT_PATH) -lqat_s -lusdm_drv_s -lpthread
 
 # OS / CPU Detection
 OS_DET=UNKNOWN
