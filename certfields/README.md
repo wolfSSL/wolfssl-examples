@@ -5,7 +5,7 @@ public key and subject name information.
 
 ## Compiling and Running the Example
 
-To compile, first build wolfSSL with the OpenSSL compatibilty layer enabled:
+To compile, first build wolfSSL with the OpenSSL compatibility layer enabled:
 
 ```
 $ cd wolfssl-X.X.X
@@ -22,4 +22,3 @@ $ ./app
 ```
 
 For support, please contact support@wolfssl.com
-

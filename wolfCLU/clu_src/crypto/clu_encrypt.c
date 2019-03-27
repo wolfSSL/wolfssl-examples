@@ -190,7 +190,7 @@ int wolfCLU_encrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
             }/* End feof check */
         }/* End fread check */
 
-        /* sets key encrypts the message to ouput from input */
+        /* sets key encrypts the message to output from input */
 #ifndef NO_AES
         if (XSTRNCMP(alg, "aes", 3) == 0) {
             if (XSTRNCMP(mode, "cbc", 3) == 0) {

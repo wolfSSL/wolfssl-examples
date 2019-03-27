@@ -71,7 +71,7 @@ static inline unsigned int My_Psk_Client_Cb(WOLFSSL* ssl, const char* hint,
 
 int main(int argc, char **argv)
 {
-    int sockfd, ret, error, select_ret, currTimeout;
+    int sockfd, ret, error, select_ret = 0, currTimeout;
     int nfds;
     int result;
     char sendline[MAXLINE]="Hello Server"; /* string to send to the server */
@@ -156,11 +156,11 @@ int main(int argc, char **argv)
         printf("fcntl set failed\n");
         return 1;
     }
-    
+
     /* setting up and running nonblocking socket */
     ret    = wolfSSL_connect(ssl);
     error  = wolfSSL_get_error(ssl, 0);
-    
+
     while (ret != SSL_SUCCESS && (error == SSL_ERROR_WANT_READ ||
                                   error == SSL_ERROR_WANT_WRITE)) {
         currTimeout = 1;
@@ -175,12 +175,12 @@ int main(int argc, char **argv)
         timeout.tv_sec = currTimeout;
         timeout.tv_usec = 0;            /* setting to 0 microseconds */
         sockfd = (int)wolfSSL_get_fd(ssl);
-        
+
         FD_ZERO(&recvfds);
         FD_SET(sockfd, &recvfds);
         FD_ZERO(&errfds);
         FD_SET(sockfd, &errfds);
-        
+
         nfds = sockfd + 1;
 
         result = select(nfds, &recvfds, NULL, &errfds, &timeout);
