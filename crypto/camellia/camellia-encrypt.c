@@ -31,7 +31,7 @@
 #define SALT_SIZE 8
 
 /*
- * Makes a cyptographically secure key by stretMDMching a user entered key
+ * Makes a cryptographically secure key by stretMDMching a user entered key
  */
 int GenerateKey(RNG* rng, byte* key, int size, byte* salt, int pad)
 {
@@ -91,14 +91,14 @@ int CamelliaEncrypt(Camellia* cam, byte* key, int size, FILE* inFile,
         return -1030;
     }
 
-    /* reads from inFile and wrties whatever is there to the input array */
+    /* reads from inFile and writes whatever is there to the input array */
     ret = fread(input, 1, inputLength, inFile);
     if (ret == 0) {
         printf("Input file does not exist.\n");
         return -1010;
     }
     for (i = inputLength; i < length; i++) {
-        /* padds the added characters with the number of pads */
+        /* pads the added characters with the number of pads */
         input[i] = padCounter;
     }
 
@@ -116,7 +116,7 @@ int CamelliaEncrypt(Camellia* cam, byte* key, int size, FILE* inFile,
     if (ret != 0)
         return -1001;
 
-    /* encrypts the message to the ouput based on input length + padding */
+    /* encrypts the message to the output based on input length + padding */
     wc_CamelliaCbcEncrypt(cam, output, input, length);
 
     /* writes to outFile */
@@ -165,7 +165,7 @@ int CamelliaDecrypt(Camellia* cam, byte* key, int size, FILE* inFile,
 
     wc_InitRng(&rng);
 
-    /* reads from inFile and wrties whatever is there to the input array */
+    /* reads from inFile and writes whatever is there to the input array */
     ret = fread(input, 1, length, inFile);
     if (ret == 0) {
         printf("Input file does not exist.\n");
@@ -233,7 +233,7 @@ void help()
 }
 
 /*
- * temporarily deisables echoing in terminal for secure key input
+ * temporarily disables echoing in terminal for secure key input
  */
 int NoEcho(char* key, int size)
 {

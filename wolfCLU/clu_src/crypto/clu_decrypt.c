@@ -24,7 +24,7 @@
 
 #define MAX_LEN             1024
 
-int wolfCLU_decrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size, 
+int wolfCLU_decrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
         char* in, char* out, byte* iv, int block, int keyType)
 {
 #ifndef NO_AES
@@ -67,7 +67,7 @@ int wolfCLU_decrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
 
     if ((outFile = fopen(out, "wb")) == NULL) {
         printf("Error creating output file.\n");
-        return DECRYPT_ERROR; 
+        return DECRYPT_ERROR;
     }
 
     /* find end of file for length */
@@ -75,8 +75,8 @@ int wolfCLU_decrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
     length = (int) ftell(inFile);
     fseek(inFile, 0, SEEK_SET);
 
-    /* if there is a remainder, 
-     * round up else no round 
+    /* if there is a remainder,
+     * round up else no round
      */
     if (length % MAX_LEN > 0) {
         lastLoopFlag = (length/MAX_LEN) + 1;
@@ -96,7 +96,7 @@ int wolfCLU_decrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
     wc_InitRng(&rng);
 
     /* reads from inFile and writes whatever
-     * is there to the input buffer 
+     * is there to the input buffer
      */
     while ( length > 0 ) {
 
@@ -112,7 +112,7 @@ int wolfCLU_decrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
                 printf("Error reading salt.\n");
                 wolfCLU_freeBins(input, output, NULL, NULL, NULL);
                 return FREAD_ERROR;
-            } 
+            }
             /* replicates old pwdKey if pwdKeys match */
             if (keyType == 1) {
                 if (wc_PBKDF2(key, pwdKey, (int) strlen((const char*)pwdKey),
@@ -138,7 +138,7 @@ int wolfCLU_decrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
                     printf("the key is all zero's or not set.\n");
                     wolfCLU_freeBins(input, output, NULL, NULL, NULL);
                     return ENCRYPT_ERROR;
-                } 
+                }
             }
         }
 
@@ -154,7 +154,7 @@ int wolfCLU_decrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
             }
         }
 
-        /* sets pwdKey decrypts the message to ouput from input length */
+        /* sets pwdKey decrypts the message to output from input length */
 #ifndef NO_AES
         if (XSTRNCMP(alg, "aes", 3) == 0) {
             if (XSTRNCMP(mode, "cbc", 3) == 0) {
@@ -172,7 +172,7 @@ int wolfCLU_decrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
                     wolfCLU_freeBins(input, output, NULL, NULL, NULL);
                     return DECRYPT_ERROR;
                 }
-            }  
+            }
 #ifdef WOLFSSL_AES_COUNTER
             else if (XSTRNCMP(mode, "ctr", 3) == 0) {
                 /* if mode is ctr */
@@ -229,7 +229,7 @@ int wolfCLU_decrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
                 XMEMSET(output, 0, tempMax);
                 break;
             }
-        } 
+        }
         /* writes output to the outFile */
         fwrite(output, 1, tempMax, outFile);
 
