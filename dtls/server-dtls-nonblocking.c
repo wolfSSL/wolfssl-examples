@@ -86,7 +86,7 @@ int main(int argc, char** argv)
     /* NonBlockingSSL_Accept variables */
     int           ret;
     int           select_ret;
-    int           currTimeout;
+    int           currTimeout = 0;
     int           error;
     int           result;
     int           nfds;
@@ -123,7 +123,7 @@ int main(int argc, char** argv)
         return 1;
     }
     /* Load server certificates */
-    if (wolfSSL_CTX_use_certificate_file(ctx, servCertLoc, SSL_FILETYPE_PEM) != 
+    if (wolfSSL_CTX_use_certificate_file(ctx, servCertLoc, SSL_FILETYPE_PEM) !=
             SSL_SUCCESS) {
         printf("Error loading %s, please check the file.\n", servCertLoc);
         return 1;
@@ -188,6 +188,7 @@ int main(int argc, char** argv)
         printf("Awaiting client connection on port %d\n", SERV_PORT);
 
         /* UDP-read-connect */
+        bytesRecvd = 0;
         do {
             if (cleanup == 1) {
                 cont = 1;
@@ -256,6 +257,7 @@ int main(int argc, char** argv)
 
             result = select(nfds, &recvfds, NULL, &errfds, &timeout);
 
+            select_ret = TEST_SELECT_FAIL;
             if (result == 0) {
                 select_ret = TEST_TIMEOUT;
             }
@@ -266,9 +268,6 @@ int main(int argc, char** argv)
                 else if(FD_ISSET(listenfd, &errfds)) {
                     select_ret = TEST_ERROR_READY;
                 }
-            }
-            else {
-                select_ret = TEST_SELECT_FAIL;
             }
 
             if ((select_ret == TEST_RECV_READY) ||
@@ -305,6 +304,7 @@ int main(int argc, char** argv)
         recvLen = wolfSSL_read(ssl, buff, sizeof(buff)-1);
 
         /* Begin do-while read */
+        readWriteErr = 0;
         do {
             if (cleanup == 1) {
                 memset(buff, 0, sizeof(buff));

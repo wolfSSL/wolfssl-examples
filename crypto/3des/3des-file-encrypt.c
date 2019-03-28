@@ -283,7 +283,7 @@ int main(int argc, char** argv)
 {
     Des3   des3;
     byte*  key;       /* user entered key */
-    FILE*  inFile;
+    FILE*  inFile = NULL;
     FILE*  outFile = NULL;
 
     const char* in;
