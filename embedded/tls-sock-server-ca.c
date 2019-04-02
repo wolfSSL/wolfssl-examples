@@ -19,12 +19,17 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
-#include <wolfssl/options.h>
+#ifndef WOLFSSL_USER_SETTINGS
+    #include <wolfssl/options.h>
+#endif
+#include <wolfssl/wolfcrypt/settings.h>
 #include <wolfssl/ssl.h>
 
 #include "sockets.h"
 #include "tls-info.h"
 #include "certs.h"
+
+#if !defined(NO_WOLFSSL_SERVER)
 
 /* Application data to send. */
 static const char msgHTTPIndex[] =
@@ -296,3 +301,14 @@ int main(int argc, char* argv[])
     return (ret == 0) ? 0 : 1;
 }
 
+#else
+
+int main(int argc, char* argv[])
+{
+    (void)argc;
+    (void)argv;
+    printf("Must build wolfSSL with server enabled for this example\n");
+    return 0;
+}
+
+#endif
