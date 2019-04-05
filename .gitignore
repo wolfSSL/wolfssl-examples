@@ -165,6 +165,7 @@ pk/ED25519/sign_and_verify
 wolfCLU/tests/somejunk/*somejunk*.txt
 
 embedded/tls-client-server
+embedded/tls-server-size
 embedded/tls-sock-client
 embedded/tls-sock-client-ca
 embedded/tls-sock-server

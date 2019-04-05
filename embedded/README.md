@@ -285,6 +285,12 @@ Connection: close
 ^C
 ```
 
+### `tls-server-size`
+
+This example is useful in determining the code size of a minimal TLS server.
+The example will *NOT* complete a handshake as there is no client.
+
+
 ## Support
 
 For questions please email us at support@wolfssl.com.
