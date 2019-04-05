@@ -60,6 +60,7 @@ android/wolfssljni-ndk-sample/proguard-project.txt
 
 /tls/client-tcp
 /tls/client-tls
+/tls/client-tls-cacb
 /tls/client-tls-callback
 /tls/client-tls-ecdhe
 /tls/client-tls-nonblocking
