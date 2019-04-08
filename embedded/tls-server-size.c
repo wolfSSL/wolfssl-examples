@@ -21,10 +21,15 @@
 
 #include <stdio.h>
 
-#include <wolfssl/options.h>
+#ifndef WOLFSSL_USER_SETTINGS
+    #include <wolfssl/options.h>
+#endif
+#include <wolfssl/wolfcrypt/settings.h>
 #include <wolfssl/ssl.h>
 
 #include "certs.h"
+
+#if !defined(NO_WOLFSSL_SERVER) && !defined(WOLFSSL_NO_TLS12)
 
 /* I/O buffer size - wolfSSL buffers messages internally as well. */
 #define BUFFER_SIZE           2048
@@ -296,3 +301,15 @@ int main(int argc, char* argv[])
     return (ret == 0) ? 0 : 1;
 }
 
+
+#else
+
+int main(int argc, char* argv[])
+{
+    (void)argc;
+    (void)argv;
+    printf("Must build wolfSSL with TLS v1.2 and server enabled for this example\n");
+    return 0;
+}
+
+#endif

@@ -19,10 +19,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
-#include <wolfssl/options.h>
+#ifndef WOLFSSL_USER_SETTINGS
+    #include <wolfssl/options.h>
+#endif
+#include <wolfssl/wolfcrypt/settings.h>
 #include <wolfssl/ssl.h>
 
-#ifndef SINGLE_THREADED
+#if !defined(SINGLE_THREADED) && !defined(NO_WOLFSSL_CLIENT) && \
+    !defined(NO_WOLFSSL_SERVER)
 
 #include "threading.h"
 #include "certs.h"
@@ -487,7 +491,9 @@ int main(int argc, char* argv[])
 
 int main(int argc, char* argv[])
 {
-    printf("Requires threading - compile wolfssl without SINGLE_THREADED\n");
+    (void)argc;
+    (void)argv;
+    printf("Threading and TLS client and server required - compile wolfSSL without SINGLE_THREAED\n");
     return 0;
 }
 

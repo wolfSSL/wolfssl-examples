@@ -19,11 +19,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
-#include <wolfssl/options.h>
+#ifndef WOLFSSL_USER_SETTINGS
+    #include <wolfssl/options.h>
+#endif
+#include <wolfssl/wolfcrypt/settings.h>
 #include <wolfssl/ssl.h>
 
 #include "certs.h"
 
+#if !defined(NO_WOLFSSL_CLIENT) && !defined(NO_WOLFSSL_SERVER)
 
 /* I/O buffer size - wolfSSL buffers messages internally as well. */
 #define BUFFER_SIZE           2048
@@ -478,3 +482,14 @@ int main(int argc, char* argv[])
     return (ret == 0) ? 0 : 1;
 }
 
+#else
+
+int main(int argc, char* argv[])
+{
+    (void)argc;
+    (void)argv;
+    printf("Must build wolfSSL with client and server enabled for this example\n");
+    return 0;
+}
+
+#endif
