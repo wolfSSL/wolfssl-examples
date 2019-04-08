@@ -25,7 +25,8 @@
 #include <wolfssl/wolfcrypt/settings.h>
 #include <wolfssl/ssl.h>
 
-#if !defined(SINGLE_THREADED) && !defined(NO_WOLFSSL_CLIENT)
+#if !defined(SINGLE_THREADED) && !defined(NO_WOLFSSL_CLIENT) && \
+    !defined(NO_WOLFSSL_SERVER)
 
 #include "threading.h"
 #include "certs.h"
@@ -492,7 +493,7 @@ int main(int argc, char* argv[])
 {
     (void)argc;
     (void)argv;
-    printf("Threading and TLS client required - compile wolfSSL without SINGLE_THREAED\n");
+    printf("Threading and TLS client and server required - compile wolfSSL without SINGLE_THREAED\n");
     return 0;
 }
 
