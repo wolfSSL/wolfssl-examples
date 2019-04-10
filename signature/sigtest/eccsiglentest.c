@@ -39,7 +39,7 @@
 //#define DEBUG_SIG_TEST
 
 #ifdef DEBUG_SIG_TEST
-void hexdump(const void *buffer, word32 len, byte cols)
+static void hexdump(const void *buffer, word32 len, byte cols)
 {
    word32 i;
 
@@ -60,7 +60,8 @@ void hexdump(const void *buffer, word32 len, byte cols)
 #ifdef HAVE_ECC
 int ecc_sign_verify_test(enum wc_HashType hash_type,
     enum wc_SignatureType sig_type, const byte* fileBuf, int fileLen,
-    byte* verifyFileBuf, int* verifyFileLen, int curveId, int keySz)
+    byte* verifyFileBuf, int* verifyFileLen, int* pmaxSigSz, int* pmaxCurveSigSz,
+    int curveId, int keySz)
 {
     int ret;
     ecc_key eccKey;
@@ -69,6 +70,7 @@ int ecc_sign_verify_test(enum wc_HashType hash_type,
     word32 sigLen;
     byte eccPubKeyBuf[ECC_BUFSIZE], eccPrivKeyBuf[ECC_BUFSIZE];
     word32 eccPubKeyLen, eccPrivKeyLen;
+    word32 maxCurveSigSz;
 
 #ifdef DEBUG_SIG_TEST
     printf("ECC Signature: Curve %s, Size %d\n", wc_ecc_get_name(curveId), keySz);
@@ -85,6 +87,13 @@ int ecc_sign_verify_test(enum wc_HashType hash_type,
         printf("ECC Make Key Failed! %d\n", ret);
         goto exit;
     }
+
+    ret = wc_ecc_sig_size(&eccKey);
+    if (ret < 0) {
+        printf("ECC Sig SizeFailed! %d\n", ret);
+        goto exit;
+    }
+    maxCurveSigSz = ret;
 
     /* Display public key data */
     eccPubKeyLen = ECC_BUFSIZE;
@@ -184,6 +193,18 @@ int ecc_sign_verify_test(enum wc_HashType hash_type,
 #endif
     if (ret < 0) {
         ret = EXIT_FAILURE;
+    }
+
+    if (pmaxSigSz && *pmaxSigSz < sigLen) {
+    #ifdef DEBUG_SIG_TEST
+        printf("Curve: Max %d->%d\n", *pmaxSigSz, sigLen);
+        hexdump(sigBuf, sigLen, 16);
+    #endif
+        *pmaxSigSz = sigLen;
+    }
+
+    if (pmaxCurveSigSz && *pmaxCurveSigSz < maxCurveSigSz) {
+        *pmaxCurveSigSz = maxCurveSigSz;
     }
 
 exit:
@@ -297,23 +318,25 @@ int main(int argc, char** argv)
     {
         int curveId;
         int sigSz = verifyFileLen;
-        for (curveId=ECC_SECP192R1; curveId<ECC_BRAINPOOLP512R1; curveId++) {
+    #if 1
+        for (curveId=ECC_SECP192R1; curveId<=ECC_BRAINPOOLP512R1; curveId++)
+    #else
+        curveId = ECC_SECP521R1;
+    #endif
+        {
             int keySz = wc_ecc_get_curve_size_from_id(curveId);
             if (keySz > 0) {
                 int maxSigSz = 0;
+                int maxCurveSigSz = 0;
                 int tries = ECC_LOOP_COUNT;
                 while (--tries > 0) {
                     ret = ecc_sign_verify_test(hash_type, sig_type, fileBuf, fileLen,
-                        verifyFileBuf, &sigSz, curveId, keySz);
-                    if (ret == 0) {
-                        if (maxSigSz < sigSz)
-                            maxSigSz = sigSz;
-                    }
+                        verifyFileBuf, &sigSz, &maxSigSz, &maxCurveSigSz, curveId, keySz);
                 }
 
                 /* print max */
-                printf("ECC Curve %s, KeySz %d, Sig: ActMax %d, CalcMax %d\n",
-                    wc_ecc_get_name(curveId), keySz, maxSigSz,
+                printf("ECC Curve %s, KeySz %d, Sig: CurveMax %d, ActMax %d, CalcMax %d\n",
+                    wc_ecc_get_name(curveId), keySz, maxCurveSigSz, maxSigSz,
                     wc_ecc_sig_size_calc(keySz));
             }
         }
