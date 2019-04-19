@@ -68,6 +68,8 @@ void* ClientHandler(void* args)
     const char*        reply = "I hear ya fa shizzle!\n";
 
 
+    printf("thread %d open for business\n", pkg->num);
+
     /* Create a WOLFSSL object */
     if ((ssl = wolfSSL_new(pkg->ctx)) == NULL) {
         fprintf(stderr, "ERROR: failed to create WOLFSSL object\n");
@@ -76,11 +78,15 @@ void* ClientHandler(void* args)
     }
 
     /* Attach wolfSSL to the socket */
+    printf("Handling thread %d on port %d\n", pkg->num, pkg->connd);
     wolfSSL_set_fd(ssl, pkg->connd);
 
     /* Establish TLS connection */
-    ret = wolfSSL_accept(ssl);
+    while (wolfSSL_want_read(ssl)) {
+        ret = wolfSSL_accept(ssl);
+    }
     if (ret != SSL_SUCCESS) {
+        printf("ret = %d\n", ret);
         fprintf(stderr, "wolfSSL_accept error = %d\n",
             wolfSSL_get_error(ssl, ret));
         pkg->open = 1;
@@ -92,14 +98,19 @@ void* ClientHandler(void* args)
 
     /* Read the client data into our buff array */
     memset(buff, 0, sizeof(buff));
-    if (wolfSSL_read(ssl, buff, sizeof(buff)-1) == -1) {
+    while (wolfSSL_want_read(ssl) || XSTRLEN(buff) == 0) {
+        ret = wolfSSL_read(ssl, buff, sizeof(buff)-1);
+    }
+    if (ret <= 0) {
+        fprintf(stderr, "ret = %d\n", ret);
         fprintf(stderr, "ERROR: failed to read\n");
         pkg->open = 1;
         pthread_exit(NULL);
     }
 
     /* Print to stdout any data the client sends */
-    printf("Client %d: %s\n", pkg->num, buff);
+    printf("Client %d said: %s <--------------------------------------------\n",
+            pkg->num, buff);
 
     /* Check for server shutdown command */
     if (strncmp(buff, "shutdown", 8) == 0) {
@@ -112,10 +123,15 @@ void* ClientHandler(void* args)
     /* Write our reply into buff */
     memset(buff, 0, sizeof(buff));
     memcpy(buff, reply, strlen(reply));
-    len = strnlen(buff, sizeof(buff));
+    len = XSTRLEN(reply);
 
     /* Reply back to the client */
-    if (wolfSSL_write(ssl, buff, len) != len) {
+    while (wolfSSL_want_write(ssl) || ret < len) {
+        ret = wolfSSL_write(ssl, buff, len);
+    }
+    if (ret < len) {
+        fprintf(stderr, "Wrote %d bytes but expected to write %d bytes\n",
+                ret, (int) len);
         fprintf(stderr, "ERROR: failed to write\n");
         pkg->open = 1;
         pthread_exit(NULL);
@@ -152,7 +168,7 @@ int main()
 
     /* Initialize wolfSSL */
     wolfSSL_Init();
-
+    wolfSSL_Debugging_ON();
 
 
     /* Create a socket that uses an internet IPv4 address,
@@ -221,6 +237,7 @@ int main()
 
     /* initialise thread array */
     for (i = 0; i < MAX_CONCURRENT_THREADS; ++i) {
+        printf("Creating %d thread\n", i);
         thread[i].open = 1;
         thread[i].num = i;
         thread[i].ctx = ctx;
