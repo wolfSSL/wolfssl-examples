@@ -1,6 +1,6 @@
 /* aes-file-encrypt.c
  *
- * Copyright (C) 2006-2015 wolfSSL Inc.
+ * Copyright (C) 2006-2019 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -31,7 +31,7 @@
 #define SALT_SIZE 8
 
 /*
- * Makes a cyptographically secure key by stretching a user entered key
+ * Makes a cryptographically secure key by stretching a user entered key
  */
 int GenerateKey(RNG* rng, byte* key, int size, byte* salt, int pad)
 {
@@ -90,14 +90,14 @@ int AesEncrypt(Aes* aes, byte* key, int size, FILE* inFile, FILE* outFile)
         return -1030;
     }
 
-    /* reads from inFile and wrties whatever is there to the input array */
+    /* reads from inFile and writes whatever is there to the input array */
     ret = fread(input, 1, inputLength, inFile);
     if (ret == 0) {
         printf("Input file does not exist.\n");
         return -1010;
     }
     for (i = inputLength; i < length; i++) {
-        /* padds the added characters with the number of pads */
+        /* pads the added characters with the number of pads */
         input[i] = padCounter;
     }
 
@@ -115,7 +115,7 @@ int AesEncrypt(Aes* aes, byte* key, int size, FILE* inFile, FILE* outFile)
     if (ret != 0)
         return -1001;
 
-    /* encrypts the message to the ouput based on input length + padding */
+    /* encrypts the message to the output based on input length + padding */
     ret = wc_AesCbcEncrypt(aes, output, input, length);
     if (ret != 0)
         return -1005;
@@ -140,7 +140,7 @@ int AesEncrypt(Aes* aes, byte* key, int size, FILE* inFile, FILE* outFile)
 }
 
 /*
- * Decryptsr a file using AES
+ * Decrypts a file using AES
  */
 int AesDecrypt(Aes* aes, byte* key, int size, FILE* inFile, FILE* outFile)
 {
@@ -165,7 +165,7 @@ int AesDecrypt(Aes* aes, byte* key, int size, FILE* inFile, FILE* outFile)
 
     wc_InitRng(&rng);
 
-    /* reads from inFile and wrties whatever is there to the input array */
+    /* reads from inFile and writes whatever is there to the input array */
     ret = fread(input, 1, length, inFile);
     if (ret == 0) {
         printf("Input file does not exist.\n");
@@ -236,7 +236,7 @@ void help()
 }
 
 /*
- * temporarily deisables echoing in terminal for secure key input
+ * temporarily disables echoing in terminal for secure key input
  */
 int NoEcho(char* key, int size)
 {
@@ -283,7 +283,7 @@ int main(int argc, char** argv)
     Aes    aes;
     byte*  key;       /* user entered key */
     FILE*  inFile;
-    FILE*  outFile;
+    FILE*  outFile = NULL;
 
     const char* in;
     const char* out;
