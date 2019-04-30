@@ -82,9 +82,10 @@ void* ClientHandler(void* args)
     wolfSSL_set_fd(ssl, pkg->connd);
 
     /* Establish TLS connection */
-    while (wolfSSL_want_read(ssl)) {
+    do {
         ret = wolfSSL_accept(ssl);
-    }
+    } while(wolfSSL_want_read(ssl));
+
     if (ret != SSL_SUCCESS) {
         printf("ret = %d\n", ret);
         fprintf(stderr, "wolfSSL_accept error = %d\n",
@@ -96,37 +97,37 @@ void* ClientHandler(void* args)
     printf("Client %d connected successfully\n", pkg->num);
 
     /* Read the client data into our buff array */
-    memset(buff, 0, sizeof(buff));
-    while (wolfSSL_want_read(ssl) || XSTRLEN(buff) == 0) {
+    XMEMSET(buff, 0, sizeof(buff));
+    do {
         ret = wolfSSL_read(ssl, buff, sizeof(buff)-1);
         /* TODO: Currently this thread can get stuck infinitely if client
          *       disconnects, add timer to abort on a timeout eventually,
          *       just an example for now so allow for possible stuck condition
          */
-    }
+    } while(wolfSSL_want_read(ssl) || XSTRLEN(buff) == 0);
 
     /* Print to stdout any data the client sends */
     printf("Client %d said: %s\n", pkg->num, buff);
 
     /* Check for server shutdown command */
-    if (strncmp(buff, "shutdown", 8) == 0) {
+    if (XSTRNCMP(buff, "shutdown", 8) == 0) {
         printf("Shutdown command issued!\n");
         *pkg->shutdown = 1;
     }
 
     /* Write our reply into buff */
-    memset(buff, 0, sizeof(buff));
-    memcpy(buff, reply, strlen(reply));
+    XMEMSET(buff, 0, sizeof(buff));
     len = XSTRLEN(reply);
+    XMEMCPY(buff, reply, len);
 
     /* Reply back to the client */
-    while (wolfSSL_want_write(ssl) || ret < len) {
+    do {
         ret = wolfSSL_write(ssl, buff, len);
         /* TODO: Currently this thread can get stuck infinitely if client
          *       disconnects, add timer to abort on a timeout eventually,
          *       just an example for now so allow for possible stuck condition
          */
-    }
+    } while (wolfSSL_want_write(ssl) || ret < len);
 
     /* Cleanup after this connection */
     wolfSSL_free(ssl);      /* Free the wolfSSL object              */
