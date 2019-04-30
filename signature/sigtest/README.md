@@ -25,7 +25,7 @@ Signatures match!
 ```
 
 ```
-./openssltest
+./opensigtest
 
 ...
 CRYPTO: signature verify OK! 1
