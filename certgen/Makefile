@@ -1,4 +1,4 @@
-CC=gcc -fsanitize=address
+CC=gcc
 #if you installed wolfssl to an alternate location use CFLAGS and LIBS to
 #control your build:
 #CFLAGS=-Wall -I/path/to/include
