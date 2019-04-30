@@ -279,7 +279,7 @@ int main(int argc, char** argv)
 {
     Camellia   cam;
     byte*  key;       /* user entered key */
-    FILE*  inFile;
+    FILE*  inFile = NULL;
     FILE*  outFile = NULL;
 
     const char* in;

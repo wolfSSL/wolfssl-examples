@@ -326,6 +326,7 @@ int main(int argc, char** argv)
 
         /* echo until shutdown received */
         while (cleanup == 0 && ret == 0) {
+            buffLen = 0;
             ret = wolfSSL_read(ssl, buff, sizeof(buff)-1);
             if (ret > 0) {
                 printf("heard %d bytes\n", ret);
