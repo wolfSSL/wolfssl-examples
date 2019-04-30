@@ -172,7 +172,7 @@ int main()
 
     /* Initialize wolfSSL */
     wolfSSL_Init();
-//    wolfSSL_Debugging_ON();
+    wolfSSL_Debugging_ON();
 
 
     /* Create a socket that uses an internet IPv4 address,
