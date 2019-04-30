@@ -104,10 +104,19 @@ void* ClientHandler(void* args)
          *       disconnects, add timer to abort on a timeout eventually,
          *       just an example for now so allow for possible stuck condition
          */
-    } while(wolfSSL_want_read(ssl) || XSTRLEN(buff) == 0);
+    } while(wolfSSL_want_read(ssl));
 
-    /* Print to stdout any data the client sends */
-    printf("Client %d said: %s\n", pkg->num, buff);
+    if (ret > 0) {
+        /* Print to stdout any data the client sends */
+        printf("Client %d said: %s\n", pkg->num, buff);
+    } else {
+        printf("wolfSSL_read encountered an error with code %d and msg %s\n",
+               ret, wolfSSL_ERR_error_string(ret, buff));
+        wolfSSL_free(ssl);      /* Free the wolfSSL object              */
+        close(pkg->connd);      /* Close the connection to the server   */
+        pkg->open = 1;          /* Indicate that execution is over      */
+        pthread_exit(NULL);     /* End theread execution                */
+    }
 
     /* Check for server shutdown command */
     if (XSTRNCMP(buff, "shutdown", 8) == 0) {
@@ -127,7 +136,12 @@ void* ClientHandler(void* args)
          *       disconnects, add timer to abort on a timeout eventually,
          *       just an example for now so allow for possible stuck condition
          */
-    } while (wolfSSL_want_write(ssl) || ret < len);
+    } while (wolfSSL_want_write(ssl));
+
+    if (ret != len) {
+        printf("wolfSSL_write encountered an error with code %d and msg %s\n",
+               ret, wolfSSL_ERR_error_string(ret, buff));
+    }
 
     /* Cleanup after this connection */
     wolfSSL_free(ssl);      /* Free the wolfSSL object              */
@@ -158,7 +172,7 @@ int main()
 
     /* Initialize wolfSSL */
     wolfSSL_Init();
-    wolfSSL_Debugging_ON();
+//    wolfSSL_Debugging_ON();
 
 
     /* Create a socket that uses an internet IPv4 address,
