@@ -11,7 +11,8 @@ int main(void)
     !defined(WOLFSSL_CERT_GEN)
   printf("The csr_w_ed25519_example will not work unless wolfSSL is\n"
          "configured with the following settings:\n"
-         "--enable-ed25519 --enable-certreq --enable-certgen\n");
+         "--enable-ed25519 --enable-certreq --enable-certgen --enable-keygen"
+         "\n");
   return 0;
 #else
     int ret;
@@ -20,6 +21,9 @@ int main(void)
     Cert req;
     byte der[MAX_TEMP_SIZE], pem[MAX_TEMP_SIZE];
     int  derSz, pemSz;
+
+    XMEMSET(&rng, 0, sizeof(rng));
+    XMEMSET(&key, 0, sizeof(key));
 
     ret = wc_ed25519_init(&key);
     if (ret != 0) {
