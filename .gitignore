@@ -99,10 +99,10 @@ crypto/camellia/camellia-encrypt
 signature/signature
 
 #cergen
-certgen/test.o
 certgen/newCert*
-certgen/run_certgen_example
-
+certgen/certgen_example
+certgen/csr_example
+certgen/csr_w_ed25519_example
 
 btle/ecc-client
 btle/ecc-server

@@ -1,10 +1,22 @@
 # Certificate Generation and Signing examples
 
-To build this example configure wolfssl with `./configure --enable-certgen --enable-certreq` or add the defines:
+To test the certgen or csr_example example(s) configure wolfssl with
+`./configure --enable-certgen --enable-certreq` or add the defines:
 
 ```
 #define WOLFSSL_CERT_REQ
 #define WOLFSSL_CERT_GEN
+```
+
+To test the csr_w_ed25519_example configure wolfssl with:
+`./configure --enable-certgen --enable-certreq --enable-ed25519 --enable-keygen`
+or add the defines:
+
+```
+#define WOLFSSL_CERT_REQ
+#define WOLFSSL_CERT_GEN
+#define HAVE_ED25519
+#define WOLFSSL_KEY_GEN
 ```
 
 To build use `make`. To cleanup use `make clean`.
