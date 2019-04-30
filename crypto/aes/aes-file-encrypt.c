@@ -46,7 +46,7 @@ int GenerateKey(RNG* rng, byte* key, int size, byte* salt, int pad)
 
     /* stretches key */
     ret = wc_PBKDF2(key, key, strlen((const char*)key), salt, SALT_SIZE, 4096,
-    	size, SHA256);
+    	size, WC_SHA256);
     if (ret != 0)
         return -1030;
 
@@ -182,7 +182,7 @@ int AesDecrypt(Aes* aes, byte* key, int size, FILE* inFile, FILE* outFile)
 
     /* replicates old key if keys match */
     ret = wc_PBKDF2(key, key, strlen((const char*)key), salt, SALT_SIZE, 4096,
-    	size, SHA256);
+    	size, WC_SHA256);
     if (ret != 0)
         return -1050;
 
