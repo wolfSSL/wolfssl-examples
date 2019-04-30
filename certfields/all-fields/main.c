@@ -66,7 +66,7 @@ int main(void)
     /* ------ PARSE ORIGINAL SELF-SIGNED CERTIFICATE ------ */
 
     /* open and read DER-formatted cert into buffer */
-    file = fopen("../certs/client-cert.der", "rb");
+    file = fopen("../../certs/client-cert.der", "rb");
     if (!file)
         err_sys("can't open client certificate", 0);
 
@@ -134,6 +134,7 @@ int main(void)
 
     wolfSSL_EVP_PKEY_free(pubKeyTmp);
     wolfSSL_X509_free(cert);
+    wc_FreeRsaKey(&pubKey);
 
     return 0;
 }
