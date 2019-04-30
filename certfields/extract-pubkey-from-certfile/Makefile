@@ -1,7 +1,6 @@
 CC=gcc
 
-#WOLFPATH=/usr/local
-WOLFPATH=/Users/kalebhimes/work/testDir/wolf-install-dir-for-testing
+WOLFPATH=/usr/local
 CFLAGS= -I$(WOLFPATH)/include -Wall
 LIBS= -L$(WOLFPATH)/lib -lwolfssl
 
