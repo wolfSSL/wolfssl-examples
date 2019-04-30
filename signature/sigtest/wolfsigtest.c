@@ -13,9 +13,7 @@
 #include "wolfssl/wolfcrypt/rsa.h"      // For RSA functions
 
 /* wolfSSL must be build with WOLFSSL_CERT_EXT defined */
-#ifndef WOLFSSL_CERT_EXT
-    #error wolfSSL must be build with WOLFSSL_CERT_EXT enable ./configure --enable-certgen --enable-certext
-#endif
+#ifdef WOLFSSL_CERT_EXT
 
 /* this is from ./certs/ca-key.pem */
 const char* pubPemKey  = "-----BEGIN PUBLIC KEY-----\n"
@@ -217,3 +215,15 @@ exit:
    wc_FreeRng(&rng);
    return 0;
 }
+
+#else
+
+int main(int argc, char** argv)
+{
+    (void)argc;
+    (void)argv;
+    printf("Error wolfSSL must be build with WOLFSSL_CERT_EXT enable ./configure --enable-certgen --enable-certext\n");
+    return 0;
+}
+
+#endif /* WOLFSSL_CERT_EXT */

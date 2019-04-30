@@ -99,6 +99,7 @@ btle/ecc-server
 
 signature/sigtest/wolfsigtest
 signature/sigtest/opensigtest
+signature/sigtest/eccsiglentest
 signature/firmware_sign/eccsign
 signature/rsa_buffer/sign
 signature/rsa_buffer/verify
