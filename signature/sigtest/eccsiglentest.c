@@ -37,8 +37,9 @@
 
 /* optional debugging */
 //#define DEBUG_SIG_TEST
+//#define DEBUG_SIG_TEST_MAX
 
-#ifdef DEBUG_SIG_TEST
+#if defined(DEBUG_SIG_TEST) || defined(DEBUG_SIG_TEST_MAX)
 static void hexdump(const void *buffer, word32 len, byte cols)
 {
    word32 i;
@@ -196,7 +197,7 @@ int ecc_sign_verify_test(enum wc_HashType hash_type,
     }
 
     if (pmaxSigSz && *pmaxSigSz < sigLen) {
-    #ifdef DEBUG_SIG_TEST
+    #ifdef DEBUG_SIG_TEST_MAX
         printf("Curve: Max %d->%d\n", *pmaxSigSz, sigLen);
         hexdump(sigBuf, sigLen, 16);
     #endif
