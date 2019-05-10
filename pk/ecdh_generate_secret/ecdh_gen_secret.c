@@ -8,7 +8,6 @@
 
 #define ECC_256_BIT_FIELD 32 // 256-bit curve field
 
-void Free_Exit(ecc_key* A, ecc_key* B, WC_RNG* R, int err);
 void print_secret(char* who, byte* s, int sLen);
 void Usage(int* curveChoice);
 int do_ecc(void);
