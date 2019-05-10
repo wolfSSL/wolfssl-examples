@@ -169,19 +169,19 @@ void Usage(int* curveChoice)
     char input[10];
 
     printf("Optional, specify a curve:\n");
-    printf("1) ECC SECP256-R1\n"
+    printf("1) ECC SECP256R1\n"
            "2) Curve25519\n\n"
            "Contact support@wolfssl.com if you'd like to see other options\n\n"
            "Example usage:\n"
            "./ecdh_gen_secret 1\n"
            "./ecdh_gen_secret 2\n\n"
-           "Selecting no (n) will default to option 1, SECP256-R1\n"
+           "Selecting no (n) will default to option 1, SECP256R1\n"
            "Would you like to select a curve now? (y/n) > "
           );
     answer = getchar();
 
     if (answer == 'y') {
-        printf("\nEnter and option from the above curve list > ");
+        printf("\nEnter an option from the above curve list > ");
         scanf("%s", input);
         printf("You entered: %s\n", input);
         sscanf(input, "%d", curveChoice);
