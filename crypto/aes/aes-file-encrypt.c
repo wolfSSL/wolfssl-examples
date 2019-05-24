@@ -282,7 +282,7 @@ int main(int argc, char** argv)
 {
     Aes    aes;
     byte*  key;       /* user entered key */
-    FILE*  inFile;
+    FILE*  inFile = NULL;
     FILE*  outFile = NULL;
 
     const char* in;
@@ -333,7 +333,7 @@ int main(int argc, char** argv)
             printf("Must have both input and output file");
             printf(": -i filename -o filename\n");
     }
-    else if (ret == 0 && choice != 'n') {
+    else if (ret == 0 && choice != 'n' && inFile != NULL) {
         key = malloc(size);    /* sets size memory of key */
         ret = NoEcho((char*)key, size);
         if (choice == 'e')

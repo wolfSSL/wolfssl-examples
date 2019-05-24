@@ -268,11 +268,14 @@ exit:
 int main(int argc, char** argv)
 {
     int ret = 0;
-    int fileLen;
+    int fileLen = 0;
+    int verifyFileLen = 0;
+
     byte* fileBuf = NULL;
-    int verifyFileLen;
     byte* verifyFileBuf = NULL;
+
     const char* verify_file = NULL;
+
     enum wc_SignatureType sig_type = WC_SIGNATURE_TYPE_NONE;
     enum wc_HashType hash_type = WC_HASH_TYPE_NONE;
 
