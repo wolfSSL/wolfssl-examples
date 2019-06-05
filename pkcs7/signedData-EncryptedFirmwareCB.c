@@ -43,6 +43,7 @@ static byte altKey[] = {
 };
 
 #define OUTPUT_FILE "signedData_EncryptedFPD_callback.der"
+#define OUTPUT_FILE_AES128 "signedData_EncryptedFPD_AES128_callback.der"
 
 static int load_certs(byte* cert, word32* certSz, byte* key, word32* keySz)
 {
@@ -141,6 +142,7 @@ static int myCEKwrapFunc(PKCS7* pkcs7, byte* cek, word32 cekSz, byte* keyId,
 }
 
 
+/* callback function for wc_PKCS7_DeocdeEncryptedData */
 static int myDecryptionFunc(PKCS7* pkcs7, int encryptOID, byte* iv, int ivSz,
         byte* aad, word32 aadSz, byte* authTag, word32 authTagSz,
         byte* in, int inSz, byte* out, void* usrCtx)
@@ -412,16 +414,13 @@ static int getFirmwareKey(PKCS7* pkcs7, byte* key, word32 keySz)
     };
 
     /* find keyID in fwWrappedFirmwareKey */
-    printf("\tChecking for KEKRI firmware attribute ... ");
+    printf("\tChecking for fwWrappedFirmwareKey attribute ... ");
     ret = wc_PKCS7_GetAttributeValue(pkcs7, fwWrappedFirmwareKey,
             sizeof(fwWrappedFirmwareKey), NULL, &atrSz);
     if (ret == LENGTH_ONLY_E) {
         XMEMSET(atr, 0, sizeof(atr));
         ret = wc_PKCS7_GetAttributeValue(pkcs7, fwWrappedFirmwareKey,
                 sizeof(fwWrappedFirmwareKey), atr, &atrSz);
-
-        /* keyIdRaw[0] OCTET TAG */
-        /* keyIdRaw[1] Length */
 
         if (ret > 0) {
             PKCS7* envPkcs7;
@@ -437,8 +436,11 @@ static int getFirmwareKey(PKCS7* pkcs7, byte* key, word32 keySz)
             }
 
             wc_PKCS7_Init(envPkcs7, NULL, 0);
-            wc_PKCS7_SetWrapCEKCb(envPkcs7, myCEKwrapFunc);
-            envPkcs7->contentOID = FIRMWARE_PKG_DATA;
+            if (wc_PKCS7_SetWrapCEKCb(envPkcs7, myCEKwrapFunc) != 0) {
+                printf("\tIssue setting CEK wrap callback\n");
+                return ret;
+            }
+            envPkcs7->contentOID = FIRMWARE_PKG_DATA; /* expected content */
             ret = wc_PKCS7_DecodeEnvelopedData(envPkcs7, atr, ret,
                     key, keySz);
             wc_PKCS7_Free(envPkcs7);
@@ -448,7 +450,7 @@ static int getFirmwareKey(PKCS7* pkcs7, byte* key, word32 keySz)
         printf("not found\n");
     }
 
-    if (ret != 0) {
+    if (ret <= 0) {
         printf("\tError %d (%s) parsing fwWrappedFirmwareKey enveloped data\n",
                 ret, wc_GetErrorString(ret));
     }
@@ -568,13 +570,13 @@ int main(int argc, char** argv)
     if (argc < 2) {
         printf("Doing default generation and verify\n");
         ret = generateBundle(derBuf, &derSz, defKey, sizeof(defKey), 0,
-                "signedData_EncryptedFPD_callback.der");
+                OUTPUT_FILE);
         if (ret <= 0) {
             printf("unable to generate AES CBC bundle\n");
             return ret;
         }
 
-        printf("\nTrying to verify signedData_EncryptedFPD_callback.der\n");
+        printf("\nTrying to verify %s\n", OUTPUT_FILE);
         ret = verifyBundle(derBuf, derSz);
         if (ret != 0) {
             printf("\tUnable to verify bundle, error [%d]\n", ret);
@@ -583,8 +585,8 @@ int main(int argc, char** argv)
 
         derSz = 4096;
         ret = generateBundle(derBuf, &derSz, altKey, sizeof(altKey), 1,
-                "signedData_EncryptedFPD_AES128_callback.der");
-        printf("\nTrying to verify signedData_EncryptedFPD_AES128_callback.der\n");
+                OUTPUT_FILE_AES128);
+        printf("\nTrying to verify %s\n", OUTPUT_FILE_AES128);
         if (ret <= 0) {
             printf("\tunable to generate AES GCM bundle\n");
             return ret;
