@@ -187,7 +187,7 @@ int main(int argc, char** argv)
     byte key[2048];
     byte encrypted[1024];
     byte decrypted[1024];
-    
+
 #ifdef DEBUG_WOLFSSL
     wolfSSL_Debugging_ON();
 #endif
@@ -229,7 +229,8 @@ int main(int argc, char** argv)
 
 int main(int argc, char** argv)
 {
-    printf("Must build wolfSSL using ./configure --enable-pkcs7\n");
+    printf("Must build wolfSSL using ./configure --enable-pkcs7 "
+           "--enable-pwdbased\n");
     return 0;
 }
 
