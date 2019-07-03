@@ -16,14 +16,14 @@ This directory contains example uTasker client and server tasks  that
 demonstrate using wolfSSL with the uTasker stack. These have been tested on
 the uTasker Simulator.
 
-Please see the README.md in utasker/ for further usage and details.
+Please see the [utasker/README.md](utasker/README.md) for further usage and details.
 
 #### android (Android NDK Examples)
 
 This directory contains examples that demonstrate using wolfSSL and wolfSSLJNI
 on the Android platform, using the Android NDK toolchain.
 
-Please see the README.md in android/ for further usage and details.
+Please see the [android/README.md](android/README.md) for further usage and details.
 
 #### certfields (X509 field extraction)
 
@@ -31,14 +31,14 @@ This directory contains an example that demonstrate using the wolfSSL
 to read a DER encoded certificate and extract the public key and
 subject name information.
 
-Please see the README.md in certfields/ for further usage and details.
+Please see the [certfields/README.md](certfields/README.md) for further usage and details.
 
 #### certmanager (wolfSSL CertManager)
 
 This directory contains examples that demonstrate using the wolfSSL
 CertManager (Certificate Manager) functionality.
 
-Please see the README.md in certmanager/ for further usage and details.
+Please see the [certmanager/README.md](certmanager/README.md) for further usage and details.
 
 #### wolfCLU (wolfSSL Command Line Utility)
 
@@ -46,7 +46,7 @@ This is a tool to provide command line access to wolfcrypt cryptographic
 libraries. wolfSSL command line utility will allow users to encrypt or decrypt
 a user specified file to any file name and extension.
 
-Please see the README.md in clu/ for further usage and details.
+Please see the [clu/README.md](clu/README.md) for further usage and details.
 
 ###### Unique feature to wolfSSL CLU
 The decision to allow for unique file extensions was prompted by automated
