@@ -30,7 +30,7 @@
 #define encodedFileNoAttrs "signedData_cryptodev_noattrs.der"
 #define encodedFileAttrs   "signedData_cryptodev_attrs.der"
 
-#if defined(HAVE_PKCS7) && defined(WOLF_CRYPTO_DEV)
+#if defined(HAVE_PKCS7) && defined(WOLF_CRYPTO_CB)
 
 static const byte data[] = { /* Hello World */
     0x48,0x65,0x6c,0x6c,0x6f,0x20,0x57,0x6f,
@@ -439,7 +439,7 @@ int main(int argc, char** argv)
     byte key[2048];
     byte encrypted[2048];
     byte decrypted[2048];
-    
+
 #ifdef DEBUG_WOLFSSL
     wolfSSL_Debugging_ON();
 #endif
@@ -502,7 +502,7 @@ int main(int argc, char** argv)
 
 int main(int argc, char** argv)
 {
-    printf("Must build wolfSSL using ./configure --enable-pkcs7 --enable-cryptodev\n");
+    printf("Must build wolfSSL using ./configure --enable-pkcs7 --enable-cryptocb\n");
     return 0;
 }
 

@@ -16,6 +16,15 @@ $ make
 $ sudo make install
 ```
 
+Note, some examples require "--with-libz" and "--enable-pwdbased". To build
+wolfSSL with support for all examples, use:
+
+```
+$ ./configure --enable-pkcs7 --enable-pwdbased --with-libz
+$ make
+$ sudo make install
+```
+
 ### Build Examples
 
 Running `make` will try to compile all C source files into their own

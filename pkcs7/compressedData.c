@@ -154,7 +154,7 @@ int main(int argc, char** argv)
 
 int main(int argc, char** argv)
 {
-    printf("Must build wolfSSL using ./configure --enable-pkcs7\n");
+    printf("Must build wolfSSL using ./configure --enable-pkcs7 --with-libz\n");
     return 0;
 }
 
