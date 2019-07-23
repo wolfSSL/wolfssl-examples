@@ -36,8 +36,6 @@
 enum {
     EC_KEY_TYPE = 0,
     RSA_KEY_TYPE = 1,
-    MAX_EC_KEY_SZ = 1024,
-    MAX_RSA_KEY_SZ = 4096
 };
 
 void usage(void);
