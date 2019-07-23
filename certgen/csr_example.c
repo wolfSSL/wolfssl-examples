@@ -28,51 +28,85 @@
 #include <wolfssl/options.h>
 #include <wolfssl/wolfcrypt/settings.h>
 #include <wolfssl/wolfcrypt/ecc.h>
+#include <wolfssl/wolfcrypt/rsa.h>
 #include <wolfssl/wolfcrypt/asn_public.h>
 
-#define MAX_TEMP_SIZE 1024
+#define LARGE_TEMP_SZ 4096
 
-int main(void)
+enum {
+    EC_KEY_TYPE = 0,
+    RSA_KEY_TYPE = 1,
+    MAX_EC_KEY_SZ = 1024,
+    MAX_RSA_KEY_SZ = 4096
+};
+
+void usage(void);
+int gen_csr(int type);
+
+int gen_csr(int type)
 {
-#if !defined(WOLFSSL_CERT_REQ) || !defined(WOLFSSL_CERT_GEN)
+#if !defined(WOLFSSL_CERT_REQ) || !defined(WOLFSSL_CERT_GEN) && \
+    !defined(WOLFSSL_KEY_GEN)
   printf("ERROR: Please compile wolfSSL with --enable-certreq"
-         " --enable-certgen\n");
+         " --enable-certgen --enable-keygen\n");
   return 0;
 #else
     int ret;
-    ecc_key key;
+    ecc_key ecKey;
+    RsaKey rsaKey;
     WC_RNG rng;
     Cert req;
-    byte der[MAX_TEMP_SIZE], pem[MAX_TEMP_SIZE];
+    byte der[LARGE_TEMP_SZ], pem[LARGE_TEMP_SZ];
     int  derSz, pemSz;
 
-    ret = wc_ecc_init(&key);
+    XMEMSET(der, 0, LARGE_TEMP_SZ);
+    XMEMSET(pem, 0, LARGE_TEMP_SZ);
+
+    if (type == EC_KEY_TYPE) {
+        ret = wc_ecc_init(&ecKey);
+        (void) rsaKey; /* Not using rsaKey in EC_KEY_TYPE case */
+    } else {
+        ret = wc_InitRsaKey(&rsaKey, NULL);
+        (void) ecKey; /* Not using ecKey in RSA_KEY_TYPE case */
+    }
     if (ret != 0) {
-        printf("ECC init key failed: %d\n", ret);
+        printf("Key initialization failed: %d\n", ret);
         goto exit;
     }
 
     ret = wc_InitRng(&rng);
     if (ret != 0) {
-        printf("Init rng failed: %d\n", ret);
+        printf("RNG initialization failed: %d\n", ret);
         goto exit;
     }
 
-    ret = wc_ecc_make_key_ex(&rng, 32, &key, ECC_SECP256R1);
+    if (type == EC_KEY_TYPE) {
+        ret = wc_ecc_make_key_ex(&rng, 32, &ecKey, ECC_SECP256R1);
+    } else {
+        ret = wc_MakeRsaKey(&rsaKey, 2048, WC_RSA_EXPONENT, &rng);
+    }
     if (ret != 0) {
-        printf("ECC make key failed: %d\n", ret);
+        printf("Key generation failed: %d\n", ret);
         goto exit;
     }
 
-    ret = wc_EccKeyToDer(&key, der, sizeof(der));
+    if (type == EC_KEY_TYPE) {
+        ret = wc_EccKeyToDer(&ecKey, der, sizeof(der));
+    } else {
+        ret = wc_RsaKeyToDer(&rsaKey, der, sizeof(der));
+    }
     if (ret <= 0) {
-        printf("ECC Key To DER failed: %d\n", ret);
+        printf("Key To DER failed: %d\n", ret);
         goto exit;
     }
     derSz = ret;
 
     memset(pem, 0, sizeof(pem));
-    ret = wc_DerToPem(der, derSz, pem, sizeof(pem), ECC_PRIVATEKEY_TYPE);
+    if (type == EC_KEY_TYPE) {
+        ret = wc_DerToPem(der, derSz, pem, sizeof(pem), ECC_PRIVATEKEY_TYPE);
+    } else {
+        ret = wc_DerToPem(der, derSz, pem, sizeof(pem), PRIVATEKEY_TYPE);
+    }
     if (ret <= 0) {
         printf("DER to PEM failed: %d\n", ret);
         goto exit;
@@ -92,15 +126,26 @@ int main(void)
     strncpy(req.subject.unit, "Development", CTC_NAME_SIZE);
     strncpy(req.subject.commonName, "www.wolfssl.com", CTC_NAME_SIZE);
     strncpy(req.subject.email, "info@wolfssl.com", CTC_NAME_SIZE);
-    ret = wc_MakeCertReq(&req, der, sizeof(der), NULL, &key);
+    if (type == EC_KEY_TYPE) {
+        ret = wc_MakeCertReq(&req, der, sizeof(der), NULL, &ecKey);
+    } else {
+        ret = wc_MakeCertReq(&req, der, sizeof(der), &rsaKey, NULL);
+    }
     if (ret <= 0) {
         printf("Make Cert Req failed: %d\n", ret);
         goto exit;
     }
     derSz = ret;
 
-    req.sigType = CTC_SHA256wECDSA;
-    ret = wc_SignCert(req.bodySz, req.sigType, der, sizeof(der), NULL, &key, &rng);
+    if (type == EC_KEY_TYPE) {
+        req.sigType = CTC_SHA256wECDSA;
+        ret = wc_SignCert(req.bodySz, req.sigType, der, sizeof(der), NULL,
+                          &ecKey, &rng);
+    } else {
+        req.sigType = CTC_SHA256wRSA;
+        ret = wc_SignCert(req.bodySz, req.sigType, der, sizeof(der), &rsaKey,
+                          NULL, &rng);
+    }
     if (ret <= 0) {
         printf("Sign Cert failed: %d\n", ret);
         goto exit;
@@ -116,9 +161,38 @@ int main(void)
     printf("%s (%d)", pem, pemSz);
 
 exit:
-    wc_ecc_free(&key);
+    if (type == EC_KEY_TYPE) {
+        wc_ecc_free(&ecKey);
+    } else {
+        wc_FreeRsaKey(&rsaKey);
+    }
     wc_FreeRng(&rng);
 
     return ret;
 #endif
+}
+
+int main(int argc, char** argv)
+{
+    if (argc != 2) {
+        usage();
+        return 1;
+    }
+
+    if (XSTRNCMP(argv[1], "rsa", 3) == 0)
+        return gen_csr(RSA_KEY_TYPE);
+    else if (XSTRNCMP(argv[1], "ecc", 3) == 0)
+        return gen_csr(EC_KEY_TYPE);
+    else
+        usage();
+
+    return -1;
+}
+
+void usage(void)
+{
+    printf("Invalid input supplied try one of the below examples\n");
+    printf("Examples:\n\n");
+    printf("./csr_example rsa\n");
+    printf("./csr_example ecc\n");
 }
