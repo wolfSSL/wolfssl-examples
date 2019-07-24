@@ -120,6 +120,7 @@ signature/ecc-sign-verify/ecc_sign_verify
 
 ecc/ecc-key-decode
 ecc/ecc-key-export
+ecc/ecc-params
 ecc/ecc-sign
 ecc/ecc-stack
 ecc/ecc-verify
