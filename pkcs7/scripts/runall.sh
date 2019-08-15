@@ -42,6 +42,7 @@ fileArray=(
     "signedData-CompressedFirmwarePkgData"
     "signedData-EncryptedCompressedFirmwarePkgData"
     "signedData-EncryptedFirmwarePkgData"
+    "signedData-EncryptedFirmwareCB"
     "signedData-FirmwarePkgData"
     "signedData-DetachedSignature"
     "signedData-cryptodev"

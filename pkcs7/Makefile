@@ -38,6 +38,8 @@ clean:
 	rm -f $(TARGETS) signedData_attrs.der signedData_noattrs.der \
         signedFirmwarePkgData.der signedFirmwarePkgData_attrs.der \
         signedFirmwarePkgData_noattrs.der \
+        signedData_EncryptedFPD_callback.der \
+        signedData_EncryptedFPD_AES128_callback.der \
         signedEncryptedFPD_attrs.der signedEncryptedFPD_noattrs.der \
         signedCompressedFPD_attrs.der signedCompressedFPD_noattrs.der \
         signedEncryptedCompressedFPD_attrs.der signedEncryptedCompressedFPD_noattrs.der \
