@@ -425,7 +425,7 @@ int main(int argc, char** argv)
     if (argc < 2) {
         printf("Usage: signature <filename> <sig> <hash> <verifyfile> \n");
         printf("  <sig>: 1=ECC, 2=RSA, 3=RSA (w/DER Encoding): default %d\n", sig_type);
-        printf("  <hash>: 1=MD2, 2=MD4, 3=MD5, 4=SHA, 5=SHA256, 6=SHA384, 7=SHA512, 8=MD5+SHA: default %d\n", hash_type);
+        printf("  <hash>: 1=MD2, 2=MD4, 3=MD5, 4=SHA, 5=SHA224, 6=SHA256, 7=SHA384, 8=SHA512, 9=MD5+SHA: default %d\n", hash_type);
         printf("  <verifyfile>: optional sig verify binary file\n");
         return 1;
     }
