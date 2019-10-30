@@ -43,7 +43,10 @@ int ClientGreet(int sock, WOLFSSL* ssl)
     int     ret = 0;                /* variable for error checking */
 
     printf("Message for server:\t");
-    fgets(sendBuff, MAXDATASIZE, stdin);
+    if (fgets(sendBuff, MAXDATASIZE, stdin) == NULL) {
+        printf("Input error: No message for server");
+        return EXIT_FAILURE;
+    }
 
     if (wolfSSL_write(ssl, sendBuff, strlen(sendBuff)) != strlen(sendBuff)) {
         /* the message is not able to send, or error trying */
