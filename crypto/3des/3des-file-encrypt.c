@@ -250,18 +250,21 @@ int NoEcho(char* key, int size)
     nflags.c_lflag |= ECHONL;
 
     if (tcsetattr(fileno(stdin), TCSANOW, &nflags) != 0) {
-        printf("Error\n");
+        printf("Error: tcsetattr failed to disable terminal echo\n");
         return -1060;
     }
 
     printf("Unique Password: ");
-    fgets(key, size, stdin);
+    if (fgets(key, size, stdin) == NULL) {
+        printf("Error: fgets failed to retrieve secure key input\n");
+        return -1070;
+    }
     key[strlen(key) - 1] = 0;
 
     /* restore terminal */
     if (tcsetattr(fileno(stdin), TCSANOW, &oflags) != 0) {
-        printf("Error\n");
-        return -1070;
+        printf("Error: tcsetattr failed to enable terminal echo\n");
+        return -1080;
     }
     return 0;
 }
