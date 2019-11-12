@@ -714,7 +714,7 @@ int wolfCLU_checkForArg(char* searchTerm, int length, int argc, char** argv)
            return 1;
 
         } else if (XSTRNCMP(argv[i], searchTerm, length) == 0 &&
-                   XSTRNCMP(argv[i], searchTerm, XSTRLEN(argv[i])) == 0) {
+                   XSTRLEN(argv[i]) == length) {
 
             ret = i;
             if (argFound == 1) {

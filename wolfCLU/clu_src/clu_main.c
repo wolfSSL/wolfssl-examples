@@ -168,22 +168,22 @@ int main(int argc, char** argv)
     case GEN_KEY:
         ret = wolfCLU_genKeySetup(argc, argv);
         break;
-    
+
     case RSA:
         ret = wolfCLU_sign_verify_setup(argc, argv);
         break;
-    
+
     case ECC:
         ret = wolfCLU_sign_verify_setup(argc, argv);
         break;
-    
+
     case ED25519:
         ret = wolfCLU_sign_verify_setup(argc, argv);
         break;
-    
+
     }
-    
-    if (ret <= 0)
+
+    if (ret < 0)
         printf("Error returned: %d.\n", ret);
 
     return ret;
