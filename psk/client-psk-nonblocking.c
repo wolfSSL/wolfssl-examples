@@ -34,6 +34,7 @@
 
 #define     MAXLINE 256      /* max text line length */
 #define     SERV_PORT 11111  /* default port*/
+#define     PSK_KEY_LEN 4
 
 /*
  * enum used for tcp_select function
@@ -66,12 +67,12 @@ static inline unsigned int My_Psk_Client_Cb(WOLFSSL* ssl, const char* hint,
     key[2] = 60;
     key[3] = 77;
 
-    return 4;
+    return PSK_KEY_LEN;
 }
 
 int main(int argc, char **argv)
 {
-    int sockfd, ret, error, select_ret = 0, currTimeout;
+    int sockfd, ret, error, select_ret, currTimeout;
     int nfds;
     int result;
     char sendline[MAXLINE]="Hello Server"; /* string to send to the server */
@@ -88,15 +89,6 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    wolfSSL_Init();  /* initialize wolfSSL */
-
-
-    /* create and initialize WOLFSSL_CTX structure */
-    if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method())) == NULL) {
-        fprintf(stderr, "SSL_CTX_new error.\n");
-        return 1;
-    }
-
     /* create a stream socket using tcp,internet protocal IPv4,
      * full-duplex stream */
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -109,34 +101,17 @@ int main(int argc, char **argv)
 
     /* converts IPv4 addresses from text to binary form */
     ret = inet_pton(AF_INET, argv[1], &servaddr.sin_addr);
-
     if (ret != 1) {
-	printf("inet_pton error\n");
+        printf("inet_pton error\n");
         return 1;
     }
-
-    /* set up pre shared keys */
-    wolfSSL_CTX_set_psk_client_callback(ctx,My_Psk_Client_Cb);
 
     /* attempts to make a connection on a socket */
     ret = connect(sockfd, (struct sockaddr *) &servaddr, sizeof(servaddr));
-
     if (ret != 0) {
-	printf("Connection Error\n");
+        printf("Connection Error\n");
         return 1;
     }
-
-    /* create wolfSSL object after each tcp connect */
-    if ((ssl = wolfSSL_new(ctx)) == NULL) {
-        fprintf(stderr, "wolfSSL_new error.\n");
-        return 1;
-    }
-
-    /* associate the file descriptor with the session */
-    wolfSSL_set_fd(ssl, sockfd);
-
-    /* tell wolfSSL that nonblocking is going to be used */
-    wolfSSL_set_using_nonblock(ssl, 1);
 
     /* invokes the fcntl callable service to get the file status
      * flags for a file. checks if it returns an error, if it does
@@ -157,15 +132,39 @@ int main(int argc, char **argv)
         return 1;
     }
 
+    wolfSSL_Init();  /* initialize wolfSSL */
+
+    /* create and initialize WOLFSSL_CTX structure */
+    if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method())) == NULL) {
+        fprintf(stderr, "wolfSSL_CTX_new error.\n");
+        return 1;
+    }
+
+    /* set up pre shared keys */
+    wolfSSL_CTX_set_psk_client_callback(ctx,My_Psk_Client_Cb);
+
+    /* create wolfSSL object after each tcp connect */
+    if ((ssl = wolfSSL_new(ctx)) == NULL) {
+        fprintf(stderr, "wolfSSL_new error.\n");
+        return 1;
+    }
+
+    /* associate the file descriptor with the session */
+    wolfSSL_set_fd(ssl, sockfd);
+
+    /* tell wolfSSL that nonblocking is going to be used */
+    wolfSSL_set_using_nonblock(ssl, 1);
+
+
     /* setting up and running nonblocking socket */
     ret    = wolfSSL_connect(ssl);
     error  = wolfSSL_get_error(ssl, 0);
 
-    while (ret != SSL_SUCCESS && (error == SSL_ERROR_WANT_READ ||
-                                  error == SSL_ERROR_WANT_WRITE)) {
+    while (ret != WOLFSSL_SUCCESS && (error == WOLFSSL_ERROR_WANT_READ ||
+                                  error == WOLFSSL_ERROR_WANT_WRITE)) {
         currTimeout = 1;
 
-        if (error == SSL_ERROR_WANT_READ) {
+        if (error == WOLFSSL_ERROR_WANT_READ) {
             printf("... client would read block\n");
         }
         else {
@@ -206,27 +205,30 @@ int main(int argc, char **argv)
             error = wolfSSL_get_error(ssl, 0);
         }
         else if (select_ret == TEST_TIMEOUT) {
-            error = SSL_ERROR_WANT_READ;
+            error = WOLFSSL_ERROR_WANT_READ;
         }
         else {
-            error = SSL_FATAL_ERROR;
+            error = WOLFSSL_FATAL_ERROR;
         }
     }
-    if (ret != SSL_SUCCESS){
-        printf("SSL_connect failed");
+    if (ret != WOLFSSL_SUCCESS){
+        printf("wolfSSL_connect failed");
         return 1;
     }
 
     /* takes inputting string and outputs it to the server */
     /* write string to the server */
     if (wolfSSL_write(ssl, sendline, MAXLINE) != sizeof(sendline)) {
-	    printf("Write Error to Server\n");
-	    return 1;
+        printf("Write Error to Server\n");
+        return 1;
     }
 
-	/* flags if the Server stopped before the client could end */
-    if (wolfSSL_read(ssl, recvline, MAXLINE) < 0 ) {
-    	printf("Client: Server Terminated Prematurely!\n");
+    /* flags if the Server stopped before the client could end */
+    while (wolfSSL_read(ssl, recvline, MAXLINE) == -1 ) {
+        if (wolfSSL_want_read(ssl)) {
+            continue;
+        }
+        printf("Client: Server Terminated Prematurely!\n");
         return 1;
     }
 
