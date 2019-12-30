@@ -40,8 +40,8 @@ int client_connect(sgx_enclave_id_t id)
     int     ret = 0;                        /* variable for error checking */
 
     WOLFSSL_METHOD* method;
-    WOLFSSL_CTX*    ctx;
-    WOLFSSL*        ssl;
+    long ctx;
+    long ssl;
 
 
     /* data to send to the server, data recieved from the server */
@@ -88,7 +88,7 @@ int client_connect(sgx_enclave_id_t id)
     }
 
     sgxStatus = enc_wolfSSL_CTX_new(id, &ctx, method);
-    if (sgxStatus != SGX_SUCCESS || ctx == NULL) {
+    if (sgxStatus != SGX_SUCCESS || ctx < 0) {
         printf("wolfSSL_CTX_new failure\n");
         return EXIT_FAILURE;
     }
@@ -120,7 +120,7 @@ int client_connect(sgx_enclave_id_t id)
 
     sgxStatus = enc_wolfSSL_new(id, &ssl, ctx);
 
-    if (sgxStatus != SGX_SUCCESS || ssl == NULL) {
+    if (sgxStatus != SGX_SUCCESS || ssl < 0) {
         printf("wolfSSL_new error.\n");
         return EXIT_FAILURE;
     }

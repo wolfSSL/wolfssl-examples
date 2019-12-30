@@ -95,6 +95,8 @@ This will connect an enclave client, in one enclave, to an enclave server, in a 
 
     i) In order to successfully load a private key and certificate into the enclave, these APIs are exposed to the untrusted application. This means that the untrusted region must be "trusted" to load the correct Private Key/ Certificate to start a connection. This method of loading certificates should not be used for production code as it violates the trust assumptions for Intel's SGX. Contact <support@wolfssl.com> if you wish to use wolfSSL in your product.
 
+4) Default max number of WOLFSSL_CTX and WOLFSSL structures set to 2. This was introduced as a side effect of avoiding passing the pointers of the opaque structures from untrusted to trusted code.
+
 ## Support
 
 Please contact wolfSSL at support@wolfssl.com with any questions, bug fixes, or suggested feature additions.

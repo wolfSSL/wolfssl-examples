@@ -10,6 +10,86 @@
     #warning verfication of heap hint pointers needed when overriding default malloc/free
 #endif
 
+
+/* Max number of WOLFSSL_CTX's */
+#ifndef MAX_WOLFSSL_CTX
+#define MAX_WOLFSSL_CTX 2
+#endif
+WOLFSSL_CTX* CTX_TABLE[MAX_WOLFSSL_CTX];
+
+/* Max number of WOLFSSL's */
+#ifndef MAX_WOLFSSL
+#define MAX_WOLFSSL 2
+#endif
+WOLFSSL* SSL_TABLE[MAX_WOLFSSL];
+
+/* returns ID assigned on success and -1 on failure
+ * @TODO mutex for threaded use cases */
+static long AddCTX(WOLFSSL_CTX* ctx)
+{
+    long i;
+    for (i = 0; i < MAX_WOLFSSL_CTX; i++) {
+         if (CTX_TABLE[i] == NULL) {
+             CTX_TABLE[i] = ctx;
+             return i;
+         }
+    }
+    return -1;
+}
+
+
+/* returns ID assigned on success and -1 on failure
+ * @TODO mutex for threaded use cases */
+static long AddSSL(WOLFSSL* ssl)
+{
+    long i;
+    for (i = 0; i < MAX_WOLFSSL; i++) {
+         if (SSL_TABLE[i] == NULL) {
+             SSL_TABLE[i] = ssl;
+             return i;
+         }
+    }
+    return -1;
+}
+
+
+/* returns the WOLFSSL_CTX pointer on success and NULL on failure */
+static WOLFSSL_CTX* GetCTX(long id)
+{
+    if (id >= MAX_WOLFSSL_CTX || id < 0)
+        return NULL;
+    return CTX_TABLE[id];
+}
+
+
+/* returns the WOLFSSL pointer on success and NULL on failure */
+static WOLFSSL* GetSSL(long id)
+{
+    if (id >= MAX_WOLFSSL || id < 0)
+        return NULL;
+    return SSL_TABLE[id];
+}
+
+
+/* Free's and removes the WOLFSSL_CTX associated with 'id' */
+static void RemoveCTX(long id)
+{
+    if (id >= MAX_WOLFSSL_CTX || id < 0)
+        return;
+    wolfSSL_CTX_free(CTX_TABLE[id]);
+    CTX_TABLE[id] = NULL;
+}
+
+
+/* Free's and removes the WOLFSSL associated with 'id' */
+static void RemoveSSL(long id)
+{
+    if (id >= MAX_WOLFSSL || id < 0)
+        return;
+    wolfSSL_free(SSL_TABLE[id]);
+    SSL_TABLE[id] = NULL;
+}
+
 #if defined(WOLFSSL_STATIC_MEMORY)
 /* check on heap hint when used, aborts if pointer is not in Enclave.
  * In the default case where wolfSSL_Malloc is used the heap hint pointer is not
@@ -63,180 +143,145 @@ int enc_wolfSSL_Init(void)
     return wolfSSL_Init();
 }
 
-WOLFSSL_METHOD* enc_wolfTLSv1_2_client_method(void)
+
+#define WOLFTLSv12_CLIENT 1
+#define WOLFTLSv12_SERVER 2
+
+long enc_wolfTLSv1_2_client_method(void)
 {
-    return wolfTLSv1_2_client_method();
+    return WOLFTLSv12_CLIENT;
 }
 
-WOLFSSL_METHOD* enc_wolfTLSv1_2_server_method(void)
+long enc_wolfTLSv1_2_server_method(void)
 {
-    return wolfTLSv1_2_server_method();
+    return WOLFTLSv12_SERVER;
 }
 
 
-WOLFSSL_CTX* enc_wolfSSL_CTX_new(WOLFSSL_METHOD* method)
+/* returns method releated to id */
+static WOLFSSL_METHOD* GetMethod(long id)
 {
-    if(sgx_is_within_enclave(method, wolfSSL_METHOD_GetObjectSize()) != 1)
-        abort();
-    return wolfSSL_CTX_new(method);
+    switch (id) {
+        case WOLFTLSv12_CLIENT: return wolfTLSv1_2_client_method();
+        case WOLFTLSv12_SERVER: return wolfTLSv1_2_server_method();
+        default:
+            return NULL;
+    }
 }
 
-int enc_wolfSSL_CTX_use_certificate_chain_buffer_format(WOLFSSL_CTX* ctx,
+
+long enc_wolfSSL_CTX_new(long method)
+{
+    WOLFSSL_CTX* ctx;
+    long id = -1;
+
+    ctx = wolfSSL_CTX_new(GetMethod(method));
+    if (ctx != NULL) {
+        id = AddCTX(ctx);
+    }
+    return id;
+}
+
+int enc_wolfSSL_CTX_use_certificate_chain_buffer_format(long id,
         const unsigned char* buf, long sz, int type)
 {
-    if(sgx_is_within_enclave(ctx, wolfSSL_CTX_GetObjectSize()) != 1)
-        abort();
-
-#if defined(WOLFSSL_STATIC_MEMORY)
-    checkHeapHint(ctx, NULL);
-#endif
-
+    WOLFSSL_CTX* ctx = GetCTX(id);
     return wolfSSL_CTX_use_certificate_chain_buffer_format(ctx, buf, sz, type);
 }
 
-int enc_wolfSSL_CTX_use_certificate_buffer(WOLFSSL_CTX* ctx,
+int enc_wolfSSL_CTX_use_certificate_buffer(long id,
         const unsigned char* buf, long sz, int type)
 {
-    if(sgx_is_within_enclave(ctx, wolfSSL_CTX_GetObjectSize()) != 1)
-        abort();
-
-#if defined(WOLFSSL_STATIC_MEMORY)
-    checkHeapHint(ctx, NULL);
-#endif
-
+    WOLFSSL_CTX* ctx = GetCTX(id);
     return wolfSSL_CTX_use_certificate_buffer(ctx, buf, sz, type);
 }
 
-int enc_wolfSSL_CTX_use_PrivateKey_buffer(WOLFSSL_CTX* ctx, const unsigned char* buf,
+int enc_wolfSSL_CTX_use_PrivateKey_buffer(long id, const unsigned char* buf,
                                             long sz, int type)
 {
-    if(sgx_is_within_enclave(ctx, wolfSSL_CTX_GetObjectSize()) != 1)
-        abort();
-
-#if defined(WOLFSSL_STATIC_MEMORY)
-    checkHeapHint(ctx, NULL);
-#endif
-
+    WOLFSSL_CTX* ctx = GetCTX(id);
     return wolfSSL_CTX_use_PrivateKey_buffer(ctx, buf, sz, type);
 }
 
-int enc_wolfSSL_CTX_load_verify_buffer(WOLFSSL_CTX* ctx, const unsigned char* in,
+int enc_wolfSSL_CTX_load_verify_buffer(long id, const unsigned char* in,
                                        long sz, int format)
 {
-    if(sgx_is_within_enclave(ctx, wolfSSL_CTX_GetObjectSize()) != 1)
-        abort();
-
-#if defined(WOLFSSL_STATIC_MEMORY)
-    checkHeapHint(ctx, NULL);
-#endif
-
+    WOLFSSL_CTX* ctx = GetCTX(id);
     return wolfSSL_CTX_load_verify_buffer(ctx, in, sz, format);
 }
 
-int enc_wolfSSL_CTX_set_cipher_list(WOLFSSL_CTX* ctx, const char* list) {
-    if(sgx_is_within_enclave(ctx, wolfSSL_CTX_GetObjectSize()) != 1)
-        abort();
 
-#if defined(WOLFSSL_STATIC_MEMORY)
-    checkHeapHint(ctx, NULL);
-#endif
-
+int enc_wolfSSL_CTX_set_cipher_list(long id, const char* list)
+{
+    WOLFSSL_CTX* ctx = GetCTX(id);
     return wolfSSL_CTX_set_cipher_list(ctx, list);
 }
 
-WOLFSSL* enc_wolfSSL_new( WOLFSSL_CTX* ctx)
+long enc_wolfSSL_new(long id)
 {
-    if(sgx_is_within_enclave(ctx, wolfSSL_CTX_GetObjectSize()) != 1)
-        abort();
-    return wolfSSL_new(ctx);
+    WOLFSSL_CTX* ctx;
+    WOLFSSL* ssl;
+    long ret = -1;
+
+    ctx = GetCTX(id);
+    ssl = wolfSSL_new(ctx);
+    if (ssl != NULL) {
+        ret = AddSSL(ssl);
+    }
+    return ret;
 }
 
-int enc_wolfSSL_set_fd(WOLFSSL* ssl, int fd)
+int enc_wolfSSL_set_fd(long sslId, int fd)
 {
-    if(sgx_is_within_enclave(ssl, wolfSSL_GetObjectSize()) != 1)
-        abort();
-
-#if defined(WOLFSSL_STATIC_MEMORY)
-    checkHeapHint(NULL, ssl);
-#endif
-
+    WOLFSSL* ssl = GetSSL(sslId);
     return wolfSSL_set_fd(ssl, fd);
 }
 
-int enc_wolfSSL_connect(WOLFSSL* ssl)
+int enc_wolfSSL_connect(long sslId)
 {
-    if(sgx_is_within_enclave(ssl, wolfSSL_GetObjectSize()) != 1)
-        abort();
-
-#if defined(WOLFSSL_STATIC_MEMORY)
-    checkHeapHint(NULL, ssl);
-#endif
-
+    WOLFSSL* ssl = GetSSL(sslId);
     return wolfSSL_connect(ssl);
 }
 
-int enc_wolfSSL_write(WOLFSSL* ssl, const void* in, int sz)
+int enc_wolfSSL_write(long sslId, const void* in, int sz)
 {
-    if(sgx_is_within_enclave(ssl, wolfSSL_GetObjectSize()) != 1)
-        abort();
-
-#if defined(WOLFSSL_STATIC_MEMORY)
-    checkHeapHint(NULL, ssl);
-#endif
-
+    WOLFSSL* ssl = GetSSL(sslId);
     return wolfSSL_write(ssl, in, sz);
 }
 
-int enc_wolfSSL_get_error(WOLFSSL* ssl, int ret)
+int enc_wolfSSL_get_error(long sslId, int ret)
 {
-    if(sgx_is_within_enclave(ssl, wolfSSL_GetObjectSize()) != 1)
-        abort();
-
-#if defined(WOLFSSL_STATIC_MEMORY)
-    checkHeapHint(NULL, ssl);
-#endif
-
+    WOLFSSL* ssl = GetSSL(sslId);
     return wolfSSL_get_error(ssl, ret);
 }
 
-int enc_wolfSSL_read(WOLFSSL* ssl, void* data, int sz)
+int enc_wolfSSL_read(long sslId, void* data, int sz)
 {
-    if(sgx_is_within_enclave(ssl, wolfSSL_GetObjectSize()) != 1)
-        abort();
-
-#if defined(WOLFSSL_STATIC_MEMORY)
-    checkHeapHint(NULL, ssl);
-#endif
-
+    WOLFSSL* ssl = GetSSL(sslId);
     return wolfSSL_read(ssl, data, sz);
 }
 
-void enc_wolfSSL_free(WOLFSSL* ssl)
+void enc_wolfSSL_free(long sslId)
 {
-    if(sgx_is_within_enclave(ssl, wolfSSL_GetObjectSize()) != 1)
-        abort();
-
-#if defined(WOLFSSL_STATIC_MEMORY)
-    checkHeapHint(NULL, ssl);
-#endif
-
-    wolfSSL_free(ssl);
+    RemoveSSL(sslId);
 }
 
-void enc_wolfSSL_CTX_free(WOLFSSL_CTX* ctx)
+void enc_wolfSSL_CTX_free(long id)
 {
-    if(sgx_is_within_enclave(ctx, wolfSSL_CTX_GetObjectSize()) != 1)
-        abort();
-
-#if defined(WOLFSSL_STATIC_MEMORY)
-    checkHeapHint(ctx, NULL);
-#endif
-
-    wolfSSL_CTX_free(ctx);
+    RemoveCTX(id);
 }
 
 int enc_wolfSSL_Cleanup(void)
 {
+    long id;
+
+    /* free up all WOLFSSL's */
+    for (id = 0; id < MAX_WOLFSSL; id++)
+        RemoveSSL(id);
+
+    /* free up all WOLFSSL_CTX's */
+    for (id = 0; id < MAX_WOLFSSL_CTX; id++)
+        RemoveCTX(id);
     wolfSSL_Cleanup();
 }
 
