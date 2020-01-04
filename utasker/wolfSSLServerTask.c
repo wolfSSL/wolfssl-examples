@@ -14,7 +14,7 @@
                     closes the session and socket, then loops back around to
                     listen for another connection.
 
-Copyright (C) wolfSSL, Inc. 2016
+Copyright (C) wolfSSL, Inc. 2020
  *****************************************************************************/
 
 #include "config.h"

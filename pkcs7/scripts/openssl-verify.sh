@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (C) 2006-2018 wolfSSL Inc.
+# Copyright (C) 2006-2020 wolfSSL Inc.
 #
 # This script verifies the DER-encoded PKCS7/CMS bundles created by the
 # example applications using the openssl command line tool.

@@ -86,4 +86,4 @@ Please contact support@wolfssl.com with any questions or comments
 
 ## License
 
-Copyright (c) 2006-2017 wolfSSL Inc.
+Copyright (c) 2006-2020 wolfSSL Inc.

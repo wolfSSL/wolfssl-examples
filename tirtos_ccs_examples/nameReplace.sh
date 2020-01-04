@@ -1,5 +1,5 @@
 # nameReplace.sh
-# Copyright (C) 2015 wolfSSL Inc.
+# Copyright (C) 2020 wolfSSL Inc.
 #
 # This file is a script developed and used during re-branding from CyaSSL to wolfSSL
 #

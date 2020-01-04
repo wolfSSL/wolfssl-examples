@@ -1,6 +1,6 @@
 # configure.ac
 #
-# Copyright (C) 2006-2014 wolfSSL Inc.
+# Copyright (C) 2006-2020 wolfSSL Inc.
 # All rights reserved.
 #
 # This file is part of wolfssl command line utility.

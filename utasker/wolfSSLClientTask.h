@@ -5,7 +5,7 @@
  Current Revision : 1.0
  Notes            : Header file for wolfSSLClientTask.c
 
-Copyright (C) wolfSSL, Inc. 2016
+Copyright (C) wolfSSL, Inc. 2020
  *****************************************************************************/
 
 #pragma once

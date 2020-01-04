@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (C) 2006-2018 wolfSSL Inc.
+# Copyright (C) 2006-2020 wolfSSL Inc.
 #
 # This script runs all PKCS7/CMS example applications that have been
 # compiled and are located in the "wolfssl-examples/pkcs7" directory.
