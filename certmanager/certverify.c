@@ -23,6 +23,7 @@
 #include <wolfssl/options.h>
 #include <wolfssl/ssl.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
+#include <wolfssl/test.h>
 
 int main(void)
 {
@@ -50,6 +51,8 @@ int main(void)
         printf("wolfSSL_CertManagerNew() failed\n");
         return -1;
     }
+
+    wolfSSL_CertManagerSetVerify(cm, myVerify);
 
     ret = wolfSSL_CertManagerLoadCA(cm, caCert, NULL);
     if (ret != SSL_SUCCESS) {
