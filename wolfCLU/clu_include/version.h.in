@@ -1,6 +1,6 @@
 /* version.h.in
  *
- * Copyright (C) 2006 - 2016 wolfSSL Inc.
+ * Copyright (C) 2006-2020 wolfSSL Inc.
  *
  * This file is part of wolfssl command line utility (WCLU).
  *

@@ -10,7 +10,7 @@
                     HTTP GET message, reads the response, and closes
                     the socket.
 
-Copyright (C) wolfSSL, Inc. 2016
+Copyright (C) wolfSSL, Inc. 2020
  *****************************************************************************/
 
 #include "config.h"
