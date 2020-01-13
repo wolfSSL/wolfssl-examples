@@ -186,6 +186,9 @@ int enc_wolfSSL_CTX_use_certificate_chain_buffer_format(long id,
         const unsigned char* buf, long sz, int type)
 {
     WOLFSSL_CTX* ctx = GetCTX(id);
+    if (ctx == NULL) {
+        return -1;
+    }
     return wolfSSL_CTX_use_certificate_chain_buffer_format(ctx, buf, sz, type);
 }
 
@@ -193,6 +196,9 @@ int enc_wolfSSL_CTX_use_certificate_buffer(long id,
         const unsigned char* buf, long sz, int type)
 {
     WOLFSSL_CTX* ctx = GetCTX(id);
+    if (ctx == NULL) {
+        return -1;
+    }
     return wolfSSL_CTX_use_certificate_buffer(ctx, buf, sz, type);
 }
 
@@ -200,6 +206,9 @@ int enc_wolfSSL_CTX_use_PrivateKey_buffer(long id, const unsigned char* buf,
                                             long sz, int type)
 {
     WOLFSSL_CTX* ctx = GetCTX(id);
+    if (ctx == NULL) {
+        return -1;
+    }
     return wolfSSL_CTX_use_PrivateKey_buffer(ctx, buf, sz, type);
 }
 
@@ -207,6 +216,9 @@ int enc_wolfSSL_CTX_load_verify_buffer(long id, const unsigned char* in,
                                        long sz, int format)
 {
     WOLFSSL_CTX* ctx = GetCTX(id);
+    if (ctx == NULL) {
+        return -1;
+    }
     return wolfSSL_CTX_load_verify_buffer(ctx, in, sz, format);
 }
 
@@ -214,6 +226,9 @@ int enc_wolfSSL_CTX_load_verify_buffer(long id, const unsigned char* in,
 int enc_wolfSSL_CTX_set_cipher_list(long id, const char* list)
 {
     WOLFSSL_CTX* ctx = GetCTX(id);
+    if (ctx == NULL) {
+        return -1;
+    }
     return wolfSSL_CTX_set_cipher_list(ctx, list);
 }
 
@@ -224,6 +239,9 @@ long enc_wolfSSL_new(long id)
     long ret = -1;
 
     ctx = GetCTX(id);
+    if (ctx == NULL) {
+        return -1;
+    }
     ssl = wolfSSL_new(ctx);
     if (ssl != NULL) {
         ret = AddSSL(ssl);
@@ -234,30 +252,45 @@ long enc_wolfSSL_new(long id)
 int enc_wolfSSL_set_fd(long sslId, int fd)
 {
     WOLFSSL* ssl = GetSSL(sslId);
+    if (ssl == NULL) {
+        return -1;
+    }
     return wolfSSL_set_fd(ssl, fd);
 }
 
 int enc_wolfSSL_connect(long sslId)
 {
     WOLFSSL* ssl = GetSSL(sslId);
+    if (ssl == NULL) {
+        return -1;
+    }
     return wolfSSL_connect(ssl);
 }
 
 int enc_wolfSSL_write(long sslId, const void* in, int sz)
 {
     WOLFSSL* ssl = GetSSL(sslId);
+    if (ssl == NULL) {
+        return -1;
+    }
     return wolfSSL_write(ssl, in, sz);
 }
 
 int enc_wolfSSL_get_error(long sslId, int ret)
 {
     WOLFSSL* ssl = GetSSL(sslId);
+    if (ssl == NULL) {
+        return -1;
+    }
     return wolfSSL_get_error(ssl, ret);
 }
 
 int enc_wolfSSL_read(long sslId, void* data, int sz)
 {
     WOLFSSL* ssl = GetSSL(sslId);
+    if (ssl == NULL) {
+        return -1;
+    }
     return wolfSSL_read(ssl, data, sz);
 }
 
