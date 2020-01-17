@@ -38,8 +38,6 @@ int main(int argc, char** argv)
     print_use((keyUsage & KEYUSE_CRL_SIGN), "CRL SIGNING");
     print_use((keyUsage & KEYUSE_ENCIPHER_ONLY), "ENCRYPT ONLY");
     print_use((keyUsage & KEYUSE_DECIPHER_ONLY), "DECRYPT ONLY");
-
-    printf("keyUsage = %d\n", keyUsage);
 #else
     printf("Please configure wolfSSL with --enable-opensslextra and try"
            " again\n");

@@ -15,6 +15,14 @@ make
 Cleaning:
 make clean
 
+Sample output:
+
+```
+keyUsage % ./run
+cert can be used for CERTIFICATE SIGNING
+cert can be used for CRL SIGNING
+```
+
 If there are any questions please do not hesitate to reach out to wolfSSL
 support staff via support [at] wolfssl [dot] com or through the zendesk channel
 at https://wolfssl [dot] zendesk [dot] com anytime.
