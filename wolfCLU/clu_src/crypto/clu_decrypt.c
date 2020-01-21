@@ -42,7 +42,7 @@ int wolfCLU_decrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
     FILE*  inFile;                      /* input file */
     FILE*  outFile;                     /* output file */
 
-    RNG     rng;                        /* random number generator */
+    WC_RNG     rng;                     /* random number generator */
     byte*   input  = NULL;              /* input buffer */
     byte*   output = NULL;              /* output buffer */
     byte    salt[SALT_SIZE] = {0};      /* salt variable */

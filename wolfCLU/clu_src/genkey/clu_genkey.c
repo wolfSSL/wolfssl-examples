@@ -146,7 +146,7 @@ int wolfCLU_genKey_ED25519(WC_RNG* rng, char* fOutNm, int directive, int format)
 }
 #endif /* HAVE_ED25519 */
 
-int wolfCLU_genKey_ECC(RNG* rng, char* fName, int directive, int fmt,
+int wolfCLU_genKey_ECC(WC_RNG* rng, char* fName, int directive, int fmt,
                        int keySz)
 {
 #ifdef HAVE_ECC
@@ -297,7 +297,7 @@ int wolfCLU_genKey_ECC(RNG* rng, char* fName, int directive, int fmt,
 #endif /* HAVE_ECC */
 }
 
-int wolfCLU_genKey_RSA(RNG* rng, char* fName, int directive, int fmt, int
+int wolfCLU_genKey_RSA(WC_RNG* rng, char* fName, int directive, int fmt, int
                        keySz, long exp)
 {
 #ifndef NO_RSA
@@ -451,7 +451,8 @@ int wolfCLU_genKey_RSA(RNG* rng, char* fName, int directive, int fmt, int
 /*
  * makes a cyptographically secure key by stretching a user entered pwdKey
  */
-int wolfCLU_genKey_PWDBASED(RNG* rng, byte* pwdKey, int size, byte* salt, int pad)
+int wolfCLU_genKey_PWDBASED(WC_RNG* rng, byte* pwdKey, int size, byte* salt,
+                            int pad)
 {
     int ret;        /* return variable */
 

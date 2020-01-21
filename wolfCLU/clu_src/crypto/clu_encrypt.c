@@ -43,7 +43,7 @@ int wolfCLU_encrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
     FILE*  inFile = NULL;           /* input file */
     FILE*  outFile = NULL;          /* output file */
 
-    RNG     rng;                    /* random number generator declaration */
+    WC_RNG     rng;                 /* random number generator declaration */
 
     byte*   input = NULL;           /* input buffer */
     byte*   output = NULL;          /* output buffer */
