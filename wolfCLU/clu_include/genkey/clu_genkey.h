@@ -61,7 +61,7 @@ int wolfCLU_genKey_ED25519(WC_RNG* rng, char* fOutNm, int directive,
  *
  * return   0 on success, non-zero on error
  */
-int wolfCLU_genKey_ECC(RNG* rng, char* fName, int directive, int fmt,
+int wolfCLU_genKey_ECC(WC_RNG* rng, char* fName, int directive, int fmt,
                        int keySz);
 
 /**
@@ -76,7 +76,7 @@ int wolfCLU_genKey_ECC(RNG* rng, char* fName, int directive, int fmt,
  *
  * return   0 on success, non-zero on error
  */
-int wolfCLU_genKey_RSA(RNG* rng, char* fName, int directive, int fmt,
+int wolfCLU_genKey_RSA(WC_RNG* rng, char* fName, int directive, int fmt,
                        int keySz, long exp);
 
 /* generates key based on password provided 
@@ -87,7 +87,7 @@ int wolfCLU_genKey_RSA(RNG* rng, char* fName, int directive, int fmt,
  * @param salt the buffer to store the resulting salt after it's generated
  * @param pad a flag to let us know if there are padded bytes or not
  */
-int wolfCLU_genKey_PWDBASED(RNG* rng, byte* pwdKey, int size, byte* salt,
+int wolfCLU_genKey_PWDBASED(WC_RNG* rng, byte* pwdKey, int size, byte* salt,
                                                                        int pad);
 
 #endif /* CLU_GENKEY_H */

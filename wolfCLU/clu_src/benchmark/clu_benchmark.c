@@ -45,7 +45,7 @@ int wolfCLU_benchmark(int timer, int* option)
     Des3 des3;                      /* 3des declaration */
 #endif
 
-    RNG rng;                        /* random number generator */
+    WC_RNG rng;                     /* random number generator */
 
     int             ret  = 0;       /* return variable */
     double          stop = 0.0;     /* stop breaks loop */
@@ -285,9 +285,10 @@ int wolfCLU_benchmark(int timer, int* option)
 #ifndef NO_MD5
     /* md5 test */
     if (option[i] == 1) {
-        Md5 md5;
+        wc_Md5 md5;
 
-        digest = XMALLOC(MD5_DIGEST_SIZE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        digest = XMALLOC(WC_MD5_DIGEST_SIZE, HEAP_HINT,
+                         DYNAMIC_TYPE_TMP_BUFFER);
         if (digest == NULL)
             return MEMORY_E;
         plain = XMALLOC(MEGABYTE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
@@ -313,7 +314,7 @@ int wolfCLU_benchmark(int timer, int* option)
         printf("MD5 ");
         wolfCLU_stats(start, MEGABYTE, blocks);
         XMEMSET(plain, 0, MEGABYTE);
-        XMEMSET(digest, 0, MD5_DIGEST_SIZE);
+        XMEMSET(digest, 0, WC_MD5_DIGEST_SIZE);
         wolfCLU_freeBins(digest, plain, NULL, NULL, NULL);
         blocks = 0;
         loop = 1;
@@ -323,9 +324,10 @@ int wolfCLU_benchmark(int timer, int* option)
 #ifndef NO_SHA
     /* sha test */
     if (option[i] == 1) {
-        Sha sha;
+        wc_Sha sha;
 
-        digest = XMALLOC(SHA_DIGEST_SIZE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        digest = XMALLOC(WC_SHA_DIGEST_SIZE, HEAP_HINT,
+                         DYNAMIC_TYPE_TMP_BUFFER);
         if (digest == NULL)
             return MEMORY_E;
         plain = XMALLOC(MEGABYTE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
@@ -351,7 +353,7 @@ int wolfCLU_benchmark(int timer, int* option)
         printf("Sha ");
         wolfCLU_stats(start, MEGABYTE, blocks);
         XMEMSET(plain, 0, MEGABYTE);
-        XMEMSET(digest, 0, SHA_DIGEST_SIZE);
+        XMEMSET(digest, 0, WC_SHA_DIGEST_SIZE);
         wolfCLU_freeBins(plain, digest, NULL, NULL, NULL);
         blocks = 0;
         loop = 1;
@@ -359,10 +361,10 @@ int wolfCLU_benchmark(int timer, int* option)
     i++;
 #endif
 #ifndef NO_SHA256
-    #define SHA256_SZ SHA256_DIGEST_SIZE
+    #define SHA256_SZ WC_SHA256_DIGEST_SIZE
     /* sha256 test */
     if (option[i] == 1) {
-        Sha256 sha256;
+        wc_Sha256 sha256;
 
         digest = XMALLOC(SHA256_SZ, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
         if (digest == NULL)
@@ -391,7 +393,7 @@ int wolfCLU_benchmark(int timer, int* option)
         printf("Sha256 ");
         wolfCLU_stats(start, MEGABYTE, blocks);
         XMEMSET(plain, 0, MEGABYTE);
-        XMEMSET(digest, 0, SHA256_DIGEST_SIZE);
+        XMEMSET(digest, 0, WC_SHA256_DIGEST_SIZE);
         wolfCLU_freeBins(plain, digest, NULL, NULL, NULL);
         /* resets used for debug, uncomment if needed */
         blocks = 0;
@@ -400,10 +402,10 @@ int wolfCLU_benchmark(int timer, int* option)
     i++;
 #endif
 #ifdef WOLFSSL_SHA384
-    #define SHA384_SZ SHA384_DIGEST_SIZE
+    #define SHA384_SZ WC_SHA384_DIGEST_SIZE
     /* sha384 test */
     if (option[i] == 1) {
-        Sha384 sha384;
+        wc_Sha384 sha384;
 
         digest = XMALLOC(SHA384_SZ, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
         if (digest == NULL)
@@ -432,7 +434,7 @@ int wolfCLU_benchmark(int timer, int* option)
         printf("Sha384 ");
         wolfCLU_stats(start, MEGABYTE, blocks);
         XMEMSET(plain, 0, MEGABYTE);
-        XMEMSET(digest, 0, SHA384_DIGEST_SIZE);
+        XMEMSET(digest, 0, WC_SHA384_DIGEST_SIZE);
         wolfCLU_freeBins(plain, digest, NULL, NULL, NULL);
         blocks = 0;
         loop = 1;
@@ -440,10 +442,10 @@ int wolfCLU_benchmark(int timer, int* option)
     i++;
 #endif
 #ifdef WOLFSSL_SHA512
-    #define SHA512_SZ SHA512_DIGEST_SIZE
+    #define SHA512_SZ WC_SHA512_DIGEST_SIZE
     /* sha512 test */
     if (option[i] == 1) {
-        Sha512 sha512;
+        wc_Sha512 sha512;
 
         digest = XMALLOC(SHA512_SZ, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
         if (digest == NULL)
@@ -472,7 +474,7 @@ int wolfCLU_benchmark(int timer, int* option)
         printf("Sha512 ");
         wolfCLU_stats(start, MEGABYTE, blocks);
         XMEMSET(plain, 0, MEGABYTE);
-        XMEMSET(digest, 0, SHA512_DIGEST_SIZE);
+        XMEMSET(digest, 0, WC_SHA512_DIGEST_SIZE);
         wolfCLU_freeBins(plain, digest, NULL, NULL, NULL);
         blocks = 0;
         loop = 1;
@@ -484,7 +486,7 @@ int wolfCLU_benchmark(int timer, int* option)
     if (option[i] == 1) {
         Blake2b  b2b;
 
-        digest = XMALLOC(BLAKE_DIGEST_SIZE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        digest = XMALLOC(WC_BLAKE_DIGEST_SIZE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
         if (digest == NULL)
             return MEMORY_E;
         plain = XMALLOC(MEGABYTE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
@@ -495,7 +497,7 @@ int wolfCLU_benchmark(int timer, int* option)
 
         wc_RNG_GenerateBlock(&rng, plain, MEGABYTE);
 
-        wc_InitBlake2b(&b2b, BLAKE_DIGEST_SIZE);
+        wc_InitBlake2b(&b2b, WC_BLAKE_DIGEST_SIZE);
         start = wolfCLU_getTime();
         alarm(timer);
 
@@ -507,11 +509,11 @@ int wolfCLU_benchmark(int timer, int* option)
             /* if stop >= timer, loop = 0 */
             loop = (stop >= timer) ? 0 : 1;
         }
-        wc_Blake2bFinal(&b2b, digest, BLAKE_DIGEST_SIZE);
+        wc_Blake2bFinal(&b2b, digest, WC_BLAKE_DIGEST_SIZE);
         printf("Blake2b ");
         wolfCLU_stats(start, MEGABYTE, blocks);
         XMEMSET(plain, 0, MEGABYTE);
-        XMEMSET(digest, 0, BLAKE_DIGEST_SIZE);
+        XMEMSET(digest, 0, WC_BLAKE_DIGEST_SIZE);
         wolfCLU_freeBins(digest, plain, NULL, NULL, NULL);
     }
 #endif
