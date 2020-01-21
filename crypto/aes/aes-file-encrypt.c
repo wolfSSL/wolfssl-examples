@@ -28,6 +28,7 @@
 #include <wolfssl/wolfcrypt/random.h>
 #include <wolfssl/wolfcrypt/pwdbased.h>
 
+#if defined(HAVE_PBKDF2) && !defined(NO_PWDBASED)
 #define SALT_SIZE 8
 
 /*
@@ -352,3 +353,11 @@ int main(int argc, char** argv)
 
     return ret;
 }
+
+#else
+int main()
+{
+    printf("pwdbased and HAVE_PBKDF2 not compiled in\n");
+    return 0;
+}
+#endif

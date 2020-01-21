@@ -28,7 +28,8 @@
 #include <wolfssl/wolfcrypt/random.h>
 #include <wolfssl/wolfcrypt/pwdbased.h>
 
-#ifdef WOLFSSL_AES_CFB
+#if defined(WOLFSSL_AES_CFB) && defined(HAVE_PBKDF2) && \
+    !defined(NO_PWDBASED)
 #define SALT_SIZE 8
 
 /*
@@ -357,7 +358,7 @@ int main(int argc, char** argv)
 #else
 int main()
 {
-    printf("AES-CFB not compiled in\n");
+    printf("AES-CFB or HAVE_PBKDF2 not compiled in\n");
     return 0;
 }
 #endif
