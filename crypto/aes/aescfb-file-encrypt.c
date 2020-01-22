@@ -1,4 +1,4 @@
-/* aes-file-encrypt.c
+/* aescfb-file-encrypt.c
  *
  * Copyright (C) 2006-2020 wolfSSL Inc.
  *
@@ -28,7 +28,8 @@
 #include <wolfssl/wolfcrypt/random.h>
 #include <wolfssl/wolfcrypt/pwdbased.h>
 
-#if defined(HAVE_PBKDF2) && !defined(NO_PWDBASED)
+#if defined(WOLFSSL_AES_CFB) && defined(HAVE_PBKDF2) && \
+    !defined(NO_PWDBASED)
 #define SALT_SIZE 8
 
 /*
@@ -117,7 +118,7 @@ int AesEncrypt(Aes* aes, byte* key, int size, FILE* inFile, FILE* outFile)
         return -1001;
 
     /* encrypts the message to the output based on input length + padding */
-    ret = wc_AesCbcEncrypt(aes, output, input, length);
+    ret = wc_AesCfbEncrypt(aes, output, input, length);
     if (ret != 0)
         return -1005;
 
@@ -188,7 +189,7 @@ int AesDecrypt(Aes* aes, byte* key, int size, FILE* inFile, FILE* outFile)
         return -1050;
 
     /* sets key */
-    ret = wc_AesSetKey(aes, key, AES_BLOCK_SIZE, iv, AES_DECRYPTION);
+    ret = wc_AesSetKey(aes, key, AES_BLOCK_SIZE, iv, AES_ENCRYPTION);
     if (ret != 0)
         return -1002;
 
@@ -199,7 +200,7 @@ int AesDecrypt(Aes* aes, byte* key, int size, FILE* inFile, FILE* outFile)
         input[i] = input[i + (AES_BLOCK_SIZE + SALT_SIZE)];
     }
     /* decrypts the message to output based on input length + padding*/
-    ret = wc_AesCbcDecrypt(aes, output, input, length);
+    ret = wc_AesCfbDecrypt(aes, output, input, length);
     if (ret != 0)
         return -1006;
 
@@ -357,7 +358,7 @@ int main(int argc, char** argv)
 #else
 int main()
 {
-    printf("pwdbased and HAVE_PBKDF2 not compiled in\n");
+    printf("AES-CFB or HAVE_PBKDF2 not compiled in\n");
     return 0;
 }
 #endif
