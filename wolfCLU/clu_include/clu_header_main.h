@@ -58,7 +58,6 @@
 #endif
 
 #ifdef HAVE_BLAKE2
-    #define BLAKE_DIGEST_SIZE 64
     #include <wolfssl/wolfcrypt/blake2.h>
 #endif
 
