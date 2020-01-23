@@ -65,7 +65,7 @@ int wolfCLU_hashSetup(int argc, char** argv)
     int     size    =   0;      /* message digest size */
 
 #ifdef HAVE_BLAKE2
-    size = BLAKE_DIGEST_SIZE;
+    size = BLAKE2B_OUTBYTES;
 #endif
 
     /* help checking */
@@ -119,7 +119,7 @@ int wolfCLU_hashSetup(int argc, char** argv)
         size = atoi(argv[ret+1]);
         if (size <= 0 || size > 64) {
             printf("Invalid size, Must be between 1-64. Using default.\n");
-            size = BLAKE_DIGEST_SIZE;
+            size = BLAKE2B_OUTBYTES;
         }
 #endif
     }

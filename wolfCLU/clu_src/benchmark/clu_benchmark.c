@@ -486,7 +486,7 @@ int wolfCLU_benchmark(int timer, int* option)
     if (option[i] == 1) {
         Blake2b  b2b;
 
-        digest = XMALLOC(WC_BLAKE_DIGEST_SIZE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        digest = XMALLOC(BLAKE2B_OUTBYTES, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
         if (digest == NULL)
             return MEMORY_E;
         plain = XMALLOC(MEGABYTE, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
@@ -497,7 +497,7 @@ int wolfCLU_benchmark(int timer, int* option)
 
         wc_RNG_GenerateBlock(&rng, plain, MEGABYTE);
 
-        wc_InitBlake2b(&b2b, WC_BLAKE_DIGEST_SIZE);
+        wc_InitBlake2b(&b2b, BLAKE2B_OUTBYTES);
         start = wolfCLU_getTime();
         alarm(timer);
 
@@ -509,11 +509,11 @@ int wolfCLU_benchmark(int timer, int* option)
             /* if stop >= timer, loop = 0 */
             loop = (stop >= timer) ? 0 : 1;
         }
-        wc_Blake2bFinal(&b2b, digest, WC_BLAKE_DIGEST_SIZE);
+        wc_Blake2bFinal(&b2b, digest, BLAKE2B_OUTBYTES);
         printf("Blake2b ");
         wolfCLU_stats(start, MEGABYTE, blocks);
         XMEMSET(plain, 0, MEGABYTE);
-        XMEMSET(digest, 0, WC_BLAKE_DIGEST_SIZE);
+        XMEMSET(digest, 0, BLAKE2B_OUTBYTES);
         wolfCLU_freeBins(digest, plain, NULL, NULL, NULL);
     }
 #endif
