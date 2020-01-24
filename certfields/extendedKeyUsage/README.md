@@ -1,4 +1,4 @@
-An app for checking the keyUsage Extensions in a cert.
+An app for checking the extendedKeyUsage Extensions in a cert.
 
 Assumptions:
 wolfSSL Library must be configured with --enable-opensslextra
