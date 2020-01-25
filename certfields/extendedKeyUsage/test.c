@@ -43,6 +43,8 @@ void print_extended_key_use(WOLF_STACK_OF(WOLFSSL_ASN1_OBJECT)* sk, int crit)
                                            obj, 1);
             if (outputSz > 0)
                 printf("extKeyUsage OID: %s\n", DecodedString);
+
+            wolfSSL_ASN1_OBJECT_free(obj);
         }
     } else {
         /* silence unused warnings */
@@ -91,6 +93,7 @@ int main(int argc, char** argv)
         print_extended_key_use(sk, crit);
 
         wolfSSL_sk_ASN1_OBJECT_free(sk);
+        wolfSSL_X509_free(x509);
     }
 
 #else
