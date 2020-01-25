@@ -41,8 +41,14 @@ void print_extended_key_use(WOLF_STACK_OF(WOLFSSL_ASN1_OBJECT)* sk, int crit)
         while ((obj = wolfSSL_sk_ASN1_OBJECT_pop(sk)) != NULL) {
             outputSz = wolfSSL_OBJ_obj2txt(DecodedString, MAX_OID_STRING_SZ,
                                            obj, 1);
-            printf("extKeyUsage OID: %s\n", DecodedString);
+            if (outputSz > 0)
+                printf("extKeyUsage OID: %s\n", DecodedString);
         }
+    } else {
+        /* silence unused warnings */
+        (void) obj;
+        (void) DecodedString;
+        (void) outputSz;
     }
     return;
 }
@@ -52,8 +58,8 @@ void print_extended_key_use(WOLF_STACK_OF(WOLFSSL_ASN1_OBJECT)* sk, int crit)
 int main(int argc, char** argv)
 {
 #ifdef OPENSSL_EXTRA
-    char cert1FName[] = "./ocsp-responder-cert.pem";
-    char cert2FName[] = "./server-int-cert.pem";
+    char cert1FName[] = "../../certs/server-ecc.pem";
+    char cert2FName[] = "../../certs/ocsp-responder-cert.pem";
     int numCerts = 2;
     char* certFName = NULL;
 
@@ -78,12 +84,13 @@ int main(int argc, char** argv)
             return -999;
         }
 
-        sk = (WOLF_STACK_OF(WOLFSSL_ASN1_OBJECT)*)X509_get_ext_d2i(x509, NID_ext_key_usage,
-            &crit, NULL);
+        sk = (WOLF_STACK_OF(WOLFSSL_ASN1_OBJECT)*)wolfSSL_X509_get_ext_d2i(x509,
+                                                  NID_ext_key_usage,
+                                                  &crit, NULL);
 
         print_extended_key_use(sk, crit);
 
-        sk_ASN1_OBJECT_free(sk);
+        wolfSSL_sk_ASN1_OBJECT_free(sk);
     }
 
 #else
