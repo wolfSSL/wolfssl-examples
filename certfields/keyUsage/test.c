@@ -38,7 +38,7 @@ void print_use(unsigned int usageMask, char* usage)
 int main(int argc, char** argv)
 {
 #ifdef OPENSSL_EXTRA
-    char certFName[] = "./test-intermediate.pem";
+    char certFName[] = "../../certs/test-intermediate.pem";
     WOLFSSL_X509* x509 = NULL;
     unsigned int keyUsage = 0;
 
