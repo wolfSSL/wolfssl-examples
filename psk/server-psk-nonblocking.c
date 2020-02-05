@@ -32,12 +32,14 @@
 #include <errno.h>
 #include <arpa/inet.h>
 #include <signal.h>
-#include <fcntl.h>      /* needed for runing nonblocking connections */
+#include <fcntl.h>      /* needed for running non-blocking connections */
 #include <time.h>       /* for time out on read loop */
 
 #define MAXLINE     4096
 #define LISTENQ     1024
 #define SERV_PORT   11111
+#define PSK_KEY_LEN 4
+#define dhParamFile    "../certs/dh2048.pem"
 
 /* states of the tcp connection */
 enum{
@@ -65,7 +67,7 @@ static inline unsigned int my_psk_server_cb(WOLFSSL* ssl, const char* identity,
     key[2] = 60;
     key[3] = 77;
 
-    return 4;
+    return PSK_KEY_LEN;
 }
 
 
@@ -75,7 +77,7 @@ int main()
     int ret;
     int error;
     int result;
-    int select_ret = 0;
+    int select_ret;
     int sockfd;
     int nfds;
     int currTimeout = 1;
@@ -84,26 +86,39 @@ int main()
     char   buff[MAXLINE];  /* buffer for tcp connection */
     char   buf[MAXLINE];   /* string read from client */
     char   response[] = "I hear ya for shizzle";
+    char suites[]   =
+#ifdef WOLFSSL_STATIC_PSK
+                      "PSK-AES256-GCM-SHA384:"
+                      "PSK-AES128-GCM-SHA256:"
+                      "PSK-AES256-CBC-SHA384:"
+                      "PSK-AES128-CBC-SHA256:"
+                      "PSK-AES128-CBC-SHA:"
+                      "PSK-AES256-CBC-SHA:"
+                      "PSK-CHACHA20-POLY1305:"
+#endif
+#if defined(WOLFSSL_TLS13_DRAFT18) || defined(WOLFSSL_TLS13_DRAFT22) || \
+    defined(WOLFSSL_TLS13_DRAFT23) || defined(WOLFSSL_TLS13_DRAFT26) || \
+    defined(WOLFSSL_TLS13)
+                      "TLS13-AES128-GCM-SHA256:"
+                      "TLS13-AES256-GCM-SHA384:"
+                      "TLS13-CHACHA20-POLY1305-SHA256:"
+#endif
+#ifndef NO_DH
+                      "DHE-PSK-AES256-GCM-SHA384:"
+                      "DHE-PSK-AES128-GCM-SHA256:"
+                      "DHE-PSK-AES256-CBC-SHA384:"
+                      "DHE-PSK-AES128-CBC-SHA256:"
+                      "DHE-PSK-CHACHA20-POLY1305"
+#endif
+                      "ECDHE-PSK-AES128-CBC-SHA256:"
+                      "ECDHE-PSK-CHACHA20-POLY1305:";
+
     fd_set recvfds, errfds;
     socklen_t           cliLen;
     WOLFSSL_CTX*         ctx;
     struct sockaddr_in  cliAddr, servAddr;
     struct timeval timeout = {currTimeout, 0};
 
-    wolfSSL_Init();
-
-    if ((ctx = wolfSSL_CTX_new(wolfSSLv23_server_method())) == NULL) {
-        printf("Fatal error : wolfSSL_CTX_new error\n");
-        return 1;
-    }
-
-    /* use psk suite for security */
-    wolfSSL_CTX_set_psk_server_callback(ctx, my_psk_server_cb);
-    wolfSSL_CTX_use_psk_identity_hint(ctx, "wolfssl server");
-    if (wolfSSL_CTX_set_cipher_list(ctx, "PSK-AES128-CBC-SHA256")
-        != SSL_SUCCESS) {
-        printf("Fatal error : server can't set cipher list\n");
-    }
 
     /* find a socket */
     listenfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -122,13 +137,39 @@ int main()
     opt = 1;
     if (setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, (const void*)&opt,
                    sizeof(int)) != 0) {
-        printf("Fatal error : setsockopt errer");
+        printf("Fatal error : setsockopt error");
         return 1;
     }
     if (bind(listenfd, (struct sockaddr *) &servAddr, sizeof(servAddr)) < 0) {
         printf("Fatal error : bind error\n");
         return 1;
     }
+
+    wolfSSL_Init();
+
+    if ((ctx = wolfSSL_CTX_new(wolfSSLv23_server_method())) == NULL) {
+        printf("Fatal error : wolfSSL_CTX_new error\n");
+        return 1;
+    }
+
+    /* use psk suite for security */
+    wolfSSL_CTX_set_psk_server_callback(ctx, my_psk_server_cb);
+
+    wolfSSL_CTX_use_psk_identity_hint(ctx, "wolfssl server");
+
+    if (wolfSSL_CTX_set_cipher_list(ctx, suites) != WOLFSSL_SUCCESS) {
+        printf("Fatal error : server can't set cipher list\n");
+        return 1;
+    }
+
+#ifndef NO_DH
+    if ((ret = wolfSSL_CTX_SetTmpDH_file(ctx, dhParamFile, WOLFSSL_FILETYPE_PEM)
+        ) != WOLFSSL_SUCCESS) {
+        printf("Fatal error: server set temp DH params returned %d\n", ret);
+        return ret;
+    }
+#endif
+
 
     /* main loop for accepting and responding to clients */
     for ( ; ; ) {
@@ -171,23 +212,22 @@ int main()
             ret = wolfSSL_accept(ssl);
             error = wolfSSL_get_error(ssl, 0);
 
-            /* clearing buffer for client reponse to prevent unexpected output*/
+            /* clear buffer for client response to prevent unexpected output */
             memset(buf, 0, MAXLINE);
             do {
 
-                while (ret != SSL_SUCCESS && (error == SSL_ERROR_WANT_READ ||
-                                            error == SSL_ERROR_WANT_WRITE)) {
+                while (ret != WOLFSSL_SUCCESS &&
+                       (error == WOLFSSL_ERROR_WANT_READ ||
+                        error == WOLFSSL_ERROR_WANT_WRITE)) {
 
                     /* print out for user notification */
-                    if (error == SSL_ERROR_WANT_READ) {
+                    if (error == WOLFSSL_ERROR_WANT_READ) {
                         printf("... server would read block\n");
                     }
                     else {
                         printf("... server would write block\n");
                     }
-/* -------------------------------------------------------------------------- */
-/* TCP */
-/* -------------------------------------------------------------------------- */
+
                     FD_ZERO(&recvfds);
                     FD_SET(sockfd, &recvfds);
                     FD_ZERO(&errfds);
@@ -211,26 +251,26 @@ int main()
                         select_ret = TEST_SELECT_FAIL;
                     }
 
-          /* if tcp_select signals ready try to accept otherwise continue loop*/
+          /* if tcp_select signal is ready try to accept else continue loop */
                     if ((select_ret == TEST_RECV_READY) ||
                         (select_ret == TEST_ERROR_READY)) {
                         ret = wolfSSL_accept(ssl);
                         error = wolfSSL_get_error(ssl, 0);
                     }
                     else if (select_ret == TEST_TIMEOUT) {
-                        error = SSL_ERROR_WANT_READ;
+                        error = WOLFSSL_ERROR_WANT_READ;
                     }
                     else {
-                        error = SSL_FATAL_ERROR;
+                        error = WOLFSSL_FATAL_ERROR;
                     }
                 }
-            /* faliure to accept */
-                if (ret != SSL_SUCCESS) {
-                    printf("Fatal error : SSL_accept failed\n");
-                    ret = SSL_FATAL_ERROR;
+            /* failure to accept */
+                if (ret != WOLFSSL_SUCCESS) {
+                    printf("Fatal error : wolfSSL_accept failed\n");
+                    ret = WOLFSSL_FATAL_ERROR;
                 }
 
-                if (ret != SSL_SUCCESS) {
+                if (ret != WOLFSSL_SUCCESS) {
                     return 1;
                 }
 
@@ -241,19 +281,18 @@ int main()
             }
             while(n < 0);
 
-            while (ret != SSL_SUCCESS && (error == SSL_ERROR_WANT_READ ||
-                                        error == SSL_ERROR_WANT_WRITE)) {
+            while (ret != WOLFSSL_SUCCESS &&
+                   (error == WOLFSSL_ERROR_WANT_READ ||
+                    error == WOLFSSL_ERROR_WANT_WRITE)) {
 
                 /* print out for user notification */
-                if (error == SSL_ERROR_WANT_READ) {
+                if (error == WOLFSSL_ERROR_WANT_READ) {
                     printf("... server would read block\n");
                 }
                 else {
                     printf("... server would write block\n");
                 }
-/* -------------------------------------------------------------------------- */
-/* TCP */
-/* -------------------------------------------------------------------------- */
+
                 FD_ZERO(&recvfds);
                 FD_SET(sockfd, &recvfds);
                 FD_ZERO(&errfds);
@@ -284,20 +323,20 @@ int main()
                     error = wolfSSL_get_error(ssl, 0);
                 }
                 else if (select_ret == TEST_TIMEOUT) {
-                    error = SSL_ERROR_WANT_READ;
+                    error = WOLFSSL_ERROR_WANT_READ;
                 }
                 else {
-                    error = SSL_FATAL_ERROR;
+                    error = WOLFSSL_FATAL_ERROR;
                 }
             }
 
-        /* faliure to accept */
-            if (ret != SSL_SUCCESS) {
-                printf("Fatal error : SSL_accept failed\n");
-                ret = SSL_FATAL_ERROR;
+        /* failure to accept */
+            if (ret != WOLFSSL_SUCCESS) {
+                printf("Fatal error : wolfSSL_accept failed\n");
+                ret = WOLFSSL_FATAL_ERROR;
             }
 
-            if (ret != SSL_SUCCESS) {
+            if (ret != WOLFSSL_SUCCESS) {
                 return 1;
             }
             if ( wolfSSL_write(ssl, response, strlen(response)) !=
