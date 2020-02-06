@@ -99,9 +99,9 @@ int do_sig_ver_test(int eccKeySz)
     /* for odd curve sizes account for mod EG (256/8) + (256%8) == 32 + 0 = 32
      * alternatively (521/8 = 65.125 (rounds to 65) + (521%8) == 65 + 1 = 66
      */
-    int byteField = (eccKeySz / BYTE_SZ) + (eccKeySz % BYTE_SZ);
+    int byteField = (eccKeySz / BYTE_SZ) + (((eccKeySz % BYTE_SZ) != 0) ? 1:0);
     /* Calculate sig size based on byteField + padding + header */
-    word32 maxSigSz = ((byteField * 2) + ECC_MAX_PAD_SZ + (SIG_HEADER_SZ * 2));
+    word32 maxSigSz = ((byteField * 2) + ECC_MAX_PAD_SZ + SIG_HEADER_SZ);
 
     printf("Key size is %d, byteField = %d, maxSigSz = %d\n", eccKeySz,
                                                               byteField,
