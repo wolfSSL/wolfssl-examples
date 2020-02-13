@@ -2,7 +2,7 @@ CC=gcc
 CFLAGS=-Wall
 LIBS=
 
-WOLFSSL_DIR=/usr/local/opt
+WOLFSSL_DIR := /usr/local
 WOLFSSL_FLAGS=-I$(WOLFSSL_DIR)/include
 WOLFSSL_LIB=-L$(WOLFSSL_DIR)/lib -lwolfssl
 
