@@ -39,6 +39,22 @@
 #define CERT_FILE "../certs/ca-cert.pem"
 
 
+static int NonBlockingSSL_Shutdown(WOLFSSL* ssl)
+{
+    int error, status;
+
+    do {
+        error = 0;
+        printf("Bidirectional shutdown...\n");
+        status = wolfSSL_shutdown(ssl);
+        if (status != WOLFSSL_SUCCESS) {
+            error = wolfSSL_get_error(ssl, 0);
+        }
+    } while (status == SSL_SHUTDOWN_NOT_DONE || error == SSL_ERROR_WANT_READ || error == SSL_ERROR_WANT_WRITE);
+
+    return status;
+}
+
 
 int main(int argc, char** argv)
 {
@@ -167,8 +183,11 @@ int main(int argc, char** argv)
     }
 
 
-
-
+    if (NonBlockingSSL_Shutdown(ssl) != 1) {
+        printf("Shutdown not complete\n");
+        return -1;
+    }
+    printf("Shutdown complete\n");
 
     /* Cleanup and return */
     wolfSSL_free(ssl);      /* Free the wolfSSL object                  */
