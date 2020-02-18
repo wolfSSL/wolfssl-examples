@@ -39,7 +39,7 @@ int client_connect(sgx_enclave_id_t id)
     struct  sockaddr_in servAddr;           /* struct for server address */
     int     ret = 0;                        /* variable for error checking */
 
-    WOLFSSL_METHOD* method;
+    long method;
     long ctx;
     long ssl;
 
@@ -82,7 +82,7 @@ int client_connect(sgx_enclave_id_t id)
     enc_wolfSSL_Init(id, &sgxStatus);
 
     sgxStatus = enc_wolfTLSv1_2_client_method(id, &method);
-    if (sgxStatus != SGX_SUCCESS || method == NULL) {
+    if (sgxStatus != SGX_SUCCESS) {
         printf("wolfTLSv1_2_client_method failure\n");
         return EXIT_FAILURE;
     }

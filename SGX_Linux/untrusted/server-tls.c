@@ -59,7 +59,7 @@ int server_connect(sgx_enclave_id_t id)
     /* declare wolfSSL objects */
     long ctx;
     long ssl;
-    WOLFSSL_METHOD* method;
+    long method;
 
 
 
@@ -83,7 +83,7 @@ int server_connect(sgx_enclave_id_t id)
 
     /* Create and initialize WOLFSSL_CTX */
     sgxStatus = enc_wolfTLSv1_2_server_method(id, &method);
-    if (sgxStatus != SGX_SUCCESS || method == NULL) {
+    if (sgxStatus != SGX_SUCCESS) {
         printf("wolfTLSv1_2_server_method failure\n");
         return EXIT_FAILURE;
     }
