@@ -91,15 +91,33 @@ finished:
 int do_sig_ver_test(int eccKeySz)
 {
     int ret;
-    unsigned char hash[32] = "A 32-bit string to test signing";
+    /* sha256 hash of the string "A 32-bit string to test signing" */
+    unsigned char hash[32] = {
+                                0x3b, 0x07, 0x54, 0x5c, 0xfd, 0x4f, 0xb7, 0xb5,
+                                0xaf, 0xa7, 0x7a, 0x25, 0x33, 0xa5, 0x50, 0x70,
+                                0x4a, 0x65, 0x3e, 0x72, 0x7e, 0xcd, 0xd4, 0x5b,
+                                0x1b, 0x36, 0x96, 0x96, 0xca, 0x4f, 0x9b, 0x6f
+                              };
     ecc_key key;
     byte* sig = NULL; // get rid of this magic number
     WC_RNG rng;
     int verified = 0;
-    /* for odd curve sizes account for mod EG (256/8) + (256%8) == 32 + 0 = 32
-     * alternatively (521/8 = 65.125 (rounds to 65) + (521%8) == 65 + 1 = 66
+
+    /*
+     * for odd curve sizes account for mod EG:
+     * Case 1) curve field of 256:
+     *                 (256/8) + (256%8 != 0 ? 1:0) == 32 + 0 = 32
+     *
+     * Case 2) curve field of 521:
+     *                 (521/8 = 65.125 (rounds to 65) + (521%8 != 0 ? 1:0) ==
+                                                                    65 + 1 = 66
+     *
+     * Algorithm: (C / B) + (C % B != 0 ? 1:0)
+     *
+     * This remainder is a natural result of the calculation:
+     * Algorithm: (C / (B-1)) / (B)
      */
-    int byteField = (eccKeySz / BYTE_SZ) + (((eccKeySz % BYTE_SZ) != 0) ? 1:0);
+    int byteField = (eccKeySz + (BYTE_SZ - 1)) / BYTE_SZ;
     word32 maxSigSz = ECC_MAX_SIG_SIZE;
 
     printf("Key size is %d, byteField = %d\n", eccKeySz, byteField);

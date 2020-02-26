@@ -1,6 +1,6 @@
 # Signature Test Example
 
-Demonstrates using a hash digest to sign and verify a signature using RSA
+Demonstrates using a hash digest to sign and verify a signature using ECC
 
 ## Building
 
