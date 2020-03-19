@@ -10,3 +10,13 @@ How to use pkcs12-example.c
 3)  Running 'make clean' will delete the excecutable as well as any created
     files. Making sure that the only files left are 'pkcs12-example.c',
     'Makefile', 'test-servercert.p12'and 'README'.
+
+How to use pkcs12-create-example
+
+1) Compile wolfSSL with PKCS12 enabled then run 'make' from this directory.
+
+2) A new key and certificate is generated then output into the output.p12 pkcs12
+   bundled created. The default password is "test password"
+
+      ./pkcs12-create-example
+
