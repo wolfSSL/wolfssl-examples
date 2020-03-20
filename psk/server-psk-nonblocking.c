@@ -43,7 +43,7 @@
 
 /* states of the tcp connection */
 enum{
-    TEST_SELECT_FAIL,
+    TEST_SELECT_FAIL = 0,
     TEST_TIMEOUT,
     TEST_RECV_READY,
     TEST_ERROR_READY
@@ -77,7 +77,7 @@ int main()
     int ret;
     int error;
     int result;
-    int select_ret;
+    int select_ret = TEST_SELECT_FAIL;
     int sockfd;
     int nfds;
     int currTimeout = 1;

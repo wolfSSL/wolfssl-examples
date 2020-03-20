@@ -40,7 +40,7 @@
  * enum used for tcp_select function
  */
 enum {
-    TEST_SELECT_FAIL,
+    TEST_SELECT_FAIL = 0,
     TEST_TIMEOUT,
     TEST_RECV_READY,
     TEST_ERROR_READY
@@ -72,7 +72,8 @@ static inline unsigned int My_Psk_Client_Cb(WOLFSSL* ssl, const char* hint,
 
 int main(int argc, char **argv)
 {
-    int sockfd, ret, error, select_ret, currTimeout;
+    int sockfd, ret, error, currTimeout;
+    int select_ret = TEST_SELECT_FAIL;
     int nfds;
     int result;
     char sendline[MAXLINE]="Hello Server"; /* string to send to the server */
