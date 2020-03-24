@@ -189,3 +189,4 @@ embedded/tls-sock-server
 embedded/tls-sock-server-ca
 embedded/tls-sock-threaded
 embedded/tls-threaded
+server-tls-verifycallback
