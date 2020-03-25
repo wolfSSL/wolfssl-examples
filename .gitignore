@@ -92,10 +92,11 @@ android/wolfssljni-ndk-sample/proguard-project.txt
 crypto/3des/3des-file-encrypt
 crypto/aes/aes-file-encrypt
 crypto/camellia/camellia-encrypt
+crypto/pkcs12/pkcs12-create-example
+crypto/pkcs12/pkcs12-example
 
 */file-client/start-client
 */file-server/start-server
-
 
 signature/signature
 

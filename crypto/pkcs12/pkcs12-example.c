@@ -24,12 +24,11 @@
 #include <wolfssl/wolfcrypt/pkcs12.h>
 #include <wolfssl/wolfcrypt/types.h>
 
-
-
 /* This is an example with using wc_ function for PKCS12. To see an example of
  * wolfSSL_PKCS12 functions look in tests/api.c */
 int main()
 {
+#if defined(HAVE_PKCS12) && !defined(NO_RSA)
     WC_DerCertList* list;
     WC_PKCS12*      pkcs12;
     byte* keyDer  = NULL;
@@ -63,7 +62,7 @@ int main()
     /* convert the DER file into an internal structure */
     ret = wc_d2i_PKCS12(buffer, bytes, pkcs12);
     printf("return value of d2i pkcs12 = %d %s\n", ret, (ret == 1)? "SUCCESS": "FAIL");
-    if (ret != 1) {
+    if (ret != 0) {
         printf("\t error converting pkcs12 to an internal structure\n");
         wc_PKCS12_free(pkcs12);
         return -1;
@@ -73,7 +72,7 @@ int main()
     ret = wc_PKCS12_parse(pkcs12, "wolfSSL test", &keyDer, &keySz,
             &certDer, &certSz, &list);
     printf("return value of parsing pkcs12 = %d %s\n", ret, (ret == 1)? "SUCCESS": "FAIL");
-    if (ret != 1 || keyDer == NULL || certDer == NULL) {
+    if (ret != 0 || keyDer == NULL || certDer == NULL) {
         printf("\t error parsing pkcs12\n");
         wc_PKCS12_free(pkcs12);
         return -1;
@@ -117,6 +116,9 @@ int main()
     }
 
     wc_PKCS12_free(pkcs12);
-
-    return 1;
+#else
+    printf("pkcs12-example requires wolfssl to be built with:\n");
+    printf("\t./configure --enable-pkcs12 --enable-pwdbased --enable-des3\n");
+#endif
+    return 0;
 }
