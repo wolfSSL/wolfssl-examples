@@ -24,12 +24,11 @@
 #include <wolfssl/wolfcrypt/pkcs12.h>
 #include <wolfssl/wolfcrypt/types.h>
 
-
-
 /* This is an example with using wc_ function for PKCS12. To see an example of
  * wolfSSL_PKCS12 functions look in tests/api.c */
 int main()
 {
+#if defined(HAVE_PKCS12) && !defined(NO_RSA)
     WC_DerCertList* list;
     WC_PKCS12*      pkcs12;
     byte* keyDer  = NULL;
@@ -117,6 +116,9 @@ int main()
     }
 
     wc_PKCS12_free(pkcs12);
-
-    return 1;
+#else
+    printf("pkcs12-example requires wolfssl to be built with:\n");
+    printf("\t./configure --enable-pkcs12 --enable-pwdbased --enable-des3\n");
+#endif
+    return 0;
 }

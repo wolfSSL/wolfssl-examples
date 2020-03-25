@@ -1,6 +1,6 @@
 /* pkcs12-create-example.c
  *
- * Copyright (C) 2006-2016 wolfSSL Inc.
+ * Copyright (C) 2006-2020 wolfSSL Inc.
  *
  * This file is part of wolfSSL.
  *
@@ -29,7 +29,8 @@
 #define WC_RSA_KEYSIZE 2048
 #define HEAP_HINT NULL
 
-
+#if defined(HAVE_PKCS12) && defined(WOLFSSL_KEY_GEN) && \
+    defined(WOLFSSL_CERT_GEN) && !defined(NO_RSA)
 static int createKey(byte** keyDer, word32* keySz, RsaKey* key, WC_RNG* rng)
 {
     int ret;
@@ -217,10 +218,12 @@ static int createCert(byte** certDer, word32* certSz, RsaKey* key, WC_RNG* rng)
     XFREE(caCert, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
     return ret;
 }
-
+#endif
 
 int main(int argc, char* argv[])
 {
+#if defined(HAVE_PKCS12) && defined(WOLFSSL_KEY_GEN) && \
+    defined(WOLFSSL_CERT_GEN) && !defined(NO_RSA)
     WC_PKCS12* pkcs12 = NULL;
     WC_RNG rng;
     RsaKey rsa;
@@ -269,5 +272,9 @@ int main(int argc, char* argv[])
     wc_FreeRng(&rng);
     XFREE(keyDer, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
     XFREE(certDer, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+#else
+    printf("pkcs12-create-key requires wolfssl to be built with:\n");
+    printf("\t./configure --enable-pkcs12 --enable-pwdbased --enable-des3 --enable-keygen --enable-certgen\n");
+#endif
     return 0;
 }

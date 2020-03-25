@@ -1,9 +1,14 @@
-How to use pkcs12-example.c
+These PKCS12 examples need wolfSSL to be built using:
 
-1) a. Compile wolfSSL with  ./configure --enable-pwdbased --enable-des3, run
-      'make', and then install by typing 'sudo make install'.
-   b. In the crypto/pkcs12 directory run the Makefile by typing 'make'.
-2)  run the excecutable as follows:
+   ./configure --enable-pkcs12 --enable-pwdbased --enable-des3 --enable-keygen --enable-certgen
+   make
+   sudo make install
+
+
+How to use pkcs12-example.c
+1) Compile wolfSSL then run 'make' from this directory.
+
+2) Run the excecutable as follows:
 
         ./pkcs12-example
 
@@ -11,12 +16,12 @@ How to use pkcs12-example.c
     files. Making sure that the only files left are 'pkcs12-example.c',
     'Makefile', 'test-servercert.p12'and 'README'.
 
+
 How to use pkcs12-create-example
 
-1) Compile wolfSSL with PKCS12 enabled then run 'make' from this directory.
+1) Compile wolfSSL then run 'make' from this directory.
 
 2) A new key and certificate is generated then output into the output.p12 pkcs12
    bundled created. The default password is "test password"
 
       ./pkcs12-create-example
-
