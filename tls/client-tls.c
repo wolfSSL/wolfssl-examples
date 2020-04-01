@@ -164,6 +164,7 @@ int main(int argc, char** argv)
     while (wolfSSL_shutdown(ssl) == SSL_SHUTDOWN_NOT_DONE) {
         printf("Shutdown not complete\n");
     }
+
     printf("Shutdown complete\n");
 
 

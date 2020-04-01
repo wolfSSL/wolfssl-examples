@@ -33,6 +33,7 @@
 /* wolfSSL */
 #include <wolfssl/options.h>
 #include <wolfssl/ssl.h>
+#include <wolfssl/test.h>
 
 #define DEFAULT_PORT 11111
 
@@ -41,16 +42,20 @@
 
 static int NonBlockingSSL_Shutdown(WOLFSSL* ssl)
 {
-    int error, status;
+    int error, status = SSL_SHUTDOWN_NOT_DONE;
 
     do {
         error = 0;
-        printf("Bidirectional shutdown...\n");
-        status = wolfSSL_shutdown(ssl);
-        if (status != WOLFSSL_SUCCESS) {
-            error = wolfSSL_get_error(ssl, 0);
+        if (tcp_select(SSL_get_fd(ssl), 2) == TEST_RECV_READY) {
+            status = wolfSSL_shutdown(ssl);    /* bidirectional shutdown */
+            if (status == WOLFSSL_SUCCESS)
+                printf("Bidirectional shutdown complete\n");
+            else {
+                error = wolfSSL_get_error(ssl, 0);
+            }
         }
-    } while (status == SSL_SHUTDOWN_NOT_DONE || error == SSL_ERROR_WANT_READ || error == SSL_ERROR_WANT_WRITE);
+    } while (status == SSL_SHUTDOWN_NOT_DONE || error == SSL_ERROR_WANT_READ ||
+             error == SSL_ERROR_WANT_WRITE);
 
     return status;
 }

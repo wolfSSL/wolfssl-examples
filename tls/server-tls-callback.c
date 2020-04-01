@@ -291,15 +291,14 @@ int main()
             return -1;
         }
 
-
+        /* Notify the client that the connection is ending */
+        wolfSSL_shutdown(ssl);
+        printf("Shutdown complete\n");
 
         /* Cleanup after this connection */
         wolfSSL_free(ssl);      /* Free the wolfSSL object              */
         close(connd);           /* Close the connection to the client   */
     }
-
-    printf("Shutdown complete\n");
-
 
 
     /* Cleanup and return */
