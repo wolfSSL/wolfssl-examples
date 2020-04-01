@@ -112,14 +112,19 @@ int main(int argc, char** argv)
     }
 
 
-
     /* Connect to the server */
     while (connect(sockfd, (struct sockaddr*) &servAddr, sizeof(servAddr))
            == -1) {
+        if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                /* no error, just non-blocking. Carry on. */
+            sleep(1); /* cut down on spam */
+            continue;
+        } else if(errno == EINPROGRESS || errno == EALREADY)
+            break;
         /* just keep looping until a connection is made */
+        fprintf(stderr, "ERROR: failed to connect %d\n\n", errno);
+        return -1;
     }
-
-
 
     /* Create a WOLFSSL object */
     if ((ssl = wolfSSL_new(ctx)) == NULL) {
@@ -135,7 +140,7 @@ int main(int argc, char** argv)
 
     /* Connect to wolfSSL on the server side */
     while (wolfSSL_connect(ssl) != SSL_SUCCESS) {
-        if (wolfSSL_want_read(ssl)) {
+        if (wolfSSL_want_read(ssl) || wolfSSL_want_write(ssl)) {
             /* no error, just non-blocking. Carry on. */
             printf("Waiting for connection...\n");
             sleep(1); /* cut down on spam */

@@ -139,8 +139,10 @@ int main()
                == -1) {
             if (errno == EAGAIN || errno == EWOULDBLOCK) {
                 /* no error, just non-blocking. Carry on. */
+                sleep(1); /* cut down on spam */
                 continue;
-            }
+            } else if(errno == EINPROGRESS || errno == EALREADY)
+                break;
             fprintf(stderr, "ERROR: failed to accept the connection\n\n");
             return -1;
         }
@@ -154,9 +156,19 @@ int main()
         /* Attach wolfSSL to the socket */
         wolfSSL_set_fd(ssl, connd);
 
+        /* make wolfSSL object nonblocking */
+        wolfSSL_set_using_nonblock(ssl, 1);
+
         /* Establish TLS connection */
+        printf("wolfSSL_accepting\n");
         ret = wolfSSL_accept(ssl);
         if (ret != SSL_SUCCESS) {
+            if (wolfSSL_want_read(ssl) || wolfSSL_want_write(ssl)) {
+                /* no error, just non-blocking. Carry on. */
+                printf("Waiting for acception...\n");
+                sleep(1); /* cut down on spam */
+                continue;
+            }
             fprintf(stderr, "wolfSSL_accept error = %d\n",
                 wolfSSL_get_error(ssl, ret));
             return -1;
