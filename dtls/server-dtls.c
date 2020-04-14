@@ -46,17 +46,9 @@ struct sockaddr_in cliaddr;         /* the client's address */
 
 void sig_handler(const int sig);
 
-void sig_handler(const int sig)
-{
-    printf("\nSIGINT %d handled\n", sig);
-    cleanup = 1;
-    return;
-}
-
 int main(int argc, char** argv)
 {
-    /* cont short for "continue?", Loc short for "location" */
-    int         cont = 0;
+    /* Loc short for "location" */
     char        caCertLoc[] = "../certs/ca-cert.pem";
     char        servCertLoc[] = "../certs/server-cert.pem";
     char        servKeyLoc[] = "../certs/server-key.pem";
@@ -73,13 +65,6 @@ int main(int argc, char** argv)
     unsigned char b[MSGLEN];      /* watch for incoming messages */
     char          buff[MSGLEN];   /* the incoming message */
     char          ack[] = "I hear you fashizzle!\n";
-    
-    /* Code for handling signals */
-    struct sigaction act, oact;
-    act.sa_handler = sig_handler;
-    sigemptyset(&act.sa_mask);
-    act.sa_flags = 0;
-    sigaction(SIGINT, &act, &oact);
 
     /* "./config --enable-debug" and uncomment next line for debugging */
     /* wolfSSL_Debugging_ON(); */
@@ -112,12 +97,13 @@ int main(int argc, char** argv)
     }
 
     /* Await Datagram */
-    while (cleanup != 1) {
+    ;
 
+    while (cleanup != 1) {
         /* Create a UDP/IP socket */
         if ((listenfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) {
             printf("Cannot create socket.\n");
-            cleanup = 1;
+            break;
         }
         printf("Socket allocated\n");
 
@@ -134,15 +120,13 @@ int main(int argc, char** argv)
         res = setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &on, len);
         if (res < 0) {
             printf("Setsockopt SO_REUSEADDR failed.\n");
-            cleanup = 1;
-            cont = 1;
+            break;
         }
 
         /*Bind Socket*/
         if (bind(listenfd, (struct sockaddr*)&servAddr, sizeof(servAddr)) < 0) {
             printf("Bind failed.\n");
-            cleanup = 1;
-            cont = 1;
+            break;
         }
 
         printf("Awaiting client connection on port %d\n", SERV_PORT);
@@ -153,28 +137,26 @@ int main(int argc, char** argv)
 
         if (connfd < 0) {
             printf("No clients in que, enter idle state\n");
+            close(listenfd);
             continue;
         }
         else if (connfd > 0) {
             if (connect(listenfd, (const struct sockaddr *)&cliaddr,
                         sizeof(cliaddr)) != 0) {
                 printf("Udp connect failed.\n");
-                cleanup = 1;
-                cont = 1;
+                break;
             }
         }
         else {
             printf("Recvfrom failed.\n");
-            cleanup = 1;
-            cont = 1;
+            break;
         }
         printf("Connected!\n");
 
         /* Create the WOLFSSL Object */
         if ((ssl = wolfSSL_new(ctx)) == NULL) {
             printf("wolfSSL_new error.\n");
-            cleanup = 1;
-            cont = 1;
+            break;
         }
 
         /* set the session ssl to client connection port */
@@ -186,7 +168,7 @@ int main(int argc, char** argv)
 
             printf("error = %d, %s\n", e, wolfSSL_ERR_reason_error_string(e));
             printf("SSL_accept failed.\n");
-            continue;
+            break;
         }
         if ((recvLen = wolfSSL_read(ssl, buff, sizeof(buff)-1)) > 0) {
             printf("heard %d bytes\n", recvLen);
@@ -198,14 +180,12 @@ int main(int argc, char** argv)
             int readErr = wolfSSL_get_error(ssl, 0);
             if(readErr != SSL_ERROR_WANT_READ) {
                 printf("SSL_read failed.\n");
-                cleanup = 1;
-                cont = 1;
+                break;
             }
         }
         if (wolfSSL_write(ssl, ack, sizeof(ack)) < 0) {
             printf("wolfSSL_write fail.\n");
-            cleanup = 1;
-            cont = 1;
+            break;
         }
         else {
             printf("Sending reply.\n");
@@ -217,21 +197,22 @@ int main(int argc, char** argv)
         wolfSSL_shutdown(ssl);
         wolfSSL_free(ssl);
         close(listenfd);
+        cleanup = 0;
 
         printf("Client left cont to idle state\n");
-        cont = 0;
     }
     
     /* With the "continue" keywords, it is possible for the loop to exit *
      * without changing the value of cont                                */
     if (cleanup == 1) {
-        cont = 1;
+        wolfSSL_set_fd(ssl, 0);
+        wolfSSL_shutdown(ssl);
+        wolfSSL_free(ssl);
+        close(listenfd);
     }
 
-    if (cont == 1) {
-        wolfSSL_CTX_free(ctx);
-        wolfSSL_Cleanup();
-    }
+    wolfSSL_CTX_free(ctx);
+    wolfSSL_Cleanup();
 
     return 0;
 }
