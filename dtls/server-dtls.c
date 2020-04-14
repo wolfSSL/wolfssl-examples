@@ -40,7 +40,7 @@
 #define SERV_PORT   11111           /* define our server port number */
 #define MSGLEN      4096
 
-static int cleanup;                 /* To handle shutdown */
+static int cleanup = 0;                 /* To handle shutdown */
 struct sockaddr_in servAddr;        /* our server's address */
 struct sockaddr_in cliaddr;         /* the client's address */
 
@@ -216,6 +216,7 @@ int main(int argc, char** argv)
         wolfSSL_set_fd(ssl, 0);
         wolfSSL_shutdown(ssl);
         wolfSSL_free(ssl);
+        close(listenfd);
 
         printf("Client left cont to idle state\n");
         cont = 0;
