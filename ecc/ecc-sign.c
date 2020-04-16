@@ -78,7 +78,7 @@ static void PrintBuffer(const byte* buffer, word32 length)
 static int HashFirmware(byte* hashBuf)
 {
     int ret;
-    Sha256 sha;
+    wc_Sha256 sha;
     int idx = 0, len = gFwLen, sz;
 
     ret = wc_InitSha256(&sha);
@@ -151,8 +151,8 @@ static int SignFirmware(byte* hashBuf, word32 hashLen, byte* sigBuf, word32* sig
 int main(void)
 {
     int ret;
-    byte hashBuf[SHA256_DIGEST_SIZE];
-    word32 hashLen = SHA256_DIGEST_SIZE;
+    byte hashBuf[WC_SHA256_DIGEST_SIZE];
+    word32 hashLen = WC_SHA256_DIGEST_SIZE;
     byte sigBuf[ECC_MAX_SIG_SIZE];
     word32 sigLen = ECC_MAX_SIG_SIZE;
     int i;
@@ -162,7 +162,7 @@ int main(void)
         gFwBuf[i] = (byte)i;
     }
 
-    /* try perofrming signature a few times */
+    /* try performing signature a few times */
     for (i=0; i < gSignTimes; i++) {
         memset(hashBuf, 0, hashLen);
         ret = HashFirmware(hashBuf);

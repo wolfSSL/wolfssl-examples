@@ -170,6 +170,9 @@ pk/rsa-pss/rsa-pss
 pk/rsa-pss/rsa-public.der
 pk/rsa-pss/sign.txt
 pk/rsa/rsa-nb
+pk/ecc/ecc_verify
+pk/ecc/ecc_sign
+pk/ecc/ecc_pub
 pk/ecc/ecc_keys
 #Example der and x963 files
 pk/ecc/*.der

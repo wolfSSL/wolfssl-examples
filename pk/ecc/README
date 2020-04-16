@@ -1,8 +1,0 @@
-Shows examples of how to work with storing and loading keys after they have been generated. ecc_keys.c creates a key structure than stores the private key in DER formate. After storing the private key it then loads it back into a ecc_key struct. ecc_keys.c also shows how to export and import public keys.
-
-The build option used for wolfSSL is
-
-```
-./configure --enable-keygen --enable-ecc
-```
-

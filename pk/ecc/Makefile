@@ -2,10 +2,15 @@ CC=gcc
 CFLAGS=-Wall
 LIBS= -lwolfssl
 
-ecc_keys: ecc_keys.o
+SRC=$(wildcard *.c)
+TARGETS=$(patsubst %.c, %, $(SRC))
+
+all: $(TARGETS)
+
+%: %.c
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 .PHONY: clean
 
 clean:
-	rm -f *.der *.x963 *.o ecc_keys
+	rm -f $(TARGETS) *.der *.x963 

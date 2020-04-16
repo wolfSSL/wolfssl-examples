@@ -19,47 +19,63 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
+/* 
+./configure && make && sudo make install
+gcc -lwolfssl -o ecc_pub ecc_pub.c
+*/
 
-#include <wolfssl/options.h>
+#ifndef WOLFSSL_USER_SETTINGS
+    #include <wolfssl/options.h>
+#endif
+#include <wolfssl/wolfcrypt/settings.h>
+#include <wolfssl/wolfcrypt/ecc.h>
 #include <wolfssl/wolfcrypt/asn_public.h>
 #include <wolfssl/wolfcrypt/random.h>
-#include <wolfssl/wolfcrypt/ecc.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 
+#define ECC_CURVE_SZ 32 /* SECP256R1 curve size in bytes */
+#define ECC_CURVE_ID ECC_SECP256R1
+
+#define MAX_DER_SZ 256
+
 int main()
 {
+    int ret;
     ecc_key key;
-    byte der[4096];
-    byte buf[4096];
-    word32 idx = 0;
+    WC_RNG rng;
+    byte der[MAX_DER_SZ];
+    byte buf[MAX_DER_SZ];
+    word32 idx;
     FILE* derFile;
     size_t sz;
-
-    RNG rng;
 
     wc_InitRng(&rng);
     wc_ecc_init(&key);
 
-    if (wc_ecc_make_key(&rng, 32, &key) != 0) {
-        printf("error making ecc key\n");
-        return -1;
+    ret = wc_ecc_make_key_ex(&rng, ECC_CURVE_SZ, &key, ECC_CURVE_ID);
+    if (ret != 0) {
+        printf("error %d making ecc key\n", ret);
+        return ret;
     }
 
     /* write private key */
-    if (wc_EccKeyToDer(&key, der, sizeof(der)) < 0) {
-        printf("error in ecc to der\n");
-        return -1;
+    ret = wc_EccKeyToDer(&key, der, sizeof(der));
+    if (ret < 0) {
+        printf("error %d in ecc to der\n", ret);
+        return ret;
     }
-    printf("writing private key to ecc-key.der\n");
+    sz = ret;
+
+    printf("writing private key to ecc-key.der (%d bytes)\n", (int)sz);
     derFile = fopen("ecc-key.der", "w");
     if (!derFile) {
         printf("error loading file\n");
         return -1;
     }
 
-    sz = fwrite(der, 1, 4096, derFile);
+    fwrite(der, 1, sz, derFile);
     fclose(derFile);
     wc_ecc_free(&key);
 
@@ -70,13 +86,13 @@ int main()
         printf("error reading from file\n");
         return -1;
     }
-
-    sz = fread(buf, 1, 4096, derFile);
+    sz = fread(buf, 1, sizeof(buf), derFile);
     fclose(derFile);
 
     /* load private ecc key */
-    printf("storing private key in ecc struct\n");
+    printf("loading private key in ecc struct\n");
     wc_ecc_init(&key);
+    idx = 0;
     if (wc_EccPrivateKeyDecode(buf, &idx, &key, (word32)sz) != 0) {
         printf("error decoding private key\n");
         return -1;
@@ -94,25 +110,27 @@ int main()
 
     /* to store a public key */
     wc_ecc_init(&key);
-    if (wc_ecc_make_key(&rng, 32, &key) != 0) {
-        printf("error making ecc key\n");
-        return -1;
+    ret = wc_ecc_make_key_ex(&rng, ECC_CURVE_SZ, &key, ECC_CURVE_ID);
+    if (ret != 0) {
+        printf("error %d making ecc key\n", ret);
+        return ret;
     }
 
-    printf("storing public key into ecc-public.x963\n");
+    printf("exporting public key\n");
     memset(buf, 0, sizeof(buf));
-    idx = sizeof(buf);
-    if (wc_ecc_export_x963(&key, buf, &idx) != 0) {
+    sz = sizeof(buf);
+    if (wc_ecc_export_x963(&key, buf, (word32*)&sz) != 0) {
         printf("error exporting public ecc key\n");
         return -1;
     }
 
+    printf("storing public key into ecc-public.x963 (%d bytes)\n", (int)sz);
     derFile = fopen("ecc-public.x963", "w"); /* reused the derFile pointer */
     if (!derFile) {
         printf("error loading file\n");
         return -1;
     }
-    sz = fwrite(buf, 1, idx, derFile);
+    fwrite(buf, 1, sz, derFile);
 
     /* close stuff up */
     fclose(derFile);
@@ -120,4 +138,3 @@ int main()
     wc_FreeRng(&rng);
     return 0;
 }
-
