@@ -15,7 +15,7 @@ Must have a copy of wolfSSL from either the website or github.
 To download a stable release head on over to https://www.wolfssl.com/download/
 and look for the wolfssl-x.x.x.zip (latest release)
 
-To grab a copy of the development master use `git clone https://github.com/wolfssl/wolfssl.git
+To grab a copy of the development master use `git clone https://github.com/wolfssl/wolfssl.git`
 NOTE: When cloning the github repository one must first run `./autogen.sh` from
 the root directory of wolfSSL to generate the configure script. Next run
 `./configure`.
