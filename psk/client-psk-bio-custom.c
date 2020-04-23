@@ -169,45 +169,45 @@ int main(int argc, char **argv)
     WOLFSSL_CTX* ctx = NULL;
 
     if (createSocket("127.0.0.1") != 0) {
-        printf("unable to create TCP socket\n");
+        fprintf(stderr, "unable to create TCP socket\n");
         return -1;
     }
 
-    wolfSSL_Debugging_ON();
     wolfSSL_Init();  /* initialize wolfSSL */
 
     /* create a custom BIO from a custom BIO_METHOD */
     myMethod = wolfSSL_BIO_meth_new(WOLFSSL_BIO_BUFFER, "custom_bio");
     if (myMethod == NULL) {
-        printf("unable to create new custom BIO method\n");
+        fprintf(stderr, "unable to create new custom BIO method\n");
         goto exit;
     }
     if (wolfSSL_BIO_meth_set_write(myMethod, bioWriteCb) != WOLFSSL_SUCCESS) {
-        printf("unable to set write method\n");
+        fprintf(stderr, "unable to set write method\n");
         goto exit;
     }
     if (wolfSSL_BIO_meth_set_read(myMethod, bioReadCb) != WOLFSSL_SUCCESS) {
-        printf("unable to set read method\n");
+        fprintf(stderr, "unable to set read method\n");
         goto exit;
     }
     if (wolfSSL_BIO_meth_set_ctrl(myMethod, bioCTRLCb) != WOLFSSL_SUCCESS) {
-        printf("unable to set ctrl method\n");
+        fprintf(stderr, "unable to set ctrl method\n");
         goto exit;
     }
     if (wolfSSL_BIO_meth_set_create(myMethod, bioCreateCb) != WOLFSSL_SUCCESS) {
-        printf("unable to set create method\n");
+        fprintf(stderr, "unable to set create method\n");
         goto exit;
     }
     if (wolfSSL_BIO_meth_set_destroy(myMethod, bioDestroyCb) !=
             WOLFSSL_SUCCESS) {
-        printf("unable to set destroy method\n");
+        fprintf(stderr, "unable to set destroy method\n");
         goto exit;
     }
     custom = wolfSSL_BIO_new(myMethod);
     bioSSL = wolfSSL_BIO_new(wolfSSL_BIO_f_ssl());
     bioBuffer = wolfSSL_BIO_new(wolfSSL_BIO_f_buffer());
+
     if (custom == NULL || bioSSL == NULL || bioBuffer == NULL) {
-        printf("error creating bio's\n");
+        fprintf(stderr, "error creating bio's\n");
         goto exit;
     }
 
@@ -250,11 +250,9 @@ int main(int argc, char **argv)
     printf("Server Message: %s\n", recvline);
 
 exit:
-    wolfSSL_BIO_free(bioBuffer);
-    wolfSSL_BIO_free(custom);
+    wolfSSL_BIO_free_all(bioBuffer);
 
-    /* when completely done using SSL/TLS, free the
-     * wolfssl_ctx object */
+    /* when completely done using SSL/TLS, free the wolfssl_ctx object */
     wolfSSL_CTX_free(ctx);
     wolfSSL_BIO_meth_free(myMethod);
     wolfSSL_Cleanup();
