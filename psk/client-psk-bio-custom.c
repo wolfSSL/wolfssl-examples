@@ -31,6 +31,8 @@
 #include <signal.h>
 #include <unistd.h>
 
+#if defined(OPENSSL_EXTRA) && !defined(NO_PSK)
+
 #define     MAXLINE 256      /* max text line length */
 #define     SERV_PORT 11111  /* default port*/
 #define     PSK_KEY_LEN 4
@@ -261,3 +263,13 @@ exit:
     /* exit client */
     return ret;
 }
+
+#else
+
+int main()
+{
+    printf("To use this example please recompile wolfssl with\n --enable-psk"
+           " --enable-opensslextra\n");
+    return 0;
+}
+#endif
