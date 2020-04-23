@@ -10,6 +10,22 @@ application could be developed to completely avoid passing the WOLFSSL_CTX
 pointer between trusted and untrusted code for more security.
 
 ## Prerequisites
+Must have a copy of wolfSSL from either the website or github.
+
+To download a stable release head on over to https://www.wolfssl.com/download/
+and look for the wolfssl-x.x.x.zip (latest release)
+
+To grab a copy of the development master use `git clone https://github.com/wolfssl/wolfssl.git
+NOTE: When cloning the github repository one must first run `./autogen.sh` from
+the root directory of wolfSSL to generate the configure script. Next run
+`./configure`.
+
+The result of running the configure script will be an auto-generated options.h
+header file which is required to build the sgx static library. 
+
+Once the autogen.sh script and the first configure have been run to setup the
+options.h you can now go the SGX directory and follow the README instructions
+referenced in the line below.
 
 First create the trusted static wolfssl library from `<wolfssl-root>/IDE/LINUX-SGX`. Steps for creating the static library can be found in `<wolfssl-root>/IDE/LINUX-SGX/README.md`
 
