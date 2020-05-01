@@ -40,7 +40,7 @@ int main(int argc, char** argv)
     struct sockaddr_in servAddr;
     char               buff[256];
     size_t             len;
-
+    int                ret;
 
 
     /* Check for proper calling convention */
@@ -49,17 +49,14 @@ int main(int argc, char** argv)
         return 0;
     }
 
-
-
     /* Create a socket that uses an internet IPv4 address,
      * Sets the socket to be stream based (TCP),
      * 0 means choose the default protocol. */
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
         fprintf(stderr, "ERROR: failed to create the socket\n");
-        return -1;
+        ret = -1;
+        goto end;
     }
-
-
 
     /* Initialize the server address struct with zeros */
     memset(&servAddr, 0, sizeof(servAddr));
@@ -71,50 +68,48 @@ int main(int argc, char** argv)
     /* Get the server IPv4 address from the command line call */
     if (inet_pton(AF_INET, argv[1], &servAddr.sin_addr) != 1) {
         fprintf(stderr, "ERROR: invalid address\n");
-        return -1;
+        ret = -1;
+        goto end;
     }
-
-
 
     /* Connect to the server */
-    if (connect(sockfd, (struct sockaddr*) &servAddr, sizeof(servAddr))
-        == -1) {
+    if ((ret = connect(sockfd, (struct sockaddr*) &servAddr, sizeof(servAddr)))
+         == -1) {
         fprintf(stderr, "ERROR: failed to connect\n");
-        return -1;
+        goto end;
     }
-
-
 
     /* Get a message for the server from stdin */
     printf("Message for server: ");
     memset(buff, 0, sizeof(buff));
     if (fgets(buff, sizeof(buff), stdin) == NULL) {
         fprintf(stderr, "ERROR: failed to get message for server\n");
-        return -1;
+        ret = -1;
+        goto socket_cleanup;
     }
     len = strnlen(buff, sizeof(buff));
 
     /* Send the message to the server */
     if (write(sockfd, buff, len) != len) {
         fprintf(stderr, "ERROR: failed to write\n");
-        return -1;
+        ret = -1;
+        goto socket_cleanup;
     }
-
-
 
     /* Read the server data into our buff array */
     memset(buff, 0, sizeof(buff));
     if (read(sockfd, buff, sizeof(buff)-1) == -1) {
         fprintf(stderr, "ERROR: failed to read\n");
-        return -1;
+        ret = -1;
+        goto socket_cleanup;
     }
 
     /* Print to stdout any data the server sends */
     printf("Server: %s\n", buff);
 
-
-
     /* Cleanup and return */
+socket_cleanup:
     close(sockfd);          /* Close the connection to the server       */
+end:
     return 0;               /* Return reporting a success               */
 }
