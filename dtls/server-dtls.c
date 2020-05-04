@@ -159,6 +159,11 @@ int main(int argc, char** argv)
             break;
         }
 
+#ifdef WOLFSSL_DTLS_SET_PEER
+        /* Alternative to UDP connect */
+        wolfSSL_dtls_set_peer(ssl, &cliaddr, cliLen);
+#endif
+
         /* set the session ssl to client connection port */
         wolfSSL_set_fd(ssl, listenfd);
 
