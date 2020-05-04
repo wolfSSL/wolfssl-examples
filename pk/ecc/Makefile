@@ -1,11 +1,17 @@
 CC=gcc
-CFLAGS=-Wall
-LIBS= -lwolfssl
+WOLF_PATH=/usr/local
+CFLAGS=-I$(WOLF_PATH)/include -Wall
+LIBS=-L$(WOLF_PATH)/lib -lwolfssl
 
-ecc_keys: ecc_keys.o
+SRC=$(wildcard *.c)
+TARGETS=$(patsubst %.c, %, $(SRC))
+
+all: $(TARGETS)
+
+%: %.c
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 .PHONY: clean
 
 clean:
-	rm -f *.der *.x963 *.o ecc_keys
+	rm -f $(TARGETS) *.der *.x963 
