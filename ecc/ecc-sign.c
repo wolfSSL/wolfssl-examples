@@ -1,4 +1,4 @@
-/* ecc_sign.c
+/* ecc-sign.c
  *
  * Copyright (C) 2006-2020 wolfSSL Inc.
  *

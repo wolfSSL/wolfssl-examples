@@ -14,6 +14,7 @@
 make
 gcc -o ecc-key-decode ecc-key-decode.c -Wall -I/usr/local/include -Os -L/usr/local/lib -lm -lwolfssl
 gcc -o ecc-key-decode ecc-key-decode.c -Wall -I/usr/local/include -Os -L/usr/local/lib -lm -lwolfssl
+gcc -o ecc-params ecc-params.c -Wall -I/usr/local/include -Os -L/usr/local/lib -lm -lwolfssl
 gcc -o ecc-sign ecc-sign.c -Wall -I/usr/local/include -Os -L/usr/local/lib -lm -lwolfssl
 gcc -o ecc-stack ecc-stack.c -Wall -I/usr/local/include -Os -L/usr/local/lib -lm -lwolfssl
 gcc -o ecc-verify ecc-verify.c -Wall -I/usr/local/include -Os -L/usr/local/lib -lm -lwolfssl
@@ -141,6 +142,32 @@ openssl ec -inform der -in ECC_SECP256K1_pub.der -text -pubin
 openssl ec -inform pem -in ECC_SECP256K1_pub.pem -text -pubin
 ```
 
+### `ecc-params`
+
+Example for extracting curve parameters for a specific ECC curve.
+
+```
+./ecc-params
+ECC Curve Parameters for SECP256R1
+Prime: 32
+	ff ff ff ff 00 00 00 01 00 00 00 00 00 00 00 00 |................
+	00 00 00 00 ff ff ff ff ff ff ff ff ff ff ff ff |................
+Af: 32
+	ff ff ff ff 00 00 00 01 00 00 00 00 00 00 00 00 |................
+	00 00 00 00 ff ff ff ff ff ff ff ff ff ff ff fc |................
+Bf: 32
+	5a c6 35 d8 aa 3a 93 e7 b3 eb bd 55 76 98 86 bc |Z.5..:.....Uv...
+	65 1d 06 b0 cc 53 b0 f6 3b ce 3c 3e 27 d2 60 4b |e....S..;.<>'.`K
+Order: 32
+	ff ff ff ff 00 00 00 00 ff ff ff ff ff ff ff ff |................
+	bc e6 fa ad a7 17 9e 84 f3 b9 ca c2 fc 63 25 51 |.............c%Q
+Gx: 32
+	6b 17 d1 f2 e1 2c 42 47 f8 bc e6 e5 63 a4 40 f2 |k....,BG....c.@.
+	77 03 7d 81 2d eb 33 a0 f4 a1 39 45 d8 98 c2 96 |w.}.-.3...9E....
+Gy: 32
+	4f e3 42 e2 fe 1a 7f 9b 8e e7 eb 4a 7c 0f 9e 16 |O.B........J|...
+	2b ce 33 57 6b 31 5e ce cb b6 40 68 37 bf 51 f5 |+.3Wk1^...@h7.Q.
+```
 
 ## Support
 
