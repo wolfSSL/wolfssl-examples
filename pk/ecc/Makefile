@@ -1,6 +1,7 @@
 CC=gcc
-CFLAGS=-Wall
-LIBS= -lwolfssl
+WOLF_PATH=/usr/local
+CFLAGS=-I$(WOLF_PATH)/include -Wall
+LIBS=-L$(WOLF_PATH)/lib -lwolfssl
 
 SRC=$(wildcard *.c)
 TARGETS=$(patsubst %.c, %, $(SRC))
