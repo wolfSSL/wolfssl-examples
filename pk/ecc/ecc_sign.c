@@ -295,13 +295,15 @@ int main()
     int ret;
     uint8_t hash[WC_SHA256_DIGEST_SIZE];
     uint8_t sig[ECC_CURVE_SZ*2];
-    uint32_t sigSz = sizeof(sig);
+    uint32_t sigSz = 0;
 
 #ifdef DEBUG_WOLFSSL
     wolfSSL_Debugging_ON();
 #endif
 
     printf("Running NIST P-256,SHA-256 Sign Test\n");
+
+    memset(sig, 0, sizeof(sig));
 
     ret = crypto_sha256(
         kMsg, sizeof(kMsg), /* input message */
@@ -313,6 +315,7 @@ int main()
         /* Note: result of an ECC sign varies for each call even with same 
             private key and hash. This is because a new random public key is 
             used for each operation. */ 
+        sigSz = sizeof(sig);
         ret = crypto_ecc_sign(
             kPrivKey, sizeof(kPrivKey), /* private key */
             hash, sizeof(hash),         /* computed hash digest */
@@ -333,16 +336,18 @@ int main()
         );
     }
 
-    printf("Signature %d\n", sigSz);
-    print_hex(sig, sigSz);
+    if (ret == 0) {
+        printf("Signature %d\n", sigSz);
+        print_hex(sig, sigSz);
 
-    if (ret != 0) {
-        printf("Failure %d: %s\n", ret, wc_GetErrorString(ret));
-        return -1;
+        printf("Success\n");
     }
-    printf("Success\n");
+    else {
+        printf("Failure %d: %s\n", ret, wc_GetErrorString(ret));
+        ret = -1;
+    }
 
-    return 0;
+    return ret;
 #else
     printf("wolfSSL requires ECC and SHA256\n");
     return -1;

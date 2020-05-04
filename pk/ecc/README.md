@@ -20,8 +20,12 @@ The `ecc_keys.c` example shows how to work with storing and loading keys after t
 
 ## ecc_sign
 
-The `ecc_verify.c` example uses NIST test vectors to demonstrate hashing a message and verifying an ECC signature.
+The `ecc_sign.c:` example takes a random message and private key, creates a signature then verifies it.
 
 ## ecc_verify
 
-The `ecc_sign.c:` example takes a random message and private key, creates a signature then verifies it.
+The `ecc_verify.c` example uses NIST test vectors to demonstrate hashing a message and verifying an ECC signature.
+
+## ecc_pub
+
+The `ecc_pub` example code shows how to extracting an ECC public key from private key.

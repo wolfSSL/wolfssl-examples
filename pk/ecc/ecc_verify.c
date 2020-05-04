@@ -231,11 +231,13 @@ int main()
         );
     }
 
-    if (ret != 0) {
-        printf("Failure %d: %s\n", ret, wc_GetErrorString(ret));
-        return -1;
+    if (ret == 0) {
+        printf("Success\n");
     }
-    printf("Success\n");
+    else {
+        printf("Failure %d: %s\n", ret, wc_GetErrorString(ret));
+        ret = -1;
+    }
 
     return ret;
 #else
