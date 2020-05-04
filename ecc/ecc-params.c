@@ -25,6 +25,7 @@
 #include <wolfssl/wolfcrypt/integer.h>
 #include <wolfssl/wolfcrypt/ecc.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
+#include <wolfssl/wolfcrypt/logging.h>
 
 #include <stdint.h>
 
@@ -32,7 +33,7 @@
 
 /*
 STATIC:
-./configure --disable-shared CFLAGS="-DWOLFSSL_PUBLIC_MP"  && make && sudo make install
+./configure --enable-debug --disable-shared CFLAGS="-DWOLFSSL_PUBLIC_MP" && make && sudo make install
 gcc -o ecc-params -I/usr/local/include ecc-params.c /usr/local/lib/libwolfssl.a
 ./ecc_params
 */
@@ -115,14 +116,39 @@ int main(void)
 {
     int ret = 0;
 #if defined(HAVE_ECC) && defined(WOLFSSL_PUBLIC_MP)
+    const char* curve_str = "SECP256R1";
     int curve_id = ECC_SECP256R1;
-    unsigned char aF[32];
+    unsigned char param[MAX_ECC_BYTES];
 
-    ret = load_curve_param(curve_id, ECC_CURVE_FIELD_AF, aF, sizeof(aF));
+    wolfSSL_Debugging_ON();
 
+    printf("ECC Curve Parameters for %s\n", curve_str);
+
+    ret = load_curve_param(curve_id, ECC_CURVE_FIELD_PRIME, param, sizeof(param));
+    printf("Prime: %d\n", ret);
+    WOLFSSL_BUFFER(param, ret);
+
+    ret = load_curve_param(curve_id, ECC_CURVE_FIELD_AF, param, sizeof(param));
     printf("Af: %d\n", ret);
+    WOLFSSL_BUFFER(param, ret);
+
+    ret = load_curve_param(curve_id, ECC_CURVE_FIELD_BF, param, sizeof(param));
+    printf("Bf: %d\n", ret);
+    WOLFSSL_BUFFER(param, ret);
+
+    ret = load_curve_param(curve_id, ECC_CURVE_FIELD_ORDER, param, sizeof(param));
+    printf("Order: %d\n", ret);
+    WOLFSSL_BUFFER(param, ret);
+
+    ret = load_curve_param(curve_id, ECC_CURVE_FIELD_GX, param, sizeof(param));
+    printf("Gx: %d\n", ret);
+    WOLFSSL_BUFFER(param, ret);
+
+    ret = load_curve_param(curve_id, ECC_CURVE_FIELD_GY, param, sizeof(param));
+    printf("Gy: %d\n", ret);
+    WOLFSSL_BUFFER(param, ret);
 #else
-    printf("Must build wolfSSL with ./configure --disable-shared CFLAGS=\"-DWOLFSSL_PUBLIC_MP\"\n");
+    printf("Must build wolfSSL with ./configure CFLAGS=\"-DWOLFSSL_PUBLIC_MP\"\n");
 #endif
     return ret;
 }
