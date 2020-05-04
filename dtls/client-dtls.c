@@ -112,7 +112,7 @@ int main (int argc, char** argv)
 /*****************************************************************************/
 /*                  Code for sending datagram to server                      */
     /* Loop until the user is finished */
-    while (fgets(sendLine, MAXLINE, stdin) != NULL) {
+    if (fgets(sendLine, MAXLINE, stdin) != NULL) {
 
         /* Send sendLine to the server */
         if ( ( wolfSSL_write(ssl, sendLine, strlen(sendLine)))
