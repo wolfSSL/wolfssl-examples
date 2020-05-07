@@ -161,7 +161,7 @@ int main(void) {
          /* This strings value is "example.com" (in hex) */
          0x65, 0x78, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x2e, 0x63, 0x6f, 0x6d,
          /* This is a String 0x8, it denotes a DNSName 0x2 -> 0x82
-          * This strings' length is 11 (0x0B)
+          * This strings' length is 9 (0x09)
           */
          0x82, 0x09,
          /* This strings value is "127.0.0.1" (in hex) */
