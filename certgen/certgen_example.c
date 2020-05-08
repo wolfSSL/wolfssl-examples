@@ -43,7 +43,8 @@ int main(void) {
     word32 idx3 = 0;
 
 /*---------------------------------------------------------------------------*/
-/* open and read the der formatted certificate */
+/* open the CA der formatted certificate, we need to get it's subject line to
+ * use in the new cert we're creating as the "Issuer" line */
 /*---------------------------------------------------------------------------*/
     printf("Open and read in der formatted certificate\n");
 
@@ -61,13 +62,14 @@ int main(void) {
     derBufSz = fread(derBuf, 1, FOURK_SZ, file);
 
     fclose(file);
-    printf("Successfully read %d bytes\n\n", derBufSz);
+    printf("Successfully read the CA cert we are using to sign our new cert\n");
+    printf("Cert was %d bytes\n\n", derBufSz);
 /*---------------------------------------------------------------------------*/
 /* END */
 /*---------------------------------------------------------------------------*/
 
 /*---------------------------------------------------------------------------*/
-/* open caKey file and get the caKey */
+/* open caKey file and get the caKey, we need it to sign our new cert */
 /*---------------------------------------------------------------------------*/
     printf("Getting the caKey from %s\n", caKeyFile);
 
@@ -102,7 +104,7 @@ int main(void) {
 /*---------------------------------------------------------------------------*/
 
 /*---------------------------------------------------------------------------*/
-/* Generate new ecc key */
+/* Generate new private key to go with our new cert */
 /*---------------------------------------------------------------------------*/
     printf("initializing the rng\n");
     ret = wc_InitRng(&rng);
@@ -121,7 +123,8 @@ int main(void) {
 /*---------------------------------------------------------------------------*/
 
 /*---------------------------------------------------------------------------*/
-/* Create a new certificate using header information from der cert */
+/* Create a new certificate using SUBJECT information from ca cert
+ * for ISSUER information in generated cert */
 /*---------------------------------------------------------------------------*/
     printf("Setting new cert issuer to subject of signer\n");
 

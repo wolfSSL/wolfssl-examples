@@ -126,3 +126,62 @@ U3XQZoBnoAAwCgYIKoZIzj0EAwIDRwAwRAIgVh5iGYVmbwR4fhdjzCMI06wn2lGS
 SmRM6YTRfMWRoSICIAlMGjRJlBKB9dlmukCdlHH3GXNOiKw1+iP/kApE8tRm
 -----END CERTIFICATE REQUEST-----
 ```
+
+
+## Certificate Generation Example with alt names
+
+Pretty much the same as the certgen_example but adds some alt names to the cert
+Unfortunately wolfSSL does not yet have an API for this but this example shows
+how to setup your own ASN.1 format string for using with the wolfSSL certificate
+structure. TODO: Add an API for this!
+
+Example of a cert being generated with this example
+
+```
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            08:1a:be:1b:2e:5a:c5:aa:2c:e5:6d:db:20:22:31:b5
+        Signature Algorithm: ecdsa-with-SHA256
+        Issuer: C = US, ST = Montana, L = Bozeman, O = Sawtooth, OU = Consulting, CN = www.wolfssl.com, emailAddress = info@wolfssl.com
+        Validity
+            Not Before: May  6 21:14:47 2020 GMT
+            Not After : Sep 19 21:14:47 2021 GMT
+        Subject: C = US, ST = MT, L = Bozeman, O = yourOrgNameHere, OU = yourUnitNameHere, CN = www.yourDomain.com, emailAddress = yourEmail@yourDomain.com
+        Subject Public Key Info:
+            Public Key Algorithm: id-ecPublicKey
+                Public-Key: (256 bit)
+                pub:
+                    04:8e:dc:b9:92:59:51:40:2e:3f:33:44:55:70:80:
+                    16:bc:41:84:ab:47:3e:8b:93:6a:a0:16:78:0a:e9:
+                    49:9a:d5:fe:08:cc:c3:23:2f:26:5a:14:cc:b1:8e:
+                    db:94:8d:ad:3c:57:a4:3b:4f:e2:f0:7e:28:33:01:
+                    40:57:f0:85:b5
+                ASN1 OID: prime256v1
+                NIST CURVE: P-256
+        X509v3 extensions:
+            X509v3 Subject Alternative Name: 
+                DNS:localhost, DNS:example.com, DNS:127.0.0.1
+    Signature Algorithm: ecdsa-with-SHA256
+         30:44:02:20:36:08:d9:df:9e:7f:c2:1c:0c:db:06:26:3d:fe:
+         8e:82:6e:64:07:6e:9b:fb:47:97:0a:d0:63:f6:6c:59:2a:82:
+         02:20:37:5c:00:eb:0d:7d:95:51:5d:8e:e9:06:c7:a5:6f:7d:
+         8b:1d:69:8d:8e:f8:5b:ba:13:0e:2a:5f:b4:86:1b:12
+-----BEGIN CERTIFICATE-----
+MIICbjCCAhWgAwIBAgIQCBq+Gy5axaos5W3bICIxtTAKBggqhkjOPQQDAjCBlDEL
+MAkGA1UEBhMCVVMxEDAOBgNVBAgMB01vbnRhbmExEDAOBgNVBAcMB0JvemVtYW4x
+ETAPBgNVBAoMCFNhd3Rvb3RoMRMwEQYDVQQLDApDb25zdWx0aW5nMRgwFgYDVQQD
+DA93d3cud29sZnNzbC5jb20xHzAdBgkqhkiG9w0BCQEWEGluZm9Ad29sZnNzbC5j
+b20wIhgPMjAyMDA1MDYyMTE0NDdaGA8yMDIxMDkxOTIxMTQ0N1owgacxCzAJBgNV
+BAYTAlVTMQswCQYDVQQIDAJNVDEQMA4GA1UEBwwHQm96ZW1hbjEYMBYGA1UECgwP
+eW91ck9yZ05hbWVIZXJlMRkwFwYDVQQLDBB5b3VyVW5pdE5hbWVIZXJlMRswGQYD
+VQQDDBJ3d3cueW91ckRvbWFpbi5jb20xJzAlBgkqhkiG9w0BCQEWGHlvdXJFbWFp
+bEB5b3VyRG9tYWluLmNvbTBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABI7cuZJZ
+UUAuPzNEVXCAFrxBhKtHPouTaqAWeArpSZrV/gjMwyMvJloUzLGO25SNrTxXpDtP
+4vB+KDMBQFfwhbWjMDAuMCwGA1UdEQQlMCOCCWxvY2FsaG9zdIILZXhhbXBsZS5j
+b22CCTEyNy4wLjAuMTAKBggqhkjOPQQDAgNHADBEAiA2CNnfnn/CHAzbBiY9/o6C
+bmQHbpv7R5cK0GP2bFkqggIgN1wA6w19lVFdjukGx6VvfYsdaY2O+Fu6Ew4qX7SG
+GxI=
+-----END CERTIFICATE-----
+```
