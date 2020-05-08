@@ -38,6 +38,8 @@ gcc -lwolfssl -o ecc_verify ecc_verify.c
 #include <stdint.h>
 #include <stdio.h>
 
+#ifdef WOLFSSL_PUBLIC_MP
+
 #define ECC_CURVE_SZ 32 /* SECP256R1 curve size in bytes */
 #define ECC_CURVE_ID ECC_SECP256R1
 
@@ -203,10 +205,12 @@ int crypto_ecc_verify(const uint8_t *key, uint32_t keySz,
 }
 #endif /* HAVE_ECC_VERIFY */
 #endif /* HAVE_ECC */
+#endif /* WOLFSSL_PUBLIC_MP*/
 
 int main()
 {
-#if defined(HAVE_ECC) && defined(HAVE_ECC_VERIFY) && !defined(NO_SHA256)
+#if defined(HAVE_ECC) && defined(HAVE_ECC_VERIFY) && !defined(NO_SHA256) && \
+    defined(WOLFSSL_PUBLIC_MP)
     int ret;
     uint8_t hash[WC_SHA256_DIGEST_SIZE];
     
@@ -241,7 +245,7 @@ int main()
 
     return ret;
 #else
-    printf("wolfSSL requires ECC and SHA256\n");
+    printf("wolfSSL requires ECC and SHA256 and WOLFSSL_PUBLIC_MP\n");
     return -1;
 #endif
 }
