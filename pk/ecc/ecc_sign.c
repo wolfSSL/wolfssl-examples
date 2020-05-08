@@ -41,6 +41,7 @@ gcc -lwolfssl -o ecc_sign ecc_sign.c
 #define ECC_CURVE_SZ 32 /* SECP256R1 curve size in bytes */
 #define ECC_CURVE_ID ECC_SECP256R1
 
+#ifdef WOLFSSL_PUBLIC_MP
 
 /* Test Vector */
 /* NIST P-256, SHA256 ECC Test Vector */
@@ -288,10 +289,12 @@ static void print_hex(uint8_t* data, int sz)
     printf("\n");
 }
 
+#endif /* WOLFSSL_PUBLIC_MP */
+
 int main()
 {
 #if defined(HAVE_ECC) && defined(HAVE_ECC_SIGN) && defined(HAVE_ECC_VERIFY) && \
-    !defined(NO_SHA256)
+    !defined(NO_SHA256) && defined(WOLFSSL_PUBLIC_MP)
     int ret;
     uint8_t hash[WC_SHA256_DIGEST_SIZE];
     uint8_t sig[ECC_CURVE_SZ*2];
@@ -349,7 +352,7 @@ int main()
 
     return ret;
 #else
-    printf("wolfSSL requires ECC and SHA256\n");
+    printf("wolfSSL requires ECC and SHA256 and WOLFSSL_PUBLIC_MP\n");
     return -1;
 #endif
 }
