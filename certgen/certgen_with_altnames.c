@@ -15,7 +15,7 @@ void free_things(byte** a, byte** b, byte** c, ecc_key* d, ecc_key* e,
 #endif
 
 int main(void) {
-#if !defined(WOLFSSL_CERT_REQ) || !defined(WOLFSSL_CERT_GEN) && \
+#if !defined(WOLFSSL_CERT_REQ) || !defined(WOLFSSL_CERT_GEN) || \
     !defined(WOLFSSL_ALT_NAMES)
   printf("Please compile wolfSSL with the following and try again:\n");
   printf(" --enable-certreq --enable-certgen CFLAGS=-DWOLFSSL_ALT_NAMES\n");
