@@ -47,9 +47,17 @@ int main(int argc, char** argv)
         svrKeyFile = argv[1];
         svrCertFile = argv[2];
     } else {
+      #if defined(FP_MAX_BITS) && (FP_MAX_BITS >= 8192) && \
+          defined(USE_FAST_MATH)
         printf("\nUsing defaults server.key and server.cert\n");
         printf("To test other key/cert pair run with:\n");
         printf("./test-cert-privkey-pair yourkey.pem yourcert.pem\n\n\n");
+      #else
+        printf("FP_MAX_BITS set too low to run the default 4096-bit pair\n");
+        printf("Please build with FP_MAX_BITS set to 8192 or greater when\n"
+               "using fastmath to test the defaults\n");
+        return -1;
+      #endif
     }
 
     ctx = wolfSSL_CTX_new(wolfSSLv23_server_method());

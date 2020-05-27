@@ -184,6 +184,7 @@ pk/ED25519/sign_and_verify
 pk/ecdh_generate_secret/ecdh_gen_secret
 pk/rsa-kg/rsa-kg-sv
 pk/dh-pg/dh-pg-ka
+pk/test_cert_and_private_keypair/test-cert-privkey-pair
 
 wolfCLU/tests/somejunk/*somejunk*.txt
 
