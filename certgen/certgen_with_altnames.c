@@ -144,9 +144,8 @@ int main(void) {
     /* Add some alt names to our cert: */
     char myAltNames[] = {
          /* SEQUENCE (1 element with 3 segements. Entire length is 35
-          * (0x29 in hex))
+          * (0x23 in hex))
           */
-         /* 0x30 -> SEQUENCE, 0x23 -> Length of entire sequence */
          0x30, 0x23,
          /* This is a String 0x8, it denotes a DNSName 0x2 -> 0x82
           * This strings' length is 9 (0x09)
