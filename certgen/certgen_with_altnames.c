@@ -27,9 +27,10 @@ int main(void) {
     Cert newCert;
 
     FILE* file;
-    char certToUse[] = "./ca-cert.der";
-    char caKeyFile[] = "./ca-key.der";
+    char certToUse[] = "./ca-ecc-cert.der";
+    char caKeyFile[] = "./ca-ecc-key.der";
     char newCertOutput[] = "./newCert.der";
+    char newKeyOutput[] = "./newKey.der";
 
     int derBufSz;
     int caKeySz;
@@ -225,6 +226,48 @@ int main(void) {
         XMEMSET(pemBuf, 0, FOURK_SZ);
 
         pemBufSz = wc_DerToPem(derBuf, derBufSz, pemBuf, FOURK_SZ, CERT_TYPE);
+        if (pemBufSz < 0) goto fail;
+
+        printf("Resulting pem buffer is %d bytes\n", pemBufSz);
+
+        file = fopen(pemOutput, "wb");
+        if (!file) {
+            printf("failed to open file: %s\n", pemOutput);
+            goto fail;
+        }
+        fwrite(pemBuf, 1, pemBufSz, file);
+        fclose(file);
+        printf("Successfully converted the der to pem. Result is in:  %s\n\n",
+                                                                     pemOutput);
+    }
+    {
+        char pemOutput[] = "./newKey.pem";
+        int pemBufSz;
+
+        XMEMSET(derBuf, 0, FOURK_SZ);
+
+        printf("Convert the key to a DER buffer\n");
+        derBufSz = wc_EccKeyToDer(&newKey, derBuf, FOURK_SZ);
+        if (derBufSz < 0) goto fail;
+
+        printf("Writing new key to file \"%s\"\n", newKeyOutput);
+        file = fopen(newKeyOutput, "wb");
+        if (!file) {
+            printf("failed to open file: %s\n", newKeyOutput);
+            goto fail;
+        }
+
+        ret = (int) fwrite(derBuf, 1, derBufSz, file);
+        fclose(file);
+
+        printf("Successfully output %d bytes\n", ret);
+
+        printf("Convert the der cert to pem formatted key\n");
+
+        XMEMSET(pemBuf, 0, FOURK_SZ);
+
+        pemBufSz = wc_DerToPem(derBuf, derBufSz, pemBuf, FOURK_SZ,
+                               ECC_PRIVATEKEY_TYPE);
         if (pemBufSz < 0) goto fail;
 
         printf("Resulting pem buffer is %d bytes\n", pemBufSz);
