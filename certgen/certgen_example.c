@@ -25,8 +25,8 @@ int main(void) {
     Cert newCert;
 
     FILE* file;
-    char certToUse[] = "./ca-cert.der";
-    char caKeyFile[] = "./ca-key.der";
+    char certToUse[] = "./ca-ecc-cert.der";
+    char caKeyFile[] = "./ca-ecc-key.der";
     char newCertOutput[] = "./newCert.der";
 
     int derBufSz;
