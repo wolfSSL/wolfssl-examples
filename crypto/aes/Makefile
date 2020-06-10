@@ -2,7 +2,7 @@ CC=gcc
 CFLAGS=-Wall
 LIBS= -lwolfssl
 
-all: aes-file-encrypt aescfb-file-encrypt
+all: aes-file-encrypt aescfb-file-encrypt aesctr-file-encrypt
 
 aes-file-encrypt: aes-file-encrypt.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS) 
@@ -10,7 +10,10 @@ aes-file-encrypt: aes-file-encrypt.o
 aescfb-file-encrypt: aescfb-file-encrypt.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
+aesctr-file-encrypt: aesctr-file-encrypt.o
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+
 .PHONY: clean
 
 clean:
-	rm -f *.o aes-file-encrypt aescfb-file-encrypt
+	rm -f *.o aes-file-encrypt aescfb-file-encrypt aesctr-file-encrypt
