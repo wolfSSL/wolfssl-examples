@@ -6,13 +6,19 @@ This is the wolfSSL: Command Line Utility (wolfCLU).
 
 To use this feature, please configure and install wolfssl with the following commands:
 
-    ./configure --enable-pwdbased --enable-opensslextra --enable-keygen \
-                --enable-ed25519 --enable-certgen \
-     && make && make check
+```
+./configure --enable-pwdbased --enable-opensslextra --enable-keygen --enable-ed25519 --enable-certgen
+
+make
+
+make check
+```
 
 If that succeeds, run:
 
-    sudo make install
+```
+sudo make install
+```
 
 `--enable-pwdbased` is for password based encryption allowing the user
 to specify a unique password known only to him/her self and the
@@ -51,6 +57,10 @@ After wolfssl is installed, install wolfCLU.  In the directory
     (optionally) make check OR make test
     sudo make install
 
+Notes:
+* If `wolfssl` was recently installed run `sudo ldconfig` to update the linker cache.
+
+
 Now you should be able to use the wolfssl command line tool.  To verify type:
 
     wolfssl -h
@@ -73,12 +83,31 @@ If everything worked, you should see the wolfssl help page.
 ./wolfssl -hash base64dec -in README_encoded.md
 ```
 
-#### X509
+### X509
 
 ```
 wolfssl -x509 -inform pem -in testing-certs/ca-cert.pem -outform der -out outputfilename.der
 wolfssl -x509 -inform der -in testing-certs/ca-cert.der -outform pem -out outputfilename.pem
 ```
+
+### SHA256 hash, sign with RSA2048, then verify with public key 
+
+####Hash
+
+```
+wolfssl -hash sha256 -in README.md -out README.md.sha256
+```
+####Sign
+
+```
+wolfssl -rsa -sign -inkey ../certs/client-key.der -in README.md.sha256  -out README.md.signed
+```
+####Verify with Public Key
+
+```
+wolfssl -rsa -verify -inkey ../certs/client-keyPub.der -sigfile README.md.signed -out README.md.verify -pubin
+```
+At this point, the contents of `README.md.sha256` and `README.md.verify` should be the same.
 
 ## Contacts
 
