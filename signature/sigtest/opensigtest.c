@@ -2,11 +2,11 @@
 #include <string.h>
 #include <stdint.h>
 
-#include <openssl/err.h>      // Error codes
-#include <openssl/evp.h>      // For crypto engine functions
-#include <openssl/pem.h>      // For PEM file access functions
-#include <openssl/rsa.h>      // For RSA functions
-#include <openssl/sha.h>      // For SHA-1 functions
+#include <openssl/err.h> /* Error codes */
+#include <openssl/evp.h> /* For crypto engine functions */
+#include <openssl/pem.h> /* For PEM file access functions */
+#include <openssl/rsa.h> /* For RSA functions */
+#include <openssl/sha.h> /* For SHA-1 functions */
 
 
 /* this is from ./certs/ca-key.pem */
@@ -47,7 +47,7 @@ const char* privPemKey = "-----BEGIN RSA PRIVATE KEY-----\n"
     "R3dAd0UYng3OeT9XMVYJSWe+lFhP9sSr4onj44rABVUsJMBKlwQnmg==\n"
     "-----END RSA PRIVATE KEY-----\n";
 
-uint8_t Digest_given[] = { //44 bytes
+uint8_t Digest_given[] = { /* 44 bytes */
     0x2C,0x05,0x16,0x39,0x9F,0x0C,0x02,0xD0,0xf9,0xba,0x90,0x37,0x0f,0xc1,0x4f,0xcc,
     0x31,0x4b,0x42,0x32,0x00,0x00,0x36,0x30,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x49,
     0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x21,0x00,0x3f,0x19
@@ -106,7 +106,7 @@ int SignVerify_OpenSSL(void)
       BIO * bio;
       if ( (bio = BIO_new_mem_buf((void*)privPemKey, -1)) != NULL )
       {
-         // Create input data (44 bytes)
+         /* Create input data (44 bytes) */
          print_buf("Digest Input Data:", Digest_given, DATA_BLOCK_LEN);
 
          rsa = PEM_read_bio_RSAPrivateKey(bio, &rsa, NULL, NULL);
@@ -117,17 +117,17 @@ int SignVerify_OpenSSL(void)
              printf("OpenSSL error: %s", buffer);
          }
 
-         // Create Digest (20 bytes)
+         /* Create Digest (20 bytes) */
          iRetval = EVP_Digest(&Digest_given[0], DATA_BLOCK_LEN, abDigest, NULL, EVP_sha1(), NULL);
          printf("Digest SHA1 result %d\n", iRetval);
          print_buf("Digest Output 20 Data:", abDigest, sizeof(abDigest));
 
-         // Sign hash (128 bytes)
+         /* Sign hash (128 bytes) */
          iRetval = RSA_sign(NID_sha1, abDigest, sizeof(abDigest), &signedData[0], &iSigLen, rsa);
          printf("RSA Sign result %d\n", iRetval);
          print_buf("OpenSSL Signed data results:", &signedData[0], iSigLen);
 
-         // Verify Signature
+         /* Verify Signature */
          iRetval = RSA_verify(NID_sha1, abDigest, sizeof(abDigest), &signedData[0], SIGNED_LEN, rsa);
          if(iRetval != 1)
          {
@@ -141,7 +141,7 @@ int SignVerify_OpenSSL(void)
          }
 #if 1
          if (iRetval == 0) {
-            // Verify Signature with "expected_signature_results"
+            /* Verify Signature with "expected_signature_results" */
             iRetval = RSA_verify(NID_sha1, abDigest, SHA1_HASH_LEN, &expected_signed_results[0], SIGNED_LEN, rsa);
             if(iRetval != 1)
             {
@@ -165,4 +165,3 @@ int main(int argc, char * argv[])
 {
    return SignVerify_OpenSSL();
 }
-
