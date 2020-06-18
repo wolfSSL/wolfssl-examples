@@ -57,7 +57,7 @@ int ecc_sign_verify_test(enum wc_HashType hash_type, enum wc_SignatureType sig_t
 {
     int ret;
     ecc_key eccKey;
-    RNG rng;
+    WC_RNG rng;
     byte* sigBuf = NULL;
     word32 sigLen;
     byte eccPubKeyBuf[ECC_BUFSIZE], eccPrivKeyBuf[ECC_BUFSIZE];
@@ -202,7 +202,7 @@ int rsa_sign_verify_test(enum wc_HashType hash_type, enum wc_SignatureType sig_t
 {
     int ret;
     RsaKey rsaKey;
-    RNG rng;
+    WC_RNG rng;
     byte *sigBuf = NULL;
     word32 sigLen;
 #ifdef WOLFSSL_KEY_GEN

@@ -12,15 +12,15 @@ all:wolfsigtest opensigtest eccsiglentest
 
 opensigtest:CFLAGS+=$(OPENSSL_FLAGS)
 opensigtest:opensigtest.o
-	$(CC) -o $@ $(LIBS) $(OPENSSL_LIB) $^ $(CFLAGS)
+	$(CC) -o $@ $(LIBS) $^ $(CFLAGS) $(OPENSSL_LIB) 
 
 wolfsigtest:CFLAGS+=$(WOLFSSL_FLAGS)
 wolfsigtest:wolfsigtest.o
-	$(CC) -o $@ $(LIBS) $(WOLFSSL_LIB) $^ $(CFLAGS)
+	$(CC) -o $@ $(LIBS) $^ $(CFLAGS) $(WOLFSSL_LIB) 
 
 eccsiglentest:CFLAGS+=$(WOLFSSL_FLAGS)
 eccsiglentest:eccsiglentest.o
-	$(CC) -o $@ $(LIBS) $(WOLFSSL_LIB) $^ $(CFLAGS)
+	$(CC) -o $@ $(LIBS) $^ $(CFLAGS) $(WOLFSSL_LIB)
 
 .PHONY: clean all
 
