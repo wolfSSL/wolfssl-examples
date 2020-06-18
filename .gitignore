@@ -179,13 +179,23 @@ pk/ecc/ecc_keys
 #Example der and x963 files
 pk/ecc/*.der
 pk/ecc/*.x963
-pk/ED25519/gen_key_files
-pk/ED25519/sign_and_verify
+pk/ed25519_gen/gen_key_files
+pk/ed25519_gen/sign_and_verify
 pk/ecdh_generate_secret/ecdh_gen_secret
 pk/rsa-kg/rsa-kg-sv
 pk/dh-pg/dh-pg-ka
 pk/srp/srp_gen
 pk/srp/srp
+pk/ed25519/ed25519_verify
+pk/ed25519/ed25519_sign
+pk/ed25519/ed25519_pub
+pk/ed25519/ed25519_keys
+pk/ed25519/*.der
+pk/ed448/ed448_verify
+pk/ed448/ed448_sign
+pk/ed448/ed448_pub
+pk/ed448/ed448_keys
+pk/ed448/*.der
 
 wolfCLU/tests/somejunk/*somejunk*.txt
 
