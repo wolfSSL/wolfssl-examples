@@ -90,7 +90,6 @@ int main(int argc, char** argv)
         err_sys("unsupported keyType", -1);
 
     /* open and read DER-formatted cert into buffer */
-    //file = fopen("../certs/client-cert.der", "rb");
     file = fopen(certFile, "rb");
     if (!file)
         err_sys("can't open client certificate", 0);
