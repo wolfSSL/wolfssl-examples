@@ -144,10 +144,10 @@ int main(void) {
 
     /* Add some alt names to our cert: */
     char myAltNames[] = {
-         /* SEQUENCE (1 element with 3 segements. Entire length is 35
-          * (0x23 in hex))
+         /* SEQUENCE (1 element with 3 segements. Entire length is 41
+          * (0x29 in hex))
           */
-         0x30, 0x23,
+         0x30, 0x29,
          /* This is a String 0x8, it denotes a DNSName 0x2 -> 0x82
           * This strings' length is 9 (0x09)
           */
@@ -165,7 +165,14 @@ int main(void) {
           */
          0x82, 0x09,
          /* This strings value is "127.0.0.1" (in hex) */
-         0x31, 0x32, 0x37, 0x2e, 0x30, 0x2e, 0x30, 0x2e, 0x31
+         0x31, 0x32, 0x37, 0x2e, 0x30, 0x2e, 0x30, 0x2e, 0x31,
+         /* This is a string 0x08, it denotes an IP Address 0x07 -> 0x87 */
+         /* This strings length is 4 (0x04) */
+         0x87, 0x04,
+         /* The IP address is 127 (0x7F), 0 (0x00), 0, (0x00), 1 (0x01) ->
+          *  127.0.0.1
+          */
+         0x7F, 0x00, 0x00, 0x01
     };
     XMEMCPY(newCert.altNames, myAltNames, sizeof(myAltNames));
     newCert.altNamesSz = (int) sizeof(myAltNames);
