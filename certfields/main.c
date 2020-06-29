@@ -30,6 +30,7 @@
 #include <wolfssl/ssl.h>
 #include <wolfssl/wolfcrypt/rsa.h>
 #include <wolfssl/wolfcrypt/asn.h>
+#include <wolfssl/openssl/x509v3.h>
 
 enum {
     RSA_KEY_TYPE = 2,
