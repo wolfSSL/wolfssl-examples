@@ -52,6 +52,11 @@ ifeq ($(HAVE_WOLFSSL_BENCHMARK), 1)
 	Wolfssl_C_Extra_Flags += -DHAVE_WOLFSSL_BENCHMARK
 endif
 
+ifeq ($(HAVE_WOLFSSL_SP), 1)
+    Wolfssl_C_Extra_Flags += -DWOLFSSL_HAVE_SP_RSA \
+                             -DWOLFSSL_HAVE_SP_DH  \
+                             -DWOLFSSL_HAVE_SP_ECC
+endif
 
 
 App_C_Files := $(UNTRUSTED_DIR)/App.c $(UNTRUSTED_DIR)/client-tls.c $(UNTRUSTED_DIR)/server-tls.c
