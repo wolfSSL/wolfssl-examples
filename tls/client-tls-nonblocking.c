@@ -130,9 +130,6 @@ int main(int argc, char** argv)
     /* Attach wolfSSL to the socket */
     wolfSSL_set_fd(ssl, sockfd);
 
-    /* make wolfSSL object nonblocking */
-    wolfSSL_set_using_nonblock(ssl, 1);
-
     /* Connect to wolfSSL on the server side */
     while (wolfSSL_connect(ssl) != SSL_SUCCESS) {
         if (wolfSSL_want_read(ssl)) {

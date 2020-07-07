@@ -110,7 +110,7 @@ int main (int argc, char** argv)
     }
 
     wolfSSL_set_fd(ssl, sockfd);
-    wolfSSL_set_using_nonblock(ssl, 1);
+    wolfSSL_dtls_set_using_nonblock(ssl, 1);
     fcntl(sockfd, F_SETFL, O_NONBLOCK);
 
 /*****************************************************************************/
