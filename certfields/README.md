@@ -37,8 +37,11 @@ ORG = Sawtooth (8)
 ORG UNIT = Consulting (10)
 ```
 
+
 EXAMPLE B: (Assuming you've built and run the certgen_with_altnames example from
             wolfssl-examples/certgen/ directory)
+
+NOTE: Must configure with `--enable-opensslall` to see the IP address output!
 
 ```
 $ ./app ../certgen/newCert.der ECC
