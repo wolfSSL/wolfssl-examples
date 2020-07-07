@@ -150,7 +150,6 @@ WOLFSSL* Server(WOLFSSL_CTX* ctx, char* suite, int setSuite)
     }
 
     wolfSSL_set_fd(ssl, fpRecv);
-    wolfSSL_set_using_nonblock(ssl, fpRecv);
     return ssl;
 }
 

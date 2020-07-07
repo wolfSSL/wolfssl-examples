@@ -82,7 +82,7 @@ TCP/PSK Tutorial
 
 1. Include the fcntl.h header file. This is needed for some of the constants that will be used when dealing with non-blocking on the socket. `` #include <fcntl.h>``
 
-2. After the function ``wolfSSL_set_fd(ssl,sockfd)``, tell wolfSSL that you want non-blocking to be used. This is done by adding : `` wolfSSL_set_using_nonblock(ssl,1);``
+2. NOTE: TLS is nonblocking by default, just make sure the sockets are configured to be non-blocking sockets
 
 3. Now we must invoke the fcntl callable serve to use non-blocking.
 
@@ -375,9 +375,7 @@ When a socket is setup as non-blocking, reads and writes to the socket do not ca
 
     ``#include <fcntl.h>``
 
-2. After the function wolfSSL_set_fd(ssl, sockfd), tell wolfssl that you want nonblocking to be used. This is done by adding:
-
-    ``wolfSSL_set_using_nonblock(ssl,1);``
+2. NOTE: TLS is nonblocking by default, just make sure the sockets are configured to be non-blocking sockets
 
 3. Now we much invoke the fcntl callable serve to use nonblocking. This is done by adding:
 
@@ -502,8 +500,7 @@ Nonblocking on the server side allows for switching between multiple client conn
 1. Include the fcntl.h header file. This is needed for some of the constants that will be used when dealing with non blocking on the socket.
     ``#include <fcntl.h>``
 
-2. After accept has found a client and an ssl object has been made and associated with the clients socket then call the wolfSSL function to set wolfSSL in non blocking mode. This is done using the following function call.
-    ``wolfSSL_set_using_nonblock(ssl, 1);``
+2. NOTE: TLS is nonblocking by default, just make sure the sockets are configured to be non-blocking sockets
 
 3. Immediately after setting wolfSSL to use non blocking, the socket that the client is connected on needs to also be set up to be non blocking. This is done using the included fcntl.h and making the following function call.
 

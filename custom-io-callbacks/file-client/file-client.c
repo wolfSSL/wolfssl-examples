@@ -159,7 +159,6 @@ WOLFSSL* Client(WOLFSSL_CTX* ctx, char* suite, int setSuite, int doVerify)
     }
 
     wolfSSL_set_fd(ssl, fpRecv);
-    wolfSSL_set_using_nonblock(ssl, fpRecv);
 
     return ssl;
 }

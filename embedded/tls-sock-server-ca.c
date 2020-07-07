@@ -117,11 +117,6 @@ static int wolfssl_server_ssl_new(WOLFSSL_CTX* ctx, WOLFSSL** ssl)
     }
 
     if (ret == 0) {
-        /* make wolfSSL object nonblocking */
-        wolfSSL_set_using_nonblock(server_ssl, 1);
-    }
-
-    if (ret == 0) {
         /* Return newly created wolfSSL context and object */
         *ssl = server_ssl;
     }
