@@ -1198,7 +1198,7 @@ The only part of the functionality that is truly nonblocking is the selection of
 
 Before adding anything else, there are 2 method calls to be added. In the `main()` method, add the following chunk **immediately** after the call to `wolfSSL_set_fd(ssl, sockfd)`:
 ```c
-wolfSSL_set_using_nonblock(ssl, 1);
+wolfSSL_dtls_set_using_nonblock(ssl, 1);
 fcntl(sockfd, F_SETFL, O_NONBLOCK);
 ```
 ##### 5.1.4.1 - Variables
@@ -1400,9 +1400,9 @@ To make our server a nonblocking server, we need to add 2 things. They are the s
 
 **2. A while loop that loops while cleanup is not 1 and the original conditions are true**
 
-Don't forget that immediately after the call to `wolfSSL_set_fd()`, we need to make a call `wolfSSL_set_using_nonblock()`. The call to this method is shown below.
+Don't forget that immediately after the call to `wolfSSL_set_fd()`, we need to make a call `wolfSSL_dtls_set_using_nonblock()`. The call to this method is shown below.
 ```c
-wolfSSL_set_using_nonblock(ssl, 1);
+wolfSSL_dtls_set_using_nonblock(ssl, 1);
 ```
 ##### 5.2.4.1 Variables
 As with our client, there are several variables needed for our nonblocking DTLS server. **Figure 5.7** lists them.
@@ -1525,7 +1525,7 @@ while (cleanup != 1) {
     /* set the/ session ssl to client connection port */
     wolfSSL_set_fd(ssl, clientfd);
 
-    wolfSSL_set_using_nonblock(ssl, 1);
+    wolfSSL_dtls_set_using_nonblock(ssl, 1);
 
 /*****************************************************************************/
 /*                      NonBlockingDTLS_Connect code                         */

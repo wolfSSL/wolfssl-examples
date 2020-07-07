@@ -492,7 +492,6 @@ static int SSLConn_Connect(SSLConn_CTX* ctx, WOLFSSL_CTX* sslCtx, int sockfd,
     sslConn->state = CONNECT;
     /* Set the socket to communicate over. */
     wolfSSL_set_fd(sslConn->ssl, sslConn->sockfd);
-    wolfSSL_set_using_nonblock(sslConn->ssl, 1);
 
     return EXIT_SUCCESS;
 }

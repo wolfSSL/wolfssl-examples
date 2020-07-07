@@ -202,8 +202,7 @@ int main()
             wolfSSL_set_fd(ssl, connfd);
             sockfd = wolfSSL_get_fd(ssl);
 
-            /* set wolfSSL and socket to non blocking and respond */
-            wolfSSL_set_using_nonblock(ssl, 1);
+            /* set socket to non blocking and respond */
             if (fcntl(connfd, F_SETFL, O_NONBLOCK) < 0) {
                 printf("Fatal error : fcntl set failed\n");
                 return 1;

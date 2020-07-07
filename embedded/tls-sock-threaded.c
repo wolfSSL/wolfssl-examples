@@ -83,11 +83,6 @@ static int wolfssl_client_new(WOLFSSL_CTX** ctx, WOLFSSL** ssl)
     }
 
     if (ret == 0) {
-        /* make wolfSSL object nonblocking */
-        wolfSSL_set_using_nonblock(client_ssl, 1);
-    }
-
-    if (ret == 0) {
         /* Return newly created wolfSSL context and object */
         *ctx = client_ctx;
         *ssl = client_ssl;
@@ -157,11 +152,6 @@ static int wolfssl_server_new(WOLFSSL_CTX** ctx, WOLFSSL** ssl)
             printf("ERROR: failed to create WOLFSSL object\n");
             ret = -1;
         }
-    }
-
-    if (ret == 0) {
-        /* make wolfSSL object nonblocking */
-        wolfSSL_set_using_nonblock(server_ssl, 1);
     }
 
     if (ret == 0) {

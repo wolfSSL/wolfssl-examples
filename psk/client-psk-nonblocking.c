@@ -153,10 +153,6 @@ int main(int argc, char **argv)
     /* associate the file descriptor with the session */
     wolfSSL_set_fd(ssl, sockfd);
 
-    /* tell wolfSSL that nonblocking is going to be used */
-    wolfSSL_set_using_nonblock(ssl, 1);
-
-
     /* setting up and running nonblocking socket */
     ret    = wolfSSL_connect(ssl);
     error  = wolfSSL_get_error(ssl, 0);

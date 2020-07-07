@@ -481,7 +481,6 @@ static int SSLConn_Accept(SSLConn_CTX* ctx, WOLFSSL_CTX* sslCtx,
     }
     /* Set the socket to communicate over into the wolfSSL object. */
     wolfSSL_set_fd(conn->ssl, conn->sockfd);
-    wolfSSL_set_using_nonblock(conn->ssl, 1);
 
     conn->state = ACCEPT;
     conn->next = ctx->sslConn;

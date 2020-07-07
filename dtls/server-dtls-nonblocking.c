@@ -225,7 +225,7 @@ int main(int argc, char** argv)
         /* set the/ session ssl to client connection port */
         wolfSSL_set_fd(ssl, clientfd);
 
-        wolfSSL_set_using_nonblock(ssl, 1);
+        wolfSSL_dtls_set_using_nonblock(ssl, 1);
 
 /*****************************************************************************/
 /*                      NonBlockingDTLS_Connect code                         */
