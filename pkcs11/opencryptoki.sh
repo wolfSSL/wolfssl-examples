@@ -21,6 +21,9 @@ echo
 echo "# HMAC example"
 ./pkcs11_hmac /usr/local/lib/opencryptoki/libopencryptoki.so 3 SoftToken cryptoki
 echo
+echo "# Random Number Generation example"
+./pkcs11_rand /usr/local/lib/opencryptoki/libopencryptoki.so 3 SoftToken cryptoki
+echo
 echo "# PKCS #11 test"
 ./pkcs11_test /usr/local/lib/opencryptoki/libopencryptoki.so 3 SoftToken cryptoki
 
