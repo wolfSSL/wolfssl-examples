@@ -5,7 +5,7 @@ CFLAGS   = -Wall -I$(LIB_PATH)/include
 LIBS     = -L$(LIB_PATH)/lib -lm
 
 # option variables
-DYN_LIB         = -lwolfssl
+DYN_LIB         = -lwolfssl -pthread
 STATIC_LIB      = $(LIB_PATH)/lib/libwolfssl.a
 DEBUG_FLAGS     = -g -DDEBUG
 DEBUG_INC_PATHS = -MD

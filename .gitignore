@@ -125,6 +125,7 @@ ecc/ecc-params
 ecc/ecc-sign
 ecc/ecc-stack
 ecc/ecc-verify
+ecc/ecc-export-Qx-Qy
 ecc/*.der
 ecc/*.pem
 pkcs7/pkcs7-verify
