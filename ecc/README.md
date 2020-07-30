@@ -173,7 +173,7 @@ Gy: 32
 
 Example for extracting public key parameters from ASN.1 format to raw ECC point.
 The raw ECC point format, also used by [wolfBoot](https://github.com/wolfSSL/wolfBoot), represents a public key in its two
-coordinates (Qx,Qy) a fixed size (2 x keysize).
+coordinates (Qx,Qy) of fixed size (2 x keysize).
 
 Usage:
 
