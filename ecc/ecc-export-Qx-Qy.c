@@ -36,6 +36,7 @@
 #define MAX_BUF 1024
 #define POINT_SIZE 32
 
+#if defined(HAVE_ECC_KEY_IMPORT) && defined(HAVE_ECC_KEY_EXPORT)
 
 int main(int argc, char *argv[])
 {
@@ -81,3 +82,12 @@ int main(int argc, char *argv[])
     close(fd_out);
     return 0;
 }
+
+#else
+
+int main(void)
+{
+    printf("Not compiled in: Build wolfSSL with `./configure --enable-ecc or `HAVE_ECC`, `HAVE_ECC_KEY_EXPORT` and `HAVE_ECC_KEY_IMPORT`\n");
+    return 0;
+}
+#endif

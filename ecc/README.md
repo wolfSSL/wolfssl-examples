@@ -169,6 +169,18 @@ Gy: 32
 	2b ce 33 57 6b 31 5e ce cb b6 40 68 37 bf 51 f5 |+.3Wk1^...@h7.Q.
 ```
 
+### `ecc-export-qx-qy`
+
+Example for extracting public key parameters from ASN.1 format to raw ECC point.
+The raw ECC point format, also used by [wolfBoot](https://github.com/wolfSSL/wolfBoot), represents a public key in its two
+coordinates (Qx,Qy) a fixed size (2 x keysize).
+
+Usage:
+
+`./ecc-export-Qx-Qy der_key_file raw_key_file`
+
+Where `der_key_file` is a file containing the ecc key in ASN.1 format, and `raw_key_file` is the output file created, containing the public key in raw ECC point format.
+
 ## Support
 
 For questions please email us at support@wolfssl.com.
