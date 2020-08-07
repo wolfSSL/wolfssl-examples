@@ -1,5 +1,5 @@
 /* server-psk-threaded.c
- * A server ecample using a multi-threaded TCP connection with PSK security. 
+ * A server example using a multi-threaded TCP connection with PSK security. 
  *
  * Copyright (C) 2006-2020 wolfSSL Inc.
  *

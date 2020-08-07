@@ -1,5 +1,5 @@
 /* server-psk.c
- * A server ecample using a TCP connection with PSK security.
+ * A server example using a TCP connection with PSK security.
  *
  * Copyright (C) 2006-2020 wolfSSL Inc.
  *
