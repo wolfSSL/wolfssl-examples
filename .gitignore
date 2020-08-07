@@ -247,6 +247,9 @@ embedded/tls-sock-threaded
 embedded/tls-threaded
 
 hash/sha256-hash
+
+ocsp/ocsp_nonblock/ocsp_nonblock
+
 sslkeylog.log
 
 tpm/evp_tpm
