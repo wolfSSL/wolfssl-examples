@@ -46,6 +46,8 @@ int main(int argc, char *argv[])
     uint32_t qxlen = POINT_SIZE, qylen = POINT_SIZE;
     word32 idx = 0;
     ecc_key ec;
+    uint32_t len;
+
     if (argc != 3) {
         fprintf(stderr, "Usage: %s der_key_file raw_key_file\n", argv[0]);
         exit(1);
@@ -77,8 +79,16 @@ int main(int argc, char *argv[])
         perror("opening output file");
         exit(5);
     }
-    write(fd_out, Qx, qxlen);
-    write(fd_out, Qy, qylen);
+    len = (uint32_t)write(fd_out, Qx, qxlen);
+    if (len != qxlen) {
+        perror("write Qx - short");
+        exit(6);
+    }
+    len = write(fd_out, Qy, qylen);
+    if (len != qylen) {
+        perror("write Qy - short");
+        exit(7);
+    }
     close(fd_out);
     return 0;
 }
