@@ -22,15 +22,84 @@
 #include <wolfssl/options.h>
 #include <wolfssl/ssl.h>
 
+#ifdef HAVE_PKCS12
+#include <wolfssl/wolfcrypt/pkcs12.h>
+#endif
+
 #define USE_CERT_BUFFERS_2048
 #include <wolfssl/certs_test.h>
+
+#ifdef HAVE_PKCS12
+static void printPKCS12(WOLFSSL_X509 *x509, WOLFSSL_RSA *rsa)
+{
+    WOLFSSL_BIO *bio;
+    WC_PKCS12 *pkcs12;
+    byte *der = NULL;
+    byte *key = NULL;
+    int  derSz;
+    int  keySz;
+    char *outFile = "test-pkcs12.p12";
+
+    /* write RSA key */
+    bio = wolfSSL_BIO_new_fp(stdout, BIO_NOCLOSE);
+    if (bio != NULL)
+        wolfSSL_PEM_write_bio_RSAPrivateKey(bio, rsa, NULL, NULL, 0, NULL, NULL);
+    wolfSSL_BIO_free(bio);
+
+
+    /* get private key from WOLFSSL_RSA */
+    keySz = wolfSSL_i2d_RSAPrivateKey(rsa, &key);
+    if (keySz <= 0) {
+        printf("unable to get private RSA key\n");
+        return;
+    }
+
+    derSz = wolfSSL_i2d_X509(x509, &der);
+    if (derSz <= 0) {
+        printf("unable to get X509 DER\n");
+        free(key);
+        return;
+    }
+
+    /* create a PKCS12 bundle from the cert + key */
+    pkcs12 = wc_PKCS12_create("test password", strlen("test password"),
+            NULL, key, keySz, der, derSz, NULL, PBE_SHA1_DES3, PBE_SHA1_DES3,
+            2048, 2048, 0, NULL);
+    if (pkcs12 == NULL) {
+        printf("issue with creating pkcs12 bundle\n");
+    }
+    else {
+        int ret;
+        int pkcs12DerSz = 0;
+        byte* pkcs12Der = NULL;
+
+        printf("\nCreated new PKCS12 structure now converting to DER\n");
+        if ((ret = wc_i2d_PKCS12(pkcs12, &pkcs12Der, &pkcs12DerSz)) < 0) {
+            printf("unable to convert structure to DER, error = %d\n", ret);
+        }
+        else {
+            FILE* f;
+
+            printf("putting PKCS12 DER in to the file %s\n", outFile);
+            printf("password : \"test password\"\n");
+            f = fopen(outFile, "wb");
+            fwrite(pkcs12Der, 1, ret, f);
+            fclose(f);
+            free(pkcs12Der);
+        }
+        wc_PKCS12_free(pkcs12);
+    }
+    free(key);
+    free(der);
+}
+#endif
 
 int main(int argc, char* argv[])
 {
     WOLFSSL_X509 *x509 = NULL, *ca = NULL;
     const WOLFSSL_EVP_MD* md;
-    const unsigned char* keyp;
     WOLFSSL_EVP_PKEY *pkey = NULL, *cakey = NULL;
+    WOLFSSL_RSA *rsa;
     WOLFSSL_BIO* bio;
     int ret = 0;
     FILE* f;
@@ -85,9 +154,15 @@ int main(int argc, char* argv[])
     }
 
     /* use example public key */
-    keyp = client_key_der_2048;
-    pkey = wolfSSL_d2i_PrivateKey(EVP_PKEY_RSA, NULL, &keyp,
-            sizeof_client_key_der_2048);
+    rsa = wolfSSL_RSA_generate_key(1024, 65537, NULL, NULL);
+    if (rsa == NULL) {
+        printf("error generating RSA key\n");
+        ret = -1;
+        goto end;
+    }
+
+    pkey = wolfSSL_EVP_PKEY_new();
+    ret = wolfSSL_EVP_PKEY_assign_RSA(pkey, rsa);
     if (pkey == NULL) {
         printf("unable to get public rsa key\n");
         ret = -1;
@@ -129,8 +204,36 @@ int main(int argc, char* argv[])
         goto end;
     }
 
+    /* set serial number */
+    {
+        WOLFSSL_ASN1_INTEGER *serial;
+        serial = wolfSSL_ASN1_INTEGER_new();
+        if (serial == NULL) {
+            printf("error creating serial number struct\n");
+            ret = -1;
+            goto end;
+        }
+
+        if (wolfSSL_ASN1_INTEGER_set(serial, 1) != WOLFSSL_SUCCESS) {
+            wolfSSL_ASN1_INTEGER_free(serial);
+            printf("error setting serial number value\n");
+            ret = -1;
+            goto end;
+        }
+
+        if (wolfSSL_X509_set_serialNumber(x509, serial) != WOLFSSL_SUCCESS) {
+            wolfSSL_ASN1_INTEGER_free(serial);
+            printf("error setting serial number value in x509\n");
+            ret = -1;
+            goto end;
+        }
+        wolfSSL_ASN1_INTEGER_free(serial);
+    }
+
     /* set issuer from CA cert */
     wolfSSL_X509_set_issuer_name(x509, wolfSSL_X509_get_issuer_name(ca));
+
+    wolfSSL_X509_add_altname(x509, "example alt name", ASN_DNS_TYPE);
 
     /* set valid date */
     notAfter  = wolfSSL_ASN1_TIME_adj(NULL, time(NULL), 365, 0);
@@ -152,6 +255,11 @@ int main(int argc, char* argv[])
         wolfSSL_PEM_write_bio_X509(bio, x509);
     wolfSSL_BIO_free(bio);
 
+
+#ifdef HAVE_PKCS12
+    /* create a PKCS12 bundle from the cert + key */
+    printPKCS12(x509, rsa);
+#endif
 end:
     wolfSSL_X509_free(x509);
     wolfSSL_X509_free(ca);
