@@ -1,5 +1,5 @@
-SDK=./SDK-2.8.2_EVK-MIMXRT1060
-WOLFSSL=../../wolfssl
+SDK?=./SDK-2.8.2_EVK-MIMXRT1060
+WOLFSSL?=../../wolfssl
 
 CC=arm-none-eabi-gcc
 
@@ -14,6 +14,7 @@ CFLAGS+=-I$(SDK)/devices/MIMXRT1062/utilities/str
 CFLAGS+=-I. -I$(WOLFSSL)
 
 CFLAGS+=-DWOLFSSL_USER_SETTINGS
+
 
 OBJS=common.o board.o pin_mux.o dcd.o clock_config.o $(SDK)/devices/MIMXRT1062/gcc/startup_MIMXRT1062.o $(SDK)/devices/MIMXRT1062/system_MIMXRT1062.o \
      $(SDK)/devices/MIMXRT1062/drivers/fsl_clock.o \
@@ -58,6 +59,12 @@ OBJS+= \
      $(WOLFSSL)/wolfcrypt/src/wolfmath.o \
      $(WOLFSSL)/wolfcrypt/src/fe_low_mem.o
 
+ifneq ($(DCP),0)
+    OBJS+= \
+     $(SDK)/devices/MIMXRT1062/drivers/fsl_dcp.o \
+     $(WOLFSSL)/wolfcrypt/src/port/nxp/dcp_port.o
+    CFLAGS+=-DWOLFSSL_IMXRT_DCP
+endif	
 
 TEST_OBJS:=$(WOLFSSL)/wolfcrypt/test/test.o main-test.o
 BENCH_OBJS:=$(WOLFSSL)/wolfcrypt/benchmark/benchmark.o main-bench.o
@@ -81,3 +88,4 @@ clean:
 	rm -f $(WOLFSSL)/wolfcrypt/src/*.o
 	rm -f $(WOLFSSL)/wolfcrypt/benchmark/*.o
 	rm -f $(WOLFSSL)/wolfcrypt/test/*.o
+	rm -f $(WOLFSSL)/wolfcrypt/port/nxp/*.o
