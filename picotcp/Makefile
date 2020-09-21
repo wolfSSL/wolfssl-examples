@@ -1,20 +1,21 @@
-# TLS Examples Makefile
-CC       = gcc
-LIB_PATH = /usr/
+# PicoTCP Example Makefile
+
+CC           = gcc
+LIB_PATH     = /usr/local
 PICOTCP_PATH = ../../picotcp
-CFLAGS   = -Wall -I$(LIB_PATH)/include -I$(PICOTCP_PATH)/build/include
-LIBS     = -lm -pthread
+CFLAGS       = -Wall -I$(LIB_PATH)/include -I$(PICOTCP_PATH)/build/include
+LIBS         = -lm -pthread
 
 # option variables
 DYN_LIB         = -lwolfssl
 STATIC_LIB      = $(PICOTCP_PATH)/build/lib/libpicotcp.a
 DEBUG_FLAGS     = -g -DDEBUG
 DEBUG_INC_PATHS = -MD
-SILENCE_FLAGS = -Wno-address-of-packed-member -Wno-discarded-qualifiers
+SILENCE_FLAGS   = -Wno-address-of-packed-member -Wno-discarded-qualifiers
 OPTIMIZE        = -Os
 
 # Options
-CFLAGS+=$(DEBUG_FLAGS)
+#CFLAGS+=$(DEBUG_FLAGS)
 CFLAGS+=$(OPTIMIZE)
 CFLAGS+=$(SILENCE_FLAGS)
 LIBS+=$(STATIC_LIB) $(DYN_LIB)
@@ -22,9 +23,6 @@ LIBS+=$(STATIC_LIB) $(DYN_LIB)
 # build targets
 SRC=$(wildcard *.c)
 TARGETS=$(patsubst %.c, %, $(SRC))
-LINUX_SPECIFIC=client-tls-perf \
-	server-tls-epoll-perf \
-	server-tls-epoll-threaded
 
 # OS / CPU Detection
 OS_DET=UNKNOWN
@@ -63,22 +61,10 @@ endif
 
 .PHONY: clean all
 
-ifneq ($(OS_DET),LINUX)
-all: $(filter-out $(LINUX_SPECIFIC), $(TARGETS))
-else
 all: $(TARGETS)
-endif
 
 debug: CFLAGS+=$(DEBUG_FLAGS)
 debug: all
-
-# add the -pthread flag to any threaded examples
-%-threaded: CFLAGS+=-pthread
-%-writedup: CFLAGS+=-pthread
-memory-tls: CFLAGS+=-pthread
-
-# compile tcp examples without the LIBS variable
-%-tcp: LIBS=
 
 # build template
 %: %.c
