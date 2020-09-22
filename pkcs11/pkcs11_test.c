@@ -486,6 +486,11 @@ int ecdh_test(ecc_key* privKey, ecc_key* pubKey, int check)
     byte   out[256/8];
     word32 outSz = sizeof(out);
 
+#if defined(ECC_TIMING_RESISTANT) && (!defined(HAVE_FIPS) || \
+    (!defined(HAVE_FIPS_VERSION) || (HAVE_FIPS_VERSION != 2))) && \
+    !defined(HAVE_SELFTEST)
+    ret = wc_ecc_set_rng(privKey, &rng);
+#endif
     if (ret == 0) {
         ret = wc_ecc_shared_secret(privKey, pubKey, out, &outSz);
         if (ret < 0)
@@ -1119,16 +1124,16 @@ int main(int argc, char* argv[])
     int slotId;
     int devId = 1;
 
-    if (argc != 5) {
+    if (argc != 4 && argc != 5) {
         fprintf(stderr,
-                "Usage: pkcs11_test <libname> <slot> <tokenname> <userpin>\n");
+                "Usage: pkcs11_test <libname> <slot> <tokenname> [userpin]\n");
         return 1;
     }
 
     library = argv[1];
     slot = argv[2];
     tokenName = argv[3];
-    userPin = argv[4];
+    userPin = (argc == 4) ? NULL : argv[4];
     slotId = atoi(slot);
 
 #if defined(DEBUG_WOLFSSL)
@@ -1143,7 +1148,7 @@ int main(int argc, char* argv[])
     }
     if (ret == 0) {
         ret = wc_Pkcs11Token_Init(&token, &dev, slotId, tokenName,
-                              (byte*)userPin, strlen(userPin));
+            (byte*)userPin, userPin == NULL ? 0 : strlen(userPin));
         if (ret != 0) {
             fprintf(stderr, "Failed to initialize PKCS#11 token\n");
             ret = 2;
