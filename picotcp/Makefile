@@ -4,7 +4,7 @@ CC           = gcc
 LIB_PATH     = /usr/local
 PICOTCP_PATH = ../../picotcp
 CFLAGS       = -Wall -I$(LIB_PATH)/include -I$(PICOTCP_PATH)/build/include
-LIBS         = -lm -pthread
+LIBS         = -L$(LIB_PATH)/lib -lm -pthread
 
 # option variables
 DYN_LIB         = -lwolfssl
