@@ -29,6 +29,7 @@
 #include "clock_config.h"
 #include "wolfcrypt/benchmark/benchmark.h"
 #include "wolfcrypt/test/test.h"
+#include "wolfssl/wolfcrypt/wc_port.h"
 
 #include <time.h>
 
@@ -45,6 +46,7 @@ void main(void)
     BOARD_InitDebugConsole();
     TRNG_GetDefaultConfig(&trngConfig);
     trngConfig.sampleMode = kTRNG_SampleModeVonNeumann;
+    wolfCrypt_Init();
     benchmark_init();
     benchmark_test(NULL);
 

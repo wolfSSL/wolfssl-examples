@@ -27,6 +27,7 @@
 
 #include "pin_mux.h"
 #include "clock_config.h"
+#include "wolfssl/wolfcrypt/wc_port.h"
 #include "wolfcrypt/test/test.h"
 #include <time.h>
 
@@ -45,6 +46,7 @@ void main(void)
     BOARD_InitDebugConsole();
     TRNG_GetDefaultConfig(&trngConfig);
     trngConfig.sampleMode = kTRNG_SampleModeVonNeumann;
+    wolfCrypt_Init();
     wolfcrypt_test(NULL);
 
    while (1)

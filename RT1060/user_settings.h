@@ -28,8 +28,6 @@
 #include <stdio.h>
 #include "fsl_debug_console.h"
 
-
-
 /* System */
 #define WOLFSSL_GENERAL_ALIGNMENT 4
 #define SINGLE_THREADED
@@ -78,8 +76,11 @@ int32_t cust_rand_generate_block(uint8_t *rndb, uint32_t sz);
 #define WOLFSSL_SHA3
 
 #define HAVE_CHACHA
-#define HAVE_PWDBASED
 #define HAVE_AESGCM
+#define HAVE_AES_ECB
+//#define AES_MAX_KEY_SIZE 128
+#define WOLFSSL_AES_DIRECT
+#define HAVE_PWDBASED
 #define HAVE_POLY1035
 
 /* Disables - For minimum wolfCrypt build */
