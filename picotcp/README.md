@@ -31,7 +31,7 @@ Example:
 ./picotcp-server
 
 # On client side:
-ip addr add dev tap0 10.0.0.2
+ip addr add dev tap0 10.0.0.2/24
 ip link set tap0 up
 
 ./client-tls 10.0.0.1
