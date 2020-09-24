@@ -24,11 +24,13 @@
 #include <wolfssl/ssl.h>
 #include <wolfssl/wolfcrypt/hash.h>
 
+#ifndef NO_SHA256
 void usage(void)
 {
     printf("./run <file to hash>\n");
     exit(-99);
 }
+#endif
 
 int main(int argc, char** argv)
 {
@@ -83,7 +85,7 @@ int main(int argc, char** argv)
     fclose(inputStream);
     XFREE(rawInput, NULL, DYNAMIC_TYPE_TMP_BUFFER);
 #else
-    printf("Please enabling sha256 and then try again\n");
+    printf("Please enable sha256 and then try again\n");
 #endif
     return ret;
 }
