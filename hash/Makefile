@@ -9,7 +9,6 @@ program_INCLUDE_DIRS :=
 program_LIBRARY_DIRS :=
 program_LIBRARIES :=
 
-#WOLF_INSTALL_DIR := /Users/kalebhimes/work/testDir/wolf-install-dir-for-testing
 WOLF_INSTALL_DIR := /usr/local/lib
 program_INCLUDE_DIRS += $(WOLF_INSTALL_DIR)/include
 program_INCLUDE_DIRS += ./include
