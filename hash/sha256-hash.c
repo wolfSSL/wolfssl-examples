@@ -20,16 +20,22 @@
  */
 
 
+#ifndef WOLFSSL_USER_SETTINGS
 #include <wolfssl/options.h>
+#endif
+#include <wolfssl/wolfcrypt/settings.h>
 #include <wolfssl/ssl.h>
 #include <wolfssl/wolfcrypt/sha256.h>
+#include <wolfssl/wolfcrypt/error-crypt.h>
 
+#ifndef CHUNK_SIZE
 #define CHUNK_SIZE 1024
+#endif
 
 #ifndef NO_SHA256
 void usage(void)
 {
-    printf("./run <file to hash>\n");
+    printf("./sha256-hash <file to hash>\n");
     exit(-99);
 }
 #endif
@@ -40,12 +46,11 @@ int main(int argc, char** argv)
 #ifndef NO_SHA256
     wc_Sha256 sha256;
     byte  hash[WC_SHA256_DIGEST_SIZE];
-    byte* rawInput;
+    byte  rawInput[CHUNK_SIZE];
     FILE* inputStream;
     char* fName = NULL;
-    int numBytes = 0;
     int fileLength = 0;
-    int i, numberOfChunks, excess, currChunkSz;
+    int i, chunkSz;
 
     if (argc < 2)
         usage();
@@ -63,56 +68,38 @@ int main(int argc, char** argv)
     fileLength = (int) ftell(inputStream);
     fseek(inputStream, 0, SEEK_SET);
 
-    /* determine numberOfChunks per file */
-    numberOfChunks = fileLength / CHUNK_SIZE;
-    excess = fileLength % CHUNK_SIZE;
-
-    /* allocate buffer based on CHUNK_SIZE size */
-    rawInput = (byte*) XMALLOC(CHUNK_SIZE*sizeof(byte), NULL,
-                               DYNAMIC_TYPE_TMP_BUFFER);
-    if (rawInput == NULL) {
-        printf("Failed to allocate buffer for reading chunks into\n");
-        return -2;
-    }
-
     ret = wc_InitSha256(&sha256);
     if (ret != 0) {
         printf("Failed to initialize sha structure\n");
         fclose(inputStream);
-        XFREE(rawInput, NULL, DYNAMIC_TYPE_TMP_BUFFER);
     }
-
-    if (fileLength > CHUNK_SIZE)
-        currChunkSz = CHUNK_SIZE;
-    else
-        currChunkSz = excess;
 
     /* Loop reading a block at a time, finishing with any excess */
-    for (i = 0; i < fileLength; i += currChunkSz) {
+    for (i = 0; i < fileLength; i += CHUNK_SIZE) {
+        chunkSz = CHUNK_SIZE;
+        if (chunkSz > fileLength - i)
+            chunkSz = fileLength - i;
 
-        XMEMSET(rawInput, 0, CHUNK_SIZE);
-
-        numBytes = fread(rawInput, 1, CHUNK_SIZE, inputStream);
-        if (numBytes != CHUNK_SIZE && numBytes != excess) {
+        ret = fread(rawInput, 1, chunkSz, inputStream);
+        if (ret != chunkSz) {
             printf("ERROR: Failed to read the appropriate amount\n");
-            fclose(inputStream);
-            XFREE(rawInput, NULL, DYNAMIC_TYPE_TMP_BUFFER);
-            return -2;
+            ret = -1;
+            break;
         }
 
-        ret = wc_Sha256Update(&sha256, rawInput, numBytes);
+        ret = wc_Sha256Update(&sha256, rawInput, chunkSz);
         if (ret != 0) {
             printf("Failed to update the hash\n");
-            fclose(inputStream);
-            XFREE(rawInput, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+            break;
         }
-        currChunkSz = ((fileLength - i) >= CHUNK_SIZE) ? CHUNK_SIZE:excess;
     }
 
-    ret = wc_Sha256Final(&sha256, hash);
-
-    if (ret != 0)
+    if (ret == 0) {
+        ret = wc_Sha256Final(&sha256, hash);
+    }
+    if (ret != 0) {
         printf("ERROR: Hash operation failed");
+    }
     else {
         printf("Hash result is: ");
         for (i = 0; i < WC_SHA256_DIGEST_SIZE; i++)
@@ -121,9 +108,9 @@ int main(int argc, char** argv)
     }
 
     fclose(inputStream);
-    XFREE(rawInput, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+    wc_Sha256Free(&sha256);
 #else
-    printf("Please enable sha256 and then try again\n");
+    printf("Please enable sha256 (--enable-sha256) in wolfCrypt\n");
 #endif
     return ret;
 }

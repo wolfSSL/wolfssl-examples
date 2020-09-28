@@ -1,5 +1,5 @@
 CC := gcc -fsanitize=address
-program_NAME := run
+program_NAME := sha256-hash
 program_C_SRCS := $(wildcard *.c)
 program_CXX_SRCS := $(wildcard *.cpp)
 program_C_OBJS := ${program_C_SRCS:.c=.o}
@@ -9,7 +9,7 @@ program_INCLUDE_DIRS :=
 program_LIBRARY_DIRS :=
 program_LIBRARIES :=
 
-WOLF_INSTALL_DIR := /usr/local/lib
+WOLF_INSTALL_DIR := /usr/local
 program_INCLUDE_DIRS += $(WOLF_INSTALL_DIR)/include
 program_INCLUDE_DIRS += ./include
 program_LIBRARY_DIRS += $(WOLF_INSTALL_DIR)/lib

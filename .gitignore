@@ -22,7 +22,6 @@
 *.x86_64
 *.hex
 *app
-*run
 
 # IDE Temp Files
 **/*.swp
@@ -211,3 +210,5 @@ embedded/tls-sock-server-ca
 embedded/tls-sock-threaded
 embedded/tls-threaded
 server-tls-verifycallback
+
+hash/sha256-hash
