@@ -22,7 +22,9 @@
 
 #include <wolfssl/options.h>
 #include <wolfssl/ssl.h>
-#include <wolfssl/wolfcrypt/hash.h>
+#include <wolfssl/wolfcrypt/sha256.h>
+
+#define CHUNK_SIZE 1024
 
 void usage(void)
 {
@@ -34,12 +36,14 @@ int main(int argc, char** argv)
 {
     int ret = -1;
 #ifndef NO_SHA256
+    wc_Sha256 sha256;
     byte  hash[WC_SHA256_DIGEST_SIZE];
     byte* rawInput;
     FILE* inputStream;
     char* fName = NULL;
     int numBytes = 0;
     int fileLength = 0;
+    int i, numberOfChunks, excess, currChunkSz;
 
     if (argc < 2)
         usage();
@@ -55,25 +59,59 @@ int main(int argc, char** argv)
     /* find length of the file */
     fseek(inputStream, 0, SEEK_END);
     fileLength = (int) ftell(inputStream);
-    fseek(inputStream, 0, SEEK_SET); 
+    fseek(inputStream, 0, SEEK_SET);
 
-    /* allocate buffer based on file size */
-    rawInput = (byte*) XMALLOC(fileLength*sizeof(byte), NULL,
+    /* determine numberOfChunks per file */
+    numberOfChunks = fileLength / CHUNK_SIZE;
+    excess = fileLength % CHUNK_SIZE;
+
+    /* allocate buffer based on CHUNK_SIZE size */
+    rawInput = (byte*) XMALLOC(CHUNK_SIZE*sizeof(byte), NULL,
                                DYNAMIC_TYPE_TMP_BUFFER);
-
-    numBytes = fread(rawInput, 1, fileLength, inputStream);
-    if (numBytes != fileLength) {
-        printf("ERROR: Failed to read the entire file\n");
-        fclose(inputStream);
-        XFREE(rawInput, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+    if (rawInput == NULL) {
+        printf("Failed to allocate buffer for reading chunks into\n");
         return -2;
     }
 
-    ret = wc_Sha256Hash(rawInput, numBytes, hash);
+    ret = wc_InitSha256(&sha256);
+    if (ret != 0) {
+        printf("Failed to initialize sha structure\n");
+        fclose(inputStream);
+        XFREE(rawInput, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+    }
+
+    if (fileLength > CHUNK_SIZE)
+        currChunkSz = CHUNK_SIZE;
+    else
+        currChunkSz = excess;
+
+    /* Loop reading a block at a time, finishing with any excess */
+    for (i = 0; i < fileLength; i += currChunkSz) {
+
+        XMEMSET(rawInput, 0, CHUNK_SIZE);
+
+        numBytes = fread(rawInput, 1, CHUNK_SIZE, inputStream);
+        if (numBytes != CHUNK_SIZE && numBytes != excess) {
+            printf("ERROR: Failed to read the appropriate amount\n");
+            fclose(inputStream);
+            XFREE(rawInput, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+            return -2;
+        }
+
+        ret = wc_Sha256Update(&sha256, rawInput, numBytes);
+        if (ret != 0) {
+            printf("Failed to update the hash\n");
+            fclose(inputStream);
+            XFREE(rawInput, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+        }
+        currChunkSz = ((fileLength - i) >= CHUNK_SIZE) ? CHUNK_SIZE:excess;
+    }
+
+    ret = wc_Sha256Final(&sha256, hash);
+
     if (ret != 0)
         printf("ERROR: Hash operation failed");
     else {
-        int i;
         printf("Hash result is: ");
         for (i = 0; i < WC_SHA256_DIGEST_SIZE; i++)
             printf("%02x", hash[i]);
