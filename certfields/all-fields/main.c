@@ -191,7 +191,6 @@ int main(int argc, char** argv)
     wolfSSL_EVP_PKEY_free(pubKeyTmp);
     wolfSSL_X509_free(cert);
     wc_FreeRsaKey(&pubKeyRsa);
-    wc_FreeRsaKey(&pubKeyRsa);
     wc_ecc_free(&pubKeyEcc);
 #else
     (void) i;
