@@ -47,22 +47,143 @@ static void err_sys(const char* msg, int ret)
     exit(EXIT_FAILURE);
 }
 
+
+/* print out the public key */
+static void printPublicKey(WOLFSSL_X509* cert)
+{
+    RsaKey  pubKeyRsa;
+    ecc_key pubKeyEcc;
+    byte *buf = NULL;
+    int  bufSz;
+    word32 idx = 0;
+    int  keyType, i, ret;
+
+#if 0
+    /* if wanting EVP_PKEY structure for public key */
+    WOLFSSL_EVP_PKEY* pubKeyTmp;
+    pubKeyTmp = wolfSSL_X509_get_pubkey(cert);
+    if (pubKeyTmp == NULL)
+        err_sys("wolfSSL_X509_get_pubkey failed", 0);
+    wolfSSL_EVP_PKEY_free(pubKeyTmp);
+#endif
+    wc_InitRsaKey(&pubKeyRsa, 0);
+    wc_ecc_init(&pubKeyEcc);
+
+    /* get public key buffer */
+    ret = wolfSSL_X509_get_pubkey_buffer(cert, NULL, &bufSz);
+    if (ret != WOLFSSL_SUCCESS) {
+        printf("issue getting size of buffer needed\n");
+        goto end_pk;
+    }
+
+    buf = (byte*)malloc(bufSz);
+    ret = wolfSSL_X509_get_pubkey_buffer(cert, buf, &bufSz);
+    if (ret != WOLFSSL_SUCCESS) {
+        printf("issue getting public key buffer\n");
+        goto end_pk;
+    }
+
+    /* buffer contains public key in the format used with certificates */
+    printf("PUBLIC KEY: (With Certificate ASN1 Syntax)\n");
+    for (i = 0; i < bufSz; i++) {
+        printf("%02X", buf[i] & 0xFF);
+    } printf("\n");
+
+    /* transforming to other more raw versions of the key */
+    keyType = wolfSSL_X509_get_pubkey_type(cert);
+    if (keyType == RSAk) {
+        byte *e, *n;
+        word32 eSz, nSz;
+
+        printf("\nPUBLIC KEY: (RSA e + n)\n");
+
+        /* load buffer up as internal RSA structure */
+        ret = wc_RsaPublicKeyDecode(buf, &idx, &pubKeyRsa, bufSz);
+        if (ret != 0) {
+            printf("Issue decoding RSA key\n");
+            goto end_pk;
+        }
+        free(buf); buf = NULL;
+
+        eSz = nSz = wc_RsaEncryptSize(&pubKeyRsa);
+        e = (byte*)malloc(eSz);
+        if (e == NULL) {
+            goto end_pk;
+        }
+
+        n = (byte*)malloc(nSz);
+        if (n == NULL) {
+            free(e);
+            goto end_pk;
+        }
+
+        ret = wc_RsaFlattenPublicKey(&pubKeyRsa, e, &eSz, n, &nSz);
+
+        if (ret == 0) {
+            printf("n: ");
+            for (i = 0; i < nSz; i++) {
+                printf("%02X", n[i] & 0xFF);
+            } printf("\n");
+
+            printf("e: ");
+            for (i = 0; i < eSz; i++) {
+                printf("%02X", e[i] & 0xFF);
+            } printf("\n");
+        }
+
+        free(e);
+        free(n);
+    }
+    else {
+        printf("\nPUBLIC KEY: (EC x963 Format)\n");
+
+        /* load buffer up as internal ECC structure */
+        ret = wc_EccPublicKeyDecode(buf, &idx, &pubKeyEcc, bufSz);
+        if (ret != 0) {
+            printf("Issue decoding EC key\n");
+            goto end_pk;
+        }
+        free(buf); buf = NULL;
+
+        /* example of x963 format if wanted */
+        ret = wc_ecc_export_x963(&pubKeyEcc, NULL, (word32*)&bufSz);
+        if (ret != LENGTH_ONLY_E) {
+            printf("issue getting x963 buffer size\n");
+            goto end_pk;
+        }
+        buf = (byte*)malloc(bufSz);
+
+        ret = wc_ecc_export_x963(&pubKeyEcc, buf, (word32*)&bufSz);
+        if (ret != 0) {
+            printf("issue getting x963 buffer\n");
+            goto end_pk;
+        }
+
+        for (i = 0; i < bufSz; i++) {
+            printf("%02X", buf[i] & 0xFF);
+        } printf("\n");
+    }
+    printf("\n");
+
+end_pk:
+    free(buf);
+    wc_FreeRsaKey(&pubKeyRsa);
+    wc_ecc_free(&pubKeyEcc);
+}
+
+
 int main(int argc, char** argv)
 {
-    int   ret, i;
+    int   i;
     int   sigType;
     int   nameSz;
     int   derCertSz;
     byte  derCert[4096];
-    word32 idx;
     FILE* file;
     char* certFile;
     int keyType;
 
-    RsaKey pubKeyRsa;
-    ecc_key pubKeyEcc;
     WOLFSSL_X509* cert;
-    WOLFSSL_EVP_PKEY* pubKeyTmp;
     WOLFSSL_X509_NAME* name;
 
     char commonName[80];
@@ -106,28 +227,7 @@ int main(int argc, char** argv)
     /* ------ EXTRACT CERTIFICATE ELEMENTS ------ */
 
     /* extract PUBLIC KEY from cert */
-    pubKeyTmp = wolfSSL_X509_get_pubkey(cert);
-    if (pubKeyTmp == NULL)
-        err_sys("wolfSSL_X509_get_pubkey failed", 0);
-
-    idx = 0;
-    if (keyType == RSA_KEY_TYPE) {
-        wc_InitRsaKey(&pubKeyRsa, 0);
-        ret = wc_RsaPublicKeyDecode((byte*)pubKeyTmp->pkey.ptr, &idx,
-                                    &pubKeyRsa, pubKeyTmp->pkey_sz);
-    } else {
-        wc_ecc_init(&pubKeyEcc);
-        ret = wc_EccPublicKeyDecode((byte*)pubKeyTmp->pkey.ptr, &idx,
-                                    &pubKeyEcc, pubKeyTmp->pkey_sz);
-    }
-
-    if (ret != 0)
-        err_sys("wc_RsaPublicKeyDecode failed", ret);
-
-    printf("PUBLIC KEY:\n");
-    for (i = 0; i < pubKeyTmp->pkey_sz; i++) {
-        printf("%02X", pubKeyTmp->pkey.ptr[i] & 0xFF);
-    } printf("\n");
+    printPublicKey(cert);
 
     /* extract signatureType */
     sigType = wolfSSL_X509_get_signature_type(cert);
@@ -185,7 +285,6 @@ int main(int argc, char** argv)
         }
     }
 
-    wolfSSL_EVP_PKEY_free(pubKeyTmp);
     wolfSSL_X509_free(cert);
 
     return 0;

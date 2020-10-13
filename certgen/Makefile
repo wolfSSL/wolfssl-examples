@@ -13,7 +13,7 @@ CFLAGS=-I$(WOLF_INSTALL_DIR)/include -Wall
 LIBS=-L$(WOLF_INSTALL_DIR)/lib -lwolfssl
 
 
-all:certgen_example csr_example csr_w_ed25519_example certgen_with_altnames
+all:certgen_example csr_example csr_w_ed25519_example certgen_with_altnames certgen_sign
 
 certgen_example:certgen_example.o
 	$(CC) -o $@ $^ $(CFLAGS) $(CPPFLAGS) $(LIBS)
@@ -24,6 +24,9 @@ csr_example:csr_example.o
 csr_w_ed25519_example:csr_w_ed25519_example.o
 	$(CC) -o $@ $^ $(CFLAGS) $(CPPFLAGS) $(LIBS)
 
+certgen_sign:certgen_sign.o
+	$(CC) -o $@ $^ $(CFLAGS) $(CPPFLAGS) $(LIBS)
+
 certgen_with_altnames:certgen_with_altnames.o
 	$(CC) -o $@ $^ $(CFLAGS) $(CPPFLAGS) $(LIBS)
 
@@ -31,4 +34,4 @@ certgen_with_altnames:certgen_with_altnames.o
 
 clean:
 	rm -f *.o certgen_example csr_example csr_w_ed25519_example certgen_with_altnames
-	rm newCert.*
+	rm -f newCert.* certgen_sign
