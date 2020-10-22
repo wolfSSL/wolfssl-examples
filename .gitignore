@@ -212,3 +212,5 @@ embedded/tls-threaded
 server-tls-verifycallback
 
 hash/sha256-hash
+
+ocsp/ocsp-nonblock

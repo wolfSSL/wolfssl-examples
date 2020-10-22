@@ -1,5 +1,5 @@
 /* server-tcp.c
- * A server ecample using a TCP connection.
+ * A server example using a TCP connection.
  *
  * Copyright (C) 2006-2020 wolfSSL Inc.
  *
