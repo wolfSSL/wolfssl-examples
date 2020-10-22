@@ -32,6 +32,7 @@
 #include <wolfssl/wolfcrypt/asn.h>
 #include <wolfssl/openssl/x509v3.h>
 
+#ifdef OPENSSL_EXTRA
 enum {
     RSA_KEY_TYPE = 2,
     ECC_KEY_TYPE = 3,
@@ -46,10 +47,12 @@ static void err_sys(const char* msg, int ret)
     }
     exit(EXIT_FAILURE);
 }
+#endif
 
 int main(int argc, char** argv)
 {
     int   ret, i;
+#ifdef OPENSSL_EXTRA
     int   sigType;
     int   nameSz;
     int   derCertSz;
@@ -187,7 +190,13 @@ int main(int argc, char** argv)
 
     wolfSSL_EVP_PKEY_free(pubKeyTmp);
     wolfSSL_X509_free(cert);
-
-    return 0;
+    wc_FreeRsaKey(&pubKeyRsa);
+    wc_ecc_free(&pubKeyEcc);
+#else
+    (void) i;
+    printf("Please configure wolfSSL with --enable-opensslextra\n");
+    ret = -1;
+#endif
+    return ret;
 }
 
