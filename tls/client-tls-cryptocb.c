@@ -127,7 +127,7 @@ static const char* GetHashTypeStr(int hash)
 /* This is where you would plug-in calls to your own hardware crypto */
 static int myCryptoDevCb(int devIdArg, wc_CryptoInfo* info, void* ctx)
 {
-    int ret = NOT_COMPILED_IN; /* return this to bypass HW and use SW */
+    int ret = CRYPTOCB_UNAVAILABLE; /* return this to bypass HW and use SW */
     myCryptoDevCtx* myCtx = (myCryptoDevCtx*)ctx;
 
     if (info == NULL)
@@ -380,7 +380,7 @@ static int myCryptoDevCb(int devIdArg, wc_CryptoInfo* info, void* ctx)
     #if !defined(NO_SHA)
         if (info->hash.type == WC_HASH_TYPE_SHA) {
             if (info->hash.sha1 == NULL)
-                return NOT_COMPILED_IN;
+                return CRYPTOCB_UNAVAILABLE;
 
             /* set devId to invalid, so software is used */
             info->hash.sha1->devId = INVALID_DEVID;
@@ -405,7 +405,7 @@ static int myCryptoDevCb(int devIdArg, wc_CryptoInfo* info, void* ctx)
     #if !defined(NO_SHA256)
         if (info->hash.type == WC_HASH_TYPE_SHA256) {
             if (info->hash.sha256 == NULL)
-                return NOT_COMPILED_IN;
+                return CRYPTOCB_UNAVAILABLE;
 
             /* set devId to invalid, so software is used */
             info->hash.sha256->devId = INVALID_DEVID;
@@ -439,7 +439,7 @@ static int myCryptoDevCb(int devIdArg, wc_CryptoInfo* info, void* ctx)
     #endif
 
         if (info->hmac.hmac == NULL)
-            return NOT_COMPILED_IN;
+            return CRYPTOCB_UNAVAILABLE;
 
         /* set devId to invalid, so software is used */
         info->hmac.hmac->devId = INVALID_DEVID;
