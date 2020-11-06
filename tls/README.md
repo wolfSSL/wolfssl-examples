@@ -1189,3 +1189,7 @@ And now the client is set up.
 
 [s-tls-e]: https://github.com/wolfssl/wolfssl-examples/blob/master/tls/server-tls-ecdhe.c
 [c-tls-e]: https://github.com/wolfssl/wolfssl-examples/blob/master/tls/client-tls-ecdhe.c
+
+## Crypto Callbacks
+
+See the `client-tls-cryptocb.c` example for demonstrating the `--enable-cryptocb` feature for allowing custom cryptographic algorithm offload.
