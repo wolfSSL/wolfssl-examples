@@ -340,6 +340,45 @@ int gen_rsa_key(Pkcs11Token* token, RsaKey* key, unsigned char* id, int idLen,
 
     return ret;
 }
+
+int gen_rsa_key_label(Pkcs11Token* token, RsaKey* key, char* label, int devId)
+{
+    int               ret = 0;
+    CK_RV             rv;
+    CK_ULONG          bits = 2048;
+    CK_OBJECT_HANDLE  pubKey = NULL_PTR, privKey = NULL_PTR;
+    CK_MECHANISM      mech;
+    CK_ATTRIBUTE      pubKeyTmpl[] = {
+        { CKA_MODULUS_BITS,    &bits,    sizeof(bits)    },
+        { CKA_ENCRYPT,         &ckTrue,  sizeof(ckTrue)  },
+        { CKA_VERIFY,          &ckTrue,  sizeof(ckTrue)  },
+        { CKA_PUBLIC_EXPONENT, &pub_exp, sizeof(pub_exp) }
+    };
+    CK_ATTRIBUTE      privKeyTmpl[] = {
+        {CKA_DECRYPT,  &ckTrue, sizeof(ckTrue) },
+        {CKA_SIGN,     &ckTrue, sizeof(ckTrue) },
+        {CKA_LABEL,    label,   XSTRLEN(label) }
+    };
+    int               privTmplCnt = 2;
+
+    if (XSTRLEN(label) > 0)
+        privTmplCnt++;
+    if (ret == 0) {
+        mech.mechanism      = CKM_RSA_PKCS_KEY_PAIR_GEN;
+        mech.ulParameterLen = 0;
+        mech.pParameter     = NULL;
+
+        rv = token->func->C_GenerateKeyPair(token->handle, &mech, pubKeyTmpl, 4,
+            privKeyTmpl, privTmplCnt, &pubKey, &privKey);
+        if (rv != CKR_OK)
+            ret = -1;
+    }
+
+    if (ret == 0)
+        ret = get_public_key(key, token, token->handle, pubKey);
+
+    return ret;
+}
 #else
 int gen_rsa_key(Pkcs11Token* token, RsaKey* key, unsigned char* id, int idLen,
                 int devId)
@@ -347,6 +386,24 @@ int gen_rsa_key(Pkcs11Token* token, RsaKey* key, unsigned char* id, int idLen,
     int ret;
 
     ret = wc_InitRsaKey_Id(key, id, idLen, NULL, devId);
+    if (ret != 0) {
+        fprintf(stderr, "Failed to initialize RSA key: %d\n", ret);
+    }
+
+    if (ret == 0) {
+        ret = wc_MakeRsaKey(key, 2048, 0x10001, &rng);
+        if (ret != 0)
+            fprintf(stderr, "Failed to generate RSA key: %d\n", ret);
+    }
+
+    return ret;
+}
+
+int gen_rsa_key_label(Pkcs11Token* token, RsaKey* key, char* label, int devId)
+{
+    int ret;
+
+    ret = wc_InitRsaKey_Label(key, label, NULL, devId);
     if (ret != 0) {
         fprintf(stderr, "Failed to initialize RSA key: %d\n", ret);
     }
@@ -461,6 +518,21 @@ int decode_ecc_keys(ecc_key* privKey, ecc_key* pubKey, int devId)
             fprintf(stderr, "Failed to decode public key: %d\n", ret);
     }
 
+    return ret;
+}
+
+int gen_ec_keys_label(Pkcs11Token* token, ecc_key* key, char* label, int devId)
+{
+    int ret;
+
+    ret = wc_ecc_init_label(key, label, NULL, devId);
+    if (ret != 0)
+        fprintf(stderr, "Failed to initialize EC key: %d\n", ret);
+    if (ret == 0) {
+        ret = wc_ecc_make_key_ex(&rng, 32, key, ECC_CURVE_DEF);
+        if (ret != 0)
+            fprintf(stderr, "Failed to generate EC key: %d\n", ret);
+    }
     return ret;
 }
 
@@ -641,6 +713,58 @@ int aesgcm_test(int devId, Pkcs11Token* token)
         wc_Pkcs11Token_Open(token, 1);
         /* AES256-GCM */
         if (ret == 0)
+            ret = wc_AesInit_Label(&aes, "myAesGcmKey", NULL, devId);
+        if (ret == 0) {
+            ret = wc_AesGcmSetKey(&aes, key, AES_256_KEY_SIZE);
+            if (ret != 0)
+                fprintf(stderr, "Set Key failed: %d\n", ret);
+        }
+        if (ret == 0) {
+            ret = wc_Pkcs11StoreKey(token, PKCS11_KEY_TYPE_AES_GCM, 1,
+                (void*)&aes);
+            if (ret == NOT_COMPILED_IN)
+                ret = 0;
+            if (ret != 0)
+                fprintf(stderr, "Store Key failed: %d\n", ret);
+        }
+        if (ret == 0) {
+            ret = wc_AesGcmEncrypt(&aes, enc, data, sizeof(data), iv,
+                sizeof(iv), authTag, sizeof(authTag), NULL, 0);
+            if (ret != 0)
+                fprintf(stderr, "Encrypt failed: %d\n", ret);
+        }
+        if (ret == 0) {
+            if (memcmp(enc, exp256, sizeof(exp256)) != 0) {
+                fprintf(stderr, "Encrypted data didn't match expected\n");
+                ret = -1;
+            }
+        }
+        if (ret == 0) {
+            if (memcmp(authTag, expTag256, sizeof(expTag256)) != 0) {
+                fprintf(stderr, "Auth tag didn't match expected\n");
+                ret = -1;
+            }
+        }
+        if (ret == 0) {
+            ret = wc_AesGcmDecrypt(&aes, dec, enc, sizeof(enc), iv, sizeof(iv),
+                authTag, sizeof(authTag), NULL, 0);
+            if (ret != 0)
+                fprintf(stderr, "Decrypt failed: %d\n", ret);
+        }
+        if (ret == 0) {
+            if (memcmp(dec, data, ret) != 0) {
+                fprintf(stderr, "Decrypted data didn't match plaintext\n");
+                ret = -1;
+            }
+        }
+        wc_Pkcs11Token_Close(token);
+    }
+
+
+    if (ret == 0) {
+        wc_Pkcs11Token_Open(token, 1);
+        /* AES256-GCM */
+        if (ret == 0)
             ret = wc_AesInit_Id(&aes, (unsigned char*)"AES123", 6, NULL, devId);
         if (ret == 0) {
             ret = wc_AesGcmSetKey(&aes, key, AES_256_KEY_SIZE);
@@ -758,6 +882,55 @@ int aescbc_test(int devId, Pkcs11Token* token)
         wc_Pkcs11Token_Open(token, 1);
         /* AES256-CBC */
         if (ret == 0)
+            ret = wc_AesInit_Label(&aes, "myAesCbcKey", NULL, devId);
+        if (ret == 0) {
+            ret = wc_AesSetKey(&aes, key, AES_256_KEY_SIZE, iv, AES_ENCRYPTION);
+            if (ret != 0)
+                fprintf(stderr, "Set Key failed: %d\n", ret);
+        }
+        if (ret == 0) {
+            ret = wc_Pkcs11StoreKey(token, PKCS11_KEY_TYPE_AES_CBC, 1,
+                (void*)&aes);
+            if (ret == NOT_COMPILED_IN)
+                ret = 0;
+            if (ret != 0)
+                fprintf(stderr, "Store Key failed: %d\n", ret);
+        }
+        if (ret == 0) {
+            ret = wc_AesCbcEncrypt(&aes, enc, data, sizeof(data));
+            if (ret != 0)
+                fprintf(stderr, "Encrypt failed: %d\n", ret);
+        }
+        if (ret == 0) {
+            if (memcmp(enc, exp256, sizeof(exp256)) != 0) {
+                fprintf(stderr, "Encrypted data didn't match expected\n");
+                ret = -1;
+            }
+        }
+        if (ret == 0) {
+            ret = wc_AesSetKey(&aes, key, AES_256_KEY_SIZE, iv, AES_DECRYPTION);
+            if (ret != 0)
+                fprintf(stderr, "Set Key failed: %d\n", ret);
+        }
+        if (ret == 0) {
+            ret = wc_AesCbcDecrypt(&aes, dec, enc, sizeof(enc));
+            if (ret != 0)
+                fprintf(stderr, "Decrypt failed: %d\n", ret);
+        }
+        if (ret == 0) {
+            if (memcmp(dec, data, ret) != 0) {
+                fprintf(stderr, "Decrypted data didn't match plaintext\n");
+                ret = -1;
+            }
+        }
+        wc_Pkcs11Token_Close(token);
+    }
+
+
+    if (ret == 0) {
+        wc_Pkcs11Token_Open(token, 1);
+        /* AES256-CBC */
+        if (ret == 0)
             ret = wc_AesInit_Id(&aes, (unsigned char*)"AES123", 6, NULL, devId);
         if (ret == 0) {
             ret = wc_AesSetKey(&aes, key, AES_256_KEY_SIZE, iv, AES_ENCRYPTION);
@@ -817,7 +990,7 @@ int hmac_op(unsigned char* key, int keyLen, int hashAlg, unsigned char* data,
 
     wc_Pkcs11Token_Open(token, 1);
     /* HMAC */
-    ret = wc_HmacInit_Id(&hmac, (unsigned char*)"AES123", 6, NULL, devId);
+    ret = wc_HmacInit_Label(&hmac, "myHmacKey", NULL, devId);
     if (ret == 0) {
         ret = wc_HmacSetKey(&hmac, hashAlg, key, keyLen);
         if (ret != 0)
@@ -848,6 +1021,42 @@ int hmac_op(unsigned char* key, int keyLen, int hashAlg, unsigned char* data,
         }
     }
     wc_Pkcs11Token_Close(token);
+
+    if (ret == 0) {
+        wc_Pkcs11Token_Open(token, 1);
+        /* HMAC */
+        ret = wc_HmacInit_Id(&hmac, (unsigned char*)"HMAC123", 7, NULL, devId);
+        if (ret == 0) {
+            ret = wc_HmacSetKey(&hmac, hashAlg, key, keyLen);
+            if (ret != 0)
+                fprintf(stderr, "Set Key failed: %d\n", ret);
+        }
+        if (ret == 0) {
+            ret = wc_Pkcs11StoreKey(token, PKCS11_KEY_TYPE_HMAC, 0,
+                (void*)&hmac);
+            if (ret == NOT_COMPILED_IN)
+                ret = 0;
+            if (ret != 0)
+                fprintf(stderr, "Store Key failed: %d\n", ret);
+        }
+        if (ret == 0) {
+            ret = wc_HmacUpdate(&hmac, data, dataLen);
+            if (ret != 0)
+                fprintf(stderr, "HMAC Update failed: %d\n", ret);
+        }
+        if (ret == 0) {
+            ret = wc_HmacFinal(&hmac, res);
+            if (ret != 0)
+                fprintf(stderr, "HMAC Update failed: %d\n", ret);
+        }
+        if (ret == 0) {
+            if (memcmp(res, exp, expLen) != 0) {
+                fprintf(stderr, "HMAC result didn't match expected\n");
+                ret = -1;
+            }
+        }
+        wc_Pkcs11Token_Close(token);
+    }
 
     return ret;
 }
@@ -1009,7 +1218,23 @@ int pkcs11_test(int devId, Pkcs11Token* token)
 
     if (ret == 0) {
         wc_Pkcs11Token_Open(token, 1);
-        fprintf(stderr, "Generate RSA Key\n");
+        fprintf(stderr, "Generate RSA Key - LABEL\n");
+        ret = gen_rsa_key_label(token, &key, "myRsaKey", devId);
+    }
+    if (ret == 0) {
+        fprintf(stderr, "Encrypt/Decrypt with RSA Key\n");
+        ret = rsaenc_test(&key);
+    }
+    if (ret == 0) {
+        fprintf(stderr, "Sign/Verify with RSA Key\n");
+        ret = rsasig_test(&key);
+    }
+    wc_Pkcs11Token_Close(token);
+    wc_FreeRsaKey(&key);
+
+    if (ret == 0) {
+        wc_Pkcs11Token_Open(token, 1);
+        fprintf(stderr, "Generate RSA Key - ID\n");
         ret = gen_rsa_key(token, &key, (unsigned char*)"123", 3,
                           devId);
     }
@@ -1066,7 +1291,25 @@ int pkcs11_test(int devId, Pkcs11Token* token)
 
     if (ret == 0) {
         wc_Pkcs11Token_Open(token, 1);
-        fprintf(stderr, "Generate EC Keys\n");
+        fprintf(stderr, "Generate EC Keys - LABEL\n");
+        ret = gen_ec_keys_label(token, &eccPriv, "myEccKey", devId);
+        memcpy(&eccPub, &eccPriv, sizeof(ecc_key));
+        eccPub.devId = INVALID_DEVID;
+    }
+    if (ret == 0) {
+        fprintf(stderr, "Derive secret with ECC Keys\n");
+        ret = ecdh_test(&eccPriv, &eccPriv, 0);
+    }
+    if (ret == 0) {
+        fprintf(stderr, "Sign/Verify with ECC Keys\n");
+        ret = ecdsa_test(&eccPriv, &eccPriv, NULL, &eccPub);
+    }
+    wc_Pkcs11Token_Close(token);
+    wc_ecc_free(&eccPriv);
+
+    if (ret == 0) {
+        wc_Pkcs11Token_Open(token, 1);
+        fprintf(stderr, "Generate EC Keys - ID\n");
         ret = gen_ec_keys(token, &eccPriv, (unsigned char*)"123ecc", 6,
                           devId);
         memcpy(&eccPub, &eccPriv, sizeof(ecc_key));
