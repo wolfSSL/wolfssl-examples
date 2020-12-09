@@ -178,9 +178,9 @@ int main(int argc, char** argv)
             int j;
             for (j = 0; j < gn->d.ip->length; j++) {
                 if (j < gn->d.ip->length - 1)
-                    printf("%d.", (int) gn->d.ip->strData[j]);
+                    printf("%u.", (uint8_t)gn->d.ip->strData[j]);
                 else
-                    printf("%d", (int) gn->d.ip->strData[j]);
+                    printf("%u", (uint8_t)gn->d.ip->strData[j]);
             }
             printf("\n");
         } else {
