@@ -38,7 +38,8 @@ int gen_ec_keys(Pkcs11Token* token, ecc_key* key, unsigned char* id, int idLen,
     if (ret != 0)
         fprintf(stderr, "Failed to initialize EC key: %d\n", ret);
     if (ret == 0) {
-        ret = wc_ecc_make_key_ex(&rng, 32, key, ECC_CURVE_DEF);
+        ret = wc_ecc_make_key_ex2(&rng, 32, key, ECC_CURVE_DEF,
+                                  WC_ECC_FLAG_DEC_SIGN);
         if (ret != 0)
             fprintf(stderr, "Failed to generate EC key: %d\n", ret);
     }
@@ -98,16 +99,16 @@ int main(int argc, char* argv[])
     int slotId;
     int devId = 1;
 
-    if (argc != 5) {
+    if (argc != 4 && argc != 5) {
         fprintf(stderr,
-               "Usage: pkcs11_genecc <libname> <slot> <tokenname> <userpin>\n");
+               "Usage: pkcs11_genecc <libname> <slot> <tokenname> [userpin]\n");
         return 1;
     }
 
     library = argv[1];
     slot = argv[2];
     tokenName = argv[3];
-    userPin = argv[4];
+    userPin = (argc == 4) ? NULL : argv[4];
     slotId = atoi(slot);
 
 #if defined(DEBUG_WOLFSSL)
@@ -122,7 +123,7 @@ int main(int argc, char* argv[])
     }
     if (ret == 0) {
         ret = wc_Pkcs11Token_Init(&token, &dev, slotId, tokenName,
-                              (byte*)userPin, strlen(userPin));
+            (byte*)userPin, userPin == NULL ? 0 : strlen(userPin));
         if (ret != 0) {
             fprintf(stderr, "Failed to initialize PKCS#11 token\n");
             ret = 2;
