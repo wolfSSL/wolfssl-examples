@@ -1,6 +1,6 @@
 /* btle-sim.c
  *
- * Copyright (C) 2006-2020 wolfSSL Inc.
+ * Copyright (C) 2006-2021 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -66,7 +66,7 @@ static int btle_get_read(BtleDev_t* dev)
     return (dev->role == BTLE_ROLE_SERVER) ? dev->fdmiso : dev->fdmosi;
 }
 
-static int btle_send_block(BtleDev_t* dev, const void* buf, int len, int fd)
+static int btle_send_block(BtleDev_t* dev, const unsigned char* buf, int len, int fd)
 {
     int ret;
     ret = write(fd, buf, len);
@@ -78,7 +78,7 @@ static int btle_send_block(BtleDev_t* dev, const void* buf, int len, int fd)
     return ret;
 }
 
-static int btle_recv_block(BtleDev_t* dev, void* buf, int len, int fd)
+static int btle_recv_block(BtleDev_t* dev, unsigned char* buf, int len, int fd)
 {
     fd_set set;
     int ret, pos = 0;
@@ -162,7 +162,7 @@ int btle_send(const unsigned char* buf, int len, int type, void* context)
     header.ver = BTLE_VER;
     header.type = type;
     header.len = len;
-    ret = btle_send_block(dev, &header, sizeof(header), fd);
+    ret = btle_send_block(dev, (unsigned char*)&header, sizeof(header), fd);
     if (ret < 0)
         return ret;
     ret = btle_send_block(dev, buf, len, fd);
@@ -179,7 +179,7 @@ int btle_recv(unsigned char* buf, int len, int* type, void* context)
     int fd = btle_get_read(dev);
 
 
-    ret = btle_recv_block(dev, &header, sizeof(header), fd);
+    ret = btle_recv_block(dev, (unsigned char*)&header, sizeof(header), fd);
     if (ret < 0)
         return ret;
 

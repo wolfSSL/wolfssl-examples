@@ -1,6 +1,6 @@
 /* ecc-client.c
  *
- * Copyright (C) 2006-2020 wolfSSL Inc.
+ * Copyright (C) 2006-2021 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -106,7 +106,7 @@ int main(int argc, char** argv)
         ret = -1; goto cleanup;
     }
 
-    /* TODO: Client should hash and verify this public key against trusted ceritifcate (already exchanged) */
+    /* TODO: Client should hash and verify this public key against trusted certificate (already exchanged) */
     /* ECC signature is about 65 bytes */
 
     /* import peer public key */
