@@ -8,7 +8,7 @@
 int main(void)
 {
 
-  initPrintx("wolfSSL-test");
+  initPrintx("");
   printx("wolfSSL test starting\n");
 
 
@@ -21,8 +21,9 @@ int main(void)
   int res1 = clock_settime(CLOCK_REALTIME, &ts_date);
   // this will only take effect, if time-control is set in the xml-file
   // if not, Jan 1 1970, 00:00:00 will be the date
+  int res = 0;
 
-  int res = wolfcrypt_test(NULL);
+  res = wolfcrypt_test(NULL);
 
   if (res == 0) {
 	  printx("wolfcrypt Test Passed\n");
