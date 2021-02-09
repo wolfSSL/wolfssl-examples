@@ -4,7 +4,7 @@
      pomSizeInPages = "automatic"
      mailboxQuota = "0"
      systemMemoryObjectQuota = "0"
-     validityKey = "-1061063713"
+     validityKey = "1890133541"
      breakAtStartup = "yes"
      mutexQuota = "0"
      semaphoreQuota = "0"
@@ -84,7 +84,7 @@
            reservedProcessNames = ""
            reservedMemoryObjectNames = ""
            argvCommandLineParameters = ""
-           envpCommandLineParameters = "^ MALLOC_PAGES=512^"
+           envpCommandLineParameters = "MALLOC_PAGES=512"
            fileSystemSearchPath = "/"
          >
          <autoCreatedMemoryObjects>
