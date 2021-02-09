@@ -25,6 +25,12 @@
 
 # IDE Temp Files
 **/*.swp
+**/*~
+
+# Deos generated files
+DEOS/*/Makefile
+DEOS/*/project-config.mk
+DEOS/*/output/
 
 # Android files
 android/wolfcryptjni-ndk-gradle/.gradle
