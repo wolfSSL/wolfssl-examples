@@ -570,6 +570,52 @@ Successfully encoded Signed Encrypted Compressed FirmwarePkgData (signedEncrypte
 Successfully extracted and verified bundle contents
 ```
 
+### Converting P7B Certificate Bundle to PEM using PKCS7 SignedData API
+
+Example file: `signedData-p7b.c`
+
+This example parses a .p7b certificate bundle using wolfCrypt's PKCS#7
+SignedData API, looping over each extracted certificate, converting each
+certificate to PEM format (from DER), and printing it to the terminal for
+info/reference.
+
+```
+./signedData-p7b
+Successfully verified SignedData bundle.
+CERT [0] size = 1291 bytes
+converted DER to PEM, pemSz = 1805
+CERT [0] PEM:
+-----BEGIN CERTIFICATE-----
+MIIFBzCCA++gAwIBAgIJAPFcmUNmPZYEMA0GCSqGSIb3DQEBCwUAMIGeMQswCQYD
+VQQGEwJVUzEQMA4GA1UECAwHTW9udGFuYTEQMA4GA1UEBwwHQm96ZW1hbjEVMBMG
+A1UECgwMd29sZlNTTF8yMDQ4MRkwFwYDVQQLDBBQcm9ncmFtbWluZy0yMDQ4MRgw
+FgYDVQQDDA93d3cud29sZnNzbC5jb20xHzAdBgkqhkiG9w0BCQEWEGluZm9Ad29s
+ZnNzbC5jb20wHhcNMjEwMjEwMTk0OTUyWhcNMjMxMTA3MTk0OTUyWjCBnjELMAkG
+A1UEBhMCVVMxEDAOBgNVBAgMB01vbnRhbmExEDAOBgNVBAcMB0JvemVtYW4xFTAT
+BgNVBAoMDHdvbGZTU0xfMjA0ODEZMBcGA1UECwwQUHJvZ3JhbW1pbmctMjA0ODEY
+MBYGA1UEAwwPd3d3LndvbGZzc2wuY29tMR8wHQYJKoZIhvcNAQkBFhBpbmZvQHdv
+bGZzc2wuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwwPRK/45
+pDJFO1PIhCsqfHSavaoqUgdH1qY2sgcyjtC6aXvGw0Se1IFI/S1oootnu6F1yDYs
+StIb94u6zw357+zxgR57mwNHmr9lzH9lJGmm6BSJW+Q098WwFJP1Z3s6enjhAVZW
+kaYTQo3SPECcTO/Rht83URsMoTv18aNKNeThzpbfG36/TpfQEOioCDCBryALQxTF
+dGe0MoJvjYbCiECZNoO6HkByIhfXUmUkc7DO7xnNrv94bHvAEgPUTnINUG07ozuj
+mV6dyNkMhbPZitlUJttt+qy7/yVMxNF59HHThkAYE7BjtXJOMMSXhIYtVi/XFfd/
+wK71/Fvl+6G60wIDAQABo4IBRDCCAUAwHQYDVR0OBBYEFDPYRWbXaIcYflQNcCeR
+xybXhWXAMIHTBgNVHSMEgcswgciAFDPYRWbXaIcYflQNcCeRxybXhWXAoYGkpIGh
+MIGeMQswCQYDVQQGEwJVUzEQMA4GA1UECAwHTW9udGFuYTEQMA4GA1UEBwwHQm96
+ZW1hbjEVMBMGA1UECgwMd29sZlNTTF8yMDQ4MRkwFwYDVQQLDBBQcm9ncmFtbWlu
+Zy0yMDQ4MRgwFgYDVQQDDA93d3cud29sZnNzbC5jb20xHzAdBgkqhkiG9w0BCQEW
+EGluZm9Ad29sZnNzbC5jb22CCQDxXJlDZj2WBDAMBgNVHRMEBTADAQH/MBwGA1Ud
+EQQVMBOCC2V4YW1wbGUuY29thwR/AAABMB0GA1UdJQQWMBQGCCsGAQUFBwMBBggr
+BgEFBQcDAjANBgkqhkiG9w0BAQsFAAOCAQEAuitI0ajjwoRClqF85fFGukz3h1fH
+eMjBMsRp/4W7XWrdyYd+/rv0/RUKTJSVgDCQRQP4M4fKX3Q4pNBax2U4w7Doh7FJ
+Mrms6fvTCB2kUXvX2Ut5NaI6C+QMoAKcoWjhXWyOLjok3rvWHKesLs1XREj2cuDH
+W5PcfVtkDheEaCyVHSyG1rB0Z1Fue/TVYThRsxjjEBZzSzaKimIF9VaKviHheH2/
+rUX5C/WvoGIB/T9J3zk8/0boCv5ca7tBpWTxXJtRTLxtn6Mg7elI4am+CC2FQlnW
+Q31HIqX6H6JYdgtwHB1ZHaq+XS0lfLEGtsCqKKqTfNC9Q62RUBx7TfPk1w==
+-----END CERTIFICATE-----
+```
+
 ## Support
 
 Please email wolfSSL support at support@wolfssl.com with any questions about

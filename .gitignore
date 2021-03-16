@@ -150,6 +150,8 @@ pkcs7/signedData-DetachedSignature
 pkcs7/signedData-EncryptedFirmwarePkgData
 pkcs7/signedData-CompressedFirmwarePkgData
 pkcs7/signedData-EncryptedCompressedFirmwarePkgData
+pkcs7/signedData-EncryptedFirmwareCB
+pkcs7/signedData-p7b
 
 *.dSYM
 certmanager/certloadverifybuffer
