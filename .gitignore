@@ -215,3 +215,6 @@ embedded/tls-threaded
 server-tls-verifycallback
 
 hash/sha256-hash
+sslkeylog.log
+server-tls13
+client-tls13
