@@ -1193,3 +1193,21 @@ And now the client is set up.
 ## Crypto Callbacks
 
 See the `client-tls-cryptocb.c` example for demonstrating the `--enable-cryptocb` feature for allowing custom cryptographic algorithm offload.
+
+## TLS v1.3 Wireshark Logging
+
+Build wolfSSL with `HAVE_SECRET_CALLBACK` included:
+
+```
+./configure --enable-tls13 CFLAGS="-DHAVE_SECRET_CALLBACK" && make && sudo make install
+```
+
+In wolfssl-examples/tls:
+```
+make clean && make
+./server-tls13 &
+./client-tls13 127.0.0.1
+```
+
+Wireshark can decode traffic using the created "sslkeylog.log". To configure in Wireshark Prferences go to Protocols -> TLS. In the "(Pre)-Master-Secret log filename" choose the "sslkeylog.log" file in this directory.
+Capture TLS traffic and all packets will be decrypted (handshake and application data).
