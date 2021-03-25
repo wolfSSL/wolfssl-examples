@@ -55,7 +55,7 @@ int Tls13SecretCallback(WOLFSSL* ssl, int id, const unsigned char* secret,
     size_t clientRandomSz;
     XFILE fp = stderr;
     if (ctx) {
-        fp = XFOPEN((const char*)ctx, "wb");
+        fp = XFOPEN((const char*)ctx, "ab");
         if (fp == XBADFILE) {
             return BAD_FUNC_ARG;
         }
