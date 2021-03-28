@@ -45,6 +45,7 @@
     #define WOLFSSL_SSLKEYLOGFILE_OUTPUT "sslkeylog.log"
 #endif
 
+/* Callback function for TLS v1.3 secrets for use with Wireshark */
 int Tls13SecretCallback(WOLFSSL* ssl, int id, const unsigned char* secret,
     int secretSz, void* ctx)
 {

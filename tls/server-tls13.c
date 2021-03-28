@@ -46,13 +46,14 @@
     #define WOLFSSL_SSLKEYLOGFILE_OUTPUT "sslkeylog.log"
 #endif
 
+/* Callback function for TLS v1.3 secrets for use with Wireshark */
 int Tls13SecretCallback(WOLFSSL* ssl, int id, const unsigned char* secret,
     int secretSz, void* ctx)
 {
     int i;
     const char* str = NULL;
-    unsigned char clientRandom[32];
-    size_t clientRandomSz;
+    unsigned char serverRandom[32];
+    size_t serverRandomSz;
     XFILE fp = stderr;
     if (ctx) {
         fp = XFOPEN((const char*)ctx, "ab");
@@ -61,8 +62,8 @@ int Tls13SecretCallback(WOLFSSL* ssl, int id, const unsigned char* secret,
         }
     }
 
-    clientRandomSz = wolfSSL_get_client_random(ssl, clientRandom,
-        sizeof(clientRandom));
+    serverRandomSz = wolfSSL_get_server_random(ssl, serverRandom,
+        sizeof(serverRandom));
 
     switch (id) {
         case CLIENT_EARLY_TRAFFIC_SECRET:
@@ -82,8 +83,8 @@ int Tls13SecretCallback(WOLFSSL* ssl, int id, const unsigned char* secret,
     }
 
     fprintf(fp, "%s ", str);
-    for (i = 0; i < clientRandomSz; i++) {
-        fprintf(fp, "%02x", clientRandom[i]);
+    for (i = 0; i < serverRandomSz; i++) {
+        fprintf(fp, "%02x", serverRandom[i]);
     }
     fprintf(fp, " ");
     for (i = 0; i < secretSz; i++) {
