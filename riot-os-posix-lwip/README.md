@@ -24,27 +24,29 @@ This example is configured to use wolfSSL on RIOT-OS over POSIX sockets (LWIP).
 
 ### Prerequisite
 
+Ensure that the following are installed in your system:
+- `gcc-multilib`
+- `bridge-utils`
+
 Clone RIOT-OS in a directory on your filesystem.
 
 ### Run the server
 ```bash
 $ make all RIOTBASE=/path/to/riot-os; PORT=tap1 make term
-> ip
-```
-*copy the server address*
-
-```bash
 > tlss
 ```
 ### Run the client
 
-The default IP address assigned to all nodes is 192.168.7.2. Modify the default address in main.c and re-compile the client application after starting the server.
+The default IP address assigned to all nodes is 192.168.7.2. 
 
+In order to run two nodes, you must **modify the default address in main.c** and re-compile the client application after starting the server.
 
 ```bash
 $ PORT=tap0 make term
-> tlsc <IPv6's server address[%netif]>
+> tlsc <server address>
 ```
+
+**Note:** You must be root to run `make term`, or else your user must have permissions to access `/dev/net/tun`.
 
 ### Testing against host endpoints
 
