@@ -114,7 +114,7 @@ int wolfCLU_setup(int argc, char** argv, char action)
             inCheck = 1;
         }
 
-        ret = wolfCLU_checkForArg("-pwd", 3, argc, argv);
+        ret = wolfCLU_checkForArg("-pwd", 4, argc, argv);
         if (ret > 0) {
             /* password pwdKey */
             XMEMCPY(pwdKey, argv[ret+1], size);
