@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://www.ddci.com/DEOS_EXEoptions" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="ddci:/xsd/DEOS_EXE.xsd http://www.ddci.com/DEOS_EXEoptions">
+  <version>26</version>
+  <targetArch>ppc</targetArch>
+  <fpuType>none</fpuType>
+  <variant>diagnostic</variant>
+  <copyToAppbin>$(BINARY)</copyToAppbin>
+  <kernelFile>$(PROJECT_NAME).exe</kernelFile>
+  <copyToEtc>config/mailbox-transport.config</copyToEtc>
+  <kernelFile>mailbox-transport.config</kernelFile>
+  <copyToAppbin>$(BINARY).dbg</copyToAppbin>
+  <depend>kernel</depend>
+  <depend>video</depend>
+  <depend>sal</depend>
+  <depend>mtl</depend>
+  <depend>ansi</depend>
+  <depend>wolfssl</depend>
+  <depend>printx</depend>
+  <depend>pal</depend>
+  <depend>deos-time</depend>
+  <depend>ansi</depend>
+  <gccCppCompileDirectories targetArch="arm">$(DESK_DIR)/arm/include</gccCppCompileDirectories>
+  <gccCppCompileDirectories targetArch="ppc">$(DESK_DIR)/ppc/include</gccCppCompileDirectories>
+  <gccCppCompileDirectories targetArch="x86">$(DESK_DIR)/x86/include</gccCppCompileDirectories>
+  <gccCppCompileDirectories>$(DESK_DIR)/include</gccCppCompileDirectories>
+  <gccCppCompileDirectories>$(PROJECT_DIR.wolfssl)/..</gccCppCompileDirectories>
+  <gccCppCompileDirectories>$(PROJECT_DIR.wolfssl)/../../../..</gccCppCompileDirectories>
+  <gccCppCompileDirectories>$(PROJECT_DIR.printx)/code</gccCppCompileDirectories>
+  <gccCppCompileDefinedMacros>WOLFSSL_USER_SETTINGS</gccCppCompileDefinedMacros>
+  <gccCCompileDirectories targetArch="arm">$(DESK_DIR)/arm/include</gccCCompileDirectories>
+  <gccCCompileDirectories targetArch="ppc">$(DESK_DIR)/ppc/include</gccCCompileDirectories>
+  <gccCCompileDirectories targetArch="x86">$(DESK_DIR)/x86/include</gccCCompileDirectories>
+  <gccCCompileDirectories>$(DESK_DIR)/include</gccCCompileDirectories>
+  <gccCCompileDirectories>$(PROJECT_DIR.wolfssl)/../../../..</gccCCompileDirectories>
+  <gccCCompileDirectories>$(PROJECT_DIR.wolfssl)/..</gccCCompileDirectories>
+  <gccCCompileDefinedMacros>MALLOC_PAGES=512</gccCCompileDefinedMacros>
+  <gccCCompileDefinedMacros>WOLFSSL_USER_SETTINGS</gccCCompileDefinedMacros>
+</project>
