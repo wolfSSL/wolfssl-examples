@@ -33,6 +33,7 @@
   <gccCCompileDirectories>$(DESK_DIR)/include</gccCCompileDirectories>
   <gccCCompileDirectories>$(PROJECT_DIR.wolfssl)/../../../..</gccCCompileDirectories>
   <gccCCompileDirectories>$(PROJECT_DIR.wolfssl)/..</gccCCompileDirectories>
+  <gccCCompileDirectories>$(PROJECT_DIR.printx)</gccCCompileDirectories>
   <gccCCompileDefinedMacros>MALLOC_PAGES=512</gccCCompileDefinedMacros>
   <gccCCompileDefinedMacros>WOLFSSL_USER_SETTINGS</gccCCompileDefinedMacros>
 </project>
