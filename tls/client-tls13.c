@@ -181,17 +181,17 @@ int main(int argc, char** argv)
         goto exit;
     }
 
-    /* Connect to wolfSSL on the server side */
-    if ((ret = wolfSSL_connect(ssl)) != WOLFSSL_SUCCESS) {
-        fprintf(stderr, "ERROR: failed to connect to wolfSSL\n");
-        goto exit;
-    }
-
 #ifdef HAVE_SECRET_CALLBACK
     /* optional logging for wireshark */
     wolfSSL_set_tls13_secret_cb(ssl, Tls13SecretCallback,
         WOLFSSL_SSLKEYLOGFILE_OUTPUT);
 #endif
+
+    /* Connect to wolfSSL on the server side */
+    if ((ret = wolfSSL_connect(ssl)) != WOLFSSL_SUCCESS) {
+        fprintf(stderr, "ERROR: failed to connect to wolfSSL\n");
+        goto exit;
+    }
 
     /* Get a message for the server from stdin */
     printf("Message for server: ");
