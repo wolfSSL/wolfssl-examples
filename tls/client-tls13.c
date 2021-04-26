@@ -46,7 +46,7 @@
 #endif
 
 /* Callback function for TLS v1.3 secrets for use with Wireshark */
-int Tls13SecretCallback(WOLFSSL* ssl, int id, const unsigned char* secret,
+static int Tls13SecretCallback(WOLFSSL* ssl, int id, const unsigned char* secret,
     int secretSz, void* ctx)
 {
     int i;
@@ -82,7 +82,7 @@ int Tls13SecretCallback(WOLFSSL* ssl, int id, const unsigned char* secret,
     }
 
     fprintf(fp, "%s ", str);
-    for (i = 0; i < clientRandomSz; i++) {
+    for (i = 0; i < (int)clientRandomSz; i++) {
         fprintf(fp, "%02x", clientRandom[i]);
     }
     fprintf(fp, " ");
@@ -181,17 +181,17 @@ int main(int argc, char** argv)
         goto exit;
     }
 
+#ifdef HAVE_SECRET_CALLBACK
+    /* optional logging for wireshark */
+    wolfSSL_set_tls13_secret_cb(ssl, Tls13SecretCallback,
+        (void*)WOLFSSL_SSLKEYLOGFILE_OUTPUT);
+#endif
+
     /* Connect to wolfSSL on the server side */
     if ((ret = wolfSSL_connect(ssl)) != WOLFSSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to connect to wolfSSL\n");
         goto exit;
     }
-
-#ifdef HAVE_SECRET_CALLBACK
-    /* optional logging for wireshark */
-    wolfSSL_set_tls13_secret_cb(ssl, Tls13SecretCallback,
-        WOLFSSL_SSLKEYLOGFILE_OUTPUT);
-#endif
 
     /* Get a message for the server from stdin */
     printf("Message for server: ");
