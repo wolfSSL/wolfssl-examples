@@ -32,12 +32,15 @@
 #include <wolfssl/wolfcrypt/settings.h>
 #include <wolfssl/ssl.h>
 
+#define LARGEST_FILE_PATH 1024
+
+void Usage(void);
 int main(int argc, char** argv)
 {
     WOLFSSL_CTX* ctx;
     int ret;
-    char serverKeyFile[] = "./server.key";
-    char serverCertFile[] = "./server.cert";
+    char serverKeyFile[LARGEST_FILE_PATH] = {0};
+    char serverCertFile[LARGEST_FILE_PATH] = {0};
     char* svrKeyFile = serverKeyFile;
     char* svrCertFile = serverCertFile;
 
@@ -47,17 +50,8 @@ int main(int argc, char** argv)
         svrKeyFile = argv[1];
         svrCertFile = argv[2];
     } else {
-      #if defined(FP_MAX_BITS) && (FP_MAX_BITS >= 8192) && \
-          defined(USE_FAST_MATH)
-        printf("\nUsing defaults server.key and server.cert\n");
-        printf("To test other key/cert pair run with:\n");
-        printf("./test-cert-privkey-pair yourkey.pem yourcert.pem\n\n\n");
-      #else
-        printf("FP_MAX_BITS set too low to run the default 4096-bit pair\n");
-        printf("Please build with FP_MAX_BITS set to 8192 or greater when\n"
-               "using fastmath to test the defaults\n");
+        Usage();
         return -1;
-      #endif
     }
 
     ctx = wolfSSL_CTX_new(wolfSSLv23_server_method());
@@ -94,3 +88,12 @@ cleanup:
         ret = 0;
     return ret;
 }
+
+void Usage(void)
+{
+    printf("Please specify a cert and key to check\n");
+    printf("Example: ./test-cert-privkey-pair ../../certs/server-key.pem "
+           "../../certs/server-cert.pem\n");
+}
+
+
