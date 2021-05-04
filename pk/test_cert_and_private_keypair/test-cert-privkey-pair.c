@@ -39,10 +39,8 @@ int main(int argc, char** argv)
 {
     WOLFSSL_CTX* ctx;
     int ret;
-    char serverKeyFile[LARGEST_FILE_PATH] = {0};
-    char serverCertFile[LARGEST_FILE_PATH] = {0};
-    char* svrKeyFile = serverKeyFile;
-    char* svrCertFile = serverCertFile;
+    char* svrKeyFile = NULL;
+    char* svrCertFile = NULL;
 
     if (argc == 3) {
         (void) svrKeyFile;
