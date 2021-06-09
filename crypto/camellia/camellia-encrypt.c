@@ -31,7 +31,7 @@
 #define SALT_SIZE 8
 
 /*
- * Makes a cryptographically secure key by stretMDMching a user entered key
+ * Makes a cryptographically secure key by stretching a user entered key
  */
 int GenerateKey(RNG* rng, byte* key, int size, byte* salt, int pad)
 {

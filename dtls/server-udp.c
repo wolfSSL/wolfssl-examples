@@ -38,7 +38,7 @@
 int main (void)
 {
     int           sockfd;                   /* Initialize our socket */
-    int           recvLen;                  /* number of bytes recieved */
+    int           recvLen;                  /* number of bytes received */
     int           msgNum = 0;               /* number of msg received */
     unsigned char buf[MSGLEN];              /* the incoming message */
     struct        sockaddr_in servAddr;     /* our server's address */

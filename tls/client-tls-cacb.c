@@ -38,7 +38,7 @@ const char* cert = "../certs/ca-cert.pem";
  */
 int ClientGreet(int sock, WOLFSSL* ssl)
 {
-    /* data to send to the server, data recieved from the server */
+    /* data to send to the server, data received from the server */
     char    sendBuff[MAXDATASIZE], rcvBuff[MAXDATASIZE] = {0};
     int     ret = 0;                /* variable for error checking */
 
@@ -61,7 +61,7 @@ int ClientGreet(int sock, WOLFSSL* ssl)
         printf("Read error. Error: %i\n", ret);
         return EXIT_FAILURE;
     }
-    printf("Recieved: \t%s\n", rcvBuff);
+    printf("Received: \t%s\n", rcvBuff);
 
     return ret;
 }
@@ -85,9 +85,9 @@ static void CaCb(unsigned char* der, int sz, int type)
         int   ret;
         int   sz = sizeof(serial);
 
-        WOLFSSL_X509_NAME* issureName = wolfSSL_X509_get_issuer_name(x509);
+        WOLFSSL_X509_NAME* issuerName = wolfSSL_X509_get_issuer_name(x509);
         WOLFSSL_X509_NAME* subjectName = wolfSSL_X509_get_subject_name(x509);
-        issuer  = wolfSSL_X509_NAME_oneline(issureName, 0, 0);
+        issuer  = wolfSSL_X509_NAME_oneline(issuerName, 0, 0);
         subject = wolfSSL_X509_NAME_oneline(subjectName, 0, 0);
 
         printf("\tIssuer : %s\n\tSubject: %s\n", issuer, subject);
@@ -131,7 +131,7 @@ int Security(int sock)
 
     wolfSSL_Init();      /* initialize wolfSSL */
 
-    /* create and initiLize WOLFSSL_CTX structure */
+    /* create and initialize WOLFSSL_CTX structure */
     if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method())) == NULL) {
         printf("SSL_CTX_new error.\n");
         return EXIT_FAILURE;

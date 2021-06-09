@@ -18,7 +18,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
  *
- * EXAMPLE DEFINIITON:
+ * EXAMPLE DEFINITION:
  *
  * Instead of using sockets we will show how it is possible
  * to deliver TLS handshake and packet exchange through the use of
@@ -241,7 +241,7 @@ int main(int argc, char** argv)
             printf("Server send successful\n");
             break;
         } else {
-            printf("Unkown error occured, shutting down\n");
+            printf("Unkown error occurred, shutting down\n");
             break;
         }
     }

@@ -106,7 +106,7 @@ int main(int argc, char** argv)
         printf("wc_ecc_export_x963 failed %d\n", ret);
         goto cleanup;
     }
-    /* TODO: Server should hash and sign this public key with a trust ceritifcate (already exchanged) */
+    /* TODO: Server should hash and sign this public key with a trust certificate (already exchanged) */
     /* ECC signature is about 65 bytes */
 
 

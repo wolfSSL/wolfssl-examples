@@ -18,6 +18,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
+
 #include "client-tls.h"
 
 #include    <stdio.h>
@@ -44,7 +45,7 @@ int client_connect(sgx_enclave_id_t id)
     long ssl;
 
 
-    /* data to send to the server, data recieved from the server */
+    /* data to send to the server, data received from the server */
     char    sendBuff[] = "Hello WolfSSL!";
     char rcvBuff[MAXDATASIZE] = {0};
 
@@ -155,7 +156,7 @@ int client_connect(sgx_enclave_id_t id)
         printf("Read error. Error: %i\n", ret);
         return EXIT_FAILURE;
     }
-    printf("Recieved: \t%s\n", rcvBuff);
+    printf("Received: \t%s\n", rcvBuff);
 
     /* frees all data before client termination */
     enc_wolfSSL_free(id, ssl);

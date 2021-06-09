@@ -100,7 +100,7 @@ int main(void)
 
     fp = fopen("./" XSTRINGIFY(TEST_ECC_KEY_CURVE) ".der", "wb");
     if (!fp) {
-        printf("Error openening %s for write\n",
+        printf("Error opening %s for write\n",
             "./" XSTRINGIFY(TEST_ECC_KEY_CURVE) ".der");
         return -1;
     }
@@ -121,7 +121,7 @@ int main(void)
 
     fp = fopen("./" XSTRINGIFY(TEST_ECC_KEY_CURVE) ".pem", "wb");
     if (!fp) {
-        printf("Error openening %s for write\n",
+        printf("Error opening %s for write\n",
             "./" XSTRINGIFY(TEST_ECC_KEY_CURVE) ".pem");
         return -1;
     }
@@ -142,7 +142,7 @@ int main(void)
 
     fp = fopen("./" XSTRINGIFY(TEST_ECC_KEY_CURVE) "_pub.der", "wb");
     if (!fp) {
-        printf("Error openening %s for write\n",
+        printf("Error opening %s for write\n",
             "./" XSTRINGIFY(TEST_ECC_KEY_CURVE) "_pub.der");
         return -1;
     }
@@ -167,7 +167,7 @@ int main(void)
 
     fp = fopen("./" XSTRINGIFY(TEST_ECC_KEY_CURVE) "_pub.pem", "wb");
     if (!fp) {
-        printf("Error openening %s for write\n",
+        printf("Error opening %s for write\n",
             "./" XSTRINGIFY(TEST_ECC_KEY_CURVE) "_pub.pem");
         return -1;
     }

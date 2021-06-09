@@ -9,7 +9,7 @@ connection, but modified to utilize wolfSSL to establish a TLS 1.2 connection.
 In general, the naming convention of these files mean that if a file is named
 in the form `X-Y.c`, then it's a copy of `X.c` intended to demonstrate Y. The
 exceptions being `server-tls.c` and `client-tls.c`, as noted above.
-Furthermore, the files is formated such that using a diff tool such as
+Furthermore, the files is formatted such that using a diff tool such as
 `vimdiff` to compare `X-Y.c` to `X.c` should highlight only the relevant
 changes required to convert `X.c` into `X-Y.c`
 
@@ -261,7 +261,7 @@ socket [...]" block, add these lines:
     servAddr.sin_addr.s_addr = INADDR_ANY;          /* from anywhere   */
 ```
 
-That "Initialize the sever address sturuct wit zeros" step is not strictly
+That "Initialize the server address struct wit zeros" step is not strictly
 necessary, but it's usually a good idea, and it doesn't complicate the example
 too much.
 
@@ -500,7 +500,7 @@ Now we can fill out the address of the server we want to connect to. After the
     }
 ```
 
-Once more, this is quite similar to server code. This time, hovewer, rather
+Once more, this is quite similar to server code. This time, however, rather
 than setting `servAddr.sin_addr.s_addr` to `INADDR_ANY`, we're going to make a
 call to `inet_pton()` to read `argv[1]` as an IPv4 address and assign it to the
 right place in `servAddr`. If `argv[1]` is well formed, `inet_pton()` will
@@ -1053,7 +1053,7 @@ with zeros" block is a good place. After this, add these lines:
 
 And just like that wolfSSL will use our functions to send and receive data. Now
 when this program is run we should see a number of "my\_OISend: sent" and
-"my\_IORecv: recieved" lines in our output.
+"my\_IORecv: received" lines in our output.
 
 #### <a name="run-callback">Running</a>
 

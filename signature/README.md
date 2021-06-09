@@ -31,7 +31,7 @@ ED25519 directory contains:
 formatted files.
 
 2. genkeybuffers.pl - a perl script to write the header file "test_keys.h" using
-   the .der formatted files output from applicaton "gen_key_files.c"
+   the .der formatted files output from application "gen_key_files.c"
 
 3. App "sign_and_verify.c" to use the "test_keys.h" header file buffers for
    importing the public and private keys. App will then sign a msg with the

@@ -117,7 +117,7 @@ typedef struct SSLConn_CTX {
     /* Total time handling accept - resumed connections. */
     double resumeTime;
 #ifdef WOLFSSL_ASYNC_CRYPT
-    /* Total time handling aynchronous operations. */
+    /* Total time handling asynchronous operations. */
     double asyncTime;
 #endif
     /* Total time handling reading. */
