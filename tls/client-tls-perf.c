@@ -114,7 +114,7 @@ typedef struct SSLConnCtx {
     /* Total time handling resumed connections. */
     double resumeTime;
 #ifdef WOLFSSL_ASYNC_CRYPT
-    /* Total time handling aynchronous operations. */
+    /* Total time handling asynchronous operations. */
     double asyncTime;
 #endif
     /* Total time handling reading. */
@@ -738,7 +738,7 @@ static void WolfSSLCtx_Final(WOLFSSL_CTX* ctx)
 #endif
 }
 
-/* Create a socket to talf to server on and connect.
+/* Create a socket to talk to server on and connect.
  *
  * port      The port the server is listening on.
  * socketfd  The connected socket.

@@ -115,7 +115,7 @@ make
 
 This directory contains examples for securing a Bluetooth Low Energy Link (BTLE).
 BTLE packets are small and throughput is low, so these examples demonstrate a way
-to exchange data securley without BTLE pariing.
+to exchange data securely without BTLE pairing.
 
 
 ## Notes

@@ -134,7 +134,7 @@ typedef struct SSLConn_CTX {
     /* Total time handling accepts - resumed connections. */
     double resumeTime;
 #ifdef WOLFSSL_ASYNC_CRYPT
-    /* Total time handling aynchronous operations. */
+    /* Total time handling asynchronous operations. */
     double asyncTime;
 #endif
     /* Total time handling reading. */
@@ -1228,7 +1228,7 @@ int main(int argc, char* argv[])
     for (i = 0; i < numThreads; i++) {
         if (pthread_create(&sslConnCtx->threadData[i].thread_id, NULL,
                            ThreadHandler, &sslConnCtx->threadData[i]) < 0) {
-            perror("ERRROR: could not create thread");
+            perror("ERROR: could not create thread");
         }
     }
 
@@ -1249,4 +1249,3 @@ int main(int argc, char* argv[])
 
     exit(EXIT_SUCCESS);
 }
-

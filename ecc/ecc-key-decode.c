@@ -104,7 +104,7 @@ static void check_ret(char* call, int ret)
 
 int main(void)
 {
-    printf("Not compiled in: Must build wolfSSL using ./confgiure --enable-opensslextra or ./configure CFLAGS=-DWOLFSSL_TEST_CERT\n");
+    printf("Not compiled in: Must build wolfSSL using ./configure --enable-opensslextra or ./configure CFLAGS=-DWOLFSSL_TEST_CERT\n");
     return 0;
 }
 

@@ -178,7 +178,7 @@ int main (int argc, char** argv)
     }
 
     if (ret != SSL_SUCCESS) {
-        printf("SSL_connectrfailed with");
+        printf("SSL_connect failed with");
     }
 /*                                                                           */
 /*****************************************************************************/

@@ -67,7 +67,7 @@ int main(void)
         printf("Failed to decode public key from pubKeyTmp, abort!\n");
         return ret;
     }
-    printf("Succesfully decoded public key\n");
+    printf("Successfully decoded public key\n");
 
     printf("PUBLIC KEY:\n");
     for (i = 0; i < pubKeyTmp->pkey_sz; i++) {

@@ -35,7 +35,7 @@
 
 /*
  * this function will send the inputted string to the server and then
- * recieve the string from the server outputing it to the termial
+ * receive the string from the server outputing it to the terminal
  */
 
 int main(int argc, char **argv)

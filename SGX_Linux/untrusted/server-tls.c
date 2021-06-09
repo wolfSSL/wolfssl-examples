@@ -112,7 +112,7 @@ int server_connect(sgx_enclave_id_t id)
 
     /* Initialize the server address struct with zeros */
     memset(&servAddr, 0, sizeof(servAddr));
-/* Fill in the server address */
+    /* Fill in the server address */
     servAddr.sin_family      = AF_INET;             /* using IPv4      */
     servAddr.sin_port        = htons(DEFAULT_PORT); /* on DEFAULT_PORT */
     servAddr.sin_addr.s_addr = INADDR_ANY;          /* from anywhere   */

@@ -265,7 +265,7 @@ Session resumption allows a client/server pair to re-use previously generated cr
 3. Change all calls from write() or send() to wolfSSL_write(), in the simple server
     ``write(sockfd, sendline, strlen(sendline))`` becomes ``wolfSSL_write(ssl, sendline, strlen(sendline))``
 
-4. Run the wolfSSL method to initalize wolfSSL
+4. Run the wolfSSL method to initialize wolfSSL
     ``wolfSSL_Init()``
 
 5. Create a ctx pointer that contains a server method using the following process. The server method wolfSSLv23_server_method()

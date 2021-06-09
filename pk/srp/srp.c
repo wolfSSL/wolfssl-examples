@@ -51,7 +51,7 @@ static int client_init(Srp** srp)
     return ret;
 }
 
-/* Calcuate the client's public key */
+/* Calculate the client's public key */
 static int client_calc_public(Srp* srp, const char* username, char* password,
                               byte* salt, word32 saltSz, byte* pubKey,
                               word32* pubKeySz)
@@ -115,7 +115,7 @@ static int server_init(Srp** srp)
     return ret;
 }
 
-/* Calcuate the server's public key */
+/* Calculate the server's public key */
 static int server_calc_public(Srp* srp, const char* username, byte* salt,
                               word32 saltSz, byte* verifier, word32 vSz,
                               byte* pubKey, word32* pubKeySz)

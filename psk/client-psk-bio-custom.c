@@ -225,7 +225,7 @@ int main(int argc, char **argv)
     /* set up pre shared keys */
     wolfSSL_CTX_set_psk_client_callback(ctx, My_Psk_Client_Cb);
 
-    /* creat wolfssl object after each tcp connct */
+    /* creat wolfssl object after each tcp connect */
     if ( (ssl = wolfSSL_new(ctx)) == NULL) {
         fprintf(stderr, "wolfSSL_new error.\n");
         goto exit;
