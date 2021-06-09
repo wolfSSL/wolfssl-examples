@@ -692,10 +692,14 @@ void wolfCLU_stats(double start, int blockSize, int64_t blocks)
         printf("Benchmarked using 1 Megabyte at a time\n\n");
 }
 
-void wolfCLU_version()
+
+/* returns 0 on success */
+int wolfCLU_version()
 {
-    printf("\nYou are using version %s of the wolfssl Command Line Utility.\n\n"
+    printf("You are using version %s of the wolfssl Command Line Utility.\n"
         , CLUWOLFSSL_VERSION_STRING);
+    printf("Linked to wolfSSL version %s\n", LIBWOLFSSL_VERSION_STRING);
+    return 0;
 }
 
 int wolfCLU_checkForArg(char* searchTerm, int length, int argc, char** argv)

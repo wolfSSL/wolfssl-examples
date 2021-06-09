@@ -301,7 +301,7 @@ int wolfCLU_hash(char* in, char* out, char* alg, int size);
 /*
  * get the current Version
  */
-void wolfCLU_version(void);
+int wolfCLU_version(void);
 
 /*
  * generic function to check for a specific input argument. Return the

@@ -30,6 +30,34 @@
  * do not want "-e" to work for encrypt, user must use "encrypt"
  */
 
+
+/**
+ * Takes in the second string passed into the function and compares it to known
+ * modes. When a match is found the modes value is returned, otherwise a
+ * negative value is returned.
+ */
+static int getMode(char* arg)
+{
+    int ret = -1, i = 0;
+
+    if (arg != NULL) {
+        int argSz = XSTRLEN(arg);
+        struct option current = mode_options[i];
+        while (current.name != NULL) {
+            if (XSTRLEN(current.name) == argSz &&
+                    XSTRNCMP(arg, current.name, argSz) == 0) {
+                ret = current.val;
+                break;
+            }
+            current = mode_options[i];
+            i = i+1;
+        }
+    }
+    return ret;
+}
+
+
+
 int main(int argc, char** argv)
 {
     int     flag = 0;
@@ -46,10 +74,23 @@ int main(int argc, char** argv)
         wolfCLU_help();
     }
 
-    while ((option = getopt_long_only(argc, argv,"",
-                   long_options, &long_index )) != -1) {
+    /* retain old version of modes where '-' is used. i.e -x509, -req */
+    option = getopt_long_only(argc, argv,"", mode_options, &long_index);
+    if (option == -1) {
+        /* If the first string does not have a '-' in front of it then try to
+         * get the mode to use i.e. x509, req, version ... this is for
+         * compatibility with the behavior of the OpenSSL command line utility
+         */
+        if (argc > 1 && argv[1] != NULL && argv[1][0] != '-') {
+            flag = getMode(argv[1]);
+        }
+    }
+    else {
+        flag = option;
+    }
 
-        switch (option) {
+    switch (flag) {
+
 
             /* @temporary: implement the modes as arguments */
         case ENCRYPT:
@@ -67,8 +108,37 @@ int main(int argc, char** argv)
         case CERT_SHA256:
         case CERT_SHA384:
         case CERT_SHA512:
+            break;
 
-            if (!flag) flag = option;
+        case HELP:
+            /* only print for -help if no mode has been declared */
+            if (!flag) {
+                printf("Main help menu:\n");
+                wolfCLU_help();
+                return 0;
+            }
+            break;
+
+        case VERBOSE:
+            wolfCLU_verboseHelp();
+            return 0;
+
+        case 'v':
+            (void)wolfCLU_version();
+            return 0;
+
+        default:
+            printf("Main help default.\n");
+            wolfCLU_help();
+            return 0;
+    }
+
+    /* options to use with the mode input */
+    while ((option = getopt_long_only(argc, argv,"",
+                   long_options, &long_index )) != -1) {
+
+        switch (option) {
+
 
             /*
              * Ignore the following arguments for now. They will be handled by
@@ -109,28 +179,6 @@ int main(int argc, char** argv)
             /*
              * End of ignored arguments
              */
-
-        case HELP:
-            /* only print for -help if no mode has been declared */
-            if (!flag) {
-                printf("Main help menu:\n");
-                wolfCLU_help();
-                return 0;
-            }
-            break;
-
-        case VERBOSE:
-            wolfCLU_verboseHelp();
-            return 0;
-
-        case 'v':
-            wolfCLU_version();
-            return 0;
-
-        default:
-            printf("Main help default.\n");
-            wolfCLU_help();
-            return 0;
         }
     }
 
@@ -180,7 +228,6 @@ int main(int argc, char** argv)
     case ED25519:
         ret = wolfCLU_sign_verify_setup(argc, argv);
         break;
-
     }
 
     if (ret < 0)

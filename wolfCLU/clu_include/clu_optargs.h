@@ -65,10 +65,10 @@ enum {
     HELP,
 };
 
-/* Structure for holding long arguments */
-static struct option long_options[] = {
-
-    /* @temporary: implement modes as flags */
+/* Structure for holding modes for long arguments. These are the modes that then
+ * will take in any additional arguments. An example of a mode would be x509
+ * in the command 'wolfssl x509 -in cert.pem -text' */
+static struct option mode_options[] = {
     {"encrypt",   required_argument, 0, ENCRYPT   },
     {"decrypt",   required_argument, 0, DECRYPT   },
     {"bench",     no_argument,       0, BENCHMARK },
@@ -79,6 +79,19 @@ static struct option long_options[] = {
     {"rsa",       no_argument,       0, RSA       },
     {"ecc",       no_argument,       0, ECC       },
     {"ed25519",   no_argument,       0, ED25519   },
+    {"help",      no_argument,       0, HELP      },
+    {"h",         no_argument,       0, HELP      },
+    {"v",         no_argument,       0, 'v'       },
+    {"version",   no_argument,       0, 'v'       },
+
+    {0, 0, 0, 0} /* terminal element */
+};
+
+
+/* Structure for holding long arguments. These are arguments passed into the
+ * modes. An example of an argument would be '-out' in the following command
+ * 'wolfssl x509 -out cert.pem' */
+static struct option long_options[] = {
     
     {"sha",       no_argument,       0, CERT_SHA   },
     {"sha224",    no_argument,       0, CERT_SHA224},
@@ -108,10 +121,6 @@ static struct option long_options[] = {
     {"text",      no_argument,       0, TEXT_OUT  },
     {"silent",    no_argument,       0, SILENT    },
     {"output",    required_argument, 0, OUTPUT    },
-    {"help",      no_argument,       0, HELP      },
-    {"h",         no_argument,       0, HELP      },
-    {"v",         no_argument,       0, 'v'       },
-    {"version",   no_argument,       0, 'v'       },
 
     {0, 0, 0, 0} /* terminal element */
 };
