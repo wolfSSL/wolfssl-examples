@@ -69,7 +69,6 @@ int wolfCLU_certSetup(int argc, char** argv)
     ret = wolfCLU_checkForArg("-text", 5, argc, argv);
     if (ret > 0) {
         /* set flag for converting to human readable.
-         * return NOT_YET_IMPLEMENTED error
          */
         text_flag = 1;
     } /* Optional flag do not return error */
@@ -79,18 +78,23 @@ int wolfCLU_certSetup(int argc, char** argv)
     ret = wolfCLU_checkForArg("-inform", 7, argc, argv);
     if (ret > 0) {
         inform = argv[ret+1];
-    } else {
+        ret = wolfCLU_checkInform(inform);
+        if (ret == PEM_FORM) {
+            inpem_flag = 1;
+        } else if (ret == DER_FORM) {
+            inder_flag = 1;
+        } else {
+            return ret;
+        }
+    }
+    else if (ret == 0) {
+        /* assume is PEM if not set */
+        inpem_flag = 1;
+    }
+    else {
         return ret;
     }
 
-    ret = wolfCLU_checkInform(inform);
-    if (ret == PEM_FORM) {
-        inpem_flag = 1;
-    } else if (ret == DER_FORM) {
-        inder_flag = 1;
-    } else {
-        return ret;
-    }
 /*---------------------------------------------------------------------------*/
 /* outform pem/der/??OTHER?? */
 /*---------------------------------------------------------------------------*/

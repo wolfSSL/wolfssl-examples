@@ -92,13 +92,13 @@ static struct option mode_options[] = {
  * modes. An example of an argument would be '-out' in the following command
  * 'wolfssl x509 -out cert.pem' */
 static struct option long_options[] = {
-    
+
     {"sha",       no_argument,       0, CERT_SHA   },
     {"sha224",    no_argument,       0, CERT_SHA224},
     {"sha256",    no_argument,       0, CERT_SHA256},
     {"sha384",    no_argument,       0, CERT_SHA384},
     {"sha512",    no_argument,       0, CERT_SHA512},
-    
+
     {"in",        required_argument, 0, INFILE    },
     {"out",       required_argument, 0, OUTFILE   },
     {"pwd",       required_argument, 0, PASSWORD  },
