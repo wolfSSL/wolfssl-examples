@@ -68,6 +68,126 @@ int wolfCLU_inpemOuttext(char* infile, char* outfile, int silent_flag) {
     return ret;
 }
 
+
+/* returns alloc'd WOLFSSL_X509 structure on success */
+static WOLFSSL_X509* wolfCLU_parseX509(char* infile, int inform)
+{
+    int type;
+
+    type = (inform == DER)? WOLFSSL_FILETYPE_ASN1 : WOLFSSL_FILETYPE_PEM;
+
+    return wolfSSL_X509_load_certificate_file(infile, type);
+}
+
+
+/* returns 0 on success */
+int wolfCLU_printPubKey(char* infile, int inform, char* outfile,
+        int silent_flag)
+{
+    int ret = 0;
+    WOLFSSL_X509        *x509;
+    WOLFSSL_BIO         *bio;
+
+    unsigned char *der = NULL;
+    int derSz;
+
+    unsigned char *pem = NULL;
+    int pemSz;
+
+    //@TODO
+    if (inform) {
+        inform = PEM;
+    }
+    else {
+        inform = DER;
+    }
+
+    x509 = wolfCLU_parseX509(infile, inform);
+    if (x509 == NULL) {
+        printf("unable to parse file %s\n", infile);
+        ret = -1;
+    }
+
+    /* use stdout if outfile is null */
+    if (ret == 0 && outfile == NULL) {
+        bio = wolfSSL_BIO_new(wolfSSL_BIO_s_file());
+        if (bio == NULL) {
+            ret = -1;
+        }
+        else {
+            if (wolfSSL_BIO_set_fp(bio, stdout, BIO_NOCLOSE)
+                    != WOLFSSL_SUCCESS) {
+                ret = -1;
+            }
+        }
+    }
+
+    if (ret == 0 && outfile != NULL) {
+        bio = wolfSSL_BIO_new_file(outfile, "rb");
+        if (bio == NULL) {
+            printf("unable to read outfile %s\n", outfile);
+            ret = -1;
+        }
+    }
+
+    /* get the size of the pubkey der buffer and alloc it */
+    if (ret == 0) {
+        if (wolfSSL_X509_get_pubkey_buffer(x509, NULL, &derSz)
+                == WOLFSSL_SUCCESS) {
+            der = (unsigned char*)XMALLOC(derSz, NULL, DYNAMIC_TYPE_PUBLIC_KEY);
+            if (der == NULL) {
+                ret = -1;
+            }
+            else {
+                if (wolfSSL_X509_get_pubkey_buffer(x509, der, &derSz)
+                        != WOLFSSL_SUCCESS) {
+                    ret = -1;
+                }
+            }
+        }
+        else {
+            ret = -1;
+        }
+    }
+
+    /* get pem size alloc buffer and convert to pem format */
+    if (ret == 0) {
+        pemSz = wc_DerToPemEx(der, derSz, NULL, 0, NULL, PUBLICKEY_TYPE);
+        if (pemSz > 0) {
+            pem = (unsigned char*)XMALLOC(pemSz, NULL, DYNAMIC_TYPE_PUBLIC_KEY);
+            if (pem == NULL) {
+                ret = -1;
+            }
+            else {
+                if (wc_DerToPemEx(der, derSz, pem, pemSz, NULL, PUBLICKEY_TYPE)
+                        <= 0) {
+                    ret = -1;
+                }
+            }
+        }
+        else {
+            ret = -1;
+        }
+    }
+
+    if (ret == 0) {
+        if (wolfSSL_BIO_write(bio, pem, pemSz) != pemSz) {
+            ret = -1;
+        }
+    }
+
+    wolfSSL_BIO_free(bio);
+    wolfSSL_X509_free(x509);
+
+    if (der != NULL)
+        XFREE(der, NULL, DYNAMIC_TYPE_PUBLIC_KEY);
+    if (pem != NULL)
+        XFREE(pem, NULL, DYNAMIC_TYPE_PUBLIC_KEY);
+
+    return ret;
+}
+
+
 int wolfCLU_parseFile(char* infile, int inform, char* outfile, int outform,
                                                                 int silent_flag)
 {

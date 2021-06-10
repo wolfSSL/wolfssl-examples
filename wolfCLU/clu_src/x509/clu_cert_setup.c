@@ -34,12 +34,14 @@ enum {
     INDER_OUTDER  = 4,
     INPEM_OUTTEXT = 5,
     NOOUT_SET     = 6,
+    OUTPUBTEXT    = 7,
 };
 
 int wolfCLU_certSetup(int argc, char** argv)
 {
     int i, ret;
     int text_flag    = 0;   /* does user desire human readable cert info */
+    int text_pubkey  = 0;   /* does user desire human readable pubkey info */
     int noout_flag   = 0;   /* are we outputting a file */
     int inder_flag   = 0;   /* is the incoming file in der format */
     int inpem_flag   = 0;   /* is the incoming file in pem format */
@@ -49,8 +51,8 @@ int wolfCLU_certSetup(int argc, char** argv)
     int outfile_flag = 0;   /* set if passing out file argument */
     int silent_flag  = 0;   /* set to disable echo to command line */
 
-    char* infile;           /* pointer to the infile name */
-    char* outfile;          /* pointer to the outfile name */
+    char* infile  = NULL;   /* pointer to the infile name */
+    char* outfile = NULL;   /* pointer to the outfile name */
     char* inform;           /* the input format */
     char* outform;          /* the output format */
 
@@ -71,6 +73,15 @@ int wolfCLU_certSetup(int argc, char** argv)
         /* set flag for converting to human readable.
          */
         text_flag = 1;
+    } /* Optional flag do not return error */
+/*---------------------------------------------------------------------------*/
+/* pubkey */
+/*---------------------------------------------------------------------------*/
+    ret = wolfCLU_checkForArg("-pubkey", 7, argc, argv);
+    if (ret > 0) {
+        /* set flag for converting to human readable.
+         */
+        text_pubkey = 1;
     } /* Optional flag do not return error */
 /*---------------------------------------------------------------------------*/
 /* inform pem/der/??OTHER?? */
@@ -109,7 +120,7 @@ int wolfCLU_certSetup(int argc, char** argv)
         } else {
             return ret;
         }
-    } else if (text_flag == 0) {
+    } else if (text_flag == 0 && text_pubkey == 0) {
         return ret;
     }
 
@@ -143,15 +154,17 @@ int wolfCLU_certSetup(int argc, char** argv)
          * then write outfile */
         outfile_flag = 1;
         outfile = argv[ret+1];
-    } else if (text_flag == 0) {
+    } else if (text_flag == 0 && text_pubkey == 0) {
         return ret;
     }
 
-    if (access(outfile, F_OK) != -1) {
-        printf("output file set: \"%s\"\n", outfile);
-    } else {
-        printf("output file \"%s\"did not exist, it will be created.\n",
+    if (outfile != NULL) {
+        if (access(outfile, F_OK) != -1) {
+            printf("output file set: \"%s\"\n", outfile);
+        } else {
+            printf("output file \"%s\"did not exist, it will be created.\n",
                                                                        outfile);
+        }
     }
 /*---------------------------------------------------------------------------*/
 /* noout */
@@ -176,7 +189,7 @@ int wolfCLU_certSetup(int argc, char** argv)
 /*---------------------------------------------------------------------------*/
     ret = error_check(inpem_flag, inder_flag, 
                       outpem_flag, outder_flag,
-                      text_flag, noout_flag);
+                      text_flag, text_pubkey, noout_flag);
 
     switch (ret) {
         case INPEM_OUTPEM:
@@ -209,6 +222,10 @@ int wolfCLU_certSetup(int argc, char** argv)
                 wolfCLU_inpemOuttext(infile, outfile, silent_flag);
             }
             break;
+        case OUTPUBTEXT:
+            ret = 0;
+            wolfCLU_printPubKey(infile, inpem_flag, outfile, silent_flag);
+            break;
         case NOOUT_SET:
             ret = 0;
             break;
@@ -228,7 +245,7 @@ int wolfCLU_certSetup(int argc, char** argv)
  */
 int error_check(int inpem_flag, int inder_flag, 
                 int outpem_flag, int outder_flag, 
-                int text_flag, int noout_flag)
+                int text_flag, int text_pubkey, int noout_flag)
 {
     int ret = USER_INPUT_ERROR;
     int tmp;
@@ -280,6 +297,9 @@ int error_check(int inpem_flag, int inder_flag,
     ret = (inpem_flag & text_flag);
     if (ret) {
         return INPEM_OUTTEXT; 
+    }
+    if (text_pubkey) {
+        return OUTPUBTEXT;
     }
     ret = (outder_flag & outpem_flag);
     if (ret) {

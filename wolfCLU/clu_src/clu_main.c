@@ -159,6 +159,7 @@ int main(int argc, char** argv)
         case TEXT_OUT:
         case SILENT:
         case PUBIN:
+        case PUBKEY:
 
             /* The cases above have their arguments converted to lower case */
             if (optarg) convert_to_lower(optarg, (int)XSTRLEN(optarg));

@@ -36,5 +36,5 @@ void wolfCLU_certHelp();
 /* check for user input errors */
 int error_check(int inpem_flag, int inder_flag, 
                 int outpem_flag, int outder_flag, 
-                int text_flag, int noout_flag);
+                int text_flag, int text_pubkey, int noout_flag);
 
