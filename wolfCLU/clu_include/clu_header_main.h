@@ -40,6 +40,7 @@
 #include <wolfssl/error-ssl.h>
 #include <wolfssl/wolfcrypt/hash.h>
 #include <wolfssl/version.h>
+#include <wolfssl/openssl/bio.h>
 
 #ifndef NO_MD5
     #include <wolfssl/wolfcrypt/md5.h>
@@ -296,7 +297,9 @@ int wolfCLU_benchmark(int timer, int* option);
  * @param alg
  * @param size
  */
-int wolfCLU_hash(char* in, char* out, char* alg, int size);
+int wolfCLU_hash(WOLFSSL_BIO* bioIn, WOLFSSL_BIO* bioOut, char* alg, int size);
+
+int wolfCLU_md5Setup(int argc, char** argv);
 
 /*
  * get the current Version

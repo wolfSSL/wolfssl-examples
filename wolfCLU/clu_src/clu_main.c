@@ -91,17 +91,18 @@ int main(int argc, char** argv)
 
 
             /* @temporary: implement the modes as arguments */
-        case ENCRYPT:
-        case DECRYPT:
-        case BENCHMARK:
-        case HASH:
-        case X509:
-        case REQUEST:
-        case GEN_KEY:
-        case PKEY:
-        case RSA:
-        case ECC:
-        case ED25519:
+        case WOLFCLU_ENCRYPT:
+        case WOLFCLU_DECRYPT:
+        case WOLFCLU_BENCHMARK:
+        case WOLFCLU_HASH:
+        case WOLFCLU_MD5:
+        case WOLFCLU_X509:
+        case WOLFCLU_REQUEST:
+        case WOLFCLU_GEN_KEY:
+        case WOLFCLU_PKEY:
+        case WOLFCLU_RSA:
+        case WOLFCLU_ECC:
+        case WOLFCLU_ED25519:
         case CERT_SHA:
         case CERT_SHA224:
         case CERT_SHA256:
@@ -109,7 +110,7 @@ int main(int argc, char** argv)
         case CERT_SHA512:
             break;
 
-        case HELP:
+        case WOLFCLU_HELP:
             /* only print for -help if no mode has been declared */
             printf("Main help menu:\n");
             wolfCLU_help();
@@ -151,7 +152,7 @@ int main(int argc, char** argv)
         case EXPONENT: /* exponent for generating RSA key           */
         case TIME:     /* Time to benchmark for                     */
         case SIGN:
-        case VERIFY:   /* Verify results, used with -iv and -key    */
+        case WOLFCLU_VERIFY:   /* Verify results, used with -iv and -key    */
         case INFORM:   /* Certificate Stuff                         */
         case OUTFORM:
         case OUTPUT:
@@ -188,47 +189,51 @@ int main(int argc, char** argv)
         ret = 0;
         break;
 
-    case ENCRYPT:
+    case WOLFCLU_ENCRYPT:
         ret = wolfCLU_setup(argc, argv, 'e');
         break;
 
-    case DECRYPT:
+    case WOLFCLU_DECRYPT:
         ret = wolfCLU_setup(argc, argv, 'd');
         break;
 
-    case BENCHMARK:
+    case WOLFCLU_BENCHMARK:
         ret = wolfCLU_benchSetup(argc, argv);
         break;
 
-    case HASH:
+    case WOLFCLU_HASH:
         ret = wolfCLU_hashSetup(argc, argv);
         break;
 
-    case X509:
+    case WOLFCLU_MD5:
+        ret = wolfCLU_md5Setup(argc, argv);
+        break;
+
+    case WOLFCLU_X509:
         ret = wolfCLU_certSetup(argc, argv);
         break;
 
-    case REQUEST:
+    case WOLFCLU_REQUEST:
         ret = wolfCLU_requestSetup(argc, argv);
         break;
 
-    case GEN_KEY:
+    case WOLFCLU_GEN_KEY:
         ret = wolfCLU_genKeySetup(argc, argv);
         break;
 
-    case PKEY:
+    case WOLFCLU_PKEY:
         ret = wolfCLU_pKeySetup(argc, argv);
         break;
 
-    case RSA:
+    case WOLFCLU_RSA:
         ret = wolfCLU_sign_verify_setup(argc, argv);
         break;
 
-    case ECC:
+    case WOLFCLU_ECC:
         ret = wolfCLU_sign_verify_setup(argc, argv);
         break;
 
-    case ED25519:
+    case WOLFCLU_ED25519:
         ret = wolfCLU_sign_verify_setup(argc, argv);
         break;
     }
