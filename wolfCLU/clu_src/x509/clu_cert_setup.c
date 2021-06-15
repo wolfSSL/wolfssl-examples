@@ -224,7 +224,7 @@ int wolfCLU_certSetup(int argc, char** argv)
             break;
         case OUTPUBTEXT:
             ret = 0;
-            wolfCLU_printPubKey(infile, inpem_flag, outfile, silent_flag);
+            wolfCLU_printX509PubKey(infile, inpem_flag, outfile, silent_flag);
             break;
         case NOOUT_SET:
             ret = 0;

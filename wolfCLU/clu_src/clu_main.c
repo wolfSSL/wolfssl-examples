@@ -25,6 +25,7 @@
 #include "clu_include/clu_error_codes.h"
 #include "clu_include/x509/clu_request.h"
 #include "clu_include/genkey/clu_genkey.h"
+#include "clu_include/pkey/clu_pkey.h"
 #include "clu_include/sign-verify/clu_sign_verify_setup.h"
 /* enumerate optionals beyond ascii range to dis-allow use of alias IE we
  * do not want "-e" to work for encrypt, user must use "encrypt"
@@ -97,6 +98,7 @@ int main(int argc, char** argv)
         case X509:
         case REQUEST:
         case GEN_KEY:
+        case PKEY:
         case RSA:
         case ECC:
         case ED25519:
@@ -109,11 +111,9 @@ int main(int argc, char** argv)
 
         case HELP:
             /* only print for -help if no mode has been declared */
-            if (!flag) {
-                printf("Main help menu:\n");
-                wolfCLU_help();
-                return 0;
-            }
+            printf("Main help menu:\n");
+            wolfCLU_help();
+            return 0;
             break;
 
         case VERBOSE:
@@ -159,6 +159,7 @@ int main(int argc, char** argv)
         case TEXT_OUT:
         case SILENT:
         case PUBIN:
+        case PUBOUT:
         case PUBKEY:
 
             /* The cases above have their arguments converted to lower case */
@@ -213,6 +214,10 @@ int main(int argc, char** argv)
 
     case GEN_KEY:
         ret = wolfCLU_genKeySetup(argc, argv);
+        break;
+
+    case PKEY:
+        ret = wolfCLU_pKeySetup(argc, argv);
         break;
 
     case RSA:

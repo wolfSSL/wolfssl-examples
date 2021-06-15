@@ -30,7 +30,8 @@ int wolfCLU_inderOutder(char* infile, char* outfile, int silent_flag);
 /* a helper function for wolfCLU_parse_file */
 int wolfCLU_inpemOuttext(char* infile, char* outfile, int silent_flag);
 
-int wolfCLU_printPubKey(char* infile, int inform, char* outfile,
+int wolfCLU_printPubKey(unsigned char* der, int derSz, char* outfile);
+int wolfCLU_printX509PubKey(char* infile, int inform, char* outfile,
         int silent_flag);
 /* function for processing input/output based on format requests from user */
 int wolfCLU_parseFile(char* infile, int inform, char* outfile, int outform,
