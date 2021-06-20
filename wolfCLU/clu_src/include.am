@@ -18,6 +18,7 @@ wolfssl_SOURCES = clu_src/clu_main.c \
 					clu_src/x509/clu_request_setup.c \
 					clu_src/x509/clu_cert_setup.c \
 					clu_src/x509/clu_parse.c \
+					clu_src/x509/clu_config.c \
 					clu_src/genkey/clu_genkey_setup.c \
 					clu_src/genkey/clu_genkey.c \
 					clu_src/sign-verify/clu_sign.c \

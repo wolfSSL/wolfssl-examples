@@ -337,4 +337,6 @@ int wolfCLU_checkOutform(char* outform);
 int wolfCLU_checkInform(char* inform);
 
 
+WOLFSSL_X509* wolfCLU_readConfig(char* config, char* sect);
+
 #endif /* _WOLFSSL_CLU_HEADER_ */

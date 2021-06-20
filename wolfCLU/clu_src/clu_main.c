@@ -171,6 +171,8 @@ int main(int argc, char** argv)
         case OUTFILE:  /* Output file                               */
         case INKEY:
         case SIGFILE:
+        case WOLFCLU_CONFIG:
+        case WOLFCLU_DAYS:
 
             /* do nothing. */
 
