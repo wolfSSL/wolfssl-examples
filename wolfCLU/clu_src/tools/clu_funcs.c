@@ -20,6 +20,7 @@
  */
 
 #include "clu_include/clu_header_main.h"
+#include "clu_include/clu_optargs.h"
 #include "clu_include/version.h"
 #include "clu_include/x509/clu_cert.h" /* for PEM_FORM and DER_FORM */
 #include "clu_include/sign-verify/clu_sign.h" /* for RSA_SIG_VER, ECC_SIG_VER, 
@@ -501,15 +502,19 @@ void wolfCLU_certgenHelp() {
            "\n\nThe above command would output the file: cert.pem\n");
 }
 
-/*
- * finds algorithm for encryption/decryption
+
+/* return block size on success
+ * alg and mode are null terminated strings that need free'd by the caller
  */
-int wolfCLU_getAlgo(char* name, char** alg, char** mode, int* size)
+static int wolfCLU_parseAlgo(char* name, char** alg, char** mode, int* size)
 {
     int     ret         = 0;        /* return variable */
     int     nameCheck   = 0;        /* check for acceptable name */
     int     modeCheck   = 0;        /* check for acceptable mode */
     char*   sz          = 0;        /* key size provided */
+    char*   end         = 0;
+    char*   tmpAlg      = NULL;
+    char*   tmpMode     = NULL;
 
     const char* acceptAlgs[]  = {   /* list of acceptable algorithms */
         "Algorithms: "
@@ -530,32 +535,55 @@ int wolfCLU_getAlgo(char* name, char** alg, char** mode, int* size)
 #endif
     };
 
+    if (name == NULL) {
+        return FATAL_ERROR;
+    }
+
+    if (alg == NULL || mode == NULL || size == NULL) {
+        printf("null input to get algo function\n");
+        return FATAL_ERROR;
+    }
+
     /* gets name after first '-' and before the second */
-    *alg = strtok(name, "-");
+    tmpAlg = strtok_r(name, "-", &end);
+    if (tmpAlg == NULL) {
+        return FATAL_ERROR;
+    }
+
+
     for (i = 0; i < (int)(sizeof(acceptAlgs)/sizeof(acceptAlgs[0])); i++) {
-        if (strcmp(*alg, acceptAlgs[i]) == 0 )
+        if (strcmp(tmpAlg, acceptAlgs[i]) == 0 )
             nameCheck = 1;
     }
+
     /* gets mode after second "-" and before the third */
     if (nameCheck != 0) {
-        *mode = strtok(NULL, "-");
-        for (i = 0; i < (int) (sizeof(acceptMode)/sizeof(acceptMode[0])); i++) {
-            if (strcmp(*mode, acceptMode[i]) == 0)
-                modeCheck = 1;
+        /* gets size after third "-" */
+        sz = strtok_r(NULL, "-", &end);
+        if (sz == NULL) {
+            return FATAL_ERROR;
         }
+        *size = atoi(sz);
     }
+
+    tmpMode = strtok_r(NULL, "-", &end);
+    if (tmpMode == NULL) {
+        return FATAL_ERROR;
+    }
+
+    for (i = 0; i < (int) (sizeof(acceptMode)/sizeof(acceptMode[0])); i++) {
+        if (strcmp(tmpMode, acceptMode[i]) == 0)
+            modeCheck = 1;
+    }
+
     /* if name or mode doesn't match acceptable options */
     if (nameCheck == 0 || modeCheck == 0) {
         printf("Invalid entry\n");
         return FATAL_ERROR;
     }
 
-    /* gets size after third "-" */
-    sz = strtok(NULL, "-");
-    *size = atoi(sz);
-
     /* checks key sizes for acceptability */
-    if (XSTRNCMP(*alg, "aes", 3) == 0) {
+    if (XSTRNCMP(tmpAlg, "aes", 3) == 0) {
     #ifdef NO_AES
         printf("AES not compiled in.\n");
         return NOT_COMPILED_IN;
@@ -568,7 +596,7 @@ int wolfCLU_getAlgo(char* name, char** alg, char** mode, int* size)
     #endif
     }
 
-    else if (XSTRNCMP(*alg, "3des", 4) == 0) {
+    else if (XSTRNCMP(tmpAlg, "3des", 4) == 0) {
     #ifdef NO_DES3
         printf("3DES not compiled in.\n");
         return NOT_COMPILED_IN;
@@ -581,7 +609,7 @@ int wolfCLU_getAlgo(char* name, char** alg, char** mode, int* size)
     #endif
     }
 
-    else if (XSTRNCMP(*alg, "camellia", 8) == 0) {
+    else if (XSTRNCMP(tmpAlg, "camellia", 8) == 0) {
     #ifndef HAVE_CAMELIA
         printf("CAMELIA not compiled in.\n");
         return NOT_COMPILED_IN;
@@ -595,12 +623,159 @@ int wolfCLU_getAlgo(char* name, char** alg, char** mode, int* size)
     }
     
     else {
-        printf("Invalid algorithm: %s\n", *alg);
+        printf("Invalid algorithm: %s\n", tmpAlg);
         ret = FATAL_ERROR;
+    }
+
+    if (ret >= 0) {
+        int s;
+
+        /* free any existing alg / mode buffers */
+        if (*alg != NULL)
+            XFREE(*alg, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+        if (*mode != NULL)
+            XFREE(*mode, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+
+        s = XSTRLEN(tmpAlg) + 1;
+        *alg = XMALLOC(s, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+        if (*alg == NULL) {
+            ret = MEMORY_E;
+        }
+
+        if (ret >= 0) {
+            XSTRNCPY(*alg, tmpAlg, s);
+            s = XSTRLEN(tmpMode) + 1;
+            *mode = XMALLOC(s, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+            if (*mode == NULL) {
+                ret = MEMORY_E;
+            }
+        }
+        
+        if (ret >= 0) {
+            XSTRNCPY(*mode, tmpMode, s);
+        }
+    }
+
+    /* free up stuff in case of error */
+    if (ret < 0) {
+        if (*alg != NULL)
+            XFREE(*alg, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+        *alg = NULL;
+        if (*mode != NULL)
+            XFREE(*mode, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+        *mode = NULL;
     }
 
     return ret;
 }
+
+static const char* algoName[] = {
+    "aes-128-ctr",
+    "aes-192-ctr",
+    "aes-256-ctr",
+    "aes-128-cbc",
+    "aes-192-cbc",
+    "aes-256-cbc",
+    "camellia-128-cbc",
+    "camellia-192-cbc",
+    "camellia-256-cbc",
+    "des-cbc",
+};
+
+
+/*
+ * finds algorithm for encryption/decryption
+ * alg and mode are null terminated strings that need free'd by the caller
+ */
+int wolfCLU_getAlgo(int argc, char* argv[], char** alg, char** mode, int* size)
+{
+    int ret = 0;
+    int long_index = 2;
+    int option;
+    char name[80];
+    char *argvCopy[argc];
+    int i;
+
+    /* make a copy of args because getopt_long_only reorders them */
+    for (i = 0; i < argc; i++) argvCopy[i] = argv[i];
+    
+    /* first just try the 3rd argument */
+    if (argvCopy[2] == NULL) {
+        return FATAL_ERROR;
+    }
+    XMEMSET(name, 0, sizeof(name));
+    XSTRNCPY(name, argvCopy[2], XSTRLEN(argv[2]));
+    ret = wolfCLU_parseAlgo(name, alg, mode, size);
+
+    /* next check for -cipher option passed through args */
+    if (ret < 0) {
+        opterr = 0; /* do not print out unknown options */
+        XMEMSET(name, 0, sizeof(name));
+        while ((option = getopt_long_only(argc, argvCopy, "",
+                       crypt_algo_options, &long_index )) != -1) {
+            switch (option) {
+                /* AES */
+                case WOLFCLU_AES128CTR:
+                    XSTRNCPY(name, algoName[0], XSTRLEN(algoName[0]));
+                    break;
+
+                case WOLFCLU_AES192CTR:
+                    XSTRNCPY(name, algoName[1], XSTRLEN(algoName[1]));
+                    break;
+
+                case WOLFCLU_AES256CTR:
+                    XSTRNCPY(name, algoName[2], XSTRLEN(algoName[2]));
+                    break;
+
+                case WOLFCLU_AES128CBC:
+                    XSTRNCPY(name, algoName[3], XSTRLEN(algoName[3]));
+                    break;
+
+                case WOLFCLU_AES192CBC:
+                    XSTRNCPY(name, algoName[4], XSTRLEN(algoName[4]));
+                    break;
+
+                case WOLFCLU_AES256CBC:
+                    XSTRNCPY(name, algoName[5], XSTRLEN(algoName[5]));
+                    break;
+
+    
+                /* camellia */
+                case WOLFCLU_CAMELLIA128CBC:
+                    XSTRNCPY(name, algoName[6], XSTRLEN(algoName[6]));
+                    break;
+
+                case WOLFCLU_CAMELLIA192CBC:
+                    XSTRNCPY(name, algoName[7], XSTRLEN(algoName[7]));
+                    break;
+
+                case WOLFCLU_CAMELLIA256CBC:
+                    XSTRNCPY(name, algoName[8], XSTRLEN(algoName[8]));
+                    break;
+
+                /* 3des */
+                case WOLFCLU_DESCBC:
+                    XSTRNCPY(name, algoName[9], XSTRLEN(algoName[9]));
+                    break;
+
+                case '?':
+                case ':':
+                    break;
+                default:
+                    /* do nothing. */
+                    (void)ret;
+            };
+
+            if (XSTRLEN(name) > 0) {
+                ret = wolfCLU_parseAlgo(name, alg, mode, size);
+                XMEMSET(name, 0, sizeof(name));
+            }
+        }
+    }
+
+    return ret;
+}
+
 
 /*
  * secure data entry by turning off key echoing in the terminal
@@ -717,7 +892,7 @@ int wolfCLU_checkForArg(char* searchTerm, int length, int argc, char** argv)
                    (int) XSTRLEN(argv[i]) > 0) {
            return 1;
 
-        } else if (XSTRNCMP(argv[i], searchTerm, length) == 0 &&
+        } else if (XMEMCMP(argv[i], searchTerm, length) == 0 &&
                    XSTRLEN(argv[i]) == length) {
 
             ret = i;

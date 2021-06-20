@@ -88,6 +88,10 @@ int wolfCLU_encrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
 
     /* open the inFile in read mode */
     inFile = fopen(in, "rb");
+    if (inFile == NULL) {
+        printf("unable to open file %s\n", in);
+        return -1;
+    }
 
     /* find length */
     fseek(inFile, 0, SEEK_END);
@@ -124,7 +128,6 @@ int wolfCLU_encrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
 
         /* stretches pwdKey to fit size based on wolfCLU_getAlgo() */
         ret = wolfCLU_genKey_PWDBASED(&rng, pwdKey, size, salt, padCounter);
-
         if (ret != 0) {
             printf("failed to set pwdKey.\n");
             return ret;
@@ -137,6 +140,10 @@ int wolfCLU_encrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
 
     /* open the outFile in write mode */
     outFile = fopen(out, "wb");
+    if (outFile == NULL) {
+        printf("unable to open output file %s\n", out);
+        return -1;
+    }
     fwrite(salt, 1, SALT_SIZE, outFile);
     fwrite(iv, 1, block, outFile);
     fclose(outFile);
@@ -305,8 +312,7 @@ int wolfCLU_encrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
     fclose(inFile);
     XMEMSET(key, 0, size);
     XMEMSET(iv, 0 , block);
-    XMEMSET(alg, 0, size);
-    XMEMSET(mode, 0 , block);
+
     /* Use the wolfssl free for rng */
     wc_FreeRng(&rng);
     wolfCLU_freeBins(input, output, NULL, NULL, NULL);

@@ -177,7 +177,7 @@ void wolfCLU_certgenHelp();
  * @param mode the mode as set by the user (cbc or ctr)
  * @param size set based on the algorithm specified
  */
-int wolfCLU_getAlgo(char* name, char** alg, char** mode, int* size);
+int wolfCLU_getAlgo(int argc, char* argv[], char** alg, char** mode, int* size);
 
 /* secure entry of password
  *

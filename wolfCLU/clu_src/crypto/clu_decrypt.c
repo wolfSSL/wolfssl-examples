@@ -218,6 +218,13 @@ int wolfCLU_decrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
                 pad = output[tempMax-1];
                 /* adjust length for padded bytes and salt size */
                 length -= pad + sbSize;
+                if (length < 0) {
+                    printf("bad length %d found\n", length);
+                    fclose(inFile);
+                    fclose(outFile);
+                    wolfCLU_freeBins(input, output, NULL, NULL, NULL);
+                    return -1;
+                }
                 /* reset tempMax for smaller decryption */
                 fwrite(output, 1, length, outFile);
                 break;

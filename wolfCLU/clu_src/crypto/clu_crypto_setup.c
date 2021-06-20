@@ -20,6 +20,7 @@
  */
 
 #include "clu_include/clu_header_main.h"
+#include "clu_include/clu_optargs.h"
 
 int wolfCLU_setup(int argc, char** argv, char action)
 {
@@ -54,6 +55,8 @@ int wolfCLU_setup(int argc, char** argv, char action)
                                  */
     word32   ivSize     =   0;  /* IV if provided should be 2*block */
     word32   numBits    =   0;  /* number of bits in argument from the user */
+    int      option;
+    int      long_index = 0;
 
     if (action == 'e')
         eCheck = 1;
@@ -71,84 +74,55 @@ int wolfCLU_setup(int argc, char** argv, char action)
         }
     }
 
-    name = argv[2];
-    if (name == NULL) {
-        return FATAL_ERROR;
+    /* gets blocksize, algorithm, mode, and key size from name argument */
+    block = wolfCLU_getAlgo(argc, argv, &alg, &mode, &size);
+    if (block < 0) {
+        printf("unable to find algorithm to use\n");
+        return -1;
     }
 
-    /* gets blocksize, algorithm, mode, and key size from name argument */
-    block = wolfCLU_getAlgo(name, &alg, &mode, &size);
+    /* initialize memory buffers */
+    pwdKey = (byte*) XMALLOC(size, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    if (pwdKey == NULL)
+        return MEMORY_E;
+    XMEMSET(pwdKey, 0, size);
 
-    if (block != FATAL_ERROR) {
-        /* initialize memory buffers */
+    iv = (byte*) XMALLOC(block, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    if (iv == NULL) {
+        wolfCLU_freeBins(pwdKey, NULL, NULL, NULL, NULL);
+        return MEMORY_E;
+    }
+    XMEMSET(iv, 0, block);
 
-        pwdKey = (byte*) XMALLOC(size, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-        if (pwdKey == NULL)
-            return MEMORY_E;
+    key = (byte*) XMALLOC(size, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    if (key == NULL) {
+        wolfCLU_freeBins(pwdKey, iv, NULL, NULL, NULL);
+        return MEMORY_E;
+    }
+    XMEMSET(key, 0, size);
 
-        iv = (byte*) XMALLOC(block, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-        if (iv == NULL) {
-            wolfCLU_freeBins(pwdKey, NULL, NULL, NULL, NULL);
-            return MEMORY_E;
-        }
+    opterr = 0; /* do not display unrecognized options */
+    optind = 0; /* start at indent 0 */
+    while ((option = getopt_long_only(argc, argv, "",
+                   crypt_options, &long_index )) != -1) {
 
-        key = (byte*) XMALLOC(size, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-        if (key == NULL) {
-            wolfCLU_freeBins(pwdKey, iv, NULL, NULL, NULL);
-            return MEMORY_E;
-        }
-
-        /* get argumets from command line */
-
-        ret = wolfCLU_checkForArg("-out", 4, argc, argv);
-        if (ret > 0) {
-            /* output file */
-            out = argv[ret+1];
-            outCheck = 1;
-        }
-
-        ret = wolfCLU_checkForArg("-in", 3, argc, argv);
-        if (ret > 0) {
-            /* input file/text */
-            in = argv[ret+1];
-            inCheck = 1;
-        }
-
-        ret = wolfCLU_checkForArg("-pwd", 4, argc, argv);
-        if (ret > 0) {
-            /* password pwdKey */
-            XMEMCPY(pwdKey, argv[ret+1], size);
+        switch (option) {
+        case PASSWORD: /* Password                                  */
+            XSTRNCPY((char*)pwdKey, optarg, size);
             pwdKeyChk = 1;
-            keyType = 1;
-        }
+            keyType   = 1;
+            break;
 
-        ret = wolfCLU_checkForArg("-verify", 7, argc, argv);
-        if (ret > 0) {
-            /* using hexidecimal format */
-            inputHex = 1;
-        }
+        case PBKDF2:   /* pbkdf2 is used by default                 */
+            break;
 
-        ret = wolfCLU_checkForArg("-iv", 3, argc, argv);
-        if (ret > 0) {
-            /* iv for encryption */
-            if (pwdKeyChk == 1) {
-                printf("Invalid option, attempting to use IV with password"
-                       " based key.");
-                wolfCLU_freeBins(pwdKey, iv, key, NULL, NULL);
-                return FATAL_ERROR;
-            }
-            ivSize = block*2;
-            if (XSTRLEN(argv[ret+1]) != ivSize) {
-                printf("Invalid IV. Must match algorithm block size.\n");
-                printf("Invalid IV size was: %d.\n",
-                       (int) strlen(argv[ret+1]));
-                printf("size of IV expected was: %d.\n", ivSize);
-                wolfCLU_freeBins(pwdKey, iv, key, NULL, NULL);
-                return FATAL_ERROR;
-            }
-            else {
-                char ivString[XSTRLEN(argv[ret+1])];
-                XSTRNCPY(ivString, argv[ret+1], XSTRLEN(argv[ret+1]));
+        case KEY:      /* Key if used must be in hex                */
+            break;
+
+        case IV:       /* IV if used must be in hex                 */
+            {
+                char ivString[XSTRLEN(optarg)];
+                XSTRNCPY(ivString, optarg, XSTRLEN(optarg));
                 ret = wolfCLU_hexToBin(ivString, &iv, &ivSize,
                                        NULL, NULL, NULL,
                                        NULL, NULL, NULL,
@@ -161,15 +135,47 @@ int wolfCLU_setup(int argc, char** argv, char action)
                 }
                 ivCheck = 1;
             }
-        }
+            break;
 
-        ret = wolfCLU_checkForArg("-key", 4, argc, argv);
-        if (ret > 0) {
+        case SIGN:
+            break;
+
+        case WOLFCLU_VERIFY:   /* Verify results, used with -iv and -key    */
+            /* using hexidecimal format */
+            inputHex = 1;
+            break;
+
+        case INFORM:   /* Certificate Stuff                         */
+        case OUTFORM:
+        case OUTPUT:
+        case NOOUT:
+        case TEXT_OUT:
+        case SILENT:
+        case PUBIN:
+        case PUBOUT:
+        case PUBKEY:
+
+
+            /* The cases above have their arguments converted to lower case */
+            if (optarg) convert_to_lower(optarg, (int)XSTRLEN(optarg));
+            /* The cases below won't have their argument's molested */
+
+        case INFILE:   /* File passed in by user                    */
+            in = optarg;
+            inCheck = 1;
+            break;
+
+        case OUTFILE:  /* Output file                               */
+            out = optarg;
+            outCheck = 1;
+            break;
+
+        case INKEY:
             /* 2 characters = 1 byte. 1 byte = 8 bits
              * number of characters / 2 = bytes
              * bytes * 8 = bits
              */
-            numBits = (int) (XSTRLEN(argv[ret+1]) / 2 ) * 8;
+            numBits = (int) (XSTRLEN(optarg) / 2 ) * 8;
             /* Key for encryption */
             if ((int)numBits != size) {
                 printf("Length of key provided was: %d.\n", numBits);
@@ -179,8 +185,8 @@ int wolfCLU_setup(int argc, char** argv, char action)
                 return FATAL_ERROR;
             }
             else {
-                char keyString[strlen(argv[ret+1])];
-                XSTRNCPY(keyString, argv[ret+1], XSTRLEN(argv[ret+1]));
+                char keyString[strlen(optarg)];
+                XSTRNCPY(keyString, optarg, XSTRLEN(optarg));
                 ret = wolfCLU_hexToBin(keyString, &key, &numBits,
                                        NULL, NULL, NULL,
                                        NULL, NULL, NULL,
@@ -194,106 +200,126 @@ int wolfCLU_setup(int argc, char** argv, char action)
                 keyCheck = 1;
                 keyType = 2;
             }
+            break;
+
+        case SIGFILE:
+            break;
+
+        case WOLFCLU_DECRYPT:
+            eCheck = 0;
+            dCheck = 1;
+            break;
+
+        case ':':
+        case '?':
+            break;
+
+        default:
+            /* do nothing. */
+            (void)ret;
         }
+    }
 
-
-
-        if (pwdKeyChk == 0 && keyCheck == 0) {
-            if (dCheck == 1) {
-                printf("\nDECRYPT ERROR:\n");
-                printf("Please type \"wolfssl -decrypt -help\" for decryption"
-                                                                " usage \n\n");
-                return 0;
-            }
-            /* if no pwdKey is provided */
-            else {
-                printf("No -pwd flag set, please enter a password to use for"
-                " encrypting.\n");
-                printf("Write your password down so you don't forget it.\n");
-                ret = wolfCLU_noEcho((char*)pwdKey, size);
-                pwdKeyChk = 1;
-            }
+    if (pwdKeyChk == 0 && keyCheck == 0) {
+        if (dCheck == 1) {
+            printf("\nDECRYPT ERROR:\n");
+            printf("no key set or passphrase\n");
+            printf("Please type \"wolfssl -decrypt -help\" for decryption"
+                                                            " usage \n\n");
+            return 0;
         }
+        /* if no pwdKey is provided */
+        else {
+            printf("No -pwd flag set, please enter a password to use for"
+            " encrypting.\n");
+            printf("Write your password down so you don't forget it.\n");
+            ret = wolfCLU_noEcho((char*)pwdKey, size);
+            pwdKeyChk = 1;
+        }
+    }
 
-        if (inCheck == 0 && eCheck == 1) {
+    if (inCheck == 0 && eCheck == 1) {
+        ret = 0;
+        while (ret == 0) {
+            printf("-in flag was not set, please enter a string or\n"
+                   "file name to be encrypted: ");
+            ret = (int) scanf("%s", inName);
+        }
+        in = inName;
+        /* if no input is provided */
+        printf("Ok,  We will encrypt:\"%s\" for you.\n", inName);
+        inCheck = 1;
+    }
+
+    if (eCheck == 1 && dCheck == 1) {
+        printf("You want to encrypt and decrypt simultaneously? That is"
+                "not possible...\n");
+        wolfCLU_freeBins(pwdKey, iv, key, NULL, NULL);
+        return FATAL_ERROR;
+    }
+
+    if (inCheck == 0 && dCheck == 1) {
+        printf("We are so sorry but you must specify what it is you are "
+                "trying to decrypt.\n");
+        wolfCLU_freeBins(pwdKey, iv, key, NULL, NULL);
+        return FATAL_ERROR;
+    }
+
+    if (ivCheck == 1) {
+        if (keyCheck == 0) {
+            printf("-iv was explicitly set, but no -key was set. User\n"
+                " needs to provide a non-password based key when setting"
+                    " the -iv flag.\n");
+            wolfCLU_freeBins(pwdKey, iv, key, NULL, NULL);
+            return FATAL_ERROR;
+        }
+    }
+
+    if (pwdKeyChk == 1 && keyCheck == 1) {
+        XMEMSET(pwdKey, 0, size);
+    }
+
+    /* encryption function call */
+    if (eCheck == 1) {
+
+        printf("\n");
+        if (outCheck == 0) {
             ret = 0;
             while (ret == 0) {
-                printf("-in flag was not set, please enter a string or\n"
-                       "file name to be encrypted: ");
-                ret = (int) scanf("%s", inName);
-            } 
-            in = inName;
-            /* if no input is provided */
-            printf("Ok,  We will encrypt:\"%s\" for you.\n", inName);
-            inCheck = 1;
-        }
-
-        if (eCheck == 1 && dCheck == 1) {
-            printf("You want to encrypt and decrypt simultaneously? That is"
-                    "not possible...\n");
-            wolfCLU_freeBins(pwdKey, iv, key, NULL, NULL);
-            return FATAL_ERROR;
-        }
-
-        if (inCheck == 0 && dCheck == 1) {
-            printf("We are so sorry but you must specify what it is you are "
-                    "trying to decrypt.\n");
-            wolfCLU_freeBins(pwdKey, iv, key, NULL, NULL);
-            return FATAL_ERROR;
-        }
-
-        if (ivCheck == 1) {
-            if (keyCheck == 0) {
-                printf("-iv was explicitly set, but no -key was set. User\n"
-                    " needs to provide a non-password based key when setting"
-                        " the -iv flag.\n");
-                wolfCLU_freeBins(pwdKey, iv, key, NULL, NULL);
-                return FATAL_ERROR;
+                printf("Please enter a name for the output file: ");
+                ret = (int) scanf("%s", outNameE);
+                out = (ret > 0) ? outNameE : '\0';
             }
         }
-
-        if (pwdKeyChk == 1 && keyCheck == 1) {
-            XMEMSET(pwdKey, 0, size);
-        }
-
-        /* encryption function call */
-        if (eCheck == 1) {
-
-            printf("\n");
-            if (outCheck == 0) {
-                ret = 0;
-                while (ret == 0) {
-                    printf("Please enter a name for the output file: ");
-                    ret = (int) scanf("%s", outNameE);
-                    out = (ret > 0) ? outNameE : '\0';
-                }
-            }
-            ret = wolfCLU_encrypt(alg, mode, pwdKey, key, size, in, out,
-                    iv, block, ivCheck, inputHex);
-        }
-        /* decryption function call */
-        else if (dCheck == 1) {
-            if (outCheck == 0) {
-                ret = 0;
-                while (ret == 0) {
-                    printf("Please enter a name for the output file: ");
-                    ret = (int) scanf("%s", outNameD);
-                    out = (ret > 0) ? outNameD : '\0';
-                }
-            }
-            ret = wolfCLU_decrypt(alg, mode, pwdKey, key, size, in, out,
-                    iv, block, keyType);
-        }
-        else {
-            wolfCLU_help();
-        }
-        /* clear and free data */
-        XMEMSET(key, 0, size);
-        XMEMSET(pwdKey, 0, size);
-        XMEMSET(iv, 0, block);
-        wolfCLU_freeBins(pwdKey, iv, key, NULL, NULL);
+        ret = wolfCLU_encrypt(alg, mode, pwdKey, key, size, in, out,
+                iv, block, ivCheck, inputHex);
     }
-    else
-        ret = FATAL_ERROR;
+    /* decryption function call */
+    else if (dCheck == 1) {
+        if (outCheck == 0) {
+            ret = 0;
+            while (ret == 0) {
+                printf("Please enter a name for the output file: ");
+                ret = (int) scanf("%s", outNameD);
+                out = (ret > 0) ? outNameD : '\0';
+            }
+        }
+        ret = wolfCLU_decrypt(alg, mode, pwdKey, key, size, in, out,
+                iv, block, keyType);
+    }
+    else {
+        wolfCLU_help();
+    }
+    /* clear and free data */
+    XMEMSET(key, 0, size);
+    XMEMSET(pwdKey, 0, size);
+    XMEMSET(iv, 0, block);
+    wolfCLU_freeBins(pwdKey, iv, key, NULL, NULL);
+
+    if (alg != NULL)
+        XFREE(alg, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+    if (mode != NULL)
+        XFREE(mode, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+
     return ret;
 }

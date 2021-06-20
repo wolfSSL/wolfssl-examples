@@ -88,11 +88,10 @@ int main(int argc, char** argv)
     }
 
     switch (flag) {
-
-
             /* @temporary: implement the modes as arguments */
         case WOLFCLU_ENCRYPT:
         case WOLFCLU_DECRYPT:
+        case WOLFCLU_CRYPT:
         case WOLFCLU_BENCHMARK:
         case WOLFCLU_HASH:
         case WOLFCLU_MD5:
@@ -131,64 +130,21 @@ int main(int argc, char** argv)
             return 0;
     }
 
-    /* options to use with the mode input */
-    while ((option = getopt_long_only(argc, argv,"",
-                   long_options, &long_index )) != -1) {
-
-        switch (option) {
-
-
-            /*
-             * Ignore the following arguments for now. They will be handled by
-             * their respective setups (e.g. Crypto setup, Benchmark setup, or
-             * Hash Setup)
-             */
-
-        case PASSWORD: /* Password                                  */
-        case KEY:      /* Key if used must be in hex                */
-        case IV:       /* IV if used must be in hex                 */
-        case ALL:      /* Opt to benchmark all available algorithms */
-        case SIZE:     /* size for hash or key to output            */
-        case EXPONENT: /* exponent for generating RSA key           */
-        case TIME:     /* Time to benchmark for                     */
-        case SIGN:
-        case WOLFCLU_VERIFY:   /* Verify results, used with -iv and -key    */
-        case INFORM:   /* Certificate Stuff                         */
-        case OUTFORM:
-        case OUTPUT:
-        case NOOUT:
-        case TEXT_OUT:
-        case SILENT:
-        case PUBIN:
-        case PUBOUT:
-        case PUBKEY:
-
-            /* The cases above have their arguments converted to lower case */
-            if (optarg) convert_to_lower(optarg, (int)XSTRLEN(optarg));
-            /* The cases below won't have their argument's molested */
-
-        case INFILE:   /* File passed in by user                    */
-        case OUTFILE:  /* Output file                               */
-        case INKEY:
-        case SIGFILE:
-        case WOLFCLU_CONFIG:
-        case WOLFCLU_DAYS:
-
-            /* do nothing. */
-
-            break; /* note: this is the first break in the block */
-
-            /*
-             * End of ignored arguments
-             */
-        }
-    }
-
-    /* @temporary: implement mode as a flag */
     switch (flag) {
     case 0:
         printf("No mode provided.\n");
         ret = 0;
+        break;
+
+    case WOLFCLU_CRYPT:
+        /* generic 'enc' used, default to encrypt unless -d was used */
+        ret = wolfCLU_checkForArg("-d", 2, argc, argv);
+        if (ret > 0) {
+            ret = wolfCLU_setup(argc, argv, 'd');
+        }
+        else {
+            ret = wolfCLU_setup(argc, argv, 'e');
+        }
         break;
 
     case WOLFCLU_ENCRYPT:
