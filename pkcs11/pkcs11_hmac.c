@@ -75,16 +75,16 @@ int main(int argc, char* argv[])
     int slotId;
     int devId = 1;
 
-    if (argc != 5) {
+    if (argc != 4 && argc != 5) {
         fprintf(stderr,
-               "Usage: pkcs11_aescbc <libname> <slot> <tokenname> <userpin>\n");
+               "Usage: pkcs11_aescbc <libname> <slot> <tokenname> [userpin]\n");
         return 1;
     }
 
     library = argv[1];
     slot = argv[2];
     tokenName = argv[3];
-    userPin = argv[4];
+    userPin = (argc == 4) ? NULL : argv[4];
     slotId = atoi(slot);
 
 #if defined(DEBUG_WOLFSSL)
@@ -99,7 +99,7 @@ int main(int argc, char* argv[])
     }
     if (ret == 0) {
         ret = wc_Pkcs11Token_Init(&token, &dev, slotId, tokenName,
-                              (byte*)userPin, strlen(userPin));
+            (byte*)userPin, userPin == NULL ? 0 : strlen(userPin));
         if (ret != 0) {
             fprintf(stderr, "Failed to initialize PKCS#11 token\n");
             ret = 2;
