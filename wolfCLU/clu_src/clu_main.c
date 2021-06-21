@@ -98,6 +98,7 @@ int main(int argc, char** argv)
         case WOLFCLU_X509:
         case WOLFCLU_REQUEST:
         case WOLFCLU_GEN_KEY:
+        case WOLFCLU_ECPARAM:
         case WOLFCLU_PKEY:
         case WOLFCLU_RSA:
         case WOLFCLU_ECC:
@@ -177,6 +178,10 @@ int main(int argc, char** argv)
 
     case WOLFCLU_GEN_KEY:
         ret = wolfCLU_genKeySetup(argc, argv);
+        break;
+
+    case WOLFCLU_ECPARAM:
+        ret = wolfCLU_ecparam(argc, argv);
         break;
 
     case WOLFCLU_PKEY:

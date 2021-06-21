@@ -35,6 +35,7 @@ enum {
     WOLFCLU_X509,
     WOLFCLU_REQUEST,
     WOLFCLU_GEN_KEY,
+    WOLFCLU_ECPARAM,
     WOLFCLU_PKEY,
     WOLFCLU_RSA,
     WOLFCLU_ECC,
@@ -65,6 +66,7 @@ enum {
     PUBKEY,
     SIGFILE,
     WOLFCLU_CONFIG,
+    WOLFCLU_CURVE_NAME,
     WOLFCLU_DAYS,
     INFORM,
     OUTFORM,
@@ -107,6 +109,7 @@ static struct option mode_options[] = {
     {"x509",      no_argument,       0, WOLFCLU_X509      },
     {"req",       no_argument,       0, WOLFCLU_REQUEST   },
     {"genkey",    required_argument, 0, WOLFCLU_GEN_KEY   },
+    {"ecparam",   no_argument,       0, WOLFCLU_ECPARAM   },
     {"pkey",      no_argument,       0, WOLFCLU_PKEY      },
     {"rsa",       no_argument,       0, WOLFCLU_RSA       },
     {"ecc",       no_argument,       0, WOLFCLU_ECC       },
@@ -142,6 +145,16 @@ static struct option crypt_options[] = {
     {0, 0, 0, 0} /* terminal element */
 };
 
+
+static struct option ecparam_options[] = {
+    {"in",        required_argument, 0, INFILE    },
+    {"out",       required_argument, 0, OUTFILE   },
+    {"outform",   required_argument, 0, OUTFORM   },
+    {"genkey",    no_argument,       0, WOLFCLU_GEN_KEY    },
+    {"name",      required_argument, 0, WOLFCLU_CURVE_NAME },
+
+    {0, 0, 0, 0} /* terminal element */
+};
 
 static struct option crypt_algo_options[] = {
     /* AES */

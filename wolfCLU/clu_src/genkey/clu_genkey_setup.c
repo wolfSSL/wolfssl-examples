@@ -32,6 +32,7 @@ int wolfCLU_genKeySetup(int argc, char** argv)
 
     char*    keyType = NULL;       /* keyType */
     char*    format  = defaultFormat;
+    char*    name    = NULL;
 
     int      formatArg  =   DER_FORM;
     int      size       =   0;  /* keysize */
@@ -136,6 +137,20 @@ int wolfCLU_genKeySetup(int argc, char** argv)
             directiveArg = PRIV_AND_PUB;
         }
 
+        /* get the curve name */
+        ret = wolfCLU_checkForArg("-name", 5, argc, argv);
+        if (ret > 0) {
+            if (argv[ret+1] != NULL) {
+                int i;
+
+                name = argv[ret+1];
+
+                /* convert name to upper case */
+                for (i = 0; i < XSTRLEN(name); i++)
+                    toupper(name[i]);
+            }
+        }
+
         /* get the size argument */
         ret = wolfCLU_checkForArg("-size", 5, argc, argv);
         if (ret > 0) {
@@ -159,13 +174,15 @@ int wolfCLU_genKeySetup(int argc, char** argv)
                 }
             }
         } else {
-            printf("No -size <SIZE>\n");
-            printf("DEFAULT: use a 32 ECC key\n");
-            sizeArg = 32;
+            if (name == NULL) { /* if we have the name of curve we know */
+                printf("No -size <SIZE>\n");
+                printf("DEFAULT: use a 32 ECC key\n");
+                sizeArg = 32;
+            }
         }
 
         ret = wolfCLU_genKey_ECC(&rng, keyOutFName, directiveArg,
-                                 formatArg, sizeArg);
+                                 formatArg, sizeArg, name);
     #else
         printf("Invalid option, ECC not enabled.\n");
         printf("Please re-configure wolfSSL with --enable-ecc and "

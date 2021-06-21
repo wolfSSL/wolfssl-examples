@@ -105,6 +105,9 @@
  */
 int wolfCLU_setup(int argc, char** argv, char action);
 
+
+int wolfCLU_ecparam(int argc, char** argv);
+
 /* hash argument function
  *
  * @param argc holds all command line input

@@ -36,6 +36,7 @@
 #define SALT_SIZE       8
 
 enum {
+    ECPARAM,
     PRIV_ONLY,
     PUB_ONLY,
     PRIV_AND_PUB
@@ -62,7 +63,7 @@ int wolfCLU_genKey_ED25519(WC_RNG* rng, char* fOutNm, int directive,
  * return   0 on success, non-zero on error
  */
 int wolfCLU_genKey_ECC(WC_RNG* rng, char* fName, int directive, int fmt,
-                       int keySz);
+                       int keySz, char* name);
 
 /**
  * generates an RSA key
