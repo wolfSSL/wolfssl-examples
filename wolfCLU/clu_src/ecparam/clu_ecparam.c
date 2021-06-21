@@ -81,7 +81,7 @@ int wolfCLU_ecparam(int argc, char** argv)
 
             /* convert name to upper case */
             for (i = 0; i < XSTRLEN(name); i++)
-                toupper(name[i]);
+                (void)toupper(name[i]);
 
             keySz = wc_ecc_get_curve_size_from_name(name);
             break;
@@ -103,7 +103,7 @@ int wolfCLU_ecparam(int argc, char** argv)
 
 
     wc_InitRng(&rng);
-    ret = wolfCLU_genKey_ECC(&rng, out, ECPARAM, outForm, keySz, name);
+    ret = wolfCLU_genKey_ECC_ex(&rng, out, ECPARAM, outForm, name);
     wc_FreeRng(&rng);
     return ret;
 }

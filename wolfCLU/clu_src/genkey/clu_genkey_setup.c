@@ -147,7 +147,7 @@ int wolfCLU_genKeySetup(int argc, char** argv)
 
                 /* convert name to upper case */
                 for (i = 0; i < XSTRLEN(name); i++)
-                    toupper(name[i]);
+                    (void)toupper(name[i]);
             }
         }
 
@@ -182,7 +182,7 @@ int wolfCLU_genKeySetup(int argc, char** argv)
         }
 
         ret = wolfCLU_genKey_ECC(&rng, keyOutFName, directiveArg,
-                                 formatArg, sizeArg, name);
+                                 formatArg, sizeArg);
     #else
         printf("Invalid option, ECC not enabled.\n");
         printf("Please re-configure wolfSSL with --enable-ecc and "

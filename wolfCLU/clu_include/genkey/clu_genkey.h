@@ -63,8 +63,10 @@ int wolfCLU_genKey_ED25519(WC_RNG* rng, char* fOutNm, int directive,
  * return   0 on success, non-zero on error
  */
 int wolfCLU_genKey_ECC(WC_RNG* rng, char* fName, int directive, int fmt,
-                       int keySz, char* name);
+                       int keySz);
 
+int wolfCLU_genKey_ECC_ex(WC_RNG* rng, char* fName, int directive, int fmt,
+                       char* name);
 /**
  * generates an RSA key
  *

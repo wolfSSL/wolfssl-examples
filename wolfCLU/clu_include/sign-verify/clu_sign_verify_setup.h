@@ -20,3 +20,5 @@
  */
 
 int wolfCLU_sign_verify_setup(int, char**);
+int wolfCLU_dgst_setup(int, char**);
+

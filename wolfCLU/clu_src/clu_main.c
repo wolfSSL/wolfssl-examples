@@ -88,26 +88,70 @@ int main(int argc, char** argv)
     }
 
     switch (flag) {
-            /* @temporary: implement the modes as arguments */
-        case WOLFCLU_ENCRYPT:
-        case WOLFCLU_DECRYPT:
+        case 0:
+            printf("No mode provided.\n");
+            ret = 0;
+            break;
+
         case WOLFCLU_CRYPT:
+            /* generic 'enc' used, default to encrypt unless -d was used */
+            ret = wolfCLU_checkForArg("-d", 2, argc, argv);
+            if (ret > 0) {
+                ret = wolfCLU_setup(argc, argv, 'd');
+            }
+            else {
+                ret = wolfCLU_setup(argc, argv, 'e');
+            }
+            break;
+
+        case WOLFCLU_ENCRYPT:
+            ret = wolfCLU_setup(argc, argv, 'e');
+            break;
+
+        case WOLFCLU_DECRYPT:
+            ret = wolfCLU_setup(argc, argv, 'd');
+            break;
+
         case WOLFCLU_BENCHMARK:
+            ret = wolfCLU_benchSetup(argc, argv);
+            break;
+
         case WOLFCLU_HASH:
+            ret = wolfCLU_hashSetup(argc, argv);
+            break;
+
         case WOLFCLU_MD5:
+            ret = wolfCLU_md5Setup(argc, argv);
+            break;
+
         case WOLFCLU_X509:
+            ret = wolfCLU_certSetup(argc, argv);
+            break;
+
         case WOLFCLU_REQUEST:
+            ret = wolfCLU_requestSetup(argc, argv);
+            break;
+
         case WOLFCLU_GEN_KEY:
+            ret = wolfCLU_genKeySetup(argc, argv);
+            break;
+
         case WOLFCLU_ECPARAM:
+            ret = wolfCLU_ecparam(argc, argv);
+            break;
+
         case WOLFCLU_PKEY:
+            ret = wolfCLU_pKeySetup(argc, argv);
+            break;
+
+        case WOLFCLU_DGST:    
+            ret = wolfCLU_dgst_setup(argc, argv);
+            break;
+
         case WOLFCLU_RSA:
         case WOLFCLU_ECC:
         case WOLFCLU_ED25519:
-        case CERT_SHA:
-        case CERT_SHA224:
-        case CERT_SHA256:
-        case CERT_SHA384:
-        case CERT_SHA512:
+            ret = wolfCLU_sign_verify_setup(argc, argv);
             break;
 
         case WOLFCLU_HELP:
@@ -115,7 +159,6 @@ int main(int argc, char** argv)
             printf("Main help menu:\n");
             wolfCLU_help();
             return 0;
-            break;
 
         case VERBOSE:
             wolfCLU_verboseHelp();
@@ -126,79 +169,9 @@ int main(int argc, char** argv)
             return 0;
 
         default:
-            printf("Main help default.\n");
+            printf("Unknown mode\n");
             wolfCLU_help();
-            return 0;
-    }
-
-    switch (flag) {
-    case 0:
-        printf("No mode provided.\n");
-        ret = 0;
-        break;
-
-    case WOLFCLU_CRYPT:
-        /* generic 'enc' used, default to encrypt unless -d was used */
-        ret = wolfCLU_checkForArg("-d", 2, argc, argv);
-        if (ret > 0) {
-            ret = wolfCLU_setup(argc, argv, 'd');
-        }
-        else {
-            ret = wolfCLU_setup(argc, argv, 'e');
-        }
-        break;
-
-    case WOLFCLU_ENCRYPT:
-        ret = wolfCLU_setup(argc, argv, 'e');
-        break;
-
-    case WOLFCLU_DECRYPT:
-        ret = wolfCLU_setup(argc, argv, 'd');
-        break;
-
-    case WOLFCLU_BENCHMARK:
-        ret = wolfCLU_benchSetup(argc, argv);
-        break;
-
-    case WOLFCLU_HASH:
-        ret = wolfCLU_hashSetup(argc, argv);
-        break;
-
-    case WOLFCLU_MD5:
-        ret = wolfCLU_md5Setup(argc, argv);
-        break;
-
-    case WOLFCLU_X509:
-        ret = wolfCLU_certSetup(argc, argv);
-        break;
-
-    case WOLFCLU_REQUEST:
-        ret = wolfCLU_requestSetup(argc, argv);
-        break;
-
-    case WOLFCLU_GEN_KEY:
-        ret = wolfCLU_genKeySetup(argc, argv);
-        break;
-
-    case WOLFCLU_ECPARAM:
-        ret = wolfCLU_ecparam(argc, argv);
-        break;
-
-    case WOLFCLU_PKEY:
-        ret = wolfCLU_pKeySetup(argc, argv);
-        break;
-
-    case WOLFCLU_RSA:
-        ret = wolfCLU_sign_verify_setup(argc, argv);
-        break;
-
-    case WOLFCLU_ECC:
-        ret = wolfCLU_sign_verify_setup(argc, argv);
-        break;
-
-    case WOLFCLU_ED25519:
-        ret = wolfCLU_sign_verify_setup(argc, argv);
-        break;
+            return -1;
     }
 
     if (ret < 0)
