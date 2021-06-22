@@ -139,8 +139,10 @@ int main()
                == -1) {
             if (errno == EAGAIN || errno == EWOULDBLOCK) {
                 /* no error, just non-blocking. Carry on. */
+                sleep(1); /* cut down on spam */
                 continue;
-            }
+            } else if(errno == EINPROGRESS || errno == EALREADY)
+                break;
             fprintf(stderr, "ERROR: failed to accept the connection\n\n");
             return -1;
         }
@@ -154,22 +156,34 @@ int main()
         /* Attach wolfSSL to the socket */
         wolfSSL_set_fd(ssl, connd);
 
+        /* make wolfSSL object nonblocking */
+        wolfSSL_set_using_nonblock(ssl, 1);
+
         /* Establish TLS connection */
-        ret = wolfSSL_accept(ssl);
-        if (ret != SSL_SUCCESS) {
-            fprintf(stderr, "wolfSSL_accept error = %d\n",
-                wolfSSL_get_error(ssl, ret));
-            return -1;
+        printf("wolfSSL_accepting\n");
+       
+        while((ret = wolfSSL_accept(ssl)) == SSL_SUCCESS){
+            if (ret != ssl_success) {
+                if (wolfssl_want_read(ssl) || wolfssl_want_write(ssl)) {
+                    /* no error, just non-blocking. carry on. */
+                    printf("waiting for acception...\n");
+                    sleep(1); /* cut down on spam */
+                    continue;
+                }
+                fprintf(stderr, "wolfssl_accept error = %d\n",
+                    wolfssl_get_error(ssl, ret));
+                return -1;
+            }
         }
+        
+        printf("client connected successfully\n");
 
-        printf("Client connected successfully\n");
 
-
-        /* Read the client data into our buff array */
+        /* read the client data into our buff array */
         memset(buff, 0, sizeof(buff));
-        while (wolfSSL_read(ssl, buff, sizeof(buff)-1) == -1) {
-            if (wolfSSL_want_read(ssl)) {
-                /* no error, just non-blocking. Carry on. */
+        while (wolfssl_read(ssl, buff, sizeof(buff)-1) == -1) {
+            if (wolfssl_want_read(ssl)) {
+                /* no error, just non-blocking. carry on. */
                 continue;
             }
             fprintf(stderr, "ERROR: failed to read\n");

@@ -33,11 +33,32 @@
 /* wolfSSL */
 #include <wolfssl/options.h>
 #include <wolfssl/ssl.h>
+#include <wolfssl/test.h>
 
 #define DEFAULT_PORT 11111
 
 #define CERT_FILE "../certs/ca-cert.pem"
 
+
+static int NonBlockingSSL_Shutdown(WOLFSSL* ssl)
+{
+    int error, status = SSL_SHUTDOWN_NOT_DONE;
+
+    do {
+        error = 0;
+        if (tcp_select(SSL_get_fd(ssl), 2) == TEST_RECV_READY) {
+            status = wolfSSL_shutdown(ssl);    /* bidirectional shutdown */
+            if (status == WOLFSSL_SUCCESS)
+                printf("Bidirectional shutdown complete\n");
+            else {
+                error = wolfSSL_get_error(ssl, 0);
+            }
+        }
+    } while (status == SSL_SHUTDOWN_NOT_DONE || error == SSL_ERROR_WANT_READ ||
+             error == SSL_ERROR_WANT_WRITE);
+
+    return status;
+}
 
 
 int main(int argc, char** argv)
@@ -112,14 +133,19 @@ int main(int argc, char** argv)
     }
 
 
-
     /* Connect to the server */
     while (connect(sockfd, (struct sockaddr*) &servAddr, sizeof(servAddr))
            == -1) {
+        if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                /* no error, just non-blocking. Carry on. */
+            sleep(1); /* cut down on spam */
+            continue;
+        } else if(errno == EINPROGRESS || errno == EALREADY)
+            break;
         /* just keep looping until a connection is made */
+        fprintf(stderr, "ERROR: failed to connect %d\n\n", errno);
+        return -1;
     }
-
-
 
     /* Create a WOLFSSL object */
     if ((ssl = wolfSSL_new(ctx)) == NULL) {
@@ -132,7 +158,7 @@ int main(int argc, char** argv)
 
     /* Connect to wolfSSL on the server side */
     while (wolfSSL_connect(ssl) != SSL_SUCCESS) {
-        if (wolfSSL_want_read(ssl)) {
+        if (wolfSSL_want_read(ssl) || wolfSSL_want_write(ssl)) {
             /* no error, just non-blocking. Carry on. */
             printf("Waiting for connection...\n");
             sleep(1); /* cut down on spam */
@@ -164,8 +190,11 @@ int main(int argc, char** argv)
     }
 
 
-
-
+    if (NonBlockingSSL_Shutdown(ssl) != 1) {
+        printf("Shutdown not complete\n");
+        return -1;
+    }
+    printf("Shutdown complete\n");
 
     /* Cleanup and return */
     wolfSSL_free(ssl);      /* Free the wolfSSL object                  */

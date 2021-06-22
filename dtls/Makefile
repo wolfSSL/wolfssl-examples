@@ -31,6 +31,8 @@ debug: all
 # add the -pthread flag and -lpthread lib to any threaded examples
 %-threaded: CFLAGS+=-pthread
 %-threaded: LIBS+=-lpthread
+%-shared: CFLAGS+=-pthread
+%-shared: LIBS+=-lpthread
 
 # build template
 %: %.c
