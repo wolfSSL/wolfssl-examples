@@ -44,6 +44,7 @@
 
 int main()
 {
+    int ret, err;
     int                sockfd = SOCKET_INVALID;
     int                connd = SOCKET_INVALID;
     struct sockaddr_in servAddr;
@@ -52,7 +53,6 @@ int main()
     char               buff[256];
     size_t             len;
     int                shutdown = 0;
-    int                ret;
     const char*        reply = "I hear ya fa shizzle!\n";
 
     /* declare wolfSSL objects */
@@ -145,10 +145,10 @@ int main()
                == -1) {
             if (errno == EAGAIN || errno == EWOULDBLOCK) {
                 /* no error, just non-blocking. Carry on. */
-                sleep(1); /* cut down on spam */
                 continue;
-            } else if(errno == EINPROGRESS || errno == EALREADY)
+            } else if(errno == EINPROGRESS || errno == EALREADY) {
                 break;
+            }
             fprintf(stderr, "ERROR: failed to accept the connection\n\n");
             ret = -1;
             goto exit;
@@ -170,7 +170,7 @@ int main()
         /* Establish TLS connection */
         printf("wolfSSL_accepting\n");
        
-        while((ret = wolfSSL_accept(ssl)) == WOLFSSL_SUCCESS){
+        while((ret = wolfSSL_accept(ssl)) != WOLFSSL_SUCCESS){
             if (ret != WOLFSSL_SUCCESS) {
                 if (wolfSSL_want_read(ssl) || wolfSSL_want_write(ssl)) {
                     /* no error, just non-blocking. carry on. */
@@ -188,13 +188,13 @@ int main()
 
         /* read the client data into our buff array */
         memset(buff, 0, sizeof(buff));
-        while (wolfSSL_read(ssl, buff, sizeof(buff)-1) == -1) {
-            if (wolfSSL_want_read(ssl)) {
-                /* no error, just non-blocking. carry on. */
-                continue;
-            }
-            fprintf(stderr, "ERROR: failed to read\n");
-            ret = -1;
+        do {
+            ret = wolfSSL_read(ssl, buff, sizeof(buff)-1);
+            err = wolfSSL_get_error(ssl, ret);
+        }
+        while (err == WOLFSSL_ERROR_WANT_READ);
+        if (ret < 0) {
+            fprintf(stderr, "ERROR %d: failed to read\n", ret);
             goto exit;
         }
 
@@ -215,17 +215,21 @@ int main()
         len = strnlen(buff, sizeof(buff));
 
         /* Reply back to the client */
-        while (wolfSSL_write(ssl, buff, len) != len) {
-            if (wolfSSL_want_write(ssl)) {
-                /* no error, just non-blocking. Carry on. */
-                continue;
-            }
-            fprintf(stderr, "ERROR: failed to write\n");
-            ret = -1;
+        do {
+            ret = wolfSSL_write(ssl, reply, len);
+            err = wolfSSL_get_error(ssl, ret);
+        }
+        while (err == WOLFSSL_ERROR_WANT_WRITE);
+        if (ret < 0) {
+            fprintf(stderr, "ERROR %d: failed to write\n", ret);
             goto exit;
         }
 
-
+        /* send close notify */
+        do {
+            ret = wolfSSL_shutdown(ssl);
+            err = wolfSSL_get_error(ssl, 0);
+        } while (err == WOLFSSL_ERROR_WANT_READ || err == WOLFSSL_ERROR_WANT_WRITE);
 
         /* Cleanup after this connection */
         wolfSSL_free(ssl);      /* Free the wolfSSL object              */

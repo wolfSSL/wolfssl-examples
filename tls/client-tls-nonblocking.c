@@ -41,78 +41,9 @@
 
 #define CERT_FILE "../certs/ca-cert.pem"
 
-enum {
-    TEST_SELECT_FAIL,
-    TEST_TIMEOUT,
-    TEST_RECV_READY,
-    TEST_SEND_READY,
-    TEST_ERROR_READY
-};
-
-
-static int tcp_select(SOCKET_T socketfd, int to_sec)
-{
-    int rx = 1;
-    fd_set fds, errfds;
-    fd_set* recvfds = NULL;
-    fd_set* sendfds = NULL;
-    SOCKET_T nfds = socketfd + 1;
-    
-    struct timeval timeout;
-    int result;
-
-    FD_ZERO(&fds);
-    FD_SET(socketfd, &fds);
-    FD_ZERO(&errfds);
-    FD_SET(socketfd, &errfds);
-
-    if (rx)
-        recvfds = &fds;
-    else
-        sendfds = &fds;
-
-    result = select(nfds, recvfds, sendfds, &errfds, &timeout);
-
-    if (result == 0)
-        return TEST_TIMEOUT;
-    else if (result > 0) {
-        if (FD_ISSET(socketfd, &fds)) {
-            if (rx)
-                return TEST_RECV_READY;
-            else
-                return TEST_SEND_READY;
-        }
-        else if(FD_ISSET(socketfd, &errfds))
-            return TEST_ERROR_READY;
-    }
-
-    return TEST_SELECT_FAIL;
-}
-
-static int NonBlockingSSL_Shutdown(WOLFSSL* ssl)
-{
-    int error, status = WOLFSSL_SHUTDOWN_NOT_DONE;
-
-    do {
-        error = 0;
-        if (tcp_select(wolfSSL_get_fd(ssl), CONNECT_WAIT_MS) == TEST_RECV_READY){
-            status = wolfSSL_shutdown(ssl);    /* bidirectional shutdown */
-            if (status == WOLFSSL_SUCCESS)
-                printf("Bidirectional shutdown complete\n");
-            else {
-                error = wolfSSL_get_error(ssl, 0);
-            }
-        }
-    } while (status == WOLFSSL_SHUTDOWN_NOT_DONE || error == WOLFSSL_ERROR_WANT_READ ||
-             error == WOLFSSL_ERROR_WANT_WRITE);
-
-    return status;
-}
-
-
 int main(int argc, char** argv)
 {
-    int                ret;
+    int                ret, err;
     int                sockfd = SOCKET_INVALID; 
     struct sockaddr_in servAddr;
     char               buff[256];
@@ -218,8 +149,6 @@ int main(int argc, char** argv)
     while (wolfSSL_connect(ssl) != WOLFSSL_SUCCESS) {
         if (wolfSSL_want_read(ssl) || wolfSSL_want_write(ssl)) {
             /* no error, just non-blocking. Carry on. */
-            printf("Waiting for connection...\n");
-            sleep(1); /* cut down on spam */  
             continue;
         }
         fprintf(stderr, "ERROR: failed to connect to wolfSSL\n");
@@ -240,22 +169,38 @@ int main(int argc, char** argv)
     len = strnlen(buff, sizeof(buff));
 
     /* Send the message to the server */
-    while (wolfSSL_write(ssl, buff, len) != len) {
-        if (wolfSSL_want_write(ssl)) {
-            /* no error, just non-blocking. Carry on. */
-            continue;
+    do {
+        ret = wolfSSL_write(ssl, buff, len);
+        err = wolfSSL_get_error(ssl, ret);
+    }
+    while (err == WOLFSSL_ERROR_WANT_WRITE);
+    if (ret < 0) {
+        fprintf(stderr, "ERROR %d: failed to write\n", ret);
+        goto exit;
+    }
+    
+    /* Read the reply from server */
+    memset(buff, 0, sizeof(buff));
+    do {
+        ret = wolfSSL_read(ssl, buff, sizeof(buff)-1);
+        err = wolfSSL_get_error(ssl, ret);
+    } while (err == WOLFSSL_ERROR_WANT_READ);
+    if (ret < 0) {
+        fprintf(stderr, "ERROR %d: failed to read\n", ret);
+        goto exit;
+    }
+    
+    /* Print to stdout any data the server sends */
+    printf("Server: %s\n", buff);
+
+    /* send close notify */
+    do {
+        ret = wolfSSL_shutdown(ssl);
+        if (ret != WOLFSSL_SUCCESS) {
+            ret = wolfSSL_get_error(ssl, 0);
         }
-        fprintf(stderr, "ERROR: failed to write\n");
-        ret = -1;
-        goto exit;
-    }
-
-
-    if (NonBlockingSSL_Shutdown(ssl) != 1) {
-        printf("Shutdown not complete\n");
-        ret = -1;
-        goto exit;
-    }
+    } while (ret == WOLFSSL_ERROR_WANT_READ ||
+             ret == WOLFSSL_ERROR_WANT_WRITE);
     printf("Shutdown complete\n");
 
 exit:
