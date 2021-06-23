@@ -75,7 +75,8 @@ static const char* GetPkTypeStr(int pk)
         case WC_PK_TYPE_ECDH: return "ECDH";
         case WC_PK_TYPE_ECDSA_SIGN: return "ECDSA-Sign";
         case WC_PK_TYPE_ECDSA_VERIFY: return "ECDSA-Verify";
-        case WC_PK_TYPE_ED25519: return "ED25519";
+        case WC_PK_TYPE_ED25519_SIGN: return "ED25519-Sign";
+        case WC_PK_TYPE_ED25519_VERIFY: return "ED25519-Verify"; 
         case WC_PK_TYPE_CURVE25519: return "CURVE25519";
         case WC_PK_TYPE_RSA_KEYGEN: return "RSA KeyGen";
         case WC_PK_TYPE_EC_KEYGEN: return "ECC KeyGen";
