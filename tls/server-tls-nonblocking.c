@@ -37,8 +37,7 @@
 #include <wolfssl/wolfio.h>
 
 #define DEFAULT_PORT 11111
-
-#define CONNECT_WAIT_MS 2
+#define SELECT_WAIT_SEC 1
 
 #define CERT_FILE "../certs/server-cert.pem"
 #define KEY_FILE  "../certs/server-key.pem"
@@ -51,9 +50,8 @@ enum {
     TEST_ERROR_READY
 };
 
-static int tcp_select(SOCKET_T socketfd, int to_sec)
+static int tcp_select(SOCKET_T socketfd, int to_sec, int rx)
 {
-    int rx = 1;   
     fd_set fds, errfds;
     fd_set* recvfds = NULL;
     fd_set* sendfds = NULL;
@@ -82,7 +80,7 @@ static int tcp_select(SOCKET_T socketfd, int to_sec)
             else
                 return TEST_SEND_READY;
         }
-        else if(FD_ISSET(socketfd, &errfds))
+        else if (FD_ISSET(socketfd, &errfds))
             return TEST_ERROR_READY;
     }
 
@@ -111,7 +109,7 @@ int main()
 
     /* Initialize wolfSSL */
     wolfSSL_Init();
-
+    //wolfSSL_Debugging_ON();
 
 
     /* Create a socket that uses an internet IPv4 address,
@@ -182,8 +180,6 @@ int main()
         goto exit;
     }
 
-
-
     /* Continue to accept clients until shutdown is issued */
     while (!shutdown) {
         printf("Waiting for a connection...\n");
@@ -192,11 +188,11 @@ int main()
         while ((connd = accept(sockfd, (struct sockaddr*)&clientAddr, &size))
                == -1) {
             if (errno == EAGAIN || errno == EWOULDBLOCK) {
-                /* no error, just non-blocking. Carry on. */
-                tcp_select(sockfd, CONNECT_WAIT_MS); 
+                /* non-blocking, wait for read activity on socket */
+                tcp_select(sockfd, SELECT_WAIT_SEC, 1);
                 continue;
             } 
-            else if(errno == EINPROGRESS || errno == EALREADY) {
+            else if (errno == EINPROGRESS || errno == EALREADY) {
                 break;
             }
             fprintf(stderr, "ERROR: failed to accept the connection\n\n");
@@ -223,10 +219,11 @@ int main()
         do {
             ret = wolfSSL_accept(ssl);
             err = wolfSSL_get_error(ssl, ret);
+            if (err == WOLFSSL_ERROR_WANT_READ)
+                tcp_select(sockfd, SELECT_WAIT_SEC, 1);
         } while (err == WOLFSSL_ERROR_WANT_READ || err == WOLFSSL_ERROR_WANT_WRITE);
         if (ret != WOLFSSL_SUCCESS) {
-            fprintf(stderr, "wolfSSL_accept error = %d\n",
-                wolfSSL_get_error(ssl, ret));
+            fprintf(stderr, "wolfSSL_accept error %d (%d)\n", err, ret);
             goto exit;
         }
         printf("client connected successfully\n");
@@ -237,6 +234,9 @@ int main()
         do {
             ret = wolfSSL_read(ssl, buff, sizeof(buff)-1);
             err = wolfSSL_get_error(ssl, ret);
+            
+            if (err == WOLFSSL_ERROR_WANT_READ)
+                tcp_select(sockfd, SELECT_WAIT_SEC, 1);
         }
         while (err == WOLFSSL_ERROR_WANT_READ);
         if (ret < 0) {
@@ -264,6 +264,7 @@ int main()
         do {
             ret = wolfSSL_write(ssl, reply, len);
             err = wolfSSL_get_error(ssl, ret);
+            sleep(1);
         }
         while (err == WOLFSSL_ERROR_WANT_WRITE);
         if (ret < 0) {
@@ -275,11 +276,14 @@ int main()
         do {
             ret = wolfSSL_shutdown(ssl);
             err = wolfSSL_get_error(ssl, 0);
+            if (err == WOLFSSL_ERROR_WANT_READ)
+                tcp_select(sockfd, SELECT_WAIT_SEC, 1);
         } while (err == WOLFSSL_ERROR_WANT_READ || err == WOLFSSL_ERROR_WANT_WRITE);
 
         /* Cleanup after this connection */
         wolfSSL_free(ssl);      /* Free the wolfSSL object              */
         close(connd);           /* Close the connection to the client   */
+        connd = SOCKET_INVALID;
     }
 
     printf("Shutdown complete\n");

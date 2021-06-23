@@ -33,12 +33,57 @@
 /* wolfSSL */
 #include <wolfssl/options.h>
 #include <wolfssl/ssl.h>
+#include <wolfssl/wolfio.h>
 
 #define DEFAULT_PORT 11111
-
-#define CONNECT_WAIT_MS 2
-
+#define CONNECT_WAIT_SEC 2
+#define SELECT_WAIT_SEC 1
 #define CERT_FILE "../certs/ca-cert.pem"
+
+enum {
+    TEST_SELECT_FAIL,
+    TEST_TIMEOUT,
+    TEST_RECV_READY,
+    TEST_SEND_READY,
+    TEST_ERROR_READY
+};
+
+static int tcp_select(SOCKET_T socketfd, int to_sec, int rx)
+{
+    fd_set fds, errfds;
+    fd_set* recvfds = NULL;
+    fd_set* sendfds = NULL;
+    SOCKET_T nfds = socketfd + 1;
+    struct timeval timeout;
+    int result;
+
+    FD_ZERO(&fds);
+    FD_SET(socketfd, &fds);
+    FD_ZERO(&errfds);
+    FD_SET(socketfd, &errfds);
+
+    if (rx)
+        recvfds = &fds;
+    else
+        sendfds = &fds;
+
+    result = select(nfds, recvfds, sendfds, &errfds, &timeout);
+
+    if (result == 0)
+        return TEST_TIMEOUT;
+    else if (result > 0) {
+        if (FD_ISSET(socketfd, &fds)) {
+            if (rx)
+                return TEST_RECV_READY;
+            else
+                return TEST_SEND_READY;
+        }
+        else if (FD_ISSET(socketfd, &errfds))
+            return TEST_ERROR_READY;
+    }
+
+    return TEST_SELECT_FAIL;
+}
 
 int main(int argc, char** argv)
 {
@@ -65,7 +110,7 @@ int main(int argc, char** argv)
 
     /* Initialize wolfSSL */
     wolfSSL_Init();
-
+    //wolfSSL_Debugging_ON();
 
 
     /* Create a socket that uses an internet IPv4 address,
@@ -85,7 +130,6 @@ int main(int argc, char** argv)
     }
 
 
-
     /* Create and initialize WOLFSSL_CTX */
     if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method())) == NULL) {
         fprintf(stderr, "ERROR: failed to create WOLFSSL_CTX\n");
@@ -100,7 +144,6 @@ int main(int argc, char** argv)
                 CERT_FILE);
         goto exit;
     }
-
 
 
     /* Initialize the server address struct with zeros */
@@ -122,11 +165,13 @@ int main(int argc, char** argv)
     while (connect(sockfd, (struct sockaddr*) &servAddr, sizeof(servAddr))
            == -1) {
         if (errno == EAGAIN || errno == EWOULDBLOCK) {
-                /* no error, just non-blocking. Carry on. */
+            /* non-blocking connect, wait for read activity on socket */
+            tcp_select(sockfd, CONNECT_WAIT_SEC, 1); 
             continue;
-        } else if(errno == EINPROGRESS || errno == EALREADY)
+        }
+        else if (errno == EINPROGRESS || errno == EALREADY) {
             break;
-        /* just keep looping until a connection is made */
+        }
         fprintf(stderr, "ERROR: failed to connect %d\n\n", errno);
         ret = -1;
         goto exit;
@@ -148,11 +193,13 @@ int main(int argc, char** argv)
     /* Connect to wolfSSL on the server side */
     do {                                                                    
         ret = wolfSSL_connect(ssl);                                         
-        err = wolfSSL_get_error(ssl, ret);                                  
+        err = wolfSSL_get_error(ssl, ret);
+        if (err == WOLFSSL_ERROR_WANT_READ)
+            tcp_select(sockfd, SELECT_WAIT_SEC, 1);
     } while (err == WOLFSSL_ERROR_WANT_READ || err == WOLFSSL_ERROR_WANT_WRITE); 
   
     if (ret != WOLFSSL_SUCCESS){
-        fprintf(stderr, "ERROR: failed to connect to wolfSSL\n");
+        fprintf(stderr, "ERROR %d: failed to connect to wolfSSL %d\n", err, ret);
         goto exit;
     }
 
@@ -196,9 +243,9 @@ int main(int argc, char** argv)
     /* send close notify */
     do {
         ret = wolfSSL_shutdown(ssl);
-        if (ret != WOLFSSL_SUCCESS) {
-            ret = wolfSSL_get_error(ssl, 0);
-        }
+        err = wolfSSL_get_error(ssl, 0);
+        if (err == WOLFSSL_ERROR_WANT_READ)
+            tcp_select(sockfd, SELECT_WAIT_SEC, 1);
     } while (ret == WOLFSSL_ERROR_WANT_READ ||
              ret == WOLFSSL_ERROR_WANT_WRITE);
     printf("Shutdown complete\n");
