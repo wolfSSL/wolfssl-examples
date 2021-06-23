@@ -34,12 +34,60 @@
 /* wolfSSL */
 #include <wolfssl/options.h>
 #include <wolfssl/ssl.h>
+#include <wolfssl/wolfio.h>
 
 #define DEFAULT_PORT 11111
+
+#define CONNECT_WAIT_MS 2
 
 #define CERT_FILE "../certs/server-cert.pem"
 #define KEY_FILE  "../certs/server-key.pem"
 
+enum {
+    TEST_SELECT_FAIL,
+    TEST_TIMEOUT,
+    TEST_RECV_READY,
+    TEST_SEND_READY,
+    TEST_ERROR_READY
+};
+
+static int tcp_select(SOCKET_T socketfd, int to_sec)
+{
+    int rx = 1;   
+    fd_set fds, errfds;
+    fd_set* recvfds = NULL;
+    fd_set* sendfds = NULL;
+    SOCKET_T nfds = socketfd + 1;
+    struct timeval timeout;
+    int result;
+
+    FD_ZERO(&fds);
+    FD_SET(socketfd, &fds);
+    FD_ZERO(&errfds);
+    FD_SET(socketfd, &errfds);
+
+    if (rx)
+        recvfds = &fds;
+    else
+        sendfds = &fds;
+
+    result = select(nfds, recvfds, sendfds, &errfds, &timeout);
+
+    if (result == 0)
+        return TEST_TIMEOUT;
+    else if (result > 0) {
+        if (FD_ISSET(socketfd, &fds)) {
+            if (rx)
+                return TEST_RECV_READY;
+            else
+                return TEST_SEND_READY;
+        }
+        else if(FD_ISSET(socketfd, &errfds))
+            return TEST_ERROR_READY;
+    }
+
+    return TEST_SELECT_FAIL;
+}
 
 
 int main()
@@ -145,8 +193,10 @@ int main()
                == -1) {
             if (errno == EAGAIN || errno == EWOULDBLOCK) {
                 /* no error, just non-blocking. Carry on. */
+                tcp_select(sockfd, CONNECT_WAIT_MS); 
                 continue;
-            } else if(errno == EINPROGRESS || errno == EALREADY) {
+            } 
+            else if(errno == EINPROGRESS || errno == EALREADY) {
                 break;
             }
             fprintf(stderr, "ERROR: failed to accept the connection\n\n");
@@ -170,19 +220,15 @@ int main()
         /* Establish TLS connection */
         printf("wolfSSL_accepting\n");
        
-        while((ret = wolfSSL_accept(ssl)) != WOLFSSL_SUCCESS){
-            if (ret != WOLFSSL_SUCCESS) {
-                if (wolfSSL_want_read(ssl) || wolfSSL_want_write(ssl)) {
-                    /* no error, just non-blocking. carry on. */
-                    continue;
-                }
-                fprintf(stderr, "wolfSSL_accept error = %d\n",
-                    wolfSSL_get_error(ssl, ret));
-                ret = -1;
-                goto exit;
-            }
+        do {
+            ret = wolfSSL_accept(ssl);
+            err = wolfSSL_get_error(ssl, ret);
+        } while (err == WOLFSSL_ERROR_WANT_READ || err == WOLFSSL_ERROR_WANT_WRITE);
+        if (ret != WOLFSSL_SUCCESS) {
+            fprintf(stderr, "wolfSSL_accept error = %d\n",
+                wolfSSL_get_error(ssl, ret));
+            goto exit;
         }
-        
         printf("client connected successfully\n");
 
 

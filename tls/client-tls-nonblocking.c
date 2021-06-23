@@ -33,7 +33,6 @@
 /* wolfSSL */
 #include <wolfssl/options.h>
 #include <wolfssl/ssl.h>
-#include <wolfssl/wolfio.h>
 
 #define DEFAULT_PORT 11111
 
@@ -145,14 +144,15 @@ int main(int argc, char** argv)
         fprintf(stderr, "ERROR: Failed to set the file descriptor\n");
         goto exit;
     }
+ 
     /* Connect to wolfSSL on the server side */
-    while (wolfSSL_connect(ssl) != WOLFSSL_SUCCESS) {
-        if (wolfSSL_want_read(ssl) || wolfSSL_want_write(ssl)) {
-            /* no error, just non-blocking. Carry on. */
-            continue;
-        }
+    do {                                                                    
+        ret = wolfSSL_connect(ssl);                                         
+        err = wolfSSL_get_error(ssl, ret);                                  
+    } while (err == WOLFSSL_ERROR_WANT_READ || err == WOLFSSL_ERROR_WANT_WRITE); 
+  
+    if (ret != WOLFSSL_SUCCESS){
         fprintf(stderr, "ERROR: failed to connect to wolfSSL\n");
-        ret = -1;
         goto exit;
     }
 
