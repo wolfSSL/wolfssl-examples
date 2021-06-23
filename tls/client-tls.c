@@ -160,6 +160,14 @@ int main(int argc, char** argv)
     /* Print to stdout any data the server sends */
     printf("Server: %s\n", buff);
 
+    /* Bidirectional shutdown */
+    while (wolfSSL_shutdown(ssl) == SSL_SHUTDOWN_NOT_DONE) {
+        printf("Shutdown not complete\n");
+    }
+
+    printf("Shutdown complete\n");
+
+
     /* Cleanup and return */
 cleanup:
     wolfSSL_free(ssl);      /* Free the wolfSSL object                  */
