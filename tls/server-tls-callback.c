@@ -114,7 +114,7 @@ int my_IOSend(WOLFSSL* ssl, char* buff, int sz, void* ctx)
         #endif
         case EWOULDBLOCK:
             fprintf(stderr, "would block\n");
-            return WOLFSSL_CBIO_ERR_WANT_READ;
+            return WOLFSSL_CBIO_ERR_WANT_WRITE;
         case ECONNRESET:
             fprintf(stderr, "connection reset\n");
             return WOLFSSL_CBIO_ERR_CONN_RST;
