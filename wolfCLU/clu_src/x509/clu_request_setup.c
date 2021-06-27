@@ -71,6 +71,18 @@ int wolfCLU_requestSetup(int argc, char** argv)
     if (ret > 0) {
         x509 = wolfCLU_readConfig(argv[ret+1], "req");
     }
+    else {
+        /* if no configure is passed in then get input from command line */
+        WOLFSSL_X509_NAME *name;
+
+        x509 = wolfSSL_X509_new();
+        name = wolfSSL_X509_NAME_new();
+        wolfCLU_CreateX509Name(name);
+        wolfSSL_X509_REQ_set_subject_name(x509, name);
+    }
+    if (x509 == NULL) {
+        printf("issue creating structure to use\n");
+    }
 
     ret = wolfCLU_checkForArg("-days", 5, argc, argv);
     if (ret > 0) {
@@ -156,14 +168,16 @@ int wolfCLU_requestSetup(int argc, char** argv)
         md  = wolfSSL_EVP_sha512();
         oid = SHA_HASH512;
     } else {
-        oid = SHA_HASH;
+        /* default to using sha256 if hash is not set */
+        md  = wolfSSL_EVP_sha256();
+        oid = SHA_HASH256;
     }
 
     if (keyCheck == 0) {
         printf("Must have input as either a file or standard I/O\n");
         return FATAL_ERROR;
     }
-    
+
     // TODO remove hard coded values
     if (algCheck == 1) {
         //ret = make_self_signed_rsa_certificate(in, out, oid);
@@ -172,23 +186,23 @@ int wolfCLU_requestSetup(int argc, char** argv)
     } else if (algCheck == 3) {
         //ret = make_self_signed_ecc_certificate(in, out, oid);
     }
-    
+
     /* sign the req */
     ret = wolfSSL_X509_REQ_sign(x509, pkey, md);
     if (ret != WOLFSSL_SUCCESS) {
         printf("error %d signing REQ\n", ret);
     }
 
-    /* DER */
-    if (outform == 1) {
-        printf("out form der\n");
-        ret = wolfSSL_i2d_X509_REQ_bio(bioOut, x509);
-    }
-    else {
-        ret = wolfSSL_PEM_write_bio_X509_REQ(bioOut, x509);
-    }
-    if (ret != WOLFSSL_SUCCESS) {
-        printf("error %d writing out cert req\n", ret);
+    if (ret == WOLFSSL_SUCCESS) {
+        if (outform == 1) {
+            ret = wolfSSL_i2d_X509_REQ_bio(bioOut, x509);
+        }
+        else {
+            ret = wolfSSL_PEM_write_bio_X509_REQ(bioOut, x509);
+        }
+        if (ret != WOLFSSL_SUCCESS) {
+            printf("error %d writing out cert req\n", ret);
+        }
     }
 
     wolfSSL_BIO_free(bioOut);

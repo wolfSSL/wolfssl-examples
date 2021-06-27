@@ -106,6 +106,12 @@
 int wolfCLU_setup(int argc, char** argv, char action);
 
 
+/* Handle ecparam mode
+ *
+ * @param argc holds all command line input
+ * @param argv each holds one value from the command line input
+ * @return returns 0 on success
+ */
 int wolfCLU_ecparam(int argc, char** argv);
 
 /* hash argument function
@@ -340,6 +346,27 @@ int wolfCLU_checkOutform(char* outform);
 int wolfCLU_checkInform(char* inform);
 
 
+/**
+ *  @ingroup X509
+ *  @brief This function is used internally to get user input and fill out a
+ *  WOLFSSL_X509_NAME structure.
+ *
+ *  @param x509 the name structure to be filled in
+ *  @return 0 On successfully setting the name
+ */
+int wolfCLU_CreateX509Name(WOLFSSL_X509_NAME* x509);
+
+
+/**
+ * @ingroup X509
+ * @brief This function reads a configure file and creates the resulting
+ *  WOLFSSL_X509 structure
+ *
+ * @param config file name of the config to read
+ * @param sect   section in the config file to search for when reading
+ * @return a newly created WOLFSSL_X509 structure on success
+ * @return null on fail
+*/
 WOLFSSL_X509* wolfCLU_readConfig(char* config, char* sect);
 
 #endif /* _WOLFSSL_CLU_HEADER_ */

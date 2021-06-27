@@ -80,10 +80,11 @@ static WOLFSSL_X509* wolfCLU_parseX509(char* infile, int inform)
 }
 
 
-int wolfCLU_printPubKey(unsigned char* der, int derSz, char* outfile)
+/**/
+int wolfCLU_printDerPubKey(WOLFSSL_BIO* bio, unsigned char* der, int derSz,
+        char* outfile)
 {
     int ret = 0;
-    WOLFSSL_BIO *bio;
 
     unsigned char *pem = NULL;
     int pemSz;
@@ -136,8 +137,6 @@ int wolfCLU_printPubKey(unsigned char* der, int derSz, char* outfile)
         }
     }
 
-    wolfSSL_BIO_free(bio);
-
     if (pem != NULL)
         XFREE(pem, NULL, DYNAMIC_TYPE_PUBLIC_KEY);
 
@@ -150,7 +149,8 @@ int wolfCLU_printX509PubKey(char* infile, int inform, char* outfile,
         int silent_flag)
 {
     int ret = 0;
-    WOLFSSL_X509 *x509;
+    WOLFSSL_X509 *x509 = NULL;
+    WOLFSSL_BIO  *bio  = NULL;
 
     unsigned char *der = NULL;
     int derSz;
@@ -167,6 +167,20 @@ int wolfCLU_printX509PubKey(char* infile, int inform, char* outfile,
     if (x509 == NULL) {
         printf("unable to parse file %s\n", infile);
         ret = -1;
+    }
+
+    /* use stdout if outfile is null */
+    if (ret == 0) {
+        bio = wolfSSL_BIO_new(wolfSSL_BIO_s_file());
+        if (bio == NULL) {
+            ret = -1;
+        }
+        else {
+            if (wolfSSL_BIO_set_fp(bio, stdout, BIO_NOCLOSE)
+                    != WOLFSSL_SUCCESS) {
+                ret = -1;
+            }
+        }
     }
 
     /* get the size of the pubkey der buffer and alloc it */
@@ -190,9 +204,10 @@ int wolfCLU_printX509PubKey(char* infile, int inform, char* outfile,
     }
 
     if (ret == 0)
-        ret = wolfCLU_printPubKey(der, derSz, outfile);
+        ret = wolfCLU_printDerPubKey(bio, der, derSz, outfile);
 
     wolfSSL_X509_free(x509);
+    wolfSSL_BIO_free(bio);
 
     if (der != NULL)
         XFREE(der, NULL, DYNAMIC_TYPE_PUBLIC_KEY);

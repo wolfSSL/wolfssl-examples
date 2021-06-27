@@ -19,6 +19,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
+#ifndef WOLFCLU_PARSE_H
+#define WOLFCLU_PARSE_H
+
 /* a helper function for wolfCLU_parse_file */
 int wolfCLU_inpemOutpem(char* infile, char* outfile, int silent_flag);
 /* a helper function for wolfCLU_parse_file */
@@ -30,9 +33,12 @@ int wolfCLU_inderOutder(char* infile, char* outfile, int silent_flag);
 /* a helper function for wolfCLU_parse_file */
 int wolfCLU_inpemOuttext(char* infile, char* outfile, int silent_flag);
 
-int wolfCLU_printPubKey(unsigned char* der, int derSz, char* outfile);
+int wolfCLU_printDerPubKey(WOLFSSL_BIO* bio, unsigned char* der, int derSz,
+        char* outfile);
 int wolfCLU_printX509PubKey(char* infile, int inform, char* outfile,
         int silent_flag);
 /* function for processing input/output based on format requests from user */
 int wolfCLU_parseFile(char* infile, int inform, char* outfile, int outform,
                                                                int silent_flag);
+
+#endif /* WOLFCLU_PARSE_H */

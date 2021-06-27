@@ -940,3 +940,80 @@ int wolfCLU_checkInform(char* inform)
     }
     return USER_INPUT_ERROR;
 }
+
+
+static void wolfCLU_AddNameEntry(WOLFSSL_X509_NAME* name, int type, int nid,
+        char* str)
+{
+    int i, sz;
+    WOLFSSL_X509_NAME_ENTRY *entry;
+
+    if (str != NULL) {
+        /* strip off newline character if found at the end of str */
+        i = XSTRLEN((const char*)str);
+        while (i >= 0) {
+            if (str[i] == '\n') {
+                str[i] = '\0';
+                break;
+            }
+            i--;
+        }
+
+        /* treats an empty space as 'do not add' */
+        sz = (int)XSTRLEN((const char*)str);
+        if (sz > 0) {
+            entry = wolfSSL_X509_NAME_ENTRY_create_by_NID(NULL, nid,
+                type, (const unsigned char*)str, sz);
+            wolfSSL_X509_NAME_add_entry(name, entry, -1, 0);
+        }
+    }
+}
+
+
+/* returns 0 on success */
+int wolfCLU_CreateX509Name(WOLFSSL_X509_NAME* name)
+{
+    char   *in;
+    size_t  inSz;
+    ssize_t ret;
+    FILE *fin = stdin; /* defaulting to stdin but using a fd variable to make it
+                        * easy for expanding to other inputs */
+
+    printf("Enter without data will result in the feild being skipped\n");
+    printf("Country [US] : ");
+    ret = getline(&in, &inSz, fin);
+    if (ret > 0)
+        wolfCLU_AddNameEntry(name, 0x0c, NID_countryName, in);
+
+    printf("State or Province [Montana] : ");
+    ret = getline(&in, &inSz, fin);
+    if (ret > 0)
+        wolfCLU_AddNameEntry(name, 0x0c, NID_stateOrProvinceName, in);
+
+    printf("Locality [Bozeman] : ");
+    ret = getline(&in, &inSz, fin);
+    if (ret > 0)
+        wolfCLU_AddNameEntry(name, 0x0c, NID_localityName, in);
+
+    printf("Organization Name [wolfSSL] : ");
+    ret = getline(&in, &inSz, fin);
+    if (ret > 0)
+        wolfCLU_AddNameEntry(name, 0x0c, NID_organizationName, in);
+
+    printf("Organization Unit [engineering] : ");
+    ret = getline(&in, &inSz, fin);
+    if (ret > 0)
+        wolfCLU_AddNameEntry(name, 0x0c, NID_organizationalUnitName, in);
+
+    printf("Common Name : ");
+    ret = getline(&in, &inSz, fin);
+    if (ret > 0)
+        wolfCLU_AddNameEntry(name, 0x0c, NID_commonName, in);
+
+    printf("Email Address : ");
+    ret = getline(&in, &inSz, fin);
+    if (ret > 0)
+        wolfCLU_AddNameEntry(name, 0x0c, NID_emailAddress, in);
+
+    return 0;
+}
