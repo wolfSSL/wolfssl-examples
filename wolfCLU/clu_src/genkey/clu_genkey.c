@@ -153,7 +153,7 @@ int wolfCLU_genKey_ECC_ex(WC_RNG* rng, char* fName, int directive, int fmt,
 #ifdef HAVE_ECC
     WOLFSSL_BIO *bioOut = NULL;
     WOLFSSL_EC_KEY   *key;
-    int     ret;
+    int ret = 0;
 
     byte*  der   = NULL;
     int    derSz = -1;
@@ -170,60 +170,125 @@ int wolfCLU_genKey_ECC_ex(WC_RNG* rng, char* fName, int directive, int fmt,
         WOLFSSL_EC_GROUP *group;
 
         group = wolfSSL_EC_GROUP_new_by_curve_name(wolfSSL_OBJ_txt2nid(name));
-        wolfSSL_EC_KEY_set_group(key, group);
-    }
-    ret = wolfSSL_EC_KEY_generate_key(key);
-    if (ret != WOLFSSL_SUCCESS) {
-        return ret;
+        if (group == NULL) {
+            printf("unable to set curve\n");
+            ret = -1;
+        }
+
+
+        if (ret == 0) {
+            if (wolfSSL_EC_KEY_set_group(key, group) != WOLFSSL_SUCCESS) {
+                printf("unable to set ec group\n");
+                ret = -1;
+            }
+        }
     }
 
-    bioOut = wolfSSL_BIO_new_file(fName, "wb");
-    if (bioOut == NULL) {
-        printf("unable to read outfile %s\n", fName);
-        return MEMORY_E;
+    if (ret == 0) {
+        ret = wolfSSL_EC_KEY_generate_key(key);
+        if (ret != WOLFSSL_SUCCESS) {
+            printf("error generating EC key\n");
+            ret = -1;
+        }
     }
 
-    switch(directive) {
-        case ECPARAM:
-            {
+    if (ret == 0) {
+        bioOut = wolfSSL_BIO_new_file(fName, "wb");
+        if (bioOut == NULL) {
+            printf("unable to read outfile %s\n", fName);
+            ret = MEMORY_E;
+        }
+    }
+
+    if (ret == 0) {
+        switch(directive) {
+            case ECPARAM:
+                {
+                    if (fmt == PEM_FORM) {
+                        if (wolfSSL_PEM_write_bio_ECPrivateKey(bioOut, key,
+                                NULL, NULL, 0, NULL, NULL) != WOLFSSL_SUCCESS) {
+                            ret = -1;
+                        }
+                    }
+                    else {
+                        WOLFSSL_EVP_PKEY *pkey;
+
+                        pkey = wolfSSL_EVP_PKEY_new();
+                        if (pkey == NULL) {
+                            ret = MEMORY_E;
+                        }
+
+                        if (ret == 0) {
+                            wolfSSL_EVP_PKEY_set1_EC_KEY(pkey, key);
+                        }
+
+                        if (ret == 0) {
+                            derSz = wolfSSL_i2d_PrivateKey(pkey, &der);
+                            if (derSz <= 0) {
+                                printf("error converting to der\n");
+                                ret = -1;
+                            }
+                        }
+
+                        if (ret == 0 && derSz > 0) {
+                            ret = wolfSSL_BIO_write(bioOut, der, derSz);
+                            if (ret != derSz) {
+                                printf("issue writing out data\n");
+                                ret = -1;
+                            }
+                        }
+
+                        if (der != NULL)
+                            free(der);
+                        wolfSSL_EVP_PKEY_free(pkey);
+                    }
+                }
+                break;
+            case PUB_ONLY:
                 if (fmt == PEM_FORM) {
-                    wolfSSL_PEM_write_bio_ECPrivateKey(bioOut, key, NULL, NULL, 0,
-                            NULL, NULL);
+                    if (wolfSSL_PEM_write_bio_EC_PUBKEY(bioOut, key)
+                            != WOLFSSL_SUCCESS) {
+                        ret = -1;
+                    }
                 }
                 else {
-                    WOLFSSL_EVP_PKEY *pkey;
-                    pkey = wolfSSL_EVP_PKEY_new();
-                    wolfSSL_EVP_PKEY_set1_EC_KEY(pkey, key);
-                    derSz = wolfSSL_i2d_PrivateKey(pkey, &der);
-                    wolfSSL_BIO_write(bioOut, der, derSz);
-                    free(der);
-                    wolfSSL_EVP_PKEY_free(pkey);
-                }
-            }
-            break;
-        case PUB_ONLY:
-            if (fmt == PEM_FORM) {
-                wolfSSL_PEM_write_bio_EC_PUBKEY(bioOut, key);
-            }
-            else {
-                derSz = wc_EccPublicKeyDerSize(key->internal, 1);
-                if (derSz <= 0) {
+                    derSz = wc_EccPublicKeyDerSize(key->internal, 1);
+                    if (derSz <= 0) {
+                        printf("error getting der size\n");
+                        ret = derSz;
+                    }
 
-                }
+                    if (ret == 0) {
+                        der = (byte*)XMALLOC(derSz, HEAP_HINT,
+                                DYNAMIC_TYPE_TMP_BUFFER);
+                        if (der == NULL) {
+                            ret = MEMORY_E;
+                        }
+                        else {
+                            derSz = wc_EccPublicKeyToDer(key->internal, der,
+                                    derSz, 1);
+                            if (derSz < 0) {
+                                XFREE(der, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+                                ret = derSz;
+                            }
+                        }
+                    }
 
-                der = XMALLOC(derSz, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-                derSz = wc_EccPublicKeyToDer(key->internal, der, derSz, 1);
-                if (derSz < 0) {
-                    XFREE(der, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-                    return derSz;
+                    if (ret > 0) {
+                        ret = wolfSSL_BIO_write(bioOut, der, derSz);
+                        if (ret != derSz) {
+                            ret = -1;
+                        }
+                    }
+
+                    if (der != NULL)
+                        XFREE(der, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
                 }
-                wolfSSL_BIO_write(bioOut, der, derSz);
-                XFREE(der, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-            }
-            break;
-        default:
-            printf("Invalid directive\n");
-            ret = BAD_FUNC_ARG;
+                break;
+            default:
+                printf("Invalid directive\n");
+                ret = BAD_FUNC_ARG;
+        }
     }
 
     wolfSSL_EC_KEY_free(key);

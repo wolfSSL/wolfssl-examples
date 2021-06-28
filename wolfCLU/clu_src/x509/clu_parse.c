@@ -217,7 +217,7 @@ int wolfCLU_parseFile(char* infile, int inform, char* outfile, int outform,
     else {
         outstream  = fopen(outfile, "wb");
     }
-    
+
 /*----------------------------------------------------------------------------*/
 /* read in der, output der */
 /*----------------------------------------------------------------------------*/
