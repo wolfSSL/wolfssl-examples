@@ -40,7 +40,6 @@ int wolfCLU_hash(WOLFSSL_BIO* bioIn, WOLFSSL_BIO* bioOut, char* alg, int size)
     int     i  =   0;           /* loop variable */
     int     ret = -1;           /* return variable */
     int     inputSz;
-    int     outputAsHexString = 1;
     WOLFSSL_BIO* tmp;
 
     if (bioIn == NULL) {
@@ -117,12 +116,10 @@ int wolfCLU_hash(WOLFSSL_BIO* bioIn, WOLFSSL_BIO* bioOut, char* alg, int size)
 #ifdef WOLFSSL_BASE64_ENCODE
     if (strcmp(alg, "base64enc") == 0) {
         ret = Base64_Encode(input, inputSz, output, (word32*)&size);
-        outputAsHexString = 0;
     }
 #endif /* WOLFSSL_BASE64_ENCODE */
     if (strcmp(alg, "base64dec") == 0) {
         ret = Base64_Decode(input, inputSz, output, (word32*)&size);
-        outputAsHexString = 0;
     }
 #endif /* !NO_CODING */
 

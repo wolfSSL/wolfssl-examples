@@ -50,6 +50,10 @@ int wolfCLU_genKeySetup(int argc, char** argv)
     keyType = argv[2];
 
     ret = wc_InitRng(&rng);
+    if (ret != 0) {
+        printf("rng init failed\n");
+        return ret;
+    }
 
     ret = wolfCLU_checkForArg("-out", 4, argc, argv);
     if (ret > 0) {
@@ -115,8 +119,8 @@ int wolfCLU_genKeySetup(int argc, char** argv)
     } else if (XSTRNCMP(keyType, "ecc", 3) == 0) {
     #if defined(HAVE_ECC) && defined(WOLFSSL_KEY_GEN)
         /* ECC flags */
-        int directiveArg;
-        int sizeArg;
+        int directiveArg = PRIV_AND_PUB;
+        int sizeArg = 0;
 
         printf("generate ECC key\n");
 
@@ -192,9 +196,9 @@ int wolfCLU_genKeySetup(int argc, char** argv)
     } else if (XSTRNCMP(keyType, "rsa", 3) == 0) {
     #if !defined(NO_RSA) && defined(WOLFSSL_KEY_GEN)
         /* RSA flags */
-        int directiveArg;
-        int sizeArg;
-        int expArg;
+        int directiveArg = PRIV_AND_PUB;
+        int sizeArg = 0;
+        int expArg  = 0;
 
         printf("generate RSA key\n");
 

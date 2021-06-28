@@ -201,12 +201,12 @@ int wolfCLU_verify_signature_rsa(byte* sig, char* out, int sigSz, char* keyPath,
 
 #ifndef NO_RSA
     int ret;
-    int keyFileSz;
+    int keyFileSz = 0;
     word32 index = 0;
     FILE* keyPathFile;
     RsaKey key;
     WC_RNG rng;
-    byte* keyBuf;
+    byte* keyBuf = NULL;
 
     XMEMSET(&rng, 0, sizeof(rng));
     XMEMSET(&key, 0, sizeof(key));
@@ -223,7 +223,7 @@ int wolfCLU_verify_signature_rsa(byte* sig, char* out, int sigSz, char* keyPath,
         keyPathFile = fopen(keyPath, "rb");
         fseek(keyPathFile, 0, SEEK_END);
         keyFileSz = ftell(keyPathFile);
-        keyBuf = malloc(keyFileSz*sizeof(keyBuf));
+        keyBuf = (byte*)malloc(keyFileSz*sizeof(keyBuf));
         fseek(keyPathFile, 0, SEEK_SET);
         fread(keyBuf, 1, keyFileSz, keyPathFile);
         fclose(keyPathFile);

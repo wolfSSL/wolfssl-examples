@@ -93,7 +93,7 @@ static int wolfCLU_pKeytoPubKey(WOLFSSL_EVP_PKEY* pkey, unsigned char** out,
 
         case EVP_PKEY_EC:
             {
-                int derSz, ret = 0;
+                int derSz = 0, ret = 0;
                 unsigned char *der = NULL;
                 WOLFSSL_EC_KEY *ec = NULL;
 

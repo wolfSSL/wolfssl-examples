@@ -87,7 +87,7 @@ int wolfCLU_printDerPubKey(WOLFSSL_BIO* bio, unsigned char* der, int derSz)
     int ret = 0;
 
     unsigned char *pem = NULL;
-    int pemSz;
+    int pemSz = 0;
 
     if (bio == NULL) {
         ret = -1;
@@ -135,7 +135,7 @@ int wolfCLU_printX509PubKey(char* infile, int inform, char* outfile,
     WOLFSSL_BIO  *bio  = NULL;
 
     unsigned char *der = NULL;
-    int derSz;
+    int derSz = 0;
 
     x509 = wolfCLU_parseX509(infile, inform);
     if (x509 == NULL) {

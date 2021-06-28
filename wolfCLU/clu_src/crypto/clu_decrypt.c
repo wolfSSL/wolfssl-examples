@@ -213,7 +213,7 @@ int wolfCLU_decrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
         }
 #endif
         if (currLoopFlag == lastLoopFlag) {
-            if (salt[0] != 0) {
+            if (output != NULL && salt[0] != 0) {
                 /* reduces length based on number of padded elements  */
                 pad = output[tempMax-1];
                 /* adjust length for padded bytes and salt size */
@@ -230,25 +230,30 @@ int wolfCLU_decrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
                 break;
             }
             else {
-                fwrite(output, 1, tempMax, outFile);
+                if (output != NULL)
+                    fwrite(output, 1, tempMax, outFile);
 
                 XMEMSET(input, 0, tempMax);
-                XMEMSET(output, 0, tempMax);
+                if (output != NULL)
+                    XMEMSET(output, 0, tempMax);
                 break;
             }
         }
         /* writes output to the outFile */
-        fwrite(output, 1, tempMax, outFile);
+        if (output != NULL)
+            fwrite(output, 1, tempMax, outFile);
 
         XMEMSET(input, 0, tempMax);
-        XMEMSET(output, 0, tempMax);
+        if (output != NULL)
+            XMEMSET(output, 0, tempMax);
 
         currLoopFlag++;
         length -= tempMax;
     }
     /* closes the opened files and frees memory */
     XMEMSET(input, 0, MAX_LEN);
-    XMEMSET (output, 0, MAX_LEN);
+    if (output != NULL)
+        XMEMSET (output, 0, MAX_LEN);
     wolfCLU_freeBins(input, output, NULL, NULL, NULL);
     XMEMSET(key, 0, size);
     /* Use the wolfssl wc_FreeRng to free rng */

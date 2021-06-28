@@ -171,6 +171,12 @@ int wolfCLU_setup(int argc, char** argv, char action)
             break;
 
         case INKEY:
+            if (optarg == NULL) {
+                printf("no key passed in..\n");
+                wolfCLU_freeBins(pwdKey, iv, key, NULL, NULL);
+                return FATAL_ERROR;
+            }
+
             /* 2 characters = 1 byte. 1 byte = 8 bits
              * number of characters / 2 = bytes
              * bytes * 8 = bits

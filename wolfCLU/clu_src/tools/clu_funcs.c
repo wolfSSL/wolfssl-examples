@@ -698,9 +698,9 @@ int wolfCLU_getAlgo(int argc, char* argv[], char** alg, char** mode, int* size)
 
     /* make a copy of args because getopt_long_only reorders them */
     for (i = 0; i < argc; i++) argvCopy[i] = argv[i];
-    
+
     /* first just try the 3rd argument */
-    if (argvCopy[2] == NULL) {
+    if (argc < 3 || argvCopy[2] == NULL) {
         return FATAL_ERROR;
     }
     XMEMSET(name, 0, sizeof(name));
@@ -883,9 +883,12 @@ int wolfCLU_checkForArg(char* searchTerm, int length, int argc, char** argv)
     int ret = 0;
     int argFound = 0;
 
+    if (searchTerm == NULL) {
+        return 0;
+    }
+
     for (i = 0; i < argc; i++) {
-        if (argv[i] == NULL && argFound == 0) {
-            ret = 0;
+        if (argv[i] == NULL) {
             break; /* stop checking if no more args*/
         } else if (XSTRNCMP(searchTerm, "-help", length) == 0 &&
                    XSTRNCMP(argv[i], "-help", XSTRLEN(argv[i])) == 0 &&

@@ -53,7 +53,7 @@ int wolfCLU_certSetup(int argc, char** argv)
 
     char* infile  = NULL;   /* pointer to the infile name */
     char* outfile = NULL;   /* pointer to the outfile name */
-    int   inform;           /* the input format */
+    int   inform  = PEM_FORM; /* the input format */
     char* outform;          /* the output format */
 
 

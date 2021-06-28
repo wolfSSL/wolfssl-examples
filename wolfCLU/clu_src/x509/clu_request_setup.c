@@ -37,10 +37,10 @@ int wolfCLU_requestSetup(int argc, char** argv)
     const WOLFSSL_EVP_MD *md  = NULL;
     WOLFSSL_EVP_PKEY *pkey = NULL;
 
-    int     ret        =   0;   /* return variable, counter */
-    int     i          =   0;   /* loop variable */
-    char*   in;                 /* input variable */
-    char*   out;                /* output variable */
+    int     ret = 0;
+    int     i   = 0;
+    char*   in  = NULL;
+    char*   out = NULL;
     char*   config = NULL;
 
     char*   alg;                /* algorithm being used */
@@ -61,6 +61,7 @@ int wolfCLU_requestSetup(int argc, char** argv)
         switch (option) {
             case INFILE:
             case KEY:
+                in = optarg;
                 bioIn = wolfSSL_BIO_new_file(optarg, "rb");
                 if (bioIn == NULL) {
                     printf("unable to open public key file %s\n", optarg);
@@ -69,6 +70,7 @@ int wolfCLU_requestSetup(int argc, char** argv)
                 break;
 
             case OUTFILE:
+                out = optarg;
                 bioOut = wolfSSL_BIO_new_file(optarg, "wb");
                 if (bioOut == NULL) {
                     printf("unable to open output file %s\n", optarg);
@@ -78,6 +80,7 @@ int wolfCLU_requestSetup(int argc, char** argv)
 
             case INFORM:
                 inForm = wolfCLU_checkInform(optarg);
+                (void)inForm; /* for future use */
                 break;
 
             case OUTFORM:

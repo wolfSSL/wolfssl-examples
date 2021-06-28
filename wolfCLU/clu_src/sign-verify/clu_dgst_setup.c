@@ -40,13 +40,13 @@ int wolfCLU_dgst_setup(int argc, char** argv)
     char*   in;
     char*   out;
     char*   priv;
-    char* sig = NULL;
-    int derSz;
+    char* sig  = NULL;
     char* data = NULL;
-    int dataSz;
-    int sigSz;
-    int keySz;
-    void*   key = NULL;
+    void* key  = NULL;
+    int derSz  = 0;
+    int dataSz = 0;
+    int sigSz  = 0;
+    int keySz  = 0;
     int option;
     int long_index = 2;
 
@@ -56,7 +56,6 @@ int wolfCLU_dgst_setup(int argc, char** argv)
     word32 idx = 0;
 
     char*   alg;                /* algorithm being used */
-    int     algCheck    = -1;   /* acceptable algorithm check */
     int     inCheck     = 0;    /* input check */
     int     privCheck   = 0;    /* private key check */
     int     signCheck   = 0;

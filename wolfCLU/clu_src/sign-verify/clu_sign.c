@@ -103,14 +103,14 @@ int wolfCLU_sign_data_rsa(byte* data, char* out, word32 dataSz, char* privKey) {
         XMEMSET(&outBuf, 0, sizeof(outBuf));
 
         ret = wc_InitRng(&rng);
-        #ifdef WC_RSA_BLINDING
-        ret = wc_RsaSetRNG(&key, &rng);
-        if (ret < 0) {
+        if (ret != 0) {
             printf("Failed to initialize rng.\nRET: %d\n", ret);
             return ret;
         }
-        #else
-        if (ret != 0) {
+
+        #ifdef WC_RSA_BLINDING
+        ret = wc_RsaSetRNG(&key, &rng);
+        if (ret < 0) {
             printf("Failed to initialize rng.\nRET: %d\n", ret);
             return ret;
         }

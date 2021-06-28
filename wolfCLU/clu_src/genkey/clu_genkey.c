@@ -69,6 +69,9 @@ int wolfCLU_genKey_ED25519(WC_RNG* rng, char* fOutNm, int directive, int format)
     /*--------------- EXPORT KEYS TO BUFFERS ---------------------*/
     ret = wc_ed25519_export_key(&edKeyOut, privKeyBuf, &privKeySz, pubKeyBuf,
                                                                      &pubKeySz);
+    if (ret != 0)
+        return ret;
+
     /*--------------- CONVERT TO PEM IF APPLICABLE  ---------------------*/
     if (format == PEM_FORM) {
         printf("Der to Pem for ed25519 key not yet implemented\n");
