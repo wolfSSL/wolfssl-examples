@@ -201,6 +201,33 @@ static struct option dgst_options[] = {
 
     {0, 0, 0, 0} /* terminal element */
 };
+
+static struct option req_options[] = {
+
+    {"sha",       no_argument,       0, CERT_SHA   },
+    {"sha224",    no_argument,       0, CERT_SHA224},
+    {"sha256",    no_argument,       0, CERT_SHA256},
+    {"sha384",    no_argument,       0, CERT_SHA384},
+    {"sha512",    no_argument,       0, CERT_SHA512},
+    {"rsa",       no_argument,       0, WOLFCLU_RSA       },
+    {"ecc",       no_argument,       0, WOLFCLU_ECC       },
+    {"ed25519",   no_argument,       0, WOLFCLU_ED25519   },
+
+    {"in",        required_argument, 0, INFILE    },
+    {"out",       required_argument, 0, OUTFILE   },
+    {"key",       required_argument, 0, KEY       },
+    {"new",       no_argument,       0, NEW       },
+    {"inkey",     required_argument, 0, INKEY     },
+    {"inform",    required_argument, 0, INFORM    },
+    {"outform",   required_argument, 0, OUTFORM   },
+    {"config",    required_argument, 0, WOLFCLU_CONFIG },
+    {"days",      required_argument, 0, WOLFCLU_DAYS },
+    {"x509",      no_argument,       0, WOLFCLU_X509 },
+
+    {0, 0, 0, 0} /* terminal element */
+};
+
+
 /* Structure for holding long arguments. These are arguments passed into the
  * modes. An example of an argument would be '-out' in the following command
  * 'wolfssl x509 -out cert.pem' */

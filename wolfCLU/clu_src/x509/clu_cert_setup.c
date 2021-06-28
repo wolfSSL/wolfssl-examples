@@ -53,7 +53,7 @@ int wolfCLU_certSetup(int argc, char** argv)
 
     char* infile  = NULL;   /* pointer to the infile name */
     char* outfile = NULL;   /* pointer to the outfile name */
-    char* inform;           /* the input format */
+    int   inform;           /* the input format */
     char* outform;          /* the output format */
 
 
@@ -94,7 +94,7 @@ int wolfCLU_certSetup(int argc, char** argv)
         } else if (inform == DER_FORM) {
             inder_flag = 1;
         } else {
-            return ret;
+            return inform;
         }
     }
     else if (ret == 0) {

@@ -22,10 +22,8 @@
 #include <wolfssl/wolfcrypt/random.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
 
-enum {
-    PEM_FORM,
-    DER_FORM,
-};
+#define PEM_FORM 1
+#define DER_FORM 2
 
 /* handles incoming arguments for certificate generation */
 int wolfCLU_certSetup(int argc, char** argv);

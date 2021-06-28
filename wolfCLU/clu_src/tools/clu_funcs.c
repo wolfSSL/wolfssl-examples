@@ -913,7 +913,10 @@ int wolfCLU_checkOutform(char* outform)
         printf("Usage: -outform [PEM/DER]\n");
         printf("missing outform required argument\n");
         return USER_INPUT_ERROR;
-    } else if (XSTRNCMP(outform, "pem", 3) == 0) {
+    }
+
+    convert_to_lower(outform, XSTRLEN(outform));
+    if (XSTRNCMP(outform, "pem", 3) == 0) {
         return PEM_FORM;
     } else if (XSTRNCMP(outform, "der", 3) == 0) {
         return DER_FORM;

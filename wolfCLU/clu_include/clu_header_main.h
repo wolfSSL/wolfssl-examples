@@ -375,6 +375,6 @@ int wolfCLU_CreateX509Name(WOLFSSL_X509_NAME* x509);
  * @return a newly created WOLFSSL_X509 structure on success
  * @return null on fail
 */
-WOLFSSL_X509* wolfCLU_readConfig(char* config, char* sect);
+int wolfCLU_readConfig(WOLFSSL_X509* x509, char* config, char* sect);
 
 #endif /* _WOLFSSL_CLU_HEADER_ */

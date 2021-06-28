@@ -56,42 +56,43 @@ int wolfCLU_ecparam(int argc, char** argv)
                    ecparam_options, &long_index )) != -1) {
 
         switch (option) {
+            case OUTFILE:
+                out = optarg;
+                break;
 
-        case OUTFILE:
-            out = optarg;
-            break;
+            case OUTFORM:
+                outForm = wolfCLU_checkOutform(optarg);
+                if (outForm < 0) {
+                    printf("bad outform\n");
+                    return USER_INPUT_ERROR;
+                }
+                break;
 
-        case OUTFORM:
-            if (strcasecmp(optarg, "der") == 0) {
-                outForm = DER_FORM;
-            }
-            break;
+            case WOLFCLU_GEN_KEY:
+                genKey = 1;
+                break;
 
-        case WOLFCLU_GEN_KEY:
-            genKey = 1;
-            break;
+            case WOLFCLU_CURVE_NAME:
+                XSTRNCPY(name, optarg, ECC_MAXNAME);
 
-        case WOLFCLU_CURVE_NAME:
-            XSTRNCPY(name, optarg, ECC_MAXNAME);
+                /* convert name to upper case */
+                for (i = 0; i < XSTRLEN(name); i++)
+                    (void)toupper(name[i]);
 
-            /* convert name to upper case */
-            for (i = 0; i < XSTRLEN(name); i++)
-                (void)toupper(name[i]);
+                #if 0
+                /* way to get the key size if needed in the future */
+                keySz = wc_ecc_get_curve_size_from_name(name);
+                #endif
 
-            #if 0
-            /* way to get the key size if needed in the future */
-            keySz = wc_ecc_get_curve_size_from_name(name);
-            #endif
+                break;
 
-            break;
+            case ':':
+            case '?':
+                break;
 
-        case ':':
-        case '?':
-            break;
-
-        default:
-            /* do nothing. */
-            (void)ret;
+            default:
+                /* do nothing. */
+                (void)ret;
         }
     }
 
