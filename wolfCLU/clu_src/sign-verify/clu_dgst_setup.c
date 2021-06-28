@@ -35,14 +35,14 @@ int wolfCLU_dgst_setup(int argc, char** argv)
     WOLFSSL_BIO *pubKeyBio = NULL;
     WOLFSSL_BIO *dataBio = NULL;
     WOLFSSL_EVP_PKEY *pkey;
-    int     ret         = 0;    /* return variable, counter */
-    int     i           = 0;    /* loop variable */
-    char*   in;                 /* input variable */
-    char*   out;                /* output variable */
-    char*   priv;               /* private key variable */
-    char*   sig;
+    int     ret = 0;
+    int     i   = 0;
+    char*   in;
+    char*   out;
+    char*   priv;
+    char* sig = NULL;
     int derSz;
-    char* data;
+    char* data = NULL;
     int dataSz;
     int sigSz;
     int keySz;
@@ -120,82 +120,149 @@ int wolfCLU_dgst_setup(int argc, char** argv)
     }
 
     /* signed file should be the last arg */
-    dataBio = wolfSSL_BIO_new_file(argv[argc-1], "rb");
-    if (dataBio == NULL) {
-        printf("unable to open data file %s\n", argv[argc-1]);
-        ret = -1;
+    if (ret == 0) {
+        dataBio = wolfSSL_BIO_new_file(argv[argc-1], "rb");
+        if (dataBio == NULL) {
+            printf("unable to open data file %s\n", argv[argc-1]);
+            ret = -1;
+        }
     }
 
-    dataSz = wolfSSL_BIO_get_len(dataBio);
-    sigSz  = wolfSSL_BIO_get_len(sigBio);
+    if (ret == 0) {
+        dataSz = wolfSSL_BIO_get_len(dataBio);
+        sigSz  = wolfSSL_BIO_get_len(sigBio);
+        if (dataSz <= 0 || sigSz <= 0) {
+            printf("no signature or data\n");
+            ret = -1;
+        }
+    }
 
     /* create buffers and fill them */
-    data = malloc(dataSz);
-    wolfSSL_BIO_read(dataBio, data, dataSz);
+    if (ret == 0) {
+        data = (char*)malloc(dataSz);
+        if (data == NULL) {
+            ret = MEMORY_E;
+        }
+        else {
+            if (wolfSSL_BIO_read(dataBio, data, dataSz) <= 0) {
+                printf("error reading data\n");
+                ret = -1;
+            }
+        }
+    }
 
-    sig = malloc(sigSz);
-    wolfSSL_BIO_read(sigBio, sig, sigSz);
+    if (ret == 0) {
+        sig = (char*)malloc(sigSz);
+        if (sig == NULL) {
+            ret = MEMORY_E;
+        }
+        else {
+            if (wolfSSL_BIO_read(sigBio, sig, sigSz) <= 0) {
+                printf("error reading sig\n");
+                ret = -1;
+            }
+        }
+    }
 
     /* get type of key and size of structure */
-    //pkey = wolfSSL_d2i_PUBKEY_bio(pubKeyBio, NULL); @TODO if DER input
-    pkey = wolfSSL_PEM_read_bio_PUBKEY(pubKeyBio, NULL, NULL, NULL);
-    if (pkey == NULL) {
-        printf("unable to decode public key\n");
-        return -1;
+    if (ret == 0) {
+        pkey = wolfSSL_PEM_read_bio_PUBKEY(pubKeyBio, NULL, NULL, NULL);
+        if (pkey == NULL) {
+            printf("unable to decode public key\n");
+            ret = -1;
+        }
     }
 
-    switch (wolfSSL_EVP_PKEY_id(pkey)) {
-        case EVP_PKEY_RSA:
-            keySz   = sizeof(RsaKey);
-            sigType = WC_SIGNATURE_TYPE_RSA;
+    if (ret == 0) {
+        switch (wolfSSL_EVP_PKEY_id(pkey)) {
+            case EVP_PKEY_RSA:
+                keySz   = sizeof(RsaKey);
+                sigType = WC_SIGNATURE_TYPE_RSA;
 
-            key = (void*)&rsa;
-            wc_InitRsaKey(&rsa, NULL);
-            derSz = wolfSSL_i2d_PUBKEY(pkey, &der);
-            wc_RsaPublicKeyDecode(der, &idx, &rsa, derSz);
+                key = (void*)&rsa;
+                if (wc_InitRsaKey(&rsa, NULL) != 0) {
+                    printf("unable to initialize rsa key\n");
+                    ret = -1;
+                }
 
-            break;
+                if (ret == 0) {
+                    derSz = wolfSSL_i2d_PUBKEY(pkey, &der);
+                    if (derSz <= 0) {
+                        printf("error converting pkey to der\n");
+                        ret = -1;
+                    }
+                }
 
-        case EVP_PKEY_EC:
-            keySz   = sizeof(ecc_key);
-            sigType = WC_SIGNATURE_TYPE_ECC;
+                if (ret == 0 &&
+                    wc_RsaPublicKeyDecode(der, &idx, &rsa, derSz) != 0) {
+                    printf("error decoding public rsa key\n");
+                    ret = -1;
+                }
 
-            key = (void*)&ecc;
-            wc_ecc_init(&ecc);
-            derSz = wolfSSL_i2d_PUBKEY(pkey, &der);
-            wc_EccPublicKeyDecode(der, &idx, &ecc, derSz);
+                break;
 
-            break;
+            case EVP_PKEY_EC:
+                keySz   = sizeof(ecc_key);
+                sigType = WC_SIGNATURE_TYPE_ECC;
 
-        default:
-            printf("key type not yet supported\n");
-            return -1;
+                key = (void*)&ecc;
+                if (wc_ecc_init(&ecc) != 0) {
+                    printf("error initializing ecc key\n");
+                    ret = -1;
+                }
+
+                if (ret == 0) {
+                    derSz = wolfSSL_i2d_PUBKEY(pkey, &der);
+                    if (derSz <= 0) {
+                        printf("error converting pkey to der\n");
+                        ret = -1;
+                    }
+                }
+
+                if (ret == 0 &&
+                        wc_EccPublicKeyDecode(der, &idx, &ecc, derSz) != 0) {
+                    printf("error decoding public ecc key\n");
+                    ret = -1;
+                }
+
+                break;
+
+            default:
+                printf("key type not yet supported\n");
+                ret = -1;
+        }
     }
 
-    if (wc_SignatureVerify(hashType, sigType, (const byte*)data, dataSz,
-                (const byte*)sig, sigSz, key, keySz) == 0) {
-        printf("Verify OK\n");
-    }
-    else {
-        printf("Verification failure\n");
-    }
-
-    switch (sigType) {
-        case WC_SIGNATURE_TYPE_RSA:
-            wc_FreeRsaKey(&rsa);
-            break;
-
-        case WC_SIGNATURE_TYPE_ECC:
-            wc_ecc_free(&ecc);
-            break;
-
-        default:
-            printf("key type not yet supported\n");
-            return -1;
+    if (ret == 0) {
+        if (wc_SignatureVerify(hashType, sigType, (const byte*)data, dataSz,
+                    (const byte*)sig, sigSz, key, keySz) == 0) {
+            printf("Verify OK\n");
+        }
+        else {
+            printf("Verification failure\n");
+        }
     }
 
-    free(data);
-    free(sig);
+    if (ret == 0) {
+        switch (sigType) {
+            case WC_SIGNATURE_TYPE_RSA:
+                wc_FreeRsaKey(&rsa);
+                break;
+
+            case WC_SIGNATURE_TYPE_ECC:
+                wc_ecc_free(&ecc);
+                break;
+
+            default:
+                printf("key type not yet supported\n");
+                ret = -1;
+        }
+    }
+
+    if (data != NULL)
+        free(data);
+    if (sig != NULL)
+        free(sig);
 
     wolfSSL_BIO_free(sigBio);
     wolfSSL_BIO_free(pubKeyBio);

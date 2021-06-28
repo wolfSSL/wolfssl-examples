@@ -308,6 +308,14 @@ int wolfCLU_benchmark(int timer, int* option);
  */
 int wolfCLU_hash(WOLFSSL_BIO* bioIn, WOLFSSL_BIO* bioOut, char* alg, int size);
 
+
+/**
+ * @brief Used to create a MD5 hash
+ *
+ * @param argc total number of args
+ * @param argv array of arg strings
+ * @return 0 on success
+ */
 int wolfCLU_md5Setup(int argc, char** argv);
 
 /*

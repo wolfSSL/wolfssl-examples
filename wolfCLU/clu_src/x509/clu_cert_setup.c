@@ -88,11 +88,10 @@ int wolfCLU_certSetup(int argc, char** argv)
 /*---------------------------------------------------------------------------*/
     ret = wolfCLU_checkForArg("-inform", 7, argc, argv);
     if (ret > 0) {
-        inform = argv[ret+1];
-        ret = wolfCLU_checkInform(inform);
-        if (ret == PEM_FORM) {
+        inform = wolfCLU_checkInform(argv[ret+1]);
+        if (inform == PEM_FORM) {
             inpem_flag = 1;
-        } else if (ret == DER_FORM) {
+        } else if (inform == DER_FORM) {
             inder_flag = 1;
         } else {
             return ret;
@@ -187,50 +186,42 @@ int wolfCLU_certSetup(int argc, char** argv)
 /*---------------------------------------------------------------------------*/
 /* END ARG PROCESSING */
 /*---------------------------------------------------------------------------*/
-    ret = error_check(inpem_flag, inder_flag, 
-                      outpem_flag, outder_flag,
-                      text_flag, text_pubkey, noout_flag);
-
-    switch (ret) {
+    ret = 0;
+    switch (error_check(inpem_flag, inder_flag, outpem_flag, outder_flag,
+                      text_flag, text_pubkey, noout_flag)) {
         case INPEM_OUTPEM:
-            ret = 0;
             if (infile_flag) wolfCLU_inpemOutpem(infile, outfile, silent_flag);
             else return INPUT_FILE_ERROR;
             break;
         case INPEM_OUTDER:
-            ret = 0;
             if (infile_flag) wolfCLU_inpemOutder(infile, outfile, silent_flag);
             else return INPUT_FILE_ERROR;
             break;
         case INDER_OUTPEM:
-            ret = 0;
             if (infile_flag) wolfCLU_inderOutpem(infile, outfile, silent_flag);
             else return INPUT_FILE_ERROR;
             break;
         case INDER_OUTDER:
-            ret = 0;
             if (infile_flag) wolfCLU_inderOutder(infile, outfile, silent_flag);
             else return INPUT_FILE_ERROR;
             break;
         case INPEM_OUTTEXT:
-            ret = 0;
             if (outfile_flag) {
-                wolfCLU_inpemOuttext(infile, outfile, silent_flag);
+                ret = wolfCLU_inpemOuttext(infile, outfile, silent_flag);
             } else {
                 printf("Outfile not set, using stdout\n");
                 outfile = "stdout";
-                wolfCLU_inpemOuttext(infile, outfile, silent_flag);
+                ret = wolfCLU_inpemOuttext(infile, outfile, silent_flag);
             }
             break;
         case OUTPUBTEXT:
-            ret = 0;
-            wolfCLU_printX509PubKey(infile, inpem_flag, outfile, silent_flag);
+            ret = wolfCLU_printX509PubKey(infile, inform, outfile, silent_flag);
             break;
         case NOOUT_SET:
-            ret = 0;
             break;
         default:
             printf("Error case\n");
+            ret = -1;
             break;
     }
 

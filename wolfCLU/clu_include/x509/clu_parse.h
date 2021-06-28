@@ -33,8 +33,27 @@ int wolfCLU_inderOutder(char* infile, char* outfile, int silent_flag);
 /* a helper function for wolfCLU_parse_file */
 int wolfCLU_inpemOuttext(char* infile, char* outfile, int silent_flag);
 
-int wolfCLU_printDerPubKey(WOLFSSL_BIO* bio, unsigned char* der, int derSz,
-        char* outfile);
+/**
+ * @brief Function to print out DER public key
+ *
+ * @param bio the bio to print to
+ * @param der der buffer to print out
+ * @param derSz size of 'der' buffer
+ *
+ * @return returns 0 on success
+ */
+int wolfCLU_printDerPubKey(WOLFSSL_BIO* bio, unsigned char* der, int derSz);
+
+/**
+ * @brief prints out the public key from a certificate
+ *
+ * @param infile file to read from
+ * @param inform PEM_FORM/DER_FORM of input
+ * @param outfile name of the file to write to
+ * @param silent_flag if should be silent instead of printout
+ *
+ * @return returns 0 on success
+ */
 int wolfCLU_printX509PubKey(char* infile, int inform, char* outfile,
         int silent_flag);
 /* function for processing input/output based on format requests from user */

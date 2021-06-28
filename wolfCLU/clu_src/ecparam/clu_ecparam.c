@@ -38,7 +38,6 @@ int wolfCLU_ecparam(int argc, char** argv)
     int   outCheck   = 0; /* if output has been provided */
     int   long_index = 0;
     int   genKey     = 0;
-    int   keySz      = 32;
     int   outForm    = PEM_FORM;
     int   i, option;
     WC_RNG rng;
@@ -83,7 +82,11 @@ int wolfCLU_ecparam(int argc, char** argv)
             for (i = 0; i < XSTRLEN(name); i++)
                 (void)toupper(name[i]);
 
+            #if 0
+            /* way to get the key size if needed in the future */
             keySz = wc_ecc_get_curve_size_from_name(name);
+            #endif
+
             break;
 
         case ':':
@@ -101,10 +104,11 @@ int wolfCLU_ecparam(int argc, char** argv)
         return 0;
     }
 
-
-    wc_InitRng(&rng);
-    ret = wolfCLU_genKey_ECC_ex(&rng, out, ECPARAM, outForm, name);
-    wc_FreeRng(&rng);
+    ret = wc_InitRng(&rng);
+    if (ret == 0) {
+        ret = wolfCLU_genKey_ECC_ex(&rng, out, ECPARAM, outForm, name);
+        wc_FreeRng(&rng);
+    }
     return ret;
 }
 

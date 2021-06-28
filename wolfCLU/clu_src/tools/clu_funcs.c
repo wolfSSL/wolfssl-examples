@@ -621,7 +621,7 @@ static int wolfCLU_parseAlgo(char* name, char** alg, char** mode, int* size)
         }
     #endif
     }
-    
+
     else {
         printf("Invalid algorithm: %s\n", tmpAlg);
         ret = FATAL_ERROR;
@@ -637,7 +637,7 @@ static int wolfCLU_parseAlgo(char* name, char** alg, char** mode, int* size)
             XFREE(*mode, NULL, DYNAMIC_TYPE_TMP_BUFFER);
 
         s = XSTRLEN(tmpAlg) + 1;
-        *alg = XMALLOC(s, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+        *alg = (char*)XMALLOC(s, NULL, DYNAMIC_TYPE_TMP_BUFFER);
         if (*alg == NULL) {
             ret = MEMORY_E;
         }
@@ -645,12 +645,12 @@ static int wolfCLU_parseAlgo(char* name, char** alg, char** mode, int* size)
         if (ret >= 0) {
             XSTRNCPY(*alg, tmpAlg, s);
             s = XSTRLEN(tmpMode) + 1;
-            *mode = XMALLOC(s, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+            *mode = (char*)XMALLOC(s, NULL, DYNAMIC_TYPE_TMP_BUFFER);
             if (*mode == NULL) {
                 ret = MEMORY_E;
             }
         }
-        
+
         if (ret >= 0) {
             XSTRNCPY(*mode, tmpMode, s);
         }
@@ -983,37 +983,37 @@ int wolfCLU_CreateX509Name(WOLFSSL_X509_NAME* name)
     printf("Country [US] : ");
     ret = getline(&in, &inSz, fin);
     if (ret > 0)
-        wolfCLU_AddNameEntry(name, 0x0c, NID_countryName, in);
+        wolfCLU_AddNameEntry(name, CTC_PRINTABLE, NID_countryName, in);
 
     printf("State or Province [Montana] : ");
     ret = getline(&in, &inSz, fin);
     if (ret > 0)
-        wolfCLU_AddNameEntry(name, 0x0c, NID_stateOrProvinceName, in);
+        wolfCLU_AddNameEntry(name, CTC_UTF8, NID_stateOrProvinceName, in);
 
     printf("Locality [Bozeman] : ");
     ret = getline(&in, &inSz, fin);
     if (ret > 0)
-        wolfCLU_AddNameEntry(name, 0x0c, NID_localityName, in);
+        wolfCLU_AddNameEntry(name, CTC_UTF8, NID_localityName, in);
 
     printf("Organization Name [wolfSSL] : ");
     ret = getline(&in, &inSz, fin);
     if (ret > 0)
-        wolfCLU_AddNameEntry(name, 0x0c, NID_organizationName, in);
+        wolfCLU_AddNameEntry(name, CTC_UTF8, NID_organizationName, in);
 
     printf("Organization Unit [engineering] : ");
     ret = getline(&in, &inSz, fin);
     if (ret > 0)
-        wolfCLU_AddNameEntry(name, 0x0c, NID_organizationalUnitName, in);
+        wolfCLU_AddNameEntry(name, CTC_UTF8, NID_organizationalUnitName, in);
 
     printf("Common Name : ");
     ret = getline(&in, &inSz, fin);
     if (ret > 0)
-        wolfCLU_AddNameEntry(name, 0x0c, NID_commonName, in);
+        wolfCLU_AddNameEntry(name, CTC_UTF8, NID_commonName, in);
 
     printf("Email Address : ");
     ret = getline(&in, &inSz, fin);
     if (ret > 0)
-        wolfCLU_AddNameEntry(name, 0x0c, NID_emailAddress, in);
+        wolfCLU_AddNameEntry(name, CTC_UTF8, NID_emailAddress, in);
 
     return 0;
 }

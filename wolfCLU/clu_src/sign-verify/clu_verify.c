@@ -336,7 +336,7 @@ int wolfCLU_verify_signature_ed25519(byte* sig, int sigSz,
 
     FILE* keyPathFile;
     ed25519_key key;
-    byte* keyBuf = malloc(ED25519_KEY_SIZE);
+    byte* keyBuf = (byte*)malloc(ED25519_KEY_SIZE);
 
     XMEMSET(&key, 0, sizeof(key));
     XMEMSET(keyBuf, 0, ED25519_KEY_SIZE);
@@ -344,6 +344,7 @@ int wolfCLU_verify_signature_ed25519(byte* sig, int sigSz,
     ret = wc_ed25519_init(&key);
     if (ret != 0) {
         printf("Failed to initialize ED25519 key.\nRet: %d", ret);
+        free(keyBuf);
         return ret;
     }
 
@@ -359,16 +360,19 @@ int wolfCLU_verify_signature_ed25519(byte* sig, int sigSz,
 
         ret = wolfCLU_generate_public_key_ed25519(keyPath, keyBuf);
         if (ret != 0) {
-                printf("Failed to derive public key from private key.\n");
-                return ret;
+            printf("Failed to derive public key from private key.\n");
+            free(keyBuf);
+            return ret;
         }
     }
 
     ret = wc_ed25519_import_public(keyBuf, ED25519_KEY_SIZE, &key);
     if (ret != 0 ) {
         printf("Failed to decode public key.\nRET: %d\n", ret);
+        free(keyBuf);
         return ret;
     }
+    free(keyBuf);
 
     ret = wc_ed25519_verify_msg(sig, sigSz, hash, hashSz, &stat, &key);
     if (ret != 0) {
