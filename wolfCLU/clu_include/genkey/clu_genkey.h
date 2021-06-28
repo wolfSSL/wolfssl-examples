@@ -65,6 +65,18 @@ int wolfCLU_genKey_ED25519(WC_RNG* rng, char* fOutNm, int directive,
 int wolfCLU_genKey_ECC(WC_RNG* rng, char* fName, int directive, int fmt,
                        int keySz);
 
+
+/**
+ * generates an ECC key
+ *
+ * @param rng       random number generator
+ * @param fName     name of the file to write to
+ * @param directive which key to output, public or private, maybe both
+ * @param fmt       output format (PEM/DER)
+ * @param name      curve name for the ECC key
+ *
+ * return   0 on success, non-zero on error
+ */
 int wolfCLU_genKey_ECC_ex(WC_RNG* rng, char* fName, int directive, int fmt,
                        char* name);
 /**

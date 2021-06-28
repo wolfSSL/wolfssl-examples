@@ -19,6 +19,20 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
+#ifndef WOLFCLU_SIGN_VERIFY_H
+#define WOLFCLU_SIGN_VERIFY_H
+
 int wolfCLU_sign_verify_setup(int, char**);
-int wolfCLU_dgst_setup(int, char**);
+
+/**
+ * @brief Handles dgst mode
+ *
+ * @param argc number of arguments
+ * @param argv array of string args
+ *
+ * @return 0 on success
+ */
+int wolfCLU_dgst_setup(int argc, char** argv);
+
+#endif /* WOLFCLU_SIGN_VERIFY_H */
 

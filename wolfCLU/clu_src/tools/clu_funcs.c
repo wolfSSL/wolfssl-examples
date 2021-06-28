@@ -930,7 +930,10 @@ int wolfCLU_checkInform(char* inform)
         printf("Usage: -inform [PEM/DER]\n");
         printf("missing inform required argument\n");
         return USER_INPUT_ERROR;
-    } else if (XSTRNCMP(inform, "pem", 3) == 0) {
+    }
+
+    convert_to_lower(inform, XSTRLEN(inform));
+    if (XSTRNCMP(inform, "pem", 3) == 0) {
         return PEM_FORM;
     } else if (XSTRNCMP(inform, "der", 3) == 0) {
         return DER_FORM;

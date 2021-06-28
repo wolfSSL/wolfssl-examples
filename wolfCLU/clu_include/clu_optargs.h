@@ -148,6 +148,14 @@ static struct option crypt_options[] = {
 };
 
 
+static struct option pkey_options[] = {
+    {"in",        required_argument, 0, INFILE    },
+    {"inform",    required_argument, 0, INFORM    },
+    {"pubout",    no_argument,       0, PUBOUT    },
+
+    {0, 0, 0, 0} /* terminal element */
+};
+
 static struct option ecparam_options[] = {
     {"in",        required_argument, 0, INFILE    },
     {"out",       required_argument, 0, OUTFILE   },

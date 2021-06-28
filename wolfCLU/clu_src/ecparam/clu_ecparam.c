@@ -26,7 +26,10 @@
 
 static void wolfCLU_ecparamHelp(void)
 {
-
+    printf("./wolfssl ecparam\n");
+    printf("\t-genkey create new key\n");
+    printf("\t-out output file\n");
+    printf("\t-name curve name i.e. secp384r1\n");
 }
 
 
@@ -35,7 +38,6 @@ int wolfCLU_ecparam(int argc, char** argv)
     char  name[ECC_MAXNAME]; /* name of curve to use */
     char* out  = NULL;    /* default output file name */
     int   ret        = 0; /* return variable */
-    int   outCheck   = 0; /* if output has been provided */
     int   long_index = 0;
     int   genKey     = 0;
     int   outForm    = PEM_FORM;
@@ -48,11 +50,6 @@ int wolfCLU_ecparam(int argc, char** argv)
         wolfCLU_ecparamHelp();
     }
 
-    {
-        for (i = 0; i < argc; i++) printf("%s\n", argv[i]);
-        printf("\n");
-
-    }
     opterr = 0; /* do not display unrecognized options */
     optind = 0; /* start at indent 0 */
     while ((option = getopt_long_only(argc, argv, "",
@@ -62,7 +59,6 @@ int wolfCLU_ecparam(int argc, char** argv)
 
         case OUTFILE:
             out = optarg;
-            outCheck = 1;
             break;
 
         case OUTFORM:
