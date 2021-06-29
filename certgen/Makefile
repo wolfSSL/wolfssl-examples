@@ -31,4 +31,4 @@ certgen_with_altnames:certgen_with_altnames.o
 
 clean:
 	rm -f *.o certgen_example csr_example csr_w_ed25519_example certgen_with_altnames
-	rm newCert.*
+	rm -f newCert.*

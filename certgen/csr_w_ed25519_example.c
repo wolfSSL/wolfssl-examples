@@ -114,6 +114,8 @@ int main(void)
     }
     printf("%s", pem);
 
+    (void)pemSz;
+
 exit:
     wc_ed25519_free(&key);
     wc_FreeRng(&rng);

@@ -142,8 +142,8 @@ static int myVerifyCb(int preverify, WOLFSSL_X509_STORE_CTX* store)
 
 int main()
 {
-    int                sockfd;
-    int                connd;
+    int                sockfd = SOCKET_INVALID;
+    int                connd  = SOCKET_INVALID;
     struct sockaddr_in servAddr;
     struct sockaddr_in clientAddr;
     socklen_t          size = sizeof(clientAddr);
@@ -154,8 +154,8 @@ int main()
     const char*        reply = "I hear ya fa shizzle!\n";
 
     /* declare wolfSSL objects */
-    WOLFSSL_CTX* ctx;
-    WOLFSSL*     ssl;
+    WOLFSSL_CTX* ctx = NULL;
+    WOLFSSL*     ssl = NULL;
 
 
 
@@ -169,7 +169,8 @@ int main()
      * 0 means choose the default protocol. */
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
         fprintf(stderr, "ERROR: failed to create the socket\n");
-        return -1;
+        ret = -1; 
+        goto exit;
     }
 
 
@@ -177,33 +178,34 @@ int main()
     /* Create and initialize WOLFSSL_CTX */
     if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_server_method())) == NULL) {
         fprintf(stderr, "ERROR: failed to create WOLFSSL_CTX\n");
-        return -1;
+        ret = -1;
+        goto exit;
     }
 
     /* Load server certificates into WOLFSSL_CTX */
-    if (wolfSSL_CTX_use_certificate_file(ctx, CERT_FILE, WOLFSSL_FILETYPE_PEM)
+    if ((ret = wolfSSL_CTX_use_certificate_file(ctx, CERT_FILE, WOLFSSL_FILETYPE_PEM))
         != WOLFSSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
                 CERT_FILE);
-        return -1;
+        goto exit;
     }
 
     /* Load server key into WOLFSSL_CTX */
-    if (wolfSSL_CTX_use_PrivateKey_file(ctx, KEY_FILE, WOLFSSL_FILETYPE_PEM)
+    if ((ret = wolfSSL_CTX_use_PrivateKey_file(ctx, KEY_FILE, WOLFSSL_FILETYPE_PEM))
         != WOLFSSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
                 KEY_FILE);
-        return -1;
+        goto exit;
     }
 
     /* Load the trusted certificates */
     /* May be called multiple times to continue loading trusted certs into the 
         wolfSSL Certificate Manager */
-    if (wolfSSL_CTX_load_verify_locations(ctx, CLIENT_CERT_FILE, NULL) 
+    if ((ret = wolfSSL_CTX_load_verify_locations(ctx, CLIENT_CERT_FILE, NULL)) 
         != WOLFSSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
                 CLIENT_CERT_FILE);
-        return -1;
+        goto exit;
     }
 
     /* require client certificate and verify all peers */
@@ -225,13 +227,15 @@ int main()
     /* Bind the server socket to our port */
     if (bind(sockfd, (struct sockaddr*)&servAddr, sizeof(servAddr)) == -1) {
         fprintf(stderr, "ERROR: failed to bind\n");
-        return -1;
+        ret = -1;
+        goto exit;
     }
 
     /* Listen for a new connection, allow 5 pending connections */
     if (listen(sockfd, 5) == -1) {
         fprintf(stderr, "ERROR: failed to listen\n");
-        return -1;
+        ret = -1;
+        goto exit;
     }
 
 
@@ -244,13 +248,15 @@ int main()
         if ((connd = accept(sockfd, (struct sockaddr*)&clientAddr, &size))
             == -1) {
             fprintf(stderr, "ERROR: failed to accept the connection\n\n");
-            return -1;
+            ret = -1;
+            goto exit;
         }
 
         /* Create a WOLFSSL object */
         if ((ssl = wolfSSL_new(ctx)) == NULL) {
             fprintf(stderr, "ERROR: failed to create WOLFSSL object\n");
-            return -1;
+            ret = -1;
+            goto exit;
         }
 
         /* Attach wolfSSL to the socket */
@@ -261,7 +267,7 @@ int main()
         if (ret != WOLFSSL_SUCCESS) {
             fprintf(stderr, "wolfSSL_accept error = %d\n",
                 wolfSSL_get_error(ssl, ret));
-            return -1;
+            goto exit;
         }
 
 
@@ -271,9 +277,9 @@ int main()
 
         /* Read the client data into our buff array */
         memset(buff, 0, sizeof(buff));
-        if (wolfSSL_read(ssl, buff, sizeof(buff)-1) == -1) {
+        if ((ret = wolfSSL_read(ssl, buff, sizeof(buff)-1)) == -1) {
             fprintf(stderr, "ERROR: failed to read\n");
-            return -1;
+            goto exit;
         }
 
         /* Print to stdout any data the client sends */
@@ -293,9 +299,9 @@ int main()
         len = strnlen(buff, sizeof(buff));
 
         /* Reply back to the client */
-        if (wolfSSL_write(ssl, buff, len) != len) {
+        if ((ret = wolfSSL_write(ssl, buff, len)) != len) {
             fprintf(stderr, "ERROR: failed to write\n");
-            return -1;
+            goto exit;
         }
 
 
@@ -308,10 +314,17 @@ int main()
     printf("Shutdown complete\n");
 
 
-
+exit:
     /* Cleanup and return */
-    wolfSSL_CTX_free(ctx);  /* Free the wolfSSL context object          */
-    wolfSSL_Cleanup();      /* Cleanup the wolfSSL environment          */
-    close(sockfd);          /* Close the socket listening for clients   */
-    return 0;               /* Return reporting a success               */
+    if (ssl)
+        wolfSSL_free(ssl);      /* Free the wolfSSL object              */
+    if (connd != SOCKET_INVALID)
+        close(connd);           /* Close the connection to the client   */
+    if (sockfd != SOCKET_INVALID)
+        close(sockfd);          /* Close the socket listening for clients   */
+    if (ctx)
+        wolfSSL_CTX_free(ctx);  /* Free the wolfSSL context object          */
+    wolfSSL_Cleanup();          /* Cleanup the wolfSSL environment          */
+    
+    return ret;               /* Return reporting a success               */
 }

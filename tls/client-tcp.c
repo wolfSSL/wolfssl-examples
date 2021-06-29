@@ -111,5 +111,5 @@ int main(int argc, char** argv)
 socket_cleanup:
     close(sockfd);          /* Close the connection to the server       */
 end:
-    return 0;               /* Return reporting a success               */
+    return ret;               /* Return reporting a success               */
 }

@@ -28,7 +28,7 @@ all: $(TARGETS)
 debug: CFLAGS+=$(DEBUG_FLAGS)
 debug: all
 
-# add the -pthread flag and -lpthread lib to any threaded examples
+# add the -pthread flag and -lpthread lib to any threaded or shared examples
 %-threaded: CFLAGS+=-pthread
 %-threaded: LIBS+=-lpthread
 %-shared: CFLAGS+=-pthread

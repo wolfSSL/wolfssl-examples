@@ -242,6 +242,8 @@ prog_end:
     wc_FreeRng(&rng);
     wolfSSL_Cleanup();
 
+    (void)verifySz;
+
     return 0;
 #else
     (void)kRsaKey;
