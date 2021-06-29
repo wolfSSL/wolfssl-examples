@@ -41,7 +41,7 @@ int main(void)
     WC_RNG rng;
     Cert req;
     byte der[MAX_TEMP_SIZE], pem[MAX_TEMP_SIZE];
-    int  derSz, pemSz;
+    int  derSz;
 
     XMEMSET(&rng, 0, sizeof(rng));
     XMEMSET(&key, 0, sizeof(key));
@@ -77,7 +77,6 @@ int main(void)
         printf("DER to PEM failed: %d\n", ret);
         goto exit;
     }
-    pemSz = ret;
     printf("%s", pem);
 
     ret = wc_InitCert(&req);
@@ -113,7 +112,6 @@ int main(void)
         printf("DER to PEM failed: %d\n", ret);
         goto exit;
     }
-    pemSz = ret;
     printf("%s", pem);
 
 exit:
