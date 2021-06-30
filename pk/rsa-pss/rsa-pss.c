@@ -134,7 +134,7 @@ int main(int argc, char** argv)
                 return BUFFER_E;
             }
             fseek(f, 0, SEEK_SET);
-            fread(derBuf, 1, sz, f);
+            sz = fread(derBuf, 1, sz, f);
             fclose(f);
 
             ret = wc_RsaPublicKeyDecode(derBuf, &idx, pRsaKey, sz);
@@ -183,7 +183,7 @@ int main(int argc, char** argv)
             goto prog_end;
         }
         fseek(f, 0, SEEK_SET);
-        fread(pSignature, 1, sz, f);
+        sz = fread(pSignature, 1, sz, f);
         fclose(f);
 
         /* now we will verify the signature

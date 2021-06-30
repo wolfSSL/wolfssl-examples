@@ -48,16 +48,17 @@
 
 int main(int argc, char** argv)
 {
+    int                ret = 0;
 #ifdef OPENSSL_EXTRA
-    int                sockfd;
+    int                sockfd = SOCKET_INVALID;
     struct sockaddr_in servAddr;
     char               buff[256];
     size_t             len;
 
     /* declare wolfSSL objects */
-    WOLFSSL_CTX* ctx;
-    WOLFSSL*     ssl;
-    WOLFSSL_BIO* bio;
+    WOLFSSL_CTX* ctx = NULL;
+    WOLFSSL*     ssl = NULL;
+    WOLFSSL_BIO* bio = NULL;
 
     /* Check for proper calling convention */
     if (argc != 2) {
@@ -73,20 +74,23 @@ int main(int argc, char** argv)
      * 0 means choose the default protocol. */
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
         fprintf(stderr, "ERROR: failed to create the socket\n");
-        return -1;
+        ret = -1; 
+        goto exit;
     }
 
     /* Create and initialize WOLFSSL_CTX */
     if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method())) == NULL) {
         fprintf(stderr, "ERROR: failed to create WOLFSSL_CTX\n");
-        return -1;
+        ret = -1; 
+        goto exit;
     }
 
     /* Load client certificates into WOLFSSL_CTX */
-    if (wolfSSL_CTX_load_verify_locations(ctx, CERT_FILE, NULL)!= SSL_SUCCESS) {
+    if ((ret = wolfSSL_CTX_load_verify_locations(ctx, CERT_FILE, NULL)) 
+            != WOLFSSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
                 CERT_FILE);
-        return -1;
+        goto exit;
     }
 
     /* Initialize the server address struct with zeros */
@@ -99,20 +103,23 @@ int main(int argc, char** argv)
     /* Get the server IPv4 address from the command line call */
     if (inet_pton(AF_INET, argv[1], &servAddr.sin_addr) != 1) {
         fprintf(stderr, "ERROR: invalid address\n");
-        return -1;
+        ret = -1; 
+        goto exit;
     }
 
     /* Connect to the server */
     if (connect(sockfd, (struct sockaddr*) &servAddr, sizeof(servAddr))
         == -1) {
         fprintf(stderr, "ERROR: failed to connect\n");
-        return -1;
+        ret = -1; 
+        goto exit;
     }
 
     /* Create a WOLFSSL object */
     if ((ssl = wolfSSL_new(ctx)) == NULL) {
         fprintf(stderr, "ERROR: failed to create WOLFSSL object\n");
-        return -1;
+        ret = -1; 
+        goto exit;
     }
 
     /* Attach wolfSSL to the socket */
@@ -121,41 +128,50 @@ int main(int argc, char** argv)
     printf("creating new WOLFSSL BIO type to write and read with\n");
     bio = wolfSSL_BIO_new(wolfSSL_BIO_f_ssl());
     if (bio == NULL) {
-        return -1;
+        ret = -1; 
+        goto exit;
     }
     wolfSSL_BIO_set_ssl(bio, ssl, BIO_CLOSE); /* with BIO_CLOSE wolfSSL_BIO_free will free ssl */
 
     /* Get a message for the server from stdin */
     printf("Message for server: ");
     memset(buff, 0, sizeof(buff));
-    fgets(buff, sizeof(buff), stdin);
+   if (fgets(buff, sizeof(buff), stdin) == NULL) {                             
+         fprintf(stderr, "ERROR: failed to get message for server\n");           
+         ret = -1; 
+         goto exit;                                                              
+     }  
     len = strnlen(buff, sizeof(buff));
 
     /* Send the message to the server */
     if (wolfSSL_BIO_write(bio, buff, len) != len) {
         fprintf(stderr, "ERROR: failed to write\n");
-        return -1;
+        ret = -1; 
+        goto exit;
     }
 
     /* Read the server data into our buff array */
     memset(buff, 0, sizeof(buff));
-    if (wolfSSL_BIO_read(bio, buff, sizeof(buff)-1) == -1) {
-        fprintf(stderr, "ERROR: failed to read\n");
-        return -1;
+    if ((ret = wolfSSL_BIO_read(bio, buff, sizeof(buff)-1)) == -1) {
+        fprintf(stderr, "ERROR: failed to read\n"); 
+        goto exit;
     }
 
     /* Print to stdout any data the server sends */
     printf("Server: %s\n", buff);
-
+    
+exit:
     /* Cleanup and return */
-    wolfSSL_BIO_free(bio);  /* Free the wolfSSL object                  */
-    close(sockfd);          /* Close the connection to the server       */
-
-    wolfSSL_CTX_free(ctx);  /* Free the wolfSSL context object          */
-    wolfSSL_Cleanup();      /* Cleanup the wolfSSL environment          */
+    if (bio)
+       wolfSSL_BIO_free(bio);
+    if (sockfd != SOCKET_INVALID)
+        close(sockfd);          /* Close the socket listening for clients   */
+    if (ctx)
+        wolfSSL_CTX_free(ctx);  /* Free the wolfSSL context object          */
+    wolfSSL_Cleanup();          /* Cleanup the wolfSSL environment          */
 
 #else
     printf("This example requires ./configure --enable-opensslextra or OPENSSL_EXTRA to be defined\n");
 #endif
-    return 0;               /* Return reporting a success               */
+    return ret;               /* Return reporting a success               */
 }

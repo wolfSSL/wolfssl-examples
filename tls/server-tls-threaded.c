@@ -154,7 +154,8 @@ void* ClientHandler(void* args)
 
 int main()
 {
-    int                sockfd;
+    int                ret; 
+    int                sockfd = SOCKET_INVALID;
     int                connd;
     struct sockaddr_in servAddr;
     struct sockaddr_in clientAddr;
@@ -162,7 +163,7 @@ int main()
     int                shutdown = 0;
 
     /* declare wolfSSL objects */
-    WOLFSSL_CTX* ctx;
+    WOLFSSL_CTX* ctx = NULL;
 
     /* declare thread variable */
     struct targ_pkg thread[MAX_CONCURRENT_THREADS];
@@ -180,13 +181,15 @@ int main()
      * 0 means choose the default protocol. */
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
         fprintf(stderr, "ERROR: failed to create the socket\n");
-        return -1;
+        ret = -1; 
+        goto exit;
     }
 
     /* Set the socket options to use nonblocking I/O */
     if (fcntl(sockfd, F_SETFL, O_NONBLOCK) == -1) {
         fprintf(stderr, "ERROR: failed to set socket options\n");
-        return -1;
+        ret = -1;
+        goto exit;
     }
 
 
@@ -194,23 +197,24 @@ int main()
     /* Create and initialize WOLFSSL_CTX */
     if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_server_method())) == NULL) {
         fprintf(stderr, "ERROR: failed to create WOLFSSL_CTX\n");
-        return -1;
+        ret = -1;
+        goto exit;
     }
 
     /* Load server certificates into WOLFSSL_CTX */
-    if (wolfSSL_CTX_use_certificate_file(ctx, CERT_FILE, SSL_FILETYPE_PEM)
-        != SSL_SUCCESS) {
+    if ((ret = wolfSSL_CTX_use_certificate_file(ctx, CERT_FILE, SSL_FILETYPE_PEM))
+        != WOLFSSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
                 CERT_FILE);
-        return -1;
+        goto exit;
     }
 
     /* Load server key into WOLFSSL_CTX */
-    if (wolfSSL_CTX_use_PrivateKey_file(ctx, KEY_FILE, SSL_FILETYPE_PEM)
-        != SSL_SUCCESS) {
+    if ((ret = wolfSSL_CTX_use_PrivateKey_file(ctx, KEY_FILE, SSL_FILETYPE_PEM))
+        != WOLFSSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
                 KEY_FILE);
-        return -1;
+        goto exit;
     }
 
 
@@ -228,13 +232,15 @@ int main()
     /* Bind the server socket to our port */
     if (bind(sockfd, (struct sockaddr*)&servAddr, sizeof(servAddr)) == -1) {
         fprintf(stderr, "ERROR: failed to bind\n");
-        return -1;
+        ret = -1; 
+        goto exit;
     }
 
     /* Listen for a new connection, allow 5 pending connections */
     if (listen(sockfd, 5) == -1) {
         fprintf(stderr, "ERROR: failed to listen\n");
-        return -1;
+        ret = -1; 
+        goto exit;
     }
 
 
@@ -295,10 +301,14 @@ int main()
     printf("Shutdown complete\n");
 
 
-
+exit:
     /* Cleanup and return */
-    wolfSSL_CTX_free(ctx);  /* Free the wolfSSL context object          */
-    wolfSSL_Cleanup();      /* Cleanup the wolfSSL environment          */
-    close(sockfd);          /* Close the socket listening for clients   */
-    return 0;               /* Return reporting a success               */
+    if (sockfd != SOCKET_INVALID)
+        close(sockfd);          /* Close the socket listening for clients   */
+    if (ctx)
+        wolfSSL_CTX_free(ctx);  /* Free the wolfSSL context object          */
+    wolfSSL_Cleanup();          /* Cleanup the wolfSSL environment          */
+
+    return ret;               /* Return reporting a success               */
+
 }

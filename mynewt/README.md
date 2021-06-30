@@ -27,7 +27,7 @@ This script will deploy wolfssl's mynewt package described in the Overview to th
 
 ## example setting example applications to targets
 
-This section eplains how to set wolfssl example application to target device.
+This section explains how to set wolfssl example application to target device.
 
 Please execute follows commands at only once.
 

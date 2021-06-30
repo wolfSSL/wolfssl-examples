@@ -36,6 +36,7 @@
 
 int main()
 {
+    int                ret; 
     int                sockfd;
     int                connd;
     struct sockaddr_in servAddr;
@@ -53,7 +54,8 @@ int main()
      * 0 means choose the default protocol. */
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
         fprintf(stderr, "ERROR: failed to create the socket\n");
-        return -1;
+        ret = -1;
+        goto end;
     }
 
 
@@ -71,13 +73,15 @@ int main()
     /* Bind the server socket to our port */
     if (bind(sockfd, (struct sockaddr*)&servAddr, sizeof(servAddr)) == -1) {
         fprintf(stderr, "ERROR: failed to bind\n");
-        return -1;
+        ret = -1;
+        goto servsocket_cleanup;
     }
 
     /* Listen for a new connection, allow 5 pending connections */
     if (listen(sockfd, 5) == -1) {
         fprintf(stderr, "ERROR: failed to listen\n");
-        return -1;
+        ret = -1; 
+        goto servsocket_cleanup;
     }
 
 
@@ -90,7 +94,8 @@ int main()
         if ((connd = accept(sockfd, (struct sockaddr*)&clientAddr, &size))
             == -1) {
             fprintf(stderr, "ERROR: failed to accept the connection\n\n");
-            return -1;
+            ret = -1; 
+            goto servsocket_cleanup;
         }
 
         printf("Client connected successfully\n");
@@ -99,9 +104,9 @@ int main()
 
         /* Read the client data into our buff array */
         memset(buff, 0, sizeof(buff));
-        if (read(connd, buff, sizeof(buff)-1) == -1) {
+        if ((ret = read(connd, buff, sizeof(buff)-1)) == -1) {
             fprintf(stderr, "ERROR: failed to read\n");
-            return -1;
+            goto clientsocket_cleanup;
         }
 
         /* Print to stdout any data the client sends */
@@ -121,9 +126,9 @@ int main()
         len = strnlen(buff, sizeof(buff));
 
         /* Reply back to the client */
-        if (write(connd, buff, len) != len) {
+        if ((ret = write(connd, buff, len)) != len) {
             fprintf(stderr, "ERROR: failed to write\n");
-            return -1;
+            goto clientsocket_cleanup;
         }
 
 
@@ -135,6 +140,13 @@ int main()
     printf("Shutdown complete\n");
 
 
+    /* Cleanup and return */
+clientsocket_cleanup:
+    close(connd);           /* Close the connection to the client   */
+servsocket_cleanup:
+    close(sockfd);          /* Close the socket listening for clients     */
+end:
+    return ret;               /* Return reporting a success               */
 
     /* Cleanup and return */
     close(sockfd);          /* Close the socket listening for clients   */

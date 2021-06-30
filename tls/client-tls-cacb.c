@@ -125,29 +125,32 @@ static void CaCb(unsigned char* der, int sz, int type)
  */
 int Security(int sock)
 {
-    WOLFSSL_CTX* ctx;
-    WOLFSSL*     ssl;    /* create WOLFSSL object */
-    int         ret = 0;
+    WOLFSSL_CTX* ctx = NULL;
+    WOLFSSL*     ssl = NULL;    /* create WOLFSSL object */
+    int          ret = 0;
 
     wolfSSL_Init();      /* initialize wolfSSL */
 
     /* create and initialize WOLFSSL_CTX structure */
     if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method())) == NULL) {
         printf("SSL_CTX_new error.\n");
-        return EXIT_FAILURE;
+        ret = EXIT_FAILURE;  
+        goto exit;
     }
 
     /* set callback for action when CA's are added */
     wolfSSL_CTX_SetCACb(ctx, CaCb);
 
     /* load CA certificates into wolfSSL_CTX. which will verify the server */
-    if (wolfSSL_CTX_load_verify_locations(ctx, cert, 0) != SSL_SUCCESS) {
+    if ((ret = wolfSSL_CTX_load_verify_locations(ctx, cert, 0)) 
+            != WOLFSSL_SUCCESS) {
         printf("Error loading %s. Please check the file.\n", cert);
-        return EXIT_FAILURE;
+        goto exit;
     }
     if ((ssl = wolfSSL_new(ctx)) == NULL) {
         printf("wolfSSL_new error.\n");
-        return EXIT_FAILURE;
+        ret = EXIT_FAILURE; 
+        goto exit;
     }
     wolfSSL_set_fd(ssl, sock);
 
@@ -156,12 +159,15 @@ int Security(int sock)
         ret = ClientGreet(sock, ssl);
     }
 
-    /* frees all data before client termination */
-    wolfSSL_free(ssl);
-    wolfSSL_CTX_free(ctx);
-    wolfSSL_Cleanup();
+exit:
+    /* Cleanup and return */
+    if (ssl)
+        wolfSSL_free(ssl);      /* Free the wolfSSL object              */
+    if (ctx)
+        wolfSSL_CTX_free(ctx);  /* Free the wolfSSL context object          */
+    wolfSSL_Cleanup();          /* Cleanup the wolfSSL environment          */
 
-    return ret;
+    return ret;                 /* Return reporting a success               */
 }
 
 /*
@@ -169,7 +175,7 @@ int Security(int sock)
  */
 int main(int argc, char** argv)
 {
-    int     sockfd;                         /* socket file descriptor */
+    int     sockfd = SOCKET_INVALID;        /* socket file descriptor */
     struct  sockaddr_in servAddr;           /* struct for server address */
     int     ret = 0;                        /* variable for error checking */
 
@@ -184,7 +190,8 @@ int main(int argc, char** argv)
 
     if (sockfd < 0) {
         printf("Failed to create socket. Error: %i\n", errno);
-        return EXIT_FAILURE;
+        ret = EXIT_FAILURE; 
+        goto exit;
     }
 
     memset(&servAddr, 0, sizeof(servAddr)); /* clears memory block for use */
@@ -196,16 +203,21 @@ int main(int argc, char** argv)
         /* checks validity of address */
         ret = errno;
         printf("Invalid Address. Error: %i\n", ret);
-        return EXIT_FAILURE;
+        goto exit;
     }
 
     if (connect(sockfd, (struct sockaddr *) &servAddr, sizeof(servAddr)) < 0) {
         /* if socket fails to connect to the server*/
         ret = errno;
         printf("Connect error. Error: %i\n", ret);
-        return EXIT_FAILURE;
+        goto exit;
     }
     Security(sockfd);
+
+exit:
+    /* Cleanup and return */
+    if (sockfd != SOCKET_INVALID)
+        close(sockfd);          /* Close the socket   */
 
     return ret;
 }

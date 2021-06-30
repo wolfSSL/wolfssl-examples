@@ -1,37 +1,36 @@
-CC := gcc -fsanitize=address
-program_NAME := sha256-hash
-program_C_SRCS := $(wildcard *.c)
-program_CXX_SRCS := $(wildcard *.cpp)
-program_C_OBJS := ${program_C_SRCS:.c=.o}
-program_CXX_OBJS := ${program_CXX_SRCS:.cpp=.o}
-program_OBJS := $(program_C_OBJS) $(program_CXX_OBJS)
-program_INCLUDE_DIRS :=
-program_LIBRARY_DIRS :=
-program_LIBRARIES :=
+# Hash Examples Makefile
+CC       = gcc -fsanitize=address
+LIB_PATH = /usr/local
+CFLAGS   = -Wall -I$(LIB_PATH)/include
+LIBS     = -L$(LIB_PATH)/lib -lm
 
-WOLF_INSTALL_DIR := /usr/local
-program_INCLUDE_DIRS += $(WOLF_INSTALL_DIR)/include
-program_INCLUDE_DIRS += ./include
-program_LIBRARY_DIRS += $(WOLF_INSTALL_DIR)/lib
-program_LIBRARIES += wolfssl
+# option variables
+DYN_LIB         = -lwolfssl
+STATIC_LIB      = $(LIB_PATH)/lib/libwolfssl.a
+DEBUG_FLAGS     = -g -DDEBUG
+DEBUG_INC_PATHS = -MD
+OPTIMIZE        = -Os
 
-CPPFLAGS += $(foreach includedir,$(program_INCLUDE_DIRS),-I$(includedir))
-#CPPFLAGS += -Werror
-#CPPFLAGS += -Weverything
-#CPPFLAGS += -Wsign-conversion
-#CPPFLAGS += -Wshorten-64-to-32 #NOTE: Not supported on most linux distros.
-LDFLAGS += $(foreach librarydir,$(program_LIBRARY_DIRS),-L$(librarydir))
-LDFLAGS += $(foreach library,$(program_LIBRARIES),-l$(library))
+# Options
+#CFLAGS+=$(DEBUG_FLAGS)
+CFLAGS+=$(OPTIMIZE)
+#LIBS+=$(STATIC_LIB)
+LIBS+=$(DYN_LIB)
 
-.PHONY: all clean distclean
+# build targets
+SRC=$(wildcard *.c)
+TARGETS=$(patsubst %.c, %, $(SRC))
 
-all: $(program_NAME)
+.PHONY: clean all
 
-$(program_NAME): $(program_OBJS)
-	$(CC) $(CPPFLAGS) $(program_OBJS) -o $(program_NAME) $(LDFLAGS) 
+all: $(TARGETS)
+
+debug: CFLAGS+=$(DEBUG_FLAGS)
+debug: all
+
+# build template
+%: %.c
+	$(CC) -o $@ $< $(CFLAGS) $(LIBS)
 
 clean:
-	@- $(RM) $(program_NAME)
-	@- $(RM) $(program_OBJS)
-
-distclean: clean
+	rm -f $(TARGETS)
