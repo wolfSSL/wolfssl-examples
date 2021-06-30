@@ -259,7 +259,7 @@ details.
 #### tirtos_ccs_examples (TI-RTOS)
 
 This directory contains a client/server examples that demonstrates using wolfSSL
-in a TI-RTOS ecosysytem.
+in a TI-RTOS ecosystem.
 
 Please see the [tirtos_ccs_examples/README.md](tirtos_ccs_examples/README.md) for
 further usage and details.

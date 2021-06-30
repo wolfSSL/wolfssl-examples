@@ -1,4 +1,4 @@
-# ECC Examples Makefile
+# Hash Examples Makefile
 CC       = gcc -fsanitize=address
 LIB_PATH = /usr/local
 CFLAGS   = -Wall -I$(LIB_PATH)/include
