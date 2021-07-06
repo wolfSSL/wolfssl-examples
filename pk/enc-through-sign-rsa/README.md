@@ -32,15 +32,15 @@ sudo make install
 Once the wolfSSL libraries are configured and installed the from this directory
 run the build.sh script which will generate the two applications
 
-rsa-priv-enc
-rsa-pub-dec
+rsa-private-encrypt-app
+rsa-public-decrypt-app
 
 ------------------------
 
 USING:
 
 ```
-./rsa-priv-enc
+./rsa-private-encrypt-app
 ```
 
 This will output the file "encryptedAesKey"
@@ -54,7 +54,7 @@ specified on line 33 of the application "rsa-private-encrypt-app.c".
 Now run
 
 ```
-./rsa-pub-dec
+./rsa-public-decrypt-app
 ```
 
 This will open the file specified on line 32 of the application

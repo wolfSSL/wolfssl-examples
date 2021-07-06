@@ -288,6 +288,8 @@ int main()
 
     printf("Shutdown complete\n");
 
+    ret = 0;
+
 exit:
     /* Cleanup and return */
     if (ssl)

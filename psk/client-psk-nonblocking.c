@@ -72,22 +72,23 @@ static inline unsigned int My_Psk_Client_Cb(WOLFSSL* ssl, const char* hint,
 
 int main(int argc, char **argv)
 {
-    int sockfd, ret, error, currTimeout;
+    int sockfd = SOCKET_INVALID;
+    int ret, error, currTimeout;
     int select_ret = TEST_SELECT_FAIL;
     int nfds;
     int result;
     char sendline[MAXLINE]="Hello Server"; /* string to send to the server */
     char recvline[MAXLINE]; /* string received from the server */
     fd_set recvfds, errfds;
-    WOLFSSL_CTX* ctx;
-    WOLFSSL* ssl;
+    WOLFSSL_CTX* ctx = NULL;
+    WOLFSSL*     ssl = NULL;
     struct timeval timeout;
     struct sockaddr_in servaddr;
 
     /* must include an ip address of this will flag */
     if (argc != 2) {
         printf("Usage: tcpClient <IPaddress>\n");
-        return 1;
+        return -1;
     }
 
     /* create a stream socket using tcp,internet protocal IPv4,
@@ -104,14 +105,14 @@ int main(int argc, char **argv)
     ret = inet_pton(AF_INET, argv[1], &servaddr.sin_addr);
     if (ret != 1) {
         printf("inet_pton error\n");
-        return 1;
+        return -1;
     }
 
     /* attempts to make a connection on a socket */
     ret = connect(sockfd, (struct sockaddr *) &servaddr, sizeof(servaddr));
     if (ret != 0) {
         printf("Connection Error\n");
-        return 1;
+        goto exit;
     }
 
     /* invokes the fcntl callable service to get the file status
@@ -120,7 +121,8 @@ int main(int argc, char **argv)
     int flags = fcntl(sockfd, F_GETFL, 0);
     if (flags < 0) {
         printf("fcntl get failed\n");
-        return 1;
+        ret = -1;
+        goto exit;
     }
 
     /* invokes the fcntl callable service to set file status flags.
@@ -130,7 +132,8 @@ int main(int argc, char **argv)
     flags = fcntl(sockfd, F_SETFL, flags | O_NONBLOCK);
     if (flags < 0) {
         printf("fcntl set failed\n");
-        return 1;
+        ret = -1; 
+        goto exit;
     }
 
     wolfSSL_Init();  /* initialize wolfSSL */
@@ -138,7 +141,8 @@ int main(int argc, char **argv)
     /* create and initialize WOLFSSL_CTX structure */
     if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method())) == NULL) {
         fprintf(stderr, "wolfSSL_CTX_new error.\n");
-        return 1;
+        ret = -1;
+        goto exit;
     }
 
     /* set up pre shared keys */
@@ -147,7 +151,8 @@ int main(int argc, char **argv)
     /* create wolfSSL object after each tcp connect */
     if ((ssl = wolfSSL_new(ctx)) == NULL) {
         fprintf(stderr, "wolfSSL_new error.\n");
-        return 1;
+        ret = -1;
+        goto exit;
     }
 
     /* associate the file descriptor with the session */
@@ -210,14 +215,15 @@ int main(int argc, char **argv)
     }
     if (ret != WOLFSSL_SUCCESS){
         printf("wolfSSL_connect failed");
-        return 1;
+        goto exit;
     }
 
     /* takes inputting string and outputs it to the server */
     /* write string to the server */
     if (wolfSSL_write(ssl, sendline, MAXLINE) != sizeof(sendline)) {
         printf("Write Error to Server\n");
-        return 1;
+        ret = -1;
+        goto exit;
     }
 
     /* flags if the Server stopped before the client could end */
@@ -226,20 +232,25 @@ int main(int argc, char **argv)
             continue;
         }
         printf("Client: Server Terminated Prematurely!\n");
-        return 1;
+        ret = -1;
+        goto exit;
     }
 
     /* show message from the server */
     printf("Server Message: %s\n", recvline);
 
-    /* cleanup */
-    wolfSSL_free(ssl);
+    ret = 0;
 
-    /* when completely done using SSL/TLS, free the
-     * wolfssl_ctx object */
-    wolfSSL_CTX_free(ctx);
-    wolfSSL_Cleanup();
+exit:
+    /* Cleanup and return */
+    if (ssl)
+        wolfSSL_free(ssl);      /* Free the wolfSSL object              */
+    if (sockfd != SOCKET_INVALID)
+        close(sockfd);          /* Close the socket   */
+    if (ctx)
+        wolfSSL_CTX_free(ctx);  /* Free the wolfSSL context object          */
+    wolfSSL_Cleanup();          /* Cleanup the wolfSSL environment          */
 
-    return ret;
+    return ret;                 /* Return reporting a success               */
 
 }

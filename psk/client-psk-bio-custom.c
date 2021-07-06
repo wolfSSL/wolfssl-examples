@@ -231,7 +231,7 @@ int main(int argc, char **argv)
         goto exit;
     }
     wolfSSL_set_bio(ssl, custom, custom);
-    if (wolfSSL_BIO_set_ssl(bioSSL, ssl, BIO_CLOSE) != 0) {
+    if (wolfSSL_BIO_set_ssl(bioSSL, ssl, BIO_CLOSE) != WOLFSSL_SUCCESS) {
         fprintf(stderr, "wolfSSL_BIO_set_ssl error.\n");
         goto exit;
     }

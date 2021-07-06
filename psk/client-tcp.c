@@ -93,6 +93,8 @@ int main(int argc, char **argv)
 
     /* close socket and connection */
     close(sockfd);
+   
+    ret = 0; 
 
     return ret;
 }

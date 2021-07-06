@@ -87,16 +87,24 @@ static int envelopedData_encrypt(byte* cert, word32 certSz, byte* key,
 {
     int ret;
     PKCS7* pkcs7;
+    WC_RNG rng;
 
     pkcs7 = wc_PKCS7_New(NULL, INVALID_DEVID);
     if (pkcs7 == NULL)
         return -1;
 
+    ret = wc_InitRng(&rng);
+    if(ret != 0){
+       printf("wc_InitRng() failed, ret = %d\n", ret);
+       return -1;
+    }
+
     pkcs7->content     = (byte*)data;
     pkcs7->contentSz   = sizeof(data);
     pkcs7->contentOID  = DATA;
     pkcs7->encryptOID  = AES256CBCb;
-
+    pkcs7->rng         = &rng;
+   
     /* add recipient using ECC certificate (KARI type) */
     ret = wc_PKCS7_AddRecipient_KARI(pkcs7, cert, certSz, AES256_WRAP,
                                      dhSinglePass_stdDH_sha256kdf_scheme,
@@ -124,6 +132,7 @@ static int envelopedData_encrypt(byte* cert, word32 certSz, byte* key,
         }
     }
 
+    wc_FreeRng(&rng); 
     wc_PKCS7_Free(pkcs7);
 
     return ret;
@@ -135,11 +144,18 @@ static int envelopedData_decrypt(byte* in, word32 inSz, byte* cert,
 {
     int ret;
     PKCS7* pkcs7;
+    WC_RNG rng;
+   
+    ret = wc_InitRng(&rng);
+    if(ret != 0){
+       printf("wc_InitRng() failed, ret = %d\n", ret);
+       return -1;
+    }
 
     pkcs7 = wc_PKCS7_New(NULL, INVALID_DEVID);
     if (pkcs7 == NULL)
         return -1;
-
+ 
     /* init with recipient cert */
     ret = wc_PKCS7_InitWithCert(pkcs7, cert, certSz);
     if (ret != 0) {
@@ -156,6 +172,8 @@ static int envelopedData_decrypt(byte* in, word32 inSz, byte* cert,
         return -1;
     }
 
+    pkcs7->rng = &rng;
+
     /* decode envelopedData, returns size */
     ret = wc_PKCS7_DecodeEnvelopedData(pkcs7, in, inSz, out, outSz);
     if (ret <= 0 || (ret != sizeof(data)) || (XMEMCMP(out, data, ret) != 0)) {
@@ -167,6 +185,7 @@ static int envelopedData_decrypt(byte* in, word32 inSz, byte* cert,
                encodedFileKARI);
     }
 
+    wc_FreeRng(&rng); 
     wc_PKCS7_Free(pkcs7);
 
     return ret;

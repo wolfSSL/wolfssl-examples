@@ -275,8 +275,10 @@ exit:
     /* Cleanup and return */
     if (ssl)
         wolfSSL_free(ssl);      /* Free the wolfSSL object              */
+#ifdef OPENSSL_EXTRA   
     if (session)
         wolfSSL_SESSION_free(session);
+#endif    
     if (sockfd != SOCKET_INVALID)
         close(sockfd);          /* Close the socket   */
     if (ctx)

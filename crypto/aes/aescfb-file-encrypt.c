@@ -348,7 +348,8 @@ int main(int argc, char** argv)
             AesDecrypt(&aes, key, size, inFile, outFile);
     }
     else if (choice == 'n') {
-        printf("Must select either -e or -d for encryption and decryption\n");
+        printf("Must select either -e[128, 192, 256] or -d[128, 192, 256] \
+                for encryption and decryption\n");
         ret = -110;
     }
 

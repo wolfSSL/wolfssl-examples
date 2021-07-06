@@ -158,6 +158,8 @@ int gen_csr(int type)
     pemSz = ret;
     printf("%s (%d)", pem, pemSz);
 
+    ret = 0;
+    
 exit:
     if (type == EC_KEY_TYPE) {
         wc_ecc_free(&ecKey);

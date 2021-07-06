@@ -61,18 +61,19 @@ static inline unsigned int My_Psk_Client_Cb(WOLFSSL* ssl, const char* hint,
 
 int main(int argc, char **argv)
 {
-    int ret, sockfd;
+    int ret;
+    int sockfd = SOCKET_INVALID;
     char sendline[MAXLINE]="Hello Server"; /* string to send to the server */
     char recvline[MAXLINE]; /* string received from the server */
     struct sockaddr_in servaddr;;
 
-    WOLFSSL* ssl;
-    WOLFSSL_CTX* ctx;
+    WOLFSSL* ssl = NULL;
+    WOLFSSL_CTX* ctx = NULL;
 
     /* must include an ip address of this will flag */
     if (argc != 2) {
         printf("Usage: tcpClient <IPaddress>\n");
-        return 1;
+        return -1; 
     }
 
     /* create a stream socket using tcp,internet protocal IPv4,
@@ -89,14 +90,16 @@ int main(int argc, char **argv)
     ret = inet_pton(AF_INET, argv[1], &servaddr.sin_addr);
     if (ret != 1) {
         printf("inet_pton error\n");
-        return 1;
+        ret = -1; 
+        goto exit;
     }
 
     /* attempts to make a connection on a socket */
     ret = connect(sockfd, (struct sockaddr *) &servaddr, sizeof(servaddr));
     if (ret != 0) {
         printf("Connection Error\n");
-        return 1;
+        ret = -1; 
+        goto exit;
     }
 
 
@@ -105,7 +108,8 @@ int main(int argc, char **argv)
     /* create and initialize WOLFSSL_CTX structure */
     if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method())) == NULL) {
         fprintf(stderr, "wolfSSL_CTX_new error.\n");
-        return 1;
+        ret = -1;
+        goto exit;
     }
 
     /* set up pre shared keys */
@@ -114,38 +118,44 @@ int main(int argc, char **argv)
     /* creat wolfssl object after each tcp connect */
     if ( (ssl = wolfSSL_new(ctx)) == NULL) {
         fprintf(stderr, "wolfSSL_new error.\n");
-        return 1;
+        ret = -1; 
+        goto exit;
     }
 
     /* associate the file descriptor with the session */
     ret = wolfSSL_set_fd(ssl, sockfd);
     if (ret != WOLFSSL_SUCCESS) {
-        return 1;
+        goto exit;
     }
 
     /* write string to the server */
     if (wolfSSL_write(ssl, sendline, MAXLINE) != sizeof(sendline)) {
         printf("Write Error to Server\n");
-        return 1;
+        ret = -1;
+        goto exit;
     }
 
     /* check if server ended before client could read a response  */
     if (wolfSSL_read(ssl, recvline, MAXLINE) < 0 ) {
         printf("Client: Server Terminated Prematurely!\n");
-        return 1;
+        ret = -1;
+        goto exit;
     }
 
     /* show message from the server */
     printf("Server Message: %s\n", recvline);
 
-    /* cleanup */
-    wolfSSL_free(ssl);
+    ret = 0;
 
-    /* when completely done using SSL/TLS, free the
-     * wolfssl_ctx object */
-    wolfSSL_CTX_free(ctx);
-    wolfSSL_Cleanup();
+exit:
+    /* Cleanup and return */
+    if (ssl)
+        wolfSSL_free(ssl);      /* Free the wolfSSL object              */
+    if (sockfd != SOCKET_INVALID)
+        close(sockfd);          /* Close the socket   */
+    if (ctx)
+        wolfSSL_CTX_free(ctx);  /* Free the wolfSSL context object          */
+    wolfSSL_Cleanup();          /* Cleanup the wolfSSL environment          */
 
-    /* exit client */
-    return ret;
+    return ret;                 /* Return reporting a success               */
 }
