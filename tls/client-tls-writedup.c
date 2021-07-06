@@ -212,6 +212,7 @@ int main(int argc, char** argv)
     pthread_join(write_thread, NULL);
     pthread_join(read_thread, NULL);
 
+    ret = 0;
 
 exit:
     /* Cleanup and return */

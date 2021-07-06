@@ -306,6 +306,8 @@ int main()
         close(connd);           /* Close the connection to the client   */
     }
 
+    ret = 0;
+ 
 exit:
     /* Cleanup and return */
     if (ssl)

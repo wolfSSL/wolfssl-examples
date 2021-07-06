@@ -281,8 +281,8 @@ int main(int argc, char** argv)
 
     byte cert[2048];
     byte key[2048];
-    byte encrypted[2048];
-    byte decrypted[2048];
+    byte encrypted[5096];
+    byte decrypted[5096];
     
 #ifdef DEBUG_WOLFSSL
     wolfSSL_Debugging_ON();

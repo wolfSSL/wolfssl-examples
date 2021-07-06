@@ -167,6 +167,7 @@ int main(int argc, char** argv)
 
     printf("Shutdown complete\n");
 
+    ret = 0;
 
     /* Cleanup and return */
 cleanup:

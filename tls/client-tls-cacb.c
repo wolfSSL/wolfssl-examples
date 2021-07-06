@@ -214,6 +214,8 @@ int main(int argc, char** argv)
     }
     Security(sockfd);
 
+    ret = 0;
+
 exit:
     /* Cleanup and return */
     if (sockfd != SOCKET_INVALID)

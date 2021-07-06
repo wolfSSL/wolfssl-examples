@@ -348,7 +348,8 @@ int main(int argc, char** argv)
             Des3Decrypt(&des3, key, size, inFile, outFile);
     }
     else if (choice == 'n') {
-        printf("Must select either -e or -d for encryption and decryption\n");
+        printf("Must select either -e[56,112,168] or -d[56,112,168] for \
+                encryption and decryption\n");
     }
 
     return ret;

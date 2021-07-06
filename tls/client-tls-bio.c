@@ -159,7 +159,9 @@ int main(int argc, char** argv)
 
     /* Print to stdout any data the server sends */
     printf("Server: %s\n", buff);
-    
+
+    ret = 0;
+
 exit:
     /* Cleanup and return */
     if (bio)

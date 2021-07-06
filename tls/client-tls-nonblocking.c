@@ -250,6 +250,8 @@ int main(int argc, char** argv)
              ret == WOLFSSL_ERROR_WANT_WRITE);
     printf("Shutdown complete\n");
 
+    ret = 0;
+
 exit:
     /* Cleanup and return */
     if (ssl)
