@@ -48,7 +48,7 @@ int main(int argc, char **argv)
     /* must include an ip address or this will flag */
     if (argc != 2) {
         printf("Usage: tcpClient <IPaddress>\n");
-        return 1;
+        return -1;
     }
 
     /* create a stream socket using tcp,internet protocal IPv4,
@@ -66,35 +66,39 @@ int main(int argc, char **argv)
 
     if (ret != 1) {
         printf("Not a Valid network address");
-        return 1;
+        return -1;
     }
 
     /* attempts to make a connection on a socket */
     ret = connect(sockfd, (struct sockaddr *) &servaddr, sizeof(servaddr));
 
     if (ret != 0) {
-        return 1;
+        ret = -1; 
+        goto exit;
     }
 
     /* takes inputting string and outputs it to the server */
     /* write string to the server */
     if (write(sockfd, sendline, strlen(sendline)) != strlen(sendline)) {
         printf("Write Error to Server\n");
-        return 1;
+        ret = -1; 
+        goto exit;
     }
 
     /* flags if the server stopped before the client could end */
     if (read(sockfd, recvline, MAXLINE) == 0) {
         printf("Client: Server Terminated Prematurely!\n");
-        return 1;
+        ret = -1; 
+        goto exit;
     }
 
     printf("Server Message: %s\n", recvline);
 
+    ret = 0;
+
+exit:
     /* close socket and connection */
     close(sockfd);
    
-    ret = 0; 
-
     return ret;
 }
