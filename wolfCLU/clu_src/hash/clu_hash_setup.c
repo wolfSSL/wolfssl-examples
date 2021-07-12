@@ -26,10 +26,11 @@
  */
 int wolfCLU_hashSetup(int argc, char** argv)
 {
+    WOLFSSL_BIO *bioIn = NULL;
+    WOLFSSL_BIO *bioOut = NULL;
+
     int     ret        =   0;   /* return variable, counter */
     int     i          =   0;   /* loop variable */
-    char*   in;                 /* input variable */
-    char*   out     =   NULL;   /* output variable */
     const char* algs[]  =   {   /* list of acceptable algorithms */
 #ifndef NO_MD5
         "md5",
@@ -91,23 +92,21 @@ int wolfCLU_hashSetup(int argc, char** argv)
     /* returns location of the arg in question if present */
     ret = wolfCLU_checkForArg("-in", 3, argc, argv);
     if (ret > 0) {
-        /* input file/text */
-        int argLen = (int) XSTRLEN(argv[ret+1]);
-        int fullLen = (int) ((argLen + 1) * sizeof(char));
-
-        in = XMALLOC(fullLen, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-        if (in == NULL)
-            return MEMORY_E;
-
-        XSTRNCPY(in, &argv[ret+1][0], XSTRLEN(argv[ret+1]));
-        in[XSTRLEN(argv[ret+1])] = '\0';
+        bioIn = wolfSSL_BIO_new_file(argv[ret+1], "rb");
+        if (bioIn == NULL) {
+            printf("unable to open file %s\n", argv[ret+1]);
+            return USER_INPUT_ERROR;
+        }
         inCheck = 1;
     }
 
     ret = wolfCLU_checkForArg("-out", 4, argc, argv);
     if (ret > 0) {
-        /* output file */
-        out = argv[ret+1];
+        bioOut = wolfSSL_BIO_new_file(argv[ret+1], "rb");
+        if (bioOut == NULL) {
+            printf("unable to open output file %s\n", argv[ret+1]);
+            return USER_INPUT_ERROR;
+        }
     }
 
     ret = wolfCLU_checkForArg("-size", 5, argc, argv);
@@ -156,9 +155,9 @@ int wolfCLU_hashSetup(int argc, char** argv)
 #endif
 
     /* hashing function */
-    ret = wolfCLU_hash(in, out, alg, size);
-
-    XFREE(in, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    ret = wolfCLU_hash(bioIn, bioOut, alg, size);
+    wolfSSL_BIO_free(bioIn);
+    wolfSSL_BIO_free(bioOut);
 
     return ret;
 }

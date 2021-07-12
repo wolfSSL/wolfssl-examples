@@ -25,6 +25,7 @@
 #include <wolfssl/ssl.h> /* wolfSSL_CertPemToDer */
 #include "clu_include/clu_error_codes.h"
 #include "clu_include/x509/clu_parse.h"
+#include "clu_include/x509/clu_cert.h"
 
 #define MAX_CERT_SIZE 16384
 
@@ -68,6 +69,128 @@ int wolfCLU_inpemOuttext(char* infile, char* outfile, int silent_flag) {
     return ret;
 }
 
+
+/* returns alloc'd WOLFSSL_X509 structure on success */
+static WOLFSSL_X509* wolfCLU_parseX509(char* infile, int inform)
+{
+    int type;
+
+    type = (inform == DER_FORM)? WOLFSSL_FILETYPE_ASN1 : WOLFSSL_FILETYPE_PEM;
+
+    return wolfSSL_X509_load_certificate_file(infile, type);
+}
+
+
+/* return 0 on success */
+int wolfCLU_printDerPubKey(WOLFSSL_BIO* bio, unsigned char* der, int derSz)
+{
+    int ret = 0;
+
+    unsigned char *pem = NULL;
+    int pemSz = 0;
+
+    if (bio == NULL) {
+        ret = -1;
+    }
+
+    /* get pem size alloc buffer and convert to pem format */
+    if (ret == 0) {
+        pemSz = wc_DerToPemEx(der, derSz, NULL, 0, NULL, PUBLICKEY_TYPE);
+        if (pemSz > 0) {
+            pem = (unsigned char*)XMALLOC(pemSz, NULL, DYNAMIC_TYPE_PUBLIC_KEY);
+            if (pem == NULL) {
+                ret = -1;
+            }
+            else {
+                if (wc_DerToPemEx(der, derSz, pem, pemSz, NULL, PUBLICKEY_TYPE)
+                        <= 0) {
+                    ret = -1;
+                }
+            }
+        }
+        else {
+            ret = -1;
+        }
+    }
+
+    if (ret == 0) {
+        if (wolfSSL_BIO_write(bio, pem, pemSz) != pemSz) {
+            ret = -1;
+        }
+    }
+
+    if (pem != NULL)
+        XFREE(pem, NULL, DYNAMIC_TYPE_PUBLIC_KEY);
+
+    return ret;
+}
+
+
+/* returns 0 on success */
+int wolfCLU_printX509PubKey(char* infile, int inform, char* outfile,
+        int silent_flag)
+{
+    int ret = 0;
+    WOLFSSL_X509 *x509 = NULL;
+    WOLFSSL_BIO  *bio  = NULL;
+
+    unsigned char *der = NULL;
+    int derSz = 0;
+
+    x509 = wolfCLU_parseX509(infile, inform);
+    if (x509 == NULL) {
+        printf("unable to parse file %s\n", infile);
+        ret = -1;
+    }
+
+    /* use stdout if outfile is null */
+    if (ret == 0) {
+        bio = wolfSSL_BIO_new(wolfSSL_BIO_s_file());
+        if (bio == NULL) {
+            ret = -1;
+        }
+        else {
+            if (wolfSSL_BIO_set_fp(bio, stdout, BIO_NOCLOSE)
+                    != WOLFSSL_SUCCESS) {
+                ret = -1;
+            }
+        }
+    }
+
+    /* get the size of the pubkey der buffer and alloc it */
+    if (ret == 0) {
+        if (wolfSSL_X509_get_pubkey_buffer(x509, NULL, &derSz)
+                == WOLFSSL_SUCCESS) {
+            der = (unsigned char*)XMALLOC(derSz, NULL, DYNAMIC_TYPE_PUBLIC_KEY);
+            if (der == NULL) {
+                ret = -1;
+            }
+            else {
+                if (wolfSSL_X509_get_pubkey_buffer(x509, der, &derSz)
+                        != WOLFSSL_SUCCESS) {
+                    ret = -1;
+                }
+            }
+        }
+        else {
+            ret = -1;
+        }
+    }
+
+    if (ret == 0)
+        ret = wolfCLU_printDerPubKey(bio, der, derSz);
+
+    wolfSSL_X509_free(x509);
+    wolfSSL_BIO_free(bio);
+
+    if (der != NULL)
+        XFREE(der, NULL, DYNAMIC_TYPE_PUBLIC_KEY);
+
+    return ret;
+}
+
+
+/* returns 0 on success */
 int wolfCLU_parseFile(char* infile, int inform, char* outfile, int outform,
                                                                 int silent_flag)
 {
@@ -94,7 +217,7 @@ int wolfCLU_parseFile(char* infile, int inform, char* outfile, int outform,
     else {
         outstream  = fopen(outfile, "wb");
     }
-    
+
 /*----------------------------------------------------------------------------*/
 /* read in der, output der */
 /*----------------------------------------------------------------------------*/
@@ -114,16 +237,16 @@ int wolfCLU_parseFile(char* infile, int inform, char* outfile, int outform,
         /* checking if output file was given, if not write to stdout */
         wolfSSL_BIO_set_fp(bio, outstream, BIO_NOCLOSE);
         
-        if(x509 == NULL){
+        if (x509 == NULL){
             printf("x509 Failure Still Null\n");
         }
 
-        if(bio == NULL){
+        if (bio == NULL){
             printf("BIO Failure Still Null\n");
         }
         
         ret = wolfSSL_X509_print(bio, x509);
-        if (ret == SSL_FAILURE) {
+        if (ret == WOLFSSL_FAILURE) {
             printf("Failed to write x509 cert.\n");
             goto clu_parse_cleanup;
         }

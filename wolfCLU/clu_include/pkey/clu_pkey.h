@@ -1,4 +1,4 @@
-/* clu_cert.h
+/* clu_pkey.h
  *
  * Copyright (C) 2006-2020 wolfSSL Inc.
  *
@@ -19,20 +19,22 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
-#include <wolfssl/wolfcrypt/random.h>
-#include <wolfssl/wolfcrypt/error-crypt.h>
+#ifndef CLU_PKEY_H
+#define CLU_PKEY_H
 
-#define PEM_FORM 1
-#define DER_FORM 2
+#include <wolfssl/options.h>
+#ifdef HAVE_ED25519
+    #include <wolfssl/wolfcrypt/ed25519.h>
+#endif
+#ifndef NO_RSA
+    #include <wolfssl/wolfcrypt/rsa.h>
+#endif
+#ifdef HAVE_ECC
+    #include <wolfssl/wolfcrypt/ecc.h>
+#endif
 
 /* handles incoming arguments for certificate generation */
-int wolfCLU_certSetup(int argc, char** argv);
+int wolfCLU_pKeySetup(int argc, char** argv);
 
-/* print help info */
-void wolfCLU_certHelp();
-
-/* check for user input errors */
-int error_check(int inpem_flag, int inder_flag, 
-                int outpem_flag, int outder_flag, 
-                int text_flag, int text_pubkey, int noout_flag);
+#endif /* CLU_PKEY_H */
 

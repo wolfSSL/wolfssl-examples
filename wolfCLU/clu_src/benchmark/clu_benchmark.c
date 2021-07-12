@@ -517,5 +517,7 @@ int wolfCLU_benchmark(int timer, int* option)
         wolfCLU_freeBins(digest, plain, NULL, NULL, NULL);
     }
 #endif
+    (void)blocks;
+    (void)loop;
     return ret;
 }

@@ -40,6 +40,7 @@
 #include <wolfssl/error-ssl.h>
 #include <wolfssl/wolfcrypt/hash.h>
 #include <wolfssl/version.h>
+#include <wolfssl/openssl/bio.h>
 
 #ifndef NO_MD5
     #include <wolfssl/wolfcrypt/md5.h>
@@ -103,6 +104,15 @@
  * @param action forwarded from wolfCLU_main (-e, -d, -h, or -b)
  */
 int wolfCLU_setup(int argc, char** argv, char action);
+
+
+/* Handle ecparam mode
+ *
+ * @param argc holds all command line input
+ * @param argv each holds one value from the command line input
+ * @return returns 0 on success
+ */
+int wolfCLU_ecparam(int argc, char** argv);
 
 /* hash argument function
  *
@@ -176,7 +186,7 @@ void wolfCLU_certgenHelp();
  * @param mode the mode as set by the user (cbc or ctr)
  * @param size set based on the algorithm specified
  */
-int wolfCLU_getAlgo(char* name, char** alg, char** mode, int* size);
+int wolfCLU_getAlgo(int argc, char* argv[], char** alg, char** mode, int* size);
 
 /* secure entry of password
  *
@@ -296,12 +306,22 @@ int wolfCLU_benchmark(int timer, int* option);
  * @param alg
  * @param size
  */
-int wolfCLU_hash(char* in, char* out, char* alg, int size);
+int wolfCLU_hash(WOLFSSL_BIO* bioIn, WOLFSSL_BIO* bioOut, char* alg, int size);
+
+
+/**
+ * @brief Used to create a MD5 hash
+ *
+ * @param argc total number of args
+ * @param argv array of arg strings
+ * @return 0 on success
+ */
+int wolfCLU_md5Setup(int argc, char** argv);
 
 /*
  * get the current Version
  */
-void wolfCLU_version(void);
+int wolfCLU_version(void);
 
 /*
  * generic function to check for a specific input argument. Return the
@@ -333,5 +353,28 @@ int wolfCLU_checkOutform(char* outform);
  */
 int wolfCLU_checkInform(char* inform);
 
+
+/**
+ *  @ingroup X509
+ *  @brief This function is used internally to get user input and fill out a
+ *  WOLFSSL_X509_NAME structure.
+ *
+ *  @param x509 the name structure to be filled in
+ *  @return 0 On successfully setting the name
+ */
+int wolfCLU_CreateX509Name(WOLFSSL_X509_NAME* x509);
+
+
+/**
+ * @ingroup X509
+ * @brief This function reads a configure file and creates the resulting
+ *  WOLFSSL_X509 structure
+ *
+ * @param config file name of the config to read
+ * @param sect   section in the config file to search for when reading
+ * @return a newly created WOLFSSL_X509 structure on success
+ * @return null on fail
+*/
+int wolfCLU_readConfig(WOLFSSL_X509* x509, char* config, char* sect);
 
 #endif /* _WOLFSSL_CLU_HEADER_ */

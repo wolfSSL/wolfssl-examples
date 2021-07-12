@@ -1,4 +1,4 @@
-/* clu_cert.h
+/* clu_md5.c
  *
  * Copyright (C) 2006-2020 wolfSSL Inc.
  *
@@ -19,20 +19,32 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
-#include <wolfssl/wolfcrypt/random.h>
-#include <wolfssl/wolfcrypt/error-crypt.h>
+#include "clu_include/clu_header_main.h"
 
-#define PEM_FORM 1
-#define DER_FORM 2
+#define MAX_BUFSIZE 8192
 
-/* handles incoming arguments for certificate generation */
-int wolfCLU_certSetup(int argc, char** argv);
+int wolfCLU_md5Setup(int argc, char** argv)
+{
+    WOLFSSL_BIO *bioIn  = NULL;
+    WOLFSSL_BIO *bioOut = NULL;
+    int     ret         = 0;
 
-/* print help info */
-void wolfCLU_certHelp();
+#ifdef NO_MD5
+    printf("wolfCrypt compiled without MD5 support\n");
+#endif
 
-/* check for user input errors */
-int error_check(int inpem_flag, int inder_flag, 
-                int outpem_flag, int outder_flag, 
-                int text_flag, int text_pubkey, int noout_flag);
+    /* was a file input provided? if so read from file */
+    if (argc >= 3) {
+        bioIn = wolfSSL_BIO_new_file(argv[2], "rb");
+        if (bioIn == NULL) {
+            printf("unable to open file %s\n", argv[2]);
+            return USER_INPUT_ERROR;
+        }
+    }
+
+    /* hashing function */
+    ret = wolfCLU_hash(bioIn, bioOut, "md5", WC_MD5_DIGEST_SIZE);
+    wolfSSL_BIO_free(bioIn);
+    return ret;
+}
 

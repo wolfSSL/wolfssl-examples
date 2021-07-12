@@ -10,6 +10,7 @@ nobase_include_HEADERS+=clu_include/clu_header_main.h \
                         clu_include/x509/clu_parse.h \
                         clu_include/x509/clu_request.h \
                         clu_include/genkey/clu_genkey.h \
+                        clu_include/pkey/clu_pkey.h \
                         clu_include/sign-verify/clu_sign.h \
                         clu_include/sign-verify/clu_verify.h \
                         clu_include/sign-verify/clu_sign_verify_setup.h \

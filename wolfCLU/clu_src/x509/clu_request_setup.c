@@ -20,105 +20,251 @@
  */
 
 #include "clu_include/clu_header_main.h"
+#include "clu_include/clu_optargs.h"
 #include "clu_include/x509/clu_request.h"
+#include "clu_include/x509/clu_cert.h"
 #include "clu_include/certgen/clu_certgen.h"
 
 int wolfCLU_requestSetup(int argc, char** argv)
 {
+#ifndef WOLFSSL_CERT_REQ
+    printf("wolfSSL not compiled with --enable-certreq\n");
+    return -1;
+#else
+    WOLFSSL_BIO *bioOut = NULL;
+    WOLFSSL_BIO *bioIn  = NULL;
+    WOLFSSL_X509 *x509  = NULL;
+    const WOLFSSL_EVP_MD *md  = NULL;
+    WOLFSSL_EVP_PKEY *pkey = NULL;
 
-
-    int     ret        =   0;   /* return variable, counter */
-    int     i          =   0;   /* loop variable */
-    char*   in;                 /* input variable */
-    char*   out;                /* output variable */
+    int     ret = 0;
+    int     i   = 0;
+    char*   in  = NULL;
+    char*   out = NULL;
+    char*   config = NULL;
 
     char*   alg;                /* algorithm being used */
-    int     keyCheck =   0;     /* input check */
     int     algCheck =   0;     /* algorithm type */
     int     oid;
-    
-    /* help checking */
-    ret = wolfCLU_checkForArg("-help", 5, argc, argv);
-    if (ret > 0) {
-        wolfCLU_certgenHelp();
-        return 0;
-    }
-    
-    // TODO remove hard coded
-    if (wolfCLU_checkForArg("-rsa", 3, argc, argv) > 0) {
-        algCheck = 1;
-    } else if (wolfCLU_checkForArg("-ed25519", 7, argc, argv) > 0) {
-        algCheck = 2;
-    } else if (wolfCLU_checkForArg("-ecc", 3, argc, argv) > 0) {
-        algCheck = 3;
-    } else {
-        wolfCLU_certgenHelp();
-        return FATAL_ERROR;
+    int     outForm = PEM_FORM; /* default to PEM format */
+    int     inForm  = PEM_FORM; /* default to PEM format */
+    int     option;
+    int     long_index = 1;
+    int     days = 0;
+
+
+    opterr = 0; /* do not display unrecognized options */
+    optind = 0; /* start at indent 0 */
+    while ((option = getopt_long_only(argc, argv, "", req_options,
+                    &long_index )) != -1) {
+
+        switch (option) {
+            case INFILE:
+            case KEY:
+                in = optarg;
+                bioIn = wolfSSL_BIO_new_file(optarg, "rb");
+                if (bioIn == NULL) {
+                    printf("unable to open public key file %s\n", optarg);
+                    ret = -1;
+                }
+                break;
+
+            case OUTFILE:
+                out = optarg;
+                bioOut = wolfSSL_BIO_new_file(optarg, "wb");
+                if (bioOut == NULL) {
+                    printf("unable to open output file %s\n", optarg);
+                    ret = -1;
+                }
+                break;
+
+            case INFORM:
+                inForm = wolfCLU_checkInform(optarg);
+                (void)inForm; /* for future use */
+                break;
+
+            case OUTFORM:
+                outForm = wolfCLU_checkOutform(optarg);
+                break;
+
+            case WOLFCLU_HELP:
+                wolfCLU_certgenHelp();
+                return 0;
+
+            case WOLFCLU_RSA:
+                algCheck = 1;
+                break;
+
+            case WOLFCLU_ECC:
+                algCheck = 3;
+                break;
+
+            case WOLFCLU_ED25519:
+                algCheck = 2;
+                break;
+
+            case WOLFCLU_CONFIG:
+                config = optarg;
+                break;
+
+            case WOLFCLU_DAYS:
+                days = atoi(optarg);
+                break;
+
+            case CERT_SHA:
+                md  = wolfSSL_EVP_sha1();
+                oid = SHA_HASH;
+                break;
+
+            case CERT_SHA224:
+                md  = wolfSSL_EVP_sha224();
+                oid = SHA_HASH224;
+                break;
+
+            case CERT_SHA256:
+                md  = wolfSSL_EVP_sha256();
+                oid = SHA_HASH256;
+                break;
+
+            case CERT_SHA384:
+                md  = wolfSSL_EVP_sha384();
+                oid = SHA_HASH384;
+                break;
+
+            case CERT_SHA512:
+                md  = wolfSSL_EVP_sha512();
+                oid = SHA_HASH512;
+                break;
+
+            case ':':
+            case '?':
+                break;
+
+            default:
+                /* do nothing. */
+                (void)ret;
+        }
     }
 
-    ret = wolfCLU_checkForArg("-in", 3, argc, argv);
-    if (ret > 0) {
-        in = XMALLOC(strlen(argv[ret+1]), HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-        if (in == NULL) {
-            return MEMORY_E;
-        } else if (access(argv[ret+1], F_OK) == -1) {
-            printf("Access: %s\n",argv[ret+1]);
-            printf("In: %s\n", in);
-            printf("Key file did not exist. Please check your options.\n");
-            return MEMORY_E;
+    /* default to sha256 if not set */
+    if (md == NULL) {
+        md  = wolfSSL_EVP_sha256();
+        oid = SHA_HASH256;
+    }
+
+    x509 = wolfSSL_X509_new();
+    if (x509 == NULL) {
+        printf("issue creating structure to use\n");
+        ret = MEMORY_E;
+    }
+
+    if (ret == 0 && days > 0) {
+        WOLFSSL_ASN1_TIME *notBefore, *notAfter;
+        time_t t;
+
+        t = time(NULL);
+        notBefore = wolfSSL_ASN1_TIME_adj(NULL, t, 0, 0);
+        notAfter = wolfSSL_ASN1_TIME_adj(NULL, t, atoi(argv[ret+1]), 0);
+        if (notBefore == NULL || notAfter == NULL) {
+            printf("error creating not before/after dates\n");
+            ret = -1;
+        }
+        else {
+            wolfSSL_X509_set_notBefore(x509, notBefore);
+            wolfSSL_X509_set_notAfter(x509, notAfter);
         }
 
-        XSTRNCPY(in, &argv[ret+1][0], XSTRLEN(argv[ret+1]));
-        in[XSTRLEN(argv[ret+1])] = '\0';
-        keyCheck = 1;        
+        wolfSSL_ASN1_TIME_free(notBefore);
+        wolfSSL_ASN1_TIME_free(notAfter);
+    }
+
+
+    if (ret == 0 && bioIn != NULL) {
+        pkey = wolfSSL_PEM_read_bio_PrivateKey(bioIn, NULL, NULL, NULL);
+        if (pkey == NULL) {
+            printf("error reading key from file\n");
+            ret = USER_INPUT_ERROR;
+        }
+
+        if (ret == 0 &&
+                wolfSSL_X509_set_pubkey(x509, pkey) != WOLFSSL_SUCCESS) {
+            ret = -1;
+        }
     }
     else {
         printf("Please specify a -key <key> option when "
                "generating a certificate.\n");
         wolfCLU_certgenHelp();
-        return ret;
-    }
-    
-    ret = wolfCLU_checkForArg("-out", 4, argc, argv);
-    if (ret > 0) {
-        /* output file */
-        out = argv[ret+1];
-    } else {
-        printf("Please specify an output file path when generating a "
-                                                      "certificate.\n");
-            wolfCLU_certgenHelp();
-            return ret;
-    }
-    
-    if (wolfCLU_checkForArg("-sha224", 7, argc, argv) != 0) {
-        oid = SHA_HASH224;
-    } else if (wolfCLU_checkForArg("-sha256", 7, argc, argv) != 0) {
-        oid = SHA_HASH256;
-    } else if (wolfCLU_checkForArg("-sha384", 7, argc, argv) != 0) {
-        oid = SHA_HASH384;
-    } else if (wolfCLU_checkForArg("-sha512", 7, argc, argv) != 0) {
-        oid = SHA_HASH512;
-    } else {
-        oid = SHA_HASH;
+        ret = USER_INPUT_ERROR;
     }
 
-    if (keyCheck == 0) {
-        printf("Must have input as either a file or standard I/O\n");
-        return FATAL_ERROR;
-    }
-    
-    // TODO remove hard coded values
-    if (algCheck == 1) {
-        ret = make_self_signed_rsa_certificate(in, out, oid);
-    } else if (algCheck == 2) {
-        ret = make_self_signed_ed25519_certificate(in, out);
-    } else if (algCheck == 3) {
-        ret = make_self_signed_ecc_certificate(in, out, oid);
-    }
-    
-    XFREE(in, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    if (ret == 0) {
+        if (config != NULL) {
+            ret = wolfCLU_readConfig(x509, config, "req");
+        }
+        else {
+            /* if no configure is passed in then get input from command line */
+            WOLFSSL_X509_NAME *name;
 
+            name = wolfSSL_X509_NAME_new();
+            if (name == NULL) {
+                ret = MEMORY_E;
+            }
+            else {
+                wolfCLU_CreateX509Name(name);
+                wolfSSL_X509_REQ_set_subject_name(x509, name);
+            }
+        }
+    }
+
+    if (ret == 0 && bioOut == NULL) {
+        /* output to stdout if no output is provided */
+        bioOut = wolfSSL_BIO_new(wolfSSL_BIO_s_file());
+        if (bioOut != NULL) {
+            if (wolfSSL_BIO_set_fp(bioOut, stdout, BIO_NOCLOSE)
+                    != WOLFSSL_SUCCESS) {
+                ret = -1;
+            }
+        }
+    }
+
+    if (ret == 0) {
+        if (algCheck == 3) {
+            ret = make_self_signed_ecc_certificate(in, out, oid);
+        }
+        else {
+            /* sign the req */
+            ret = wolfSSL_X509_REQ_sign(x509, pkey, md);
+            if (ret != WOLFSSL_SUCCESS) {
+                printf("error %d signing REQ\n", ret);
+            }
+
+            if (ret == WOLFSSL_SUCCESS) {
+                if (outForm == DER_FORM) {
+                    ret = wolfSSL_i2d_X509_REQ_bio(bioOut, x509);
+                }
+                else {
+                    ret = wolfSSL_PEM_write_bio_X509_REQ(bioOut, x509);
+                }
+
+                if (ret != WOLFSSL_SUCCESS) {
+                    printf("error %d writing out cert req\n", ret);
+                    ret = -1;
+                }
+                else {
+                    /* set WOLFSSL_SUCCESS case to success value */
+                    ret = 0;
+                }
+            }
+        }
+    }
+
+    wolfSSL_BIO_free(bioIn);
+    wolfSSL_BIO_free(bioOut);
+    wolfSSL_X509_free(x509);
+    wolfSSL_EVP_PKEY_free(pkey);
     return ret;
+#endif
 }
 
 

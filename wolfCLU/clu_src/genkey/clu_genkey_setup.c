@@ -32,6 +32,7 @@ int wolfCLU_genKeySetup(int argc, char** argv)
 
     char*    keyType = NULL;       /* keyType */
     char*    format  = defaultFormat;
+    char*    name    = NULL;
 
     int      formatArg  =   DER_FORM;
     int      size       =   0;  /* keysize */
@@ -49,6 +50,10 @@ int wolfCLU_genKeySetup(int argc, char** argv)
     keyType = argv[2];
 
     ret = wc_InitRng(&rng);
+    if (ret != 0) {
+        printf("rng init failed\n");
+        return ret;
+    }
 
     ret = wolfCLU_checkForArg("-out", 4, argc, argv);
     if (ret > 0) {
@@ -114,8 +119,8 @@ int wolfCLU_genKeySetup(int argc, char** argv)
     } else if (XSTRNCMP(keyType, "ecc", 3) == 0) {
     #if defined(HAVE_ECC) && defined(WOLFSSL_KEY_GEN)
         /* ECC flags */
-        int directiveArg;
-        int sizeArg;
+        int directiveArg = PRIV_AND_PUB;
+        int sizeArg = 0;
 
         printf("generate ECC key\n");
 
@@ -134,6 +139,20 @@ int wolfCLU_genKeySetup(int argc, char** argv)
             printf("No -output <PUB/PRIV/KEYPAIR>\n");
             printf("DEFAULT: output public and private key pair\n");
             directiveArg = PRIV_AND_PUB;
+        }
+
+        /* get the curve name */
+        ret = wolfCLU_checkForArg("-name", 5, argc, argv);
+        if (ret > 0) {
+            if (argv[ret+1] != NULL) {
+                int i;
+
+                name = argv[ret+1];
+
+                /* convert name to upper case */
+                for (i = 0; i < XSTRLEN(name); i++)
+                    (void)toupper(name[i]);
+            }
         }
 
         /* get the size argument */
@@ -159,9 +178,11 @@ int wolfCLU_genKeySetup(int argc, char** argv)
                 }
             }
         } else {
-            printf("No -size <SIZE>\n");
-            printf("DEFAULT: use a 32 ECC key\n");
-            sizeArg = 32;
+            if (name == NULL) { /* if we have the name of curve we know */
+                printf("No -size <SIZE>\n");
+                printf("DEFAULT: use a 32 ECC key\n");
+                sizeArg = 32;
+            }
         }
 
         ret = wolfCLU_genKey_ECC(&rng, keyOutFName, directiveArg,
@@ -175,9 +196,9 @@ int wolfCLU_genKeySetup(int argc, char** argv)
     } else if (XSTRNCMP(keyType, "rsa", 3) == 0) {
     #if !defined(NO_RSA) && defined(WOLFSSL_KEY_GEN)
         /* RSA flags */
-        int directiveArg;
-        int sizeArg;
-        int expArg;
+        int directiveArg = PRIV_AND_PUB;
+        int sizeArg = 0;
+        int expArg  = 0;
 
         printf("generate RSA key\n");
 
