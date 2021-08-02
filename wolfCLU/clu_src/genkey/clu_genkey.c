@@ -188,8 +188,7 @@ int wolfCLU_genKey_ECC_ex(WC_RNG* rng, char* fName, int directive, int fmt,
     }
 
     if (ret == 0) {
-        ret = wolfSSL_EC_KEY_generate_key(key);
-        if (ret != WOLFSSL_SUCCESS) {
+        if (wolfSSL_EC_KEY_generate_key(key) != WOLFSSL_SUCCESS) {
             printf("error generating EC key\n");
             ret = -1;
         }

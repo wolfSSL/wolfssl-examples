@@ -669,6 +669,7 @@ static int wolfCLU_parseAlgo(char* name, char** alg, char** mode, int* size)
     return ret;
 }
 
+#define MAX_AES_IDX 6
 static const char* algoName[] = {
     "aes-128-ctr",
     "aes-192-ctr",
@@ -680,7 +681,35 @@ static const char* algoName[] = {
     "camellia-192-cbc",
     "camellia-256-cbc",
     "des-cbc",
+
 };
+
+/* support older name schemes */
+static const char* oldAlgoName[] = {
+    "aes-ctr-128",
+    "aes-ctr-192",
+    "aes-ctr-256",
+    "aes-cbc-128",
+    "aes-cbc-192",
+    "aes-cbc-256",
+};
+
+
+/* convert an old algo name into one optargs can handle */
+static void wolfCLU_oldAlgo(int argc, char* argv[], int maxIdx)
+{
+    int end;
+    int i, j;
+
+    end = (argc < maxIdx)? argc : maxIdx;
+    for (i = 0; i < end; i++) {
+        for (j = 0; j < MAX_AES_IDX; j++) {
+            if (XSTRCMP(argv[i], oldAlgoName[j]) == 0) {
+                argv[i] = (char*)algoName[j];
+            }
+        }
+    }
+}
 
 
 /*
@@ -703,6 +732,8 @@ int wolfCLU_getAlgo(int argc, char* argv[], char** alg, char** mode, int* size)
     if (argc < 3 || argvCopy[2] == NULL) {
         return FATAL_ERROR;
     }
+
+    wolfCLU_oldAlgo(argc, argvCopy, 3);
     XMEMSET(name, 0, sizeof(name));
     XSTRNCPY(name, argvCopy[2], XSTRLEN(argv[2]));
     ret = wolfCLU_parseAlgo(name, alg, mode, size);
@@ -739,7 +770,6 @@ int wolfCLU_getAlgo(int argc, char* argv[], char** alg, char** mode, int* size)
                     XSTRNCPY(name, algoName[5], XSTRLEN(algoName[5]));
                     break;
 
-    
                 /* camellia */
                 case WOLFCLU_CAMELLIA128CBC:
                     XSTRNCPY(name, algoName[6], XSTRLEN(algoName[6]));
@@ -982,7 +1012,7 @@ static void wolfCLU_AddNameEntry(WOLFSSL_X509_NAME* name, int type, int nid,
 /* returns 0 on success */
 int wolfCLU_CreateX509Name(WOLFSSL_X509_NAME* name)
 {
-    char   *in;
+    char   *in = NULL;
     size_t  inSz;
     ssize_t ret;
     FILE *fin = stdin; /* defaulting to stdin but using a fd variable to make it
@@ -991,38 +1021,52 @@ int wolfCLU_CreateX509Name(WOLFSSL_X509_NAME* name)
     printf("Enter without data will result in the feild being skipped\n");
     printf("Country [US] : ");
     ret = getline(&in, &inSz, fin);
-    if (ret > 0)
+    if (ret > 0) {
         wolfCLU_AddNameEntry(name, CTC_PRINTABLE, NID_countryName, in);
+        free(in); in = NULL;
+    }
 
     printf("State or Province [Montana] : ");
     ret = getline(&in, &inSz, fin);
-    if (ret > 0)
+    if (ret > 0) {
         wolfCLU_AddNameEntry(name, CTC_UTF8, NID_stateOrProvinceName, in);
+        free(in); in = NULL;
+    }
 
     printf("Locality [Bozeman] : ");
     ret = getline(&in, &inSz, fin);
-    if (ret > 0)
+    if (ret > 0) {
         wolfCLU_AddNameEntry(name, CTC_UTF8, NID_localityName, in);
+        free(in); in = NULL;
+    }
 
     printf("Organization Name [wolfSSL] : ");
     ret = getline(&in, &inSz, fin);
-    if (ret > 0)
+    if (ret > 0) {
         wolfCLU_AddNameEntry(name, CTC_UTF8, NID_organizationName, in);
+        free(in); in = NULL;
+    }
 
     printf("Organization Unit [engineering] : ");
     ret = getline(&in, &inSz, fin);
-    if (ret > 0)
+    if (ret > 0) {
         wolfCLU_AddNameEntry(name, CTC_UTF8, NID_organizationalUnitName, in);
+        free(in); in = NULL;
+    }
 
     printf("Common Name : ");
     ret = getline(&in, &inSz, fin);
-    if (ret > 0)
+    if (ret > 0) {
         wolfCLU_AddNameEntry(name, CTC_UTF8, NID_commonName, in);
+        free(in); in = NULL;
+    }
 
     printf("Email Address : ");
     ret = getline(&in, &inSz, fin);
-    if (ret > 0)
+    if (ret > 0) {
         wolfCLU_AddNameEntry(name, CTC_UTF8, NID_emailAddress, in);
+        free(in); in = NULL;
+    }
 
     return 0;
 }

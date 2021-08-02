@@ -152,6 +152,8 @@ static struct option pkey_options[] = {
     {"in",        required_argument, 0, INFILE    },
     {"inform",    required_argument, 0, INFORM    },
     {"pubout",    no_argument,       0, PUBOUT    },
+    {"help",      no_argument,       0, WOLFCLU_HELP      },
+    {"h",         no_argument,       0, WOLFCLU_HELP      },
 
     {0, 0, 0, 0} /* terminal element */
 };

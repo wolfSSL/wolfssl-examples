@@ -226,6 +226,9 @@ int wolfCLU_pKeySetup(int argc, char** argv)
         if (pkey != NULL) {
             if (inForm == PEM_FORM) {
                 ret = wolfCLU_pKeyPEMtoPubKey(bioOut, pkey);
+                if (ret != 0) {
+                    printf("error getting pubkey from pem key\n");
+                }
             }
             else {
                 unsigned char *der = NULL;
