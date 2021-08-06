@@ -59,8 +59,8 @@ int wolfCLU_requestSetup(int argc, char** argv)
                     &long_index )) != -1) {
 
         switch (option) {
-            case INFILE:
-            case KEY:
+            case WOLFCLU_INFILE:
+            case WOLFCLU_KEY:
                 in = optarg;
                 bioIn = wolfSSL_BIO_new_file(optarg, "rb");
                 if (bioIn == NULL) {
@@ -69,7 +69,7 @@ int wolfCLU_requestSetup(int argc, char** argv)
                 }
                 break;
 
-            case OUTFILE:
+            case WOLFCLU_OUTFILE:
                 out = optarg;
                 bioOut = wolfSSL_BIO_new_file(optarg, "wb");
                 if (bioOut == NULL) {
@@ -78,12 +78,12 @@ int wolfCLU_requestSetup(int argc, char** argv)
                 }
                 break;
 
-            case INFORM:
+            case WOLFCLU_INFORM:
                 inForm = wolfCLU_checkInform(optarg);
                 (void)inForm; /* for future use */
                 break;
 
-            case OUTFORM:
+            case WOLFCLU_OUTFORM:
                 outForm = wolfCLU_checkOutform(optarg);
                 break;
 
@@ -111,27 +111,27 @@ int wolfCLU_requestSetup(int argc, char** argv)
                 days = atoi(optarg);
                 break;
 
-            case CERT_SHA:
+            case WOLFCLU_CERT_SHA:
                 md  = wolfSSL_EVP_sha1();
                 oid = SHA_HASH;
                 break;
 
-            case CERT_SHA224:
+            case WOLFCLU_CERT_SHA224:
                 md  = wolfSSL_EVP_sha224();
                 oid = SHA_HASH224;
                 break;
 
-            case CERT_SHA256:
+            case WOLFCLU_CERT_SHA256:
                 md  = wolfSSL_EVP_sha256();
                 oid = SHA_HASH256;
                 break;
 
-            case CERT_SHA384:
+            case WOLFCLU_CERT_SHA384:
                 md  = wolfSSL_EVP_sha384();
                 oid = SHA_HASH384;
                 break;
 
-            case CERT_SHA512:
+            case WOLFCLU_CERT_SHA512:
                 md  = wolfSSL_EVP_sha512();
                 oid = SHA_HASH512;
                 break;

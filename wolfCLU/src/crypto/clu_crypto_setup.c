@@ -107,19 +107,19 @@ int wolfCLU_setup(int argc, char** argv, char action)
                    crypt_options, &long_index )) != -1) {
 
         switch (option) {
-        case PASSWORD: /* Password                                  */
+        case WOLFCLU_PASSWORD: /* Password                                  */
             XSTRNCPY((char*)pwdKey, optarg, size);
             pwdKeyChk = 1;
             keyType   = 1;
             break;
 
-        case PBKDF2:   /* pbkdf2 is used by default                 */
+        case WOLFCLU_PBKDF2:   /* pbkdf2 is used by default                 */
             break;
 
-        case KEY:      /* Key if used must be in hex                */
+        case WOLFCLU_KEY:      /* Key if used must be in hex                */
             break;
 
-        case IV:       /* IV if used must be in hex                 */
+        case WOLFCLU_IV:       /* IV if used must be in hex                 */
             {
                 char ivString[XSTRLEN(optarg)];
                 XSTRNCPY(ivString, optarg, XSTRLEN(optarg));
@@ -137,7 +137,7 @@ int wolfCLU_setup(int argc, char** argv, char action)
             }
             break;
 
-        case SIGN:
+        case WOLFCLU_SIGN:
             break;
 
         case WOLFCLU_VERIFY:   /* Verify results, used with -iv and -key    */
@@ -145,32 +145,32 @@ int wolfCLU_setup(int argc, char** argv, char action)
             inputHex = 1;
             break;
 
-        case INFORM:   /* Certificate Stuff                         */
-        case OUTFORM:
-        case OUTPUT:
-        case NOOUT:
-        case TEXT_OUT:
-        case SILENT:
-        case PUBIN:
-        case PUBOUT:
-        case PUBKEY:
+        case WOLFCLU_INFORM:   /* Certificate Stuff                         */
+        case WOLFCLU_OUTFORM:
+        case WOLFCLU_OUTPUT:
+        case WOLFCLU_NOOUT:
+        case WOLFCLU_TEXT_OUT:
+        case WOLFCLU_SILENT:
+        case WOLFCLU_PUBIN:
+        case WOLFCLU_PUBOUT:
+        case WOLFCLU_PUBKEY:
 
 
             /* The cases above have their arguments converted to lower case */
             if (optarg) convert_to_lower(optarg, (int)XSTRLEN(optarg));
             /* The cases below won't have their argument's molested */
 
-        case INFILE:   /* File passed in by user                    */
+        case WOLFCLU_INFILE:   /* File passed in by user                    */
             in = optarg;
             inCheck = 1;
             break;
 
-        case OUTFILE:  /* Output file                               */
+        case WOLFCLU_OUTFILE:  /* Output file                               */
             out = optarg;
             outCheck = 1;
             break;
 
-        case INKEY:
+        case WOLFCLU_INKEY:
             if (optarg == NULL) {
                 printf("no key passed in..\n");
                 wolfCLU_freeBins(pwdKey, iv, key, NULL, NULL);
@@ -208,7 +208,7 @@ int wolfCLU_setup(int argc, char** argv, char action)
             }
             break;
 
-        case SIGFILE:
+        case WOLFCLU_SIGFILE:
             break;
 
         case WOLFCLU_DECRYPT:

@@ -19,11 +19,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
-#include <wolfssl/options.h>
-#include <wolfssl/wolfcrypt/rsa.h>
-#include <wolfssl/wolfcrypt/ecc.h>
-#include <wolfssl/wolfcrypt/signature.h>
-
 #include <wolfclu/clu_header_main.h>
 #include <wolfclu/clu_optargs.h>
 #include <wolfclu/sign-verify/clu_sign.h>
@@ -72,23 +67,23 @@ int wolfCLU_dgst_setup(int argc, char** argv)
 
         switch (option) {
 
-            case CERT_SHA:
+            case WOLFCLU_CERT_SHA:
                 hashType = WC_HASH_TYPE_SHA;
                 break;
 
-            case CERT_SHA224:
+            case WOLFCLU_CERT_SHA224:
                 hashType = WC_HASH_TYPE_SHA224;
                 break;
 
-            case CERT_SHA256:
+            case WOLFCLU_CERT_SHA256:
                 hashType = WC_HASH_TYPE_SHA256;
                 break;
 
-            case CERT_SHA384:
+            case WOLFCLU_CERT_SHA384:
                 hashType = WC_HASH_TYPE_SHA384;
                 break;
 
-            case CERT_SHA512:
+            case WOLFCLU_CERT_SHA512:
                 hashType = WC_HASH_TYPE_SHA512;
                 break;
 
@@ -100,7 +95,7 @@ int wolfCLU_dgst_setup(int argc, char** argv)
                 }
                 break;
 
-            case INFILE:
+            case WOLFCLU_INFILE:
                 sigBio = wolfSSL_BIO_new_file(optarg, "rb");
                 if (sigBio == NULL) {
                     printf("unable to signature file %s\n", optarg);
@@ -108,13 +103,13 @@ int wolfCLU_dgst_setup(int argc, char** argv)
                 }
                 break;
 
-        case ':':
-        case '?':
-            break;
+            case ':':
+            case '?':
+                break;
 
-        default:
-            /* do nothing. */
-            (void)ret;
+            default:
+                /* do nothing. */
+                (void)ret;
         }
     }
 

@@ -56,11 +56,11 @@ int wolfCLU_ecparam(int argc, char** argv)
                    ecparam_options, &long_index )) != -1) {
 
         switch (option) {
-            case OUTFILE:
+            case WOLFCLU_OUTFILE:
                 out = optarg;
                 break;
 
-            case OUTFORM:
+            case WOLFCLU_OUTFORM:
                 outForm = wolfCLU_checkOutform(optarg);
                 if (outForm < 0) {
                     printf("bad outform\n");

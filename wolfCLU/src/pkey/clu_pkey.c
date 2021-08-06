@@ -162,11 +162,11 @@ int wolfCLU_pKeySetup(int argc, char** argv)
     while ((option = getopt_long_only(argc, argv, "",
                    pkey_options, &long_index )) != -1) {
         switch (option) {
-            case PUBOUT:
+            case WOLFCLU_PUBOUT:
                 pubOut = 1;
                 break;
 
-            case INFILE:
+            case WOLFCLU_INFILE:
                 bioIn = wolfSSL_BIO_new_file(optarg, "rb");
                 if (bioIn == NULL) {
                     printf("unable to open public key file %s\n", optarg);
@@ -174,7 +174,7 @@ int wolfCLU_pKeySetup(int argc, char** argv)
                 }
                 break;
 
-            case INFORM:
+            case WOLFCLU_INFORM:
                 inForm = wolfCLU_checkInform(optarg);
                 break;
 

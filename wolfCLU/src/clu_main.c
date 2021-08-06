@@ -144,7 +144,7 @@ int main(int argc, char** argv)
             ret = wolfCLU_pKeySetup(argc, argv);
             break;
 
-        case WOLFCLU_DGST:    
+        case WOLFCLU_DGST:
             ret = wolfCLU_dgst_setup(argc, argv);
             break;
 
@@ -160,7 +160,7 @@ int main(int argc, char** argv)
             wolfCLU_help();
             return 0;
 
-        case VERBOSE:
+        case WOLFCLU_VERBOSE:
             wolfCLU_verboseHelp();
             return 0;
 

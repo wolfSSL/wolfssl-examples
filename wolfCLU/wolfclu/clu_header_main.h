@@ -45,6 +45,9 @@
 #include <wolfssl/wolfcrypt/error-crypt.h>
 #include <wolfssl/wolfcrypt/hash.h>
 #include <wolfssl/wolfcrypt/asn_public.h>
+#include <wolfssl/wolfcrypt/rsa.h>
+#include <wolfssl/wolfcrypt/ecc.h>
+#include <wolfssl/wolfcrypt/signature.h>
 
 
 
