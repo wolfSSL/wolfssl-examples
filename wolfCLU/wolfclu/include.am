@@ -1,0 +1,18 @@
+# vim:ft=automake
+# All paths should be given relative to the root
+#
+
+
+nobase_include_HEADERS+=wolfclu/clu_header_main.h \
+                        wolfclu/clu_optargs.h \
+                        wolfclu/clu_error_codes.h \
+                        wolfclu/x509/clu_cert.h \
+                        wolfclu/x509/clu_parse.h \
+                        wolfclu/x509/clu_request.h \
+                        wolfclu/genkey/clu_genkey.h \
+                        wolfclu/pkey/clu_pkey.h \
+                        wolfclu/sign-verify/clu_sign.h \
+                        wolfclu/sign-verify/clu_verify.h \
+                        wolfclu/sign-verify/clu_sign_verify_setup.h \
+                        wolfclu/certgen/clu_certgen.h
+

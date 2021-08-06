@@ -10,17 +10,17 @@
 #requires user to have AutoConf version 2.63 or greater.
 AC_PREREQ([2.63])
 
-AC_INIT([wolfssl_clu], [0.5], [http://www.wolfssl.com])
+AC_INIT([wolfssl_clu], [0.0.5], [http://www.wolfssl.com])
 
 #a helpful directory to keep clutter out of root
 AC_CONFIG_AUX_DIR([build-aux])
-AC_CONFIG_HEADER([clu_src/config.h])
+AC_CONFIG_HEADER([src/config.h])
 AC_CANONICAL_HOST
-AC_CANONICAL_BUILD  
-		
+AC_CANONICAL_BUILD
+
 
 AM_INIT_AUTOMAKE([1.11 -Wall -Werror -Wno-portability foreign tar-ustar subdir-objects no-define color-tests])
- 
+
 AC_ARG_PROGRAM
 AC_DEFUN([PROTECT_AC_USE_SYSTEM_EXTENSIONS],
          [AX_SAVE_FLAGS
