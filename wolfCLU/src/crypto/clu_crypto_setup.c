@@ -22,6 +22,7 @@
 #include <wolfclu/clu_header_main.h>
 #include <wolfclu/clu_optargs.h>
 
+
 int wolfCLU_setup(int argc, char** argv, char action)
 {
     char     outNameE[256];     /* default outFile for encrypt */
@@ -29,9 +30,9 @@ int wolfCLU_setup(int argc, char** argv, char action)
     char     inName[256];       /* name of the in File if not provided */
 
     char*    name = NULL;       /* string of algorithm, mode, keysize */
-    char*    alg = NULL;        /* algorithm from name */
+    int      alg;               /* algorithm from name */
     char*    mode = NULL;       /* mode from name */
-    char*    out = outNameE;    /* default output file name */
+    char*    out  = NULL;       /* default output file name */
     char*    in = inName;       /* default in data */
     byte*    pwdKey = NULL;     /* password for generating pwdKey */
     byte*    key = NULL;        /* user set key NOT PWDBASED */
@@ -53,6 +54,11 @@ int wolfCLU_setup(int argc, char** argv, char action)
     int      keyType    =   0;  /* tells Decrypt which key it will be using
                                  * 1 = password based key, 2 = user set key
                                  */
+    int      printOut   =   0;  /* flag to print out key/iv/salt */
+    int      pbkVersion =   1;
+    const WOLFSSL_EVP_MD* hashType = wolfSSL_EVP_sha256();
+
+    const WOLFSSL_EVP_CIPHER* cphr = NULL;
     word32   ivSize     =   0;  /* IV if provided should be 2*block */
     word32   numBits    =   0;  /* number of bits in argument from the user */
     int      option;
@@ -82,10 +88,10 @@ int wolfCLU_setup(int argc, char** argv, char action)
     }
 
     /* initialize memory buffers */
-    pwdKey = (byte*) XMALLOC(size, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    pwdKey = (byte*) XMALLOC(size + block, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
     if (pwdKey == NULL)
         return MEMORY_E;
-    XMEMSET(pwdKey, 0, size);
+    XMEMSET(pwdKey, 0, size + block);
 
     iv = (byte*) XMALLOC(block, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
     if (iv == NULL) {
@@ -113,7 +119,8 @@ int wolfCLU_setup(int argc, char** argv, char action)
             keyType   = 1;
             break;
 
-        case WOLFCLU_PBKDF2:   /* pbkdf2 is used by default                 */
+        case WOLFCLU_PBKDF2:
+            pbkVersion = 2;
             break;
 
         case WOLFCLU_KEY:      /* Key if used must be in hex                */
@@ -216,6 +223,14 @@ int wolfCLU_setup(int argc, char** argv, char action)
             dCheck = 1;
             break;
 
+        case WOLFCLU_DEBUG:
+            printOut = 1;
+            break;
+
+        case WOLFCLU_MD:
+            hashType = wolfSSL_EVP_get_digestbyname(optarg);
+            break;
+
         case ':':
         case '?':
             break;
@@ -282,48 +297,60 @@ int wolfCLU_setup(int argc, char** argv, char action)
     }
 
     if (pwdKeyChk == 1 && keyCheck == 1) {
-        XMEMSET(pwdKey, 0, size);
+        XMEMSET(pwdKey, 0, size + block);
     }
 
     /* encryption function call */
+    cphr = wolfCLU_CipherTypeFromAlgo(alg);
     if (eCheck == 1) {
-
-        printf("\n");
-        if (outCheck == 0) {
-            ret = 0;
-            while (ret == 0) {
-                printf("Please enter a name for the output file: ");
-                ret = (int) scanf("%s", outNameE);
-                out = (ret > 0) ? outNameE : '\0';
-            }
+        /* if EVP type found then call generic EVP function */
+        if (cphr != NULL) {
+            ret = wolfCLU_evp_crypto(cphr, mode, pwdKey, key, size/8, in, out,
+                    NULL, iv, 0, 1, pbkVersion, hashType, printOut);
         }
-        ret = wolfCLU_encrypt(alg, mode, pwdKey, key, size, in, out,
+        else {
+            printf("\n");
+            if (outCheck == 0) {
+                ret = 0;
+                while (ret == 0) {
+                    printf("Please enter a name for the output file: ");
+                    ret = (int) scanf("%s", outNameE);
+                    out = (ret > 0) ? outNameE : '\0';
+                }
+            }
+            ret = wolfCLU_encrypt(alg, mode, pwdKey, key, size, in, out,
                 iv, block, ivCheck, inputHex);
+        }
     }
     /* decryption function call */
     else if (dCheck == 1) {
-        if (outCheck == 0) {
-            ret = 0;
-            while (ret == 0) {
-                printf("Please enter a name for the output file: ");
-                ret = (int) scanf("%s", outNameD);
-                out = (ret > 0) ? outNameD : '\0';
-            }
+        /* if EVP type found then call generic EVP function */
+        if (cphr != NULL) {
+            ret = wolfCLU_evp_crypto(cphr, mode, pwdKey, key, size/8, in, out,
+                    NULL, iv, 0, 0, pbkVersion, hashType, printOut);
         }
-        ret = wolfCLU_decrypt(alg, mode, pwdKey, key, size, in, out,
+        else {
+            if (outCheck == 0) {
+                ret = 0;
+                while (ret == 0) {
+                    printf("Please enter a name for the output file: ");
+                    ret = (int) scanf("%s", outNameD);
+                    out = (ret > 0) ? outNameD : '\0';
+                }
+            }
+            ret = wolfCLU_decrypt(alg, mode, pwdKey, key, size, in, out,
                 iv, block, keyType);
+        }
     }
     else {
         wolfCLU_help();
     }
     /* clear and free data */
     XMEMSET(key, 0, size);
-    XMEMSET(pwdKey, 0, size);
+    XMEMSET(pwdKey, 0, size + block);
     XMEMSET(iv, 0, block);
     wolfCLU_freeBins(pwdKey, iv, key, NULL, NULL);
 
-    if (alg != NULL)
-        XFREE(alg, NULL, DYNAMIC_TYPE_TMP_BUFFER);
     if (mode != NULL)
         XFREE(mode, NULL, DYNAMIC_TYPE_TMP_BUFFER);
 

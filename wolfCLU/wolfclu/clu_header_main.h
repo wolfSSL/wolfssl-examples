@@ -189,13 +189,21 @@ void wolfCLU_certgenHelp();
 
 
 /* find algorithm for encryption/decryption
- * 
+ *
  * @param name the whole line sent from user. Example: "aes-cbc-128"
  * @param alg the algorithm specified by the user (aes, 3des, or camellia)
  * @param mode the mode as set by the user (cbc or ctr)
  * @param size set based on the algorithm specified
  */
-int wolfCLU_getAlgo(int argc, char* argv[], char** alg, char** mode, int* size);
+int wolfCLU_getAlgo(int argc, char* argv[], int* alg, char** mode, int* size);
+
+
+/* find algorithm EVP cipher from alog enum
+ *
+ * @param alg the algorithm specified by the user (aes, 3des, or camellia)
+ */
+const WOLFSSL_EVP_CIPHER* wolfCLU_CipherTypeFromAlgo(int alg);
+
 
 /* secure entry of password
  *
@@ -275,7 +283,7 @@ void wolfCLU_stats(double start, int blockSize, int64_t blocks);
  * @param ivCheck a flag if user inputs a specific IV
  * @param inputHex a flag to specify encrypting hex data, instead of byte data
  */
-int wolfCLU_encrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
+int wolfCLU_encrypt(int alg, char* mode, byte* pwdKey, byte* key, int size,
                                 char* in, char* out, byte* iv, int block,
                                 int ivCheck, int inputHex);
 
@@ -297,8 +305,33 @@ int wolfCLU_encrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
  * @param keyType let's decrypt know if it's using a password based key or a
  *        hexidecimal, user specified key.
  */
-int wolfCLU_decrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
+int wolfCLU_decrypt(int alg, char* mode, byte* pwdKey, byte* key, int size,
                     char* in, char* out, byte* iv, int block, int keyType);
+
+
+/* encrypt and decrypt function
+ *
+ * @param alg this will be the algorithm to use as specified by the user
+ *        options include: aes, 3des, or camellia
+ * @param mode this is the mode to be used for the encryption
+ *        cbc is used with all of the above with an optional ctr for aes
+ * @param pwdKey this is the user provided password to be used as the key
+ * @param key if entered must be in hex, can be used to verify encryption with
+ *            nist test vectors.
+ * @param keySz this is the size of the key in bytes
+ * @param in the filename input
+ * @param out the filename to output, if null then stdout
+ * @param iv if entered must be in hex otherwise generated at run time
+ * @param hexOut to output in hex
+ * @param enc if set to 1 then do encryption 0 for decryption
+ * @param pbkVersion WOLFCLU_PBKDF2 or WOLFCLU_PBKDF1
+ * @param hashType the hash type to use with key/iv generation
+ * @param printOut set to 1 for debug print outs
+ */
+int wolfCLU_evp_crypto(const WOLFSSL_EVP_CIPHER* cphr, char* mode, byte* pwdKey,
+        byte* key, int keySz, char* fileIn, char* fileOut, char* hexIn,
+        byte* iv, int hexOut, int enc, int pbkVersion,
+        const WOLFSSL_EVP_MD* hashType, int printOut);
 
 /* benchmarking function
  *

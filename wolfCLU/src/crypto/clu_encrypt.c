@@ -20,21 +20,14 @@
  */
 
 #include <wolfclu/clu_header_main.h>
+#include <wolfclu/clu_optargs.h>
 #include <wolfclu/genkey/clu_genkey.h>
 
 #define MAX_LEN             1024
 
-int wolfCLU_encrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
+int wolfCLU_encrypt(int alg, char* mode, byte* pwdKey, byte* key, int size,
         char* in, char* out, byte* iv, int block, int ivCheck, int inputHex)
 {
-#ifndef NO_AES
-    Aes aes;                        /* aes declaration */
-#endif
-
-#ifndef NO_DES3
-    Des3 des3;                      /* 3des declaration */
-#endif
-
 #ifdef HAVE_CAMELLIA
     Camellia camellia;              /* camellia declaration */
 #endif
@@ -197,50 +190,9 @@ int wolfCLU_encrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
             }/* End feof check */
         }/* End fread check */
 
-        /* sets key encrypts the message to output from input */
-#ifndef NO_AES
-        if (XSTRNCMP(alg, "aes", 3) == 0) {
-            if (XSTRNCMP(mode, "cbc", 3) == 0) {
-                ret = wc_AesSetKey(&aes, key, AES_BLOCK_SIZE, iv, AES_ENCRYPTION);
-                if (ret != 0) {
-                    printf("wc_AesSetKey failed.\n");
-                    wolfCLU_freeBins(input, output, NULL, NULL, NULL);
-                    return ret;
-                }
-                ret = wc_AesCbcEncrypt(&aes, output, input, tempMax);
-                if (ret != 0) {
-                    printf("wc_AesCbcEncrypt failed.\n");
-                    wolfCLU_freeBins(input, output, NULL, NULL, NULL);
-                    return ENCRYPT_ERROR;
-                }
-            }
-#ifdef WOLFSSL_AES_COUNTER
-            else if (XSTRNCMP(mode, "ctr", 3) == 0) {
-                /* if mode is ctr */
-                wc_AesSetKeyDirect(&aes, key, AES_BLOCK_SIZE, iv, AES_ENCRYPTION);
-                wc_AesCtrEncrypt(&aes, output, input, tempMax);
-            }
-#endif
-        }
-#endif
-#ifndef NO_DES3
-        if (XSTRNCMP(alg, "3des", 4) == 0) {
-            ret = wc_Des3_SetKey(&des3, key, iv, DES_ENCRYPTION);
-            if (ret != 0) {
-                printf("wc_Des3_SetKey failed.\n");
-                wolfCLU_freeBins(input, output, NULL, NULL, NULL);
-                return ret;
-            }
-            ret = wc_Des3_CbcEncrypt(&des3, output, input, tempMax);
-            if (ret != 0) {
-                printf("wc_Des3_cbcEncrypt failed.\n");
-                wolfCLU_freeBins(input, output, NULL, NULL, NULL);
-                return ENCRYPT_ERROR;
-            }
-        }
-#endif
 #ifdef HAVE_CAMELLIA
-        if (XSTRNCMP(alg, "camellia", 8) == 0) {
+        if (alg == WOLFCLU_CAMELLIA128CBC || alg == WOLFCLU_CAMELLIA192CBC ||
+                alg == WOLFCLU_CAMELLIA256CBC) {
             ret = wc_CamelliaSetKey(&camellia, key, block, iv);
             if (ret != 0) {
                 printf("CamelliaSetKey failed.\n");

@@ -31,21 +31,12 @@ enum {
     WOLFCLU_CRYPT,
     WOLFCLU_BENCHMARK,
     WOLFCLU_HASH,
-    WOLFCLU_MD5,
+    WOLFCLU_MD,
     WOLFCLU_X509,
     WOLFCLU_REQUEST,
     WOLFCLU_GEN_KEY,
     WOLFCLU_ECPARAM,
     WOLFCLU_PKEY,
-    WOLFCLU_RSA,
-    WOLFCLU_ECC,
-    WOLFCLU_ED25519,
-
-    WOLFCLU_CERT_SHA,
-    WOLFCLU_CERT_SHA224,
-    WOLFCLU_CERT_SHA256,
-    WOLFCLU_CERT_SHA384,
-    WOLFCLU_CERT_SHA512,
 
     WOLFCLU_INFILE,
     WOLFCLU_OUTFILE,
@@ -77,25 +68,43 @@ enum {
     WOLFCLU_OUTPUT,
     WOLFCLU_PBKDF2,
     WOLFCLU_HELP,
+    WOLFCLU_DEBUG,
 
-
-    /* AES */
-    WOLFCLU_AES128CTR,
-    WOLFCLU_AES192CTR,
-    WOLFCLU_AES256CTR,
-    WOLFCLU_AES128CBC,
-    WOLFCLU_AES192CBC,
-    WOLFCLU_AES256CBC,
-
-    /* camellia */
-    WOLFCLU_CAMELLIA128CBC,
-    WOLFCLU_CAMELLIA192CBC,
-    WOLFCLU_CAMELLIA256CBC,
-
-    /* 3des */
-    WOLFCLU_DESCBC,
 };
 
+/* algos */
+/* hashing */
+#define WOLFCLU_CERT_SHA    2000
+#define WOLFCLU_CERT_SHA224 2001
+#define WOLFCLU_CERT_SHA256 2002
+#define WOLFCLU_CERT_SHA384 2003
+#define WOLFCLU_CERT_SHA512 2004
+#define WOLFCLU_MD5         2005
+
+/* public key */
+#define WOLFCLU_RSA     2006
+#define WOLFCLU_ECC     2007
+#define WOLFCLU_ED25519 2008
+
+/* AES */
+#define WOLFCLU_AES128CTR 2009
+#define WOLFCLU_AES192CTR 2010
+#define WOLFCLU_AES256CTR 2011
+#define WOLFCLU_AES128CBC 2012
+#define WOLFCLU_AES192CBC 2013
+#define WOLFCLU_AES256CBC 2014
+
+/* camellia */
+#define WOLFCLU_CAMELLIA128CBC 2015
+#define WOLFCLU_CAMELLIA192CBC 2016
+#define WOLFCLU_CAMELLIA256CBC 2017
+
+/* 3des */
+#define WOLFCLU_DESCBC 2018
+
+
+#define WOLFCLU_PBKDF2 2
+#define WOLFCLU_PBKDF1 1
 
 /* Structure for holding modes for long arguments. These are the modes that then
  * will take in any additional arguments. An example of a mode would be x509
@@ -141,7 +150,9 @@ static struct option crypt_options[] = {
     {"inkey",     required_argument, 0, WOLFCLU_INKEY     },
     {"output",    required_argument, 0, WOLFCLU_OUTPUT    },
     {"pbkdf2",    no_argument,       0, WOLFCLU_PBKDF2    },
+    {"md",        required_argument, 0, WOLFCLU_MD        },
     {"d",         no_argument,       0, WOLFCLU_DECRYPT   },
+    {"p",         no_argument,       0, WOLFCLU_DEBUG     },
     {"k",         required_argument, 0, WOLFCLU_PASSWORD  },
 
     {0, 0, 0, 0} /* terminal element */

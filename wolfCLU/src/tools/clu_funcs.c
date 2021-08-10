@@ -506,7 +506,7 @@ void wolfCLU_certgenHelp() {
 /* return block size on success
  * alg and mode are null terminated strings that need free'd by the caller
  */
-static int wolfCLU_parseAlgo(char* name, char** alg, char** mode, int* size)
+static int wolfCLU_parseAlgo(char* name, int* alg, char** mode, int* size)
 {
     int     ret         = 0;        /* return variable */
     int     nameCheck   = 0;        /* check for acceptable name */
@@ -593,6 +593,34 @@ static int wolfCLU_parseAlgo(char* name, char** alg, char** mode, int* size)
             printf("Invalid AES pwdKey size. Should be: %d\n", ret);
             ret = FATAL_ERROR;
         }
+
+        if (XSTRNCMP(tmpMode, "cbc", 3) == 0) {
+            switch (*size) {
+                case 128:
+                    *alg = WOLFCLU_AES128CBC;
+                    break;
+                case 192:
+                    *alg = WOLFCLU_AES192CBC;
+                    break;
+                case 256:
+                    *alg = WOLFCLU_AES256CBC;
+                    break;
+            }
+        }
+
+        if (XSTRNCMP(tmpMode, "ctr", 3) == 0) {
+            switch (*size) {
+                case 128:
+                    *alg = WOLFCLU_AES128CTR;
+                    break;
+                case 192:
+                    *alg = WOLFCLU_AES192CTR;
+                    break;
+                case 256:
+                    *alg = WOLFCLU_AES256CTR;
+                    break;
+            }
+        }
     #endif
     }
 
@@ -606,11 +634,12 @@ static int wolfCLU_parseAlgo(char* name, char** alg, char** mode, int* size)
             printf("Invalid 3DES pwdKey size\n");
             ret = FATAL_ERROR;
         }
+        *alg = WOLFCLU_DESCBC;
     #endif
     }
 
     else if (XSTRNCMP(tmpAlg, "camellia", 8) == 0) {
-    #ifndef HAVE_CAMELIA
+    #ifndef HAVE_CAMELLIA
         printf("CAMELIA not compiled in.\n");
         return NOT_COMPILED_IN;
     #else
@@ -618,6 +647,20 @@ static int wolfCLU_parseAlgo(char* name, char** alg, char** mode, int* size)
         if (*size != 128 && *size != 192 && *size != 256) {
             printf("Invalid Camellia pwdKey size\n");
             ret = FATAL_ERROR;
+        }
+
+        if (XSTRNCMP(tmpMode, "cbc", 3) == 0) {
+            switch (*size) {
+                case 128:
+                    *alg = WOLFCLU_CAMELLIA128CBC;
+                    break;
+                case 192:
+                    *alg = WOLFCLU_CAMELLIA192CBC;
+                    break;
+                case 256:
+                    *alg = WOLFCLU_CAMELLIA256CBC;
+                    break;
+            }
         }
     #endif
     }
@@ -630,20 +673,11 @@ static int wolfCLU_parseAlgo(char* name, char** alg, char** mode, int* size)
     if (ret >= 0) {
         int s;
 
-        /* free any existing alg / mode buffers */
-        if (*alg != NULL)
-            XFREE(*alg, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+        /* free any existing mode buffers */
         if (*mode != NULL)
             XFREE(*mode, NULL, DYNAMIC_TYPE_TMP_BUFFER);
 
-        s = XSTRLEN(tmpAlg) + 1;
-        *alg = (char*)XMALLOC(s, NULL, DYNAMIC_TYPE_TMP_BUFFER);
-        if (*alg == NULL) {
-            ret = MEMORY_E;
-        }
-
         if (ret >= 0) {
-            XSTRNCPY(*alg, tmpAlg, s);
             s = XSTRLEN(tmpMode) + 1;
             *mode = (char*)XMALLOC(s, NULL, DYNAMIC_TYPE_TMP_BUFFER);
             if (*mode == NULL) {
@@ -658,9 +692,6 @@ static int wolfCLU_parseAlgo(char* name, char** alg, char** mode, int* size)
 
     /* free up stuff in case of error */
     if (ret < 0) {
-        if (*alg != NULL)
-            XFREE(*alg, NULL, DYNAMIC_TYPE_TMP_BUFFER);
-        *alg = NULL;
         if (*mode != NULL)
             XFREE(*mode, NULL, DYNAMIC_TYPE_TMP_BUFFER);
         *mode = NULL;
@@ -712,11 +743,37 @@ static void wolfCLU_oldAlgo(int argc, char* argv[], int maxIdx)
 }
 
 
+/* get the WOLFSSL_EVP_CIPHER type from an algo enum value */
+const WOLFSSL_EVP_CIPHER* wolfCLU_CipherTypeFromAlgo(int alg)
+{
+    switch (alg) {
+        case WOLFCLU_AES128CTR:
+            return wolfSSL_EVP_aes_128_ctr();
+        case WOLFCLU_AES192CTR:
+            return wolfSSL_EVP_aes_192_ctr();
+        case WOLFCLU_AES256CTR:
+            return wolfSSL_EVP_aes_256_ctr();
+        case WOLFCLU_AES128CBC:
+            return wolfSSL_EVP_aes_128_cbc();
+        case WOLFCLU_AES192CBC:
+            return wolfSSL_EVP_aes_192_cbc();
+        case WOLFCLU_AES256CBC:
+            return wolfSSL_EVP_aes_256_cbc();
+
+        case WOLFCLU_DESCBC:
+            return wolfSSL_EVP_des_cbc();
+
+        default:
+            return NULL;
+    }
+}
+
+
 /*
  * finds algorithm for encryption/decryption
  * alg and mode are null terminated strings that need free'd by the caller
  */
-int wolfCLU_getAlgo(int argc, char* argv[], char** alg, char** mode, int* size)
+int wolfCLU_getAlgo(int argc, char* argv[], int* alg, char** mode, int* size)
 {
     int ret = 0;
     int long_index = 2;

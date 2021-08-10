@@ -20,21 +20,15 @@
  */
 
 #include <wolfclu/clu_header_main.h>
+#include <wolfclu/clu_optargs.h>
 #include <wolfclu/genkey/clu_genkey.h>
 
 #define MAX_LEN             1024
 
-int wolfCLU_decrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
+/* Used for algorithms that do not have an EVP type */
+int wolfCLU_decrypt(int alg, char* mode, byte* pwdKey, byte* key, int size,
         char* in, char* out, byte* iv, int block, int keyType)
 {
-#ifndef NO_AES
-    Aes aes;                            /* aes declaration */
-#endif
-
-#ifndef NO_DES3
-    Des3 des3;                          /* 3des declaration */
-#endif
-
 #ifdef HAVE_CAMELLIA
     Camellia camellia;                  /* camellia declaration */
 #endif
@@ -155,53 +149,9 @@ int wolfCLU_decrypt(char* alg, char* mode, byte* pwdKey, byte* key, int size,
         }
 
         /* sets pwdKey decrypts the message to output from input length */
-#ifndef NO_AES
-        if (XSTRNCMP(alg, "aes", 3) == 0) {
-            if (XSTRNCMP(mode, "cbc", 3) == 0) {
-                ret = wc_AesSetKey(&aes, key, AES_BLOCK_SIZE, iv, AES_DECRYPTION);
-                if (ret != 0) {
-                    fclose(inFile);
-                    fclose(outFile);
-                    wolfCLU_freeBins(input, output, NULL, NULL, NULL);
-                    return ret;
-                }
-                ret = wc_AesCbcDecrypt(&aes, output, input, tempMax);
-                if (ret != 0) {
-                    fclose(inFile);
-                    fclose(outFile);
-                    wolfCLU_freeBins(input, output, NULL, NULL, NULL);
-                    return DECRYPT_ERROR;
-                }
-            }
-#ifdef WOLFSSL_AES_COUNTER
-            else if (XSTRNCMP(mode, "ctr", 3) == 0) {
-                /* if mode is ctr */
-                wc_AesSetKeyDirect(&aes, key, AES_BLOCK_SIZE, iv, AES_ENCRYPTION);
-                wc_AesCtrEncrypt(&aes, output, input, tempMax);
-            }
-#endif
-        }
-#endif
-#ifndef NO_DES3
-        if (XSTRNCMP(alg, "3des", 4) == 0) {
-            ret = wc_Des3_SetKey(&des3, key, iv, DES_DECRYPTION);
-            if (ret != 0) {
-                fclose(inFile);
-                fclose(outFile);
-                wolfCLU_freeBins(input, output, NULL, NULL, NULL);
-                return ret;
-            }
-            ret = wc_Des3_CbcDecrypt(&des3, output, input, tempMax);
-            if (ret != 0){
-                fclose(inFile);
-                fclose(outFile);
-                wolfCLU_freeBins(input, output, NULL, NULL, NULL);
-                return DECRYPT_ERROR;
-            }
-        }
-#endif
 #ifdef HAVE_CAMELLIA
-        if (XSTRNCMP(alg, "camellia", 8) == 0) {
+        if (alg == WOLFCLU_CAMELLIA128CBC || alg == WOLFCLU_CAMELLIA192CBC ||
+                alg == WOLFCLU_CAMELLIA256CBC) {
             ret = wc_CamelliaSetKey(&camellia, key, block, iv);
             if (ret != 0) {
                 fclose(inFile);
