@@ -19,13 +19,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
-#include <stdio.h>
-#include "clu_include/clu_header_main.h"
-#include <wolfssl/ssl.h> /* wolfSSL_CertPemToDer */
-#include <wolfssl/wolfcrypt/asn_public.h>
-#include <wolfssl/wolfcrypt/asn.h>
-#include "clu_include/clu_error_codes.h"
-#include "clu_include/x509/clu_parse.h"
+#include <wolfclu/clu_header_main.h>
+#include <wolfclu/clu_error_codes.h>
+#include <wolfclu/x509/clu_parse.h>
 
 
 static int wolfCLU_setAttributes(WOLFSSL_X509* x509, WOLFSSL_CONF* conf,
@@ -165,6 +161,81 @@ static WOLFSSL_X509_EXTENSION* wolfCLU_parseSubjectKeyID(char* str, int crit,
 }
 
 
+static WOLFSSL_X509_EXTENSION* wolfCLU_parseKeyUsage(char* str, int crit,
+        WOLFSSL_X509* x509)
+{
+    WOLFSSL_ASN1_STRING *data;
+    WOLFSSL_X509_EXTENSION *ext = NULL;
+    char* word, *end;
+    char* deli = ",";
+    word16 keyUseFlag = 0;
+
+    if (x509 == NULL || str == NULL)
+        return NULL;
+
+    for (word = strtok_r(str, deli, &end); word != NULL;
+            word = strtok_r(NULL, deli, &end)) {
+
+        /* remove empty spaces at beginning of word */
+        int mxSz = (int)XSTRLEN(word);
+        while (word[0] == ' ' && mxSz > 0) {
+            word++;
+            mxSz--;
+        }
+
+        if (strncmp(word, "digitalSignature", XSTRLEN(word)) == 0) {
+            keyUseFlag |= KEYUSE_DIGITAL_SIG;
+        }
+
+        if (strncmp(word, "nonRepudiation", XSTRLEN(word)) == 0 ||
+                strncmp(word, "contentCommitment", XSTRLEN(word)) == 0) {
+            keyUseFlag |= KEYUSE_CONTENT_COMMIT;
+        }
+
+        if (strncmp(word, "keyEncipherment", XSTRLEN(word)) == 0) {
+            keyUseFlag |= KEYUSE_KEY_ENCIPHER;
+        }
+
+        if (strncmp(word, "dataEncipherment", XSTRLEN(word)) == 0) {
+            keyUseFlag |= KEYUSE_DATA_ENCIPHER;
+        }
+
+        if (strncmp(word, "keyAgreement", XSTRLEN(word)) == 0) {
+            keyUseFlag |= KEYUSE_KEY_AGREE;
+        }
+
+        if (strncmp(word, "keyCertSign", XSTRLEN(word)) == 0) {
+            keyUseFlag |= KEYUSE_KEY_CERT_SIGN;
+        }
+
+        if (strncmp(word, "cRLSign", XSTRLEN(word)) == 0) {
+            keyUseFlag |= KEYUSE_CRL_SIGN;
+        }
+
+        if (strncmp(word, "encipherOnly", XSTRLEN(word)) == 0) {
+            keyUseFlag |= KEYUSE_ENCIPHER_ONLY;
+        }
+
+        if (strncmp(word, "decipherOnly", XSTRLEN(word)) == 0) {
+            keyUseFlag |= KEYUSE_DECIPHER_ONLY;
+        }
+    }
+
+    data = wolfSSL_ASN1_STRING_new();
+    if (data != NULL) {
+        if (wolfSSL_ASN1_STRING_set(data, (byte*)&keyUseFlag, sizeof(word16))
+                        != WOLFSSL_SUCCESS) {
+            printf("error setting the key use\n");
+        }
+        else {
+            ext = wolfSSL_X509V3_EXT_i2d(NID_key_usage, crit, data);
+        }
+        wolfSSL_ASN1_STRING_free(data);
+    }
+    return ext;
+}
+
+
 static int wolfCLU_parseExtension(WOLFSSL_X509* x509, char* str, int nid,
         int* idx)
 {
@@ -184,6 +255,9 @@ static int wolfCLU_parseExtension(WOLFSSL_X509* x509, char* str, int nid,
         case NID_authority_key_identifier:
             /* @TODO */
             break;
+        case NID_key_usage:
+            ext = wolfCLU_parseKeyUsage(str, crit, x509);
+            break;
 
         default:
             printf("unknown / supported nid %d value for extension\n",
@@ -198,6 +272,66 @@ static int wolfCLU_parseExtension(WOLFSSL_X509* x509, char* str, int nid,
         *idx = *idx + 1;
     }
     return WOLFSSL_SUCCESS;
+}
+
+
+/* return 0 on success, searches for IP's and DNS's */
+static int wolfCLU_setAltNames(WOLFSSL_X509* x509, WOLFSSL_CONF* conf,
+            char* sect)
+{
+    WOLFSSL_X509_NAME *name;
+    WOLFSSL_X509_NAME_ENTRY *entry;
+    char *current;
+    int  idx = 1;
+    int  i;
+
+    if (sect == NULL) {
+        return 0; /* none set */
+    }
+
+    /* get DNS names */
+    i = 1;
+    do {
+        char name[7];
+        snprintf(name, 6, "DNS.%d", i);
+        current = wolfSSL_NCONF_get_string(conf, sect, name);
+        if (current != NULL) {
+            if (wolfSSL_X509_add_altname(x509, current, ASN_DNS_TYPE)
+                    != WOLFSSL_SUCCESS) {
+                printf("error adding alt name %s\n", current);
+            }
+        }
+        i++;
+    } while(current != NULL);
+
+    /* get IP names */
+    i = 1;
+    do {
+        char name[7];
+        snprintf(name, 6, "IP.%d", i);
+        current = wolfSSL_NCONF_get_string(conf, sect, name);
+        if (current != NULL) {
+            /* convert to hex value */
+            WOLFSSL_ASN1_STRING *str = wolfSSL_a2i_IPADDRESS(current);
+
+            if (str != NULL) {
+                unsigned char *data;
+                int dataSz;
+
+                data   = wolfSSL_ASN1_STRING_data(str);
+                dataSz = wolfSSL_ASN1_STRING_length(str);
+
+                if (wolfSSL_X509_add_altname_ex(x509, data, dataSz,
+                            ASN_IP_TYPE) != WOLFSSL_SUCCESS) {
+                    printf("error adding ip alt name %s\n", data);
+                }
+                wolfSSL_ASN1_STRING_free(str);
+            }
+        }
+        i++;
+    } while(current != NULL);
+
+    return 0;
 }
 
 
@@ -232,6 +366,18 @@ static int wolfCLU_setExtensions(WOLFSSL_X509* x509, WOLFSSL_CONF* conf,
                 &idx);
     }
 
+    current = wolfSSL_NCONF_get_string(conf, sect, "keyUsage");
+    if (current != NULL) {
+        wolfCLU_parseExtension(x509, current, NID_key_usage, &idx);
+    }
+
+
+    current = wolfSSL_NCONF_get_string(conf, sect, "subjectAltName");
+    printf("subject alt name location = %s\n", current);
+    if (current != NULL && current[0] == '@') {
+        current = current+1;
+        wolfCLU_setAltNames(x509, conf, current);
+    }
     return 0;
 }
 #else
@@ -286,27 +432,40 @@ static int wolfCLU_setDisNames(WOLFSSL_X509* x509, WOLFSSL_CONF* conf,
 
     wolfCLU_X509addEntry(name, conf, NID_countryName, CTC_PRINTABLE, sect,
             "countryName_default");
+    wolfCLU_X509addEntry(name, conf, NID_countryName, CTC_PRINTABLE, sect,
+            "countryName");
 
     wolfSSL_NCONF_get_number(conf, sect, "countryName_min", &countryName_min);
     wolfSSL_NCONF_get_number(conf, sect, "countryName_max", &countryName_max);
 
     wolfCLU_X509addEntry(name, conf, NID_stateOrProvinceName, CTC_UTF8, sect,
             "stateOrProvinceName_default");
+    wolfCLU_X509addEntry(name, conf, NID_stateOrProvinceName, CTC_UTF8, sect,
+            "stateOrProvinceName");
     wolfCLU_X509addEntry(name, conf, NID_localityName, CTC_UTF8, sect,
             "localityName_default");
+    wolfCLU_X509addEntry(name, conf, NID_localityName, CTC_UTF8, sect,
+            "localityName");
     wolfCLU_X509addEntry(name, conf, NID_organizationName, CTC_UTF8, sect,
             "0.organizationName_default");
+    wolfCLU_X509addEntry(name, conf, NID_organizationName, CTC_UTF8, sect,
+            "0.organizationName");
     wolfCLU_X509addEntry(name, conf, NID_organizationalUnitName, CTC_UTF8, sect,
             "organizationalUnitName_default");
+    wolfCLU_X509addEntry(name, conf, NID_organizationalUnitName, CTC_UTF8, sect,
+            "organizationalUnitName");
     wolfCLU_X509addEntry(name, conf, NID_commonName, CTC_UTF8, sect,
             "commonName_default");
+    wolfCLU_X509addEntry(name, conf, NID_commonName, CTC_UTF8, sect,
+            "commonName");
     wolfCLU_X509addEntry(name, conf, NID_emailAddress, CTC_UTF8, sect,
             "emailAddress_default");
+    wolfCLU_X509addEntry(name, conf, NID_emailAddress, CTC_UTF8, sect,
+            "emailAddress");
 
     wolfSSL_X509_REQ_set_subject_name(x509, name);
     return 0;
 }
-
 
 /* Make a new WOLFSSL_X509 based off of the config file read */
 int wolfCLU_readConfig(WOLFSSL_X509* x509, char* config, char* sect)

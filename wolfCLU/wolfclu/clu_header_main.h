@@ -37,6 +37,7 @@
 #include <wolfssl/version.h>
 #include <wolfssl/openssl/bio.h>
 #include <wolfssl/openssl/pem.h>
+#include <wolfssl/openssl/x509v3.h>
 #include <wolfssl/wolfcrypt/types.h>
 #include <wolfssl/wolfcrypt/random.h>
 #include <wolfssl/wolfcrypt/pwdbased.h>
@@ -44,12 +45,11 @@
 #include <wolfssl/wolfcrypt/des3.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
 #include <wolfssl/wolfcrypt/hash.h>
+#include <wolfssl/wolfcrypt/asn.h>
 #include <wolfssl/wolfcrypt/asn_public.h>
 #include <wolfssl/wolfcrypt/rsa.h>
 #include <wolfssl/wolfcrypt/ecc.h>
 #include <wolfssl/wolfcrypt/signature.h>
-
-
 
 #ifndef NO_MD5
     #include <wolfssl/wolfcrypt/md5.h>

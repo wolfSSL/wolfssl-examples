@@ -51,6 +51,7 @@ int wolfCLU_requestSetup(int argc, char** argv)
     int     option;
     int     long_index = 1;
     int     days = 0;
+    int     genX509 = 0;
 
 
     opterr = 0; /* do not display unrecognized options */
@@ -134,6 +135,10 @@ int wolfCLU_requestSetup(int argc, char** argv)
             case WOLFCLU_CERT_SHA512:
                 md  = wolfSSL_EVP_sha512();
                 oid = SHA_HASH512;
+                break;
+
+            case WOLFCLU_X509:
+                genX509 = 1;
                 break;
 
             case ':':
@@ -233,18 +238,35 @@ int wolfCLU_requestSetup(int argc, char** argv)
             ret = make_self_signed_ecc_certificate(in, out, oid);
         }
         else {
-            /* sign the req */
-            ret = wolfSSL_X509_REQ_sign(x509, pkey, md);
+            /* sign the req/cert */
+            if (genX509) {
+                ret = wolfSSL_X509_sign(x509, pkey, md);
+                if (ret > 0)
+                    ret = WOLFSSL_SUCCESS;
+            }
+            else {
+                ret = wolfSSL_X509_REQ_sign(x509, pkey, md);
+            }
             if (ret != WOLFSSL_SUCCESS) {
-                printf("error %d signing REQ\n", ret);
+                printf("error %d signing\n", ret);
             }
 
             if (ret == WOLFSSL_SUCCESS) {
                 if (outForm == DER_FORM) {
-                    ret = wolfSSL_i2d_X509_REQ_bio(bioOut, x509);
+                    if (genX509) {
+                        ret = wolfSSL_i2d_X509_bio(bioOut, x509);
+                    }
+                    else {
+                        ret = wolfSSL_i2d_X509_REQ_bio(bioOut, x509);
+                    }
                 }
                 else {
-                    ret = wolfSSL_PEM_write_bio_X509_REQ(bioOut, x509);
+                    if (genX509) {
+                        ret = wolfSSL_PEM_write_bio_X509(bioOut, x509);
+                    }
+                    else {
+                        ret = wolfSSL_PEM_write_bio_X509_REQ(bioOut, x509);
+                    }
                 }
 
                 if (ret != WOLFSSL_SUCCESS) {
