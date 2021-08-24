@@ -39,6 +39,8 @@ enum {
     ECPARAM,
     PRIV_ONLY,
     PUB_ONLY,
+    PRIV_ONLY_FILE,
+    PUB_ONLY_FILE,
     PRIV_AND_PUB
 };
 
@@ -50,20 +52,6 @@ int wolfCLU_genKeySetup(int argc, char** argv);
 int wolfCLU_genKey_ED25519(WC_RNG* rng, char* fOutNm, int directive,
                                                                     int format);
 #endif
-
-/**
- * generates an ECC key
- *
- * @param rng       random number generator
- * @param fName     name of the file to write to
- * @param directive which key to output, public or private, maybe both
- * @param fmt       output format (PEM/DER)
- * @param keySz     size of the ECC key
- *
- * return   0 on success, non-zero on error
- */
-int wolfCLU_genKey_ECC(WC_RNG* rng, char* fName, int directive, int fmt,
-                       int keySz);
 
 
 /**
@@ -77,8 +65,9 @@ int wolfCLU_genKey_ECC(WC_RNG* rng, char* fName, int directive, int fmt,
  *
  * return   0 on success, non-zero on error
  */
-int wolfCLU_genKey_ECC_ex(WC_RNG* rng, char* fName, int directive, int fmt,
-                       char* name);
+int wolfCLU_genKey_ECC(WC_RNG* rng, char* fName, int directive, int fmt,
+        char* name);
+
 /**
  * generates an RSA key
  *

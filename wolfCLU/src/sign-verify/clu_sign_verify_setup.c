@@ -85,7 +85,8 @@ int wolfCLU_sign_verify_setup(int argc, char** argv)
         if (priv == NULL) {
             return MEMORY_E;
         } else if (access(argv[ret+1], F_OK) == -1) {
-            printf("Inkey file did not exist. Please check your options.\n");
+            printf("Inkey file %s did not exist. Please check your options.\n",
+                    argv[ret+1]);
             return MEMORY_E;
         }
 

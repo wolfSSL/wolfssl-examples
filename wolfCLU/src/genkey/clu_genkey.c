@@ -149,11 +149,102 @@ int wolfCLU_genKey_ED25519(WC_RNG* rng, char* fOutNm, int directive, int format)
 }
 #endif /* HAVE_ED25519 */
 
-int wolfCLU_genKey_ECC_ex(WC_RNG* rng, char* fName, int directive, int fmt,
+#ifdef HAVE_ECC
+/* returns 0 on successfully writing out public DER key */
+static int wolfCLU_ECC_write_pub_der(WOLFSSL_BIO* out, WOLFSSL_EC_KEY* key)
+{
+    int derSz, ret = 0;
+    unsigned char *der = NULL;
+
+    if (out == NULL || key == NULL)
+        return BAD_FUNC_ARG;
+
+    derSz = wc_EccPublicKeyDerSize(key->internal, 1);
+    if (derSz <= 0) {
+        printf("error getting der size\n");
+        ret = derSz;
+    }
+
+    if (ret == 0) {
+        der = (byte*)XMALLOC(derSz, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        if (der == NULL) {
+            ret = MEMORY_E;
+        }
+        else {
+            derSz = wc_EccPublicKeyToDer(key->internal, der, derSz, 1);
+            if (derSz < 0) {
+                ret = derSz;
+            }
+        }
+    }
+
+    if (ret == 0) {
+        ret = wolfSSL_BIO_write(out, der, derSz);
+        if (ret != derSz) {
+            ret = -1;
+        }
+    }
+
+    if (der != NULL)
+        XFREE(der, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+
+    return ret;
+}
+
+
+/* returns 0 on successfully writing out private DER key */
+static int wolfCLU_ECC_write_priv_der(WOLFSSL_BIO* out, WOLFSSL_EC_KEY* key)
+{
+    int derSz, ret = 0;
+    unsigned char *der = NULL;
+
+    if (out == NULL || key == NULL)
+        return BAD_FUNC_ARG;
+
+    ret = wc_EccKeyDerSize(key->internal, 0);
+    if (ret > 0) {
+        derSz = ret;
+        der   = (byte*)XMALLOC(derSz, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+        if (der == NULL) {
+            ret = MEMORY_E;
+        }
+        else {
+            ret = wc_EccPrivateKeyToDer(key->internal, der, derSz);
+        }
+    }
+
+    if (ret > 0) {
+        printf("writing out %d bytes for private key\n", derSz);
+        ret = wolfSSL_BIO_write(out, der, derSz);
+        if (ret != derSz) {
+            ret = -1;
+        }
+        printf("ret of write = %d\n", ret);
+    }
+
+    if (der != NULL)
+        XFREE(der, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+
+    if (ret > 0)
+        ret = 0; /* successfully wrote out key */
+
+    return ret;
+}
+#endif /* HAVE_ECC */
+
+int wolfCLU_genKey_ECC(WC_RNG* rng, char* fName, int directive, int fmt,
                        char* name)
 {
 #ifdef HAVE_ECC
+    int   fNameSz     = XSTRLEN(fName);
+    int   fExtSz      = 6;
+    char  fExtPriv[6] = ".priv\0";
+    char  fExtPub[6]  = ".pub\0\0";
+    char* fOutNameBuf = NULL;
+
     WOLFSSL_BIO *bioOut = NULL;
+    WOLFSSL_BIO *bioPub = NULL;
+    WOLFSSL_BIO *bioPri = NULL;
     WOLFSSL_EC_KEY   *key;
     int ret = 0;
 
@@ -197,6 +288,15 @@ int wolfCLU_genKey_ECC_ex(WC_RNG* rng, char* fName, int directive, int fmt,
         bioOut = wolfSSL_BIO_new_file(fName, "wb");
         if (bioOut == NULL) {
             printf("unable to read outfile %s\n", fName);
+            ret = MEMORY_E;
+        }
+    }
+
+    /* create buffer for alternate file name use */
+    if (ret == 0) {
+        fOutNameBuf = (char*)XMALLOC(fNameSz + fExtSz + 1, NULL,
+                DYNAMIC_TYPE_TMP_BUFFER);
+        if (fOutNameBuf == NULL) {
             ret = MEMORY_E;
         }
     }
@@ -253,37 +353,53 @@ int wolfCLU_genKey_ECC_ex(WC_RNG* rng, char* fName, int directive, int fmt,
                     }
                 }
                 else {
-                    derSz = wc_EccPublicKeyDerSize(key->internal, 1);
-                    if (derSz <= 0) {
-                        printf("error getting der size\n");
-                        ret = derSz;
-                    }
+                    ret = wolfCLU_ECC_write_pub_der(bioOut, key);
+                }
+                break;
+            case PRIV_AND_PUB:
+                /* Fall through to PRIV_ONLY */
+            case PRIV_ONLY_FILE: /* adding .priv to file name */
+                if (ret == 0) {
+                    XMEMCPY(fOutNameBuf, fName, fNameSz);
+                    XMEMCPY(fOutNameBuf + fNameSz, fExtPriv, fExtSz);
+                    fOutNameBuf[fNameSz + fExtSz] = '\0';
+                    printf("Private key file = %s\n", fOutNameBuf);
 
-                    if (ret == 0) {
-                        der = (byte*)XMALLOC(derSz, HEAP_HINT,
-                                DYNAMIC_TYPE_TMP_BUFFER);
-                        if (der == NULL) {
-                            ret = MEMORY_E;
-                        }
-                        else {
-                            derSz = wc_EccPublicKeyToDer(key->internal, der,
-                                    derSz, 1);
-                            if (derSz < 0) {
-                                XFREE(der, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-                                ret = derSz;
-                            }
-                        }
+                    bioPri = wolfSSL_BIO_new_file(fOutNameBuf, "wb");
+                    if (bioPri == NULL) {
+                        printf("unable to read outfile %s\n", fOutNameBuf);
+                        ret = MEMORY_E;
                     }
+                }
 
-                    if (ret > 0) {
-                        ret = wolfSSL_BIO_write(bioOut, der, derSz);
-                        if (ret != derSz) {
-                            ret = -1;
-                        }
+                if (ret == 0) {
+                    ret = wolfCLU_ECC_write_priv_der(bioPri, key);
+                }
+
+                if (ret < 0) {
+                    break;
+                }
+                if (directive != PRIV_AND_PUB) {
+                    break;
+                }
+                FALL_THROUGH;
+            case PUB_ONLY_FILE: /* appending .pub to file name */
+                if (ret == 0) {
+                    XMEMCPY(fOutNameBuf, fName, fNameSz);
+                    XMEMCPY(fOutNameBuf + fNameSz, fExtPub, fExtSz);
+                    fOutNameBuf[fNameSz + fExtSz] = '\0';
+                    printf("Public key file = %s\n", fOutNameBuf);
+
+
+                    bioPub = wolfSSL_BIO_new_file(fOutNameBuf, "wb");
+                    if (bioPub == NULL) {
+                        printf("unable to read outfile %s\n", fOutNameBuf);
+                        ret = MEMORY_E;
                     }
+                }
 
-                    if (der != NULL)
-                        XFREE(der, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+                if (ret == 0) {
+                    ret = wolfCLU_ECC_write_pub_der(bioPub, key);
                 }
                 break;
             default:
@@ -294,6 +410,12 @@ int wolfCLU_genKey_ECC_ex(WC_RNG* rng, char* fName, int directive, int fmt,
 
     wolfSSL_EC_KEY_free(key);
     wolfSSL_BIO_free(bioOut);
+    wolfSSL_BIO_free(bioPri);
+    wolfSSL_BIO_free(bioPub);
+
+    if (fOutNameBuf != NULL) {
+        XFREE(fOutNameBuf, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+    }
 
     if (ret > 0) {
         /* ret > 0 indicates a successful file write, set to zero for return */
@@ -311,156 +433,6 @@ int wolfCLU_genKey_ECC_ex(WC_RNG* rng, char* fName, int directive, int fmt,
 #endif /* HAVE_ECC */
 }
 
-int wolfCLU_genKey_ECC(WC_RNG* rng, char* fName, int directive, int fmt,
-                       int keySz)
-{
-#ifdef HAVE_ECC
-    ecc_key key;
-    FILE*   file;
-    int     ret;
-
-    int   fNameSz     = XSTRLEN(fName);
-    int   fExtSz      = 6;
-    char  fExtPriv[6] = ".priv\0";
-    char  fExtPub[6]  = ".pub\0\0";
-    char* fOutNameBuf = NULL;
-    
-    #ifdef NO_AES
-    /* use 16 bytes for AES block size */
-    size_t maxDerBufSz = 4 * keySz * 16;
-    #else
-    size_t maxDerBufSz = 4 * keySz * AES_BLOCK_SIZE;
-    #endif
-    byte*  derBuf      = NULL;
-    int    derBufSz    = -1;
-
-    if (rng == NULL || fName == NULL)
-        return BAD_FUNC_ARG;
-
-    if (fmt == PEM_FORM) {
-        printf("Der to Pem for rsa key not yet implemented\n");
-        printf("FEATURE COMING SOON!\n");
-        return FEATURE_COMING_SOON;
-    }
-
-    ret = wc_ecc_init_ex(&key, HEAP_HINT, INVALID_DEVID);
-    if (ret != 0)
-        return ret;
-    ret = wc_ecc_make_key(rng, keySz, &key);
-#if defined(WOLFSSL_ASYNC_CRYPT)
-    /* @Audit: is this all correct? */
-    ret = wc_AsyncWait(ret, &key.asyncDev, WC_ASYNC_FLAG_CALL_AGAIN);
-#endif
-    if (ret != 0)
-        return ret;
-
-    /*
-     * Output key(s) to file(s)
-     */
-
-    /* set up the file name output buffer */
-    fOutNameBuf = (char*)XMALLOC(fNameSz + fExtSz, HEAP_HINT,
-                                 DYNAMIC_TYPE_TMP_BUFFER);
-    if (fOutNameBuf == NULL)
-        return MEMORY_E;
-    XMEMSET(fOutNameBuf, 0, fNameSz + fExtSz);
-    XMEMCPY(fOutNameBuf, fName, fNameSz);
-
-    derBuf = (byte*) XMALLOC(maxDerBufSz, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-    if (derBuf == NULL) {
-        XFREE(fOutNameBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-        return MEMORY_E;
-    }
-
-    switch(directive) {
-        case PRIV_AND_PUB:
-            /* Fall through to PRIV_ONLY */
-        case PRIV_ONLY:
-            /* add on the final part of the file name ".priv" */
-            XMEMCPY(fOutNameBuf + fNameSz, fExtPriv, fExtSz);
-            printf("fOutNameBuf = %s\n", fOutNameBuf);
-
-            derBufSz = wc_EccPrivateKeyToDer(&key, derBuf, maxDerBufSz);
-            if (derBufSz < 0) {
-                XFREE(fOutNameBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-                XFREE(derBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-                return derBufSz;
-            }
-
-            file = fopen(fOutNameBuf, "wb");
-            if (file == XBADFILE) {
-                XFREE(fOutNameBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-                XFREE(derBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-                return OUTPUT_FILE_ERROR;
-            }
-
-            ret = (int)fwrite(derBuf, 1, derBufSz, file);
-            if (ret <= 0) {
-                XFREE(fOutNameBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-                XFREE(derBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-                fclose(file);
-                return OUTPUT_FILE_ERROR;
-            }
-            fclose(file);
-
-            if (directive != PRIV_AND_PUB) {
-                break;
-            }
-        case PUB_ONLY:
-            /* add on the final part of the file name ".pub" */
-            XMEMCPY(fOutNameBuf + fNameSz, fExtPub, fExtSz);
-            printf("fOutNameBuf = %s\n", fOutNameBuf);
-
-            derBufSz = wc_EccPublicKeyToDer(&key, derBuf, maxDerBufSz, 1);
-            if (derBufSz < 0) {
-                XFREE(fOutNameBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-                XFREE(derBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-                return derBufSz;
-            }
-
-            file = fopen(fOutNameBuf, "wb");
-            if (file == XBADFILE) {
-                XFREE(fOutNameBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-                XFREE(derBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-                return OUTPUT_FILE_ERROR;
-            }
-
-            ret = (int) fwrite(derBuf, 1, derBufSz, file);
-            if (ret <= 0) {
-                fclose(file);
-                XFREE(fOutNameBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-                XFREE(derBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-                return OUTPUT_FILE_ERROR;
-            }
-            fclose(file);
-            break;
-        default:
-            printf("Invalid directive\n");
-            XFREE(fOutNameBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-            XFREE(derBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-            return BAD_FUNC_ARG;
-    }
-
-    XFREE(derBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-    XFREE(fOutNameBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-    wc_ecc_free(&key);
-
-    if (ret > 0) {
-        /* ret > 0 indicates a successful file write, set to zero for return */
-        ret = 0;
-    }
-
-    return ret;
-#else
-    (void)rng;
-    (void)fName;
-    (void)directive;
-    (void)fmt;
-    (void)keySz;
-
-    return NOT_COMPILED_IN;
-#endif /* HAVE_ECC */
-}
 
 int wolfCLU_genKey_RSA(WC_RNG* rng, char* fName, int directive, int fmt, int
                        keySz, long exp)
@@ -522,7 +494,7 @@ int wolfCLU_genKey_RSA(WC_RNG* rng, char* fName, int directive, int fmt, int
     switch(directive) {
         case PRIV_AND_PUB:
             /* Fall through to PRIV_ONLY */
-        case PRIV_ONLY:
+        case PRIV_ONLY_FILE:
             /* add on the final part of the file name ".priv" */
             XMEMCPY(fOutNameBuf + fNameSz, fExtPriv, fExtSz);
             printf("fOutNameBuf = %s\n", fOutNameBuf);
@@ -553,7 +525,7 @@ int wolfCLU_genKey_RSA(WC_RNG* rng, char* fName, int directive, int fmt, int
             if (directive != PRIV_AND_PUB) {
                 break;
             }
-        case PUB_ONLY:
+        case PUB_ONLY_FILE:
             /* add on the final part of the file name ".pub" */
             XMEMCPY(fOutNameBuf + fNameSz, fExtPub, fExtSz);
             printf("fOutNameBuf = %s\n", fOutNameBuf);

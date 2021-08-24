@@ -129,9 +129,9 @@ int wolfCLU_genKeySetup(int argc, char** argv)
         if (ret > 0) {
             if (argv[ret+1] != NULL) {
                 if (XSTRNCMP(argv[ret+1], "pub", 3) == 0)
-                    directiveArg = PUB_ONLY;
+                    directiveArg = PUB_ONLY_FILE;
                 else if (XSTRNCMP(argv[ret+1], "priv", 4) == 0)
-                    directiveArg = PRIV_ONLY;
+                    directiveArg = PRIV_ONLY_FILE;
                 else if (XSTRNCMP(argv[ret+1], "keypair", 7) == 0)
                     directiveArg = PRIV_AND_PUB;
             }
@@ -186,7 +186,7 @@ int wolfCLU_genKeySetup(int argc, char** argv)
         }
 
         ret = wolfCLU_genKey_ECC(&rng, keyOutFName, directiveArg,
-                                 formatArg, sizeArg);
+                                 formatArg, NULL);
     #else
         printf("Invalid option, ECC not enabled.\n");
         printf("Please re-configure wolfSSL with --enable-ecc and "
@@ -207,9 +207,9 @@ int wolfCLU_genKeySetup(int argc, char** argv)
         if (ret > 0) {
             if (argv[ret+1] != NULL) {
                 if (XSTRNCMP(argv[ret+1], "pub", 3) == 0)
-                    directiveArg = PUB_ONLY;
+                    directiveArg = PUB_ONLY_FILE;
                 else if (XSTRNCMP(argv[ret+1], "priv", 4) == 0)
-                    directiveArg = PRIV_ONLY;
+                    directiveArg = PRIV_ONLY_FILE;
                 else if (XSTRNCMP(argv[ret+1], "keypair", 7) == 0)
                     directiveArg = PRIV_AND_PUB;
             }

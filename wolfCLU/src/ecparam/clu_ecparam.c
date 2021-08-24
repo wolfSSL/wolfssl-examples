@@ -103,7 +103,7 @@ int wolfCLU_ecparam(int argc, char** argv)
 
     ret = wc_InitRng(&rng);
     if (ret == 0) {
-        ret = wolfCLU_genKey_ECC_ex(&rng, out, ECPARAM, outForm, name);
+        ret = wolfCLU_genKey_ECC(&rng, out, ECPARAM, outForm, name);
         wc_FreeRng(&rng);
     }
     return ret;
