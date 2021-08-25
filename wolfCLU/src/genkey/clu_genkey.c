@@ -195,7 +195,7 @@ static int wolfCLU_ECC_write_pub_der(WOLFSSL_BIO* out, WOLFSSL_EC_KEY* key)
 /* returns 0 on successfully writing out private DER key */
 static int wolfCLU_ECC_write_priv_der(WOLFSSL_BIO* out, WOLFSSL_EC_KEY* key)
 {
-    int derSz, ret = 0;
+    int derSz = 0, ret = 0;
     unsigned char *der = NULL;
 
     if (out == NULL || key == NULL)

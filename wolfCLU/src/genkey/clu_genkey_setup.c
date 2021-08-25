@@ -34,7 +34,7 @@ int wolfCLU_genKeySetup(int argc, char** argv)
     char*    format  = defaultFormat;
     char*    name    = NULL;
 
-    int      formatArg  =   DER_FORM;
+    int      formatArg;
     int      size       =   0;  /* keysize */
     int      ret        =   0;  /* return variable */
     int      i          =   0;  /* loop counter */
@@ -155,34 +155,8 @@ int wolfCLU_genKeySetup(int argc, char** argv)
             }
         }
 
-        /* get the size argument */
-        ret = wolfCLU_checkForArg("-size", 5, argc, argv);
-        if (ret > 0) {
-            if (argv[ret+1] != NULL) {
-                char* cur;
-                /* make sure it's an integer */
-                if (*argv[ret+1] == '\0') {
-                    printf("Empty -size argument, using 32\n");
-                    sizeArg = 32;
-                }
-                else {
-                    for (cur = argv[ret+1]; *cur && isdigit(*cur); ++cur);
-                    if (*cur == '\0') {
-                        sizeArg = atoi(argv[ret+1]);
-                    }
-                    else {
-                        printf("Invalid -size (%s), using 32\n",
-                               argv[ret+1]);
-                        sizeArg = 32;
-                    }
-                }
-            }
-        } else {
-            if (name == NULL) { /* if we have the name of curve we know */
-                printf("No -size <SIZE>\n");
-                printf("DEFAULT: use a 32 ECC key\n");
-                sizeArg = 32;
-            }
+        if (name == NULL) { /* if we have the name of curve we know */
+            printf("DEFAULT: use a 32 ECC key\n");
         }
 
         ret = wolfCLU_genKey_ECC(&rng, keyOutFName, directiveArg,

@@ -45,9 +45,9 @@ int wolfCLU_requestSetup(int argc, char** argv)
 
     char*   alg;                /* algorithm being used */
     int     algCheck =   0;     /* algorithm type */
-    int     oid;
+    int     oid      =   0;
     int     outForm = PEM_FORM; /* default to PEM format */
-    int     inForm  = PEM_FORM; /* default to PEM format */
+    int     inForm;
     int     option;
     int     long_index = 1;
     int     days = 0;

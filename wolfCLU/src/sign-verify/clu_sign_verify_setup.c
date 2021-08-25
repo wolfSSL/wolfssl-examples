@@ -27,15 +27,14 @@ int wolfCLU_sign_verify_setup(int argc, char** argv)
 {
     int     ret         = 0;    /* return variable, counter */
     int     i           = 0;    /* loop variable */
-    char*   in;                 /* input variable */
+    char*   in          = NULL; /* input variable */
     char*   out;                /* output variable */
     char*   priv;               /* private key variable */
     char*   sig;
 
     char*   alg;                /* algorithm being used */
-    int     algCheck    = -1;   /* acceptable algorithm check */
+    int     algCheck;           /* acceptable algorithm check */
     int     inCheck     = 0;    /* input check */
-    int     privCheck   = 0;    /* private key check */
     int     signCheck   = 0;
     int     verifyCheck = 0;
     int     pubInCheck  = 0;
@@ -92,7 +91,6 @@ int wolfCLU_sign_verify_setup(int argc, char** argv)
 
         XSTRNCPY(priv, &argv[ret+1][0], XSTRLEN(argv[ret+1]));
         priv[XSTRLEN(argv[ret+1])] = '\0';
-        privCheck = 1;
     }
     else {
         printf("Please specify an -inkey <key> option when "
@@ -138,7 +136,6 @@ int wolfCLU_sign_verify_setup(int argc, char** argv)
 
         XSTRNCPY(sig, &argv[ret+1][0], XSTRLEN(argv[ret+1]));
         sig[XSTRLEN(argv[ret+1])] = '\0';
-        sigCheck = 1;
     }
     else if (verifyCheck == 1) {
         printf("Please specify -sigfile <sig> when verifying.\n");

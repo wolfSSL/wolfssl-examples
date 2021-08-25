@@ -35,6 +35,11 @@ int make_self_signed_rsa_certificate(char* keyPath, char* certOut, int oid) {
     
     int keyFileSz;
     FILE* keyFile = fopen(keyPath,"rb");
+    if (keyFile == NULL) {
+        printf("unable to open key file %s\n", keyPath);
+        return BAD_FUNC_ARG;
+    }
+
     fseek(keyFile, 0, SEEK_END);
     keyFileSz = ftell(keyFile);
     byte keyBuf[keyFileSz];
@@ -123,7 +128,7 @@ int make_self_signed_rsa_certificate(char* keyPath, char* certOut, int oid) {
     }
 
     XMEMSET(certBuf, 0, FOURK_SZ);
-    int certBufSz = FOURK_SZ;
+    int certBufSz;
 
     ret = wc_MakeCert(&newCert, certBuf, FOURK_SZ, &key, NULL, &rng); //rsa certificate
     if (ret < 0) {

@@ -27,40 +27,10 @@ void free_things_ecc(byte** a, byte** b, byte** c, ecc_key* d, ecc_key* e,
 
 int make_self_signed_ecc_certificate(char* keyPath, char* certOut, int oid) {
     int ret = 0;
+    int certBufSz;
     word32 index = 0;
-    
+
     Cert newCert;
-    ecc_key key;
-    WC_RNG rng;
-    
-    int keyFileSz;
-    FILE* keyFile = fopen(keyPath,"rb");
-    fseek(keyFile, 0, SEEK_END);
-    keyFileSz = ftell(keyFile);
-    byte keyBuf[keyFileSz];
-    fseek(keyFile, 0, SEEK_SET);
-    fread(keyBuf, 1, keyFileSz, keyFile);
-    fclose(keyFile);
-    
-    ret = wc_ecc_init(&key);
-    if (ret != 0) {
-        printf("Failed to initialize ecc key\nRET: %d\n", ret);
-        return ret;
-    }
-    
-    ret = wc_InitRng(&rng);
-    if (ret != 0) {
-        printf("Failed to initialize rng.\nRET: %d\n", ret);
-        return ret;
-    }
-    
-    ret = wc_EccPrivateKeyDecode(keyBuf, &index, &key, keyFileSz);
-    if (ret != 0 ) {
-        printf("Failed to decode private key.\nRET: %d\n", ret);
-        return ret;
-    }
-    
-    wc_InitCert(&newCert);
     char country[3];
     char province[CTC_NAME_SIZE];
     char city[CTC_NAME_SIZE];
@@ -69,7 +39,44 @@ int make_self_signed_ecc_certificate(char* keyPath, char* certOut, int oid) {
     char commonName[CTC_NAME_SIZE];
     char email[CTC_NAME_SIZE];
     char daysValid[CTC_NAME_SIZE];
-    
+
+    ecc_key key;
+    WC_RNG rng;
+
+    int keyFileSz;
+    FILE* keyFile = fopen(keyPath,"rb");
+    if (keyFile == NULL) {
+        printf("unable to open key file %s\n", keyPath);
+        return BAD_FUNC_ARG;
+    }
+
+    fseek(keyFile, 0, SEEK_END);
+    keyFileSz = ftell(keyFile);
+    byte keyBuf[keyFileSz];
+    fseek(keyFile, 0, SEEK_SET);
+    fread(keyBuf, 1, keyFileSz, keyFile);
+    fclose(keyFile);
+
+    ret = wc_ecc_init(&key);
+    if (ret != 0) {
+        printf("Failed to initialize ecc key\nRET: %d\n", ret);
+        return ret;
+    }
+
+    ret = wc_InitRng(&rng);
+    if (ret != 0) {
+        printf("Failed to initialize rng.\nRET: %d\n", ret);
+        return ret;
+    }
+
+    ret = wc_EccPrivateKeyDecode(keyBuf, &index, &key, keyFileSz);
+    if (ret != 0 ) {
+        printf("Failed to decode private key.\nRET: %d\n", ret);
+        return ret;
+    }
+
+    wc_InitCert(&newCert);
+
     printf("Enter your countries 2 digit code (ex: United States -> US): ");
     fgets(country,CTC_NAME_SIZE,stdin);
     country[sizeof(country)-1] = '\0';
@@ -87,7 +94,7 @@ int make_self_signed_ecc_certificate(char* keyPath, char* certOut, int oid) {
     fgets(email,CTC_NAME_SIZE,stdin);
     printf("Enter the number of days this certificate should be valid: ");
     fgets(daysValid,CTC_NAME_SIZE,stdin);
-    
+
     strncpy(newCert.subject.country, country, sizeof(country));
     strncpy(newCert.subject.state, province, CTC_NAME_SIZE);
     strncpy(newCert.subject.locality, city, CTC_NAME_SIZE);
@@ -114,7 +121,7 @@ int make_self_signed_ecc_certificate(char* keyPath, char* certOut, int oid) {
             newCert.sigType = CTC_SHA512wECDSA;
             break;
     }
-    
+
     byte* certBuf = (byte*) XMALLOC(FOURK_SZ, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
     if (certBuf == NULL) {
         printf("Failed to initialize buffer to store certificate.\n");
@@ -122,8 +129,7 @@ int make_self_signed_ecc_certificate(char* keyPath, char* certOut, int oid) {
     }
 
     XMEMSET(certBuf, 0, FOURK_SZ);
-    int certBufSz = FOURK_SZ;
-    
+
     ret = wc_MakeCert(&newCert, certBuf, FOURK_SZ, NULL, &key, &rng); //ecc certificate
     if (ret < 0) {
         printf("Failed to make certificate.\n");
@@ -142,7 +148,7 @@ int make_self_signed_ecc_certificate(char* keyPath, char* certOut, int oid) {
     certBufSz = ret;
 
     printf("Successfully created new certificate\n");
-    
+
     printf("Writing newly generated certificate to file \"%s\"\n",
                                                                  certOut);
     FILE* file = fopen(certOut, "wb");
@@ -187,7 +193,7 @@ int make_self_signed_ecc_certificate(char* keyPath, char* certOut, int oid) {
     fclose(pemFile);
     printf("Successfully converted the der to pem. Result is in:  %s\n\n",
                                                                  certOut);
-    
+
     free_things_ecc(&pemBuf, &certBuf, NULL, &key, NULL, &rng);
     return 1;
 }

@@ -35,6 +35,11 @@ int make_self_signed_ed25519_certificate(char* keyPath, char* certOut) {
     
     int keyFileSz;
     FILE* keyFile = fopen(keyPath,"rb");
+    if (keyFile == NULL) {
+        printf("unable to open key file %s\n", keyPath);
+        return BAD_FUNC_ARG;
+    }
+
     fseek(keyFile, 0, SEEK_END);
     keyFileSz = ftell(keyFile);
     byte keyBuf[keyFileSz];
@@ -110,7 +115,7 @@ int make_self_signed_ed25519_certificate(char* keyPath, char* certOut) {
     }
 
     XMEMSET(certBuf, 0, FOURK_SZ);
-    int certBufSz = FOURK_SZ;
+    int certBufSz;
 
     ret = wc_MakeCert_ex(&newCert, certBuf, FOURK_SZ, ED25519_TYPE, &key, &rng); //ed25519 certificate
     if (ret < 0) {

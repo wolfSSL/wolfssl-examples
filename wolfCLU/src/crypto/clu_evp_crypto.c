@@ -53,7 +53,7 @@ int wolfCLU_evp_crypto(const WOLFSSL_EVP_CIPHER* cphr, char* mode, byte* pwdKey,
     int     padCounter      = 0;    /* number of padded bytes */
     int     i               = 0;    /* loop variable */
     int     hexRet          = 0;    /* hex -> bin return*/
-    int     ivSz;
+    int     ivSz            = 0;
     int     outputSz        = 0;
     int     iter            = 10000; /* default value for interop */
 
@@ -113,14 +113,14 @@ int wolfCLU_evp_crypto(const WOLFSSL_EVP_CIPHER* cphr, char* mode, byte* pwdKey,
         }
         else {
             char tmp[sizeof(isSalted)];
-    
+
             wolfSSL_BIO_read(in, tmp, XSTRLEN(isSalted));
             tmp[XSTRLEN(isSalted)] = '\0';
             if (XMEMCMP(tmp, isSalted, XSTRLEN(isSalted)) != 0) {
                 printf("Was expecting salt\n");
                 ret = -1;
             }
-    
+
             if (ret >= 0) {
                 ret = wolfSSL_BIO_read(in, salt, SALT_SIZE);
                 if (ret != SALT_SIZE) {
@@ -145,12 +145,12 @@ int wolfCLU_evp_crypto(const WOLFSSL_EVP_CIPHER* cphr, char* mode, byte* pwdKey,
                 ret = wolfSSL_PKCS5_PBKDF2_HMAC((const char*)pwdKey,
                     (int) strlen((const char*)pwdKey), salt, SALT_SIZE, iter,
                     hashType, keySz + ivSz, pwdKey);
-                if (ret != 0) { 
+                if (ret != 0) {
                     printf("failed to create key, ret = %d\n", ret);
                     ret = -1;
                 }
             }
-    
+
             if (ret >= 0) {
                 /* move the generated pwdKey to "key" for encrypting */
                 XMEMCPY(key, pwdKey, keySz);
@@ -162,7 +162,7 @@ int wolfCLU_evp_crypto(const WOLFSSL_EVP_CIPHER* cphr, char* mode, byte* pwdKey,
             iter = 1; /* default value for interop */
             ret = wolfSSL_EVP_BytesToKey(cphr, hashType, salt,
                     pwdKey, (int)strlen((const char*)pwdKey), iter, key, iv);
-            if (ret == 0) { 
+            if (ret == 0) {
                 printf("failed to create key, ret = %d\n", ret);
                 ret = -1;
             }

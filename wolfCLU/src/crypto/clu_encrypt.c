@@ -97,6 +97,7 @@ int wolfCLU_encrypt(int alg, char* mode, byte* pwdKey, byte* key, int size,
     ret = (int) wc_InitRng(&rng);
     if (ret != 0) {
         printf("Random Number Generator failed to start.\n");
+        fclose(inFile);
         return ret;
     }
 

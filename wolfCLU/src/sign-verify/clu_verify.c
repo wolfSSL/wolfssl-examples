@@ -35,6 +35,11 @@ byte* wolfCLU_generate_public_key_rsa(char* privKey, byte* outBuf,
     WC_RNG rng;
     byte* keyBuf;
 
+    if (outBufSz == NULL) {
+        printf("Unexpected null argument\n");
+        return NULL;
+    }
+
     XMEMSET(&rng, 0, sizeof(rng));
     XMEMSET(&key, 0, sizeof(key));
 
@@ -49,11 +54,17 @@ byte* wolfCLU_generate_public_key_rsa(char* privKey, byte* outBuf,
     /* read in and store private key */
 
     privKeyFile = fopen(privKey, "rb");
+    if (privKeyFile == NULL) {
+        printf("Unable to open file %s\n", privKey);
+        return NULL;
+    }
     fseek(privKeyFile, 0, SEEK_END);
     privFileSz = ftell(privKeyFile);
     keyBuf = malloc(privFileSz);
-    fseek(privKeyFile, 0, SEEK_SET);
-    fread(keyBuf, 1, privFileSz, privKeyFile);
+    if (keyBuf != NULL) {
+        fseek(privKeyFile, 0, SEEK_SET);
+        fread(keyBuf, 1, privFileSz, privKeyFile);
+    }
     fclose(privKeyFile);
 
     /* retrieving private key and storing in the RsaKey */
@@ -69,6 +80,9 @@ byte* wolfCLU_generate_public_key_rsa(char* privKey, byte* outBuf,
 
     /* setting up output buffer based on privateKeyFile size */
     outBuf = malloc(*outBufSz);
+    if (outBuf == NULL) {
+        return NULL;
+    }
     XMEMSET(outBuf, 0, *outBufSz);
 
     ret = wc_RsaKeyToPublicDer(&key, outBuf, *outBufSz);
@@ -140,9 +154,13 @@ int wolfCLU_verify_signature(char* sig, char* hash,
     int ret;
 
     FILE* h;
+    byte* h_mssg;
     FILE* f = fopen(sig,"rb");
 
-    byte* h_mssg;
+    if (f == NULL) {
+        printf("unable to open file %s\n", sig);
+        return BAD_FUNC_ARG;
+    }
 
     fseek(f, 0, SEEK_END);
     fSz = ftell(f);
@@ -159,6 +177,11 @@ int wolfCLU_verify_signature(char* sig, char* hash,
 
         case ECC_SIG_VER:
             h = fopen(hash,"rb");
+            if (h == NULL) {
+                printf("unable to open file %s\n", hash);
+                ret = BAD_FUNC_ARG;
+                break;
+            }
 
             fseek(h, 0, SEEK_END);
             hSz = ftell(h);
@@ -174,6 +197,11 @@ int wolfCLU_verify_signature(char* sig, char* hash,
 
         case ED25519_SIG_VER:
             h = fopen(hash,"rb");
+            if (h == NULL) {
+                printf("unable to open file %s\n", hash);
+                ret = BAD_FUNC_ARG;
+                break;
+            }
 
             fseek(h, 0, SEEK_END);
             hSz = ftell(h);
@@ -216,14 +244,20 @@ int wolfCLU_verify_signature_rsa(byte* sig, char* out, int sigSz, char* keyPath,
     }
 
     if (pubIn == 1) {
-
-    /* read in and store rsa key */
+        /* read in and store rsa key */
         keyPathFile = fopen(keyPath, "rb");
+        if (keyPathFile == NULL) {
+            printf("unable to open file %s\n", keyPath);
+            return BAD_FUNC_ARG;
+        }
+
         fseek(keyPathFile, 0, SEEK_END);
         keyFileSz = ftell(keyPathFile);
         keyBuf = (byte*)malloc(keyFileSz*sizeof(keyBuf));
-        fseek(keyPathFile, 0, SEEK_SET);
-        fread(keyBuf, 1, keyFileSz, keyPathFile);
+        if (keyBuf != NULL) {
+            fseek(keyPathFile, 0, SEEK_SET);
+            fread(keyBuf, 1, keyFileSz, keyPathFile);
+        }
         fclose(keyPathFile);
     } else {
         keyBuf = wolfCLU_generate_public_key_rsa(keyPath, keyBuf, &keyFileSz);
@@ -251,7 +285,14 @@ int wolfCLU_verify_signature_rsa(byte* sig, char* out, int sigSz, char* keyPath,
     }
     else {
         FILE* s = fopen(out, "wb");
-        fwrite(outBuf, 1, sizeof(outBuf), s);
+        if (s == NULL) {
+            printf("unable to open file %s\n", out);
+            ret = BAD_FUNC_ARG;
+        }
+        else {
+            fwrite(outBuf, 1, sizeof(outBuf), s);
+            fclose(s);
+        }
     }
 
     return ret;
@@ -285,11 +326,18 @@ int wolfCLU_verify_signature_ecc(byte* sig, int sigSz, byte* hash, int hashSz,
 
     /* read in and store ecc key */
     keyPathFile = fopen(keyPath, "rb");
+    if (keyPathFile == NULL) {
+        printf("unable to open file %s\n", keyPath);
+        return BAD_FUNC_ARG;
+    }
+
     fseek(keyPathFile, 0, SEEK_END);
     keyFileSz = ftell(keyPathFile);
     keyBuf = malloc(keyFileSz);
-    fseek(keyPathFile, 0, SEEK_SET);
-    fread(keyBuf, 1, keyFileSz, keyPathFile);
+    if (keyBuf != NULL) {
+        fseek(keyPathFile, 0, SEEK_SET);
+        fread(keyBuf, 1, keyFileSz, keyPathFile);
+    }
     fclose(keyPathFile);
 
     if (pubIn == 1) {
@@ -335,6 +383,10 @@ int wolfCLU_verify_signature_ed25519(byte* sig, int sigSz,
     FILE* keyPathFile;
     ed25519_key key;
     byte* keyBuf = (byte*)malloc(ED25519_KEY_SIZE);
+    if (keyBuf == NULL) {
+        printf("malloc failed\n");
+        return MEMORY_E;
+    }
 
     XMEMSET(&key, 0, sizeof(key));
     XMEMSET(keyBuf, 0, ED25519_KEY_SIZE);

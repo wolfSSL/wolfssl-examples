@@ -62,7 +62,7 @@ static int getMode(char* arg)
 int main(int argc, char** argv)
 {
     int     flag = 0;
-    char*   mode = "";
+    char*   mode;
     int     ret = 0;
     int     option = 0;
     int     ignoreIn = 0;

@@ -282,7 +282,6 @@ static int wolfCLU_setAltNames(WOLFSSL_X509* x509, WOLFSSL_CONF* conf,
     WOLFSSL_X509_NAME *name;
     WOLFSSL_X509_NAME_ENTRY *entry;
     char *current;
-    int  idx = 1;
     int  i;
 
     if (sect == NULL) {
@@ -321,7 +320,7 @@ static int wolfCLU_setAltNames(WOLFSSL_X509* x509, WOLFSSL_CONF* conf,
                 data   = wolfSSL_ASN1_STRING_data(str);
                 dataSz = wolfSSL_ASN1_STRING_length(str);
 
-                if (wolfSSL_X509_add_altname_ex(x509, data, dataSz,
+                if (wolfSSL_X509_add_altname_ex(x509, (const char*)data, dataSz,
                             ASN_IP_TYPE) != WOLFSSL_SUCCESS) {
                     printf("error adding ip alt name %s\n", data);
                 }

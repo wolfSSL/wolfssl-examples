@@ -27,6 +27,10 @@ int wolfCLU_sign_data(char* in, char* out, char* privKey, int keyType) {
     int fSz;
     FILE* f = fopen(in,"rb");
 
+    if (f == NULL) {
+        printf("unable to open file %s\n", in);
+        return BAD_FUNC_ARG;
+    }
     fseek(f, 0, SEEK_END);
     fSz = ftell(f);
 
@@ -82,6 +86,11 @@ int wolfCLU_sign_data_rsa(byte* data, char* out, word32 dataSz, char* privKey) {
 
         /* read in and store private key */
         privKeyFile = fopen(privKey, "rb");
+        if (privKeyFile == NULL) {
+            printf("unable to open file %s\n", privKey);
+            return BAD_FUNC_ARG;
+        }
+
         fseek(privKeyFile, 0, SEEK_END);
         privFileSz = ftell(privKeyFile);
         byte keyBuf[privFileSz];
@@ -163,6 +172,11 @@ int wolfCLU_sign_data_ecc(byte* data, char* out, word32 fSz, char* privKey) {
 
         /* read in and store private key */
         privKeyFile = fopen(privKey, "rb");
+        if (privKeyFile == NULL) {
+            printf("unable to open file %s\n", privKey);
+            return BAD_FUNC_ARG;
+        }
+
         fseek(privKeyFile, 0, SEEK_END);
         privFileSz = ftell(privKeyFile);
         byte keyBuf[privFileSz];
@@ -235,6 +249,11 @@ int wolfCLU_sign_data_ed25519 (byte* data, char* out,
 
         /* read in and store private key */
         privKeyFile = fopen(privKey, "rb");
+        if (privKeyFile == NULL) {
+            printf("unable to open file %s\n", privKey);
+            return BAD_FUNC_ARG;
+        }
+
         fseek(privKeyFile, 0, SEEK_END);
         privFileSz = ftell(privKeyFile);
         byte keyBuf[privFileSz];
