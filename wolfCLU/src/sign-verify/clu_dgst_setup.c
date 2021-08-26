@@ -51,12 +51,6 @@ int wolfCLU_dgst_setup(int argc, char** argv)
     word32 idx = 0;
 
     char*   alg;                /* algorithm being used */
-    int     inCheck     = 0;    /* input check */
-    int     privCheck   = 0;    /* private key check */
-    int     signCheck   = 0;
-    int     verifyCheck = 0;
-    int     pubInCheck  = 0;
-    int     sigCheck    = 0;
     enum wc_HashType      hashType = WC_HASH_TYPE_NONE;
     enum wc_SignatureType sigType  = WC_SIGNATURE_TYPE_NONE;
 
@@ -118,6 +112,13 @@ int wolfCLU_dgst_setup(int argc, char** argv)
         dataBio = wolfSSL_BIO_new_file(argv[argc-1], "rb");
         if (dataBio == NULL) {
             printf("unable to open data file %s\n", argv[argc-1]);
+            ret = -1;
+        }
+    }
+
+    if (ret == 0) {
+        if (dataBio == NULL || sigBio == NULL) {
+            printf("error with reading signature or data\n");
             ret = -1;
         }
     }

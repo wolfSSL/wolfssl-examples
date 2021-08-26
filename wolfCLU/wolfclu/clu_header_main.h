@@ -97,7 +97,7 @@
     #define HEAP_HINT NULL
 #endif
 
-#include "clu_include/clu_error_codes.h"
+#include <wolfclu/clu_error_codes.h>
 
  /* @VERSION
   * Update every time library change,
