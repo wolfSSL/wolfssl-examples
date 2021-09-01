@@ -27,8 +27,7 @@ void free_things_ed25519(byte** a, byte** b, byte** c, ed25519_key* d, ed25519_k
 
 int make_self_signed_ed25519_certificate(char* keyPath, char* certOut) {
     int ret = 0;
-    word32 index = 0;
-    
+
     Cert newCert;
     ed25519_key key;
     WC_RNG rng;
@@ -104,7 +103,7 @@ int make_self_signed_ed25519_certificate(char* keyPath, char* certOut) {
     strncpy(newCert.subject.unit, unit, CTC_NAME_SIZE);
     strncpy(newCert.subject.commonName, commonName, CTC_NAME_SIZE);
     strncpy(newCert.subject.email, email, CTC_NAME_SIZE);
-    newCert.daysValid = atoi(daysValid);
+    newCert.daysValid = XATOI(daysValid);
     newCert.isCA    = 0;
     newCert.sigType = CTC_ED25519;
     

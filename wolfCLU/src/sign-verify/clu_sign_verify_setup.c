@@ -26,19 +26,16 @@
 int wolfCLU_sign_verify_setup(int argc, char** argv)
 {
     int     ret         = 0;    /* return variable, counter */
-    int     i           = 0;    /* loop variable */
     char*   in          = NULL; /* input variable */
     char*   out;                /* output variable */
     char*   priv;               /* private key variable */
     char*   sig;
 
-    char*   alg;                /* algorithm being used */
     int     algCheck;           /* acceptable algorithm check */
     int     inCheck     = 0;    /* input check */
     int     signCheck   = 0;
     int     verifyCheck = 0;
     int     pubInCheck  = 0;
-    int     sigCheck    = 0;
 
     if (wolfCLU_checkForArg("-rsa", 4, argc, argv) > 0) {
         algCheck = RSA_SIG_VER;

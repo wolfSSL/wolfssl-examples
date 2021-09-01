@@ -39,7 +39,7 @@ enum {
 
 int wolfCLU_certSetup(int argc, char** argv)
 {
-    int i, ret;
+    int ret;
     int text_flag    = 0;   /* does user desire human readable cert info */
     int text_pubkey  = 0;   /* does user desire human readable pubkey info */
     int noout_flag   = 0;   /* are we outputting a file */

@@ -62,13 +62,8 @@ static int getMode(char* arg)
 int main(int argc, char** argv)
 {
     int     flag = 0;
-    char*   mode;
     int     ret = 0;
-    int     option = 0;
-    int     ignoreIn = 0;
-    int     ignoreOut = 0;
-    int     long_index = 0;
-    int     i;
+    int     longIndex = 0;
 
     if (argc == 1) {
         printf("Main Help.\n");
@@ -84,7 +79,7 @@ int main(int argc, char** argv)
     }
     else {
         /* retain old version of modes where '-' is used. i.e -x509, -req */
-        flag = getopt_long_only(argc, argv,"", mode_options, &long_index);
+        flag = getopt_long_only(argc, argv,"", mode_options, &longIndex);
     }
 
     switch (flag) {

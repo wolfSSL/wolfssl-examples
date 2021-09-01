@@ -250,7 +250,6 @@ int wolfCLU_genKey_ECC(WC_RNG* rng, char* fName, int directive, int fmt,
 
     byte*  der   = NULL;
     int    derSz = -1;
-    int    curve_id    = ECC_SECP256R1; /* default to common 256 bit curve */
 
     if (rng == NULL || fName == NULL)
         return BAD_FUNC_ARG;

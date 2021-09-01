@@ -76,7 +76,7 @@ int wolfCLU_benchSetup(int argc, char** argv)
     ret = wolfCLU_checkForArg("-time", 5, argc, argv);
     if (ret > 0) {
         /* time for each test in seconds */
-        time = atoi(argv[ret+1]);
+        time = XATOI(argv[ret+1]);
         if (time < 1 || time > 10) {
             printf("Invalid time, must be between 1-10. Using default"
                                             " of three seconds.\n");

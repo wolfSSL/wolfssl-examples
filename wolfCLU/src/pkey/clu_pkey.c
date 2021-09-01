@@ -80,7 +80,7 @@ static int wolfCLU_pKeytoPubKey(WOLFSSL_EVP_PKEY* pkey, unsigned char** out,
     switch (type) {
         case EVP_PKEY_RSA:
             *outSz = wolfSSL_i2d_RSAPublicKey(
-                   wolfSSL_EVP_PKEY_get0_RSA(pkey), (const unsigned char**)out);
+                   wolfSSL_EVP_PKEY_get0_RSA(pkey), out);
             break;
 
         case EVP_PKEY_DSA:
@@ -152,7 +152,7 @@ int wolfCLU_pKeySetup(int argc, char** argv)
     int inForm = PEM_FORM;
     int pubOut = 0;
     int option;
-    int long_index = 1;
+    int longIndex = 1;
     WOLFSSL_EVP_PKEY *pkey = NULL;
     WOLFSSL_BIO *bioIn  = NULL;
     WOLFSSL_BIO *bioOut = NULL;
@@ -160,7 +160,7 @@ int wolfCLU_pKeySetup(int argc, char** argv)
     opterr = 0; /* do not display unrecognized options */
     optind = 0; /* start at indent 0 */
     while ((option = getopt_long_only(argc, argv, "",
-                   pkey_options, &long_index )) != -1) {
+                   pkey_options, &longIndex )) != -1) {
         switch (option) {
             case WOLFCLU_PUBOUT:
                 pubOut = 1;

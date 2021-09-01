@@ -27,7 +27,6 @@ int wolfCLU_genKeySetup(int argc, char** argv)
 {
     char     keyOutFName[MAX_FILENAME_SZ];  /* default outFile for genKey */
     char     defaultFormat[4] = "der\0";
-    FILE*    fStream;
     WC_RNG   rng;
 
     char*    keyType = NULL;       /* keyType */
@@ -35,9 +34,7 @@ int wolfCLU_genKeySetup(int argc, char** argv)
     char*    name    = NULL;
 
     int      formatArg;
-    int      size       =   0;  /* keysize */
     int      ret        =   0;  /* return variable */
-    int      i          =   0;  /* loop counter */
 
     ret = wolfCLU_checkForArg("-h", 2, argc, argv);
     if (ret > 0) {
@@ -120,7 +117,6 @@ int wolfCLU_genKeySetup(int argc, char** argv)
     #if defined(HAVE_ECC) && defined(WOLFSSL_KEY_GEN)
         /* ECC flags */
         int directiveArg = PRIV_AND_PUB;
-        int sizeArg = 0;
 
         printf("generate ECC key\n");
 
@@ -135,7 +131,8 @@ int wolfCLU_genKeySetup(int argc, char** argv)
                 else if (XSTRNCMP(argv[ret+1], "keypair", 7) == 0)
                     directiveArg = PRIV_AND_PUB;
             }
-        } else {
+        }
+        else {
             printf("No -output <PUB/PRIV/KEYPAIR>\n");
             printf("DEFAULT: output public and private key pair\n");
             directiveArg = PRIV_AND_PUB;
@@ -187,7 +184,8 @@ int wolfCLU_genKeySetup(int argc, char** argv)
                 else if (XSTRNCMP(argv[ret+1], "keypair", 7) == 0)
                     directiveArg = PRIV_AND_PUB;
             }
-        } else {
+        }
+        else {
             printf("No -output <PUB/PRIV/KEYPAIR>\n");
             printf("DEFAULT: output public and private key pair\n");
             directiveArg = PRIV_AND_PUB;
@@ -206,7 +204,7 @@ int wolfCLU_genKeySetup(int argc, char** argv)
                 else {
                     for (cur = argv[ret+1]; *cur && isdigit(*cur); ++cur);
                     if (*cur == '\0') {
-                        sizeArg = atoi(argv[ret+1]);
+                        sizeArg = XATOI(argv[ret+1]);
                     }
                     else {
                         printf("Invalid -size (%s), using 2048\n",
@@ -215,7 +213,8 @@ int wolfCLU_genKeySetup(int argc, char** argv)
                     }
                 }
             }
-        } else {
+        }
+        else {
             printf("No -size <SIZE>\n");
             printf("DEFAULT: use a 2048 RSA key\n");
             sizeArg = 2048;
@@ -234,7 +233,7 @@ int wolfCLU_genKeySetup(int argc, char** argv)
                 else {
                     for (cur = argv[ret+1]; *cur && isdigit(*cur); ++cur);
                     if (*cur == '\0') {
-                        sizeArg = atoi(argv[ret+1]);
+                        sizeArg = XATOI(argv[ret+1]);
                     }
                     else {
                         printf("Invalid -exponent (%s), using 65537\n",
@@ -243,7 +242,8 @@ int wolfCLU_genKeySetup(int argc, char** argv)
                     }
                 }
             }
-        } else {
+        }
+        else {
             printf("No -exponent <SIZE>\n");
             printf("DEFAULT: use an exponent of 65537\n");
             expArg = 65537;

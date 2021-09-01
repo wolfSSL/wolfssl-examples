@@ -377,7 +377,6 @@ int wolfCLU_verify_signature_ed25519(byte* sig, int sigSz,
 
 #ifdef HAVE_ED25519
     int ret;
-    int keyFileSz;
     int stat = 0;
 
     FILE* keyPathFile;

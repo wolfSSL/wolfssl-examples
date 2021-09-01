@@ -563,7 +563,7 @@ static int wolfCLU_parseAlgo(char* name, int* alg, char** mode, int* size)
         if (sz == NULL) {
             return FATAL_ERROR;
         }
-        *size = atoi(sz);
+        *size = XATOI(sz);
     }
 
     tmpMode = strtok_r(NULL, "-", &end);
@@ -727,7 +727,7 @@ static const char* oldAlgoName[] = {
 
 
 /* convert an old algo name into one optargs can handle */
-static void wolfCLU_oldAlgo(int argc, char* argv[], int maxIdx)
+static void wolfCLU_oldAlgo(int argc, char** argv, int maxIdx)
 {
     int end;
     int i, j;
@@ -773,10 +773,10 @@ const WOLFSSL_EVP_CIPHER* wolfCLU_CipherTypeFromAlgo(int alg)
  * finds algorithm for encryption/decryption
  * alg and mode are null terminated strings that need free'd by the caller
  */
-int wolfCLU_getAlgo(int argc, char* argv[], int* alg, char** mode, int* size)
+int wolfCLU_getAlgo(int argc, char** argv, int* alg, char** mode, int* size)
 {
     int ret = 0;
-    int long_index = 2;
+    int longIndex = 2;
     int option;
     char name[80];
     char *argvCopy[argc];
@@ -800,7 +800,7 @@ int wolfCLU_getAlgo(int argc, char* argv[], int* alg, char** mode, int* size)
         opterr = 0; /* do not print out unknown options */
         XMEMSET(name, 0, sizeof(name));
         while ((option = getopt_long_only(argc, argvCopy, "",
-                       crypt_algo_options, &long_index )) != -1) {
+                       crypt_algo_options, &longIndex )) != -1) {
             switch (option) {
                 /* AES */
                 case WOLFCLU_AES128CTR:

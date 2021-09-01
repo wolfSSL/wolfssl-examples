@@ -35,12 +35,7 @@ int wolfCLU_evp_crypto(const WOLFSSL_EVP_CIPHER* cphr, char* mode, byte* pwdKey,
 {
     WOLFSSL_BIO *out = NULL;
     WOLFSSL_BIO *in  = NULL;
-
     WOLFSSL_EVP_CIPHER_CTX* ctx    = NULL;
-
-    FILE*  tempInFile = NULL;       /* if user not provide a file */
-    FILE*  inFile = NULL;           /* input file */
-    FILE*  outFile = NULL;          /* output file */
 
     WC_RNG     rng;                 /* random number generator declaration */
 
@@ -50,8 +45,6 @@ int wolfCLU_evp_crypto(const WOLFSSL_EVP_CIPHER* cphr, char* mode, byte* pwdKey,
 
     int     ret             = 0;    /* return variable */
     int     length          = 0;    /* total length */
-    int     padCounter      = 0;    /* number of padded bytes */
-    int     i               = 0;    /* loop variable */
     int     hexRet          = 0;    /* hex -> bin return*/
     int     ivSz            = 0;
     int     outputSz        = 0;
@@ -61,7 +54,6 @@ int wolfCLU_evp_crypto(const WOLFSSL_EVP_CIPHER* cphr, char* mode, byte* pwdKey,
     word32  tempMax         = WOLFCLU_MAX_BUFFER; /* controls encryption amount */
 
     char    inputString[WOLFCLU_MAX_BUFFER];       /* the input string */
-    char*   userInputBuffer = NULL; /* buffer when input is not a file */
     const char isSalted[] = "Salted__";
 
     if (cphr == NULL) {

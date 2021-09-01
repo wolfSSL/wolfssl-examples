@@ -31,10 +31,6 @@ int wolfCLU_dgst_setup(int argc, char** argv)
     WOLFSSL_BIO *dataBio = NULL;
     WOLFSSL_EVP_PKEY *pkey;
     int     ret = 0;
-    int     i   = 0;
-    char*   in;
-    char*   out;
-    char*   priv;
     char* sig  = NULL;
     char* data = NULL;
     void* key  = NULL;
@@ -43,21 +39,20 @@ int wolfCLU_dgst_setup(int argc, char** argv)
     int sigSz  = 0;
     int keySz  = 0;
     int option;
-    int long_index = 2;
+    int longIndex = 2;
 
     unsigned char* der = NULL;
     ecc_key ecc;
     RsaKey  rsa;
     word32 idx = 0;
 
-    char*   alg;                /* algorithm being used */
     enum wc_HashType      hashType = WC_HASH_TYPE_NONE;
     enum wc_SignatureType sigType  = WC_SIGNATURE_TYPE_NONE;
 
     opterr = 0; /* do not display unrecognized options */
     optind = 0; /* start at indent 0 */
     while ((option = getopt_long_only(argc, argv, "",
-                   dgst_options, &long_index )) != -1) {
+                   dgst_options, &longIndex )) != -1) {
 
         switch (option) {
 

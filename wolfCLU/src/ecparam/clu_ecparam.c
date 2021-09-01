@@ -38,7 +38,7 @@ int wolfCLU_ecparam(int argc, char** argv)
     char  name[ECC_MAXNAME]; /* name of curve to use */
     char* out  = NULL;    /* default output file name */
     int   ret        = 0; /* return variable */
-    int   long_index = 0;
+    int   longIndex = 0;
     int   genKey     = 0;
     int   outForm    = PEM_FORM;
     int   i, option;
@@ -53,7 +53,7 @@ int wolfCLU_ecparam(int argc, char** argv)
     opterr = 0; /* do not display unrecognized options */
     optind = 0; /* start at indent 0 */
     while ((option = getopt_long_only(argc, argv, "",
-                   ecparam_options, &long_index )) != -1) {
+                   ecparam_options, &longIndex )) != -1) {
 
         switch (option) {
             case WOLFCLU_OUTFILE:

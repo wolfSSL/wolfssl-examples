@@ -195,7 +195,7 @@ void wolfCLU_certgenHelp();
  * @param mode the mode as set by the user (cbc or ctr)
  * @param size set based on the algorithm specified
  */
-int wolfCLU_getAlgo(int argc, char* argv[], int* alg, char** mode, int* size);
+int wolfCLU_getAlgo(int argc, char** argv, int* alg, char** mode, int* size);
 
 
 /* find algorithm EVP cipher from alog enum

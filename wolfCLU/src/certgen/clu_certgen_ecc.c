@@ -75,7 +75,11 @@ int make_self_signed_ecc_certificate(char* keyPath, char* certOut, int oid) {
         return ret;
     }
 
-    wc_InitCert(&newCert);
+    ret = wc_InitCert(&newCert);
+    if (ret != 0 ) {
+        printf("Failed to init Cert \nRET: %d\n", ret);
+        return ret;
+    }
 
     printf("Enter your countries 2 digit code (ex: United States -> US): ");
     fgets(country,CTC_NAME_SIZE,stdin);
@@ -102,7 +106,7 @@ int make_self_signed_ecc_certificate(char* keyPath, char* certOut, int oid) {
     strncpy(newCert.subject.unit, unit, CTC_NAME_SIZE);
     strncpy(newCert.subject.commonName, commonName, CTC_NAME_SIZE);
     strncpy(newCert.subject.email, email, CTC_NAME_SIZE);
-    newCert.daysValid = atoi(daysValid);
+    newCert.daysValid = XATOI(daysValid);
     newCert.isCA    = 0;
     switch(oid) {
         case SHA_HASH:

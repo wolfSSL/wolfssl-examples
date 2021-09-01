@@ -66,7 +66,6 @@ int wolfCLU_sign_data_rsa(byte* data, char* out, word32 dataSz, char* privKey) {
 #ifndef NO_RSA
         int ret;
         int privFileSz;
-        size_t rsaKeySz;
         word32 index = 0;
 
         FILE* privKeyFile;
@@ -135,6 +134,7 @@ int wolfCLU_sign_data_rsa(byte* data, char* out, word32 dataSz, char* privKey) {
             fclose(s);
         }
 
+        (void)index;
         return 0;
 #else
         return NOT_COMPILED_IN;
@@ -145,7 +145,6 @@ int wolfCLU_sign_data_ecc(byte* data, char* out, word32 fSz, char* privKey) {
 #ifdef HAVE_ECC
         int ret;
         int privFileSz;
-        size_t eccKeySz;
         word32 index = 0;
         word32 outLen;
 
@@ -209,6 +208,7 @@ int wolfCLU_sign_data_ecc(byte* data, char* out, word32 fSz, char* privKey) {
             fclose(s);
         }
 
+        (void)index;
         return ret;
 #else
     return NOT_COMPILED_IN;
@@ -221,10 +221,8 @@ int wolfCLU_sign_data_ed25519 (byte* data, char* out,
     #ifdef HAVE_ED25519
         int ret;
         int privFileSz;
-        size_t edKeySz;
         word32 index = 0;
         word32 outLen;
-        word32 pubLen;
 
         FILE* privKeyFile;
 
@@ -289,6 +287,7 @@ int wolfCLU_sign_data_ed25519 (byte* data, char* out,
             fclose(s);
         }
 
+        (void)index;
         return ret;
 #else
     return NOT_COMPILED_IN;

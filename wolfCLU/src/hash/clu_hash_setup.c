@@ -115,7 +115,7 @@ int wolfCLU_hashSetup(int argc, char** argv)
 #ifndef HAVE_BLAKE2
         printf("%s: -size is only valid when blake2 is enabled.\n", argv[0]);
 #else
-        size = atoi(argv[ret+1]);
+        size = XATOI(argv[ret+1]);
         if (size <= 0 || size > 64) {
             printf("Invalid size, Must be between 1-64. Using default.\n");
             size = BLAKE2B_OUTBYTES;

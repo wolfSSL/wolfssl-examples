@@ -38,18 +38,16 @@ int wolfCLU_requestSetup(int argc, char** argv)
     WOLFSSL_EVP_PKEY *pkey = NULL;
 
     int     ret = 0;
-    int     i   = 0;
     char*   in  = NULL;
     char*   out = NULL;
     char*   config = NULL;
 
-    char*   alg;                /* algorithm being used */
     int     algCheck =   0;     /* algorithm type */
     int     oid      =   0;
     int     outForm = PEM_FORM; /* default to PEM format */
     int     inForm;
     int     option;
-    int     long_index = 1;
+    int     longIndex = 1;
     int     days = 0;
     int     genX509 = 0;
 
@@ -57,7 +55,7 @@ int wolfCLU_requestSetup(int argc, char** argv)
     opterr = 0; /* do not display unrecognized options */
     optind = 0; /* start at indent 0 */
     while ((option = getopt_long_only(argc, argv, "", req_options,
-                    &long_index )) != -1) {
+                    &longIndex )) != -1) {
 
         switch (option) {
             case WOLFCLU_INFILE:
@@ -109,7 +107,7 @@ int wolfCLU_requestSetup(int argc, char** argv)
                 break;
 
             case WOLFCLU_DAYS:
-                days = atoi(optarg);
+                days = XATOI(optarg);
                 break;
 
             case WOLFCLU_CERT_SHA:
@@ -169,7 +167,7 @@ int wolfCLU_requestSetup(int argc, char** argv)
 
         t = time(NULL);
         notBefore = wolfSSL_ASN1_TIME_adj(NULL, t, 0, 0);
-        notAfter = wolfSSL_ASN1_TIME_adj(NULL, t, atoi(argv[ret+1]), 0);
+        notAfter = wolfSSL_ASN1_TIME_adj(NULL, t, XATOI(argv[ret+1]), 0);
         if (notBefore == NULL || notAfter == NULL) {
             printf("error creating not before/after dates\n");
             ret = -1;

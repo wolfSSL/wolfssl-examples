@@ -100,7 +100,7 @@ int make_self_signed_rsa_certificate(char* keyPath, char* certOut, int oid) {
     strncpy(newCert.subject.unit, unit, CTC_NAME_SIZE);
     strncpy(newCert.subject.commonName, commonName, CTC_NAME_SIZE);
     strncpy(newCert.subject.email, email, CTC_NAME_SIZE);
-    newCert.daysValid = atoi(daysValid);
+    newCert.daysValid = XATOI(daysValid);
     newCert.isCA    = 0;
     
     switch(oid) {
