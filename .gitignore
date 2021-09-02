@@ -219,3 +219,5 @@ hash/sha256-hash
 sslkeylog.log
 server-tls13
 client-tls13
+
+tpm/evp_tpm
