@@ -291,23 +291,6 @@ Please see the [utasker/README.md](utasker/README.md) for further usage and
 details.
 
 
-#### wolfCLU (wolfSSL Command Line Utility)
-
-This is a tool to provide command line access to wolfcrypt cryptographic
-libraries. wolfSSL command line utility will allow users to encrypt or decrypt
-a user specified file to any file name and extension.
-
-Please see the [clu/README.md](clu/README.md) for further usage and details.
-
-###### Unique feature to wolfSSL CLU
-The decision to allow for unique file extensions was prompted by automated
-tools available for brute forcing files. It will not provide extra security
-cryptographically however it will force attackers to check the header
-information on every single brute force attempt. This will provide further
-frustration and an extra step in any attempt to brute force a file encrypted
-with our utility.
-
-
 ## Notes
 
 
