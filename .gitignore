@@ -203,8 +203,6 @@ pk/ed448/ed448_pub
 pk/ed448/ed448_keys
 pk/ed448/*.der
 
-wolfCLU/tests/somejunk/*somejunk*.txt
-
 embedded/tls-client-server
 embedded/tls-server-size
 embedded/tls-sock-client
