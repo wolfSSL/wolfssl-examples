@@ -23,8 +23,8 @@ LIBS+=$(DYN_LIB)
 SRC=$(wildcard *.c)
 TARGETS=$(patsubst %.c, %, $(SRC))
 LINUX_SPECIFIC=client-tls-perf \
-	server-tls-epoll-perf \
-	server-tls-epoll-threaded
+               server-tls-epoll-perf \
+               server-tls-epoll-threaded
 
 
 # Intel QuickAssist
