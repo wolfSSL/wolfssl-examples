@@ -78,7 +78,9 @@ static int uartIORx(WOLFSSL *ssl, char *buf, int sz, void *ctx)
     int ret, recvd = 0;
     CbCtx_t* cbCtx = (CbCtx_t*)ctx;
 
-    printf("Read: In %d\n", sz);
+#ifdef DEBUG_UART_IO
+    printf("UART Read: In %d\n", sz);
+#endif
 
     /* is there pending data, return it */
     if (cbCtx->pos > 0) {
@@ -111,17 +113,13 @@ static int uartIORx(WOLFSSL *ssl, char *buf, int sz, void *ctx)
         } while (ret > 0);
     }
 
-#if 0
-    if (logIF && recvd) {
-        logIF->writeRaw(logIF, buf, recvd);
-    }
-#endif
-
     if (recvd == 0) {
         recvd = WOLFSSL_CBIO_ERR_WANT_READ;
     }
 
-    printf("Read: Out %d\n", recvd);
+#ifdef DEBUG_UART_IO
+    printf("UART Read: Out %d\n", recvd);
+#endif
 
     return recvd;
 }
@@ -131,34 +129,66 @@ static int uartIOTx(WOLFSSL *ssl, char *buf, int sz, void *ctx)
     int sent;
     CbCtx_t* cbCtx = (CbCtx_t*)ctx;
 
-    printf("Write: In %d\n", sz);
-    
-    sent = write(cbCtx->portFd, buf, sz);
-#if 0
-    if (logIF && sent) {
-        logIF->writeRaw(logIF, buf, sent);
-    }
+#ifdef DEBUG_UART_IO
+    printf("UART Write: In %d\n", sz);
 #endif
+
+    sent = write(cbCtx->portFd, buf, sz);
     if (sent == 0) {
         sent = WOLFSSL_CBIO_ERR_WANT_WRITE;
     }
 
-    printf("Write: Out %d\n", sent);
+#ifdef DEBUG_UART_IO
+    printf("UART Write: Out %d\n", sent);
+#endif
+
     return sent;
 }
 
 
-int main(void)
+int main(int argc, char** argv)
 {
     int ret = -1, err;
     WOLFSSL_CTX* ctx = NULL;
     WOLFSSL* ssl = NULL;
     CbCtx_t cBctx;
     struct termios tty;
-    byte echoBuffer[100];
+    const char testStr[] = "Testing 1, 2 and 3\r\n";
+    byte readBuf[100];
+    const char* uartDev = UART_DEV;
 
+    if (argc >= 2) {
+        uartDev = argv[1];
+    }
+
+    /* open UART file descriptor */
     XMEMSET(&cBctx, 0, sizeof(cBctx));
-    cBctx.portFd = -1;
+    cBctx.portFd = open(uartDev, O_RDWR | O_NOCTTY);
+    if (cBctx.portFd < 0) {
+        printf("Error opening %s: Error %i (%s)\n",
+            uartDev, errno, strerror(errno));
+        ret = errno;
+        goto done;
+    }
+    tcgetattr(cBctx.portFd, &tty);
+    cfsetospeed(&tty, B115200);
+    cfsetispeed(&tty, B115200);
+    tty.c_cflag = (tty.c_cflag & ~CSIZE) | (CS8);
+    tty.c_iflag &= ~(IGNBRK | IXON | IXOFF | IXANY| INLCR | ICRNL);
+    tty.c_oflag &= ~OPOST;
+    tty.c_oflag &= ~(ONLCR|OCRNL);
+    tty.c_cflag &= ~(PARENB | PARODD | CSTOPB);
+    tty.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
+    tty.c_iflag &= ~ISTRIP;
+    tty.c_cc[VMIN] = 0;
+    tty.c_cc[VTIME] = 5;
+    tcsetattr(cBctx.portFd, TCSANOW, &tty);
+
+    /* Flush any data in the RX buffer - sure there is a better way to "flush" */
+    ret = read(cBctx.portFd, readBuf, sizeof(readBuf));
+    if (ret < 0) {
+        /* ignore RX error on flush */
+    }
 
     ctx = wolfSSL_CTX_new(wolfSSLv23_client_method()); /* highest available / allow downgrade */
     if (ctx == NULL) {
@@ -183,48 +213,29 @@ int main(void)
     wolfSSL_SetIOReadCtx(ssl, &cBctx);
     wolfSSL_SetIOWriteCtx(ssl, &cBctx);
 
-    /* open UART file descriptor */
-    cBctx.portFd = open(UART_DEV, O_RDWR | O_NOCTTY);
-    if (cBctx.portFd < 0) {
-        printf("Error opening %s: Error %i (%s)\n", UART_DEV, errno, strerror(errno));
-        ret = errno;
-        goto done;
-    }
-    tcgetattr(cBctx.portFd, &tty);
-    cfsetospeed(&tty, B115200);
-    cfsetispeed(&tty, B115200);
-    tty.c_cflag = (tty.c_cflag & ~CSIZE) | (CS8);
-    tty.c_iflag &= ~(IGNBRK | IXON | IXOFF | IXANY| INLCR | ICRNL);
-    tty.c_oflag &= ~OPOST;
-    tty.c_oflag &= ~(ONLCR|OCRNL);
-    tty.c_cflag &= ~(PARENB | PARODD | CSTOPB);
-    tty.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
-    tty.c_iflag &= ~ISTRIP;
-    tty.c_cc[VMIN] = 0;
-    tty.c_cc[VTIME] = 5;
-    tcsetattr(cBctx.portFd, TCSANOW, &tty);
-
-    /* Flush any data in the RX buffer - sure there is a better way to "flush" */
-    read(cBctx.portFd, echoBuffer, sizeof(echoBuffer));
-
     do {
         ret = wolfSSL_connect(ssl);
         err = wolfSSL_get_error(ssl, ret);
     } while (err == WOLFSSL_ERROR_WANT_READ || err == WOLFSSL_ERROR_WANT_WRITE);
     if (ret != WOLFSSL_SUCCESS) {
-        
+        printf("TLS connect error %d\n", err);
+        goto done;
     }
+    printf("TLS Connect handshake done\n");
 
-    XMEMSET(echoBuffer, 0, sizeof(echoBuffer));
+    printf("Sending test string\n");
     do {
-        ret = wolfSSL_read(ssl, echoBuffer, sizeof(echoBuffer)-1);
+        ret = wolfSSL_write(ssl, testStr, XSTRLEN(testStr));
         err = wolfSSL_get_error(ssl, ret);
     } while (err == WOLFSSL_ERROR_WANT_READ || err == WOLFSSL_ERROR_WANT_WRITE);
+    printf("Sent (%d): %s\n", err, testStr);
 
+    XMEMSET(readBuf, 0, sizeof(readBuf));
     do {
-        ret = wolfSSL_write(ssl, echoBuffer, XSTRLEN((char*)echoBuffer));
+        ret = wolfSSL_read(ssl, readBuf, sizeof(readBuf)-1);
         err = wolfSSL_get_error(ssl, ret);
     } while (err == WOLFSSL_ERROR_WANT_READ || err == WOLFSSL_ERROR_WANT_WRITE);
+    printf("Read (%d): %s\n", err, readBuf);
 
     ret = 0; /* success */
 
