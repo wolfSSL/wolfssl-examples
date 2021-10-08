@@ -90,6 +90,9 @@ android/wolfssljni-ndk-sample/proguard-project.txt
 /tls/client-tls-pkcs12
 /tls/client-tls-cryptocb
 
+tls/client-tls-uart
+tls/server-tls-uart
+
 crypto/3des/3des-file-encrypt
 crypto/aes/aes-file-encrypt
 crypto/camellia/camellia-encrypt
