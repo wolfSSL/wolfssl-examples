@@ -20,7 +20,7 @@
  *
  *=============================================================================
  *
- * Example for TLS over UART
+ * Example for TLS client over UART
  */
 
 
@@ -62,7 +62,7 @@ gcc -lwolfssl -o client-tls-uart.c client-tls-uart.c
 #define B115200 115200
 #endif
 
-/* max buffer for a single TLS frame */
+/* Max buffer for a single TLS frame */
 #ifndef MAX_RECORD_SIZE
 #define MAX_RECORD_SIZE (16 * 1024)
 #endif
@@ -82,7 +82,7 @@ static int uartIORx(WOLFSSL *ssl, char *buf, int sz, void *ctx)
     printf("UART Read: In %d\n", sz);
 #endif
 
-    /* is there pending data, return it */
+    /* Is there pending data, return it */
     if (cbCtx->pos > 0) {
         recvd = cbCtx->pos;
         if (recvd > sz)
@@ -95,7 +95,7 @@ static int uartIORx(WOLFSSL *ssl, char *buf, int sz, void *ctx)
     if (recvd < sz && cbCtx->pos == 0) {
         int avail, remain;
 
-        /* read remain */
+        /* Read remain */
         do {
             remain = sz - recvd;
             ret = read(cbCtx->portFd, buf + recvd, remain);
@@ -104,7 +104,7 @@ static int uartIORx(WOLFSSL *ssl, char *buf, int sz, void *ctx)
             }
         } while (ret >= 0 && recvd < sz);
 
-        /* read until 0 or out of space */
+        /* Read until 0 or out of space */
         do {
             avail = (int)sizeof(cbCtx->buf) - cbCtx->pos;
             ret = read(cbCtx->portFd, cbCtx->buf + cbCtx->pos, avail);
@@ -161,7 +161,7 @@ int main(int argc, char** argv)
         uartDev = argv[1];
     }
 
-    /* open UART file descriptor */
+    /* Open UART file descriptor */
     XMEMSET(&cBctx, 0, sizeof(cBctx));
     cBctx.portFd = open(uartDev, O_RDWR | O_NOCTTY);
     if (cBctx.portFd < 0) {
@@ -184,23 +184,23 @@ int main(int argc, char** argv)
     tty.c_cc[VTIME] = 5;
     tcsetattr(cBctx.portFd, TCSANOW, &tty);
 
-    /* Flush any data in the RX buffer - sure there is a better way to "flush" */
+    /* Flush any data in the RX buffer */
     ret = read(cBctx.portFd, readBuf, sizeof(readBuf));
     if (ret < 0) {
-        /* ignore RX error on flush */
+        /* Ignore RX error on flush */
     }
 
-    ctx = wolfSSL_CTX_new(wolfSSLv23_client_method()); /* highest available / allow downgrade */
+    ctx = wolfSSL_CTX_new(wolfSSLv23_client_method()); /* Highest available / allow downgrade */
     if (ctx == NULL) {
         printf("Error creating WOLFSSL_CTX\n");
         goto done;
     }
 
-    /* register wolfSSL send/recv callbacks */
+    /* Register wolfSSL send/recv callbacks */
     wolfSSL_CTX_SetIOSend(ctx, uartIOTx);
     wolfSSL_CTX_SetIORecv(ctx, uartIORx);
 
-    /* for testing disable peer cert verification */
+    /* For testing disable peer cert verification */
     wolfSSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, NULL);
 
     ssl = wolfSSL_new(ctx);
@@ -209,7 +209,7 @@ int main(int argc, char** argv)
         goto done;
     }
 
-    /* register wolfSSL read/write callback contexts */
+    /* Register wolfSSL read/write callback contexts */
     wolfSSL_SetIOReadCtx(ssl, &cBctx);
     wolfSSL_SetIOWriteCtx(ssl, &cBctx);
 
@@ -237,7 +237,7 @@ int main(int argc, char** argv)
     } while (err == WOLFSSL_ERROR_WANT_READ || err == WOLFSSL_ERROR_WANT_WRITE);
     printf("Read (%d): %s\n", err, readBuf);
 
-    ret = 0; /* success */
+    ret = 0; /* Success */
 
 done:
     if (ssl) {
