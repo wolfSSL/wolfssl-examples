@@ -1211,3 +1211,31 @@ make clean && make
 
 Wireshark can decode traffic using the created "sslkeylog.log". To configure in Wireshark Prferences go to Protocols -> TLS. In the "(Pre)-Master-Secret log filename" choose the "sslkeylog.log" file in this directory.
 Capture TLS traffic and all packets will be decrypted (handshake and application data).
+
+
+## TLS over UART Example
+
+Test setup uses two USB UART adapters wired in cross-over to PC.
+
+In separate terminals run:
+
+`./server-tls-uart /dev/ttyUSB0`
+`./client-tls-uart /dev/ttyUSB1`
+
+Example output:
+
+```
+./server-tls-uart /dev/ttyUSB0
+Waiting for client
+TLS Accept handshake done
+Read (0): Testing 1, 2 and 3
+Sent (0): Testing 1, 2 and 3
+```
+
+```
+$ ./client-tls-uart /dev/ttyUSB1
+TLS Connect handshake done
+Sending test string
+Sent (0): Testing 1, 2 and 3
+Read (0): Testing 1, 2 and 3
+```

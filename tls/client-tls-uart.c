@@ -20,7 +20,7 @@
  *
  *=============================================================================
  *
- * Example for TLS over UART
+ * Example for TLS client over UART
  */
 
 
@@ -62,7 +62,7 @@ gcc -lwolfssl -o client-tls-uart.c client-tls-uart.c
 #define B115200 115200
 #endif
 
-/* max buffer for a single TLS frame */
+/* Max buffer for a single TLS frame */
 #ifndef MAX_RECORD_SIZE
 #define MAX_RECORD_SIZE (16 * 1024)
 #endif
@@ -78,9 +78,11 @@ static int uartIORx(WOLFSSL *ssl, char *buf, int sz, void *ctx)
     int ret, recvd = 0;
     CbCtx_t* cbCtx = (CbCtx_t*)ctx;
 
-    printf("Read: In %d\n", sz);
+#ifdef DEBUG_UART_IO
+    printf("UART Read: In %d\n", sz);
+#endif
 
-    /* is there pending data, return it */
+    /* Is there pending data, return it */
     if (cbCtx->pos > 0) {
         recvd = cbCtx->pos;
         if (recvd > sz)
@@ -93,7 +95,7 @@ static int uartIORx(WOLFSSL *ssl, char *buf, int sz, void *ctx)
     if (recvd < sz && cbCtx->pos == 0) {
         int avail, remain;
 
-        /* read remain */
+        /* Read remain */
         do {
             remain = sz - recvd;
             ret = read(cbCtx->portFd, buf + recvd, remain);
@@ -102,7 +104,7 @@ static int uartIORx(WOLFSSL *ssl, char *buf, int sz, void *ctx)
             }
         } while (ret >= 0 && recvd < sz);
 
-        /* read until 0 or out of space */
+        /* Read until 0 or out of space */
         do {
             avail = (int)sizeof(cbCtx->buf) - cbCtx->pos;
             ret = read(cbCtx->portFd, cbCtx->buf + cbCtx->pos, avail);
@@ -111,17 +113,13 @@ static int uartIORx(WOLFSSL *ssl, char *buf, int sz, void *ctx)
         } while (ret > 0);
     }
 
-#if 0
-    if (logIF && recvd) {
-        logIF->writeRaw(logIF, buf, recvd);
-    }
-#endif
-
     if (recvd == 0) {
         recvd = WOLFSSL_CBIO_ERR_WANT_READ;
     }
 
-    printf("Read: Out %d\n", recvd);
+#ifdef DEBUG_UART_IO
+    printf("UART Read: Out %d\n", recvd);
+#endif
 
     return recvd;
 }
@@ -131,62 +129,44 @@ static int uartIOTx(WOLFSSL *ssl, char *buf, int sz, void *ctx)
     int sent;
     CbCtx_t* cbCtx = (CbCtx_t*)ctx;
 
-    printf("Write: In %d\n", sz);
-    
-    sent = write(cbCtx->portFd, buf, sz);
-#if 0
-    if (logIF && sent) {
-        logIF->writeRaw(logIF, buf, sent);
-    }
+#ifdef DEBUG_UART_IO
+    printf("UART Write: In %d\n", sz);
 #endif
+
+    sent = write(cbCtx->portFd, buf, sz);
     if (sent == 0) {
         sent = WOLFSSL_CBIO_ERR_WANT_WRITE;
     }
 
-    printf("Write: Out %d\n", sent);
+#ifdef DEBUG_UART_IO
+    printf("UART Write: Out %d\n", sent);
+#endif
+
     return sent;
 }
 
 
-int main(void)
+int main(int argc, char** argv)
 {
     int ret = -1, err;
     WOLFSSL_CTX* ctx = NULL;
     WOLFSSL* ssl = NULL;
     CbCtx_t cBctx;
     struct termios tty;
-    byte echoBuffer[100];
+    const char testStr[] = "Testing 1, 2 and 3\r\n";
+    byte readBuf[100];
+    const char* uartDev = UART_DEV;
 
+    if (argc >= 2) {
+        uartDev = argv[1];
+    }
+
+    /* Open UART file descriptor */
     XMEMSET(&cBctx, 0, sizeof(cBctx));
-    cBctx.portFd = -1;
-
-    ctx = wolfSSL_CTX_new(wolfSSLv23_client_method()); /* highest available / allow downgrade */
-    if (ctx == NULL) {
-        printf("Error creating WOLFSSL_CTX\n");
-        goto done;
-    }
-
-    /* register wolfSSL send/recv callbacks */
-    wolfSSL_CTX_SetIOSend(ctx, uartIOTx);
-    wolfSSL_CTX_SetIORecv(ctx, uartIORx);
-
-    /* for testing disable peer cert verification */
-    wolfSSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, NULL);
-
-    ssl = wolfSSL_new(ctx);
-    if (ssl == NULL) {
-        printf("Error creating WOLFSSL\n");
-        goto done;
-    }
-
-    /* register wolfSSL read/write callback contexts */
-    wolfSSL_SetIOReadCtx(ssl, &cBctx);
-    wolfSSL_SetIOWriteCtx(ssl, &cBctx);
-
-    /* open UART file descriptor */
-    cBctx.portFd = open(UART_DEV, O_RDWR | O_NOCTTY);
+    cBctx.portFd = open(uartDev, O_RDWR | O_NOCTTY);
     if (cBctx.portFd < 0) {
-        printf("Error opening %s: Error %i (%s)\n", UART_DEV, errno, strerror(errno));
+        printf("Error opening %s: Error %i (%s)\n",
+            uartDev, errno, strerror(errno));
         ret = errno;
         goto done;
     }
@@ -204,29 +184,60 @@ int main(void)
     tty.c_cc[VTIME] = 5;
     tcsetattr(cBctx.portFd, TCSANOW, &tty);
 
-    /* Flush any data in the RX buffer - sure there is a better way to "flush" */
-    read(cBctx.portFd, echoBuffer, sizeof(echoBuffer));
+    /* Flush any data in the RX buffer */
+    ret = read(cBctx.portFd, readBuf, sizeof(readBuf));
+    if (ret < 0) {
+        /* Ignore RX error on flush */
+    }
+
+    ctx = wolfSSL_CTX_new(wolfSSLv23_client_method()); /* Highest available / allow downgrade */
+    if (ctx == NULL) {
+        printf("Error creating WOLFSSL_CTX\n");
+        goto done;
+    }
+
+    /* Register wolfSSL send/recv callbacks */
+    wolfSSL_CTX_SetIOSend(ctx, uartIOTx);
+    wolfSSL_CTX_SetIORecv(ctx, uartIORx);
+
+    /* For testing disable peer cert verification */
+    wolfSSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, NULL);
+
+    ssl = wolfSSL_new(ctx);
+    if (ssl == NULL) {
+        printf("Error creating WOLFSSL\n");
+        goto done;
+    }
+
+    /* Register wolfSSL read/write callback contexts */
+    wolfSSL_SetIOReadCtx(ssl, &cBctx);
+    wolfSSL_SetIOWriteCtx(ssl, &cBctx);
 
     do {
         ret = wolfSSL_connect(ssl);
         err = wolfSSL_get_error(ssl, ret);
     } while (err == WOLFSSL_ERROR_WANT_READ || err == WOLFSSL_ERROR_WANT_WRITE);
     if (ret != WOLFSSL_SUCCESS) {
-        
+        printf("TLS connect error %d\n", err);
+        goto done;
     }
+    printf("TLS Connect handshake done\n");
 
-    XMEMSET(echoBuffer, 0, sizeof(echoBuffer));
+    printf("Sending test string\n");
     do {
-        ret = wolfSSL_read(ssl, echoBuffer, sizeof(echoBuffer)-1);
+        ret = wolfSSL_write(ssl, testStr, XSTRLEN(testStr));
         err = wolfSSL_get_error(ssl, ret);
     } while (err == WOLFSSL_ERROR_WANT_READ || err == WOLFSSL_ERROR_WANT_WRITE);
+    printf("Sent (%d): %s\n", err, testStr);
 
+    XMEMSET(readBuf, 0, sizeof(readBuf));
     do {
-        ret = wolfSSL_write(ssl, echoBuffer, XSTRLEN((char*)echoBuffer));
+        ret = wolfSSL_read(ssl, readBuf, sizeof(readBuf)-1);
         err = wolfSSL_get_error(ssl, ret);
     } while (err == WOLFSSL_ERROR_WANT_READ || err == WOLFSSL_ERROR_WANT_WRITE);
+    printf("Read (%d): %s\n", err, readBuf);
 
-    ret = 0; /* success */
+    ret = 0; /* Success */
 
 done:
     if (ssl) {
