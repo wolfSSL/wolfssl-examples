@@ -44,6 +44,8 @@ int main(void)
         return -1;
     }
 
+    wolfSSL_CertManagerSetVerify(cm, myVerify);
+
     ret = wolfSSL_CertManagerLoadCA(cm, caCert, NULL);
     if (ret != SSL_SUCCESS) {
         printf("wolfSSL_CertManagerLoadCA() failed (%d): %s\n",
