@@ -87,4 +87,3 @@ extendedKeyUsage       = critical, serverAuth,clientAuth\n" > entity.conf
 ./apps/openssl verify -no-CApath -check_ss_sig -CAfile falcon512_root_cert.pem falcon512_entity_cert.pem
 ./apps/openssl verify -no-CApath -check_ss_sig -CAfile falcon1024_root_cert.pem falcon1024_entity_cert.pem
 
-mv *.pem /tmp/
