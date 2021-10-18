@@ -55,14 +55,14 @@ int main(void)
     wolfSSL_CertManagerSetVerify(cm, myVerify);
 
     ret = wolfSSL_CertManagerLoadCA(cm, caCert, NULL);
-    if (ret != SSL_SUCCESS) {
+    if (ret != WOLFSSL_SUCCESS) {
         printf("wolfSSL_CertManagerLoadCA() failed (%d): %s\n",
                 ret, wolfSSL_ERR_reason_error_string(ret));
         ret = -1; goto exit;
     }
 
-    ret = wolfSSL_CertManagerVerify(cm, verifyCert, SSL_FILETYPE_PEM);
-    if (ret != SSL_SUCCESS) {
+    ret = wolfSSL_CertManagerVerify(cm, verifyCert, WOLFSSL_FILETYPE_PEM);
+    if (ret != WOLFSSL_SUCCESS) {
         printf("wolfSSL_CertManagerVerify() failed (%d): %s\n",
                 ret, wolfSSL_ERR_reason_error_string(ret));
         ret = -1; goto exit;
@@ -78,8 +78,8 @@ int main(void)
     bufSz = fread(buf, 1, sizeof(buf), file);
     fclose(file);
 
-    ret = wolfSSL_CertManagerLoadCRLBuffer(cm, buf, bufSz, SSL_FILETYPE_PEM);
-    if (ret != SSL_SUCCESS) {
+    ret = wolfSSL_CertManagerLoadCRLBuffer(cm, buf, bufSz, WOLFSSL_FILETYPE_PEM);
+    if (ret != WOLFSSL_SUCCESS) {
         printf("wolfSSL_CertManagerLoadCRLBuffer() failed (%d): %s\n",
             ret, wolfSSL_ERR_reason_error_string(ret));
         ret = -1; goto exit;
@@ -95,7 +95,7 @@ int main(void)
     fclose(file);
 
     ret = wolfSSL_CertManagerCheckCRL(cm, buf, bufSz);
-    if (ret != SSL_SUCCESS) {
+    if (ret != WOLFSSL_SUCCESS) {
         printf("wolfSSL_CertManagerCheckCRL() failed (%d): %s\n",
             ret, wolfSSL_ERR_reason_error_string(ret));
         ret = -1; goto exit;

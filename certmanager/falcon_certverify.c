@@ -47,14 +47,22 @@ int main(void)
     wolfSSL_CertManagerSetVerify(cm, myVerify);
 
     ret = wolfSSL_CertManagerLoadCA(cm, caCert, NULL);
-    if (ret != SSL_SUCCESS) {
+    if (ret != WOLFSSL_SUCCESS) {
+        if (ret == -4) {
+            printf("No root certificate found. Please see the README.md file"
+                   " to learn how to generate the certificates.\n");
+        }
         printf("wolfSSL_CertManagerLoadCA() failed (%d): %s\n",
                 ret, wolfSSL_ERR_reason_error_string(ret));
         ret = -1; goto exit;
     }
 
-    ret = wolfSSL_CertManagerVerify(cm, verifyCert, SSL_FILETYPE_PEM);
-    if (ret != SSL_SUCCESS) {
+    ret = wolfSSL_CertManagerVerify(cm, verifyCert, WOLFSSL_FILETYPE_PEM);
+    if (ret != WOLFSSL_SUCCESS) {
+        if (ret == -4) {
+            printf("No entity certificate found. Please see the README.md file "
+                   "to learn how to generate the certificates.\n");
+        }
         printf("wolfSSL_CertManagerVerify() failed (%d): %s\n",
                 ret, wolfSSL_ERR_reason_error_string(ret));
         ret = -1; goto exit;
