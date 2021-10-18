@@ -19,11 +19,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
  */
 
-/*
- * Example of parsing a DER-encoded certificate and extracting
- * public key and subject name information.
- *
- */
+/* Example of generating a PEM-encoded certificate signing request (CSR). */
 
 #include <wolfssl/options.h>
 #include <wolfssl/wolfcrypt/settings.h>
