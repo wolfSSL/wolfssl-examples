@@ -48,7 +48,7 @@ int main(void)
 
     ret = wolfSSL_CertManagerLoadCA(cm, caCert, NULL);
     if (ret != WOLFSSL_SUCCESS) {
-        if (ret == -4) {
+        if (ret == WOLFSSL_BAD_FILE) {
             printf("No root certificate found. Please see the README.md file"
                    " to learn how to generate the certificates.\n");
         }
@@ -59,7 +59,7 @@ int main(void)
 
     ret = wolfSSL_CertManagerVerify(cm, verifyCert, WOLFSSL_FILETYPE_PEM);
     if (ret != WOLFSSL_SUCCESS) {
-        if (ret == -4) {
+        if (ret == WOLFSSL_BAD_FILE) {
             printf("No entity certificate found. Please see the README.md file "
                    "to learn how to generate the certificates.\n");
         }
