@@ -1,6 +1,6 @@
-#!/bin/bash 
+#!/bin/bash
 
-# Script to generate Falcon 512 and Falcon1024 certificate chains.
+# Script to generate Falcon NIST Level 1 and 5 certificate chains.
 #
 # Copyright 2021 wolfSSL Inc. All rights reserved.
 # Original Author: Anthony Hu.
@@ -54,42 +54,42 @@ keyUsage               = critical, digitalSignature\n\
 extendedKeyUsage       = critical, serverAuth,clientAuth\n" > entity.conf
 
 ###############################################################################
-# Falcon 512
+# Falcon NIST Level 1
 ###############################################################################
 
-# Generate root key and entity private keys. 
-${OPENSSL} genpkey -algorithm falcon512 -outform pem -out falcon512_root_key.pem
-${OPENSSL} genpkey -algorithm falcon512 -outform pem -out falcon512_entity_key.pem
+# Generate root key and entity private keys.
+${OPENSSL} genpkey -algorithm falcon512 -outform pem -out falcon_level1_root_key.pem
+${OPENSSL} genpkey -algorithm falcon512 -outform pem -out falcon_level1_entity_key.pem
 
 # Generate the root certificate
-${OPENSSL} req -x509 -config root.conf -extensions ca_extensions -days 365 -set_serial 512 -key falcon512_root_key.pem -out falcon512_root_cert.pem 
+${OPENSSL} req -x509 -config root.conf -extensions ca_extensions -days 365 -set_serial 512 -key falcon_level1_root_key.pem -out falcon_level1_root_cert.pem
 
 # Generate the entity CSR.
-${OPENSSL} req -new -config entity.conf -key falcon512_entity_key.pem -out falcon512_entity_req.pem 
+${OPENSSL} req -new -config entity.conf -key falcon_level1_entity_key.pem -out falcon_level1_entity_req.pem
 
 # Generate the entity X.509 certificate.
-${OPENSSL} x509 -req -in falcon512_entity_req.pem -CA falcon512_root_cert.pem -CAkey falcon512_root_key.pem -extfile entity.conf -extensions x509v3_extensions -days 365 -set_serial 513 -out falcon512_entity_cert.pem
+${OPENSSL} x509 -req -in falcon_level1_entity_req.pem -CA falcon_level1_root_cert.pem -CAkey falcon_level1_root_key.pem -extfile entity.conf -extensions x509v3_extensions -days 365 -set_serial 513 -out falcon_level1_entity_cert.pem
 
 ###############################################################################
-# Falcon 1024
+# Falcon NIST Level 5
 ###############################################################################
 
-# Generate root key and entity private keys. 
-${OPENSSL} genpkey -algorithm falcon1024 -outform pem -out falcon1024_root_key.pem
-${OPENSSL} genpkey -algorithm falcon1024 -outform pem -out falcon1024_entity_key.pem
+# Generate root key and entity private keys.
+${OPENSSL} genpkey -algorithm falcon1024 -outform pem -out falcon_level5_root_key.pem
+${OPENSSL} genpkey -algorithm falcon1024 -outform pem -out falcon_level5_entity_key.pem
 
 # Generate the root certificate
-${OPENSSL} req -x509 -config root.conf -extensions ca_extensions -days 365 -set_serial 1024 -key falcon1024_root_key.pem -out falcon1024_root_cert.pem
+${OPENSSL} req -x509 -config root.conf -extensions ca_extensions -days 365 -set_serial 1024 -key falcon_level5_root_key.pem -out falcon_level5_root_cert.pem
 
 # Generate the entity CSR.
-${OPENSSL} req -new -config entity.conf -key falcon1024_entity_key.pem -out falcon1024_entity_req.pem
+${OPENSSL} req -new -config entity.conf -key falcon_level5_entity_key.pem -out falcon_level5_entity_req.pem
 
 # Generate the entity X.509 certificate.
-${OPENSSL} x509 -req -in falcon1024_entity_req.pem -CA falcon1024_root_cert.pem -CAkey falcon1024_root_key.pem -extfile entity.conf -extensions x509v3_extensions -days 365 -set_serial 1025 -out falcon1024_entity_cert.pem
+${OPENSSL} x509 -req -in falcon_level5_entity_req.pem -CA falcon_level5_root_cert.pem -CAkey falcon_level5_root_key.pem -extfile entity.conf -extensions x509v3_extensions -days 365 -set_serial 1025 -out falcon_level5_entity_cert.pem
 
 ###############################################################################
 # Verify all generated certificates.
 ###############################################################################
-${OPENSSL} verify -no-CApath -check_ss_sig -CAfile falcon512_root_cert.pem falcon512_entity_cert.pem
-${OPENSSL} verify -no-CApath -check_ss_sig -CAfile falcon1024_root_cert.pem falcon1024_entity_cert.pem
+${OPENSSL} verify -no-CApath -check_ss_sig -CAfile falcon_level1_root_cert.pem falcon_level1_entity_cert.pem
+${OPENSSL} verify -no-CApath -check_ss_sig -CAfile falcon_level5_root_cert.pem falcon_level5_entity_cert.pem
 

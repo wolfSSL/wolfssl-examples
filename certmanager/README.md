@@ -20,7 +20,7 @@ downloading and building their OpenSSL fork can be found here:
 
 https://github.com/open-quantum-safe/openssl/releases/tag/OQS-OpenSSL_1_1_1-stable-snapshot-2021-08
 
-Note that installation of the OpenSSL fork is NOT neccessary.a
+Note that installation of the OpenSSL fork is NOT neccessary.
 
 The `generate_falcon_chains.sh` script will allow you to use the OQS project's
 OpenSSL in order to generate a self-signed CA certificate and entity
