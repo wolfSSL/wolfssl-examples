@@ -52,7 +52,7 @@ static int Tls13SecretCallback(WOLFSSL* ssl, int id, const unsigned char* secret
     int i;
     const char* str = NULL;
     unsigned char clientRandom[32];
-    size_t clientRandomSz;
+    int clientRandomSz;
     XFILE fp = stderr;
     if (ctx) {
         fp = XFOPEN((const char*)ctx, "ab");
@@ -61,8 +61,17 @@ static int Tls13SecretCallback(WOLFSSL* ssl, int id, const unsigned char* secret
         }
     }
 
-    clientRandomSz = wolfSSL_get_client_random(ssl, clientRandom,
+    clientRandomSz = (int)wolfSSL_get_client_random(ssl, clientRandom,
         sizeof(clientRandom));
+
+    if (clientRandomSz <= 0) {
+        printf("Error getting client random %d\n", clientRandomSz);
+    }
+
+#if 0
+    printf("TLS Client Secret CB: Rand %d, Secret %d\n",
+        clientRandomSz, secretSz);
+#endif
 
     switch (id) {
         case CLIENT_EARLY_TRAFFIC_SECRET:
@@ -82,7 +91,7 @@ static int Tls13SecretCallback(WOLFSSL* ssl, int id, const unsigned char* secret
     }
 
     fprintf(fp, "%s ", str);
-    for (i = 0; i < (int)clientRandomSz; i++) {
+    for (i = 0; i < clientRandomSz; i++) {
         fprintf(fp, "%02x", clientRandom[i]);
     }
     fprintf(fp, " ");
@@ -182,6 +191,9 @@ int main(int argc, char** argv)
     }
 
 #ifdef HAVE_SECRET_CALLBACK
+    /* required for getting random used */
+    wolfSSL_KeepArrays(ssl);
+
     /* optional logging for wireshark */
     wolfSSL_set_tls13_secret_cb(ssl, Tls13SecretCallback,
         (void*)WOLFSSL_SSLKEYLOGFILE_OUTPUT);
@@ -192,6 +204,10 @@ int main(int argc, char** argv)
         fprintf(stderr, "ERROR: failed to connect to wolfSSL\n");
         goto exit;
     }
+
+#ifdef HAVE_SECRET_CALLBACK
+    wolfSSL_FreeArrays(ssl);
+#endif
 
     /* Get a message for the server from stdin */
     printf("Message for server: ");
