@@ -34,6 +34,7 @@
 #include <wolfssl/options.h>
 #include <wolfssl/ssl.h>
 #include <wolfssl/wolfio.h>
+#include <wolfssl/wolfcrypt/error-crypt.h>
 
 #define DEFAULT_PORT 11111
 
