@@ -1198,19 +1198,22 @@ See the `client-tls-cryptocb.c` example for demonstrating the `--enable-cryptocb
 
 Build wolfSSL with `HAVE_SECRET_CALLBACK` included:
 
-```
+```sh
 ./configure --enable-tls13 CFLAGS="-DHAVE_SECRET_CALLBACK" && make && sudo make install
 ```
 
 In wolfssl-examples/tls:
-```
+
+```sh
 make clean && make
 ./server-tls13 &
 ./client-tls13 127.0.0.1
+
+# Execute client-tls13 again with the message "shutdown" in order to end the execution of the server.
 ```
 
 Wireshark can decode traffic using the created "sslkeylog.log". To configure in Wireshark Prferences go to Protocols -> TLS. In the "(Pre)-Master-Secret log filename" choose the "sslkeylog.log" file in this directory.
-Capture TLS traffic and all packets will be decrypted (handshake and application data).
+Capture TLS traffic and all packets will be decrypted (handshake and application data). To see application data decrypted you may have to right-click on packet click "Follow" -> "TLS Stream".
 
 
 ## TLS over UART Example
