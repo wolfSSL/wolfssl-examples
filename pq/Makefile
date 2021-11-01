@@ -1,4 +1,4 @@
-# TLS Examples Makefile
+# PQ Examples Makefile
 CC       = gcc
 LIB_PATH = /usr/local
 CFLAGS   = -Wall -I$(LIB_PATH)/include
@@ -20,41 +20,6 @@ LIBS+=$(DYN_LIB)
 # build targets
 SRC=$(wildcard *.c)
 TARGETS=$(patsubst %.c, %, $(SRC))
-
-# OS / CPU Detection
-OS_DET=UNKNOWN
-CPU_DET=UNKNOWN
-ifeq ($(OS),Windows_NT)
-    OS_DET=WIN32
-    ifeq ($(PROCESSOR_ARCHITEW6432),AMD64)
-        CPU_DET=AMD64
-    else
-        ifeq ($(PROCESSOR_ARCHITECTURE),AMD64)
-            CPU_DET=AMD64
-        endif
-        ifeq ($(PROCESSOR_ARCHITECTURE),x86)
-            CPU_DET=IA32
-        endif
-    endif
-else
-    UNAME_S := $(shell uname -s)
-    ifeq ($(UNAME_S),Linux)
-        OS_DET=LINUX
-    endif
-    ifeq ($(UNAME_S),Darwin)
-        OS_DET=OSX
-    endif
-    UNAME_P := $(shell uname -p)
-    ifeq ($(UNAME_P),x86_64)
-        CPU_DET=AMD64
-    endif
-    ifneq ($(filter %86,$(UNAME_P)),)
-        CPU_DET=IA32
-    endif
-    ifneq ($(filter arm%,$(UNAME_P)),)
-        CPU_DET=ARM
-    endif
-endif
 
 .PHONY: clean all
 

@@ -8,8 +8,8 @@
 # Execute this script in the openssl directory after building OQS's fork of
 # OpenSSL. Please see the README.md file for more details.
 
-if [[ ! -v OPENSSL ]]; then
-    OPENSSL=./apps/openssl
+if [ "$OPENSSL" = "" ]; then
+   OPENSSL=./apps/openssl
 fi
 
 # Generate conf files.

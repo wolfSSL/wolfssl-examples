@@ -1,6 +1,6 @@
-/* client-tls13.c
+/* client-pq-tls13.c
  *
- * Copyright (C) 2006-2020 wolfSSL Inc.
+ * Copyright (C) 2021 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -112,7 +112,7 @@ static int Tls13SecretCallback(WOLFSSL* ssl, int id, const unsigned char* secret
 int main(int argc, char** argv)
 {
     int ret = 0;
-#ifdef WOLFSSL_TLS13
+#if defined(WOLFSSL_TLS13) && defined(HAVE_LIBOQS)
     int                sockfd = SOCKET_INVALID;
     struct sockaddr_in servAddr;
     char               buff[256];
@@ -256,7 +256,8 @@ exit:
         wolfSSL_CTX_free(ctx);  /* Free the wolfSSL context object          */
     wolfSSL_Cleanup();          /* Cleanup the wolfSSL environment          */
 #else
-    printf("Example requires TLS v1.3\n");
+    printf("Example requires TLS v1.3 and liboqs.\n");
+    printf("Configure wolfssl like this: ./configure --with-liboqs\n");
 #endif
     (void)argc;
     (void)argv;

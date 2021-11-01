@@ -1,6 +1,6 @@
-/* server-tls13.c
+/* server-pq-tls13.c
  *
- * Copyright (C) 2006-2020 wolfSSL Inc.
+ * Copyright (C) 2021 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -140,7 +140,7 @@ static void sig_handler(const int sig)
 int main(int argc, char** argv)
 {
     int ret = 0;
-#ifdef WOLFSSL_TLS13
+#if defined(WOLFSSL_TLS13) && defined(HAVE_LIBOQS)
     struct sockaddr_in servAddr;
     struct sockaddr_in clientAddr;
     socklen_t          size = sizeof(clientAddr);
@@ -319,7 +319,8 @@ exit:
     wolfSSL_Cleanup();          /* Cleanup the wolfSSL environment          */
 
 #else
-    printf("Example requires TLS v1.3\n");
+    printf("Example requires TLS v1.3 and liboqs.\n");
+    printf("Configure wolfssl like this: ./configure --with-liboqs\n");
 #endif /* WOLFSSL_TLS13 */
 
     (void)argc;
