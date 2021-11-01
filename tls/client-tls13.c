@@ -38,7 +38,7 @@
 
 #define DEFAULT_PORT 11111
 
-#define CERT_FILE "../certs/ca-cert.pem"
+#define CERT_FILE "../certs/falcon_level5_root_cert.pem"
 
 #if defined(WOLFSSL_TLS13) && defined(HAVE_SECRET_CALLBACK)
 
@@ -182,6 +182,13 @@ int main(int argc, char** argv)
     /* Create a WOLFSSL object */
     if ((ssl = wolfSSL_new(ctx)) == NULL) {
         fprintf(stderr, "ERROR: failed to create WOLFSSL object\n");
+        ret = -1; goto exit;
+    }
+
+    ret = wolfSSL_UseKeyShare(ssl, WOLFSSL_P521_KYBER_LEVEL5);
+    if (ret < 0) {
+        fprintf(stderr, "ERROR: failed to set the requested group to "
+                        "P521_KYBER_LEVEL5.\n");
         ret = -1; goto exit;
     }
 
