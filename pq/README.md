@@ -11,6 +11,11 @@ This directory contains:
 
 # Prerequisites
 
+Support for the quantum-safe signature scheme FALCON is new and has not made it
+into a release yet. You can try these examples against the following github PR:
+
+https://github.com/wolfSSL/wolfssl/pull/4530
+
 Please see wolfssl/INSTALL for instructions on how to build and install the
 Open Quantum Safe project's liboqs. For a quick start, you can go into wolfssl
 and do the following:
