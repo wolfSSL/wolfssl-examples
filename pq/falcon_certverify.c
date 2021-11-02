@@ -1,6 +1,6 @@
-/* certverify.c
+/* falcon_certverify.c
  *
- * Copyright (C) 2006-2018 wolfSSL Inc.
+ * Copyright (C) 2021 wolfSSL Inc.
  *
  * This file is part of wolfSSL.
  *
@@ -30,16 +30,8 @@ int main(void)
     int ret;
     WOLFSSL_CERT_MANAGER* cm = NULL;
 
-    const char* caCert     = "../certs/ca-cert.pem";
-    const char* verifyCert = "../certs/server-cert.pem";
-
-#ifdef HAVE_CRL
-    const char* crlPem     = "../certs/crl/crl.pem";
-    const char* caCertDer  = "../certs/ca-cert.der";
-    FILE* file;
-    byte buf[4096];
-    int bufSz;
-#endif
+    const char* caCert     = "./falcon1024_root_cert.pem";
+    const char* verifyCert = "./falcon1024_entity_cert.pem";
 
     wolfSSL_Init();
 #ifdef DEBUG_WOLFSSL
@@ -56,6 +48,10 @@ int main(void)
 
     ret = wolfSSL_CertManagerLoadCA(cm, caCert, NULL);
     if (ret != WOLFSSL_SUCCESS) {
+        if (ret == WOLFSSL_BAD_FILE) {
+            printf("No root certificate found. Please see the README.md file"
+                   " to learn how to generate the certificates.\n");
+        }
         printf("wolfSSL_CertManagerLoadCA() failed (%d): %s\n",
                 ret, wolfSSL_ERR_reason_error_string(ret));
         ret = -1; goto exit;
@@ -63,46 +59,15 @@ int main(void)
 
     ret = wolfSSL_CertManagerVerify(cm, verifyCert, WOLFSSL_FILETYPE_PEM);
     if (ret != WOLFSSL_SUCCESS) {
+        if (ret == WOLFSSL_BAD_FILE) {
+            printf("No entity certificate found. Please see the README.md file "
+                   "to learn how to generate the certificates.\n");
+        }
         printf("wolfSSL_CertManagerVerify() failed (%d): %s\n",
                 ret, wolfSSL_ERR_reason_error_string(ret));
         ret = -1; goto exit;
     }
     printf("Verification Successful!\n");
-
-#ifdef HAVE_CRL
-    file = fopen(crlPem, "rb");
-    if (file == NULL) {
-        ret = -1; goto exit;
-    }
-
-    bufSz = fread(buf, 1, sizeof(buf), file);
-    fclose(file);
-
-    ret = wolfSSL_CertManagerLoadCRLBuffer(cm, buf, bufSz, WOLFSSL_FILETYPE_PEM);
-    if (ret != WOLFSSL_SUCCESS) {
-        printf("wolfSSL_CertManagerLoadCRLBuffer() failed (%d): %s\n",
-            ret, wolfSSL_ERR_reason_error_string(ret));
-        ret = -1; goto exit;
-    }
-
-
-    file = fopen(caCertDer, "rb");
-    if (file == NULL) {
-        ret = -1; goto exit;
-    }
-
-    bufSz = fread(buf, 1, sizeof(buf), file);
-    fclose(file);
-
-    ret = wolfSSL_CertManagerCheckCRL(cm, buf, bufSz);
-    if (ret != WOLFSSL_SUCCESS) {
-        printf("wolfSSL_CertManagerCheckCRL() failed (%d): %s\n",
-            ret, wolfSSL_ERR_reason_error_string(ret));
-        ret = -1; goto exit;
-    }
-
-    printf("CRL Verification Successful!\n");
-#endif
 
 exit:
     wolfSSL_CertManagerFree(cm);
