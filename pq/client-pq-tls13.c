@@ -40,7 +40,8 @@
 
 #define CERT_FILE "../certs/falcon_level5_root_cert.pem"
 
-#if defined(WOLFSSL_TLS13) && defined(HAVE_SECRET_CALLBACK)
+#if defined(HAVE_SECRET_CALLBACK) && defined(WOLFSSL_TLS13) && \
+    defined(HAVE_LIBOQS)
 
 #ifndef WOLFSSL_SSLKEYLOGFILE_OUTPUT
     #define WOLFSSL_SSLKEYLOGFILE_OUTPUT "sslkeylog.log"

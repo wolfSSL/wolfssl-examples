@@ -12,9 +12,19 @@ This directory contains:
 # Prerequisites
 
 Please see wolfssl/INSTALL for instructions on how to build and install the
-Open Quantum Safe project's liboqs. Once you have built that, you will then
-need to build the Open Quantum Safe project's OpenSSL. Instructions for
-downloading and building their OpenSSL fork can be found here:
+Open Quantum Safe project's liboqs. For a quick start, you can go into wolfssl
+and do the following:
+
+```
+$ ./autogen.sh
+$ ./configure --with-liboqs
+$ make all check
+# sudo make install
+```
+
+Once you have built that, you will then need to build the Open Quantum Safe
+project's OpenSSL. Instructions for downloading and building their OpenSSL fork
+can be found here:
 
 https://github.com/open-quantum-safe/openssl/releases/tag/OQS-OpenSSL_1_1_1-stable-snapshot-2021-08
 

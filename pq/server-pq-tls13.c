@@ -47,7 +47,8 @@
 #define KEY_FILE  "../certs/falcon_level5_entity_key.pem"
 
 
-#if defined(WOLFSSL_TLS13) && defined(HAVE_SECRET_CALLBACK)
+#if defined(HAVE_SECRET_CALLBACK) && defined(WOLFSSL_TLS13) && \
+    defined(HAVE_LIBOQS)
 
 #ifndef WOLFSSL_SSLKEYLOGFILE_OUTPUT
     #define WOLFSSL_SSLKEYLOGFILE_OUTPUT "sslkeylog.log"
@@ -116,6 +117,7 @@ static int Tls13SecretCallback(WOLFSSL* ssl, int id, const unsigned char* secret
 }
 #endif /* WOLFSSL_TLS13 && HAVE_SECRET_CALLBACK */
 
+#if defined(WOLFSSL_TLS13) && defined(HAVE_LIBOQS)
 static int mSockfd = SOCKET_INVALID;
 static int mConnd = SOCKET_INVALID;
 static int mShutdown = 0;
@@ -135,6 +137,7 @@ static void sig_handler(const int sig)
         mSockfd = SOCKET_INVALID;
     }
 }
+#endif
 #endif
 
 int main(int argc, char** argv)
