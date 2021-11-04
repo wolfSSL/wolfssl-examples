@@ -30,8 +30,8 @@ int main(void)
     int ret;
     WOLFSSL_CERT_MANAGER* cm = NULL;
 
-    const char* caCert     = "./falcon1024_root_cert.pem";
-    const char* verifyCert = "./falcon1024_entity_cert.pem";
+    const char* caCert     = "./falcon_level5_root_cert.pem";
+    const char* verifyCert = "./falcon_level5_entity_cert.pem";
 
     wolfSSL_Init();
 #ifdef DEBUG_WOLFSSL
