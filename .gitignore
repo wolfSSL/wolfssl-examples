@@ -108,6 +108,7 @@ signature/signature
 certgen/newCert*
 certgen/certgen_example
 certgen/csr_example
+certgen/csr_sign
 certgen/csr_w_ed25519_example
 certgen/certgen_with_altnames
 

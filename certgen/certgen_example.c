@@ -1,6 +1,6 @@
 /* certgen_example.c
  *
- * Copyright (C) 2006-2020 wolfSSL Inc.
+ * Copyright (C) 2006-2021 wolfSSL Inc.
  *
  * This file is part of wolfSSL.
  *
@@ -28,19 +28,10 @@
 #include <wolfssl/wolfcrypt/error-crypt.h>
 
 #define HEAP_HINT NULL
-#define FOURK_SZ 4096
+#define LARGE_TEMP_SZ 4096
 
-#if defined(WOLFSSL_CERT_REQ) && defined(WOLFSSL_CERT_GEN)
-void free_things(byte** a, byte** b, byte** c, ecc_key* d, ecc_key* e,
-                 WC_RNG* f);
-#endif
-
-int main(void) {
-#if !defined(WOLFSSL_CERT_REQ) || !defined(WOLFSSL_CERT_GEN)
-  printf("Please compile wolfSSL with --enable-certreq --enable-certgen\n");
-  return 0;
-#else
-
+static int do_csrgen(int argc, char** argv)
+{
     int ret = 0;
 
     Cert newCert;
@@ -61,92 +52,88 @@ int main(void) {
     WC_RNG rng;
     ecc_key caKey;
     ecc_key newKey;
-    word32 idx3 = 0;
+    word32 idx = 0;
+    int initRng = 0, initCaKey = 0, initNewKey = 0;
 
-/*---------------------------------------------------------------------------*/
-/* open the CA der formatted certificate, we need to get it's subject line to
- * use in the new cert we're creating as the "Issuer" line */
-/*---------------------------------------------------------------------------*/
-    printf("Open and read in der formatted certificate\n");
+#ifdef WOLFSSL_DER_TO_PEM
+    char pemOutput[] = "./newCert.pem";
+    int pemBufSz;
+#endif
 
-    derBuf = (byte*) XMALLOC(FOURK_SZ, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-    if (derBuf == NULL) goto fail;
+    /*---------------------------------------------------------------------------*/
+    /* open the CA der formatted certificate, we need to get it's subject line to
+     * use in the new cert we're creating as the "Issuer" line */
+    /*---------------------------------------------------------------------------*/
+    printf("Loading CA certificate\n");
 
-    XMEMSET(derBuf, 0, FOURK_SZ);
+    derBuf = (byte*)XMALLOC(LARGE_TEMP_SZ, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    if (derBuf == NULL) goto exit;
+    XMEMSET(derBuf, 0, LARGE_TEMP_SZ);
 
     file = fopen(certToUse, "rb");
     if (!file) {
-        printf("failed to find file: %s\n", certToUse);
-        goto fail;
+        printf("failed to open file: %s\n", certToUse);
+        goto exit;
     }
-
-    derBufSz = fread(derBuf, 1, FOURK_SZ, file);
-
+    derBufSz = fread(derBuf, 1, LARGE_TEMP_SZ, file);
     fclose(file);
-    printf("Successfully read the CA cert we are using to sign our new cert\n");
-    printf("Cert was %d bytes\n\n", derBufSz);
-/*---------------------------------------------------------------------------*/
-/* END */
-/*---------------------------------------------------------------------------*/
 
-/*---------------------------------------------------------------------------*/
-/* open caKey file and get the caKey, we need it to sign our new cert */
-/*---------------------------------------------------------------------------*/
-    printf("Getting the caKey from %s\n", caKeyFile);
+    printf("Successfully read %d bytes from %s\n\n", derBufSz, certToUse);
 
-    caKeyBuf = (byte*) XMALLOC(FOURK_SZ, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-    if (caKeyBuf == NULL) goto fail;
+    /*---------------------------------------------------------------------------*/
+    /* open caKey file and get the caKey, we need it to sign our new cert */
+    /*---------------------------------------------------------------------------*/
+    printf("Loading the CA key\n");
+
+    caKeyBuf = (byte*)XMALLOC(LARGE_TEMP_SZ, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    if (caKeyBuf == NULL) goto exit;
+    XMEMSET(caKeyBuf, 0, LARGE_TEMP_SZ);
 
     file = fopen(caKeyFile, "rb");
     if (!file) {
         printf("failed to open file: %s\n", caKeyFile);
-        goto fail;
+        goto exit;
     }
-
-    caKeySz = fread(caKeyBuf, 1, FOURK_SZ, file);
+    caKeySz = fread(caKeyBuf, 1, LARGE_TEMP_SZ, file);
+    fclose(file);
     if (caKeySz <= 0) {
         printf("Failed to read caKey from file\n");
-        goto fail;
+        goto exit;
     }
+    
+    printf("Successfully read %d bytes from %s\n", caKeySz, caKeyFile);
 
-    fclose(file);
-    printf("Successfully read %d bytes\n", caKeySz);
-
-    printf("Init ecc Key\n");
     wc_ecc_init(&caKey);
+    initCaKey = 1;
 
-    printf("Decode the private key\n");
-    ret = wc_EccPrivateKeyDecode(caKeyBuf, &idx3, &caKey, (word32)caKeySz);
-    if (ret != 0) goto fail;
+    printf("Decoding the CA private key\n");
+    idx = 0;
+    ret = wc_EccPrivateKeyDecode(caKeyBuf, &idx, &caKey, (word32)caKeySz);
+    if (ret != 0) goto exit;
 
-    printf("Successfully retrieved caKey\n\n");
-/*---------------------------------------------------------------------------*/
-/* END */
-/*---------------------------------------------------------------------------*/
+    printf("Successfully loaded CA Key\n\n");
 
-/*---------------------------------------------------------------------------*/
-/* Generate new private key to go with our new cert */
-/*---------------------------------------------------------------------------*/
-    printf("initializing the rng\n");
+    /*---------------------------------------------------------------------------*/
+    /* Generate new private key to go with our new cert */
+    /*---------------------------------------------------------------------------*/
     ret = wc_InitRng(&rng);
-    if (ret != 0) goto fail;
+    if (ret != 0) goto exit;
+    initRng = 1;
 
-    printf("Generating a new ecc key\n");
+    printf("Generating a new ECC key\n");
     ret = wc_ecc_init(&newKey);
-    if (ret != 0) goto fail;
+    if (ret != 0) goto exit;
+    initNewKey = 1;
 
     ret = wc_ecc_make_key(&rng, 32, &newKey);
-    if (ret != 0) goto fail;
+    if (ret != 0) goto exit;
 
-    printf("Successfully created new ecc key\n\n");
-/*---------------------------------------------------------------------------*/
-/* END */
-/*---------------------------------------------------------------------------*/
+    printf("Successfully created new ECC key\n\n");
 
-/*---------------------------------------------------------------------------*/
-/* Create a new certificate using SUBJECT information from ca cert
- * for ISSUER information in generated cert */
-/*---------------------------------------------------------------------------*/
+    /*---------------------------------------------------------------------------*/
+    /* Create a new certificate using SUBJECT information from ca cert
+     * for ISSUER information in generated cert */
+    /*---------------------------------------------------------------------------*/
     printf("Setting new cert issuer to subject of signer\n");
 
     wc_InitCert(&newCert);
@@ -162,113 +149,91 @@ int main(void) {
     newCert.sigType = CTC_SHA256wECDSA;
 
     ret = wc_SetIssuerBuffer(&newCert, derBuf, derBufSz);
-    if (ret != 0) goto fail;
+    if (ret != 0) goto exit;
 
-    ret = wc_MakeCert(&newCert, derBuf, FOURK_SZ, NULL, &newKey, &rng); //ecc certificate
-    if (ret < 0) goto fail;
+    ret = wc_MakeCert(&newCert, derBuf, LARGE_TEMP_SZ, NULL, &newKey, &rng);
+    if (ret < 0) goto exit;
+    printf("Make Cert returned %d\n", ret);
 
-    printf("MakeCert returned %d\n", ret);
-
-    ret = wc_SignCert(newCert.bodySz, newCert.sigType, derBuf, FOURK_SZ, NULL,
-                                                              &caKey, &rng);
-    if (ret < 0) goto fail;
-    printf("SignCert returned %d\n", ret);
+    ret = wc_SignCert(newCert.bodySz, newCert.sigType, derBuf, LARGE_TEMP_SZ, NULL,
+        &caKey, &rng);
+    if (ret < 0) goto exit;
+    printf("Signed Cert returned %d\n", ret);
 
     derBufSz = ret;
 
-    printf("Successfully created new certificate\n");
-/*---------------------------------------------------------------------------*/
-/* END */
-/*---------------------------------------------------------------------------*/
+    printf("Successfully created new certificate\n\n");
 
-/*---------------------------------------------------------------------------*/
-/* write the new cert to file in der format */
-/*---------------------------------------------------------------------------*/
-    printf("Writing newly generated certificate to file \"%s\"\n",
-                                                                 newCertOutput);
+    /*---------------------------------------------------------------------------*/
+    /* write the new cert to file in der format */
+    /*---------------------------------------------------------------------------*/
+    printf("Writing newly generated DER certificate to file \"%s\"\n",
+        newCertOutput);
     file = fopen(newCertOutput, "wb");
     if (!file) {
         printf("failed to open file: %s\n", newCertOutput);
-        goto fail;
+        goto exit;
     }
 
-    ret = (int) fwrite(derBuf, 1, derBufSz, file);
+    ret = (int)fwrite(derBuf, 1, derBufSz, file);
     fclose(file);
     printf("Successfully output %d bytes\n", ret);
-/*---------------------------------------------------------------------------*/
-/* END */
-/*---------------------------------------------------------------------------*/
 
-/*---------------------------------------------------------------------------*/
-/* convert the der to a pem and write it to a file */
-/*---------------------------------------------------------------------------*/
-    {
-        char pemOutput[] = "./newCert.pem";
-        int pemBufSz;
+#ifdef WOLFSSL_DER_TO_PEM
+    /*---------------------------------------------------------------------------*/
+    /* convert the der to a pem and write it to a file */
+    /*---------------------------------------------------------------------------*/
+    printf("Convert the DER cert to PEM formatted cert\n");
 
-        printf("Convert the der cert to pem formatted cert\n");
+    pemBuf = (byte*)XMALLOC(LARGE_TEMP_SZ, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    if (pemBuf == NULL) goto exit;
+    XMEMSET(pemBuf, 0, LARGE_TEMP_SZ);
 
-        pemBuf = (byte*) XMALLOC(FOURK_SZ, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-        if (pemBuf == NULL) goto fail;
+    pemBufSz = wc_DerToPem(derBuf, derBufSz, pemBuf, LARGE_TEMP_SZ, CERT_TYPE);
+    if (pemBufSz < 0) goto exit;
 
-        XMEMSET(pemBuf, 0, FOURK_SZ);
+    printf("Resulting PEM buffer is %d bytes\n", pemBufSz);
 
-        pemBufSz = wc_DerToPem(derBuf, derBufSz, pemBuf, FOURK_SZ, CERT_TYPE);
-        if (pemBufSz < 0) goto fail;
-
-        printf("Resulting pem buffer is %d bytes\n", pemBufSz);
-
-        file = fopen(pemOutput, "wb");
-        if (!file) {
-            printf("failed to open file: %s\n", pemOutput);
-            goto fail;
-        }
-        fwrite(pemBuf, 1, pemBufSz, file);
-        fclose(file);
-        printf("Successfully converted the der to pem. Result is in:  %s\n\n",
-                                                                     pemOutput);
+    file = fopen(pemOutput, "wb");
+    if (!file) {
+        printf("failed to open file: %s\n", pemOutput);
+        goto exit;
     }
-/*---------------------------------------------------------------------------*/
-/* END */
-/*---------------------------------------------------------------------------*/
+    fwrite(pemBuf, 1, pemBufSz, file);
+    fclose(file);
+    printf("Successfully converted the DER to PEM to \"%s\"\n\n",
+        pemOutput);
+#endif
 
-    goto success;
+    ret = 0; /* success */
 
-fail:
-    free_things(&derBuf, &pemBuf, &caKeyBuf, &caKey, &newKey, &rng);
-    printf("Failure code was %d\n", ret);
-    return -1;
+exit:
 
-success:
-    free_things(&derBuf, &pemBuf, &caKeyBuf, &caKey, &newKey, &rng);
-    printf("Tests passed\n");
-    return 0;
+    XFREE(derBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    XFREE(pemBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    XFREE(caKeyBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+
+    if (initCaKey)
+        wc_ecc_free(&caKey);
+    if (initNewKey)
+        wc_ecc_free(&newKey);
+    if (initRng) {
+        wc_FreeRng(&rng);
+    }
+
+    if (ret == 0)
+        printf("Tests passed\n");
+    else
+        printf("Failure code was %d\n", ret);
+    return ret;
 }
 
-void free_things(byte** a, byte** b, byte** c, ecc_key* d, ecc_key* e,
-                                                                      WC_RNG* f)
+int main(int argc, char** argv)
 {
-    if (a != NULL) {
-        if (*a != NULL) {
-            XFREE(*a, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-            *a = NULL;
-        }
-    }
-    if (b != NULL) {
-        if (*b != NULL) {
-            XFREE(*b, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-            *b = NULL;
-        }
-    }
-    if (c != NULL) {
-        if (*c != NULL) {
-            XFREE(*c, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-            *c = NULL;
-        }
-    }
-
-    wc_ecc_free(d);
-    wc_ecc_free(e);
-    wc_FreeRng(f);
+#if !defined(WOLFSSL_CERT_REQ) || !defined(WOLFSSL_CERT_GEN) || !defined(WOLFSSL_KEY_GEN)
+    printf("Please compile wolfSSL with --enable-certreq --enable-certgen --enable-keygen\n");
+    return 0;
+#else
+    return do_csrgen(argc, argv);
 #endif
 }
