@@ -40,7 +40,7 @@ static void usage(void)
 {
     printf("Usage: ./csr_sign [type] [csr.pem] [ca-cert.pem] [ca-key.pem]\n");
     printf("Example:\n");
-    printf("./csr_sign ecc ecc-csr.pem ca-ecc-cert.der ca-ecc-key.der\n");
+    printf("./csr_sign ecc ecc-csr.pem ca-ecc-cert.pem ca-ecc-key.pem\n");
 }
 
 static int do_csrsign(int argc, char** argv)
@@ -61,21 +61,24 @@ static int do_csrsign(int argc, char** argv)
 
     int derSz = 0;
     int pemSz = 0;
-    int caKeySz = 0;
     int caCertSz = 0;
 
     byte* derBuf   = NULL;
     byte* pemBuf   = NULL;
-    byte* caKeyBuf = NULL;
     byte* caCertBuf = NULL;
 
 #ifdef HAVE_ECC
-    ecc_key newKey;
+    ecc_key csrKey;
     ecc_key caKey;
 #endif
     void* keyPtr = NULL;
     WC_RNG rng;
-    int initRng = 0, initCaKey = 0, initNewKey = 0;
+    word32 idx;
+    int initRng = 0, initCaKey = 0, initCsrKey = 0;
+#ifdef HAVE_DECODEDCERT
+    DecodedCert decoded;
+    int initDecode = 0;
+#endif
 
     if (XSTRNCMP(typeStr, "rsa", 3) == 0)
         type = RSA_TYPE;
@@ -94,10 +97,6 @@ static int do_csrsign(int argc, char** argv)
     if (pemBuf == NULL) goto exit;
     XMEMSET(pemBuf, 0, LARGE_TEMP_SZ);
 
-    caKeyBuf = (byte*)XMALLOC(LARGE_TEMP_SZ, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-    if (caKeyBuf == NULL) goto exit;
-    XMEMSET(caKeyBuf, 0, LARGE_TEMP_SZ);
-
     caCertBuf = (byte*)XMALLOC(LARGE_TEMP_SZ, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
     if (caCertBuf == NULL) goto exit;
     XMEMSET(caCertBuf, 0, LARGE_TEMP_SZ);
@@ -115,15 +114,24 @@ static int do_csrsign(int argc, char** argv)
     }
     pemSz = fread(pemBuf, 1, LARGE_TEMP_SZ, file);
     fclose(file);
-    printf("Successfully read %d bytes from %s\n\n", pemSz, caCertPemFile);
+    printf("Read %d bytes from %s\n\n", pemSz, caCertPemFile);
 
     ret = wc_CertPemToDer(pemBuf, pemSz, caCertBuf, LARGE_TEMP_SZ, CERT_TYPE);
-    if (ret >= 0) {
+    if (ret == ASN_NO_PEM_HEADER) {
+        memcpy(caCertBuf, pemBuf, pemSz);
+        memset(pemBuf, 0, LARGE_TEMP_SZ);
+        caCertSz = pemSz;
+        printf("CA Cert file detected as DER\n\n");
+    }
+    else if (ret >= 0) {
         caCertSz = ret;
         ret = 0;
+        printf("Converted CA Cert PEM to DER %d bytes\n\n", caCertSz);
     }
-    printf("Converted CA Cert PEM to DER %d bytes\n\n", caCertSz);
-
+    else {
+        goto exit;
+    }
+    
     /*---------------------------------------------------------------------------*/
     /* Load the CA Key PEM File */
     /*---------------------------------------------------------------------------*/
@@ -136,18 +144,29 @@ static int do_csrsign(int argc, char** argv)
     }
     pemSz = fread(pemBuf, 1, LARGE_TEMP_SZ, file);
     fclose(file);
-    if (caKeySz <= 0) {
-        printf("Failed to read caKey from file\n");
+    printf("Read %d bytes from %s\n", pemSz, caKeyPemFile);
+
+    ret = wc_KeyPemToDer(pemBuf, pemSz, derBuf, LARGE_TEMP_SZ, NULL);
+    if (ret == ASN_NO_PEM_HEADER) {
+        memcpy(derBuf, pemBuf, pemSz);
+        memset(pemBuf, 0, LARGE_TEMP_SZ);
+        derSz = pemSz;
+        printf("CA Key file detected as DER\n\n");
+    }
+    else if (ret >= 0) {
+        derSz = ret;
+        ret = 0;
+        printf("Converted CA Key PEM to DER %d bytes\n\n", derSz);
+    }
+    else {
         goto exit;
     }
-    printf("Successfully read %d bytes from %s\n", pemSz, caKeyPemFile);
 
-    ret = wc_KeyPemToDer(pemBuf, pemSz, caKeyBuf, LARGE_TEMP_SZ, NULL);
-    if (ret >= 0) {
-        caKeySz = ret;
-        ret = 0;
-    }
-    printf("Converted Key PEM to DER %d bytes\n\n", caKeySz);
+    printf("Loading CA key to ecc_key struct\n");
+    idx = 0;
+    ret = wc_EccPrivateKeyDecode(derBuf, &idx, &caKey, derSz);
+    if (ret != 0) goto exit;
+    initCaKey = 1;
 
     /*---------------------------------------------------------------------------*/
     /* Load CSR PEM */
@@ -168,41 +187,96 @@ static int do_csrsign(int argc, char** argv)
         derSz = ret;
         ret = 0;
     }
-    printf("Converted CSR Cert PEM to DER %d bytes\n\n", derSz);
+    printf("Converted CSR Cert PEM to DER %d bytes\n", derSz);
 
+#ifdef HAVE_DECODEDCERT
+    /* Code for parsing a CSR to a DecodedCert struct */
+    /* Note: These are not public API's unless WOLFSSL_TEST_CERT or the compat layer is enabled */
+    InitDecodedCert(&decoded, derBuf, derSz, NULL);
+    ret = ParseCert(&decoded, CERTREQ_TYPE, NO_VERIFY, NULL);
+    if (ret != 0) goto exit;
+    printf("Loaded CSR to DecodedCert struct\n\n");
+    initDecode = 1;
+
+    /* Decode public key into csrKey */
+    printf("Decoding Public Key\n");
+    ret = wc_ecc_init(&csrKey);
+    if (ret != 0) goto exit;
+    initCsrKey = 1;
+
+    idx = 0;
+    ret = wc_EccPublicKeyDecode(decoded.publicKey, &idx, &csrKey, decoded.pubKeySize);
+    if (ret != 0) goto exit;
+#endif
 
     /*---------------------------------------------------------------------------*/
-    /* Create a new certificate using SUBJECT information from ca cert
-     * for ISSUER information in generated cert */
+    /* Create a new certificate using SUBJECT information from CSR and ISSUER from CA cert */
     /*---------------------------------------------------------------------------*/
-    printf("Setting new cert issuer to subject of signer\n");
-
     wc_InitCert(&newCert);
 
     newCert.isCA    = 0;
     newCert.sigType = CTC_SHA256wECDSA;
 
-    ret = wc_SetSubjectBuffer(&newCert, derBuf, derSz);
-    if (ret != 0) goto exit;
-    
+    printf("Setting certificate subject\n");
+#ifdef HAVE_DECODEDCERT
+    if (decoded.subjectC) strncpy(newCert.subject.country, decoded.subjectC, decoded.subjectCLen);
+    if (decoded.subjectST) strncpy(newCert.subject.state, decoded.subjectST, decoded.subjectSTLen);
+    if (decoded.subjectL) strncpy(newCert.subject.locality, decoded.subjectL, decoded.subjectLLen);
+    if (decoded.subjectO) strncpy(newCert.subject.org, decoded.subjectO, decoded.subjectOLen);
+    if (decoded.subjectOU) strncpy(newCert.subject.unit, decoded.subjectOU, decoded.subjectOULen);
+    if (decoded.subjectSN) strncpy(newCert.subject.sur, decoded.subjectSN, decoded.subjectSNLen);
+    if (decoded.subjectSND) strncpy(newCert.subject.serialDev, decoded.subjectSND, decoded.subjectSNDLen);
+    if (decoded.subjectCN) strncpy(newCert.subject.commonName, decoded.subjectCN, decoded.subjectCNLen);
+    if (decoded.subjectEmail) strncpy(newCert.subject.email, decoded.subjectEmail, decoded.subjectEmailLen);
+#else
+    /* This can be used if the DER is an X.509 certificate (not CSR) */
+    //ret = wc_SetSubjectBuffer(&newCert, derBuf, derSz);
+    //if (ret != 0) goto exit;
+
+    strncpy(newCert.subject.country, "US", CTC_NAME_SIZE);
+    strncpy(newCert.subject.state, "MT", CTC_NAME_SIZE);
+    strncpy(newCert.subject.locality, "Bozeman", CTC_NAME_SIZE);
+    strncpy(newCert.subject.org, "yourOrgNameHere", CTC_NAME_SIZE);
+    strncpy(newCert.subject.unit, "yourUnitNameHere", CTC_NAME_SIZE);
+    strncpy(newCert.subject.commonName, "www.yourDomain.com", CTC_NAME_SIZE);
+    strncpy(newCert.subject.email, "yourEmail@yourDomain.com", CTC_NAME_SIZE);
+#endif
+
+    /* Set issuer using CA certificate */
+    printf("Setting certificate issuer\n");
     ret = wc_SetIssuerBuffer(&newCert, caCertBuf, caCertSz);
+    if (ret != 0) goto exit;
+
+    /* Serial Number will be randomly generated if not provided */
+    newCert.serial[0] = 0; /* up to 20 bytes */
+    newCert.serialSz = 0;
+
+    /* Days before certificate expires */
+    newCert.daysValid = 365;
+
+    /* Key Usage */
+    ret = wc_SetKeyUsage(&newCert, "digitalSignature"); /* comma sep list */
+    if (ret != 0) goto exit;
+    ret = wc_SetExtKeyUsage(&newCert, "serverAuth,clientAuth");
     if (ret != 0) goto exit;
 
     ret = wc_InitRng(&rng);
     if (ret != 0) goto exit;
     initRng = 1;
 
-    ret = wc_MakeCert(&newCert, derBuf, LARGE_TEMP_SZ, NULL, &newKey, &rng);
+    /* Create X.509 Certificate */    
+    printf("Creating certificate...\n");
+    ret = wc_MakeCert_ex(&newCert, derBuf, LARGE_TEMP_SZ, type, &csrKey, &rng);
     if (ret < 0) goto exit;
-    printf("Make Cert returned %d\n", ret);
+    printf("Successfully created certificate %d\n\n", newCert.bodySz);
 
-    ret = wc_SignCert_ex(newCert.bodySz, newCert.sigType, derBuf, LARGE_TEMP_SZ, type, &caKey, &rng);
+    /* Sign with CA Key */
+    printf("Signing certificate...\n");
+    ret = wc_SignCert_ex(newCert.bodySz, newCert.sigType, derBuf, LARGE_TEMP_SZ,
+        type, &caKey, &rng);
     if (ret < 0) goto exit;
     derSz = ret;
-
-    printf("Signed Cert returned %d\n", derSz);
-
-    printf("Successfully signed certificate\n\n");
+    printf("Successfully signed certificate %d\n\n", derSz);
 
     /*---------------------------------------------------------------------------*/
     /* write the new cert to file in DER format */
@@ -247,13 +321,17 @@ exit:
 
     XFREE(derBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
     XFREE(pemBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-    XFREE(caKeyBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
     XFREE(caCertBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
 
+#ifdef HAVE_DECODEDCERT
+    if (initDecode) {
+        FreeDecodedCert(&decoded);
+    }
+#endif
     if (initCaKey)
         wc_ecc_free(&caKey);
-    if (initNewKey)
-        wc_ecc_free(&newKey);
+    if (initCsrKey)
+        wc_ecc_free(&csrKey);
     if (initRng) {
         wc_FreeRng(&rng);
     }

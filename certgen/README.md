@@ -154,8 +154,42 @@ Saved CSR PEM to "ed25519-csr.pem"
 
 ## CSR Signing with CA
 
+This example shows how to use a CSR to sign it using a CA cert and key to produce an X.509 certificate.
+
 ```
-./csr_sign ed25519-csr.pem ca-ecc-cert.der ca-ecc-key.der
+% ./csr_sign ecc ecc-csr.pem ca-ecc-cert.der ca-ecc-key.der
+Loading CA certificate
+Read 666 bytes from ca-ecc-cert.der
+
+CA Cert file detected as DER
+
+Loading the CA key
+Read 121 bytes from ca-ecc-key.der
+CA Key file detected as DER
+
+Loading CA key to ecc_key struct
+Loading CSR certificate
+Successfully read 530 bytes from ecc-csr.pem
+
+Converted CSR Cert PEM to DER 337 bytes
+Loaded CSR to DecodedCert struct
+
+Decoding Public Key
+Setting certificate subject
+Setting certificate issuer
+Creating certificate...
+Successfully created certificate 518
+
+Signing certificate...
+Successfully signed certificate 608
+
+Writing newly generated DER certificate to file "./newCert.der"
+Successfully output 608 bytes
+Convert the DER cert to PEM formatted cert
+Resulting PEM buffer is 879 bytes
+Successfully converted the DER to PEM to "./newCert.pem"
+
+Tests passed
 ```
 
 
