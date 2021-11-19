@@ -31,28 +31,27 @@ To run the test do:
 
 ```
 ./certgen_example
-Open and read in der formatted certificate
-Successfully read 1198 bytes
+Loading CA certificate
+Successfully read 666 bytes from ./ca-ecc-cert.der
 
-Getting the caKey from ./ca-key.der
-Successfully read 121 bytes
-Init ecc Key
-Decode the private key
-Successfully retrieved caKey
+Loading the CA key
+Successfully read 121 bytes from ./ca-ecc-key.der
+Decoding the CA private key
+Successfully loaded CA Key
 
-initializing the rng
-Generating a new ecc key
-Successfully created new ecc key
+Generating a new ECC key
+Successfully created new ECC key
 
 Setting new cert issuer to subject of signer
-MakeCert returned 479
-SignCert returned 570
+Make Cert returned 490
+Signed Cert returned 581
 Successfully created new certificate
-Writing newly generated certificate to file "./newCert.der"
-Successfully output 570 bytes
-Convert the der cert to pem formatted cert
-Resulting pem buffer is 826 bytes
-Successfully converted the der to pem. Result is in:  ./newCert.pem
+
+Writing newly generated DER certificate to file "./newCert.der"
+Successfully output 581 bytes
+Convert the DER cert to PEM formatted cert
+Resulting PEM buffer is 843 bytes
+Successfully converted the DER to PEM to "./newCert.pem"
 
 Tests passed
 ```
@@ -110,21 +109,87 @@ GV+4MAoGCCqGSM49BAMCA0gAMEUCIHURDOezcyCI0mdp8hpG+9JnMcfHWLSd4kiV
 ## Certificate Signing Request (CSR) Example
 
 ```
-./csr_example
+./csr_example ecc
 -----BEGIN EC PRIVATE KEY-----
-MHcCAQEEIMyXi4zh0EKTfZv2Mdyz9TR97aY8zmuP/Mt41Y8UczfsoAoGCCqGSM49
-AwEHoUQDQgAENfB16kF8KZuVQC0744AgiSY5bpuLRegTXJ4JTgCzSWaSHLXZC+CJ
-a/0yDzI6bQtDdzNZ0M+0/O+VolN10GaAZw==
+MHcCAQEEICJ7jM8zdrZCoTdaeXfiNkRA0Wbf+JlATRLzMEghvGiToAoGCCqGSM49
+AwEHoUQDQgAEdfzfuFaVgG1icB3Bwqkv27zZQdhUyOTHeN/4VbEoiB69EW5luFHy
+6MWJEn+5a75Pp/dQKjlTb8Ukp/f7dRr8gg==
 -----END EC PRIVATE KEY-----
+ (227)
+Saved Key PEM to "ecc-key.pem"
 -----BEGIN CERTIFICATE REQUEST-----
-MIIBSTCB8QIBAjCBjjELMAkGA1UEBhMCVVMxCzAJBgNVBAgMAk9SMREwDwYDVQQH
-DAhQb3J0bGFuZDEOMAwGA1UECgwFeWFTU0wxFDASBgNVBAsMC0RldmVsb3BtZW50
-MRgwFgYDVQQDDA93d3cud29sZnNzbC5jb20xHzAdBgkqhkiG9w0BCQEWEGluZm9A
-d29sZnNzbC5jb20wWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAAQ18HXqQXwpm5VA
-LTvjgCCJJjlum4tF6BNcnglOALNJZpIctdkL4Ilr/TIPMjptC0N3M1nQz7T875Wi
-U3XQZoBnoAAwCgYIKoZIzj0EAwIDRwAwRAIgVh5iGYVmbwR4fhdjzCMI06wn2lGS
-SmRM6YTRfMWRoSICIAlMGjRJlBKB9dlmukCdlHH3GXNOiKw1+iP/kApE8tRm
+MIIBTTCB8wIBAjCBkDELMAkGA1UEBhMCVVMxCzAJBgNVBAgMAk9SMREwDwYDVQQH
+DAhQb3J0bGFuZDEQMA4GA1UECgwHd29sZlNTTDEUMBIGA1UECwwLRGV2ZWxvcG1l
+bnQxGDAWBgNVBAMMD3d3dy53b2xmc3NsLmNvbTEfMB0GCSqGSIb3DQEJARYQaW5m
+b0B3b2xmc3NsLmNvbTBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABHX837hWlYBt
+YnAdwcKpL9u82UHYVMjkx3jf+FWxKIgevRFuZbhR8ujFiRJ/uWu+T6f3UCo5U2/F
+JKf3+3Ua/IKgADAKBggqhkjOPQQDAgNJADBGAiEAtaKt31WXJkFgI4dFw6dG45F3
+Ia4BEV4KoPCBbMs81vICIQCj4IiuQpYH5dIsFuN8h0QGIfXTxdd9eqNsJJ1ElOXt
+hA==
 -----END CERTIFICATE REQUEST-----
+ (530)
+Saved CSR PEM to "ecc-csr.pem"
+```
+
+```
+./csr_example ed25519
+-----BEGIN EDDSA PRIVATE KEY-----
+MFICAQAwBQYDK2VwBCIEIJAf0KRMwpoM8PcjTgNzMlJLtdGGml5kbZRJUlSChaxY
+oSIEIBsUx1M7yeJiLIY6I/XrWX0VBcyp3UYa5r2IqLiA8Nrg
+-----END EDDSA PRIVATE KEY-----
+ (180)
+Saved Key PEM to "ed25519-key.pem"
+-----BEGIN CERTIFICATE REQUEST-----
+MIIBETCBxAIBAjCBkDELMAkGA1UEBhMCVVMxCzAJBgNVBAgMAk9SMREwDwYDVQQH
+DAhQb3J0bGFuZDEQMA4GA1UECgwHd29sZlNTTDEUMBIGA1UECwwLRGV2ZWxvcG1l
+bnQxGDAWBgNVBAMMD3d3dy53b2xmc3NsLmNvbTEfMB0GCSqGSIb3DQEJARYQaW5m
+b0B3b2xmc3NsLmNvbTAqMAUGAytlcAMhABsUx1M7yeJiLIY6I/XrWX0VBcyp3UYa
+5r2IqLiA8NrgoAAwBQYDK2VwA0EAy3o01+L7OaB3qo825GQSKspWijGrFulU1BBQ
+3z2Pr2lx6L87awbrWUtwvlXOGHQVl5ZjV+UkZURHMeNnS4Q2CQ==
+-----END CERTIFICATE REQUEST-----
+ (448)
+Saved CSR PEM to "ed25519-csr.pem"
+```
+
+
+## CSR Signing with CA
+
+This example shows how to use a CSR to sign it using a CA cert and key to produce an X.509 certificate.
+
+```
+% ./csr_sign ecc ecc-csr.pem ca-ecc-cert.der ca-ecc-key.der
+Loading CA certificate
+Read 666 bytes from ca-ecc-cert.der
+
+CA Cert file detected as DER
+
+Loading the CA key
+Read 121 bytes from ca-ecc-key.der
+CA Key file detected as DER
+
+Loading CA key to ecc_key struct
+Loading CSR certificate
+Successfully read 530 bytes from ecc-csr.pem
+
+Converted CSR Cert PEM to DER 337 bytes
+Loaded CSR to DecodedCert struct
+
+Decoding Public Key
+Setting certificate subject
+Setting certificate issuer
+Creating certificate...
+Successfully created certificate 518
+
+Signing certificate...
+Successfully signed certificate 608
+
+Writing newly generated DER certificate to file "./newCert.der"
+Successfully output 608 bytes
+Convert the DER cert to PEM formatted cert
+Resulting PEM buffer is 879 bytes
+Successfully converted the DER to PEM to "./newCert.pem"
+
+Tests passed
 ```
 
 
