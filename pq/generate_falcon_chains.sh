@@ -48,10 +48,12 @@ CN                     = Entity Certificate\n\
 emailAddress           = entity@wolfssl.com\n\
 \n\
 [ x509v3_extensions ]\n\
+subjectAltName = IP:127.0.0.1\n\
 subjectKeyIdentifier   = hash\n\
 authorityKeyIdentifier = keyid:always,issuer:always\n\
 keyUsage               = critical, digitalSignature\n\
-extendedKeyUsage       = critical, serverAuth,clientAuth\n" > entity.conf
+extendedKeyUsage       = critical, serverAuth,clientAuth\n\
+basicConstraints       = critical, CA:false\n" > entity.conf
 
 ###############################################################################
 # Falcon NIST Level 1
