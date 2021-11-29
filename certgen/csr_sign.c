@@ -163,10 +163,13 @@ static int do_csrsign(int argc, char** argv)
     }
 
     printf("Loading CA key to ecc_key struct\n");
+    ret = wc_ecc_init(&caKey);
+    if (ret != 0) goto exit;
+    initCaKey = 1;
+
     idx = 0;
     ret = wc_EccPrivateKeyDecode(derBuf, &idx, &caKey, derSz);
     if (ret != 0) goto exit;
-    initCaKey = 1;
 
     /*---------------------------------------------------------------------------*/
     /* Load CSR PEM */
