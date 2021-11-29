@@ -41,7 +41,7 @@
 
 static void usage(void)
 {
-    printf("Usage: ./csr_sign [csr.pem] [ca-cert.pem] [ca-key.pem]\n");
+    printf("Usage: ./csr_sign csr.pem ca-cert.pem ca-key.pem\n");
     printf("Example:\n");
     printf("./csr_sign ecc-csr.pem ca-ecc-cert.pem ca-ecc-key.pem\n");
 }
@@ -49,12 +49,12 @@ static void usage(void)
 static int do_csrsign(int argc, char** argv)
 {
     int ret = 0;
-    int type;
+    int type = ECC_TYPE;
+    const char* typeStr = "ecc";
 
     Cert newCert;
 
     FILE* file;
-    const char* typeStr = "ecc";
     const char* csrPemFile = argv[1];
     const char* caCertPemFile = argv[2];
     const char* caKeyPemFile = argv[3];
@@ -82,15 +82,6 @@ static int do_csrsign(int argc, char** argv)
     DecodedCert decoded;
     int initDecode = 0;
 #endif
-
-    if (XSTRNCMP(typeStr, "rsa", 3) == 0)
-        type = RSA_TYPE;
-    else if (XSTRNCMP(typeStr, "ecc", 3) == 0)
-        type = ECC_TYPE;
-    else if (XSTRNCMP(typeStr, "ed25519", 7) == 0)
-        type = ED25519_TYPE;
-    else
-        return NOT_COMPILED_IN;
 
     derBuf = (byte*)XMALLOC(LARGE_TEMP_SZ, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
     if (derBuf == NULL) goto exit;
