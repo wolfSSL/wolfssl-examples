@@ -27,6 +27,9 @@
 #include <wolfssl/wolfcrypt/asn.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
 
+#if defined(WOLFSSL_CERT_REQ) && defined(WOLFSSL_CERT_GEN) && \
+    defined(WOLFSSL_KEY_GEN) && defined(HAVE_ECC)
+
 #define HEAP_HINT NULL
 #define LARGE_TEMP_SZ 4096
 
@@ -60,10 +63,45 @@ static int do_csrgen(int argc, char** argv)
     int pemBufSz;
 #endif
 
-    /*---------------------------------------------------------------------------*/
-    /* open the CA der formatted certificate, we need to get it's subject line to
-     * use in the new cert we're creating as the "Issuer" line */
-    /*---------------------------------------------------------------------------*/
+#ifdef WOLFSSL_ALT_NAMES
+    /* Add some alt names to our cert: */
+    const char myAltNames[] = {
+         /* SEQUENCE (1 element with 3 segments. Entire length is 41
+          * (0x29 in hex))
+          */
+         0x30, 0x29,
+         /* This is a String 0x8, it denotes a DNSName 0x2 -> 0x82
+          * This strings' length is 9 (0x09)
+          */
+         0x82, 0x09,
+         /* This strings value is "localhost" (in hex) */
+         0x6C, 0x6F, 0x63, 0x61, 0x6C, 0x68, 0x6F, 0x73, 0x74,
+         /* This is a String 0x8, it denotes a DNSName 0x2 -> 0x82
+          * This strings' length is 11 (0x0B)
+          */
+         0x82, 0x0B,
+         /* This strings value is "example.com" (in hex) */
+         0x65, 0x78, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x2e, 0x63, 0x6f, 0x6d,
+         /* This is a String 0x8, it denotes a DNSName 0x2 -> 0x82
+          * This strings' length is 9 (0x09)
+          */
+         0x82, 0x09,
+         /* This strings value is "127.0.0.1" (in hex) */
+         0x31, 0x32, 0x37, 0x2e, 0x30, 0x2e, 0x30, 0x2e, 0x31,
+         /* This is a string 0x08, it denotes an IP Address 0x07 -> 0x87 */
+         /* This strings length is 4 (0x04) */
+         0x87, 0x04,
+         /* The IP address is 127 (0x7F), 0 (0x00), 0, (0x00), 1 (0x01) ->
+          *  127.0.0.1
+          */
+         0x7F, 0x00, 0x00, 0x01
+    };
+#endif
+
+    /*------------------------------------------------------------------------*/
+    /* open the CA der formatted certificate, we need to get it's subject line
+     * to use in the new cert we're creating as the "Issuer" line */
+    /*------------------------------------------------------------------------*/
     printf("Loading CA certificate\n");
 
     derBuf = (byte*)XMALLOC(LARGE_TEMP_SZ, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
@@ -80,9 +118,9 @@ static int do_csrgen(int argc, char** argv)
 
     printf("Successfully read %d bytes from %s\n\n", derBufSz, certToUse);
 
-    /*---------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------*/
     /* open caKey file and get the caKey, we need it to sign our new cert */
-    /*---------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------*/
     printf("Loading the CA key\n");
 
     caKeyBuf = (byte*)XMALLOC(LARGE_TEMP_SZ, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
@@ -113,9 +151,9 @@ static int do_csrgen(int argc, char** argv)
 
     printf("Successfully loaded CA Key\n\n");
 
-    /*---------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------*/
     /* Generate new private key to go with our new cert */
-    /*---------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------*/
     ret = wc_InitRng(&rng);
     if (ret != 0) goto exit;
     initRng = 1;
@@ -130,10 +168,10 @@ static int do_csrgen(int argc, char** argv)
 
     printf("Successfully created new ECC key\n\n");
 
-    /*---------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------*/
     /* Create a new certificate using SUBJECT information from ca cert
      * for ISSUER information in generated cert */
-    /*---------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------*/
     printf("Setting new cert issuer to subject of signer\n");
 
     wc_InitCert(&newCert);
@@ -145,6 +183,12 @@ static int do_csrgen(int argc, char** argv)
     strncpy(newCert.subject.unit, "yourUnitNameHere", CTC_NAME_SIZE);
     strncpy(newCert.subject.commonName, "www.yourDomain.com", CTC_NAME_SIZE);
     strncpy(newCert.subject.email, "yourEmail@yourDomain.com", CTC_NAME_SIZE);
+
+#ifdef WOLFSSL_ALT_NAMES
+    XMEMCPY(newCert.altNames, myAltNames, sizeof(myAltNames));
+    newCert.altNamesSz = (int) sizeof(myAltNames);
+#endif
+
     newCert.isCA    = 0;
     newCert.sigType = CTC_SHA256wECDSA;
 
@@ -155,8 +199,8 @@ static int do_csrgen(int argc, char** argv)
     if (ret < 0) goto exit;
     printf("Make Cert returned %d\n", ret);
 
-    ret = wc_SignCert(newCert.bodySz, newCert.sigType, derBuf, LARGE_TEMP_SZ, NULL,
-        &caKey, &rng);
+    ret = wc_SignCert(newCert.bodySz, newCert.sigType, derBuf, LARGE_TEMP_SZ,
+        NULL, &caKey, &rng);
     if (ret < 0) goto exit;
     printf("Signed Cert returned %d\n", ret);
 
@@ -164,9 +208,9 @@ static int do_csrgen(int argc, char** argv)
 
     printf("Successfully created new certificate\n\n");
 
-    /*---------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------*/
     /* write the new cert to file in der format */
-    /*---------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------*/
     printf("Writing newly generated DER certificate to file \"%s\"\n",
         newCertOutput);
     file = fopen(newCertOutput, "wb");
@@ -180,9 +224,9 @@ static int do_csrgen(int argc, char** argv)
     printf("Successfully output %d bytes\n", ret);
 
 #ifdef WOLFSSL_DER_TO_PEM
-    /*---------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------*/
     /* convert the der to a pem and write it to a file */
-    /*---------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------*/
     printf("Convert the DER cert to PEM formatted cert\n");
 
     pemBuf = (byte*)XMALLOC(LARGE_TEMP_SZ, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
@@ -227,11 +271,14 @@ exit:
         printf("Failure code was %d\n", ret);
     return ret;
 }
+#endif
 
 int main(int argc, char** argv)
 {
-#if !defined(WOLFSSL_CERT_REQ) || !defined(WOLFSSL_CERT_GEN) || !defined(WOLFSSL_KEY_GEN)
-    printf("Please compile wolfSSL with --enable-certreq --enable-certgen --enable-keygen\n");
+#if !defined(WOLFSSL_CERT_REQ) || !defined(WOLFSSL_CERT_GEN) || \
+    !defined(WOLFSSL_KEY_GEN) || !defined(HAVE_ECC)
+    printf("Please compile wolfSSL with --enable-certreq --enable-certgen "
+           "--enable-keygen --enable-ecc\n");
     return 0;
 #else
     return do_csrgen(argc, argv);

@@ -157,7 +157,7 @@ Saved CSR PEM to "ed25519-csr.pem"
 This example shows how to use a CSR to sign it using a CA cert and key to produce an X.509 certificate.
 
 ```
-% ./csr_sign ecc ecc-csr.pem ca-ecc-cert.der ca-ecc-key.der
+% ./csr_sign ecc-csr.pem ca-ecc-cert.der ca-ecc-key.der
 Loading CA certificate
 Read 666 bytes from ca-ecc-cert.der
 
@@ -192,10 +192,12 @@ Successfully converted the DER to PEM to "./newCert.pem"
 Tests passed
 ```
 
-
 ## Certificate Generation Example with alt names
 
-Pretty much the same as the certgen_example but adds some alt names to the cert
+The alternate names feature is enabled with the wolfSSL build option 
+`WOLFSSL_ALT_NAMES`. In the certgen_example.c see the `WOLFSSL_ALT_NAMES` 
+sections for how to add this to a CSR.
+
 Unfortunately wolfSSL does not yet have an API for this but this example shows
 how to setup your own ASN.1 format string for using with the wolfSSL certificate
 structure. TODO: Add an API for this!

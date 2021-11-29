@@ -38,8 +38,8 @@ ORG UNIT = Consulting (10)
 ```
 
 
-EXAMPLE B: (Assuming you've built and run the certgen_with_altnames example from
-            wolfssl-examples/certgen/ directory)
+EXAMPLE B: (Assuming you've built and run the certgen_example example from
+            wolfssl-examples/certgen/ directory with WOLFSSL_ALT_NAMES)
 
 NOTE: Must configure with `--enable-opensslall` to see the IP address output!
 
