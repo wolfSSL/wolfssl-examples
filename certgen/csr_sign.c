@@ -27,34 +27,37 @@
 #include <wolfssl/wolfcrypt/asn.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
 
-#define HEAP_HINT NULL
-#define LARGE_TEMP_SZ 4096
-
 /* Check if the internal asn API's are available */
 #if defined(WOLFSSL_TEST_CERT) || defined(OPENSSL_EXTRA) || \
     defined(OPENSSL_EXTRA_X509_SMALL)
     #define HAVE_DECODEDCERT
 #endif
 
+#if defined(WOLFSSL_CERT_REQ) && defined(WOLFSSL_CERT_GEN) && \
+    defined(HAVE_ECC)
+
+#define HEAP_HINT NULL
+#define LARGE_TEMP_SZ 4096
+
 static void usage(void)
 {
-    printf("Usage: ./csr_sign [type] [csr.pem] [ca-cert.pem] [ca-key.pem]\n");
+    printf("Usage: ./csr_sign csr.pem ca-cert.pem ca-key.pem\n");
     printf("Example:\n");
-    printf("./csr_sign ecc ecc-csr.pem ca-ecc-cert.pem ca-ecc-key.pem\n");
+    printf("./csr_sign ecc-csr.pem ca-ecc-cert.pem ca-ecc-key.pem\n");
 }
 
 static int do_csrsign(int argc, char** argv)
 {
     int ret = 0;
-    int type;
+    int type = ECC_TYPE;
+    const char* typeStr = "ecc";
 
     Cert newCert;
 
     FILE* file;
-    const char* typeStr = argv[1];
-    const char* csrPemFile = argv[2];
-    const char* caCertPemFile = argv[3];
-    const char* caKeyPemFile = argv[4];
+    const char* csrPemFile = argv[1];
+    const char* caCertPemFile = argv[2];
+    const char* caKeyPemFile = argv[3];
         
     const char* newCertOutput = "./newCert.der";
     const char* newCertPemFile = "./newCert.pem";
@@ -80,15 +83,6 @@ static int do_csrsign(int argc, char** argv)
     int initDecode = 0;
 #endif
 
-    if (XSTRNCMP(typeStr, "rsa", 3) == 0)
-        type = RSA_TYPE;
-    else if (XSTRNCMP(typeStr, "ecc", 3) == 0)
-        type = ECC_TYPE;
-    else if (XSTRNCMP(typeStr, "ed25519", 7) == 0)
-        type = ED25519_TYPE;
-    else
-        return NOT_COMPILED_IN;
-
     derBuf = (byte*)XMALLOC(LARGE_TEMP_SZ, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
     if (derBuf == NULL) goto exit;
     XMEMSET(derBuf, 0, LARGE_TEMP_SZ);
@@ -102,9 +96,9 @@ static int do_csrsign(int argc, char** argv)
     XMEMSET(caCertBuf, 0, LARGE_TEMP_SZ);
 
 
-    /*---------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------*/
     /* Loading the CA Certificate PEM File */
-    /*---------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------*/
     printf("Loading CA certificate\n");
 
     file = fopen(caCertPemFile, "rb");
@@ -132,9 +126,9 @@ static int do_csrsign(int argc, char** argv)
         goto exit;
     }
     
-    /*---------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------*/
     /* Load the CA Key PEM File */
-    /*---------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------*/
     printf("Loading the CA key\n");
 
     file = fopen(caKeyPemFile, "rb");
@@ -163,14 +157,17 @@ static int do_csrsign(int argc, char** argv)
     }
 
     printf("Loading CA key to ecc_key struct\n");
-    idx = 0;
-    ret = wc_EccPrivateKeyDecode(derBuf, &idx, &caKey, derSz);
+    ret = wc_ecc_init(&caKey);
     if (ret != 0) goto exit;
     initCaKey = 1;
 
-    /*---------------------------------------------------------------------------*/
+    idx = 0;
+    ret = wc_EccPrivateKeyDecode(derBuf, &idx, &caKey, derSz);
+    if (ret != 0) goto exit;
+
+    /*------------------------------------------------------------------------*/
     /* Load CSR PEM */
-    /*---------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------*/
     printf("Loading CSR certificate\n");
 
     file = fopen(csrPemFile, "rb");
@@ -191,7 +188,8 @@ static int do_csrsign(int argc, char** argv)
 
 #ifdef HAVE_DECODEDCERT
     /* Code for parsing a CSR to a DecodedCert struct */
-    /* Note: These are not public API's unless WOLFSSL_TEST_CERT or the compat layer is enabled */
+    /* Note: These are not public API's unless WOLFSSL_TEST_CERT or the compat 
+     * layer is enabled */
     InitDecodedCert(&decoded, derBuf, derSz, NULL);
     ret = ParseCert(&decoded, CERTREQ_TYPE, NO_VERIFY, NULL);
     if (ret != 0) goto exit;
@@ -205,13 +203,15 @@ static int do_csrsign(int argc, char** argv)
     initCsrKey = 1;
 
     idx = 0;
-    ret = wc_EccPublicKeyDecode(decoded.publicKey, &idx, &csrKey, decoded.pubKeySize);
+    ret = wc_EccPublicKeyDecode(decoded.publicKey, &idx, &csrKey,
+        decoded.pubKeySize);
     if (ret != 0) goto exit;
 #endif
 
-    /*---------------------------------------------------------------------------*/
-    /* Create a new certificate using SUBJECT information from CSR and ISSUER from CA cert */
-    /*---------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------*/
+    /* Create a new certificate using SUBJECT information from CSR and ISSUER 
+     * from CA cert */
+    /*------------------------------------------------------------------------*/
     wc_InitCert(&newCert);
 
     newCert.isCA    = 0;
@@ -219,15 +219,24 @@ static int do_csrsign(int argc, char** argv)
 
     printf("Setting certificate subject\n");
 #ifdef HAVE_DECODEDCERT
-    if (decoded.subjectC) strncpy(newCert.subject.country, decoded.subjectC, decoded.subjectCLen);
-    if (decoded.subjectST) strncpy(newCert.subject.state, decoded.subjectST, decoded.subjectSTLen);
-    if (decoded.subjectL) strncpy(newCert.subject.locality, decoded.subjectL, decoded.subjectLLen);
-    if (decoded.subjectO) strncpy(newCert.subject.org, decoded.subjectO, decoded.subjectOLen);
-    if (decoded.subjectOU) strncpy(newCert.subject.unit, decoded.subjectOU, decoded.subjectOULen);
-    if (decoded.subjectSN) strncpy(newCert.subject.sur, decoded.subjectSN, decoded.subjectSNLen);
-    if (decoded.subjectSND) strncpy(newCert.subject.serialDev, decoded.subjectSND, decoded.subjectSNDLen);
-    if (decoded.subjectCN) strncpy(newCert.subject.commonName, decoded.subjectCN, decoded.subjectCNLen);
-    if (decoded.subjectEmail) strncpy(newCert.subject.email, decoded.subjectEmail, decoded.subjectEmailLen);
+    if (decoded.subjectC)
+        strncpy(newCert.subject.country, decoded.subjectC, decoded.subjectCLen);
+    if (decoded.subjectST)
+        strncpy(newCert.subject.state, decoded.subjectST, decoded.subjectSTLen);
+    if (decoded.subjectL)
+        strncpy(newCert.subject.locality, decoded.subjectL, decoded.subjectLLen);
+    if (decoded.subjectO)
+        strncpy(newCert.subject.org, decoded.subjectO, decoded.subjectOLen);
+    if (decoded.subjectOU)
+        strncpy(newCert.subject.unit, decoded.subjectOU, decoded.subjectOULen);
+    if (decoded.subjectSN)
+        strncpy(newCert.subject.sur, decoded.subjectSN, decoded.subjectSNLen);
+    if (decoded.subjectSND)
+        strncpy(newCert.subject.serialDev, decoded.subjectSND, decoded.subjectSNDLen);
+    if (decoded.subjectCN)
+        strncpy(newCert.subject.commonName, decoded.subjectCN, decoded.subjectCNLen);
+    if (decoded.subjectEmail)
+        strncpy(newCert.subject.email, decoded.subjectEmail, decoded.subjectEmailLen);
 #else
     /* This can be used if the DER is an X.509 certificate (not CSR) */
     //ret = wc_SetSubjectBuffer(&newCert, derBuf, derSz);
@@ -278,9 +287,9 @@ static int do_csrsign(int argc, char** argv)
     derSz = ret;
     printf("Successfully signed certificate %d\n\n", derSz);
 
-    /*---------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------*/
     /* write the new cert to file in DER format */
-    /*---------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------*/
     printf("Writing newly generated DER certificate to file \"%s\"\n",
         newCertOutput);
     file = fopen(newCertOutput, "wb");
@@ -294,9 +303,9 @@ static int do_csrsign(int argc, char** argv)
     printf("Successfully output %d bytes\n", ret);
 
 #ifdef WOLFSSL_DER_TO_PEM
-    /*---------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------*/
     /* convert the DER to a PEM and write it to a file */
-    /*---------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------*/
     printf("Convert the DER cert to PEM formatted cert\n");
 
     pemSz = wc_DerToPem(derBuf, derSz, pemBuf, LARGE_TEMP_SZ, CERT_TYPE);
@@ -345,14 +354,17 @@ exit:
 
     return ret;
 }
+#endif
 
 int main(int argc, char** argv)
 {
-#if !defined(WOLFSSL_CERT_REQ) || !defined(WOLFSSL_CERT_GEN) || !defined(HAVE_DECODEDCERT)
-    printf("Please compile wolfSSL with --enable-certreq --enable-certgen CFLAGS=-DOPENSSL_EXTRA_X509_SMALL\n");
+#if !defined(WOLFSSL_CERT_REQ) || !defined(WOLFSSL_CERT_GEN) || \
+    !defined(HAVE_ECC)
+    printf("Please compile wolfSSL with --enable-certreq --enable-certgen "
+           "--enable-ecc CFLAGS=-DOPENSSL_EXTRA_X509_SMALL\n");
     return 0;
 #else
-    if (argc != 5) {
+    if (argc != 4) {
         usage();
         return 1;
     }

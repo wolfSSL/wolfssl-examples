@@ -112,6 +112,13 @@ certgen/csr_sign
 certgen/csr_w_ed25519_example
 certgen/certgen_with_altnames
 
+certgen/ecc-csr.pem
+certgen/ecc-key.pem
+certgen/ed25519-csr.pem
+certgen/ed25519-key.pem
+certgen/newCert.der
+certgen/newCert.pem
+
 btle/ecc-client
 btle/ecc-server
 
