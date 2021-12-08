@@ -56,8 +56,8 @@ int main(int argc, char *argv[])
             printf("\nSending: %.*s\n\n", (int)line_size, line);
             wolfSSL_send(ssl, line, line_size, 0);
             printf("Message sent\n");
-            free(line);
         }
+        free(line);
     }
 
     close_ssl(ctx, ssl);

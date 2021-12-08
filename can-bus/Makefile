@@ -1,6 +1,6 @@
 CC=gcc
 LIBS=-lwolfssl
-CFLAGS=-Iisotp-c -Wno-cpp
+CFLAGS=-ggdb3 -Iisotp-c -Wno-cpp
 
 COMMON_OBJS=isotp-c/isotp.o common.o
 CLIENT_OBJS=client.o
