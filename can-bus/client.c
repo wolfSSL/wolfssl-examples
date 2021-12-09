@@ -28,8 +28,6 @@ int main(int argc, char *argv[])
     WOLFSSL_CTX *ctx = NULL;
     WOLFSSL_METHOD* method = NULL;
     WOLFSSL* ssl = NULL;
-    uint8_t data[CAN_MSG_LEN];
-    int length;
     int ret;
 
     if (argc != 2) {
@@ -53,7 +51,7 @@ int main(int argc, char *argv[])
         ssize_t line_size = 0;
         line_size = getline(&line, &len, stdin);
         if (line_size > 0) {
-            printf("\nSending: %.*s\n\n", (int)line_size, line);
+            printf("Sending: %s\n", line);
             wolfSSL_send(ssl, line, line_size, 0);
             printf("Message sent\n");
         }

@@ -38,6 +38,7 @@
 #include <signal.h>
 
 #include <isotp.h>
+#include <wolfssl/options.h>
 #include <wolfssl/ssl.h>
 
 #define ISOTP_BUFSIZE 16384
@@ -58,7 +59,7 @@ int can_connect(const char *address, uint16_t filter);
 void can_close(void);
 
 int send_ssl(WOLFSSL *ssl, char *buf, int sz, void *ctx);
-int recv_ssl(WOLFSSL* ssl, char* buf, int sz, void* ctx);
+int recv_ssl(WOLFSSL* ssl, char *buf, int sz, void* ctx);
 void close_ssl(WOLFSSL_CTX *ctx, WOLFSSL *ssl);
 int setup_connection(const char *interface, int local_id, int remote_id);
 int setup_ssl(enum service_type type, WOLFSSL_CTX **new_ctx,

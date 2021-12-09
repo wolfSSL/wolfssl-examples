@@ -74,20 +74,21 @@ int isotp_user_send_can(const uint32_t arbitration_id, const uint8_t* data,
 /* Our CAN bus receive function */
 int can_receive(uint8_t data[CAN_MSG_LEN], int *length) {
     int nbytes;
+    int ret;
     struct can_frame frame;
     struct pollfd p[1];
 
-	p[0].fd = sock;
-	p[0].events = POLLIN;
+    p[0].fd = sock;
+    p[0].events = POLLIN;
 
     /* Poll for new data */
-	int retval = poll(p, 1, 10);
+    ret = poll(p, 1, 10);
 
-    if (retval < 0) {
+    if (ret < 0) {
         perror("Poll error\n");
         return 1;
     }
-    else if (retval == 0) {
+    else if (ret == 0) {
         /* No data */
         *length = 0;
         return EAGAIN;
@@ -159,7 +160,8 @@ int send_ssl(WOLFSSL *ssl, char *buf, int sz, void *ctx)
     uint8_t data[CAN_MSG_LEN];
     int length;
     IsoTpLink *g_link = (struct IsoTpLink*)ctx;
-    int ret = isotp_send(g_link, buf, sz);
+    int ret = isotp_send(g_link, (uint8_t*)buf, sz);
+    (void) ssl;
     printf("Sending %d bytes\n", sz);
 
     if (ret) {
@@ -189,8 +191,8 @@ int recv_ssl(WOLFSSL* ssl, char* buf, int sz, void* ctx)
     uint8_t data[CAN_MSG_LEN];
     int data_len;
     uint16_t msg_len = 0;
-    int ret;
     IsoTpLink *g_link = (struct IsoTpLink*)ctx;
+    (void) ssl;
 
     if (!copy_buf_len) {
         while (isotp_receive(g_link, copy_buf, ISOTP_BUFSIZE, &msg_len)
@@ -213,7 +215,7 @@ int recv_ssl(WOLFSSL* ssl, char* buf, int sz, void* ctx)
         }
     }
 
-    if (copy_buf_len >= sz) {
+    if (copy_buf_len >= (size_t)sz) {
         memcpy(buf, copy_buf_ptr, sz);
         copy_buf_ptr+= sz;
         copy_buf_len-= sz;
@@ -231,11 +233,11 @@ int recv_ssl(WOLFSSL* ssl, char* buf, int sz, void* ctx)
 void close_ssl(WOLFSSL_CTX *ctx, WOLFSSL *ssl)
 {
     if (ssl) {
-        int ret = SSL_SHUTDOWN_NOT_DONE;
-        while (ret == SSL_SHUTDOWN_NOT_DONE) {
+        int ret = WOLFSSL_SHUTDOWN_NOT_DONE;
+        while (ret == WOLFSSL_SHUTDOWN_NOT_DONE) {
             ret = wolfSSL_shutdown(ssl);
         }
-        if (ret != SSL_SUCCESS) {
+        if (ret != WOLFSSL_SUCCESS) {
             char buffer[ERR_MSG_LEN];
             int err = wolfSSL_get_error(ssl, ret);
             fprintf(stderr, "Error shutting down TLS connection: %d, %s",
@@ -247,10 +249,12 @@ void close_ssl(WOLFSSL_CTX *ctx, WOLFSSL *ssl)
 
     wolfSSL_free(ssl);
     wolfSSL_CTX_free(ctx);
+    wolfSSL_Cleanup();
 }
 
 void sig_handle(int dummy)
 {
+    (void) dummy;
     keep_running = 0;
 }
 
@@ -283,9 +287,9 @@ int setup_ssl(enum service_type type, WOLFSSL_CTX **new_ctx,
     WOLFSSL* ssl = NULL;
 
     if (type == SERVICE_TYPE_CLIENT) {
-        method = wolfTLSv1_2_client_method();
+        method = wolfTLSv1_3_client_method();
     } else {
-        method = wolfTLSv1_2_server_method();
+        method = wolfTLSv1_3_server_method();
     }
 
     if (!method) {
@@ -311,10 +315,10 @@ int setup_ssl(enum service_type type, WOLFSSL_CTX **new_ctx,
         ret = wolfSSL_CTX_load_verify_locations(ctx, "client.pem", NULL);
     } else {
         ret = wolfSSL_CTX_use_certificate_file(ctx, "server.pem",
-                SSL_FILETYPE_PEM);
+                WOLFSSL_FILETYPE_PEM);
     }
 
-    if (ret != SSL_SUCCESS) {
+    if (ret != WOLFSSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to load cert, "
                 "please check the file.\n");
         close_ssl(ctx, NULL);
@@ -323,7 +327,7 @@ int setup_ssl(enum service_type type, WOLFSSL_CTX **new_ctx,
 
     if (type == SERVICE_TYPE_SERVER) {
         if ((ret = wolfSSL_CTX_use_PrivateKey_file(ctx, "server.key",
-                        SSL_FILETYPE_PEM)) != WOLFSSL_SUCCESS) {
+                        WOLFSSL_FILETYPE_PEM)) != WOLFSSL_SUCCESS) {
             fprintf(stderr, "ERROR: failed to load key file, "
                     "please check the file.\n");
             close_ssl(ctx, NULL);
@@ -350,7 +354,7 @@ int setup_ssl(enum service_type type, WOLFSSL_CTX **new_ctx,
 
     wolfSSL_set_using_nonblock(ssl, 1);
 
-    if (ret != SSL_SUCCESS) {
+    if (ret != WOLFSSL_SUCCESS) {
         char buffer[ERR_MSG_LEN];
         int err = wolfSSL_get_error(ssl, ret);
         fprintf(stderr, "ERROR: failed to connect using wolfSSL: %d, %s\n",

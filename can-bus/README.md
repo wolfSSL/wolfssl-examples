@@ -35,32 +35,26 @@ server vcan0
 On the client you will see (byte numbers will vary):
 
 ```
-Sending 164 bytes
-Receiving 95 bytes
-Receiving 954 bytes
-Receiving 338 bytes
-Receiving 9 bytes
-Sending 75 bytes
-Sending 6 bytes
-Sending 45 bytes
-Receiving 6 bytes
-Receiving 45 bytes
+Sending 242 bytes
+Receiving 128 bytes
+Receiving 28 bytes
+Receiving 974 bytes
+Receiving 286 bytes
+Receiving 58 bytes
+Sending 58 bytes
 SSL handshake done!
 ```
 
 And on the server:
 
 ```
-Receiving 164 bytes
-Sending 95 bytes
-Sending 954 bytes
-Sending 338 bytes
-Sending 9 bytes
-Receiving 75 bytes
-Receiving 6 bytes
-Receiving 45 bytes
-Sending 6 bytes
-Sending 45 bytes
+Receiving 242 bytes
+Sending 128 bytes
+Sending 28 bytes
+Sending 974 bytes
+Sending 286 bytes
+Sending 58 bytes
+Receiving 58 bytes
 SSL handshake done!
 ```
 
@@ -69,22 +63,18 @@ Once you see the message "SSL handshake done!" on both consoles you can enter te
 For example, on the client if we type "Hello world, this is a TLS test!":
 
 ```
-Hello world, this is a TLS test!
+Hello world! This is a CAN bus test!
+Sending: Hello world! This is a CAN bus test!
 
-Sending: Hello world, this is a TLS test!
-
-
-Sending 62 bytes
+Sending 59 bytes
 Message sent
 ```
 
 The server will echo:
 
 ```
-Receiving 62 bytes
-
-
-Got message: Hello world, this is a TLS test!
+Receiving 59 bytes
+Got message: Hello world! This is a CAN bus test!
 ```
 
 ## Cleaning Up

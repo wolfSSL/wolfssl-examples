@@ -21,6 +21,8 @@
 
 #include "common.h"
 
+#define RECV_MSG_LEN 64
+
 extern volatile int keep_running;
 
 int main(int argc, char *argv[])
@@ -46,10 +48,12 @@ int main(int argc, char *argv[])
     }
 
     while(keep_running) {
-        char reply[64];
-        int input = wolfSSL_read(ssl, reply, sizeof(reply));
+        int input;
+        char reply[RECV_MSG_LEN];
+        memset(reply, 0, RECV_MSG_LEN);
+        input = wolfSSL_read(ssl, reply, RECV_MSG_LEN);
         if (input > 0) {
-            printf("\n\nGot message: %.*s\n", input, reply);
+            printf("Got message: %s\n", reply);
         }
     }
 

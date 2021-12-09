@@ -1,12 +1,15 @@
 CC=gcc
 LIBS=-lwolfssl
-CFLAGS=-ggdb3 -Iisotp-c -Wno-cpp
+CFLAGS=-Iisotp-c -Wno-cpp -Wall -Wextra -Wdeclaration-after-statement
 
 COMMON_OBJS=isotp-c/isotp.o common.o
 CLIENT_OBJS=client.o
 SERVER_OBJS=server.o
 
 all: client server
+
+isotp-c/isotp.o: isotp-c/isotp.c
+	@$(CC) -c $< -o $@
 
 %.o: %.c
 	@$(CC) -c $< -o $@ $(CFLAGS)
