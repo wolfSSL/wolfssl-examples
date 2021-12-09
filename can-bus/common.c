@@ -21,7 +21,7 @@
 
 #include "common.h"
 
-int sock;
+static int sock = -1;
 volatile int keep_running = 1;
 
 static uint8_t *copy_buf = NULL;
@@ -36,7 +36,8 @@ static uint8_t g_isotpSendBuf[ISOTP_BUFSIZE];
 void sig_handle(int dummy);
 
 /* Debug function required by ISO-TP to compile, can be blank */
-void isotp_user_debug(const char* format, ...) {
+void isotp_user_debug(const char* format, ...)
+{
     va_list args;
     va_start(args, format);
     vprintf(format, args);
@@ -140,7 +141,7 @@ int can_connect(const char *address, uint16_t filter)
     copy_buf_len = 0;
     if (!copy_buf) {
         fprintf(stderr, "Copy buf malloc fail\n");
-        return -99;
+        return MEMORY_E;
     }
 
     return 0;

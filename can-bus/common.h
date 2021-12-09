@@ -40,6 +40,7 @@
 #include <isotp.h>
 #include <wolfssl/options.h>
 #include <wolfssl/ssl.h>
+#include <wolfssl/wolfcrypt/error-crypt.h>
 
 #define ISOTP_BUFSIZE 16384
 
