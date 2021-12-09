@@ -28,6 +28,13 @@ way to exchange data securely without BTLE pairing.
 
 Please see the [btle/README.md](btle/README.md) for further usage and details.
 
+#### can-bus
+
+This directory contains an example echo server/client using wolfSSL over
+CAN bus with an ISO-TP transport layer. It can be used with a virtual CAN bus
+in Linux.
+
+Please see the [can-bus/README.md](can-bus/README.md) for further usage and details.
 
 #### certfields (X509 field extraction)
 
