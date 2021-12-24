@@ -37,12 +37,9 @@
 #include <poll.h>
 #include <signal.h>
 
-#include <isotp.h>
 #include <wolfssl/options.h>
 #include <wolfssl/ssl.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
-
-#define ISOTP_BUFSIZE 16384
 
 #define CAN_MSG_LEN 8
 #define ERR_MSG_LEN 80
@@ -55,12 +52,11 @@ enum service_type {
     SERVICE_TYPE_SERVER
 };
 
-int can_receive(uint8_t data[CAN_MSG_LEN], int *length);
+int can_receive(struct isotp_can_data *data, void *arg, int timeout);
+int can_send(struct isotp_can_data *data, void *arg);
 int can_connect(const char *address, uint16_t filter);
 void can_close(void);
 
-int send_ssl(WOLFSSL *ssl, char *buf, int sz, void *ctx);
-int recv_ssl(WOLFSSL* ssl, char *buf, int sz, void* ctx);
 void close_ssl(WOLFSSL_CTX *ctx, WOLFSSL *ssl);
 int setup_connection(const char *interface, int local_id, int remote_id);
 int setup_ssl(enum service_type type, WOLFSSL_CTX **new_ctx,
