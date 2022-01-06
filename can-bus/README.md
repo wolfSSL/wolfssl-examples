@@ -4,7 +4,7 @@ This example implements a simple echo client and server that uses TLS over a CAN
 
 ## Building
 
-You need to have wolfSSL installed on your computer prior to building. If you haven't already you will also need to get the git submodules for this tree, you can do this by using `git submodule update --init`. A simple `make` will then build the source files.
+You need to have wolfSSL installed on your computer prior to building, this will need to be built with `WOLFSSL_ISOTP` defined to provide ISO-TP functionality.
 
 To generate the required SSL certificates use `./generate_ssl.sh`.
 
@@ -13,7 +13,7 @@ To generate the required SSL certificates use `./generate_ssl.sh`.
 If you do not have a physical CAN bus between too machines you can use the virtual CAN bus which is a Linux kernel module. This behaves just like a real CAN bus with a similar bandwidth. To enable this run the following commands:
 
 ```sh
-modprobe vcan
+sudo modprobe vcan
 sudo ip link add dev vcan0 type vcan
 sudo ip link set vcan0 up
 ```
@@ -32,29 +32,9 @@ Then in another terminal run the client:
 server vcan0
 ```
 
-On the client you will see (byte numbers will vary):
+On both ends you will see:
 
 ```
-Sending 242 bytes
-Receiving 128 bytes
-Receiving 28 bytes
-Receiving 974 bytes
-Receiving 286 bytes
-Receiving 58 bytes
-Sending 58 bytes
-SSL handshake done!
-```
-
-And on the server:
-
-```
-Receiving 242 bytes
-Sending 128 bytes
-Sending 28 bytes
-Sending 974 bytes
-Sending 286 bytes
-Sending 58 bytes
-Receiving 58 bytes
 SSL handshake done!
 ```
 
@@ -66,14 +46,12 @@ For example, on the client if we type "Hello world, this is a TLS test!":
 Hello world! This is a CAN bus test!
 Sending: Hello world! This is a CAN bus test!
 
-Sending 59 bytes
 Message sent
 ```
 
 The server will echo:
 
 ```
-Receiving 59 bytes
 Got message: Hello world! This is a CAN bus test!
 ```
 

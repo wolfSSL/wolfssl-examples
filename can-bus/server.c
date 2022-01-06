@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
     int ret;
 
     if (argc != 2) {
-        printf("Usage: ./receive <CAN interface>\n");
+        printf("Usage: ./server <CAN interface>\n");
         return -1;
     }
 

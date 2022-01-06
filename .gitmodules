@@ -16,6 +16,3 @@
 [submodule "android/wolfcryptjni-ndk-gradle/wolfcrypt-jni"]
 	path = android/wolfcryptjni-ndk-gradle/wolfcrypt-jni
 	url = https://github.com/wolfssl/wolfcrypt-jni
-[submodule "can-bus/isotp-c"]
-	path = can-bus/isotp-c
-	url = https://github.com/lishen2/isotp-c
