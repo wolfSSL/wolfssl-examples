@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
     int ret;
 
     if (argc != 2) {
-        printf("Usage: ./transmit <CAN interface>\n");
+        printf("Usage: ./client <CAN interface>\n");
         return -1;
     }
 
