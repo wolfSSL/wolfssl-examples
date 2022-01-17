@@ -52,36 +52,34 @@ enum {
 
 static int tcp_select(SOCKET_T socketfd, int to_sec, int rx)
 {
-    fd_set fds, errfds;
-    fd_set* recvfds = NULL;
-    fd_set* sendfds = NULL;
+    fd_set errfds;
+    fd_set recvfds;
+    fd_set sendfds;
     SOCKET_T nfds = socketfd + 1;
     struct timeval timeout;
     int result;
 
-    FD_ZERO(&fds);
-    FD_SET(socketfd, &fds);
+    timeout.tv_sec = to_sec;
+    
+    FD_ZERO(&recvfds);
+    FD_SET(socketfd, &recvfds);
+    FD_ZERO(&sendfds);
+    FD_SET(socketfd, &sendfds);
     FD_ZERO(&errfds);
     FD_SET(socketfd, &errfds);
 
-    if (rx)
-        recvfds = &fds;
-    else
-        sendfds = &fds;
-
-    result = select(nfds, recvfds, sendfds, &errfds, &timeout);
-
+    result = select(nfds, &recvfds, &sendfds, &errfds, &timeout);
+    printf("fd = %d, select = %d\n", socketfd, result);
+    sleep(1);
     if (result == 0)
         return TEST_TIMEOUT;
     else if (result > 0) {
-        if (FD_ISSET(socketfd, &fds)) {
-            if (rx)
-                return TEST_RECV_READY;
-            else
-                return TEST_SEND_READY;
-        }
-        else if (FD_ISSET(socketfd, &errfds))
-            return TEST_ERROR_READY;
+        if (FD_ISSET(socketfd, &recvfds)) 
+            printf("Socket is ready for recv\n");
+        if (FD_ISSET(socketfd, &sendfds)) 
+            printf("Socket is ready for recv\n");
+        if (FD_ISSET(socketfd, &errfds))
+            printf("Socket is ready for error\n");
     }
 
     return TEST_SELECT_FAIL;
@@ -128,8 +126,6 @@ int main()
         goto exit; 
     }
 
-
-
     /* Create and initialize WOLFSSL_CTX */
     if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_server_method())) == NULL) {
         fprintf(stderr, "ERROR: failed to create WOLFSSL_CTX\n");
@@ -153,8 +149,6 @@ int main()
         ret = -1;
         goto exit;        
     }
-
-
 
     /* Initialize the server address struct with zeros */
     memset(&servAddr, 0, sizeof(servAddr));
@@ -200,6 +194,13 @@ int main()
             goto exit;
         }
 
+        /* Set the socket options to use nonblocking I/O */
+        if (fcntl(connd, F_SETFL, O_NONBLOCK) == -1) {
+            fprintf(stderr, "ERROR: failed to set socket options\n");
+            ret = -1;
+            goto exit;
+        }
+
         /* Create a WOLFSSL object */
         if ((ssl = wolfSSL_new(ctx)) == NULL) {
             fprintf(stderr, "ERROR: failed to create WOLFSSL object\n");
@@ -220,7 +221,7 @@ int main()
             ret = wolfSSL_accept(ssl);
             err = wolfSSL_get_error(ssl, ret);
             if (err == WOLFSSL_ERROR_WANT_READ)
-                tcp_select(sockfd, SELECT_WAIT_SEC, 1);
+                tcp_select(connd, SELECT_WAIT_SEC, 1);
         } while (err == WOLFSSL_ERROR_WANT_READ || err == WOLFSSL_ERROR_WANT_WRITE);
         if (ret != WOLFSSL_SUCCESS) {
             fprintf(stderr, "wolfSSL_accept error %d (%d)\n", err, ret);
@@ -234,9 +235,8 @@ int main()
         do {
             ret = wolfSSL_read(ssl, buff, sizeof(buff)-1);
             err = wolfSSL_get_error(ssl, ret);
-            
             if (err == WOLFSSL_ERROR_WANT_READ)
-                tcp_select(sockfd, SELECT_WAIT_SEC, 1);
+                tcp_select(connd, SELECT_WAIT_SEC, 1);
         }
         while (err == WOLFSSL_ERROR_WANT_READ);
         if (ret < 0) {
@@ -253,8 +253,6 @@ int main()
             shutdown = 1;
         }
 
-
-
         /* Write our reply into buff */
         memset(buff, 0, sizeof(buff));
         memcpy(buff, reply, strlen(reply));
@@ -264,7 +262,8 @@ int main()
         do {
             ret = wolfSSL_write(ssl, reply, len);
             err = wolfSSL_get_error(ssl, ret);
-            sleep(1);
+            if (err == WOLFSSL_ERROR_WANT_WRITE)
+                tcp_select(connd, SELECT_WAIT_SEC, 0);
         }
         while (err == WOLFSSL_ERROR_WANT_WRITE);
         if (ret < 0) {
