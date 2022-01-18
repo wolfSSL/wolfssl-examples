@@ -30,6 +30,7 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <unistd.h>
+#include <poll.h>
 
 /* wolfSSL */
 #include <wolfssl/options.h>
@@ -37,7 +38,7 @@
 #include <wolfssl/wolfio.h>
 
 #define DEFAULT_PORT 11111
-#define SELECT_WAIT_SEC 1
+#define SELECT_WAIT_mSEC 1000
 
 #define CERT_FILE "../certs/server-cert.pem"
 #define KEY_FILE  "../certs/server-key.pem"
@@ -50,39 +51,29 @@ enum {
     TEST_ERROR_READY
 };
 
-static int tcp_select(SOCKET_T socketfd, int to_sec, int rx)
+static int tcp_poll(SOCKET_T socketfd, int msec, int rx)
 {
-    fd_set errfds;
-    fd_set recvfds;
-    fd_set sendfds;
-    SOCKET_T nfds = socketfd + 1;
-    struct timeval timeout;
-    int result;
+    struct pollfd fds[1];
+    int ret;
 
-    timeout.tv_sec = to_sec;
-    
-    FD_ZERO(&recvfds);
-    FD_SET(socketfd, &recvfds);
-    FD_ZERO(&sendfds);
-    FD_SET(socketfd, &sendfds);
-    FD_ZERO(&errfds);
-    FD_SET(socketfd, &errfds);
+    fds[0].fd = socketfd;
+    if(rx)
+        fds[0].events = POLLIN;
+    else
+        fds[0].events = POLLOUT;
 
-    result = select(nfds, &recvfds, &sendfds, &errfds, &timeout);
-    printf("fd = %d, select = %d\n", socketfd, result);
-    sleep(1);
-    if (result == 0)
-        return TEST_TIMEOUT;
-    else if (result > 0) {
-        if (FD_ISSET(socketfd, &recvfds)) 
-            printf("Socket is ready for recv\n");
-        if (FD_ISSET(socketfd, &sendfds)) 
-            printf("Socket is ready for recv\n");
-        if (FD_ISSET(socketfd, &errfds))
-            printf("Socket is ready for error\n");
-    }
-
-    return TEST_SELECT_FAIL;
+    if ((ret = poll(fds, 1, msec)) == 0)
+        ret = TEST_TIMEOUT;
+    else if (ret > 0) {
+        if (fds[0].revents & POLLIN) {
+            ret = TEST_RECV_READY;
+        } else if (fds[0].revents & POLLOUT)
+            ret =  TEST_SEND_READY;
+        else
+            ret =  TEST_SELECT_FAIL;
+    } else ret =  TEST_SELECT_FAIL;
+    printf("Poll result = %d\n", ret);
+    return ret;
 }
 
 
@@ -183,7 +174,7 @@ int main()
                == -1) {
             if (errno == EAGAIN || errno == EWOULDBLOCK) {
                 /* non-blocking, wait for read activity on socket */
-                tcp_select(sockfd, SELECT_WAIT_SEC, 1);
+                tcp_poll(sockfd, SELECT_WAIT_mSEC, 1);
                 continue;
             } 
             else if (errno == EINPROGRESS || errno == EALREADY) {
@@ -193,7 +184,7 @@ int main()
             ret = -1;
             goto exit;
         }
-
+        
         /* Set the socket options to use nonblocking I/O */
         if (fcntl(connd, F_SETFL, O_NONBLOCK) == -1) {
             fprintf(stderr, "ERROR: failed to set socket options\n");
@@ -221,7 +212,7 @@ int main()
             ret = wolfSSL_accept(ssl);
             err = wolfSSL_get_error(ssl, ret);
             if (err == WOLFSSL_ERROR_WANT_READ)
-                tcp_select(connd, SELECT_WAIT_SEC, 1);
+                tcp_poll(connd, SELECT_WAIT_mSEC, 1);
         } while (err == WOLFSSL_ERROR_WANT_READ || err == WOLFSSL_ERROR_WANT_WRITE);
         if (ret != WOLFSSL_SUCCESS) {
             fprintf(stderr, "wolfSSL_accept error %d (%d)\n", err, ret);
@@ -236,7 +227,7 @@ int main()
             ret = wolfSSL_read(ssl, buff, sizeof(buff)-1);
             err = wolfSSL_get_error(ssl, ret);
             if (err == WOLFSSL_ERROR_WANT_READ)
-                tcp_select(connd, SELECT_WAIT_SEC, 1);
+                tcp_poll(sockfd, SELECT_WAIT_mSEC, 1);
         }
         while (err == WOLFSSL_ERROR_WANT_READ);
         if (ret < 0) {
@@ -263,7 +254,7 @@ int main()
             ret = wolfSSL_write(ssl, reply, len);
             err = wolfSSL_get_error(ssl, ret);
             if (err == WOLFSSL_ERROR_WANT_WRITE)
-                tcp_select(connd, SELECT_WAIT_SEC, 0);
+                tcp_poll(sockfd, SELECT_WAIT_mSEC, 0);
         }
         while (err == WOLFSSL_ERROR_WANT_WRITE);
         if (ret < 0) {
@@ -276,7 +267,7 @@ int main()
             ret = wolfSSL_shutdown(ssl);
             err = wolfSSL_get_error(ssl, 0);
             if (err == WOLFSSL_ERROR_WANT_READ)
-                tcp_select(sockfd, SELECT_WAIT_SEC, 1);
+                tcp_poll(sockfd, SELECT_WAIT_mSEC, 1);
         } while (err == WOLFSSL_ERROR_WANT_READ || err == WOLFSSL_ERROR_WANT_WRITE);
 
         /* Cleanup after this connection */
