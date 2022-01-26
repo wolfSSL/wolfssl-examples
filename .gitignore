@@ -213,6 +213,7 @@ pk/ed448/ed448_sign
 pk/ed448/ed448_pub
 pk/ed448/ed448_keys
 pk/ed448/*.der
+pk/curve25519/curve25519_test
 
 embedded/tls-client-server
 embedded/tls-server-size
