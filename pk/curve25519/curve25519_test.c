@@ -70,29 +70,33 @@ int curve25519_secret(const byte* priv, const byte* pub, byte* secret, word32* s
 {
     int ret;
     curve25519_key privKey, pubKey;
+#if defined(LITTLE_ENDIAN_ORDER)
+    int endianess = EC25519_LITTLE_ENDIAN;
+#else
+    int endianess = EC25519_BIG_ENDIAN;
+#endif
 
     ret = wc_curve25519_init(&privKey);
     if (ret == 0)
         ret = wc_curve25519_init(&pubKey);
 
     if (ret == 0) {
-        ret = wc_curve25519_import_private(priv, 32, &privKey);
+        ret = wc_curve25519_import_private_ex(priv, 32, &privKey, endianess);
         if (ret != 0) {
             printf("wc_curve25519_import_private alice failed\n");
         }
     }
 
     if (ret == 0) {
-        //pub[0] &= 127;
-        ret = wc_curve25519_check_public(pub, 32, EC25519_BIG_ENDIAN);
+        ret = wc_curve25519_check_public(pub, 32, endianess);
         if (ret != 0) {
             printf("wc_curve25519_check_public bob failed\n");
         }
     }
     if (ret == 0)
-        ret = wc_curve25519_import_public(pub, 32, &pubKey);
+        ret = wc_curve25519_import_public_ex(pub, 32, &pubKey, endianess);
     if (ret == 0) {
-        ret = wc_curve25519_shared_secret(&privKey, &pubKey, secret, secretsz);
+        ret = wc_curve25519_shared_secret_ex(&privKey, &pubKey, secret, secretsz, endianess);
     }
 
     wc_curve25519_free(&pubKey);
