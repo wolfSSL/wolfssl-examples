@@ -66,15 +66,11 @@ static void print_secret(char* desc, byte* s, int sLen)
     printf("\n");
 }
 
-int curve25519_secret(const byte* priv, const byte* pub, byte* secret, word32* secretsz)
+int curve25519_secret(const byte* priv, const byte* pub, byte* secret,
+    word32* secretsz, int endianess)
 {
     int ret;
     curve25519_key privKey, pubKey;
-#if defined(LITTLE_ENDIAN_ORDER)
-    int endianess = EC25519_LITTLE_ENDIAN;
-#else
-    int endianess = EC25519_BIG_ENDIAN;
-#endif
 
     ret = wc_curve25519_init(&privKey);
     if (ret == 0)
@@ -96,7 +92,8 @@ int curve25519_secret(const byte* priv, const byte* pub, byte* secret, word32* s
     if (ret == 0)
         ret = wc_curve25519_import_public_ex(pub, 32, &pubKey, endianess);
     if (ret == 0) {
-        ret = wc_curve25519_shared_secret_ex(&privKey, &pubKey, secret, secretsz, endianess);
+        ret = wc_curve25519_shared_secret_ex(&privKey, &pubKey, secret,
+            secretsz, endianess);
     }
 
     wc_curve25519_free(&pubKey);
@@ -108,7 +105,7 @@ int main(void)
 {
     int ret;
 
-    /* RFC 7748 Curve25519 Test Vectors */
+    /* RFC 7748 Curve25519 Test Vectors - in little endian format */
     const char* alice_prv_hexstr = "77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a";
     const char* alice_pub_hexstr = "8520f0098930a754748b7ddcb43ef75a0dbf3a0d26381af4eba4a98eaa9b4e6a";
     const char* bob_prv_hexstr =   "5dab087e624a8a4b79e17f8b83800ee66f3bb1292618b6fd1c2f8b27ff88e0eb";
@@ -126,9 +123,13 @@ int main(void)
     hex2bin(bob_pub, bob_pub_hexstr);
     secret_expsz = hex2bin(secret_exp, secret_hexstr);
 
-    ret = curve25519_secret(alice_prv, bob_pub, alice_secret, &alice_secretsz);
-    if (ret == 0)
-        ret = curve25519_secret(bob_prv, alice_pub, bob_secret, &bob_secretsz);
+    /* test vectors are in little endian */
+    ret = curve25519_secret(alice_prv, bob_pub, alice_secret, &alice_secretsz,
+        EC25519_LITTLE_ENDIAN);
+    if (ret == 0) {
+        ret = curve25519_secret(bob_prv, alice_pub, bob_secret, &bob_secretsz,
+            EC25519_LITTLE_ENDIAN);
+    }
 
     if (ret == 0) {
         print_secret("Secret Generated Alice", alice_secret, (int)alice_secretsz);
