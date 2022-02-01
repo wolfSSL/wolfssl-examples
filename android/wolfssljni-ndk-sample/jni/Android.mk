@@ -9,13 +9,15 @@ LOCAL_MODULE    := libwolfssl
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)
 LOCAL_C_INCLUDES := $(LOCAL_PATH)
 LOCAL_CFLAGS := -DOPENSSL_EXTRA -DWOLFSSL_DTLS -D_POSIX_THREADS -DNDEBUG \
-				-DPERSIST_SESSION_CACHE -DPERSIST_CERT_CACHE -DATOMIC_USER \
-				-DHAVE_PK_CALLBACKS -DNO_DSA -DHAVE_ECC -DTFM_ECC256 \
-				-DECC_SHAMIR -DNO_MD4 -DNO_HC128 -DNO_RABBIT \
+				-DPERSIST_SESSION_CACHE -DPERSIST_CERT_CACHE \
+				-DATOMIC_USER -DHAVE_PK_CALLBACKS -DNO_DSA \
+				-DHAVE_ECC -DTFM_ECC256 -DECC_SHAMIR -DNO_MD4 \
 				-DHAVE_OCSP -DHAVE_CRL -DWOLFSSL_JNI -DHAVE_DH \
-				-DUSE_FAST_MATH -DTFM_TIMING_RESISTANT -DECC_TIMING_RESISTANT \
-				-DWC_RSA_BLINDING -DTFM_NO_ASM \
+				-DUSE_FAST_MATH -DTFM_TIMING_RESISTANT \
+				-DECC_TIMING_RESISTANT -DWC_RSA_BLINDING \
+				-DTFM_NO_ASM \
 				-Wall
+
 LOCAL_SRC_FILES := src/crl.c \
 				   src/internal.c \
 				   src/io.c \
@@ -48,9 +50,7 @@ LOCAL_SRC_FILES := src/crl.c \
 				   wolfcrypt/src/ge_low_mem.c \
 				   wolfcrypt/src/ge_operations.c \
 				   wolfcrypt/src/hash.c \
-				   wolfcrypt/src/hc128.c \
 				   wolfcrypt/src/hmac.c \
-				   wolfcrypt/src/idea.c \
 				   wolfcrypt/src/integer.c \
 				   wolfcrypt/src/logging.c \
 				   wolfcrypt/src/md2.c \
@@ -61,7 +61,6 @@ LOCAL_SRC_FILES := src/crl.c \
 				   wolfcrypt/src/pkcs7.c \
 				   wolfcrypt/src/poly1305.c \
 				   wolfcrypt/src/pwdbased.c \
-				   wolfcrypt/src/rabbit.c \
 				   wolfcrypt/src/random.c \
 				   wolfcrypt/src/ripemd.c \
 				   wolfcrypt/src/rsa.c \
@@ -92,11 +91,11 @@ LOCAL_SRC_FILES  := native/com_wolfssl_WolfSSL.c \
 LOCAL_CFLAGS := -DOPENSSL_EXTRA -DWOLFSSL_DTLS -D_POSIX_THREADS -DNDEBUG \
 				-DPERSIST_SESSION_CACHE -DPERSIST_CERT_CACHE -DATOMIC_USER \
 				-DHAVE_PK_CALLBACKS -DNO_DSA -DHAVE_ECC -DTFM_ECC256 \
-				-DECC_SHAMIR -DNO_MD4 -DNO_HC128 -DNO_RABBIT \
-				-DHAVE_OCSP -DHAVE_CRL -DWOLFSSL_JNI -DHAVE_DH \
-				-DUSE_FAST_MATH -DTFM_TIMING_RESISTANT -DECC_TIMING_RESISTANT \
-				-DWC_RSA_BLINDING -DTFM_NO_ASM \
+				-DECC_SHAMIR -DNO_MD4 -DHAVE_OCSP -DHAVE_CRL -DWOLFSSL_JNI \
+                                -DHAVE_DH -DUSE_FAST_MATH -DTFM_TIMING_RESISTANT \
+                                -DECC_TIMING_RESISTANT -DWC_RSA_BLINDING -DTFM_NO_ASM \
 				-Wall
+
 LOCAL_SHARED_LIBRARIES := libwolfssl
 include $(BUILD_SHARED_LIBRARY)
 
@@ -109,11 +108,11 @@ LOCAL_SRC_FILES := jnitest.c
 LOCAL_CFLAGS := -DOPENSSL_EXTRA -DWOLFSSL_DTLS -D_POSIX_THREADS -DNDEBUG \
 				-DPERSIST_SESSION_CACHE -DPERSIST_CERT_CACHE -DATOMIC_USER \
 				-DHAVE_PK_CALLBACKS -DNO_DSA -DHAVE_ECC -DTFM_ECC256 \
-				-DECC_SHAMIR -DNO_MD4 -DNO_HC128 -DNO_RABBIT \
-				-DHAVE_OCSP -DHAVE_CRL -DWOLFSSL_JNI -DHAVE_DH \
-				-DUSE_FAST_MATH -DTFM_TIMING_RESISTANT -DECC_TIMING_RESISTANT \
-				-DWC_RSA_BLINDING -DTFM_NO_ASM \
+				-DECC_SHAMIR -DNO_MD4 -DHAVE_OCSP -DHAVE_CRL -DWOLFSSL_JNI \
+				-DHAVE_DH -DUSE_FAST_MATH -DTFM_TIMING_RESISTANT \
+				-DECC_TIMING_RESISTANT -DWC_RSA_BLINDING -DTFM_NO_ASM \
 				-Wall
+
 LOCAL_SHARED_LIBRARIES := libwolfssl
 include $(BUILD_SHARED_LIBRARY)
 

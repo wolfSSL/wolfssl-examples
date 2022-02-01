@@ -286,8 +286,6 @@ int  hmac_sha512_test(void);
 int  hmac_blake2b_test(void);
 int  hkdf_test(void);
 int  arc4_test(void);
-int  hc128_test(void);
-int  rabbit_test(void);
 int  chacha_test(void);
 int  chacha20_poly1305_aead_test(void);
 int  des_test(void);
@@ -334,7 +332,3 @@ int pkcs7signed_test(void);
 #if defined(WOLFSSL_CERT_EXT) && defined(WOLFSSL_TEST_CERT)
 int  certext_test(void);
 #endif
-#ifdef HAVE_IDEA
-int idea_test(void);
-#endif
-
