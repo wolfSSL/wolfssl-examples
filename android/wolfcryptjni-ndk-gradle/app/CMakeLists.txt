@@ -6,11 +6,11 @@
 cmake_minimum_required(VERSION 3.4.1)
 
 # Add preprocessor defines to CFLAGS
-add_definitions(-DNO_DSA -DNO_PSK -DNO_MD4 -DWOLFSSL_SHA512 -DWOLFSSL_SHA384
-                -DHAVE_AESGCM -DHAVE_HASHDRBG -DHAVE_ECC -DWOLFSSL_KEY_GEN
-                -DNO_PWDBASED -DUSE_FAST_MATH -DTFM_ECC256 -DHAVE_DH
-                -DUSE_FAST_MATH -DTFM_TIMING_RESISTANT -DECC_TIMING_RESISTANT
-                -DWC_RSA_BLINDING -DTFM_NO_ASM
+add_definitions(-DNO_DSA -DNO_PSK -DNO_MD4 -DNO_HC128 -DNO_RABBIT
+                -DWOLFSSL_SHA512 -DWOLFSSL_SHA384 -DHAVE_AESGCM -DHAVE_HASHDRBG
+                -DHAVE_ECC -DWOLFSSL_KEY_GEN -DNO_PWDBASED -DUSE_FAST_MATH
+                -DTFM_ECC256 -DHAVE_DH -DUSE_FAST_MATH -DTFM_TIMING_RESISTANT
+                -DECC_TIMING_RESISTANT -DWC_RSA_BLINDING -DTFM_NO_ASM
                 )
 
 # set wolfSSL JNI location as environment variable, change if needed

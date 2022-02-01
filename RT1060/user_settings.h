@@ -89,9 +89,11 @@ int32_t cust_rand_generate_block(uint8_t *rndb, uint32_t sz);
 #define NO_DSA
 #define NO_MD4
 #define NO_DH
+#define NO_RABBIT
 #define NO_SIG_WRAPPER
 #define NO_CERT
 #define NO_SESSION_CACHE
+#define NO_HC128
 #define NO_DES3
 #define WC_NO_HASHDRBG
 #define NO_WRITEV
