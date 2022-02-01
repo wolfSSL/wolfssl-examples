@@ -95,8 +95,6 @@ static const char* GetCipherTypeStr(int cipher)
         case WC_CIPHER_DES3: return "DES3";
         case WC_CIPHER_DES: return "DES";
         case WC_CIPHER_CHACHA: return "ChaCha20";
-        case WC_CIPHER_HC128: return "HC128";
-        case WC_CIPHER_IDEA: return "IDEA";
     }
     return NULL;
 }

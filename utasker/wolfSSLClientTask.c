@@ -666,20 +666,6 @@ int WolfCryptTest(void)
         fnDebugMsg("ARC4     test passed!\r\n");
 #endif
 
-#ifndef NO_HC128
-    if ((ret = hc128_test()) != 0)
-        fnDebugMsg("HC-128   test failed!\r\n");
-    else
-        fnDebugMsg("HC-128   test passed!\r\n");
-#endif
-
-#ifndef NO_RABBIT
-    if ((ret = rabbit_test()) != 0)
-        fnDebugMsg("Rabbit   test failed!\r\n");
-    else
-        fnDebugMsg("Rabbit   test passed!\r\n");
-#endif
-
 #ifdef HAVE_CHACHA
     if ((ret = chacha_test()) != 0)
         fnDebugMsg("Chacha   test failed!\r\n");
@@ -741,13 +727,6 @@ int WolfCryptTest(void)
         fnDebugMsg("CAMELLIA test failed!\r\n");
     else
         fnDebugMsg("CAMELLIA test passed!\r\n");
-#endif
-
-#ifdef HAVE_IDEA
-    if ((ret = idea_test()) != 0)
-        fnDebugMsg("IDEA     test failed!\r\n");
-    else
-        fnDebugMsg("IDEA     test passed!\r\n");
 #endif
 
     if ((ret = random_test()) != 0)

@@ -50,9 +50,7 @@ add_library(wolfssl SHARED
             ${wolfssl_DIR}/wolfcrypt/src/ge_low_mem.c
             ${wolfssl_DIR}/wolfcrypt/src/ge_operations.c
             ${wolfssl_DIR}/wolfcrypt/src/hash.c
-            ${wolfssl_DIR}/wolfcrypt/src/hc128.c
             ${wolfssl_DIR}/wolfcrypt/src/hmac.c
-            ${wolfssl_DIR}/wolfcrypt/src/idea.c
             ${wolfssl_DIR}/wolfcrypt/src/integer.c
             ${wolfssl_DIR}/wolfcrypt/src/logging.c
             ${wolfssl_DIR}/wolfcrypt/src/md2.c
@@ -63,7 +61,6 @@ add_library(wolfssl SHARED
             ${wolfssl_DIR}/wolfcrypt/src/pkcs7.c
             ${wolfssl_DIR}/wolfcrypt/src/poly1305.c
             ${wolfssl_DIR}/wolfcrypt/src/pwdbased.c
-            ${wolfssl_DIR}/wolfcrypt/src/rabbit.c
             ${wolfssl_DIR}/wolfcrypt/src/random.c
             ${wolfssl_DIR}/wolfcrypt/src/ripemd.c
             ${wolfssl_DIR}/wolfcrypt/src/rsa.c
