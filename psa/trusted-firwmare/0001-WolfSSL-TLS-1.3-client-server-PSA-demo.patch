@@ -1,0 +1,1107 @@
+From 8ebefa5df0337c06a4ee6d8a6e3a53968921c161 Mon Sep 17 00:00:00 2001
+From: Marco Oliverio <marco@wolfssl.com>
+Date: Tue, 1 Feb 2022 20:10:27 +0100
+Subject: [PATCH] WolfSSL TLS 1.3 client-server PSA demo
+
+---
+ app/CMakeLists.txt |  22 +++
+ app/certs.h        | 127 +++++++++++++++
+ app/main_ns.c      |  33 +++-
+ app/rcc.c          | 395 +++++++++++++++++++++++++++++++++++++++++++++
+ app/rcc.h          |  96 +++++++++++
+ app/wolfssl.c      | 324 +++++++++++++++++++++++++++++++++++++
+ 6 files changed, 994 insertions(+), 3 deletions(-)
+ create mode 100644 app/certs.h
+ create mode 100644 app/rcc.c
+ create mode 100644 app/rcc.h
+ create mode 100644 app/wolfssl.c
+
+diff --git a/app/CMakeLists.txt b/app/CMakeLists.txt
+index 936473f..51c3c15 100755
+--- a/app/CMakeLists.txt
++++ b/app/CMakeLists.txt
+@@ -236,6 +236,8 @@ target_sources(tfm_ns
+     PRIVATE
+         main_ns.c
+         $<$<BOOL:${TEST_PSA_API}>:psa_api_test.c>
++        $<$<BOOL:${WOLFSSL_DEMO}>:wolfssl.c>
++        $<$<BOOL:${WOLFSSL_DEMO}>:rcc.c>
+ )
+ 
+ target_link_libraries(tfm_ns
+@@ -248,11 +250,13 @@ target_link_libraries(tfm_ns
+         $<$<BOOL:${TEST_PSA_API}>:test_combine>
+         tfm_api_ns
+         tfm_ns_log
++        $<$<BOOL:${WOLFSSL_DEMO}>:wolfssl>
+ )
+ 
+ target_compile_definitions(tfm_ns
+     PUBLIC
+     $<$<BOOL:${TEST_PSA_API}>:PSA_API_TEST_NS>
++    $<$<BOOL:${WOLFSSL_DEMO}>:WOLFSSL_DEMO>
+ )
+ 
+ set_target_properties(tfm_ns PROPERTIES
+@@ -305,3 +309,21 @@ target_compile_definitions(CMSIS_5_tfm_ns
+     INTERFACE
+         $<$<BOOL:${TFM_NS_MANAGE_NSID}>:TFM_NS_MANAGE_NSID>
+ )
++
++############################# wolfssl ############################################
++
++add_library(wolfssl STATIC IMPORTED)
++
++set_target_properties(wolfssl
++    PROPERTIES
++    IMPORTED_LOCATION ${WOLFSSL_ROOT_PATH}/src/.libs/libwolfssl.a)
++
++target_link_libraries(wolfssl
++        INTERFACE
++        tfm_ns_interface
++        tfm_api_ns)
++
++target_include_directories(wolfssl
++    INTERFACE
++    ${WOLFSSL_ROOT_PATH}
++    )
+diff --git a/app/certs.h b/app/certs.h
+new file mode 100644
+index 0000000..0568db6
+--- /dev/null
++++ b/app/certs.h
+@@ -0,0 +1,127 @@
++/* ./certs/key-ecc (RAW) */
++static const unsigned char ecc_key_256[] = {
++    0x45, 0xB6, 0x69, 0x02, 0x73, 0x9C, 0x6C, 0x85, 0xA1, 0x38, 0x5B,
++    0x72, 0xE8, 0xE8, 0xC7, 0xAC, 0xC4, 0x03, 0x8D, 0x53, 0x35, 0x04,
++    0xFA, 0x6C, 0x28, 0xDC, 0x34, 0x8D, 0xE1, 0xA8, 0x09, 0x8C};
++
++/* ./certs/server-ecc.der */
++static const unsigned char certs_server_ecc_der[] = {
++  0x30, 0x82, 0x02, 0xa0, 0x30, 0x82, 0x02, 0x47, 0xa0, 0x03, 0x02, 0x01,
++  0x02, 0x02, 0x01, 0x03, 0x30, 0x0a, 0x06, 0x08, 0x2a, 0x86, 0x48, 0xce,
++  0x3d, 0x04, 0x03, 0x02, 0x30, 0x81, 0x97, 0x31, 0x0b, 0x30, 0x09, 0x06,
++  0x03, 0x55, 0x04, 0x06, 0x13, 0x02, 0x55, 0x53, 0x31, 0x13, 0x30, 0x11,
++  0x06, 0x03, 0x55, 0x04, 0x08, 0x0c, 0x0a, 0x57, 0x61, 0x73, 0x68, 0x69,
++  0x6e, 0x67, 0x74, 0x6f, 0x6e, 0x31, 0x10, 0x30, 0x0e, 0x06, 0x03, 0x55,
++  0x04, 0x07, 0x0c, 0x07, 0x53, 0x65, 0x61, 0x74, 0x74, 0x6c, 0x65, 0x31,
++  0x10, 0x30, 0x0e, 0x06, 0x03, 0x55, 0x04, 0x0a, 0x0c, 0x07, 0x77, 0x6f,
++  0x6c, 0x66, 0x53, 0x53, 0x4c, 0x31, 0x14, 0x30, 0x12, 0x06, 0x03, 0x55,
++  0x04, 0x0b, 0x0c, 0x0b, 0x44, 0x65, 0x76, 0x65, 0x6c, 0x6f, 0x70, 0x6d,
++  0x65, 0x6e, 0x74, 0x31, 0x18, 0x30, 0x16, 0x06, 0x03, 0x55, 0x04, 0x03,
++  0x0c, 0x0f, 0x77, 0x77, 0x77, 0x2e, 0x77, 0x6f, 0x6c, 0x66, 0x73, 0x73,
++  0x6c, 0x2e, 0x63, 0x6f, 0x6d, 0x31, 0x1f, 0x30, 0x1d, 0x06, 0x09, 0x2a,
++  0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x09, 0x01, 0x16, 0x10, 0x69, 0x6e,
++  0x66, 0x6f, 0x40, 0x77, 0x6f, 0x6c, 0x66, 0x73, 0x73, 0x6c, 0x2e, 0x63,
++  0x6f, 0x6d, 0x30, 0x1e, 0x17, 0x0d, 0x32, 0x31, 0x31, 0x32, 0x32, 0x30,
++  0x32, 0x33, 0x30, 0x37, 0x32, 0x35, 0x5a, 0x17, 0x0d, 0x32, 0x34, 0x30,
++  0x39, 0x31, 0x35, 0x32, 0x33, 0x30, 0x37, 0x32, 0x35, 0x5a, 0x30, 0x81,
++  0x8f, 0x31, 0x0b, 0x30, 0x09, 0x06, 0x03, 0x55, 0x04, 0x06, 0x13, 0x02,
++  0x55, 0x53, 0x31, 0x13, 0x30, 0x11, 0x06, 0x03, 0x55, 0x04, 0x08, 0x0c,
++  0x0a, 0x57, 0x61, 0x73, 0x68, 0x69, 0x6e, 0x67, 0x74, 0x6f, 0x6e, 0x31,
++  0x10, 0x30, 0x0e, 0x06, 0x03, 0x55, 0x04, 0x07, 0x0c, 0x07, 0x53, 0x65,
++  0x61, 0x74, 0x74, 0x6c, 0x65, 0x31, 0x10, 0x30, 0x0e, 0x06, 0x03, 0x55,
++  0x04, 0x0a, 0x0c, 0x07, 0x45, 0x6c, 0x69, 0x70, 0x74, 0x69, 0x63, 0x31,
++  0x0c, 0x30, 0x0a, 0x06, 0x03, 0x55, 0x04, 0x0b, 0x0c, 0x03, 0x45, 0x43,
++  0x43, 0x31, 0x18, 0x30, 0x16, 0x06, 0x03, 0x55, 0x04, 0x03, 0x0c, 0x0f,
++  0x77, 0x77, 0x77, 0x2e, 0x77, 0x6f, 0x6c, 0x66, 0x73, 0x73, 0x6c, 0x2e,
++  0x63, 0x6f, 0x6d, 0x31, 0x1f, 0x30, 0x1d, 0x06, 0x09, 0x2a, 0x86, 0x48,
++  0x86, 0xf7, 0x0d, 0x01, 0x09, 0x01, 0x16, 0x10, 0x69, 0x6e, 0x66, 0x6f,
++  0x40, 0x77, 0x6f, 0x6c, 0x66, 0x73, 0x73, 0x6c, 0x2e, 0x63, 0x6f, 0x6d,
++  0x30, 0x59, 0x30, 0x13, 0x06, 0x07, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x02,
++  0x01, 0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07, 0x03,
++  0x42, 0x00, 0x04, 0xbb, 0x33, 0xac, 0x4c, 0x27, 0x50, 0x4a, 0xc6, 0x4a,
++  0xa5, 0x04, 0xc3, 0x3c, 0xde, 0x9f, 0x36, 0xdb, 0x72, 0x2d, 0xce, 0x94,
++  0xea, 0x2b, 0xfa, 0xcb, 0x20, 0x09, 0x39, 0x2c, 0x16, 0xe8, 0x61, 0x02,
++  0xe9, 0xaf, 0x4d, 0xd3, 0x02, 0x93, 0x9a, 0x31, 0x5b, 0x97, 0x92, 0x21,
++  0x7f, 0xf0, 0xcf, 0x18, 0xda, 0x91, 0x11, 0x02, 0x34, 0x86, 0xe8, 0x20,
++  0x58, 0x33, 0x0b, 0x80, 0x34, 0x89, 0xd8, 0xa3, 0x81, 0x89, 0x30, 0x81,
++  0x86, 0x30, 0x1d, 0x06, 0x03, 0x55, 0x1d, 0x0e, 0x04, 0x16, 0x04, 0x14,
++  0x5d, 0x5d, 0x26, 0xef, 0xac, 0x7e, 0x36, 0xf9, 0x9b, 0x76, 0x15, 0x2b,
++  0x4a, 0x25, 0x02, 0x23, 0xef, 0xb2, 0x89, 0x30, 0x30, 0x1f, 0x06, 0x03,
++  0x55, 0x1d, 0x23, 0x04, 0x18, 0x30, 0x16, 0x80, 0x14, 0x56, 0x8e, 0x9a,
++  0xc3, 0xf0, 0x42, 0xde, 0x18, 0xb9, 0x45, 0x55, 0x6e, 0xf9, 0x93, 0xcf,
++  0xea, 0xc3, 0xf3, 0xa5, 0x21, 0x30, 0x0c, 0x06, 0x03, 0x55, 0x1d, 0x13,
++  0x01, 0x01, 0xff, 0x04, 0x02, 0x30, 0x00, 0x30, 0x0e, 0x06, 0x03, 0x55,
++  0x1d, 0x0f, 0x01, 0x01, 0xff, 0x04, 0x04, 0x03, 0x02, 0x03, 0xa8, 0x30,
++  0x13, 0x06, 0x03, 0x55, 0x1d, 0x25, 0x04, 0x0c, 0x30, 0x0a, 0x06, 0x08,
++  0x2b, 0x06, 0x01, 0x05, 0x05, 0x07, 0x03, 0x01, 0x30, 0x11, 0x06, 0x09,
++  0x60, 0x86, 0x48, 0x01, 0x86, 0xf8, 0x42, 0x01, 0x01, 0x04, 0x04, 0x03,
++  0x02, 0x06, 0x40, 0x30, 0x0a, 0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d,
++  0x04, 0x03, 0x02, 0x03, 0x47, 0x00, 0x30, 0x44, 0x02, 0x20, 0x5a, 0x67,
++  0xb9, 0xee, 0x02, 0x34, 0x27, 0x1b, 0xd4, 0xc4, 0x35, 0x7b, 0xed, 0x59,
++  0x8e, 0x63, 0xc4, 0x8a, 0xb7, 0xe9, 0x92, 0xc1, 0x8a, 0x76, 0xb0, 0x8b,
++  0xcd, 0x24, 0x49, 0x78, 0xba, 0xef, 0x02, 0x20, 0x29, 0xb8, 0xb6, 0x5f,
++  0x83, 0xf7, 0x56, 0x6a, 0xf1, 0x4d, 0xd9, 0x9f, 0x52, 0x2a, 0xf9, 0x8f,
++  0x53, 0x14, 0x49, 0x8b, 0x5f, 0x5e, 0x87, 0xaf, 0x7f, 0xca, 0x2e, 0xe0,
++  0xd8, 0xe7, 0x75, 0x0c
++};
++
++unsigned int certs_server_ecc_der_len = 676;
++static const unsigned char certs_ca_ecc_cert_der[] = {
++  0x30, 0x82, 0x02, 0x95, 0x30, 0x82, 0x02, 0x3b, 0xa0, 0x03, 0x02, 0x01,
++  0x02, 0x02, 0x14, 0x2f, 0xc0, 0x2c, 0xfe, 0x1f, 0x6a, 0x5a, 0x0b, 0xdd,
++  0xf6, 0x08, 0x63, 0x99, 0x42, 0x7e, 0x19, 0x92, 0xfa, 0xdc, 0x32, 0x30,
++  0x0a, 0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x04, 0x03, 0x02, 0x30,
++  0x81, 0x97, 0x31, 0x0b, 0x30, 0x09, 0x06, 0x03, 0x55, 0x04, 0x06, 0x13,
++  0x02, 0x55, 0x53, 0x31, 0x13, 0x30, 0x11, 0x06, 0x03, 0x55, 0x04, 0x08,
++  0x0c, 0x0a, 0x57, 0x61, 0x73, 0x68, 0x69, 0x6e, 0x67, 0x74, 0x6f, 0x6e,
++  0x31, 0x10, 0x30, 0x0e, 0x06, 0x03, 0x55, 0x04, 0x07, 0x0c, 0x07, 0x53,
++  0x65, 0x61, 0x74, 0x74, 0x6c, 0x65, 0x31, 0x10, 0x30, 0x0e, 0x06, 0x03,
++  0x55, 0x04, 0x0a, 0x0c, 0x07, 0x77, 0x6f, 0x6c, 0x66, 0x53, 0x53, 0x4c,
++  0x31, 0x14, 0x30, 0x12, 0x06, 0x03, 0x55, 0x04, 0x0b, 0x0c, 0x0b, 0x44,
++  0x65, 0x76, 0x65, 0x6c, 0x6f, 0x70, 0x6d, 0x65, 0x6e, 0x74, 0x31, 0x18,
++  0x30, 0x16, 0x06, 0x03, 0x55, 0x04, 0x03, 0x0c, 0x0f, 0x77, 0x77, 0x77,
++  0x2e, 0x77, 0x6f, 0x6c, 0x66, 0x73, 0x73, 0x6c, 0x2e, 0x63, 0x6f, 0x6d,
++  0x31, 0x1f, 0x30, 0x1d, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d,
++  0x01, 0x09, 0x01, 0x16, 0x10, 0x69, 0x6e, 0x66, 0x6f, 0x40, 0x77, 0x6f,
++  0x6c, 0x66, 0x73, 0x73, 0x6c, 0x2e, 0x63, 0x6f, 0x6d, 0x30, 0x1e, 0x17,
++  0x0d, 0x32, 0x31, 0x31, 0x32, 0x32, 0x30, 0x32, 0x33, 0x30, 0x37, 0x32,
++  0x34, 0x5a, 0x17, 0x0d, 0x32, 0x34, 0x30, 0x39, 0x31, 0x35, 0x32, 0x33,
++  0x30, 0x37, 0x32, 0x34, 0x5a, 0x30, 0x81, 0x97, 0x31, 0x0b, 0x30, 0x09,
++  0x06, 0x03, 0x55, 0x04, 0x06, 0x13, 0x02, 0x55, 0x53, 0x31, 0x13, 0x30,
++  0x11, 0x06, 0x03, 0x55, 0x04, 0x08, 0x0c, 0x0a, 0x57, 0x61, 0x73, 0x68,
++  0x69, 0x6e, 0x67, 0x74, 0x6f, 0x6e, 0x31, 0x10, 0x30, 0x0e, 0x06, 0x03,
++  0x55, 0x04, 0x07, 0x0c, 0x07, 0x53, 0x65, 0x61, 0x74, 0x74, 0x6c, 0x65,
++  0x31, 0x10, 0x30, 0x0e, 0x06, 0x03, 0x55, 0x04, 0x0a, 0x0c, 0x07, 0x77,
++  0x6f, 0x6c, 0x66, 0x53, 0x53, 0x4c, 0x31, 0x14, 0x30, 0x12, 0x06, 0x03,
++  0x55, 0x04, 0x0b, 0x0c, 0x0b, 0x44, 0x65, 0x76, 0x65, 0x6c, 0x6f, 0x70,
++  0x6d, 0x65, 0x6e, 0x74, 0x31, 0x18, 0x30, 0x16, 0x06, 0x03, 0x55, 0x04,
++  0x03, 0x0c, 0x0f, 0x77, 0x77, 0x77, 0x2e, 0x77, 0x6f, 0x6c, 0x66, 0x73,
++  0x73, 0x6c, 0x2e, 0x63, 0x6f, 0x6d, 0x31, 0x1f, 0x30, 0x1d, 0x06, 0x09,
++  0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x09, 0x01, 0x16, 0x10, 0x69,
++  0x6e, 0x66, 0x6f, 0x40, 0x77, 0x6f, 0x6c, 0x66, 0x73, 0x73, 0x6c, 0x2e,
++  0x63, 0x6f, 0x6d, 0x30, 0x59, 0x30, 0x13, 0x06, 0x07, 0x2a, 0x86, 0x48,
++  0xce, 0x3d, 0x02, 0x01, 0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03,
++  0x01, 0x07, 0x03, 0x42, 0x00, 0x04, 0x02, 0xd3, 0xd9, 0x6e, 0xd6, 0x01,
++  0x8e, 0x45, 0xc8, 0xb9, 0x90, 0x31, 0xe5, 0xc0, 0x4c, 0xe3, 0x9e, 0xad,
++  0x29, 0x38, 0x98, 0xba, 0x10, 0xd6, 0xe9, 0x09, 0x2a, 0x80, 0xa9, 0x2e,
++  0x17, 0x2a, 0xb9, 0x8a, 0xbf, 0x33, 0x83, 0x46, 0xe3, 0x95, 0x0b, 0xe4,
++  0x77, 0x40, 0xb5, 0x3b, 0x43, 0x45, 0x33, 0x0f, 0x61, 0x53, 0x7c, 0x37,
++  0x44, 0xc1, 0xcb, 0xfc, 0x80, 0xca, 0xe8, 0x43, 0xea, 0xa7, 0xa3, 0x63,
++  0x30, 0x61, 0x30, 0x1d, 0x06, 0x03, 0x55, 0x1d, 0x0e, 0x04, 0x16, 0x04,
++  0x14, 0x56, 0x8e, 0x9a, 0xc3, 0xf0, 0x42, 0xde, 0x18, 0xb9, 0x45, 0x55,
++  0x6e, 0xf9, 0x93, 0xcf, 0xea, 0xc3, 0xf3, 0xa5, 0x21, 0x30, 0x1f, 0x06,
++  0x03, 0x55, 0x1d, 0x23, 0x04, 0x18, 0x30, 0x16, 0x80, 0x14, 0x56, 0x8e,
++  0x9a, 0xc3, 0xf0, 0x42, 0xde, 0x18, 0xb9, 0x45, 0x55, 0x6e, 0xf9, 0x93,
++  0xcf, 0xea, 0xc3, 0xf3, 0xa5, 0x21, 0x30, 0x0f, 0x06, 0x03, 0x55, 0x1d,
++  0x13, 0x01, 0x01, 0xff, 0x04, 0x05, 0x30, 0x03, 0x01, 0x01, 0xff, 0x30,
++  0x0e, 0x06, 0x03, 0x55, 0x1d, 0x0f, 0x01, 0x01, 0xff, 0x04, 0x04, 0x03,
++  0x02, 0x01, 0x86, 0x30, 0x0a, 0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d,
++  0x04, 0x03, 0x02, 0x03, 0x48, 0x00, 0x30, 0x45, 0x02, 0x21, 0x00, 0xf2,
++  0xa0, 0x7a, 0x0f, 0x66, 0x05, 0xec, 0x81, 0xa2, 0x94, 0x6a, 0x31, 0xe0,
++  0x0d, 0xee, 0x8f, 0x6a, 0xed, 0x63, 0x33, 0x0e, 0x27, 0x31, 0xb3, 0xcf,
++  0xc8, 0xa0, 0x0e, 0x5b, 0x88, 0x51, 0xfa, 0x02, 0x20, 0x51, 0x0f, 0x26,
++  0x46, 0x95, 0x37, 0x8e, 0x49, 0x4e, 0xb0, 0x4d, 0xcd, 0xb1, 0x65, 0xfe,
++  0x2d, 0x43, 0xab, 0x20, 0xc7, 0x83, 0x70, 0x44, 0x11, 0x13, 0x86, 0xa5,
++  0x9b, 0x3b, 0x34, 0x24, 0xf2
++};
++unsigned int certs_ca_ecc_cert_der_len = 665;
+diff --git a/app/main_ns.c b/app/main_ns.c
+index 6b73898..f8158cf 100644
+--- a/app/main_ns.c
++++ b/app/main_ns.c
+@@ -50,10 +50,14 @@ __asm("  .global __ARM_use_no_argv\n");
+  * \brief List of RTOS thread attributes
+  */
+ #if defined(TEST_FRAMEWORK_NS) || defined(TEST_FRAMEWORK_S) \
+- || defined(PSA_API_TEST_NS)
++    || defined(PSA_API_TEST_NS) || defined(WOLFSSL_DEMO)
+ static const osThreadAttr_t thread_attr = {
+     .name = "test_thread",
++#ifdef WOLFSSL_DEMO
++    .stack_size = 1024U,
++#elif
+     .stack_size = 4096U,
++#endif
+     .tz_module = ((TZ_ModuleId_t)TFM_DEFAULT_NSID)
+ };
+ #endif
+@@ -71,7 +75,7 @@ static const osThreadAttr_t mailbox_thread_attr = {
+  *        main thread
+  */
+ #if defined(TEST_FRAMEWORK_NS) || defined(TEST_FRAMEWORK_S) \
+- || defined(PSA_API_TEST_NS)
++    || defined(PSA_API_TEST_NS) || defined(WOLFSSL_DEMO)
+ static osThreadFunc_t thread_func;
+ #endif
+ 
+@@ -131,6 +135,16 @@ __WEAK int32_t tfm_ns_platform_uninit(void)
+     return ARM_DRIVER_OK;
+ }
+ 
++#ifdef WOLFSSL_DEMO
++void wolfssl_demo(void*); /* defined in wolfssl.c */
++
++void SystemCoreClockUpdate(void);
++
++/* implemented in rcc.c */
++void clock_pll_on(void);
++void clock_pll_off(void);
++#endif
++
+ /**
+  * \brief main() function
+  */
+@@ -161,10 +175,23 @@ int main(void)
+     thread_func = test_app;
+ #elif defined(PSA_API_TEST_NS)
+     thread_func = psa_api_test;
++#elif defined(WOLFSSL_DEMO)
++    thread_func = wolfssl_demo;
++#endif
++
++#ifdef WOLFSSL_DEMO
++    /* increase the board speed */
++    clock_pll_off();
++    clock_pll_on();
++
++    stdio_uninit();
++    stdio_init();
++
++    SystemCoreClockUpdate();
+ #endif
+ 
+ #if defined(TEST_FRAMEWORK_NS) || defined(TEST_FRAMEWORK_S) \
+- || defined(PSA_API_TEST_NS)
++    || defined(PSA_API_TEST_NS) || defined(WOLFSSL_DEMO)
+     (void) osThreadNew(thread_func, NULL, &thread_attr);
+ #endif
+ 
+diff --git a/app/rcc.c b/app/rcc.c
+new file mode 100644
+index 0000000..69b92e1
+--- /dev/null
++++ b/app/rcc.c
+@@ -0,0 +1,395 @@
++/* stm32l5.c
++ *
++ * Copyright (C) 2021 wolfSSL Inc.
++ *
++ * This file is part of wolfBoot.
++ *
++ * wolfBoot is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * wolfBoot is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
++ */
++
++#include <stdint.h>
++
++/* Assembly helpers */
++#define DMB() __asm__ volatile ("dmb")
++#define ISB() __asm__ volatile ("isb")
++#define DSB() __asm__ volatile ("dsb")
++
++/* STM32 L5 register configuration */
++/*!< Memory & Instance aliases and base addresses for Non-Secure/Secure peripherals */
++#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
++/*Secure */
++#define RCC_BASE            (0x50021000)   //RM0438 - Table 4
++#else
++/*Non-Secure */
++#define RCC_BASE            (0x40021000)   //RM0438 - Table 4
++#endif
++
++#define FLASH_SECURE_MMAP_BASE (0x0C000000)
++
++#define RCC_CR              (*(volatile uint32_t *)(RCC_BASE + 0x00))  //RM0438 - Table 77
++#define RCC_CR_PLLRDY               (1 << 25) //RM0438 - 9.8.1
++#define RCC_CR_PLLON                (1 << 24) //RM0438 - 9.8.1
++#define RCC_CR_HSEBYP               (1 << 18) //RM0438 - 9.8.1
++#define RCC_CR_HSERDY               (1 << 17) //RM0438 - 9.8.1
++#define RCC_CR_HSEON                (1 << 16) //RM0438 - 9.8.1
++#define RCC_CR_HSIRDY               (1 << 10) //RM0438 - 9.8.1
++#define RCC_CR_HSION                (1 << 8)  //RM0438 - 9.8.1
++#define RCC_CR_MSIRANGE_SHIFT       (4)  //RM0438 - 9.8.1
++#define RCC_CR_MSIRANGE_11          (11)
++#define RCC_CR_MSIRGSEL             (1 << 3)  //RM0438 - 9.8.1
++#define RCC_CR_MSIPLLEN             (1 << 2)  //RM0438 - 9.8.1
++#define RCC_CR_MSIRDY               (1 << 1)  //RM0438 - 9.8.1
++#define RCC_CR_MSION                (1 << 0)  //RM0438 - 9.8.1
++
++
++#define RCC_CFGR            (*(volatile uint32_t *)(RCC_BASE + 0x08))  //RM0438 - Table 77
++
++/*** APB1&2 PRESCALER ***/
++#define RCC_APB_PRESCALER_DIV_NONE 0x0  // 0xx: HCLK not divided
++#define RCC_APB_PRESCALER_DIV_2 0x4     // 100: HCLK divided by 2
++#define RCC_APB_PRESCALER_DIV_4 0x5     // 101: HCLK divided by 4
++#define RCC_APB_PRESCALER_DIV_8 0x6     // 110: HCLK divided by 8
++#define RCC_APB_PRESCALER_DIV_16 0x7    // 111: HCLK divided by 16
++
++/*** AHB PRESCALER ***/
++#define RCC_AHB_PRESCALER_DIV_NONE 0x0    // 0xxx: SYSCLK not divided
++#define RCC_AHB_PRESCALER_DIV_2    0x8    // 1000: SYSCLK divided by 2
++#define RCC_AHB_PRESCALER_DIV_4    0x9    // 1001: SYSCLK divided by 4
++#define RCC_AHB_PRESCALER_DIV_8   0xA    // 1010: SYSCLK divided by 8
++#define RCC_AHB_PRESCALER_DIV_16  0xB    // 1011: SYSCLK divided by 16
++#define RCC_AHB_PRESCALER_DIV_64  0xC    // 1100: SYSCLK divided by 64
++#define RCC_AHB_PRESCALER_DIV_128 0xD    // 1101: SYSCLK divided by 128
++#define RCC_AHB_PRESCALER_DIV_256 0xE    // 1110: SYSCLK divided by 256
++#define RCC_AHB_PRESCALER_DIV_512 0xF    // 1111: SYSCLK divided by 512
++
++#define RCC_CFGR_HPRE_SHIFT        (0x04)
++#define RCC_CFGR_PPRE2_SHIFT       (0x0B)
++#define RCC_CFGR_PPRE1_SHIFT       (0x08)
++
++#define RCC_CFGR_SW_MSI             0x0
++#define RCC_CFGR_SW_HSI16           0x1
++#define RCC_CFGR_SW_HSE             0x2
++#define RCC_CFGR_SW_PLL             0x3
++
++#define RCC_PLLCFGR         (*(volatile uint32_t *)(RCC_BASE + 0x0C))  //RM0438 - Table 77
++#define RCC_PLLCFGR_PLLP_SHIFT       (27)
++#define RCC_PLLCFGR_PLLR_SHIFT      (25)
++#define RCC_PLLCFGR_PLLREN          (1 << 24)
++
++#define RCC_PLLCFGR_PLLQ_SHIFT       (21)
++#define RCC_PLLCFGR_PLLQEN           (1 << 20)
++
++#define RCC_PLLCFGR_PLLN_SHIFT       (8)
++#define RCC_PLLCFGR_PLLM_SHIFT       (4)
++
++#define RCC_PLLCFGR_QR_DIV_2          0x0
++#define RCC_PLLCFGR_QR_DIV_4          0x1
++#define RCC_PLLCFGR_QR_DIV_6          0x2
++#define RCC_PLLCFGR_QR_DIV_8          0x3
++
++#define RCC_PLLCFGR_P_DIV_7           0x0
++#define RCC_PLLCFGR_P_DIV_17          0x1
++
++#define RCC_PLLCKSELR_PLLSRC_NONE    0x0
++#define RCC_PLLCKSELR_PLLSRC_MSI     0x1
++#define RCC_PLLCKSELR_PLLSRC_HSI16   0x2
++#define RCC_PLLCKSELR_PLLSRC_HSE     0x3
++
++#define RCC_APB1ENR         (*(volatile uint32_t *)(RCC_BASE + 0x58))
++#define RCC_APB1ENR_PWREN         (1 << 28)
++
++#define RCC_APB2ENR         (*(volatile uint32_t *)(RCC_BASE + 0x60))
++#define RCC_APB2ENR_SYSCFGEN      (1 << 0)
++
++
++/*** PWR ***/
++/*!< Memory & Instance aliases and base addresses for Non-Secure/Secure peripherals */
++#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
++/*Secure */
++#define PWR_BASE            (0x50007000)   //RM0438 - Table 4
++#else
++/*Non-Secure */
++#define PWR_BASE            (0x40007000)   //RM0438 - Table 4
++#endif
++
++#define PWR_CR1              (*(volatile uint32_t *)(PWR_BASE + 0x00))
++#define PWR_CR1_VOS_SHIFT    (9)
++#define PWR_CR1_VOS_0        (0x0)
++#define PWR_CR1_VOS_1        (0x1)
++#define PWR_CR1_VOS_2        (0x2)
++
++#define PWR_CR2              (*(volatile uint32_t *)(PWR_BASE + 0x04))
++#define PWR_CR2_IOSV         (1 << 9)
++#define PWR_CR3              (*(volatile uint32_t *)(PWR_BASE + 0x08))
++#define PWR_CR3_UCPD_DBDIS   (1 << 14)
++#define PWR_CR4              (*(volatile uint32_t *)(PWR_BASE + 0x0C))
++
++#define PWR_SR1              (*(volatile uint32_t *)(PWR_BASE + 0x10))
++#define PWR_SR2              (*(volatile uint32_t *)(PWR_BASE + 0x14))
++#define PWR_SR2_VOSF         (1 << 10)
++
++#define SYSCFG_BASE          (0x50010000) //RM0438 - Table 4
++
++
++
++/*** FLASH ***/
++#define SYSCFG_APB2_CLOCK_ER_VAL    (1 << 0) //RM0438 - RCC_APB2ENR - SYSCFGEN
++
++#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
++/*Secure*/
++#define FLASH_BASE          (0x50022000)   //RM0438 - Table 4
++#define FLASH_KEYR        (*(volatile uint32_t *)(FLASH_BASE + 0x0C))
++#define FLASH_OPTKEYR     (*(volatile uint32_t *)(FLASH_BASE + 0x10))
++#define FLASH_SR          (*(volatile uint32_t *)(FLASH_BASE + 0x24))
++#define FLASH_CR          (*(volatile uint32_t *)(FLASH_BASE + 0x2C))
++
++#define FLASH_SECBB1       ((volatile uint32_t *)(FLASH_BASE + 0x80)) /* Array */
++#define FLASH_SECBB2       ((volatile uint32_t *)(FLASH_BASE + 0xA0)) /* Array */
++#define FLASH_SECBB_NREGS  4    /* Array length for the two above */
++
++#define FLASH_NS_BASE          (0x40022000)   //RM0438 - Table 4
++#define FLASH_NS_KEYR        (*(volatile uint32_t *)(FLASH_NS_BASE + 0x08))
++#define FLASH_NS_OPTKEYR     (*(volatile uint32_t *)(FLASH_NS_BASE + 0x10))
++#define FLASH_NS_SR          (*(volatile uint32_t *)(FLASH_NS_BASE + 0x20))
++#define FLASH_NS_CR          (*(volatile uint32_t *)(FLASH_NS_BASE + 0x28))
++
++
++
++#else
++/* Non-Secure only */
++#define FLASH_BASE          (0x40022000)   //RM0438 - Table 4
++#define FLASH_KEYR        (*(volatile uint32_t *)(FLASH_BASE + 0x08))
++#define FLASH_OPTKEYR     (*(volatile uint32_t *)(FLASH_BASE + 0x10))
++#define FLASH_SR          (*(volatile uint32_t *)(FLASH_BASE + 0x20))
++#define FLASH_CR          (*(volatile uint32_t *)(FLASH_BASE + 0x28))
++#endif
++
++/* Register values (for both secure and non secure registers) */
++#define FLASH_SR_EOP                        (1 << 0)
++#define FLASH_SR_OPERR                      (1 << 1)
++#define FLASH_SR_PROGERR                    (1 << 3)
++#define FLASH_SR_WRPERR                     (1 << 4)
++#define FLASH_SR_PGAERR                     (1 << 5)
++#define FLASH_SR_SIZERR                     (1 << 6)
++#define FLASH_SR_PGSERR                     (1 << 7)
++#define FLASH_SR_OPTWERR                    (1 << 13)
++#define FLASH_SR_BSY                        (1 << 16)
++
++#define FLASH_CR_PG                         (1 << 0)
++#define FLASH_CR_PER                        (1 << 1)
++#define FLASH_CR_MER1                       (1 << 2)
++#define FLASH_CR_PNB_SHIFT                  3
++#define FLASH_CR_PNB_MASK                   0x7F
++#define FLASH_CR_BKER                       (1 << 11)
++#define FLASH_CR_MER2                       (1 << 15)
++#define FLASH_CR_STRT                       (1 << 16)
++#define FLASH_CR_OPTSTRT                    (1 << 17)
++#define FLASH_CR_EOPIE                      (1 << 24)
++#define FLASH_CR_ERRIE                      (1 << 25)
++#define FLASH_CR_OBL_LAUNCH                 (1 << 27)
++#define FLASH_CR_INV                        (1 << 29)
++#define FLASH_CR_OPTLOCK                    (1 << 30)
++#define FLASH_CR_LOCK                       (1 << 31)
++
++
++#define FLASH_ACR           (*(volatile uint32_t *)(FLASH_BASE + 0x00))
++#define FLASH_ACR_LATENCY_MASK              (0x0F)
++
++#define FLASH_OPTR          (*(volatile uint32_t *)(FLASH_BASE + 0x40))
++#define FLASH_OPTR_DBANK     (1 << 22)
++#define FLASH_OPTR_SWAP_BANK (1 << 20)
++
++#define FLASHMEM_ADDRESS_SPACE    (0x08000000)
++#define FLASH_PAGE_SIZE           (0x800)      /* 2KB */
++#define FLASH_BANK2_BASE          (0x08040000) /*!< Base address of Flash Bank2     */
++#define BOOTLOADER_SIZE           (0x8000)
++#define FLASH_TOP                 (0x0807FFFF) /*!< FLASH end address  */
++
++#define FLASH_KEY1                            (0x45670123)
++#define FLASH_KEY2                            (0xCDEF89AB)
++#define FLASH_OPTKEY1                         (0x08192A3BU)
++#define FLASH_OPTKEY2                         (0x4C5D6E7FU)
++
++/* GPIO*/
++#define GPIOD_BASE 0x52020C00
++#define GPIOG_BASE 0x52021800
++
++#define GPIOD_SECCFGR (*(volatile uint32_t *)(GPIOD_BASE + 0x30))
++#define GPIOG_SECCFGR (*(volatile uint32_t *)(GPIOG_BASE + 0x30))
++
++#define LED_BOOT_PIN (12)  //PG12 - Discovery - Green Led
++#define LED_USR_PIN (3) //PD3  - Discovery  - Red Led
++
++#define RCC_AHB2_CLOCK_ER (*(volatile uint32_t *)(RCC_BASE + 0x4C ))
++#define GPIOG_AHB2_CLOCK_ER (1 << 6)
++#define GPIOD_AHB2_CLOCK_ER (1 << 3)
++
++#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
++
++#define SCS_BASE  (0xE000E000UL)
++#define SCB_BASE  (SCS_BASE + 0x0D00UL)
++#define SCB_SHCSR     (*(volatile uint32_t *)(SCB_BASE + 0x24))
++#define SCB_SHCSR_SECUREFAULT_EN            (1<<19)
++
++#endif
++
++static void flash_set_waitstates(unsigned int waitstates)
++{
++    uint32_t reg = FLASH_ACR;
++    if ((reg & FLASH_ACR_LATENCY_MASK) != waitstates)
++        FLASH_ACR =  (reg & ~FLASH_ACR_LATENCY_MASK) | waitstates ;
++}
++
++static void flash_wait_complete(uint8_t bank)
++{
++    while ((FLASH_SR & FLASH_SR_BSY) == FLASH_SR_BSY)
++        ;
++#if (defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U))
++    while ((FLASH_NS_SR & FLASH_SR_BSY) == FLASH_SR_BSY)
++        ;
++#endif
++
++}
++
++static void flash_clear_errors(uint8_t bank)
++{
++
++    FLASH_SR |= ( FLASH_SR_OPERR | FLASH_SR_PROGERR | FLASH_SR_WRPERR |FLASH_SR_PGAERR | FLASH_SR_SIZERR | FLASH_SR_PGSERR
++#if !(defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U))
++            |
++            FLASH_SR_OPTWERR
++#endif
++            ) ;
++#if (defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U))
++    FLASH_NS_SR |= ( FLASH_SR_OPERR | FLASH_SR_PROGERR | FLASH_SR_WRPERR |FLASH_SR_PGAERR | FLASH_SR_SIZERR | FLASH_SR_PGSERR | FLASH_SR_OPTWERR);
++#endif
++
++}
++
++
++void clock_pll_off(void)
++{
++    uint32_t reg32;
++
++     /* Select MSI as SYSCLK source. */
++    reg32 = RCC_CFGR;
++    reg32 &= ~((1 << 1) | (1 << 0));
++    RCC_CFGR = (reg32 | RCC_CFGR_SW_MSI);
++    DMB();
++
++    /* Wait for MSI clock to be selected. */
++    while ((RCC_CFGR & ((1 << 1) | (1 << 0))) != RCC_CFGR_SW_MSI) {};
++
++    /* Turn off PLL */
++    RCC_CR &= ~RCC_CR_PLLON;
++    DMB();
++}
++
++/*This implementation will setup MSI 48 MHz as PLL Source Mux, PLLCLK as System Clock Source*/
++
++void clock_pll_on(int powersave)
++{
++    uint32_t reg32;
++    uint32_t plln, pllm, pllq, pllp, pllr, hpre, apb1pre, apb2pre , flash_waitstates;
++
++    RCC_APB2ENR |= RCC_APB2ENR_SYSCFGEN;
++    RCC_APB1ENR |= RCC_APB1ENR_PWREN;
++    PWR_CR3 |= PWR_CR3_UCPD_DBDIS;
++
++    PWR_CR1 &= ~((1 << 10) | (1 << 9));
++    PWR_CR1 |= (PWR_CR1_VOS_0 << PWR_CR1_VOS_SHIFT);
++    /* Delay after setting the voltage scaling */
++    reg32 = PWR_CR1;
++    while ((PWR_SR2 & PWR_SR2_VOSF)) {};
++
++    while ((RCC_CR & RCC_CR_MSIRDY) == 0) {};
++    flash_waitstates = 2;
++    flash_set_waitstates(flash_waitstates);
++
++    RCC_CR |= RCC_CR_MSIRGSEL;
++
++    reg32 = RCC_CR;
++    reg32 &= ~((1 << 7) | (1 << 6) | (1 << 5) | (1 << 4));
++    reg32 |= (RCC_CR_MSIRANGE_11 << RCC_CR_MSIRANGE_SHIFT);
++    RCC_CR = reg32;
++    reg32 = RCC_CR;
++    DMB();
++
++
++    /* Select clock parameters (CPU Speed = 110 MHz) */
++    pllm = 12;
++    plln = 55;
++    pllp = 7;
++    pllq = RCC_PLLCFGR_QR_DIV_2;
++    pllr = RCC_PLLCFGR_QR_DIV_2;
++    hpre  = RCC_AHB_PRESCALER_DIV_NONE;
++    apb1pre = RCC_APB_PRESCALER_DIV_NONE;
++    apb2pre = RCC_APB_PRESCALER_DIV_NONE;
++    flash_waitstates = 5;
++
++   RCC_CR &= ~RCC_CR_PLLON;
++   while ((RCC_CR & RCC_CR_PLLRDY) != 0) {};
++
++   /*PLL Clock source selection*/
++    reg32 = RCC_PLLCFGR ;
++    reg32 |= RCC_PLLCKSELR_PLLSRC_MSI;
++    reg32 |= ((pllm-1) << RCC_PLLCFGR_PLLM_SHIFT);
++    reg32 |= ((plln) << RCC_PLLCFGR_PLLN_SHIFT);
++    reg32 |= ((pllp) << RCC_PLLCFGR_PLLP_SHIFT);
++    reg32 |= ((pllq) << RCC_PLLCFGR_PLLQ_SHIFT);
++    reg32 |= ((pllr) << RCC_PLLCFGR_PLLR_SHIFT);
++    RCC_PLLCFGR = reg32;
++    DMB();
++
++   RCC_CR |= RCC_CR_PLLON;
++   while ((RCC_CR & RCC_CR_PLLRDY) == 0) {};
++
++   RCC_PLLCFGR |= RCC_PLLCFGR_PLLREN;
++
++  flash_set_waitstates(flash_waitstates);
++
++  /*step down HPRE before going to >80MHz*/
++  reg32 = RCC_CFGR ;
++  reg32 &= ~((1 << 7) | (1 << 6) | (1 << 5) | (1 << 4));
++  reg32 |= ((RCC_AHB_PRESCALER_DIV_2) << RCC_CFGR_HPRE_SHIFT) ;
++  RCC_CFGR = reg32;
++  DMB();
++
++  /* Select PLL as SYSCLK source. */
++  reg32 = RCC_CFGR;
++  reg32 &= ~((1 << 1) | (1 << 0));
++  RCC_CFGR = (reg32 | RCC_CFGR_SW_PLL);
++  DMB();
++
++  /* Wait for PLL clock to be selected. */
++  while ((RCC_CFGR & ((1 << 1) | (1 << 0))) != RCC_CFGR_SW_PLL) {};
++
++  /*step-up HPRE to go > 80MHz*/
++  reg32 = RCC_CFGR ;
++  reg32 &= ~((1 << 7) | (1 << 6) | (1 << 5) | (1 << 4));
++  reg32 |= ((hpre) << RCC_CFGR_HPRE_SHIFT) ;
++  RCC_CFGR = reg32;
++  DMB();
++
++  /*PRE1 and PRE2 conf*/
++  reg32 = RCC_CFGR ;
++  reg32 &= ~((1 << 10) | (1 << 9) | (1 << 8));
++  reg32 |= ((apb1pre) << RCC_CFGR_PPRE1_SHIFT) ;
++  reg32 &= ~((1 << 13) | (1 << 12) | (1 << 11));
++  reg32 |= ((apb2pre) << RCC_CFGR_PPRE2_SHIFT) ;
++  RCC_CFGR = reg32;
++  DMB();
++
++}
+diff --git a/app/rcc.h b/app/rcc.h
+new file mode 100644
+index 0000000..07ce30f
+--- /dev/null
++++ b/app/rcc.h
+@@ -0,0 +1,96 @@
++#ifndef RCC_H
++#define RCC_H
++
++#define RCC_CR              (*(volatile uint32_t *)(RCC_BASE + 0x00))  //RM0438 - Table 77
++#define RCC_CR_PLLRDY               (1 << 25) //RM0438 - 9.8.1
++#define RCC_CR_PLLON                (1 << 24) //RM0438 - 9.8.1
++#define RCC_CR_HSEBYP               (1 << 18) //RM0438 - 9.8.1
++#define RCC_CR_HSERDY               (1 << 17) //RM0438 - 9.8.1
++#define RCC_CR_HSEON                (1 << 16) //RM0438 - 9.8.1
++#define RCC_CR_HSIRDY               (1 << 10) //RM0438 - 9.8.1
++#define RCC_CR_HSION                (1 << 8)  //RM0438 - 9.8.1
++#define RCC_CR_MSIRANGE_SHIFT       (4)  //RM0438 - 9.8.1
++#define RCC_CR_MSIRANGE_11          (11)
++#define RCC_CR_MSIRGSEL             (1 << 3)  //RM0438 - 9.8.1
++#define RCC_CR_MSIPLLEN             (1 << 2)  //RM0438 - 9.8.1
++#define RCC_CR_MSIRDY               (1 << 1)  //RM0438 - 9.8.1
++#define RCC_CR_MSION                (1 << 0)  //RM0438 - 9.8.1
++
++
++#define RCC_CFGR            (*(volatile uint32_t *)(RCC_BASE + 0x08))  //RM0438 - Table 77
++
++/*** APB1&2 PRESCALER ***/
++#define RCC_APB_PRESCALER_DIV_NONE 0x0  // 0xx: HCLK not divided
++#define RCC_APB_PRESCALER_DIV_2 0x4     // 100: HCLK divided by 2
++#define RCC_APB_PRESCALER_DIV_4 0x5     // 101: HCLK divided by 4
++#define RCC_APB_PRESCALER_DIV_8 0x6     // 110: HCLK divided by 8
++#define RCC_APB_PRESCALER_DIV_16 0x7    // 111: HCLK divided by 16
++
++/*** AHB PRESCALER ***/
++#define RCC_AHB_PRESCALER_DIV_NONE 0x0    // 0xxx: SYSCLK not divided
++#define RCC_AHB_PRESCALER_DIV_2    0x8    // 1000: SYSCLK divided by 2
++#define RCC_AHB_PRESCALER_DIV_4    0x9    // 1001: SYSCLK divided by 4
++#define RCC_AHB_PRESCALER_DIV_8   0xA    // 1010: SYSCLK divided by 8
++#define RCC_AHB_PRESCALER_DIV_16  0xB    // 1011: SYSCLK divided by 16
++#define RCC_AHB_PRESCALER_DIV_64  0xC    // 1100: SYSCLK divided by 64
++#define RCC_AHB_PRESCALER_DIV_128 0xD    // 1101: SYSCLK divided by 128
++#define RCC_AHB_PRESCALER_DIV_256 0xE    // 1110: SYSCLK divided by 256
++#define RCC_AHB_PRESCALER_DIV_512 0xF    // 1111: SYSCLK divided by 512
++
++#define RCC_CFGR_HPRE_SHIFT        (0x04)
++#define RCC_CFGR_PPRE2_SHIFT       (0x0B)
++#define RCC_CFGR_PPRE1_SHIFT       (0x08)
++
++#define RCC_CFGR_SW_MSI             0x0
++#define RCC_CFGR_SW_HSI16           0x1
++#define RCC_CFGR_SW_HSE             0x2
++#define RCC_CFGR_SW_PLL             0x3
++
++#define RCC_PLLCFGR         (*(volatile uint32_t *)(RCC_BASE + 0x0C))  //RM0438 - Table 77
++#define RCC_PLLCFGR_PLLP_SHIFT       (27)
++#define RCC_PLLCFGR_PLLR_SHIFT      (25)
++#define RCC_PLLCFGR_PLLREN          (1 << 24)
++
++#define RCC_PLLCFGR_PLLQ_SHIFT       (21)
++#define RCC_PLLCFGR_PLLQEN           (1 << 20)
++
++#define RCC_PLLCFGR_PLLN_SHIFT       (8)
++#define RCC_PLLCFGR_PLLM_SHIFT       (4)
++
++#define RCC_PLLCFGR_QR_DIV_2          0x0
++#define RCC_PLLCFGR_QR_DIV_4          0x1
++#define RCC_PLLCFGR_QR_DIV_6          0x2
++#define RCC_PLLCFGR_QR_DIV_8          0x3
++
++#define RCC_PLLCFGR_P_DIV_7           0x0
++#define RCC_PLLCFGR_P_DIV_17          0x1
++
++#define RCC_PLLCKSELR_PLLSRC_NONE    0x0
++#define RCC_PLLCKSELR_PLLSRC_MSI     0x1
++#define RCC_PLLCKSELR_PLLSRC_HSI16   0x2
++#define RCC_PLLCKSELR_PLLSRC_HSE     0x3
++
++#define RCC_APB1ENR         (*(volatile uint32_t *)(RCC_BASE + 0x58))
++#define RCC_APB1ENR_PWREN         (1 << 28)
++
++#define RCC_APB2ENR         (*(volatile uint32_t *)(RCC_BASE + 0x60))
++#define RCC_APB2ENR_SYSCFGEN      (1 << 0)
++
++
++#endif /* RCC_H */
++/*** PWR ***/
++#define PWR_CR1              (*(volatile uint32_t *)(PWR_BASE + 0x00))
++#define PWR_CR1_VOS_SHIFT    (9)
++
++#define PWR_CR2              (*(volatile uint32_t *)(PWR_BASE + 0x04))
++#define PWR_CR3              (*(volatile uint32_t *)(PWR_BASE + 0x08))
++#define PWR_CR4              (*(volatile uint32_t *)(PWR_BASE + 0x0C))
++
++#define PWR_SR1              (*(volatile uint32_t *)(PWR_BASE + 0x10))
++#define PWR_SR2              (*(volatile uint32_t *)(PWR_BASE + 0x14))
++
++/* Assembly helpers */
++#define DMB() __asm__ volatile ("dmb")
++#define ISB() __asm__ volatile ("isb")
++#define DSB() __asm__ volatile ("dsb")
++
+diff --git a/app/wolfssl.c b/app/wolfssl.c
+new file mode 100644
+index 0000000..9368b16
+--- /dev/null
++++ b/app/wolfssl.c
+@@ -0,0 +1,324 @@
++#include <wolfssl/options.h>
++#include <wolfssl/wolfcrypt/logging.h>
++#include <wolfssl/wolfcrypt/settings.h>
++#include <wolfssl/wolfcrypt/error-crypt.h>
++#include <wolfssl/wolfcrypt/port/psa/psa.h>
++#include <wolfssl/ssl.h>
++
++#include "tfm_log.h"
++#include <psa/crypto.h>
++
++#include "cmsis_os2.h"
++#include "tfm_nsid_manager.h"
++
++#include "certs.h"
++#include "uart_stdout.h"
++
++static psa_key_id_t server_keyid;
++
++#define BUFFER_SIZE 2 * 1024
++
++unsigned char client_buffer[BUFFER_SIZE];
++int client_buffer_sz = 0;
++
++unsigned char server_buffer[BUFFER_SIZE];
++int server_buffer_sz = 0;
++
++static osMutexId_t server_mutex, client_mutex, log_mutex;
++
++/* For testing purposes only. This allow certs that fails because of bad
++   date. This to avoid setting the RTC on the board */
++static int myVerify(int preverify, WOLFSSL_X509_STORE_CTX* store)
++{
++    if (store->error == ASN_BEFORE_DATE_E || store->error == ASN_AFTER_DATE_E) {
++        LOG_MSG("Overriding cert date error"
++                " as example for bad clock testing\n");
++        return 1;
++    }
++    return 0;
++}
++
++static void wolfssl_log_cb(const int loglevel,
++                           const char * const log_message)
++{
++    osMutexAcquire(log_mutex, 0);
++    LOG_MSG("%s\n", log_message);
++    osMutexRelease(log_mutex);
++}
++
++static const osThreadAttr_t server_thread_attr = {
++    .name = "wolfssl-server",
++    .stack_size = 2048U,
++    .tz_module = ((TZ_ModuleId_t)TFM_DEFAULT_NSID)
++};
++
++static const osThreadAttr_t client_thread_attr = {
++    .name = "wolfssl-client",
++    .stack_size = 2048U,
++    .tz_module = ((TZ_ModuleId_t)TFM_DEFAULT_NSID)
++};
++
++static void error_trap(const char *s)
++{
++    LOG_MSG("%s", s);
++    for ( ; ; ) {
++    }
++}
++
++static int psa_private_key_provisioning(psa_key_id_t *key_id)
++{
++    psa_key_attributes_t key_attr = { 0 };
++    psa_key_type_t key_type;
++    psa_status_t status;
++
++    psa_crypto_init();
++
++    key_type = PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1);
++
++    psa_set_key_type(&key_attr, key_type);
++    psa_set_key_usage_flags(&key_attr, PSA_KEY_USAGE_SIGN_HASH);
++    psa_set_key_algorithm(&key_attr, PSA_ALG_ECDSA_ANY);
++
++    status = psa_import_key(&key_attr, ecc_key_256,
++                            sizeof(ecc_key_256), key_id);
++
++    if (status != PSA_SUCCESS) {
++        error_trap("ERROR: provisioning of private key failed: [%d] \n");
++        return -1;
++    }
++
++    return 0;
++}
++
++/* client send callback */
++int ClientSend(WOLFSSL* ssl, char* buff, int sz, void* ctx)
++{
++    osMutexAcquire(&server_mutex, 0);
++
++    while(server_buffer_sz >= BUFFER_SIZE) {
++        osMutexRelease(&server_mutex);
++        osThreadYield();
++        osMutexAcquire(&server_mutex, 0);
++    }
++
++    /* Put in as many bytes requested or will fit in buffer. */
++    if (sz > BUFFER_SIZE - server_buffer_sz)
++        sz = BUFFER_SIZE - server_buffer_sz;
++
++    memcpy(server_buffer + server_buffer_sz, buff, sz);
++    server_buffer_sz += sz;
++
++    osMutexRelease(&server_mutex);
++
++    return sz;
++}
++
++/* client recv callback */
++int ClientRecv(WOLFSSL* ssl, char* buff, int sz, void* ctx)
++{
++    /* blocks */
++    osMutexAcquire(&client_mutex, 0);
++    while(client_buffer_sz <= 0) {
++        osMutexRelease(&client_mutex);
++        osThreadYield();
++        osMutexAcquire(&client_mutex, 0);
++    }
++
++    /* Take as many bytes is available or requested from buffer. */
++    if (sz > client_buffer_sz)
++        sz = client_buffer_sz;
++    memcpy(buff, client_buffer, sz);
++
++    if (sz < client_buffer_sz) {
++        memmove(client_buffer, client_buffer + sz, client_buffer_sz - sz);
++    }
++    client_buffer_sz -= sz;
++
++    osMutexRelease(&client_mutex);
++
++    return sz;
++}
++
++int ServerSend(WOLFSSL* ssl, char* buff, int sz, void* ctx)
++{
++    osMutexAcquire(&client_mutex, 0);
++
++    while(client_buffer_sz >= BUFFER_SIZE) {
++        osMutexRelease(&client_mutex);
++        osThreadYield();
++        osMutexAcquire(&client_mutex, 0);
++    }
++
++    /* Put in as many bytes requested or will fit in buffer. */
++    if (sz > BUFFER_SIZE - client_buffer_sz)
++        sz = BUFFER_SIZE - client_buffer_sz;
++    memcpy(client_buffer + client_buffer_sz, buff, sz);
++    client_buffer_sz += sz;
++
++    osMutexRelease(&client_mutex);
++
++    return sz;
++}
++
++
++/* server recv callback */
++int ServerRecv(WOLFSSL* ssl, char* buff, int sz, void* ctx)
++{
++    osMutexAcquire(&server_mutex, 0);
++    while(server_buffer_sz <= 0) {
++        osMutexRelease(&server_mutex);
++        osThreadYield();
++        osMutexAcquire(&server_mutex, 0);
++    }
++
++    /* Take as many bytes is available or requested from buffer. */
++    if (sz > server_buffer_sz)
++        sz = server_buffer_sz;
++    memcpy(buff, server_buffer, sz);
++    if (sz < server_buffer_sz) {
++        memmove(server_buffer, server_buffer + sz, server_buffer_sz - sz);
++    }
++    server_buffer_sz -= sz;
++
++    osMutexRelease(&server_mutex);
++
++    return sz;
++}
++
++void client(void *arg)
++{
++    struct psa_ssl_ctx psa;
++    WOLFSSL_CTX* cli_ctx;
++    int ret;
++
++    LOG_MSG("Client is starting\n");
++
++    cli_ctx = wolfSSL_CTX_new(wolfTLSv1_3_client_method());
++    if (cli_ctx == NULL)
++        error_trap("bad client ctx new");
++
++    ret = wolfSSL_CTX_load_verify_buffer_ex(cli_ctx,
++                                            certs_ca_ecc_cert_der,
++                                            certs_ca_ecc_cert_der_len,
++                                            WOLFSSL_FILETYPE_DEFAULT,
++                                            0,
++                                            WOLFSSL_LOAD_FLAG_DATE_ERR_OKAY);
++    if (ret != SSL_SUCCESS)
++        error_trap("bad ca load");
++
++    wolfSSL_SetIOSend(cli_ctx, ClientSend);
++    wolfSSL_SetIORecv(cli_ctx, ClientRecv);
++
++    wolfSSL_CTX_set_verify(cli_ctx,
++                           WOLFSSL_VERIFY_PEER, myVerify);
++
++
++    wolfSSL_CTX_psa_enable(cli_ctx);
++    WOLFSSL* cli_ssl = wolfSSL_new(cli_ctx);
++    if (cli_ctx == NULL)
++        error_trap("bad client new");
++
++    memset(&psa, 0, sizeof(psa));
++    wolfSSL_set_psa_ctx(cli_ssl, &psa);
++
++    ret = wolfSSL_connect(cli_ssl);
++    if (ret != WOLFSSL_SUCCESS)
++            error_trap("client: connect error");
++
++    ret = wolfSSL_write(cli_ssl, "hello wolfssl!",
++                            sizeof("hello wolfssl!"));
++    if (ret < 0)
++        error_trap("client: write error");
++
++    /* clean up */
++    wolfSSL_free(cli_ssl);
++    wolfSSL_CTX_free(cli_ctx);
++    wolfSSL_free_psa_ctx(&psa);
++}
++
++void server(void *arg)
++{
++    struct psa_ssl_ctx psa_ctx;
++    int ret;
++
++    LOG_MSG("Server is starting\n");
++
++    WOLFSSL_CTX* srv_ctx = wolfSSL_CTX_new(wolfTLSv1_3_server_method());
++    if (srv_ctx == NULL)
++        error_trap("bad server ctx new");
++
++    ret = wolfSSL_CTX_use_certificate_buffer(srv_ctx,
++                                             certs_server_ecc_der,
++                                             certs_server_ecc_der_len,
++                                             WOLFSSL_FILETYPE_DEFAULT);
++    if (ret != SSL_SUCCESS)
++      error_trap("bad server cert file load");
++
++    memset(&psa_ctx, 0, sizeof(psa_ctx));
++
++    ret = wolfSSL_psa_set_private_key_id(&psa_ctx, server_keyid);
++    if (ret != WOLFSSL_SUCCESS)
++        error_trap("server: can't set private key id\n");
++
++    if ((ret = wolfSSL_CTX_psa_enable(srv_ctx)) != WOLFSSL_SUCCESS)
++        error_trap("ERROR: failed enable PSA.\n");
++
++    wolfSSL_SetIOSend(srv_ctx, ServerSend);
++    wolfSSL_SetIORecv(srv_ctx, ServerRecv);
++
++    WOLFSSL* srv_ssl = wolfSSL_new(srv_ctx);
++    if (srv_ctx == NULL) error_trap("bad server new");
++
++    wolfSSL_set_psa_ctx(srv_ssl, &psa_ctx);
++
++    /* accept tls connection without tcp sockets */
++    ret = wolfSSL_accept(srv_ssl);
++    if (ret != WOLFSSL_SUCCESS)
++        error_trap("server: accept error\n");
++
++    /* read msg post handshake from client */
++    unsigned char buf[80];
++    memset(buf, 0, sizeof(buf));
++
++    ret = wolfSSL_read(srv_ssl, buf, sizeof(buf)-1);
++    if (ret <= 0)
++            error_trap("server: error read\n");
++
++    buf[ret] = '\0';
++
++    LOG_MSG("Received message from client:\n");
++    LOG_MSG("%s\n", buf);
++
++    /* clean up */
++    wolfSSL_free(srv_ssl);
++    wolfSSL_CTX_free(srv_ctx);
++    wolfSSL_free_psa_ctx(&psa_ctx);
++}
++
++void wolfssl_demo(void *arg)
++{
++    int ret;
++
++    LOG_MSG("wolfSSL demo\n");
++
++    ret = wolfSSL_Init();
++    if (ret == WOLFSSL_SUCCESS)
++        LOG_MSG("wolfSSL_Init Success\n");
++
++    LOG_MSG("wolfSSL provisioning server secret key\n");
++    psa_private_key_provisioning(&server_keyid);
++
++    server_mutex = osMutexNew(NULL);
++    client_mutex = osMutexNew(NULL);
++    log_mutex = osMutexNew(NULL);
++
++    wolfSSL_SetLoggingCb(&wolfssl_log_cb);
++
++    /* wolfSSL_Debugging_ON(); */
++
++    osThreadNew(server, NULL, &server_thread_attr);
++    osThreadNew(client, NULL, &client_thread_attr);
++
++    for (;;) {
++    }
++}
+-- 
+2.35.1
+
