@@ -142,7 +142,7 @@ int main(int argc, char** argv)
     /* Initialize wolfSSL */
     wolfSSL_Init();
 
-
+    //wolfSSL_Debugging_ON();
 
     /* Create a socket that uses an internet IPv4 address,
      * Sets the socket to be stream based (TCP),
@@ -230,6 +230,17 @@ int main(int argc, char** argv)
     wolfSSL_FreeArrays(ssl);
 #endif
 
+    /* Save the session */
+    session = wolfSSL_get_session(ssl);
+    if (session == NULL) {
+        printf("Session not available yet... trying peek\n");
+        wolfSSL_peek(ssl, buff, 1);
+        session = wolfSSL_get_session(ssl);
+        if (session != NULL) {
+            printf("Session ticket found\n");
+        }
+    }
+
     /* Get a message for the server from stdin */
     printf("Message for server: ");
     memset(buff, 0, sizeof(buff));
@@ -262,7 +273,9 @@ int main(int argc, char** argv)
 
 
     /* Save the session */
-    session = wolfSSL_get_session(ssl);
+    if (session == NULL) {
+        session = wolfSSL_get_session(ssl);
+    }
 
     /* Close the socket */
     wolfSSL_free(ssl); ssl = NULL;
