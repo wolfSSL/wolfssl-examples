@@ -142,8 +142,6 @@ int main(int argc, char** argv)
     /* Initialize wolfSSL */
     wolfSSL_Init();
 
-    //wolfSSL_Debugging_ON();
-
     /* Create a socket that uses an internet IPv4 address,
      * Sets the socket to be stream based (TCP),
      * 0 means choose the default protocol. */
