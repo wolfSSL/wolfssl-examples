@@ -348,10 +348,10 @@ int main(int argc, char** argv)
 
     /* Test if the resume was successful */
     if (wolfSSL_session_reused(sslRes)) {
-        printf("Session ID reused; Successful resume.\n");
+        printf("Session ID reused; Successful resume\n");
     }
     else {
-        printf("Session ID not reused; Successful resume.\n");
+        printf("Session not resumed, full handshake done instead\n");
     }
 
 
