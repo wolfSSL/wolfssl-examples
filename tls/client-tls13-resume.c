@@ -33,17 +33,90 @@
 /* wolfSSL */
 #include <wolfssl/options.h>
 #include <wolfssl/ssl.h>
+#include <wolfssl/wolfcrypt/error-crypt.h>
 
 #define DEFAULT_PORT 11111
 
 #define CERT_FILE "../certs/ca-cert.pem"
+
+
+#if defined(WOLFSSL_TLS13) && defined(HAVE_SECRET_CALLBACK)
+
+#ifndef WOLFSSL_SSLKEYLOGFILE_OUTPUT
+    #define WOLFSSL_SSLKEYLOGFILE_OUTPUT "sslkeylog.log"
+#endif
+
+/* Callback function for TLS v1.3 secrets for use with Wireshark */
+static int Tls13SecretCallback(WOLFSSL* ssl, int id, const unsigned char* secret,
+    int secretSz, void* ctx)
+{
+    int i;
+    const char* str = NULL;
+    unsigned char clientRandom[32];
+    int clientRandomSz;
+    XFILE fp = stderr;
+    if (ctx) {
+        fp = XFOPEN((const char*)ctx, "ab");
+        if (fp == XBADFILE) {
+            return BAD_FUNC_ARG;
+        }
+    }
+
+    clientRandomSz = (int)wolfSSL_get_client_random(ssl, clientRandom,
+        sizeof(clientRandom));
+
+    if (clientRandomSz <= 0) {
+        printf("Error getting client random %d\n", clientRandomSz);
+    }
+
+#if 0
+    printf("TLS Client Secret CB: Rand %d, Secret %d\n",
+        clientRandomSz, secretSz);
+#endif
+
+    switch (id) {
+        case CLIENT_EARLY_TRAFFIC_SECRET:
+            str = "CLIENT_EARLY_TRAFFIC_SECRET"; break;
+        case EARLY_EXPORTER_SECRET:
+            str = "EARLY_EXPORTER_SECRET"; break;
+        case CLIENT_HANDSHAKE_TRAFFIC_SECRET:
+            str = "CLIENT_HANDSHAKE_TRAFFIC_SECRET"; break;
+        case SERVER_HANDSHAKE_TRAFFIC_SECRET:
+            str = "SERVER_HANDSHAKE_TRAFFIC_SECRET"; break;
+        case CLIENT_TRAFFIC_SECRET:
+            str = "CLIENT_TRAFFIC_SECRET_0"; break;
+        case SERVER_TRAFFIC_SECRET:
+            str = "SERVER_TRAFFIC_SECRET_0"; break;
+        case EXPORTER_SECRET:
+            str = "EXPORTER_SECRET"; break;
+    }
+
+    fprintf(fp, "%s ", str);
+    for (i = 0; i < clientRandomSz; i++) {
+        fprintf(fp, "%02x", clientRandom[i]);
+    }
+    fprintf(fp, " ");
+    for (i = 0; i < secretSz; i++) {
+        fprintf(fp, "%02x", secret[i]);
+    }
+    fprintf(fp, "\n");
+
+    if (fp != stderr) {
+        XFCLOSE(fp);
+    }
+
+    return 0;
+}
+#endif /* WOLFSSL_TLS13 && HAVE_SECRET_CALLBACK */
+
 
 /* Please configure wolfssl with --enable-session-ticket. Failing to do so will
  * cause an error when resumption is attempted. */
 
 int main(int argc, char** argv)
 {
-    int                ret;
+    int                ret = 0;
+#ifdef WOLFSSL_TLS13
     int                sockfd = SOCKET_INVALID;
     struct sockaddr_in servAddr;
     char               buff[256];
@@ -132,8 +205,20 @@ int main(int argc, char** argv)
         goto exit;
     }
 
-    /* Attach wolfSSL to the socket */
-    wolfSSL_set_fd(ssl, sockfd);
+        /* Attach wolfSSL to the socket */
+    if ((ret = wolfSSL_set_fd(ssl, sockfd)) != WOLFSSL_SUCCESS) {
+        fprintf(stderr, "ERROR: Failed to set the file descriptor\n");
+        goto exit;
+    }
+
+#ifdef HAVE_SECRET_CALLBACK
+    /* required for getting random used */
+    wolfSSL_KeepArrays(ssl);
+
+    /* optional logging for wireshark */
+    wolfSSL_set_tls13_secret_cb(ssl, Tls13SecretCallback,
+        (void*)WOLFSSL_SSLKEYLOGFILE_OUTPUT);
+#endif
 
     /* Connect to wolfSSL on the server side */
     if ((ret = wolfSSL_connect(ssl)) != WOLFSSL_SUCCESS) {
@@ -141,7 +226,9 @@ int main(int argc, char** argv)
         goto exit;
     }
 
-
+#ifdef HAVE_SECRET_CALLBACK
+    wolfSSL_FreeArrays(ssl);
+#endif
 
     /* Get a message for the server from stdin */
     printf("Message for server: ");
@@ -178,8 +265,8 @@ int main(int argc, char** argv)
     session = wolfSSL_get_session(ssl);
 
     /* Close the socket */
-    wolfSSL_free(ssl);
-    close(sockfd);
+    wolfSSL_free(ssl); ssl = NULL;
+    close(sockfd); sockfd = SOCKET_INVALID;
 
 
 
@@ -198,8 +285,9 @@ int main(int argc, char** argv)
 
     /* Set up to resume the session */
     if ((ret = wolfSSL_set_session(sslRes, session)) != WOLFSSL_SUCCESS) {
-        fprintf(stderr, "ERROR: failed to set session\n");
-        goto exit;
+        fprintf(stderr, "Failed to set session, make sure session tickets "
+                        "(--enable-session ticket) is enabled\n");
+        /*goto exit;*/ /* not fatal */
     }
 
 
@@ -222,7 +310,19 @@ int main(int argc, char** argv)
     }
 
     /* Attach wolfSSL to the socket */
-    wolfSSL_set_fd(sslRes, sockfd);
+    if ((ret = wolfSSL_set_fd(sslRes, sockfd)) != WOLFSSL_SUCCESS) {
+        fprintf(stderr, "ERROR: Failed to set the file descriptor\n");
+        goto exit;
+    }
+
+#ifdef HAVE_SECRET_CALLBACK
+    /* required for getting random used */
+    wolfSSL_KeepArrays(sslRes);
+
+    /* optional logging for wireshark */
+    wolfSSL_set_tls13_secret_cb(sslRes, Tls13SecretCallback,
+        (void*)WOLFSSL_SSLKEYLOGFILE_OUTPUT);
+#endif
 
     /* Reconnect to wolfSSL */
     if ((ret = wolfSSL_connect(sslRes)) != WOLFSSL_SUCCESS) {
@@ -230,6 +330,9 @@ int main(int argc, char** argv)
         goto exit;
     }
 
+#ifdef HAVE_SECRET_CALLBACK
+    wolfSSL_FreeArrays(ssl);
+#endif
 
 
     /* Test if the resume was successful */
@@ -276,6 +379,8 @@ exit:
     /* Cleanup and return */
     if (ssl)
         wolfSSL_free(ssl);      /* Free the wolfSSL object              */
+    if (sslRes)
+        wolfSSL_free(sslRes);      /* Free the wolfSSL object              */
 #ifdef OPENSSL_EXTRA   
     if (session)
         wolfSSL_SESSION_free(session);
@@ -285,7 +390,9 @@ exit:
     if (ctx)
         wolfSSL_CTX_free(ctx);  /* Free the wolfSSL context object          */
     wolfSSL_Cleanup();          /* Cleanup the wolfSSL environment          */
+#else
+    printf("Example requires TLS v1.3\n");
+#endif
 
     return ret;                 /* Return reporting a success               */
-
 }
