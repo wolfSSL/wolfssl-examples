@@ -228,18 +228,18 @@ int main(int argc, char** argv)
     wolfSSL_FreeArrays(ssl);
 #endif
 
+#if 0
     /* Save the session
      *
-     * NOTE: This is not an ideal solution. Please see client-tls-resume.c.
-     * There you will see that we do not need to call wolfSSL_peek() because
-     * we have already called wolfSSL_read() before calling
-     * wolfSSL_get_session() so wolfSSL has already internally stored the
-     * session ticket. For TLS 1.2 it is fine to put wolfSSL_get_session()
-     * right after the connection is established because the resumption
-     * information is part of the TLS 1.2 handshake. This is not the case for
-     * TLS 1.3. However, if you are migrating from TLS 1.2 and are having a
-     * hard time moving your call to wolfSSL_get_session(), you can try this
-     * approach.
+     * NOTE: This is not an ideal solution. Please see below where we call
+     * wolfSSL_get_session() just before disconnection. We do not need to
+     * call wolfSSL_peek() in that case because we have already called
+     * wolfSSL_read() so wolfSSL has already internally stored the session
+     * ticket. For TLS 1.2 it is fine to put wolfSSL_get_session() right after
+     * the connection is established because the resumption information is part
+     * of the TLS 1.2 handshake. This is not the case for TLS 1.3. However, if
+     * you are migrating from TLS 1.2 and are having a hard time moving your
+     * call to wolfSSL_get_session(), you can try this approach.
      *
      * This approach can result in issues with I/O and is best used with non-
      * blocking mode sockets.
@@ -253,6 +253,7 @@ int main(int argc, char** argv)
             printf("Session ticket found\n");
         }
     }
+#endif
 
     /* Get a message for the server from stdin */
     printf("Message for server: ");
@@ -408,7 +409,6 @@ exit:
     if (sslRes)
         wolfSSL_free(sslRes);      /* Free the wolfSSL object              */
 #ifdef OPENSSL_EXTRA   
-asdfasdfasdf
     if (session)
         wolfSSL_SESSION_free(session);
 #endif    
