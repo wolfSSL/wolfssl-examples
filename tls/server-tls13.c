@@ -45,6 +45,7 @@
 
 #define CERT_FILE "../certs/server-cert.pem"
 #define KEY_FILE  "../certs/server-key.pem"
+#define CA_FILE   "../certs/client-cert.pem"
 
 
 #if defined(WOLFSSL_TLS13) && defined(HAVE_SECRET_CALLBACK)
@@ -157,7 +158,10 @@ int main(int argc, char** argv)
 #endif
 
     /* Initialize wolfSSL */
-    wolfSSL_Init();
+    if ((ret = wolfSSL_Init()) != WOLFSSL_SUCCESS) {
+        fprintf(stderr, "ERROR: Failed to initialize the library\n");
+        goto exit;
+    }
 
     /* Create a socket that uses an internet IPv4 address,
      * Sets the socket to be stream based (TCP),
@@ -174,22 +178,33 @@ int main(int argc, char** argv)
         goto exit;
     }
 
+    /* Require mutual authentication */
+    wolfSSL_CTX_set_verify(ctx,
+        WOLFSSL_VERIFY_PEER | WOLFSSL_VERIFY_FAIL_IF_NO_PEER_CERT, NULL);
+
     /* Load server certificates into WOLFSSL_CTX */
-    if ((ret = wolfSSL_CTX_use_certificate_file(ctx, CERT_FILE, WOLFSSL_FILETYPE_PEM))
-        != WOLFSSL_SUCCESS) {
+    if ((ret = wolfSSL_CTX_use_certificate_file(ctx, CERT_FILE,
+                                    WOLFSSL_FILETYPE_PEM)) != WOLFSSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
                 CERT_FILE);
         goto exit;
     }
 
     /* Load server key into WOLFSSL_CTX */
-    if ((ret = wolfSSL_CTX_use_PrivateKey_file(ctx, KEY_FILE, WOLFSSL_FILETYPE_PEM))
-        != WOLFSSL_SUCCESS) {
+    if ((ret = wolfSSL_CTX_use_PrivateKey_file(ctx, KEY_FILE,
+                                    WOLFSSL_FILETYPE_PEM)) != WOLFSSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
                 KEY_FILE);
         goto exit;
     }
 
+    /* Load client certificate as "trusted" into WOLFSSL_CTX */
+    if ((ret = wolfSSL_CTX_load_verify_locations(ctx, CA_FILE, NULL))
+         != WOLFSSL_SUCCESS) {
+        fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
+                CA_FILE);
+        goto exit;
+    }
 
     /* Initialize the server address struct with zeros */
     memset(&servAddr, 0, sizeof(servAddr));
