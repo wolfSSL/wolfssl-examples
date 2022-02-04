@@ -148,6 +148,7 @@ int main(int argc, char** argv)
     char               buff[256];
     size_t             len;
     const char*        reply = "I hear ya fa shizzle!\n";
+    int                on;
 
     /* declare wolfSSL objects */
     WOLFSSL_CTX* ctx = NULL;
@@ -157,17 +158,54 @@ int main(int argc, char** argv)
     signal(SIGINT, sig_handler);
 #endif
 
-    /* Initialize wolfSSL */
-    if ((ret = wolfSSL_Init()) != WOLFSSL_SUCCESS) {
-        fprintf(stderr, "ERROR: Failed to initialize the library\n");
-        goto exit;
-    }
+    /* Initialize the server address struct with zeros */
+    memset(&servAddr, 0, sizeof(servAddr));
+
+    /* Fill in the server address */
+    servAddr.sin_family      = AF_INET;             /* using IPv4      */
+    servAddr.sin_port        = htons(DEFAULT_PORT); /* on DEFAULT_PORT */
+    servAddr.sin_addr.s_addr = INADDR_ANY;          /* from anywhere   */
+
 
     /* Create a socket that uses an internet IPv4 address,
      * Sets the socket to be stream based (TCP),
      * 0 means choose the default protocol. */
     if ((mSockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
         fprintf(stderr, "ERROR: failed to create the socket\n");
+        goto exit;
+    }
+
+    /* make sure server is setup for reuse addr/port */
+    on = 1;
+    setsockopt(mSockfd, SOL_SOCKET, SO_REUSEADDR,
+            (char*)&on, (socklen_t)sizeof(on));
+#ifdef SO_REUSEPORT
+    setsockopt(mSockfd, SOL_SOCKET, SO_REUSEPORT,
+               (char*)&on, (socklen_t)sizeof(on));
+#endif
+
+    /* Bind the server socket to our port */
+    if (bind(mSockfd, (struct sockaddr*)&servAddr, sizeof(servAddr)) == -1) {
+        fprintf(stderr, "ERROR: failed to bind\n");
+        goto exit;
+    }
+
+    /* Listen for a new connection, allow 5 pending connections */
+    if (listen(mSockfd, 5) == -1) {
+        fprintf(stderr, "ERROR: failed to listen\n");
+        goto exit;
+    }
+
+    /*---------------------------------*/
+    /* Start of security */
+    /*---------------------------------*/
+#if 0
+    wolfSSL_Debugging_ON();
+#endif
+
+    /* Initialize wolfSSL */
+    if ((ret = wolfSSL_Init()) != WOLFSSL_SUCCESS) {
+        fprintf(stderr, "ERROR: Failed to initialize the library\n");
         goto exit;
     }
 
@@ -203,27 +241,6 @@ int main(int argc, char** argv)
          != WOLFSSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
                 CA_FILE);
-        goto exit;
-    }
-
-    /* Initialize the server address struct with zeros */
-    memset(&servAddr, 0, sizeof(servAddr));
-
-    /* Fill in the server address */
-    servAddr.sin_family      = AF_INET;             /* using IPv4      */
-    servAddr.sin_port        = htons(DEFAULT_PORT); /* on DEFAULT_PORT */
-    servAddr.sin_addr.s_addr = INADDR_ANY;          /* from anywhere   */
-
-
-    /* Bind the server socket to our port */
-    if (bind(mSockfd, (struct sockaddr*)&servAddr, sizeof(servAddr)) == -1) {
-        fprintf(stderr, "ERROR: failed to bind\n");
-        goto exit;
-    }
-
-    /* Listen for a new connection, allow 5 pending connections */
-    if (listen(mSockfd, 5) == -1) {
-        fprintf(stderr, "ERROR: failed to listen\n");
         goto exit;
     }
 
