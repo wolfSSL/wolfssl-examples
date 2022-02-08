@@ -123,10 +123,15 @@ int main(int argc, char** argv)
     WOLFSSL_CTX* ctx = NULL;
     WOLFSSL*     ssl = NULL;
 
+    char *cert_file = CERT_FILE;
+
     /* Check for proper calling convention */
-    if (argc != 2) {
-        printf("usage: %s <IPv4 address>\n", argv[0]);
+    if (argc != 2  && argc != 3) {
+        printf("usage: %s <IPv4 address> [<Root cert>]\n", argv[0]);
+        printf("Default Root cert: %s\n", cert_file);
         return 0;
+    } else if (argc == 3) {
+        cert_file = argv[2];
     }
 
     /* Create a socket that uses an internet IPv4 address,
@@ -134,7 +139,8 @@ int main(int argc, char** argv)
      * 0 means choose the default protocol. */
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
         fprintf(stderr, "ERROR: failed to create the socket\n");
-        ret = -1; goto exit;
+        ret = -1;
+        goto exit;
     }
 
     /* Initialize the server address struct with zeros */
@@ -173,10 +179,10 @@ int main(int argc, char** argv)
     }
 
     /* Load client certificates into WOLFSSL_CTX */
-    if ((ret = wolfSSL_CTX_load_verify_locations(ctx, CERT_FILE, NULL))
+    if ((ret = wolfSSL_CTX_load_verify_locations(ctx, cert_file, NULL))
          != WOLFSSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
-                CERT_FILE);
+                cert_file);
         goto exit;
     }
 
