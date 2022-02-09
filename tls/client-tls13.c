@@ -161,6 +161,10 @@ int main(int argc, char** argv)
     /*---------------------------------*/
     /* Start of security */
     /*---------------------------------*/
+#if 0
+    wolfSSL_Debugging_ON();
+#endif
+
     /* Initialize wolfSSL */
     if ((ret = wolfSSL_Init()) != WOLFSSL_SUCCESS) {
         fprintf(stderr, "ERROR: Failed to initialize the library\n");
