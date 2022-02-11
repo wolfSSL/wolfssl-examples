@@ -1,4 +1,4 @@
-/* server-tls-uart.c
+/* client-tls-uart.c
  *
  * Copyright (C) 2006-2021 wolfSSL Inc.
  *
@@ -20,7 +20,7 @@
  *
  *=============================================================================
  *
- * Example for TLS server over UART
+ * Example for TLS client over UART
  */
 
 
@@ -47,11 +47,8 @@
 #include <wolfssl/ssl.h>
 #include <wolfssl/wolfcrypt/wc_port.h>
 
-#define CERT_FILE "../certs/server-cert.pem"
-#define KEY_FILE  "../certs/server-key.pem"
-
 /* build with:
-gcc -lwolfssl -o server-tls-uart server-tls-uart.c
+gcc -lwolfssl -o client-tls-uart client-tls-uart.c
 */
 
 #ifndef UART_DEV
@@ -155,7 +152,8 @@ int main(int argc, char** argv)
     WOLFSSL* ssl = NULL;
     CbCtx_t cBctx;
     struct termios tty;
-    byte echoBuffer[100];
+    const char testStr[] = "Testing 1, 2 and 3\r\n";
+    byte readBuf[100];
     const char* uartDev = UART_DEV;
 
     if (argc >= 2) {
@@ -186,7 +184,7 @@ int main(int argc, char** argv)
     tcsetattr(cBctx.portFd, TCSANOW, &tty);
 
     /* Flush any data in the RX buffer */
-    ret = read(cBctx.portFd, echoBuffer, sizeof(echoBuffer));
+    ret = read(cBctx.portFd, readBuf, sizeof(readBuf));
     if (ret < 0) {
         /* Ignore RX error on flush */
     }
@@ -195,8 +193,7 @@ int main(int argc, char** argv)
     wolfSSL_Debugging_ON();
 #endif
 
-    /* Highest available / allow downgrade */
-    ctx = wolfSSL_CTX_new(wolfSSLv23_server_method());
+    ctx = wolfSSL_CTX_new(wolfTLSv1_3_client_method());
     if (ctx == NULL) {
         printf("Error creating WOLFSSL_CTX\n");
         goto done;
@@ -206,20 +203,9 @@ int main(int argc, char** argv)
     wolfSSL_CTX_SetIOSend(ctx, uartIOTx);
     wolfSSL_CTX_SetIORecv(ctx, uartIORx);
 
-    /* For testing disable peer cert verification */
+    /* For testing disable peer cert verification; the focus is on key
+     * establishment via post-quantum KEM. */
     wolfSSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, NULL);
-
-    /* Set server key and certificate (required) */
-    if ((ret = wolfSSL_CTX_use_certificate_file(ctx, CERT_FILE, SSL_FILETYPE_PEM)) != WOLFSSL_SUCCESS) {
-        fprintf(stderr, "ERROR: failed to load %s, please check the file.\n", CERT_FILE);
-        goto done;
-    }
-
-    /* Load server key into WOLFSSL_CTX */
-    if ((ret = wolfSSL_CTX_use_PrivateKey_file(ctx, KEY_FILE, SSL_FILETYPE_PEM)) != WOLFSSL_SUCCESS) {
-        fprintf(stderr, "ERROR: failed to load %s, please check the file.\n", KEY_FILE);
-        goto done;
-    }
 
     ssl = wolfSSL_new(ctx);
     if (ssl == NULL) {
@@ -231,30 +217,38 @@ int main(int argc, char** argv)
     wolfSSL_SetIOReadCtx(ssl, &cBctx);
     wolfSSL_SetIOWriteCtx(ssl, &cBctx);
 
-    printf("Waiting for client\n");
+#ifdef HAVE_PQC
+    printf("Using quantum-safe KYBER_LEVEL1.\n");
+    if (wolfSSL_UseKeyShare(ssl, WOLFSSL_KYBER_LEVEL1) != WOLFSSL_SUCCESS) {
+        printf("wolfSSL_UseKeyShare Error!!");
+    }
+#else
+    printf("NOTE: Using default group for key exchange.\n");
+#endif
+
     do {
-        ret = wolfSSL_accept(ssl);
+        ret = wolfSSL_connect(ssl);
         err = wolfSSL_get_error(ssl, ret);
     } while (err == WOLFSSL_ERROR_WANT_READ || err == WOLFSSL_ERROR_WANT_WRITE);
     if (ret != WOLFSSL_SUCCESS) {
-        printf("TLS accept error %d\n", err);
+        printf("TLS connect error %d\n", err);
         goto done;
     }
-    printf("TLS Accept handshake done\n");
+    printf("TLS Connect handshake done\n");
 
-    /* Waiting for data to echo */
-    XMEMSET(echoBuffer, 0, sizeof(echoBuffer));
+    printf("Sending test string\n");
     do {
-        ret = wolfSSL_read(ssl, echoBuffer, sizeof(echoBuffer)-1);
+        ret = wolfSSL_write(ssl, testStr, XSTRLEN(testStr));
         err = wolfSSL_get_error(ssl, ret);
     } while (err == WOLFSSL_ERROR_WANT_READ || err == WOLFSSL_ERROR_WANT_WRITE);
-    printf("Read (%d): %s\n", err, echoBuffer);
+    printf("Sent (%d): %s\n", err, testStr);
 
+    XMEMSET(readBuf, 0, sizeof(readBuf));
     do {
-        ret = wolfSSL_write(ssl, echoBuffer, XSTRLEN((char*)echoBuffer));
+        ret = wolfSSL_read(ssl, readBuf, sizeof(readBuf)-1);
         err = wolfSSL_get_error(ssl, ret);
     } while (err == WOLFSSL_ERROR_WANT_READ || err == WOLFSSL_ERROR_WANT_WRITE);
-    printf("Sent (%d): %s\n", err, echoBuffer);
+    printf("Read (%d): %s\n", err, readBuf);
 
     ret = 0; /* Success */
 

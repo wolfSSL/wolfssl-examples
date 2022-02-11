@@ -48,14 +48,14 @@
 #include <wolfssl/wolfcrypt/wc_port.h>
 
 /* build with:
-gcc -lwolfssl -o client-tls-uart.c client-tls-uart.c
+gcc -lwolfssl -o client-tls-uart client-tls-uart.c
 */
 
 #ifndef UART_DEV
     #ifdef __MACH__
         #define UART_DEV "/dev/cu.usbmodem14502"
     #else
-        #define UART_DEV "/dev/ttyACM0"
+        #define UART_DEV "/dev/ttyUSB0"
     #endif
 #endif
 #ifndef B115200
@@ -135,7 +135,7 @@ static int uartIOTx(WOLFSSL *ssl, char *buf, int sz, void *ctx)
 
     sent = write(cbCtx->portFd, buf, sz);
     if (sent == 0) {
-        sent = WOLFSSL_CBIO_ERR_WANT_WRITE;
+        return WOLFSSL_CBIO_ERR_WANT_WRITE;
     }
 
 #ifdef DEBUG_UART_IO
@@ -190,7 +190,12 @@ int main(int argc, char** argv)
         /* Ignore RX error on flush */
     }
 
-    ctx = wolfSSL_CTX_new(wolfSSLv23_client_method()); /* Highest available / allow downgrade */
+#if 0
+    wolfSSL_Debugging_ON();
+#endif
+
+    /* Highest available / allow downgrade */
+    ctx = wolfSSL_CTX_new(wolfSSLv23_client_method());
     if (ctx == NULL) {
         printf("Error creating WOLFSSL_CTX\n");
         goto done;

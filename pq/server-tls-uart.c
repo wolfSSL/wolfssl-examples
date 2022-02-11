@@ -135,7 +135,6 @@ static int uartIOTx(WOLFSSL *ssl, char *buf, int sz, void *ctx)
 #ifdef DEBUG_UART_IO
     printf("UART Write: In %d\n", sz);
 #endif
-
     sent = write(cbCtx->portFd, buf, sz);
     if (sent == 0) {
         return WOLFSSL_CBIO_ERR_WANT_WRITE;
@@ -195,8 +194,7 @@ int main(int argc, char** argv)
     wolfSSL_Debugging_ON();
 #endif
 
-    /* Highest available / allow downgrade */
-    ctx = wolfSSL_CTX_new(wolfSSLv23_server_method());
+    ctx = wolfSSL_CTX_new(wolfTLSv1_3_server_method());
     if (ctx == NULL) {
         printf("Error creating WOLFSSL_CTX\n");
         goto done;
@@ -206,7 +204,8 @@ int main(int argc, char** argv)
     wolfSSL_CTX_SetIOSend(ctx, uartIOTx);
     wolfSSL_CTX_SetIORecv(ctx, uartIORx);
 
-    /* For testing disable peer cert verification */
+    /* For testing disable peer cert verification; the focus is on key
+     * establishment via post-quantum KEM. */
     wolfSSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, NULL);
 
     /* Set server key and certificate (required) */
@@ -215,7 +214,6 @@ int main(int argc, char** argv)
         goto done;
     }
 
-    /* Load server key into WOLFSSL_CTX */
     if ((ret = wolfSSL_CTX_use_PrivateKey_file(ctx, KEY_FILE, SSL_FILETYPE_PEM)) != WOLFSSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to load %s, please check the file.\n", KEY_FILE);
         goto done;
