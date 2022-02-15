@@ -1,7 +1,7 @@
 # BTLE Examples Makefile
 CC       = gcc
 LIB_PATH = /usr/local
-CFLAGS   = -Wall -I$(LIB_PATH)/include
+CFLAGS   = -Wall -I ../common -I$(LIB_PATH)/include
 LIBS     = -L$(LIB_PATH)/lib
 
 # Flags
@@ -31,10 +31,10 @@ debug: all
 %.o: %.c
 	gcc -c $< -o $@ $(CFLAGS)
 
-ecc-server: ecc-server.o ../btle-sim.o $(STATIC_LIB)
+ecc-server: ecc-server.o ../common/btle-sim.o $(STATIC_LIB)
 	$(CC) $^ -o $@ $(LIBS)
 
-ecc-client: ecc-client.o ../btle-sim.o $(STATIC_LIB)
+ecc-client: ecc-client.o ../common/btle-sim.o $(STATIC_LIB)
 	$(CC) $^ -o $@ $(LIBS)
 
 clean:

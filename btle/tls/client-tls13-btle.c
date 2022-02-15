@@ -23,7 +23,7 @@
  * Example TLSv1.3 client over BTLE
  */
 
-#include "../btle-sim.h"
+#include "btle-sim.h"
 
 #ifndef WOLFSSL_USER_SETTINGS
     #include <wolfssl/options.h>
@@ -189,7 +189,7 @@ int main(int argc, char** argv)
         printf("Read (%d): %s\n", ret, plain);
 
         /* check for exit flag */
-        if (strcasestr((char*)plain, EXIT_STRING)) {
+        if (strncmp((char*)plain, EXIT_STRING, strlen(EXIT_STRING)) == 0) {
             printf("Exit, closing connection\n");
             break;
         }

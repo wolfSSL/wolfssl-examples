@@ -24,9 +24,9 @@
 #define BTLE_BLOCK_SIZE     16
 
 #define _GNU_SOURCE
-#include <string.h> /* for strcasestr */
+#include <string.h> /* for strnstr */
 
-#define EXIT_STRING "EXIT"
+#define EXIT_STRING "exit"
 
 typedef enum {
     BTLE_PKT_TYPE_NULL,

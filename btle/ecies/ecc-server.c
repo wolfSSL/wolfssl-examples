@@ -19,7 +19,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
-#include "../btle-sim.h"
+#include "btle-sim.h"
 
 #ifndef WOLFSSL_USER_SETTINGS
     #include <wolfssl/options.h>
@@ -191,7 +191,7 @@ int main(int argc, char** argv)
         }
 
         /* check for exit flag */
-        if (strcasestr((char*)plain, EXIT_STRING)) {
+        if (strncmp((char*)plain, EXIT_STRING, strlen(EXIT_STRING)) == 0) {
             printf("Exit, closing connection\n");
             break;
         }
