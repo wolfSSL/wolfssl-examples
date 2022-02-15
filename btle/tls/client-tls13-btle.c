@@ -23,6 +23,7 @@
  * Example TLSv1.3 client over BTLE
  */
 
+#include "../btle-sim.h"
 
 #ifndef WOLFSSL_USER_SETTINGS
     #include <wolfssl/options.h>
@@ -30,8 +31,6 @@
 #include <wolfssl/wolfcrypt/settings.h>
 #include <wolfssl/ssl.h>
 #include <wolfssl/wolfcrypt/wc_port.h>
-
-#include "../btle-sim.h"
 
 #define CERT_FILE "../../certs/client-cert.pem"
 #define KEY_FILE  "../../certs/client-key.pem"
@@ -171,7 +170,10 @@ int main(int argc, char** argv)
         printf("Enter text to send:\n");
 
         plainSz = sizeof(plain)-1;
-        fgets((char*)plain, plainSz, stdin);
+        if (fgets((char*)plain, plainSz, stdin) == NULL) {
+            printf("stdin get failed\n");
+            goto done;
+        }
         plainSz = strlen((char*)plain);
 
         do {
@@ -187,7 +189,7 @@ int main(int argc, char** argv)
         printf("Read (%d): %s\n", ret, plain);
 
         /* check for exit flag */
-        if (strcasestr((char*)plain, "EXIT")) {
+        if (strcasestr((char*)plain, EXIT_STRING)) {
             printf("Exit, closing connection\n");
             break;
         }

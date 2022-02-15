@@ -23,6 +23,7 @@
  * Example TLS v1.3 server over BTLE
  */
 
+#include "../btle-sim.h"
 
 #ifndef WOLFSSL_USER_SETTINGS
     #include <wolfssl/options.h>
@@ -30,8 +31,6 @@
 #include <wolfssl/wolfcrypt/settings.h>
 #include <wolfssl/ssl.h>
 #include <wolfssl/wolfcrypt/wc_port.h>
-
-#include "../btle-sim.h"
 
 #define CERT_FILE "../../certs/server-cert.pem"
 #define KEY_FILE  "../../certs/server-key.pem"
@@ -178,7 +177,7 @@ int main(int argc, char** argv)
         printf("Sent (%d): %s\n", ret, echoBuffer);
 
         /* check for exit flag */
-        if (strcasestr((char*)echoBuffer, "EXIT")) {
+        if (strcasestr((char*)echoBuffer, EXIT_STRING)) {
             printf("Exit, closing connection\n");
             break;
         }

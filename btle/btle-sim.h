@@ -23,6 +23,11 @@
 #define BTLE_MSG_MAX_SIZE   1024
 #define BTLE_BLOCK_SIZE     16
 
+#define _GNU_SOURCE
+#include <string.h> /* for strcasestr */
+
+#define EXIT_STRING "EXIT"
+
 typedef enum {
     BTLE_PKT_TYPE_NULL,
     BTLE_PKT_TYPE_KEY,

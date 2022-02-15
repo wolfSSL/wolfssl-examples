@@ -19,17 +19,19 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
+#include "../btle-sim.h"
+
 #ifndef WOLFSSL_USER_SETTINGS
     #include <wolfssl/options.h>
 #endif
 #include <wolfssl/wolfcrypt/settings.h>
 #include <wolfssl/wolfcrypt/wc_port.h>
 #include <wolfssl/wolfcrypt/ecc.h>
-#include "../btle-sim.h"
 
 int main(int argc, char** argv)
 {
-    int ret;
+    int ret = 0;
+#ifdef HAVE_ECC_ENCRYPT
     WC_RNG rng;
     ecEncCtx* cliCtx = NULL;
     void* devCtx = NULL;
@@ -153,7 +155,10 @@ int main(int argc, char** argv)
         /* get message to send */
         printf("Enter text to send:\n");
         plainSz = sizeof(plain)-1;
-        fgets((char*)plain, plainSz, stdin);
+        if (fgets((char*)plain, plainSz, stdin) == NULL) {
+            printf("stdin get failed\n");
+            goto cleanup;
+        }
         plainSz = strlen((char*)plain);
         /* pad message at 16 bytes for AES block size */
         ret = btle_msg_pad(plain, (int*)&plainSz, devCtx);
@@ -196,7 +201,7 @@ int main(int argc, char** argv)
         printf("Recv %d: %s\n", plainSz, plain);
 
         /* check for exit flag */
-        if (strcasestr((char*)plain, "EXIT")) {
+        if (strcasestr((char*)plain, EXIT_STRING)) {
             printf("Exit, closing connection\n");
             break;
         }
@@ -216,5 +221,8 @@ cleanup:
 
     wolfCrypt_Cleanup();
 
+#else
+    printf("Please compile wolfSSL with --enable-eccencrypt or HAVE_ECC_ENCRYPT\n");
+#endif
     return ret;
 }

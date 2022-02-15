@@ -19,17 +19,19 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
+#include "../btle-sim.h"
+
 #ifndef WOLFSSL_USER_SETTINGS
     #include <wolfssl/options.h>
 #endif
 #include <wolfssl/wolfcrypt/settings.h>
 #include <wolfssl/wolfcrypt/wc_port.h>
 #include <wolfssl/wolfcrypt/ecc.h>
-#include "../btle-sim.h"
 
 int main(int argc, char** argv)
 {
-    int ret;
+    int ret = 0;
+#ifdef HAVE_ECC_ENCRYPT
     WC_RNG rng;
     ecEncCtx* srvCtx = NULL;
     void* devCtx = NULL;
@@ -189,7 +191,7 @@ int main(int argc, char** argv)
         }
 
         /* check for exit flag */
-        if (strcasestr((char*)plain, "EXIT")) {
+        if (strcasestr((char*)plain, EXIT_STRING)) {
             printf("Exit, closing connection\n");
             break;
         }
@@ -208,6 +210,8 @@ cleanup:
         btle_close(devCtx);
 
     wolfCrypt_Cleanup();
-
+#else
+    printf("Please compile wolfSSL with --enable-eccencrypt or HAVE_ECC_ENCRYPT\n");
+#endif
     return ret;
 }
