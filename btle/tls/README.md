@@ -9,12 +9,15 @@ The wolfSSL library must be built and installed using:
 ```
 ./configure --enable-tls13
 make
+make check
 sudo make install
 ```
 
+If downloaded from GitHub you'll also need to run `./autogen.sh`.
+
 ### Usage
 
-Use two consoles run the examples to send a test message securely. The server will present an ECC server certificate and the client will validate it.
+Use two consoles to run the examples to send a test message securely. The server will present an ECC server certificate and the client will validate it.
 
 The client will attempt STDIN input and the server will echo. Use "exit" to close the connection.
 

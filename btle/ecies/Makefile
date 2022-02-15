@@ -4,7 +4,7 @@ LIB_PATH = /usr/local
 CFLAGS   = -Wall -I$(LIB_PATH)/include
 LIBS     = -L$(LIB_PATH)/lib
 
-# option variables
+# Flags
 DYN_LIB         = -lwolfssl
 STATIC_LIB      =
 DEBUG_FLAGS     = -g -DDEBUG -DDEBUG_WOLFSSL -DDEBUG_BTLE_IO

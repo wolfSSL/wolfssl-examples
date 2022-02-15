@@ -19,9 +19,11 @@ The wolfSSL library must be built and installed using:
 ```
 ./configure --enable-ecc --enable-eccencrypt --enable-hkdf
 make
+make check
 sudo make install
 ```
- 
+If downloaded from GitHub you'll also need to run `./autogen.sh`.
+
  OR by defining:
  
 ```
