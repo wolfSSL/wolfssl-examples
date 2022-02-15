@@ -162,19 +162,27 @@ int main(int argc, char** argv)
     }
     printf("TLS Accept handshake done\n");
 
-    /* Waiting for data to echo */
-    XMEMSET(echoBuffer, 0, sizeof(echoBuffer));
-    do {
-        ret = wolfSSL_read(ssl, echoBuffer, sizeof(echoBuffer)-1);
-        err = wolfSSL_get_error(ssl, ret);
-    } while (err == WOLFSSL_ERROR_WANT_READ || err == WOLFSSL_ERROR_WANT_WRITE);
-    printf("Read (%d): %s\n", err, echoBuffer);
+    while (1) {
+        /* Waiting for data to echo */
+        memset(echoBuffer, 0, sizeof(echoBuffer));
+        do {
+            ret = wolfSSL_read(ssl, echoBuffer, sizeof(echoBuffer)-1);
+            err = wolfSSL_get_error(ssl, ret);
+        } while (err == WOLFSSL_ERROR_WANT_READ || err == WOLFSSL_ERROR_WANT_WRITE);
+        printf("Read (%d): %s\n", ret, echoBuffer);
 
-    do {
-        ret = wolfSSL_write(ssl, echoBuffer, XSTRLEN((char*)echoBuffer));
-        err = wolfSSL_get_error(ssl, ret);
-    } while (err == WOLFSSL_ERROR_WANT_READ || err == WOLFSSL_ERROR_WANT_WRITE);
-    printf("Sent (%d): %s\n", err, echoBuffer);
+        do {
+            ret = wolfSSL_write(ssl, echoBuffer, XSTRLEN((char*)echoBuffer));
+            err = wolfSSL_get_error(ssl, ret);
+        } while (err == WOLFSSL_ERROR_WANT_READ || err == WOLFSSL_ERROR_WANT_WRITE);
+        printf("Sent (%d): %s\n", ret, echoBuffer);
+
+        /* check for exit flag */
+        if (strcasestr((char*)echoBuffer, "EXIT")) {
+            printf("Exit, closing connection\n");
+            break;
+        }
+    }
 
     ret = 0; /* Success */
 

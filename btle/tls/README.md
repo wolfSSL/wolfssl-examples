@@ -16,22 +16,33 @@ sudo make install
 
 Use two consoles run the examples to send a test message securely. The server will present an ECC server certificate and the client will validate it.
 
+The client will attempt STDIN input and the server will echo. Use "exit" to close the connection.
+
 ```
 % ./server-tls13-btle
 Waiting for client
 TLS accepting
 TLS Accept handshake done
-Read (0): Testing 1, 2 and 3
-Sent (0): Testing 1, 2 and 3
+Read (5): asdf
+Sent (5): asdf
+Read (5): exit
+Sent (5): exit
+Exit, closing connection
 ```
 
 ```
- % ./client-tls13-btle
+% ./client-tls13-btle
 TLS connecting
 TLS Connect handshake done
-Sending test string
-Sent (0): Testing 1, 2 and 3
-Read (0): Testing 1, 2 and 3
+Enter text to send:
+asdf
+Sent (5): asdf
+Read (5): asdf
+Enter text to send:
+exit
+Sent (5): exit
+Read (5): exit
+Exit, closing connection
 ```
 
 ### Debugging

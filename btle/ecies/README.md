@@ -5,6 +5,8 @@ This example demonstrates a lightweight method for exchanging data securely over
 The first phase is key establishment, which is done through ECDH and HDKF. ECC was chosen for these examples because its lightweight and widely used. 
 Then salt exchanged for each message to prevent reply attacks. The encryption is done with AES CBC. The data integrity is done using HMAC-SHA256.
 
+The peer's key should be validated against a known key or certificate. Client should hash and verify this public key against trusted certificate (already exchanged) out of band. An ECC signature is about 65 bytes.
+
 ## ECC Encrypt/Decrypt Example
 
 See `BTLESecureMessageExchange.pdf` for details.
@@ -24,7 +26,7 @@ sudo make install
  
 ```
 #define HAVE_ECC
-#define HAVE_ECC_ENCRYP
+#define HAVE_ECC_ENCRYPT
 #define HAVE_HKDF
 ```
 
@@ -34,10 +36,28 @@ Use two consoles and STDIN to exchange data between the client and server.
 
 From the client enter a message and hit enter. This will be encrypted and sent to the server. The server will decrypt, print and re-encrypt the message and send it back to the client (echo).
 
+Type "exit" to close the connection.
+
 ```
-./ecc-server
-./ecc-client
+% ./ecc-server
+Waiting for client
+Recv 16: asdf
+Recv 16: exit
+Exit, closing connection
 ```
+
+```
+% ./ecc-client
+Enter text to send:
+asdf
+Recv 16: asdf
+Enter text to send:
+exit
+Recv 16: exit
+Exit, closing connection
+```
+
+Note: The messages are padded to the AES block size 16-bytes.
 
 ### Debugging
 

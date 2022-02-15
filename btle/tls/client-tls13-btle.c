@@ -87,8 +87,8 @@ int main(int argc, char** argv)
     WOLFSSL_CTX* ctx = NULL;
     WOLFSSL* ssl = NULL;
     CbCtx_t cBctx;
-    const char testStr[] = "Testing 1, 2 and 3";
-    byte readBuf[100];
+    byte plain[BTLE_MSG_MAX_SIZE];
+    word32 plainSz;
 
     memset(&cBctx, 0, sizeof(cBctx));
 
@@ -166,19 +166,32 @@ int main(int argc, char** argv)
     }
     printf("TLS Connect handshake done\n");
 
-    printf("Sending test string\n");
-    do {
-        ret = wolfSSL_write(ssl, testStr, XSTRLEN(testStr));
-        err = wolfSSL_get_error(ssl, ret);
-    } while (err == WOLFSSL_ERROR_WANT_READ || err == WOLFSSL_ERROR_WANT_WRITE);
-    printf("Sent (%d): %s\n", err, testStr);
+    while (1) {
+        /* get message to send */
+        printf("Enter text to send:\n");
 
-    XMEMSET(readBuf, 0, sizeof(readBuf));
-    do {
-        ret = wolfSSL_read(ssl, readBuf, sizeof(readBuf)-1);
-        err = wolfSSL_get_error(ssl, ret);
-    } while (err == WOLFSSL_ERROR_WANT_READ || err == WOLFSSL_ERROR_WANT_WRITE);
-    printf("Read (%d): %s\n", err, readBuf);
+        plainSz = sizeof(plain)-1;
+        fgets((char*)plain, plainSz, stdin);
+        plainSz = strlen((char*)plain);
+
+        do {
+            ret = wolfSSL_write(ssl, plain, plainSz);
+            err = wolfSSL_get_error(ssl, ret);
+        } while (err == WOLFSSL_ERROR_WANT_READ || err == WOLFSSL_ERROR_WANT_WRITE);
+        printf("Sent (%d): %s\n", ret, plain);
+
+        do {
+            ret = wolfSSL_read(ssl, plain, sizeof(plain)-1);
+            err = wolfSSL_get_error(ssl, ret);
+        } while (err == WOLFSSL_ERROR_WANT_READ || err == WOLFSSL_ERROR_WANT_WRITE);
+        printf("Read (%d): %s\n", ret, plain);
+
+        /* check for exit flag */
+        if (strcasestr((char*)plain, "EXIT")) {
+            printf("Exit, closing connection\n");
+            break;
+        }
+    };
 
     ret = 0; /* Success */
 

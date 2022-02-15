@@ -57,6 +57,7 @@ int main(int argc, char** argv)
     }
 
     /* open BTLE */
+    printf("Waiting for client\n");
     ret = btle_open(&devCtx, BTLE_ROLE_SERVER);
     if (ret != 0) {
         printf("btle_open failed %d!\n", ret);
@@ -188,8 +189,10 @@ int main(int argc, char** argv)
         }
 
         /* check for exit flag */
-        if (strstr((char*)plain, "EXIT"))
+        if (strcasestr((char*)plain, "EXIT")) {
+            printf("Exit, closing connection\n");
             break;
+        }
 
         /* reset context (reset my salt) */
         ret = wc_ecc_ctx_reset(srvCtx, &rng);

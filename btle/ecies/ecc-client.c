@@ -151,9 +151,11 @@ int main(int argc, char** argv)
         }
 
         /* get message to send */
-        plainSz = sizeof(plain);
+        printf("Enter text to send:\n");
+        plainSz = sizeof(plain)-1;
         fgets((char*)plain, plainSz, stdin);
         plainSz = strlen((char*)plain);
+        /* pad message at 16 bytes for AES block size */
         ret = btle_msg_pad(plain, (int*)&plainSz, devCtx);
         if (ret != 0) {
             printf("btle_msg_pad failed %d\n", ret);
@@ -194,8 +196,10 @@ int main(int argc, char** argv)
         printf("Recv %d: %s\n", plainSz, plain);
 
         /* check for exit flag */
-        if (strstr((char*)plain, "EXIT"))
+        if (strcasestr((char*)plain, "EXIT")) {
+            printf("Exit, closing connection\n");
             break;
+        }
 
         /* reset context (reset my salt) */
         ret = wc_ecc_ctx_reset(cliCtx, &rng);
