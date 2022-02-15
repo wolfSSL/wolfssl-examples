@@ -17,7 +17,7 @@ See `BTLESecureMessageExchange.pdf` for details.
 The wolfSSL library must be built and installed using:
 
 ```
-./configure --enable-ecc --enable-eccencrypt --enable-hkdf
+./configure --enable-eccencrypt
 make
 make check
 sudo make install
