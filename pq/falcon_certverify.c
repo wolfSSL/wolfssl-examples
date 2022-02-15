@@ -25,13 +25,22 @@
 #include <wolfssl/wolfcrypt/error-crypt.h>
 #include <wolfssl/test.h>
 
-int main(void)
+int main(int argc, char **argv)
 {
     int ret;
     WOLFSSL_CERT_MANAGER* cm = NULL;
 
     const char* caCert     = "./falcon_level5_root_cert.pem";
     const char* verifyCert = "./falcon_level5_entity_cert.pem";
+
+    if(argc == 3) {
+        caCert = argv[1];
+        verifyCert  = argv[2];
+    } else if (argc != 1) {
+        printf("usage: %s [<CA Cert> <verify Cert>]\n", argv[0]);
+        printf("Default CA Cert: %s, verify Cert: %s\n", caCert, verifyCert);
+        return 0;
+    }
 
     wolfSSL_Init();
 #ifdef DEBUG_WOLFSSL

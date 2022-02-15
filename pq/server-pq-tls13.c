@@ -155,9 +155,21 @@ int main(int argc, char** argv)
     WOLFSSL_CTX* ctx = NULL;
     WOLFSSL*     ssl = NULL;
 
+    char *cert_file = CERT_FILE;
+    char *key_file  = KEY_FILE;
+
 #ifdef HAVE_SIGNAL
     signal(SIGINT, sig_handler);
 #endif
+
+    if(argc == 3) {
+        cert_file = argv[1];
+        key_file  = argv[2];
+    } else if (argc != 1) {
+        printf("usage: %s <IPv4 address> [<cert file> <key file>]\n", argv[0]);
+        printf("Default cert file: %s, key file: %s\n", cert_file, key_file);
+        return 0;
+    }
 
     /* Initialize wolfSSL */
     wolfSSL_Init();
@@ -178,18 +190,18 @@ int main(int argc, char** argv)
     }
 
     /* Load server certificates into WOLFSSL_CTX */
-    if ((ret = wolfSSL_CTX_use_certificate_file(ctx, CERT_FILE, WOLFSSL_FILETYPE_PEM))
+    if ((ret = wolfSSL_CTX_use_certificate_file(ctx, cert_file, WOLFSSL_FILETYPE_PEM))
         != WOLFSSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
-                CERT_FILE);
+                cert_file);
         goto exit;
     }
 
     /* Load server key into WOLFSSL_CTX */
-    if ((ret = wolfSSL_CTX_use_PrivateKey_file(ctx, KEY_FILE, WOLFSSL_FILETYPE_PEM))
+    if ((ret = wolfSSL_CTX_use_PrivateKey_file(ctx, key_file, WOLFSSL_FILETYPE_PEM))
         != WOLFSSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
-                KEY_FILE);
+                key_file);
         goto exit;
     }
 
