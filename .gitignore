@@ -119,8 +119,10 @@ certgen/ed25519-key.pem
 certgen/newCert.der
 certgen/newCert.pem
 
-btle/ecc-client
-btle/ecc-server
+btle/ecies/ecc-client
+btle/ecies/ecc-server
+btle/tls/server-tls13-btle
+btle/tls/client-tls13-btle
 
 signature/sigtest/wolfsigtest
 signature/sigtest/opensigtest

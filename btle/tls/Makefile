@@ -7,12 +7,12 @@ LIBS     = -L$(LIB_PATH)/lib
 # option variables
 DYN_LIB         = -lwolfssl
 STATIC_LIB      =
-DEBUG_FLAGS     = -g -DDEBUG -DDEBUG_WOLFSSL
+DEBUG_FLAGS     = -g -DDEBUG -DDEBUG_WOLFSSL -DDEBUG_BTLE_IO
 OPTIMIZE        = -Os
 
 # Options
 #CFLAGS+=$(DEBUG_FLAGS)
-#CFLAGS+=$(OPTIMIZE)
+CFLAGS+=$(OPTIMIZE)
 
 # Static or Dynamic Library
 #STATIC_LIB+=$(LIB_PATH)/lib/libwolfssl.a
@@ -21,7 +21,7 @@ LIBS+=$(DYN_LIB) -lm
 
 .PHONY: clean all
 
-all: ecc-client ecc-server
+all: server-tls13-btle client-tls13-btle
 
 debug: CFLAGS+=$(DEBUG_FLAGS)
 debug: all
@@ -31,13 +31,13 @@ debug: all
 %.o: %.c
 	gcc -c $< -o $@ $(CFLAGS)
 
-ecc-server: ecc-server.o btle-sim.o $(STATIC_LIB)
+server-tls13-btle: server-tls13-btle.o ../btle-sim.o $(STATIC_LIB)
 	$(CC) $^ -o $@ $(LIBS)
 
-ecc-client: ecc-client.o btle-sim.o $(STATIC_LIB)
+client-tls13-btle: client-tls13-btle.o ../btle-sim.o $(STATIC_LIB)
 	$(CC) $^ -o $@ $(LIBS)
 
 clean:
-	rm *.o
-	rm ecc-server
-	rm ecc-client
+	rm -f *.o ../*.o
+	rm -f server-tls13-btle
+	rm -f client-tls13-btle

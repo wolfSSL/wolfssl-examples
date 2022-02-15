@@ -19,12 +19,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
-
-#include <wolfssl/options.h>
+#ifndef WOLFSSL_USER_SETTINGS
+    #include <wolfssl/options.h>
+#endif
 #include <wolfssl/wolfcrypt/settings.h>
-#include <wolfssl/ssl.h>
+#include <wolfssl/wolfcrypt/wc_port.h>
 #include <wolfssl/wolfcrypt/ecc.h>
-#include "btle-sim.h"
+#include "../btle-sim.h"
 
 int main(int argc, char** argv)
 {
@@ -41,7 +42,7 @@ int main(int argc, char** argv)
     ecc_key myKey, peerKey;
     int type;
 
-    wolfSSL_Init();
+    wolfCrypt_Init();
 
 #ifdef DEBUG_WOLFSSL
     wolfSSL_Debugging_ON();
@@ -58,7 +59,7 @@ int main(int argc, char** argv)
     /* open BTLE */
     ret = btle_open(&devCtx, BTLE_ROLE_CLIENT);
     if (ret != 0) {
-        printf("btle_open failed %d! errno %d\n", ret, errno);
+        printf("btle_open failed %d!\n", ret);
         goto cleanup;
     }
 
@@ -136,7 +137,7 @@ int main(int argc, char** argv)
         /* Get peer salt */
         ret = btle_recv(peerSalt, EXCHANGE_SALT_SZ, &type, devCtx);
         if (ret <= 0) {
-            printf("btle_recv failed %d! errno %d\n", ret, errno);
+            printf("btle_recv failed %d!\n", ret);
         }
         if (type != BTLE_PKT_TYPE_SALT) {
             printf("btle_recv expected salt!\n");
@@ -209,7 +210,7 @@ cleanup:
     if (devCtx != NULL)
         btle_close(devCtx);
 
-    wolfSSL_Cleanup();
+    wolfCrypt_Cleanup();
 
     return ret;
 }
