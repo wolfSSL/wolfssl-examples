@@ -50,7 +50,6 @@ static int do_csrsign(int argc, char** argv)
 {
     int ret = 0;
     int type = ECC_TYPE;
-    const char* typeStr = "ecc";
 
     Cert newCert;
 
