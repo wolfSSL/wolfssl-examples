@@ -1,6 +1,6 @@
 /* btle-sim.c
  *
- * Copyright (C) 2006-2021 wolfSSL Inc.
+ * Copyright (C) 2006-2022 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -19,12 +19,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
-
-#include <wolfssl/options.h>
-#include <wolfssl/wolfcrypt/settings.h>
-#include <wolfssl/ssl.h>
-#include <wolfssl/wolfcrypt/logging.h>
-#include "btle-sim.h"
+/* This is a BTLE simulator to demonstrate communications between devices.
+ * The simulator uses IPC (pipes) to communicate between threads.
+ */
 
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -36,20 +33,30 @@
 #include <unistd.h>
 #include <string.h>
 
-//#define BTLE_DEBUG_IO
-#define BTLE_VER 1
+#include "btle-sim.h"
 
-typedef struct {
-    int role;
-    int fdmiso;
-    int fdmosi;
-} BtleDev_t;
+//#define DEBUG_BTLE_IO
+#define BTLE_VER 1
 
 typedef struct {
     unsigned char  ver;
     unsigned char  type;
     unsigned short len;
 } __attribute__ ((packed)) BtleHeader_t;
+
+typedef struct {
+    int pos;
+    int total;
+    BtleHeader_t header;
+} BtlePkt_t;
+
+typedef struct {
+    int role;
+    int fdmiso;
+    int fdmosi;
+    BtlePkt_t recv;
+    BtlePkt_t send;
+} BtleDev_t;
 
 static BtleDev_t gBtleDev;
 static const char* kBtleMisoFifo = "/tmp/btleMiso";
@@ -66,44 +73,50 @@ static int btle_get_read(BtleDev_t* dev)
     return (dev->role == BTLE_ROLE_SERVER) ? dev->fdmiso : dev->fdmosi;
 }
 
-static int btle_send_block(BtleDev_t* dev, const unsigned char* buf, int len, int fd)
+static int btle_send_block(BtleDev_t* dev, const unsigned char* buf,int len)
 {
     int ret;
+    int fd = btle_get_write(dev);
     ret = write(fd, buf, len);
-#ifdef BTLE_DEBUG_IO
+#ifdef DEBUG_BTLE_IO
     printf("Write: %d\n", ret);
-    WOLFSSL_BUFFER(buf, len);
 #endif
     (void)dev;
     return ret;
 }
 
-static int btle_recv_block(BtleDev_t* dev, unsigned char* buf, int len, int fd)
+static int btle_recv_block(BtleDev_t* dev, unsigned char* buf, int len,
+    int non_block)
 {
     fd_set set;
     int ret, pos = 0;
+    int fd = btle_get_read(dev);
 
     FD_ZERO(&set);
     FD_SET(fd, &set);
 
     while (pos < len) {
         ret = select(fd+1, &set, NULL, NULL, NULL);
-        if (ret == 0)
+        if (ret == 0) {
+            if (non_block)
+                return 0;
             continue;
+        }
         if (ret < 0)
             return ret;
 
         if (FD_ISSET(fd, &set)) {
             ret = read(fd, &buf[pos], len - pos);
-        #ifdef BTLE_DEBUG_IO
+        #ifdef DEBUG_BTLE_IO
             printf("Read: %d\n", ret);
-            WOLFSSL_BUFFER(&buf[pos], len-pos);
         #endif
             if (ret > 0) {
                 pos += ret;
             }
             else {
                 if (errno == EWOULDBLOCK) {
+                    if (non_block)
+                        return 0;
                     continue;
                 }
                 else {
@@ -143,68 +156,92 @@ int btle_open(void** dev, int role)
         return -1;
     }
 
+    memset(&gBtleDev, 0, sizeof(gBtleDev));
     gBtleDev.role = role;
     gBtleDev.fdmiso = fdmiso;
     gBtleDev.fdmosi = fdmosi;
 
-    if (dev)
+    if (dev) {
         *dev = &gBtleDev;
+    }
 
     return 0;
 }
 
 int btle_send(const unsigned char* buf, int len, int type, void* context)
 {
-    BtleDev_t* dev = (BtleDev_t*)context;
-    BtleHeader_t header;
-    int fd = btle_get_write(dev);
     int ret;
-    header.ver = BTLE_VER;
-    header.type = type;
-    header.len = len;
-    ret = btle_send_block(dev, (unsigned char*)&header, sizeof(header), fd);
-    if (ret < 0)
-        return ret;
-    ret = btle_send_block(dev, buf, len, fd);
-    if (ret < 0)
-        return ret;
-    return len;
+    BtleDev_t* dev = (BtleDev_t*)context;
+    if (dev == NULL)
+        return -1;
+
+    memset(&dev->send.header, 0, sizeof(dev->send.header));
+    dev->send.header.ver = BTLE_VER;
+    dev->send.header.type = type;
+    dev->send.header.len = len;
+    ret = btle_send_block(dev, (unsigned char*)&dev->send.header,
+        sizeof(dev->send.header));
+    if (ret > 0) {
+        ret = btle_send_block(dev, buf, len);
+    }
+    return ret;
+}
+
+int btle_recv_ex(unsigned char* buf, int len, int* type, void* context,
+    int non_block)
+{
+    int ret;
+    BtleDev_t* dev = (BtleDev_t*)context;
+    if (dev == NULL)
+        return -1;
+
+    if (dev->recv.total == 0) {
+        /* read header */
+        memset(&dev->recv.header, 0, sizeof(dev->recv.header));
+        ret = btle_recv_block(dev, (unsigned char*)&dev->recv.header,
+            sizeof(dev->recv.header), non_block);
+        if (ret <= 0)
+            return ret;
+
+        if (dev->recv.header.ver != BTLE_VER)
+            return -1;
+
+        dev->recv.total = dev->recv.header.len;
+        dev->recv.pos = 0;
+    }
+
+    /* read data */
+    if (len > dev->recv.total - dev->recv.pos) {
+        len = dev->recv.total - dev->recv.pos;
+    }
+    ret = btle_recv_block(dev, buf, len, non_block);
+    if (ret > 0) {
+        dev->recv.pos += ret;
+    }
+
+    if (type) {
+        *type = dev->recv.header.type;
+    }
+    if (ret < 0 || dev->recv.pos >= dev->recv.total) {
+        /* reset recv state */
+        memset(&dev->recv.header, 0, sizeof(dev->recv.header));
+        dev->recv.total = 0;
+        dev->recv.pos = 0;
+    }
+
+    return ret;
 }
 
 int btle_recv(unsigned char* buf, int len, int* type, void* context)
 {
-    BtleDev_t* dev = (BtleDev_t*)context;
-    BtleHeader_t header;
-    int ret;
-    int fd = btle_get_read(dev);
-
-
-    ret = btle_recv_block(dev, (unsigned char*)&header, sizeof(header), fd);
-    if (ret < 0)
-        return ret;
-
-    if (header.ver != BTLE_VER)
-        return -1;
-
-    if (type)
-        *type = header.type;
-
-    if (len > 0) {
-        ret = header.len;
-        if (ret > len)
-            ret = len;
-
-        ret = btle_recv_block(dev, buf, ret, fd);
-        if (ret < 0)
-            return ret;
-    }
-
-    return header.len;
+    return btle_recv_ex(buf, len, type, context, 0);
 }
 
 void btle_close(void* context)
 {
     BtleDev_t* dev = (BtleDev_t*)context;
+    if (dev == NULL)
+        return;
 
     close(dev->fdmiso);
     close(dev->fdmosi);

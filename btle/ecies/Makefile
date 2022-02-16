@@ -1,13 +1,13 @@
 # BTLE Examples Makefile
 CC       = gcc
 LIB_PATH = /usr/local
-CFLAGS   = -Wall -I$(LIB_PATH)/include
+CFLAGS   = -Wall -I ../common -I$(LIB_PATH)/include
 LIBS     = -L$(LIB_PATH)/lib
 
-# option variables
+# Flags
 DYN_LIB         = -lwolfssl
 STATIC_LIB      =
-DEBUG_FLAGS     = -g -DDEBUG -DDEBUG_WOLFSSL
+DEBUG_FLAGS     = -g -DDEBUG -DDEBUG_WOLFSSL -DDEBUG_BTLE_IO
 OPTIMIZE        = -Os
 
 # Options
@@ -31,13 +31,13 @@ debug: all
 %.o: %.c
 	gcc -c $< -o $@ $(CFLAGS)
 
-ecc-server: ecc-server.o btle-sim.o $(STATIC_LIB)
+ecc-server: ecc-server.o ../common/btle-sim.o $(STATIC_LIB)
 	$(CC) $^ -o $@ $(LIBS)
 
-ecc-client: ecc-client.o btle-sim.o $(STATIC_LIB)
+ecc-client: ecc-client.o ../common/btle-sim.o $(STATIC_LIB)
 	$(CC) $^ -o $@ $(LIBS)
 
 clean:
-	rm *.o
-	rm ecc-server
-	rm ecc-client
+	rm -f *.o ../*.o
+	rm -f ecc-server
+	rm -f ecc-client

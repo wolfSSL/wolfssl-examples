@@ -23,11 +23,17 @@
 #define BTLE_MSG_MAX_SIZE   1024
 #define BTLE_BLOCK_SIZE     16
 
+#define _GNU_SOURCE
+#include <string.h> /* for strnstr */
+
+#define EXIT_STRING "exit"
+
 typedef enum {
     BTLE_PKT_TYPE_NULL,
     BTLE_PKT_TYPE_KEY,
     BTLE_PKT_TYPE_SALT,
     BTLE_PKT_TYPE_MSG,
+    BTLE_PKT_TYPE_TLS,
     BTLE_PKT_TYPE_MAX,
 } BtlePacket_t;
 
@@ -40,5 +46,6 @@ typedef enum {
 int  btle_open(void** dev, int role);
 int  btle_send(const unsigned char* buf, int len, int type, void* context);
 int  btle_recv(unsigned char* buf, int len, int* type, void* context);
+int  btle_recv_ex(unsigned char* buf, int len, int* type, void* context, int non_block);
 void btle_close(void* context);
 int  btle_msg_pad(unsigned char* buf, int* len, void* context);
