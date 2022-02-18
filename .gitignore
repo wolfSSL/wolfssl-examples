@@ -89,6 +89,8 @@ android/wolfssljni-ndk-sample/proguard-project.txt
 /tls/server-tls-threaded
 /tls/client-tls-pkcs12
 /tls/client-tls-cryptocb
+/tls/server-tls-pkcallback
+/tls/client-tls-pkcallback
 
 tls/client-tls-uart
 tls/server-tls-uart
