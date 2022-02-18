@@ -33,7 +33,7 @@
 #define HEAP_HINT NULL
 #define LARGE_TEMP_SZ 4096
 
-static int do_csrgen(int argc, char** argv)
+static int do_certgen(int argc, char** argv)
 {
     int ret = 0;
 
@@ -281,6 +281,6 @@ int main(int argc, char** argv)
            "--enable-keygen --enable-ecc\n");
     return 0;
 #else
-    return do_csrgen(argc, argv);
+    return do_certgen(argc, argv);
 #endif
 }
