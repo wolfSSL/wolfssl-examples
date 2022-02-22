@@ -159,7 +159,7 @@ int main(int argc, char** argv)
     }
 
     /*---------------------------------*/
-    /* Start of security */
+    /* Start of wolfSSL initialization and configuration */
     /*---------------------------------*/
 #if 0
     wolfSSL_Debugging_ON();

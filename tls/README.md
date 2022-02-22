@@ -1242,3 +1242,52 @@ Sending test string
 Sent (0): Testing 1, 2 and 3
 Read (0): Testing 1, 2 and 3
 ```
+
+
+## TLS Example with PK Callbacks and optionally Async
+
+See `server-tls-pkcallback.c` and `client-tls-pkcallback.c`.
+
+The top of both files have an optional build setting to gate use of ECC/RSA and TLS v1.2 or TLS v1.3:
+
+```
+#define USE_ECDHE_ECDSA
+#define USE_TLSV13
+```
+
+For this example it uses the `--enable-pkcallbacks` or `HAVE_PK_CALLBACKS` feature.
+Optionally if using the `--enable-asynccrypt` option and wolfSSL Async code this also shows being able to return `WC_PENDING_E` while the asymmetric key operation is ocurring.
+
+```
+./configure --enable-pkcallbacks [--enable-asynccrypt]
+make
+sudo make install
+```
+
+Example Output:
+
+```
+./server-tls-pkcallback
+Waiting for a connection...
+PK ECC Sign: inSz 32, keySz 121
+PK ECC Sign: Async Simulate
+PK ECC Sign: inSz 32, keySz 121
+PK ECC Sign: Curve ID 7
+PK ECC Sign: ret 0 outSz 72
+Client connected successfully
+Client: test
+
+Shutdown complete
+Waiting for a connection...
+```
+
+```
+% ./client-tls-pkcallback 127.0.0.1
+PK ECC Sign: inSz 32, keySz 121
+PK ECC Sign: Async Simulate
+PK ECC Sign: inSz 32, keySz 121
+PK ECC Sign: Curve ID 7
+PK ECC Sign: ret 0 outSz 71
+Message for server: test
+Server: I hear ya fa shizzle!
+```
