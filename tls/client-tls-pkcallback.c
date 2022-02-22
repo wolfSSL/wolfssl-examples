@@ -2,7 +2,7 @@
  *
  * Copyright (C) 2006-2022 wolfSSL Inc.
  *
- * This file is part of wolfSSL. (formerly known as CyaSSL)
+ * This file is part of wolfSSL.
  *
  * wolfSSL is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -137,6 +137,9 @@ static int load_key_file(const char* fname, byte** derBuf, word32* derLen)
     return 0;
 }
 
+/* This function is performing a sign using a private key for testing. In a
+ * real-world use case this would be sent to HSM / TPM hardware for processing
+ * and return WC_PENDING_E to give this thread time to do other work */
 static int myEccSign(WOLFSSL* ssl, const byte* in, word32 inSz,
         byte* out, word32* outSz, const byte* key, word32 keySz, void* ctx)
 {
@@ -183,7 +186,7 @@ static int myEccSign(WOLFSSL* ssl, const byte* in, word32 inSz,
 
 int main(int argc, char** argv)
 {
-    int                ret = 0, err;
+    int                ret, err;
     int                sockfd = SOCKET_INVALID;
     struct sockaddr_in servAddr;
     char               buff[256];
@@ -235,7 +238,7 @@ int main(int argc, char** argv)
     }
 
     /*---------------------------------*/
-    /* Start of security */
+    /* Start of wolfSSL initialization and configuration */
     /*---------------------------------*/
 #if 0
     wolfSSL_Debugging_ON();
@@ -311,6 +314,8 @@ int main(int argc, char** argv)
 #ifdef HAVE_PK_CALLBACKS
     /* setup the PK context */
     wolfSSL_SetEccSignCtx(ssl, &myCtx);
+#else
+    (void)myCtx; /* not used */
 #endif
 
     /* Connect to wolfSSL on the server side */

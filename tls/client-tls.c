@@ -91,7 +91,7 @@ int main(int argc, char** argv)
     }
 
     /*---------------------------------*/
-    /* Start of security */
+    /* Start of wolfSSL initialization and configuration */
     /*---------------------------------*/
     /* Initialize wolfSSL */
     if ((ret = wolfSSL_Init()) != WOLFSSL_SUCCESS) {
