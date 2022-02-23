@@ -19,7 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
  */
 
-/* Example of generating a PEM-encoded certificate signing request (CSR). */
+/* Example of generating a PEM-encoded certificate signing request (CSR) using
+ * the Crypto Callbacks to show signing against HSM/TPM */
 
 #ifndef WOLFSSL_USER_SETTINGS
 #include <wolfssl/options.h>
@@ -37,8 +38,13 @@
 #define DEBUG_CRYPTOCB
 
 #if defined(WOLF_CRYPTO_CB) && defined(WOLFSSL_CERT_REQ) && \
-    defined(WOLFSSL_CERT_EXT) && defined(WOLFSSL_CERT_GEN)
+    defined(WOLFSSL_CERT_EXT) && defined(WOLFSSL_CERT_GEN) && \
+    (!defined(NO_RSA) || defined(HAVE_ECC) || defined(HAVE_ED25519))
 
+#define ENABLE_CSR_EXAMPLE
+#endif
+
+#ifdef ENABLE_CSR_EXAMPLE
 static void usage(void)
 {
     printf("Invalid input supplied try one of the below examples\n");
@@ -54,143 +60,12 @@ typedef struct {
     const char* keyFilePriv;
 } myCryptoCbCtx;
 
-#ifdef DEBUG_CRYPTOCB
-static const char* GetAlgoTypeStr(int algo)
-{
-    switch (algo) { /* enum wc_AlgoType */
-        case WC_ALGO_TYPE_HASH:   return "Hash";
-        case WC_ALGO_TYPE_CIPHER: return "Cipher";
-        case WC_ALGO_TYPE_PK:     return "PK";
-        case WC_ALGO_TYPE_RNG:    return "RNG";
-        case WC_ALGO_TYPE_SEED:   return "Seed";
-        case WC_ALGO_TYPE_HMAC:   return "HMAC";
-    }
-    return NULL;
-}
-static const char* GetPkTypeStr(int pk)
-{
-    switch (pk) {
-        case WC_PK_TYPE_RSA: return "RSA";
-        case WC_PK_TYPE_DH: return "DH";
-        case WC_PK_TYPE_ECDH: return "ECDH";
-        case WC_PK_TYPE_ECDSA_SIGN: return "ECDSA-Sign";
-        case WC_PK_TYPE_ECDSA_VERIFY: return "ECDSA-Verify";
-        case WC_PK_TYPE_ED25519_SIGN: return "ED25519-Sign";
-        case WC_PK_TYPE_ED25519_VERIFY: return "ED25519-Verify"; 
-        case WC_PK_TYPE_CURVE25519: return "CURVE25519";
-        case WC_PK_TYPE_RSA_KEYGEN: return "RSA KeyGen";
-        case WC_PK_TYPE_EC_KEYGEN: return "ECC KeyGen";
-    }
-    return NULL;
-}
-#endif /* DEBUG_CRYPTOCB */
-
-/* reads file size, allocates buffer, reads into buffer, returns buffer */
-static int load_file(const char* fname, byte** buf, size_t* bufLen)
-{
-    int ret;
-    long int fileSz;
-    XFILE lFile;
-
-    if (fname == NULL || buf == NULL || bufLen == NULL)
-        return BAD_FUNC_ARG;
-
-    /* set defaults */
-    *buf = NULL;
-    *bufLen = 0;
-
-    /* open file (read-only binary) */
-    lFile = XFOPEN(fname, "rb");
-    if (!lFile) {
-        printf("Error loading %s\n", fname);
-        return BAD_PATH_ERROR;
-    }
-
-    fseek(lFile, 0, SEEK_END);
-    fileSz = (int)ftell(lFile);
-    rewind(lFile);
-    if (fileSz  > 0) {
-        *bufLen = (size_t)fileSz;
-        *buf = (byte*)malloc(*bufLen);
-        if (*buf == NULL) {
-            ret = MEMORY_E;
-            printf("Error allocating %lu bytes\n", (unsigned long)*bufLen);
-        }
-        else {
-            size_t readLen = fread(*buf, *bufLen, 1, lFile);
-
-            /* check response code */
-            ret = (readLen > 0) ? 0 : -1;
-        }
-    }
-    else {
-        ret = BUFFER_E;
-    }
-    fclose(lFile);
-
-    return ret;
-}
-
+/* Forward declarations */
 static int load_key_file(const char* fname, byte* derBuf, word32* derLen,
-    int isPubKey)
-{
-    int ret;
-    byte* buf = NULL;
-    size_t bufLen;
-
-    ret = load_file(fname, &buf, &bufLen);
-    if (ret != 0)
-        return ret;
-
-    if (isPubKey) {
-        ret = wc_PubKeyPemToDer(buf, (word32)bufLen, derBuf, (word32)bufLen);
-    } else {
-        ret = wc_KeyPemToDer(buf, (word32)bufLen, derBuf, (word32)bufLen, NULL);
-    }
-    if (ret < 0) {
-        free(buf);
-        return ret;
-    }
-    *derLen = ret;
-    free(buf);
-
-    return 0;
-}
-
-#ifdef WOLFSSL_DER_TO_PEM
-static int save_der_as_pem(const byte* der, word32 derSz, const char* arg1,
-    int type)
-{
-    int ret;
-    byte pem[LARGE_TEMP_SZ];
-    int  pemSz;
-    FILE* file = NULL;
-    char outFile[255];
-
-    memset(pem, 0, sizeof(pem));
-    ret = wc_DerToPem(der, derSz, pem, sizeof(pem), type);
-    if (ret <= 0) {
-        printf("CSR DER to PEM failed: %d\n", ret);
-        return ret;
-    }
-    pemSz = ret;
-    printf("%s (%d)\n", pem, pemSz);
-
-    snprintf(outFile, sizeof(outFile), "%s-csr.pem", arg1);
-    printf("Saved CSR PEM to \"%s\"\n", outFile);
-    file = fopen(outFile, "wb");
-    if (file) {
-        ret = (int)fwrite(pem, 1, pemSz, file);
-        if (ret == pemSz) {
-            ret = 0;
-        }
-        fclose(file);
-    }
-    else {
-        ret = -1;
-    }
-    return ret;
-}
+    int isPubKey);
+#ifdef DEBUG_CRYPTOCB
+static const char* GetAlgoTypeStr(int algo);
+static const char* GetPkTypeStr(int pk);
 #endif
 
 /* Example crypto dev callback function that calls software version */
@@ -214,7 +89,7 @@ static int myCryptoDevCb(int devIdArg, wc_CryptoInfo* info, void* ctx)
 
     if (info->algo_type == WC_ALGO_TYPE_PK) {
     #ifdef DEBUG_CRYPTOCB
-        printf("CryptoCb: %s %s (%d)\n", GetAlgoTypeStr(info->algo_type), 
+        printf("CryptoCb: %s %s (%d)\n", GetAlgoTypeStr(info->algo_type),
             GetPkTypeStr(info->pk.type), info->pk.type);
     #endif
 
@@ -300,6 +175,146 @@ static int myCryptoDevCb(int devIdArg, wc_CryptoInfo* info, void* ctx)
     return ret;
 }
 
+
+#ifdef DEBUG_CRYPTOCB
+static const char* GetAlgoTypeStr(int algo)
+{
+    switch (algo) { /* enum wc_AlgoType */
+        case WC_ALGO_TYPE_HASH:   return "Hash";
+        case WC_ALGO_TYPE_CIPHER: return "Cipher";
+        case WC_ALGO_TYPE_PK:     return "PK";
+        case WC_ALGO_TYPE_RNG:    return "RNG";
+        case WC_ALGO_TYPE_SEED:   return "Seed";
+        case WC_ALGO_TYPE_HMAC:   return "HMAC";
+    }
+    return NULL;
+}
+static const char* GetPkTypeStr(int pk)
+{
+    switch (pk) {
+        case WC_PK_TYPE_RSA: return "RSA";
+        case WC_PK_TYPE_DH: return "DH";
+        case WC_PK_TYPE_ECDH: return "ECDH";
+        case WC_PK_TYPE_ECDSA_SIGN: return "ECDSA-Sign";
+        case WC_PK_TYPE_ECDSA_VERIFY: return "ECDSA-Verify";
+        case WC_PK_TYPE_ED25519_SIGN: return "ED25519-Sign";
+        case WC_PK_TYPE_ED25519_VERIFY: return "ED25519-Verify";
+        case WC_PK_TYPE_CURVE25519: return "CURVE25519";
+        case WC_PK_TYPE_RSA_KEYGEN: return "RSA KeyGen";
+        case WC_PK_TYPE_EC_KEYGEN: return "ECC KeyGen";
+    }
+    return NULL;
+}
+#endif /* DEBUG_CRYPTOCB */
+
+/* reads file size, allocates buffer, reads into buffer, returns buffer */
+static int load_file(const char* fname, byte** buf, size_t* bufLen)
+{
+    int ret;
+    long int fileSz;
+    XFILE lFile;
+
+    if (fname == NULL || buf == NULL || bufLen == NULL)
+        return BAD_FUNC_ARG;
+
+    /* set defaults */
+    *buf = NULL;
+    *bufLen = 0;
+
+    /* open file (read-only binary) */
+    lFile = XFOPEN(fname, "rb");
+    if (!lFile) {
+        printf("Error loading %s\n", fname);
+        return BAD_PATH_ERROR;
+    }
+
+    fseek(lFile, 0, SEEK_END);
+    fileSz = (int)ftell(lFile);
+    rewind(lFile);
+    if (fileSz > 0) {
+        *bufLen = (size_t)fileSz;
+        *buf = (byte*)malloc(*bufLen);
+        if (*buf == NULL) {
+            ret = MEMORY_E;
+            printf("Error allocating %lu bytes\n", (unsigned long)*bufLen);
+        }
+        else {
+            size_t readLen = fread(*buf, *bufLen, 1, lFile);
+
+            /* check response code */
+            ret = (readLen > 0) ? 0 : -1;
+        }
+    }
+    else {
+        ret = BUFFER_E;
+    }
+    fclose(lFile);
+
+    return ret;
+}
+
+static int load_key_file(const char* fname, byte* derBuf, word32* derLen,
+    int isPubKey)
+{
+    int ret;
+    byte* buf = NULL;
+    size_t bufLen;
+
+    ret = load_file(fname, &buf, &bufLen);
+    if (ret != 0)
+        return ret;
+
+    if (isPubKey) {
+        ret = wc_PubKeyPemToDer(buf, (word32)bufLen, derBuf, (word32)bufLen);
+    } else {
+        ret = wc_KeyPemToDer(buf, (word32)bufLen, derBuf, (word32)bufLen, NULL);
+    }
+    if (ret < 0) {
+        free(buf);
+        return ret;
+    }
+    *derLen = ret;
+    free(buf);
+
+    return 0;
+}
+
+#ifdef WOLFSSL_DER_TO_PEM
+static int save_der_as_pem(const byte* der, word32 derSz, const char* arg1,
+    int type)
+{
+    int ret;
+    byte pem[LARGE_TEMP_SZ];
+    int  pemSz;
+    FILE* file = NULL;
+    char outFile[255];
+
+    memset(pem, 0, sizeof(pem));
+    ret = wc_DerToPem(der, derSz, pem, sizeof(pem), type);
+    if (ret <= 0) {
+        printf("CSR DER to PEM failed: %d\n", ret);
+        return ret;
+    }
+    pemSz = ret;
+    printf("%s (%d)\n", pem, pemSz);
+
+    snprintf(outFile, sizeof(outFile), "%s-csr.pem", arg1);
+    printf("Saved CSR PEM to \"%s\"\n", outFile);
+    file = fopen(outFile, "wb");
+    if (file) {
+        ret = (int)fwrite(pem, 1, pemSz, file);
+        if (ret == pemSz) {
+            ret = 0;
+        }
+        fclose(file);
+    }
+    else {
+        ret = -1;
+    }
+    return ret;
+}
+#endif
+
 static int gen_csr(const char* arg1)
 {
     int ret;
@@ -328,8 +343,10 @@ static int gen_csr(const char* arg1)
         type = ECC_TYPE;
     else if (XSTRNCMP(arg1, "ed25519", 7) == 0)
         type = ED25519_TYPE;
-    else
+    else {
+        printf("Invalid argument or not compiled in (expect: rsa, ecc or ed25519)\n");
         return NOT_COMPILED_IN;
+    }
 
     wolfCrypt_Init();
 
@@ -465,7 +482,7 @@ static int gen_csr(const char* arg1)
 #endif
 
     ret = 0; /* success */
-    
+
 exit:
 #ifdef HAVE_ECC
     if (type == ECC_TYPE)
@@ -486,20 +503,19 @@ exit:
     return ret;
 }
 
-#endif 
+#endif
 
 int main(int argc, char** argv)
 {
-#if !defined(WOLF_CRYPTO_CB) || !defined(WOLFSSL_CERT_REQ) || \
-    !defined(WOLFSSL_CERT_EXT) || !defined(WOLFSSL_CERT_GEN)
-    printf("Please compile wolfSSL with --enable-certreq --enable-certgen --enable-certext --enable-cryptocb\n");
-    return 0;
-#else
+#ifdef ENABLE_CSR_EXAMPLE
     if (argc != 2) {
         usage();
         return 1;
     }
 
     return gen_csr(argv[1]);
+#else
+    printf("Please compile wolfSSL with --enable-certreq --enable-certgen --enable-certext --enable-cryptocb\n");
+    return 0;
 #endif
 }
