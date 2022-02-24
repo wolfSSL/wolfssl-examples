@@ -252,3 +252,87 @@ bmQHbpv7R5cK0GP2bFkqggIgN1wA6w19lVFdjukGx6VvfYsdaY2O+Fu6Ew4qX7SG
 GxI=
 -----END CERTIFICATE-----
 ```
+
+
+## Certificate Signing Request (CSR) Example with Crypto Callbacks
+
+Example of generating a PEM-encoded certificate signing request (CSR) using the
+Crypto Callbacks to show signing against HSM/TPM
+
+Tested with these wolfSSL build options:
+
+```sh
+./autogen.sh  # If cloned from GitHub
+./configure --enable-certreq --enable-certgen --enable-certext --enable-cryptocb
+make
+make check
+sudo make install
+sudo ldconfig # required on some targets
+```
+
+### `csr_cryptocb` Example output
+
+```
+% ./csr_cryptocb
+Invalid input supplied try one of the below examples
+Examples:
+
+./csr_cryptocb rsa
+./csr_cryptocb ecc
+./csr_cryptocb ed25519
+```
+
+```
+% ./csr_cryptocb ecc
+CryptoCb: PK ECDSA-Sign (4)
+-----BEGIN CERTIFICATE REQUEST-----
+MIIBTDCB8wIBAjCBkDELMAkGA1UEBhMCVVMxCzAJBgNVBAgMAk9SMREwDwYDVQQH
+DAhQb3J0bGFuZDEQMA4GA1UECgwHd29sZlNTTDEUMBIGA1UECwwLRGV2ZWxvcG1l
+bnQxGDAWBgNVBAMMD3d3dy53b2xmc3NsLmNvbTEfMB0GCSqGSIb3DQEJARYQaW5m
+b0B3b2xmc3NsLmNvbTBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABLszrEwnUErG
+SqUEwzzenzbbci3OlOor+ssgCTksFuhhAumvTdMCk5oxW5eSIX/wzxjakRECNIbo
+IFgzC4A0idigADAKBggqhkjOPQQDAgNIADBFAiEAmJK6ZapcFw4NTjImNoBrpudZ
+6sFvRccABG35QyASvIsCIFXcN4Wo5qiH37OjT7dehbdZvQbJFw4hKOtim1gw5Z4p
+-----END CERTIFICATE REQUEST-----
+ (525)
+Saved CSR PEM to "ecc-csr.pem"
+
+```
+% ./csr_cryptocb rsa
+CryptoCb: PK RSA (1)
+-----BEGIN CERTIFICATE REQUEST-----
+MIIC1jCCAb4CAQIwgZAxCzAJBgNVBAYTAlVTMQswCQYDVQQIDAJPUjERMA8GA1UE
+BwwIUG9ydGxhbmQxEDAOBgNVBAoMB3dvbGZTU0wxFDASBgNVBAsMC0RldmVsb3Bt
+ZW50MRgwFgYDVQQDDA93d3cud29sZnNzbC5jb20xHzAdBgkqhkiG9w0BCQEWEGlu
+Zm9Ad29sZnNzbC5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDD
+A9Er/jmkMkU7U8iEKyp8dJq9qipSB0fWpjayBzKO0Lppe8bDRJ7UgUj9LWiii2e7
+oXXINixK0hv3i7rPDfnv7PGBHnubA0eav2XMf2UkaaboFIlb5DT3xbAUk/Vnezp6
+eOEBVlaRphNCjdI8QJxM79GG3zdRGwyhO/Xxo0o15OHOlt8bfr9Ol9AQ6KgIMIGv
+IAtDFMV0Z7Qygm+NhsKIQJk2g7oeQHIiF9dSZSRzsM7vGc2u/3hse8ASA9ROcg1Q
+bTujO6OZXp3I2QyFs9mK2VQm2236rLv/JUzE0Xn0cdOGQBgTsGO1ck4wxJeEhi1W
+L9cV93/ArvX8W+X7obrTAgMBAAGgADANBgkqhkiG9w0BAQsFAAOCAQEAK+RxSIQ4
+CqxYbicHcbFZgHrTy7MOoA8uM5XWIP/AKZ4u64zbF2K6XIMItrfIGEouc6MDfKVh
+W8ml6O75SR/7h/8S/9GClqcuzFqtNflzmb20Oadkl09sRIXPhFXMpt4V+Zc4cOka
+kcqL0q+oEU+8naRJJ6pa6LL1NWRq79es4DykvtHcGkx0J1VPlu3ux7iYlQ0fVfRs
+QUI1z3K52qfuchKW5zwkDjkVDbiWPd0/pbtUW2f8TAC21h0NabwMGISrrxmu6SX2
+wI8YHCyLX5sMUosQ78vuGBD0bD5rxil0lzO9pjvWiSLZe0ubJ2Qq+FiuqIqITRiy
+5AMQEs5siVCCEA==
+-----END CERTIFICATE REQUEST-----
+ (1062)
+Saved CSR PEM to "rsa-csr.pem"
+```
+
+```
+% ./csr_cryptocb ed25519
+CryptoCb: PK ED25519-Sign (6)
+-----BEGIN CERTIFICATE REQUEST-----
+MIIBETCBxAIBAjCBkDELMAkGA1UEBhMCVVMxCzAJBgNVBAgMAk9SMREwDwYDVQQH
+DAhQb3J0bGFuZDEQMA4GA1UECgwHd29sZlNTTDEUMBIGA1UECwwLRGV2ZWxvcG1l
+bnQxGDAWBgNVBAMMD3d3dy53b2xmc3NsLmNvbTEfMB0GCSqGSIb3DQEJARYQaW5m
+b0B3b2xmc3NsLmNvbTAqMAUGAytlcAMhAOZXWxMbx1EUa+079dH6q55stusCCaOZ
+9W6/nTz+VDnmoAAwBQYDK2VwA0EAZX+pExcyCYxJHJmmISW8AxfhgJ/PmTPK4+uH
+7iTt+VTNvi/Z6IPjlg+UWIbyyCno0RoNnB7GiqnvPn8fVAcsAw==
+-----END CERTIFICATE REQUEST-----
+ (448)
+Saved CSR PEM to "ed25519-csr.pem"
+```

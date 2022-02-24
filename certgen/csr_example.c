@@ -255,7 +255,7 @@ exit:
 int main(int argc, char** argv)
 {
 #if !defined(WOLFSSL_CERT_REQ) || !defined(WOLFSSL_CERT_GEN) || !defined(WOLFSSL_KEY_GEN)
-    printf("Please compile wolfSSL with --enable-certreq --enable-certgen --enable-keygen\n");
+    printf("Please compile wolfSSL with --enable-certreq --enable-certgen --enable-certext --enable-keygen\n");
     return 0;
 #else
     if (argc != 2) {

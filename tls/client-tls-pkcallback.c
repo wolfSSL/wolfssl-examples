@@ -87,7 +87,7 @@ static int load_file(const char* fname, byte** buf, size_t* bufLen)
     fseek(lFile, 0, SEEK_END);
     fileSz = (int)ftell(lFile);
     rewind(lFile);
-    if (fileSz  > 0) {
+    if (fileSz > 0) {
         *bufLen = (size_t)fileSz;
         *buf = (byte*)malloc(*bufLen);
         if (*buf == NULL) {
