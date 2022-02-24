@@ -261,10 +261,13 @@ Crypto Callbacks to show signing against HSM/TPM
 
 Tested with these wolfSSL build options:
 
-```
+```sh
+./autogen.sh  # If cloned from GitHub
 ./configure --enable-certreq --enable-certgen --enable-certext --enable-cryptocb
 make
+make check
 sudo make install
+sudo ldconfig # required on some targets
 ```
 
 ### `csr_cryptocb` Example output
