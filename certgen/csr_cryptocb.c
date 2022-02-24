@@ -515,7 +515,8 @@ int main(int argc, char** argv)
 
     return gen_csr(argv[1]);
 #else
-    printf("Please compile wolfSSL with `--enable-certreq --enable-certgen --enable-certext --enable-cryptocb` and RSA, ECC or ED25519\n");
+    printf("Please compile wolfSSL with `--enable-certreq --enable-certgen "
+           "--enable-certext --enable-cryptocb` and RSA, ECC or ED25519\n");
     return 0;
 #endif
 }
