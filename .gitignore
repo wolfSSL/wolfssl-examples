@@ -236,3 +236,14 @@ server-tls13
 client-tls13
 
 tpm/evp_tpm
+
+# Visual Studio / VisualGDB
+
+/tls/VisualGDB-tls/.visualgdb/CodeDB
+/tls/VisualGDB-tls/.vs
+/tls/VisualGDB-tls/*/Debug/*
+/tls/VisualGDB-tls/*/Releaase/*
+/tls/VisualGDB-tls/*/Makefile.old
+/tls/VisualGDB-tls/*/debug.mak.old
+/tls/VisualGDB-tls/*/*.vgdbsettings.*.user
+
