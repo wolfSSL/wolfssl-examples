@@ -44,6 +44,9 @@ int GenerateKey(WC_RNG* rng, byte* key, int size, byte* salt, int pad)
 
     if (pad == 0)
         salt[0] = 0;
+    /* salt[0] == 0 should only be used if pad == 0 */
+    else if (salt[0] == 0)
+        salt[0] = 1;
 
     /* stretches key */
     ret = wc_PBKDF2(key, key, strlen((const char*)key), salt, SALT_SIZE, 4096,
