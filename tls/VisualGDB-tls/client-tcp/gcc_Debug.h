@@ -8,6 +8,9 @@
 #pragma clang diagnostic push
 
 #pragma clang diagnostic ignored "-Wreserved-id-macro"
+#ifndef DEBUG
+#define DEBUG 1
+#endif
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE 1
 #endif
@@ -1155,9 +1158,6 @@
 #endif
 #ifndef unix
 #define unix 1
-#endif
-#ifndef DEBUG
-#define DEBUG 1
 #endif
 #endif
 

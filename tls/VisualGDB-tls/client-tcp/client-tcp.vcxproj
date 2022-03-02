@@ -46,7 +46,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <NMakeIncludeSearchPath>\\wsl$\Ubuntu\usr\include\c++\9;\\wsl$\Ubuntu\usr\include\x86_64-linux-gnu\c++\9;\\wsl$\Ubuntu\usr\include\c++\9\backward;\\wsl$\Ubuntu\usr\local\include;\\wsl$\Ubuntu\usr\lib\llvm-10\lib\clang\10.0.0\include;\\wsl$\Ubuntu\usr\include\x86_64-linux-gnu;\\wsl$\Ubuntu\usr\include;$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
     <NMakeForcedIncludes>$(ProjectDir)\gcc_Debug.h;$(VISUALGDB_DIR)\gcc_compat.h;$(NMakeForcedIncludes)</NMakeForcedIncludes>
-    <NMakePreprocessorDefinitions>__VisualGDB_CFG_Debug;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <NMakeBuildCommandLine>"$(VISUALGDB_DIR)\VisualGDB.exe" /build "$(ProjectPath)" "/solution:$(SolutionPath)"  "/config:$(Configuration)" "/platform:$(Platform)"</NMakeBuildCommandLine>
     <NMakeCleanCommandLine>"$(VISUALGDB_DIR)\VisualGDB.exe" /clean "$(ProjectPath)" "/solution:$(SolutionPath)"  "/config:$(Configuration)" "/platform:$(Platform)"</NMakeCleanCommandLine>
     <NMakeReBuildCommandLine>"$(VISUALGDB_DIR)\VisualGDB.exe" /rebuild "$(ProjectPath)" "/solution:$(SolutionPath)"  "/config:$(Configuration)" "/platform:$(Platform)"</NMakeReBuildCommandLine>
@@ -54,6 +53,7 @@
     <IncludePath />
     <ReferencePath />
     <LibraryPath />
+    <NMakePreprocessorDefinitions>__VisualGDB_CFG_Debug;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <NMakeIncludeSearchPath>\\wsl$\Ubuntu\usr\include\c++\9;\\wsl$\Ubuntu\usr\include\x86_64-linux-gnu\c++\9;\\wsl$\Ubuntu\usr\include\c++\9\backward;\\wsl$\Ubuntu\usr\local\include;\\wsl$\Ubuntu\usr\lib\llvm-10\lib\clang\10.0.0\include;\\wsl$\Ubuntu\usr\include\x86_64-linux-gnu;\\wsl$\Ubuntu\usr\include;$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
