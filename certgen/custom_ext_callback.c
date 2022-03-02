@@ -36,14 +36,16 @@
     defined(HAVE_OID_DECODING) && defined(WOLFSSL_CUSTOM_OID) && \
     defined(WOLFSSL_CERT_EXT)
 
-static int myCustomExtCallback(const word16* oid, word32 oidSz, int crit,
+static int myCustomExtCallback(const byte* oid, word32 oidSz, int crit,
                                const unsigned char* der, word32 derSz) {
     word32 i;
+    const word16 *out = (word16 *)oid;
 
     printf("Custom Extension found!\n");
     printf("(");
-    for (i = 0; i < oidSz; i ++) {
-        printf("%d", oid[i]);
+    for (i = 0; i < oidSz; i += 2) {
+        printf("%d", *out);
+        out ++;
         if (i < oidSz - 1) {
             printf(".");
         }
@@ -104,7 +106,8 @@ int main(void)
 
     InitDecodedCert(&decodedCert, derBuffer, (word32) bytes, 0);
 
-    SetUnknownExtCallback(&decodedCert, myCustomExtCallback);
+    ret = wc_SetUnknownExtCallback(&decodedCert, myCustomExtCallback);
+    check_ret("wc_SetUnknownExtCallback", ret);
 
     ret = ParseCert(&decodedCert, CERT_TYPE, NO_VERIFY, NULL);
     check_ret("ParseCert", ret);
