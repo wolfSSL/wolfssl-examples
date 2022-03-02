@@ -24,6 +24,8 @@
 #include <wolfssl/wolfcrypt/logging.h>
 #include <wolfssl/wolfcrypt/port/caam/wolfcaam.h>
 
+#include <stdio.h>
+
 #define MAX_UPDATES 100
 
 static unsigned int ImportAesKey(const byte* key, int keySz)

@@ -25,6 +25,8 @@
 #include <wolfssl/wolfcrypt/port/caam/wolfcaam.h>
 #include <wolfssl/wolfcrypt/port/caam/wolfcaam_cmac.h>
 
+#include <stdio.h>
+
 #define MAX_UPDATES 100
 
 static int doCmac(unsigned int keyId, int create, const byte* in, int inSz,
@@ -75,7 +77,7 @@ int main(int argc, char** argv)
     byte out[AES_BLOCK_SIZE];
     word32 outSz = AES_BLOCK_SIZE, i;
 
-    inSz  = (int)XSTRLEN(in);
+    inSz  = (int)XSTRLEN((char*)in);
     outSz = (word32)sizeof(out);
     if (argc == 4) {
         if (XSTRNCMP(argv[1], "1", 1) == 0) {

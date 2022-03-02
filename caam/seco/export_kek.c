@@ -24,6 +24,8 @@
 #include <wolfssl/wolfcrypt/logging.h>
 #include <wolfssl/wolfcrypt/port/caam/wolfcaam.h>
 
+#include <stdio.h>
+
 int main(int argc, char** argv)
 {
     byte kek[32];
@@ -45,3 +47,4 @@ int main(int argc, char** argv)
     wolfCrypt_Cleanup();
     return 0;
 }
+
