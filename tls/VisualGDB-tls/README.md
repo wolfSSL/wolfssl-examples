@@ -42,8 +42,13 @@ All of the code refers to source in `..\..\tls`
 
 ![failed_to_start_gdb_session.png](./images/failed_to_start_gdb_session.png)
 
-Make sure to build the projhect before single-step debugging.
+Make sure to build the project before single-step debugging.
 
+### Samples not working
+
+Check to see if the server process is still running: `ps -aux | grep server`
+
+Check working directory. Many samples refer to `../certs/` for sample key files.
 
 ### error adding symbols: DSO missing from command line
 
