@@ -74,11 +74,15 @@ static int myCustomExtCallback(const word16* oid, word32 oidSz, int crit,
 
 static void check_ret(char*, int);
 
-int main(void)
+#ifndef MAX_BUF
+#define MAX_BUF 4096
+#endif
+
+int main(int argc, char** argv)
 {
     DecodedCert decodedCert;
     FILE* file;
-    byte derBuffer[4096];
+    byte derBuffer[MAX_BUF];
     size_t bytes;
     int ret;
 
@@ -86,16 +90,21 @@ int main(void)
     wolfSSL_Debugging_ON();
 #endif
 
+    if (argc != 2) {
+        printf("Usage: %s certifcate.der\n", argv[0]);
+        return 0;
+    }
+
     wolfCrypt_Init();
 
     /* TODO: change this once we start generating our own. */ 
-    file = fopen("/home/anthony/alias_nonce_cert.der", "rb");
+    file = fopen(argv[1], "rb");
     if (!file) {
         printf("Failed to open file\n");
         exit(-99);
     }
 
-    bytes = fread(derBuffer, 1, 4096, file);
+    bytes = fread(derBuffer, 1, sizeof(derBuffer), file);
     fclose(file);
 
     printf("read bytes = %d\n", (int) bytes);
