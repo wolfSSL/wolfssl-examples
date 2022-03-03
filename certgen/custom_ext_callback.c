@@ -36,16 +36,14 @@
     defined(HAVE_OID_DECODING) && defined(WOLFSSL_CUSTOM_OID) && \
     defined(WOLFSSL_CERT_EXT)
 
-static int myCustomExtCallback(const byte* oid, word32 oidSz, int crit,
+static int myCustomExtCallback(const word16* oid, word32 oidSz, int crit,
                                const unsigned char* der, word32 derSz) {
     word32 i;
-    const word16 *out = (word16 *)oid;
 
     printf("Custom Extension found!\n");
     printf("(");
-    for (i = 0; i < oidSz; i += 2) {
-        printf("%d", *out);
-        out ++;
+    for (i = 0; i < oidSz; i++) {
+        printf("%d", oid[i]);
         if (i < oidSz - 1) {
             printf(".");
         }
@@ -64,12 +62,13 @@ static int myCustomExtCallback(const byte* oid, word32 oidSz, int crit,
     }
     printf("\n");
 
-    /* NOTE: by returning zero, you are accepting this extension and informing
+    /* NOTE: by returning zero, we are accepting this extension and informing
      *       wolfSSL that it is acceptable. If you find an extension that you
      *       do not find acceptable, you should return an error. The standard 
      *       behavior upon encountering an unknown extension with the critical
      *       flag set is to return ASN_CRIT_EXT_E. For the sake of brevity,
-     *       this example is always accepting every extension. */
+     *       this example is always accepting every extension; you should use
+     *       different logic. */
     return 0;
 }
 
