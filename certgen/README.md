@@ -336,3 +336,89 @@ b0B3b2xmc3NsLmNvbTAqMAUGAytlcAMhAOZXWxMbx1EUa+079dH6q55stusCCaOZ
  (448)
 Saved CSR PEM to "ed25519-csr.pem"
 ```
+
+## Certificate Generation and Parsing with Custom Extensions Example
+
+Example of generating a PEM-encoded and DER-encoded certificate with custom
+extensions. We then parse those certificates and display the custom extensions
+using a callback that is called for each unknown extension that is encountered.
+
+Tested with these wolfSSL build options:
+
+```sh
+./autogen.sh  # If cloned from GitHub
+./configure --enable-asn=template --enable-certreq --enable-keygen --enable-certgen --enable-certext CFLAGS="-DWOLFSSL_TEST_CERT -DHAVE_OID_DECODING -DHAVE_OID_ENCODING -DWOLFSSL_CUSTOM_OID -DWOLFSSL_CERT_EXT"
+make
+make check
+sudo make install
+sudo ldconfig # required on some targets
+```
+
+In the directory where this README.md file is found, build and execute the
+`custom_ext` and `custom_ext_callback` samples:
+
+```sh
+make custom_ext
+make custom_ext_callback
+./custom_ext
+./custom_ext_callback newCert.der
+```
+
+For independent verfication of the presence of the extensions, you can
+pretty-print the certificates using `openssl`:
+
+```
+openssl x509 -in newCert.pem -noout -text
+```
+
+The output should be similar to this:
+```
+ert.pem -noout -text
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            3c:26:f1:35:59:78:2c:1b:56:5f:3d:9c:be:eb:5a:1d
+        Signature Algorithm: ecdsa-with-SHA256
+        Issuer: C = US, ST = Washington, L = Seattle, O = wolfSSL, OU = Development, CN = www.wolfssl.com, emailAddress = info@wolfssl.com
+        Validity
+            Not Before: Mar  3 21:42:52 2022 GMT
+            Not After : Jul 17 21:42:52 2023 GMT
+        Subject: C = US, ST = MT, L = Bozeman, O = yourOrgNameHere, OU = yourUnitNameHere, CN = www.yourDomain.com, emailAddress = yourEmail@yourDomain.com
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                RSA Public-Key: (2048 bit)
+                Modulus:
+                    00:e2:3c:29:23:9f:3d:e4:07:09:2d:61:df:7b:5f:
+                    ef:32:cd:17:84:b6:84:b7:44:90:39:39:77:6b:a3:
+                    72:45:88:bd:3f:3a:8a:a7:1d:e6:f0:09:2c:ba:1a:
+                    6b:cf:62:a8:a6:d5:5b:83:21:dc:0e:73:5f:0e:06:
+                    f2:53:06:7c:c8:ea:67:82:df:79:4e:18:1b:e2:16:
+                    cc:97:aa:d6:72:75:2f:1f:ca:65:e1:40:5b:95:e6:
+                    d5:14:ea:de:f1:c1:39:c6:11:3d:a6:01:7b:63:57:
+                    55:8e:b7:d4:54:2e:e2:83:18:a6:74:11:d1:38:87:
+                    d0:83:09:80:22:0d:41:ac:cf:40:d4:a1:23:b9:97:
+                    52:b1:e0:88:4d:48:b4:5e:c5:ef:63:c6:3c:e8:42:
+                    d7:0d:b0:4a:fe:e1:c4:76:06:4a:a0:a9:0e:0c:45:
+                    af:7f:ec:de:78:b8:53:7e:d1:a2:ea:9d:d6:12:3c:
+                    a9:cb:88:2d:55:b6:fa:57:d0:28:3e:f1:c0:14:ce:
+                    92:3a:6c:23:56:21:3f:e7:72:d5:8f:94:ee:be:fa:
+                    86:d0:80:6b:3d:bd:ab:b3:5e:08:fb:50:c0:73:0c:
+                    90:18:d3:c3:db:f9:62:56:7f:51:b2:c2:63:b1:00:
+                    1c:6e:da:a3:06:07:52:57:d0:64:cd:a2:11:9f:2d:
+                    93:6b
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            1.2.3.4.5: critical
+                This is a critical extension
+            1.2.3.4.6:
+                This is NOT a critical extension
+    Signature Algorithm: ecdsa-with-SHA256
+         30:45:02:20:7b:5f:77:56:5d:c7:c7:06:8e:bf:c4:95:fa:cc:
+         71:c8:e8:77:61:6c:7d:d3:84:1d:53:c3:2e:02:5c:77:06:e8:
+         02:21:00:bf:f0:b4:0f:5c:fd:2b:16:92:35:43:7e:dc:59:bd:
+         0f:8e:c0:82:e9:54:5d:57:7f:0e:e6:7d:5a:46:27:75:cb
+
+```
+
+Note the section titled "X509v3 extensions:".

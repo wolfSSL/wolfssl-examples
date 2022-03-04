@@ -106,7 +106,7 @@ static int do_certgen(int argc, char** argv)
         printf("Failed to read caKey from file\n");
         goto exit;
     }
-    
+
     printf("Successfully read %d bytes from %s\n", caKeySz, caKeyFile);
 
     wc_ecc_init(&caKey);
