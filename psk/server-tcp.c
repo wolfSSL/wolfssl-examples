@@ -1,5 +1,5 @@
 /* server-tcp.c
- * A server ecample using a TCP connection.
+ * A server example using a TCP connection.
  *
  * Copyright (C) 2006-2020 wolfSSL Inc.
  *
@@ -92,7 +92,7 @@ int main()
             printf("Connection from %s, port %d\n",
                    inet_ntop(AF_INET, &cliAddr.sin_addr, buff, sizeof(buff)),
                    ntohs(cliAddr.sin_port));
-            
+
             /* empty response buffer to avoid unexpected output */
             memset(buf, 0, MAXLINE);
             n = read(connfd, buf, MAXLINE);

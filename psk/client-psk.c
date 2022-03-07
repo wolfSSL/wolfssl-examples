@@ -35,6 +35,7 @@
 #define     SERV_PORT 11111  /* default port*/
 #define     PSK_KEY_LEN 4
 
+#ifndef NO_PSK
 /*
  *psk client set up.
  */
@@ -58,6 +59,7 @@ static inline unsigned int My_Psk_Client_Cb(WOLFSSL* ssl, const char* hint,
 
     return PSK_KEY_LEN;
 }
+#endif
 
 int main(int argc, char **argv)
 {
@@ -73,7 +75,7 @@ int main(int argc, char **argv)
     /* must include an ip address of this will flag */
     if (argc != 2) {
         printf("Usage: tcpClient <IPaddress>\n");
-        return -1; 
+        return -1;
     }
 
     /* create a stream socket using tcp,internet protocal IPv4,
@@ -90,7 +92,7 @@ int main(int argc, char **argv)
     ret = inet_pton(AF_INET, argv[1], &servaddr.sin_addr);
     if (ret != 1) {
         printf("inet_pton error\n");
-        ret = -1; 
+        ret = -1;
         goto exit;
     }
 
@@ -98,7 +100,7 @@ int main(int argc, char **argv)
     ret = connect(sockfd, (struct sockaddr *) &servaddr, sizeof(servaddr));
     if (ret != 0) {
         printf("Connection Error\n");
-        ret = -1; 
+        ret = -1;
         goto exit;
     }
 
@@ -112,13 +114,17 @@ int main(int argc, char **argv)
         goto exit;
     }
 
+#ifndef NO_PSK
     /* set up pre shared keys */
     wolfSSL_CTX_set_psk_client_callback(ctx, My_Psk_Client_Cb);
+#else
+    fprintf(stderr, "Warning: wolfSSL not built with PSK (--enable-psk)\n");
+#endif
 
     /* creat wolfssl object after each tcp connect */
     if ( (ssl = wolfSSL_new(ctx)) == NULL) {
         fprintf(stderr, "wolfSSL_new error.\n");
-        ret = -1; 
+        ret = -1;
         goto exit;
     }
 

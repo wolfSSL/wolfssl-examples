@@ -1,7 +1,6 @@
-/* server-psk.c
- * A server ecample using a TCP connection with PSK security.
+/* server-psk-tls13-multi-id.c
  *
- * Copyright (C) 2006-2020 wolfSSL Inc.
+ * Copyright (C) 2006-2022 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -18,6 +17,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+ */
+
+/* A server example using a TCP connection with PSK security showing
+ * PSK with identity.
  */
 
 #include <wolfssl/options.h> /* included for options sync */
@@ -38,6 +41,7 @@
 #define PSK_KEY_LEN 4
 #define dhParamFile    "../certs/dh2048.pem"
 
+#ifndef NO_PSK
 /*
  * Identify which psk key to use.
  */
@@ -71,6 +75,7 @@ static unsigned int my_tls13_psk_server_cb(WOLFSSL* ssl, const char* identity,
 
     return PSK_KEY_LEN;
 }
+#endif
 
 int main()
 {
@@ -131,6 +136,7 @@ int main()
         return 1;
     }
 
+#ifndef NO_PSK
     /* use psk suite for security */
     wolfSSL_CTX_set_psk_server_tls13_callback(ctx, my_tls13_psk_server_cb);
 
@@ -139,6 +145,9 @@ int main()
         printf("Fatal error : ctx use psk identity hint returned %d\n", ret);
         return ret;
     }
+#else
+    fprintf(stderr, "Warning: wolfSSL not built with PSK (--enable-psk)\n");
+#endif
 
     if ((ret = wolfSSL_CTX_set_cipher_list(ctx, suites)) != WOLFSSL_SUCCESS) {
         printf("Fatal error : server set cipher list returned %d\n", ret);
@@ -212,4 +221,3 @@ int main()
 
     return 0;
 }
-

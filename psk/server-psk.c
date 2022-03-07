@@ -1,5 +1,5 @@
 /* server-psk.c
- * A server ecample using a TCP connection with PSK security.
+ * A server example using a TCP connection with PSK security.
  *
  * Copyright (C) 2006-2020 wolfSSL Inc.
  *
@@ -38,6 +38,7 @@
 #define PSK_KEY_LEN 4
 #define dhParamFile    "../certs/dh2048.pem"
 
+#ifndef NO_PSK
 /*
  * Identify which psk key to use.
  */
@@ -58,6 +59,7 @@ static unsigned int my_psk_server_cb(WOLFSSL* ssl, const char* identity,
 
     return PSK_KEY_LEN;
 }
+#endif
 
 int main()
 {
@@ -138,6 +140,7 @@ int main()
         return 1;
     }
 
+#ifndef NO_PSK
     /* use psk suite for security */
     wolfSSL_CTX_set_psk_server_callback(ctx, my_psk_server_cb);
 
@@ -146,6 +149,9 @@ int main()
         printf("Fatal error : ctx use psk identity hint returned %d\n", ret);
         return ret;
     }
+#else
+    fprintf(stderr, "Warning: wolfSSL not built with PSK (--enable-psk)\n");
+#endif
 
     if ((ret = wolfSSL_CTX_set_cipher_list(ctx, suites)) != WOLFSSL_SUCCESS) {
         printf("Fatal error : server set cipher list returned %d\n", ret);

@@ -1,10 +1,23 @@
-CC=gcc
-CFLAGS=-Wall -I../../wolfssl -g -DDEBUG
-LIBS=-lwolfssl -lm -L../../wolfssl/src/.libs
+# PSK Examples Makefile
+CC       = gcc
+LIB_PATH = /usr/local
+CFLAGS   = -Wall -I$(LIB_PATH)/include
+LIBS     = -L$(LIB_PATH)/lib -lm
 
+# option variables
+DYN_LIB         = -lwolfssl
+STATIC_LIB      = $(LIB_PATH)/lib/libwolfssl.a
+DEBUG_FLAGS     = -g -DDEBUG
+DEBUG_INC_PATHS = -MD
+OPTIMIZE        = -Os
+
+# Options
 # For debug (./configure --enable-debug --disable-shared)
-#LIBS=/usr/local/lib/libwolfssl.a
-#CFLAGS+=-g -DDEBUG
+# Uncomment DEBUG_FLAGS and STATIC_LIB (comment DYN_LIB)
+#CFLAGS+=$(DEBUG_FLAGS)
+CFLAGS+=$(OPTIMIZE)
+#LIBS+=$(STATIC_LIB)
+LIBS+=$(DYN_LIB)
 
 
 all: client-tcp client-psk client-psk-nonblocking client-psk-resume client-psk-tls13-multi-id server-tcp server-psk server-psk-nonblocking server-psk-threaded client-psk-bio-custom server-psk-tls13-multi-id

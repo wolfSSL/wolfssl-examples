@@ -37,6 +37,7 @@
 #define     SERV_PORT 11111  /* default port*/
 #define     PSK_KEY_LEN 4
 
+#ifndef NO_PSK
 /*
  *psk client set up.
  */
@@ -60,6 +61,7 @@ static inline unsigned int My_Psk_Client_Cb(WOLFSSL* ssl, const char* hint,
 
     return PSK_KEY_LEN;
 }
+#endif
 
 int main(int argc, char **argv){
 
@@ -110,8 +112,12 @@ int main(int argc, char **argv){
         ret = -1; goto exit;
     }
 
+#ifndef NO_PSK
     /* set up pre shared keys */
     wolfSSL_CTX_set_psk_client_callback(ctx, My_Psk_Client_Cb);
+#else
+    fprintf(stderr, "Warning: wolfSSL not built with PSK (--enable-psk)\n");
+#endif
 
     /* create wolfSSL object after each tcp connect */
     if ( (ssl = wolfSSL_new(ctx)) == NULL) {

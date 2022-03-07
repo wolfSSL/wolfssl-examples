@@ -46,6 +46,7 @@ enum {
     TEST_ERROR_READY
 };
 
+#ifndef NO_PSK
 /*
  *psk client set up.
  */
@@ -69,6 +70,7 @@ static inline unsigned int My_Psk_Client_Cb(WOLFSSL* ssl, const char* hint,
 
     return PSK_KEY_LEN;
 }
+#endif
 
 int main(int argc, char **argv)
 {
@@ -132,7 +134,7 @@ int main(int argc, char **argv)
     flags = fcntl(sockfd, F_SETFL, flags | O_NONBLOCK);
     if (flags < 0) {
         printf("fcntl set failed\n");
-        ret = -1; 
+        ret = -1;
         goto exit;
     }
 
@@ -145,8 +147,12 @@ int main(int argc, char **argv)
         goto exit;
     }
 
+#ifndef NO_PSK
     /* set up pre shared keys */
     wolfSSL_CTX_set_psk_client_callback(ctx,My_Psk_Client_Cb);
+#else
+    fprintf(stderr, "Warning: wolfSSL not built with PSK (--enable-psk)\n");
+#endif
 
     /* create wolfSSL object after each tcp connect */
     if ((ssl = wolfSSL_new(ctx)) == NULL) {

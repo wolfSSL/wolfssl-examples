@@ -1,5 +1,5 @@
 /* server-psk-nonblocking.c
- * A server ecample using a TCP connection with PSK security and non blocking.
+ * A server example using a TCP connection with PSK security and non blocking.
  *
  * Copyright (C) 2006-2020 wolfSSL Inc.
  *
@@ -49,6 +49,7 @@ enum{
     TEST_ERROR_READY
 };
 
+#ifndef NO_PSK
 /*
  * Used for finding psk value.
  */
@@ -69,7 +70,7 @@ static inline unsigned int my_psk_server_cb(WOLFSSL* ssl, const char* identity,
 
     return PSK_KEY_LEN;
 }
-
+#endif
 
 int main()
 {
@@ -152,10 +153,14 @@ int main()
         return 1;
     }
 
+#ifndef NO_PSK
     /* use psk suite for security */
     wolfSSL_CTX_set_psk_server_callback(ctx, my_psk_server_cb);
 
     wolfSSL_CTX_use_psk_identity_hint(ctx, "wolfssl server");
+#else
+    fprintf(stderr, "Warning: wolfSSL not built with PSK (--enable-psk)\n");
+#endif
 
     if (wolfSSL_CTX_set_cipher_list(ctx, suites) != WOLFSSL_SUCCESS) {
         printf("Fatal error : server can't set cipher list\n");
