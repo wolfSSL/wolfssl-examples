@@ -59,12 +59,15 @@ android/wolfssljni-ndk-sample/proguard-project.txt
 /dtls/server-dtls
 /dtls/server-udp
 
+/psk/client-psk-bio-custom
 /psk/client-psk-nonblocking
 /psk/client-psk-resume
+/psk/client-psk-tls13-multi-id
 /psk/client-psk
 /psk/client-tcp
 /psk/server-psk-nonblocking
 /psk/server-psk-threaded
+/psk/server-psk-tls13-multi-id
 /psk/server-psk
 /psk/server-tcp
 
