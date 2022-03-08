@@ -73,7 +73,7 @@ int main(int argc, char **argv)
     ret = connect(sockfd, (struct sockaddr *) &servaddr, sizeof(servaddr));
 
     if (ret != 0) {
-        ret = -1; 
+        ret = -1;
         goto exit;
     }
 
@@ -81,14 +81,14 @@ int main(int argc, char **argv)
     /* write string to the server */
     if (write(sockfd, sendline, strlen(sendline)) != strlen(sendline)) {
         printf("Write Error to Server\n");
-        ret = -1; 
+        ret = -1;
         goto exit;
     }
 
     /* flags if the server stopped before the client could end */
     if (read(sockfd, recvline, MAXLINE) == 0) {
         printf("Client: Server Terminated Prematurely!\n");
-        ret = -1; 
+        ret = -1;
         goto exit;
     }
 
@@ -99,6 +99,6 @@ int main(int argc, char **argv)
 exit:
     /* close socket and connection */
     close(sockfd);
-   
+
     return ret;
 }

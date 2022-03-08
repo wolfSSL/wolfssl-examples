@@ -1,5 +1,5 @@
 /* server-psk-threaded.c
- * A server ecample using a multi-threaded TCP connection with PSK security. 
+ * A server example using a multi-threaded TCP connection with PSK security.
  *
  * Copyright (C) 2006-2020 wolfSSL Inc.
  *
@@ -42,6 +42,7 @@
 
 WOLFSSL_CTX* ctx; /* global so it's shared by threads */
 
+#ifndef NO_PSK
 /*
  * Identify which psk key to use.
  */
@@ -63,6 +64,7 @@ static inline unsigned int my_psk_server_cb(WOLFSSL* ssl, const char* identity,
 
     return PSK_KEY_LEN;
 }
+#endif
 
 /*
  * Process handled by a thread.
@@ -185,6 +187,7 @@ int main()
         printf("Fatal error : wolfSSL_CTX_new error\n");
     }
 
+#ifndef NO_PSK
     /* use psk suite for security */
     wolfSSL_CTX_set_psk_server_callback(ctx, my_psk_server_cb);
 
@@ -193,6 +196,9 @@ int main()
         printf("Fatal error : ctx use psk identity hint returned %d\n", ret);
         return ret;
     }
+#else
+    fprintf(stderr, "Warning: wolfSSL not built with PSK (--enable-psk)\n");
+#endif
 
     if ((ret = wolfSSL_CTX_set_cipher_list(ctx, suites)) != WOLFSSL_SUCCESS) {
         printf("Fatal error : server can't set cipher list");
@@ -225,7 +231,7 @@ int main()
                    inet_ntop(AF_INET, &cliAddr.sin_addr, buff, sizeof(buff)),
                    ntohs(cliAddr.sin_port));
 
-            if (pthread_create(&thread, NULL, &wolfssl_thread, (void*) &connfd) 
+            if (pthread_create(&thread, NULL, &wolfssl_thread, (void*) &connfd)
                                != 0) {
                 return 1;
             }

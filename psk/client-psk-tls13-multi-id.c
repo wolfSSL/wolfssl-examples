@@ -1,7 +1,7 @@
 
-/* client-psk.c
+/* client-psk-tls13-multi-id.c
  *
- * Copyright (C) 2006-2020 wolfSSL Inc.
+ * Copyright (C) 2006-2022 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -18,7 +18,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
- **/
+ */
+
+/* A client example using a TCP connection with PSK security showing
+ * PSK with identity.
+ */
 
 #include <wolfssl/options.h> /* included for options sync */
 #include <wolfssl/ssl.h>     /* must include this to use wolfSSL security */
@@ -37,25 +41,43 @@
 
 #ifndef NO_PSK
 /*
- *psk client set up.
+ * psk client set up.
  */
-static inline unsigned int My_Psk_Client_Cb(WOLFSSL* ssl, const char* hint,
-        char* identity, unsigned int id_max_len, unsigned char* key,
-        unsigned int key_max_len)
+static inline unsigned int My_Tls13_Psk_Client_Cs_Cb(WOLFSSL* ssl,
+    const char* hint, char* identity, unsigned int id_max_len,
+    unsigned char* key, unsigned int key_max_len, const char* ciphersuite)
 {
     (void)ssl;
     (void)hint;
     (void)key_max_len;
 
-    /* identity is OpenSSL testing default for openssl s_client, keep same*/
-    strncpy(identity, "Client_identity", id_max_len);
+    if (strncmp(ciphersuite, "TLS13-AES128-GCM-SHA256",
+                XSTRLEN(ciphersuite)) == 0) {
 
-    /* test key n hex is 0x1a2b3c4d , in decimal 439,041,101, we're using
-     * unsigned binary */
-    key[0] = 26;
-    key[1] = 43;
-    key[2] = 60;
-    key[3] = 77;
+        /* identity is OpenSSL testing default for openssl s_client, keep same*/
+        strncpy(identity, "Client_Id_AES", id_max_len);
+
+        /* test key n hex is 0x1a2b3c4d */
+        key[0] = 0x1a;
+        key[1] = 0x2b;
+        key[2] = 0x3c;
+        key[3] = 0x4d;
+    }
+    else if (strncmp(ciphersuite, "TLS13-CHACHA20-POLY1305-SHA256",
+                     XSTRLEN(ciphersuite)) == 0) {
+
+        /* identity is OpenSSL testing default for openssl s_client, keep same*/
+        strncpy(identity, "Client_Id_ChaCha", id_max_len);
+
+        /* test key n hex is 0xa1b2c3d4 */
+        key[0] = 0xa1;
+        key[1] = 0xb2;
+        key[2] = 0xc3;
+        key[3] = 0xd4;
+    }
+    else {
+        return 0;
+    }
 
     return PSK_KEY_LEN;
 }
@@ -108,7 +130,7 @@ int main(int argc, char **argv)
     wolfSSL_Init();  /* initialize wolfSSL */
 
     /* create and initialize WOLFSSL_CTX structure */
-    if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method())) == NULL) {
+    if ((ctx = wolfSSL_CTX_new(wolfTLSv1_3_client_method())) == NULL) {
         fprintf(stderr, "wolfSSL_CTX_new error.\n");
         ret = -1;
         goto exit;
@@ -116,7 +138,7 @@ int main(int argc, char **argv)
 
 #ifndef NO_PSK
     /* set up pre shared keys */
-    wolfSSL_CTX_set_psk_client_callback(ctx, My_Psk_Client_Cb);
+    wolfSSL_CTX_set_psk_client_cs_callback(ctx, My_Tls13_Psk_Client_Cs_Cb);
 #else
     fprintf(stderr, "Warning: wolfSSL not built with PSK (--enable-psk)\n");
 #endif
@@ -147,6 +169,9 @@ int main(int argc, char **argv)
         ret = -1;
         goto exit;
     }
+
+    WOLFSSL_CIPHER* cipher = wolfSSL_get_current_cipher(ssl);
+    printf("Cipher suite: %s\n", wolfSSL_CIPHER_get_name(cipher));
 
     /* show message from the server */
     printf("Server Message: %s\n", recvline);

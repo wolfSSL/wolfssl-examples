@@ -99,7 +99,7 @@ static long bioCTRLCb(WOLFSSL_BIO* bio, int cmd, long larg, void* data)
     return ret;
 }
 
-
+#ifndef NO_PSK
 /*
  *psk client set up.
  */
@@ -123,7 +123,7 @@ static inline unsigned int My_Psk_Client_Cb(WOLFSSL* ssl, const char* hint,
 
     return PSK_KEY_LEN;
 }
-
+#endif
 
 static int createSocket(char* ip)
 {
@@ -222,8 +222,12 @@ int main(int argc, char **argv)
         goto exit;
     }
 
+#ifndef NO_PSK
     /* set up pre shared keys */
     wolfSSL_CTX_set_psk_client_callback(ctx, My_Psk_Client_Cb);
+#else
+    fprintf(stderr, "Warning: wolfSSL not built with PSK (--enable-psk)\n");
+#endif
 
     /* creat wolfssl object after each tcp connect */
     if ( (ssl = wolfSSL_new(ctx)) == NULL) {

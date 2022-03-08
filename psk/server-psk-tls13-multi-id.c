@@ -1,7 +1,6 @@
-/* server-psk.c
- * A server example using a TCP connection with PSK security.
+/* server-psk-tls13-multi-id.c
  *
- * Copyright (C) 2006-2020 wolfSSL Inc.
+ * Copyright (C) 2006-2022 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -18,6 +17,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+ */
+
+/* A server example using a TCP connection with PSK security showing
+ * PSK with identity.
  */
 
 #include <wolfssl/options.h> /* included for options sync */
@@ -42,20 +45,33 @@
 /*
  * Identify which psk key to use.
  */
-static unsigned int my_psk_server_cb(WOLFSSL* ssl, const char* identity,
-                           unsigned char* key, unsigned int key_max_len)
+static unsigned int my_tls13_psk_server_cb(WOLFSSL* ssl, const char* identity,
+    unsigned char* key, unsigned int key_max_len, const char** ciphersuite)
 {
     (void)ssl;
     (void)key_max_len;
 
-    if (strncmp(identity, "Client_identity", 15) != 0) {
+    if (strncmp(identity, "Client_Id_AES", 14) == 0) {
+
+        key[0] = 0x1a;
+        key[1] = 0x2b;
+        key[2] = 0x3c;
+        key[3] = 0x4d;
+
+        *ciphersuite = "TLS13-AES128-GCM-SHA256";
+    }
+    else if (strncmp(identity, "Client_Id_ChaCha", 17) == 0) {
+
+        key[0] = 0xa1;
+        key[1] = 0xb2;
+        key[2] = 0xc3;
+        key[3] = 0xd4;
+
+        *ciphersuite = "TLS13-CHACHA20-POLY1305-SHA256";
+    }
+    else {
         return 0;
     }
-
-    key[0] = 26;
-    key[1] = 43;
-    key[2] = 60;
-    key[3] = 77;
 
     return PSK_KEY_LEN;
 }
@@ -69,38 +85,18 @@ int main()
     char                buff[MAXLINE];
     char buf[MAXLINE];   /* string read from client */
     char response[] = "I hear ya for shizzle";
-    char suites[]   =
-#ifdef WOLFSSL_STATIC_PSK
-                      "PSK-AES256-GCM-SHA384:"
-                      "PSK-AES128-GCM-SHA256:"
-                      "PSK-AES256-CBC-SHA384:"
-                      "PSK-AES128-CBC-SHA256:"
-                      "PSK-AES128-CBC-SHA:"
-                      "PSK-AES256-CBC-SHA:"
-                      "PSK-CHACHA20-POLY1305:"
-#endif
-#if defined(WOLFSSL_TLS13_DRAFT18) || defined(WOLFSSL_TLS13_DRAFT22) || \
-    defined(WOLFSSL_TLS13_DRAFT23) || defined(WOLFSSL_TLS13_DRAFT26) || \
-    defined(WOLFSSL_TLS13)
+    char suites[]   = "TLS13-CHACHA20-POLY1305-SHA256:"
                       "TLS13-AES128-GCM-SHA256:"
-                      "TLS13-AES256-GCM-SHA384:"
-                      "TLS13-CHACHA20-POLY1305-SHA256:"
-#endif
-#ifndef NO_DH
-                      "DHE-PSK-AES256-GCM-SHA384:"
-                      "DHE-PSK-AES128-GCM-SHA256:"
-                      "DHE-PSK-AES256-CBC-SHA384:"
-                      "DHE-PSK-AES128-CBC-SHA256:"
-                      "DHE-PSK-CHACHA20-POLY1305"
-#endif
-                      "ECDHE-PSK-AES128-CBC-SHA256:"
-                      "ECDHE-PSK-CHACHA20-POLY1305:";
+                      "TLS13-AES256-GCM-SHA384:";
 
     struct sockaddr_in  cliAddr, servAddr;
     socklen_t           cliLen;
     WOLFSSL_CTX*         ctx;
 
 
+#if defined(DEBUG_WOLFSSL)
+    wolfSSL_Debugging_ON();
+#endif
 
     /* set up server address and port */
     memset(&servAddr, 0, sizeof(servAddr));
@@ -135,14 +131,14 @@ int main()
 
     wolfSSL_Init();
     /* create ctx and configure certificates */
-    if ((ctx = wolfSSL_CTX_new(wolfSSLv23_server_method())) == NULL) {
+    if ((ctx = wolfSSL_CTX_new(wolfTLSv1_3_server_method())) == NULL) {
         printf("Fatal error : wolfSSL_CTX_new error\n");
         return 1;
     }
 
 #ifndef NO_PSK
     /* use psk suite for security */
-    wolfSSL_CTX_set_psk_server_callback(ctx, my_psk_server_cb);
+    wolfSSL_CTX_set_psk_server_tls13_callback(ctx, my_tls13_psk_server_cb);
 
     if ((ret = wolfSSL_CTX_use_psk_identity_hint(ctx, "wolfssl server"))
          != WOLFSSL_SUCCESS) {
@@ -225,4 +221,3 @@ int main()
 
     return 0;
 }
-
