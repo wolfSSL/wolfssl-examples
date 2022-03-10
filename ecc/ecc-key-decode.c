@@ -34,11 +34,15 @@
 
 static void check_ret(char*, int);
 
+#ifndef MAX_BUF
+#define MAX_BUF 4096
+#endif
+
 int main(void)
 {
     DecodedCert decodedCert;
     FILE* file;
-    byte derBuffer[4096];
+    byte derBuffer[MAX_BUF];
     size_t bytes;
     ecc_key eccKey;
     int ret;
@@ -56,7 +60,7 @@ int main(void)
         exit(-99);
     }
 
-    bytes = fread(derBuffer, 1, 4096, file);
+    bytes = fread(derBuffer, 1, sizeof(derBuffer), file);
     fclose(file);
 
     printf("read bytes = %d\n", (int) bytes);
