@@ -189,6 +189,7 @@ int AesDecrypt(Aes* aes, byte* key, int size, FILE* inFile, FILE* outFile)
         return -1050;
 
     /* sets key */
+    /* decrypt uses AES_ENCRYPTION */
     ret = wc_AesSetKey(aes, key, AES_BLOCK_SIZE, iv, AES_ENCRYPTION);
     if (ret != 0)
         return -1002;
