@@ -56,7 +56,7 @@ static int doEcb(unsigned int keyId, const byte* in, int inSz)
     int i;
 
     XMEMSET(cipherTxt, 0, sizeof(cipherTxt));
-    wc_AesInit(&aes, NULL, WOLFSSL_CAAM_DEVID);
+    wc_AesInit(&aes, NULL, WOLFSSL_SECO_DEVID);
     wc_SECO_AesSetKeyID(&aes, keyId);
 
     printf("in = %p\n", in);

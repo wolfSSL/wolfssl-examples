@@ -52,10 +52,10 @@ static int doCcb(unsigned int keyId, const byte* in, int inSz, const byte* iv,
     Aes aes;
     byte out[AES_BLOCK_SIZE*2];
     byte cipherTxt[AES_BLOCK_SIZE*2];
-    int i;
+    int i, ret;
 
     XMEMSET(cipherTxt, 0, sizeof(cipherTxt));
-    wc_AesInit(&aes, NULL, WOLFSSL_CAAM_DEVID);
+    wc_AesInit(&aes, NULL, WOLFSSL_SECO_DEVID);
     wc_AesSetIV(&aes, iv);
     wc_SECO_AesSetKeyID(&aes, keyId);
 
@@ -67,8 +67,8 @@ static int doCcb(unsigned int keyId, const byte* in, int inSz, const byte* iv,
         printf("%02X", in[i]);
     printf("\n");
 
-    if (wc_AesCbcEncrypt(&aes, cipherTxt, in, inSz) != 0) {
-        printf("Issue with ccb encrypt\n");
+    if ((ret = wc_AesCbcEncrypt(&aes, cipherTxt, in, inSz)) != 0) {
+        printf("Issue [%d] with ccb encrypt\n", ret);
     }
 
     printf("Cipher text: ");

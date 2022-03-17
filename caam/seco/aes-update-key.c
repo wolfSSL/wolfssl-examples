@@ -1,4 +1,4 @@
-/* aes-gcm.c
+/* aes-update-key.c
  *
  * Copyright (C) 2006-2021 wolfSSL Inc.
  *
@@ -28,46 +28,46 @@
 
 #define MAX_UPDATES 100
 
-static unsigned int createAesKey()
+static unsigned int generateAesKey(int flag, unsigned int* keyIdOut,
+    int keyGroup)
 {
-    int keyGroup = 1; /* group one was chosen arbitrarily */
-    unsigned int keyIdOut;
-    int keyInfo = CAAM_KEY_PERSISTENT;
+    int keyInfo = CAAM_KEY_TRANSIENT;
     int keyType = CAAM_KEYTYPE_AES128;
-    byte pubOut[AES_256_KEY_SIZE];
+    byte pubOut[32];
 
-    /* generate a CMAC key in the HSM */
-    if (wc_SECO_GenerateKey(CAAM_GENERATE_KEY, keyGroup, pubOut, 0, keyType,
-        keyInfo, &keyIdOut) != 0) {
+    /* generate or update a key in the HSM */
+    if (wc_SECO_GenerateKey(flag, keyGroup, pubOut, 0, keyType,
+        keyInfo, keyIdOut) != 0) {
         printf("Error generating key in hsm\n");
         return -1;
     }
-    return keyIdOut;
+    return *keyIdOut;
 }
 
 
-static int doGcm(unsigned int keyId, const byte* in, int inSz,
-    const byte* nonce, const byte* aad, int aadSz)
+static int doCcb(unsigned int keyId, const byte* in, int inSz, const byte* iv,
+        int ivSz)
 {
     Aes aes;
     byte out[AES_BLOCK_SIZE*2];
     byte cipherTxt[AES_BLOCK_SIZE*2];
-    byte authTag[AES_BLOCK_SIZE];
     int i;
 
-    XMEMSET(authTag,   0, AES_BLOCK_SIZE);
     XMEMSET(cipherTxt, 0, sizeof(cipherTxt));
-    wc_AesInit(&aes,   NULL, WOLFSSL_SECO_DEVID);
+    wc_AesInit(&aes, NULL, WOLFSSL_SECO_DEVID);
+    wc_AesSetIV(&aes, iv);
     wc_SECO_AesSetKeyID(&aes, keyId);
 
+    printf("in = %p\n", in);
+    printf("out = %p\n", out);
+    printf("cipherTxt = %p\n", cipherTxt);
     printf("Encrypting : ");
     for (i = 0; i < inSz; i++)
         printf("%02X", in[i]);
     printf("\n");
 
-    if (wc_AesGcmEncrypt(&aes, cipherTxt, in, inSz, nonce, GCM_NONCE_MID_SZ,
-        authTag, AES_BLOCK_SIZE, aad, aadSz) != 0) {
-        printf("Issue with ccm encrypt\n");
+    if (wc_AesCbcEncrypt(&aes, cipherTxt, in, inSz) != 0) {
+        printf("Issue with ccb encrypt\n");
     }
 
     printf("Cipher text: ");
@@ -75,15 +75,7 @@ static int doGcm(unsigned int keyId, const byte* in, int inSz,
         printf("%02X", cipherTxt[i]);
     printf("\n");
 
-    printf("Tag : ");
-    for (i = 0; i < AES_BLOCK_SIZE; i++)
-        printf("%02X", authTag[i]);
-    printf("\n");
-
-    if (wc_AesGcmDecrypt(&aes, out, cipherTxt, inSz, nonce, GCM_NONCE_MID_SZ,
-        authTag, AES_BLOCK_SIZE, aad, aadSz) != 0) {
-        printf("Issue with ccm decrypt\n");
-    }
+    wc_AesCbcDecrypt(&aes, out, cipherTxt, inSz);
 
     printf("Decrypted : ");
     for (i = 0; i < inSz; i++)
@@ -97,16 +89,14 @@ static int doGcm(unsigned int keyId, const byte* in, int inSz,
 
 int main(int argc, char** argv)
 {
+    int group = 1; /* group one was chosen arbitrarily */
     word32 nonce = 0x1111;
     int create   = 0;
     unsigned int keyId;
     unsigned int keyStoreId;
     const byte in[] = "test message to encrypt";
-    int inSz;
-    const byte n[]   = {1,2,3,4,5,6,7,8,9,10,11,12};
-    const byte aad[] = {1,2,3,4};
+    const byte iv[] = {0,1,2,3,4,5,6,7,8,9,10,11,12};
 
-    inSz  = (int)XSTRLEN((const char*)in);
     if (argc == 4) {
         if (XSTRNCMP(argv[1], "1", 1) == 0) {
             create = CAAM_KEYSTORE_CREATE;
@@ -133,12 +123,18 @@ int main(int argc, char** argv)
         return -1;
     }
 
-    if (create == CAAM_KEYSTORE_CREATE) {
-        keyId = createAesKey();
+    if (create) {
+        keyId = generateAesKey(CAAM_GENERATE_KEY, &keyId, group);
     }
     printf("Key ID: %u\n", keyId);
 
-    doGcm(keyId, in, inSz, n, aad, sizeof(aad));
+    doCcb(keyId, in, AES_BLOCK_SIZE, iv, sizeof(iv));
+
+    printf("\nNow update the key and do the operation again.\n");
+    printf("The encrypted results should be different with new key.\n");
+    keyId = generateAesKey(CAAM_UPDATE_KEY, &keyId, 0);
+    printf("Key ID after update : %u (should be the same ID still)\n", keyId);
+    doCcb(keyId, in, AES_BLOCK_SIZE, iv, sizeof(iv));
 
     wc_SECO_CloseHSM();
     wolfCrypt_Cleanup();
