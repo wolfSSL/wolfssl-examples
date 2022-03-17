@@ -96,7 +96,7 @@ int AesCtrEncrypt(Aes* aes, byte* key, int size, FILE* inFile, FILE* outFile)
         return -1040;
 
     /* sets key */
-    ret = wc_AesSetKey(aes, key, AES_BLOCK_SIZE, iv, AES_ENCRYPTION);
+    ret = wc_AesSetKey(aes, key, size, iv, AES_ENCRYPTION);
     if (ret != 0)
         return -1001;
 
@@ -166,7 +166,7 @@ int AesCtrDecrypt(Aes* aes, byte* key, int size, FILE* inFile, FILE* outFile)
 
     /* sets key */
     /* decrypt uses AES_ENCRYPTION */
-    ret = wc_AesSetKey(aes, key, AES_BLOCK_SIZE, iv, AES_ENCRYPTION);
+    ret = wc_AesSetKey(aes, key, size, iv, AES_ENCRYPTION);
     if (ret != 0)
         return -1002;
 
@@ -236,11 +236,21 @@ int NoEcho(char* key, int size)
     return 0;
 }
 
-int SizeCheck(int size)
+int SizeCheck(int *size)
 {
     int ret = 0;
 
-    if (size != 128 && size != 192 && size != 256) {
+    /* Use key size values (size/8) */
+    if (*size == 128) {
+        *size = AES_128_KEY_SIZE;
+    }
+    else if (*size == 192) {
+        *size = AES_192_KEY_SIZE;
+    }
+    else if (*size == 256) {
+        *size = AES_256_KEY_SIZE;
+    }
+    else {
         /* if the entered size does not match acceptable size */
         printf("Invalid AES key size\n");
         ret = -1080;
@@ -270,12 +280,12 @@ int main(int argc, char** argv)
         switch (option) {
             case 'd': /* if entered decrypt */
                 size = atoi(optarg);
-                ret = SizeCheck(size);
+                ret = SizeCheck(&size);
                 choice = 'd';
                 break;
             case 'e': /* if entered encrypt */
                 size = atoi(optarg);
-                ret = SizeCheck(size);
+                ret = SizeCheck(&size);
                 choice = 'e';
                 break;
             case 'h': /* if entered 'help' */

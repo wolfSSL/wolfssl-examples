@@ -8,7 +8,7 @@ How to use aes-file-encrypt.c
 
         ./aes-file-encrypt <-option> <KeySize> <input.file> <output.file>
 
-        KeySize examples: 128, 192, 256
+        KeySize (in bits) allowed values: 128, 192, 256
 
     typing -e for option will encrypt the input.file onto the output.file.
     typing -d for option will decrypt the input.file onto the output.file.
