@@ -281,6 +281,9 @@ static int myRsaPssSign(WOLFSSL* ssl, const byte* in, word32 inSz,
             hashType = WC_HASH_TYPE_SHA512;
             break;
 #endif
+        default:
+            hashType = WC_HASH_TYPE_NONE;
+            break;
     }
 
     ret = wc_InitRsaKey(&cbInfo->keyRsa, NULL);
@@ -331,6 +334,13 @@ int main(int argc, char** argv)
         return 0;
     }
 
+#ifndef HAVE_PK_CALLBACKS
+    printf("Warning: PK not compiled in! Please configure wolfSSL with "
+           " --enable-pkcallbacks and try again\n");
+    ret = -1;
+    goto exit;
+#endif
+
     /* Create a socket that uses an internet IPv4 address,
      * Sets the socket to be stream based (TCP),
      * 0 means choose the default protocol. */
@@ -364,7 +374,7 @@ int main(int argc, char** argv)
     /*---------------------------------*/
     /* Start of wolfSSL initialization and configuration */
     /*---------------------------------*/
-#if 1
+#if 0
     wolfSSL_Debugging_ON();
 #endif
 
@@ -387,7 +397,7 @@ int main(int argc, char** argv)
     }
 
 #ifdef HAVE_PK_CALLBACKS
-    /* register a sign callbacks for the long term key */
+    /* register sign callbacks for the long term key */
     #ifdef HAVE_ECC
     wolfSSL_CTX_SetEccSignCb(ctx, myEccSign);
     #endif
@@ -397,9 +407,6 @@ int main(int argc, char** argv)
     wolfSSL_CTX_SetRsaPssSignCb(ctx, myRsaPssSign);
     #endif
     #endif
-#else
-    printf("Warning: PK not compiled in! Please configure wolfSSL with "
-           " --enable-pkcallbacks and try again\n");
 #endif
 
     /* Mutual Authentication */
