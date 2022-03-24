@@ -41,7 +41,7 @@ coming soon:
 Although the examples were created using VisualGDB extension for Visual Studio, the 
 examples can be compiled using the ESP-IDF.
 
-Once the EDP-IDF is installed, use the [setp_win.bat]() to copy wolfSSL files to
+Once the EDP-IDF is installed, use the [setp_win.bat](https://github.com/wolfSSL/wolfssl/blob/master/IDE/Espressif/ESP-IDF/setup_win.bat) to copy wolfSSL files to
 the `esp-idf\components` directory, typically in 
 `C:\Users\%username%\esp\esp-idf\components` or `C:\Users\%username%\Desktop\esp-idf\components`.
 Be sure to run the `ESP-IDY X.Y CMD` command prompt that has `%IDF_PATH%` defined.

@@ -20,6 +20,9 @@ are intended to be easy to follow and clear in demonstrating the basic
 procedure. It cannot be guaranteed that these programs will be free of memory
 leaks, especially in error conditions.
 
+For Visual Studio users with the VisualGDB extension, there are additional
+example files in [VisualGDB-tls](./VisualGDB-tls/).
+
 Tutorial
 ========
 
@@ -1291,3 +1294,12 @@ PK ECC Sign: ret 0 outSz 71
 Message for server: test
 Server: I hear ya fa shizzle!
 ```
+
+To generate your own cert text, see the [DER to C script](https://github.com/wolfSSL/wolfssl/blob/master/scripts/dertoc.pl).
+
+<br />
+
+## Support
+
+Please contact wolfSSL at support@wolfssl.com with any questions, bug fixes,
+or suggested feature additions.
