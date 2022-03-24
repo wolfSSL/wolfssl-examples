@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31729.503
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{803FD0C6-D64E-4E16-9DC3-1DAEC859A3D2}") = "ESP32-TLS13-server", "ESP32-TLS13-wifi_station-server.vgdbproj", "{6B1C0FCA-05B1-4F65-A57E-5EC9768F9866}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|VisualGDB = Debug|VisualGDB
+		Release|VisualGDB = Release|VisualGDB
+		Tests (Debug)|VisualGDB = Tests (Debug)|VisualGDB
+		Tests (Release)|VisualGDB = Tests (Release)|VisualGDB
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6B1C0FCA-05B1-4F65-A57E-5EC9768F9866}.Debug|VisualGDB.ActiveCfg = Debug|VisualGDB
+		{6B1C0FCA-05B1-4F65-A57E-5EC9768F9866}.Debug|VisualGDB.Build.0 = Debug|VisualGDB
+		{6B1C0FCA-05B1-4F65-A57E-5EC9768F9866}.Release|VisualGDB.ActiveCfg = Release|VisualGDB
+		{6B1C0FCA-05B1-4F65-A57E-5EC9768F9866}.Release|VisualGDB.Build.0 = Release|VisualGDB
+		{6B1C0FCA-05B1-4F65-A57E-5EC9768F9866}.Tests (Debug)|VisualGDB.ActiveCfg = Tests (Debug)|VisualGDB
+		{6B1C0FCA-05B1-4F65-A57E-5EC9768F9866}.Tests (Debug)|VisualGDB.Build.0 = Tests (Debug)|VisualGDB
+		{6B1C0FCA-05B1-4F65-A57E-5EC9768F9866}.Tests (Release)|VisualGDB.ActiveCfg = Tests (Release)|VisualGDB
+		{6B1C0FCA-05B1-4F65-A57E-5EC9768F9866}.Tests (Release)|VisualGDB.Build.0 = Tests (Release)|VisualGDB
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C818398D-7E23-4E3B-8076-2DCDCB03967C}
+	EndGlobalSection
+EndGlobal
