@@ -296,6 +296,7 @@ IFgzC4A0idigADAKBggqhkjOPQQDAgNIADBFAiEAmJK6ZapcFw4NTjImNoBrpudZ
 -----END CERTIFICATE REQUEST-----
  (525)
 Saved CSR PEM to "ecc-csr.pem"
+```
 
 ```
 % ./csr_cryptocb rsa
@@ -364,7 +365,7 @@ make custom_ext_callback
 ./custom_ext_callback newCert.der
 ```
 
-For independent verfication of the presence of the extensions, you can
+For independent verification of the presence of the extensions, you can
 pretty-print the certificates using `openssl`:
 
 ```
