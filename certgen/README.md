@@ -373,7 +373,6 @@ openssl x509 -in newCert.pem -noout -text
 
 The output should be similar to this:
 ```
-ert.pem -noout -text
 Certificate:
     Data:
         Version: 3 (0x2)
