@@ -47,8 +47,8 @@
 #include <wolfssl/ssl.h>
 #include <wolfssl/wolfcrypt/wc_port.h>
 
-#define CERT_FILE "../certs/server-cert.pem"
-#define KEY_FILE  "../certs/server-key.pem"
+#define CERT_FILE "../../certs/server-cert.pem"
+#define KEY_FILE  "../../certs/server-key.pem"
 
 /* build with:
 gcc -lwolfssl -o server-tls-uart server-tls-uart.c
