@@ -1,6 +1,6 @@
-# LWIP Native example
+# LWIP Native Example
 
-Assumes an existing STM project with native LwIP support. wolfSSL needs compiled with the macro `WOLFSSL_LWIP_NATIVE`
+Assumes there is an existing STM project with native LwIP support. wolfSSL needs to be compiled with the macro `WOLFSSL_LWIP_NATIVE`
 
 The main function to call in the example code is `tls_echoclient_connect();`
 
@@ -18,8 +18,5 @@ server on a desktop:
 ```
 cd wolfssl
 ./configure && make
-./examples/server/server -b -d -p 49151 -c ./certs/server-ecc.pem -k ./certs/ecc-key.pem -i
+./examples/server/server -b -d -p 11111 -c ./certs/server-ecc.pem -k ./certs/ecc-key.pem -i
 ```
-
-If having the `DEBUG_PORT` macro defined and `DEBUG_WOLFSSL` then also start up a TCP server for listing for debug messages:
-`netcat -l -p 12345`

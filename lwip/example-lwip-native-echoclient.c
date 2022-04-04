@@ -48,9 +48,27 @@
     #define CLIENT_CERT_LEN    sizeof_cliecc_cert_der_256
     #define CLIENT_KEY         ecc_clikey_der_256
     #define CLIENT_KEY_LEN     sizeof_ecc_clikey_der_256
+#else
+    #error This examples requires either RSA or ECC to be enabled
 #endif
 #include <wolfssl/certs_test.h>
 #include <wolfcrypt/test/test.h>
+
+#ifndef DEST_PORT
+    #define DEST_PORT 11111
+#endif
+#ifndef DEST_IP_ADDR0
+    #define DEST_IP_ADDR0 127
+    #define DEST_IP_ADDR1 0
+    #define DEST_IP_ADDR2 0
+    #define DEST_IP_ADDR3 1
+#endif
+
+#ifndef MAX_MSG_SIZE
+#define MAX_MSG_SIZE
+#endif
+
+#define TEST_MSG "TLS **TEST 1** "
 
 static err_t tcp_echoclient_connected(void *arg, struct tcp_pcb *tpcb, err_t err);
 static void TLS_shutdown(void);
@@ -80,8 +98,9 @@ void tls_echoclient_connect(void)
     if (tcpConnected == 0) {
         tls_pcb = tcp_new();
         if (tls_pcb != NULL) {
-            IP4_ADDR( &DestIPaddr, DEST_IP_ADDR0, DEST_IP_ADDR1, DEST_IP_ADDR2, DEST_IP_ADDR3 );
-            tcp_connect(tls_pcb,&DestIPaddr,DEST_PORT,tcp_echoclient_connected);
+            IP4_ADDR(&DestIPaddr, DEST_IP_ADDR0, DEST_IP_ADDR1, DEST_IP_ADDR2, DEST_IP_ADDR3);
+            tcp_connect(tls_pcb, &DestIPaddr, DEST_PORT,
+                tcp_echoclient_connected);
         }
     }
 
@@ -91,11 +110,11 @@ void tls_echoclient_connect(void)
 
     if (tlsConnected == 1) {
         int ret;
-        char reply[256];
+        char reply[MAX_MSG_SIZE];
         int err;
 
         if (tlsWaitingForReply == 0) {
-            ret = wolfSSL_write(ssl, "TLS **TEST 1** ", sizeof("TLS **TEST 1** "));
+            ret = wolfSSL_write(ssl, TEST_MSG, sizeof(TEST_MSG));
             if (ret <= 0) {
                 loggingCb(0, "error when writing TLS message");
                 shutdown();
@@ -205,15 +224,6 @@ static void TLS_shutdown(void)
     tlsConnected = 0;
     tlsWaitingForReply = 0;
     wolfSSL_Cleanup();
-
-    #if 0 /* option to close down debug channel */
-    if (debugConnected == 1) {
-        tcp_output(debug_pcb);
-        tcp_close(debug_pcb);
-        debug_pcb = NULL;
-        debugConnected = 0;
-    }
-    #endif
 
     if (tcpConnected == 1) {
         tcp_output(tls_pcb);
