@@ -1,3 +1,6 @@
+# user sensitive config files
+**/my_private_config.h
+
 # Object files
 *.o
 *.ko
@@ -73,6 +76,8 @@ android/wolfssljni-ndk-sample/proguard-project.txt
 
 /tls/client-tcp
 /tls/client-tls
+/tls/client-tls13
+/tls/client-tls13-resume
 /tls/client-tls-bio
 /tls/client-tls-cacb
 /tls/client-tls-callback
@@ -80,10 +85,14 @@ android/wolfssljni-ndk-sample/proguard-project.txt
 /tls/client-tls-nonblocking
 /tls/client-tls-perf
 /tls/client-tls-resume
+/tls/client-tls-uart
 /tls/client-tls-writedup
+
 /tls/memory-tls
+
 /tls/server-tcp
 /tls/server-tls
+/tls/server-tls13
 /tls/server-tls-callback
 /tls/server-tls-ecdhe
 /tls/server-tls-epoll-perf
@@ -94,9 +103,10 @@ android/wolfssljni-ndk-sample/proguard-project.txt
 /tls/client-tls-cryptocb
 /tls/server-tls-pkcallback
 /tls/client-tls-pkcallback
+/tls/server-tls-uart
+/tls/server-tls-verifycallback
 
-tls/client-tls-uart
-tls/server-tls-uart
+
 
 crypto/3des/3des-file-encrypt
 crypto/aes/aes-file-encrypt
@@ -202,6 +212,7 @@ pk/ecc/ecc_verify
 pk/ecc/ecc_sign
 pk/ecc/ecc_pub
 pk/ecc/ecc_keys
+
 #Example der and x963 files
 pk/ecc/*.der
 pk/ecc/*.x963
@@ -233,11 +244,58 @@ embedded/tls-sock-server
 embedded/tls-sock-server-ca
 embedded/tls-sock-threaded
 embedded/tls-threaded
-server-tls-verifycallback
 
 hash/sha256-hash
 sslkeylog.log
-server-tls13
-client-tls13
 
 tpm/evp_tpm
+
+# Visual Studio / VisualGDB
+
+/tls/VisualGDB-tls/.visualgdb/*
+/tls/VisualGDB-tls/.vs
+/tls/VisualGDB-tls/*/.vs/*
+/tls/VisualGDB-tls/*/Debug/*
+/tls/VisualGDB-tls/*/Release/*
+/tls/VisualGDB-tls/*/VisualGDB/Debug/*
+/tls/VisualGDB-tls/*/VisualGDB/Release/*
+/tls/VisualGDB-tls/*/x64/Debug
+/tls/VisualGDB-tls/*/x64/Release
+/tls/VisualGDB-tls/*/Makefile.old
+/tls/VisualGDB-tls/*/debug.mak.old
+/tls/VisualGDB-tls/*/release.mak.old
+/tls/VisualGDB-tls/*/*.vgdbsettings.*.user
+
+/tls/build/VisualGDB/Debug
+
+# vscode user directories
+**/.vs/*
+
+# Visual Studio / VisualGDB
+
+**/.visualgdb/*
+**/*/Makefile.old
+**/*/debug.mak.old
+**/*/release.mak.old
+**/*.vgdbsettings.*.user
+**/*.vgdbproj.*.user
+
+**/*/Debug/*
+**/*/Release/*
+**/*/x64/Debug
+**/*/x64/Release
+**/out/build/x64-Debug
+**/out/build/x64-Release
+**/build/VisualGDB/Debug
+**/build/VisualGDB/Release
+
+# VisualGDB auto-generated files
+**/*/gcc_Debug.h
+**/*/gcc_Release.h
+**/*/*.vcxproj.filters
+**/*/*.vcxproj.user
+
+# EDP-IDF 
+**/main/build/CMakeFiles/*
+**/build/*
+
