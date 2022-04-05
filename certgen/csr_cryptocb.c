@@ -44,6 +44,15 @@
 #define ENABLE_CSR_EXAMPLE
 #endif
 
+/* Private and public key files for signing */
+#define ECC_KEY_FILE        "../certs/ecc-key.pem"
+#define ECC_KEYPUB_FILE     "../certs/ecc-keyPub.pem"
+#define RSA_KEY_FILE        "../certs/client-key.pem"
+#define RSA_KEYPUB_FILE     "../certs/client-keyPub.pem"
+#define ED25519_KEY_FILE    "../certs/ed25519-keyPriv.pem"
+#define ED25519_KEYPUB_FILE "../certs/ed25519-keyPub.pem"
+
+
 #ifdef ENABLE_CSR_EXAMPLE
 static void usage(void)
 {
@@ -74,24 +83,25 @@ static int myCryptoDevCb(int devIdArg, wc_CryptoInfo* info, void* ctx)
 {
     int ret = CRYPTOCB_UNAVAILABLE; /* return this to bypass HW and use SW */
     myCryptoCbCtx* myCtx = (myCryptoCbCtx*)ctx;
-    byte   der[LARGE_TEMP_SZ];
-    word32 derSz;
     word32 idx = 0;
 
     if (info == NULL)
         return BAD_FUNC_ARG;
 
-    ret = load_key_file(myCtx->keyFilePriv, der, &derSz, 0);
-    if (ret != 0) {
-        printf("Error %d loading %s\n", ret, myCtx->keyFilePriv);
-        return ret;
-    }
-
     if (info->algo_type == WC_ALGO_TYPE_PK) {
+        byte   der[LARGE_TEMP_SZ];
+        word32 derSz;
+
     #ifdef DEBUG_CRYPTOCB
         printf("CryptoCb: %s %s (%d)\n", GetAlgoTypeStr(info->algo_type),
             GetPkTypeStr(info->pk.type), info->pk.type);
     #endif
+
+        ret = load_key_file(myCtx->keyFilePriv, der, &derSz, 0);
+        if (ret != 0) {
+            printf("Error %d loading %s\n", ret, myCtx->keyFilePriv);
+            return ret;
+        }
 
     #ifndef NO_RSA
         if (info->pk.type == WC_PK_TYPE_RSA) {
@@ -167,6 +177,9 @@ static int myCryptoDevCb(int devIdArg, wc_CryptoInfo* info, void* ctx)
             }
         }
     #endif /* HAVE_ED25519 */
+    }
+    else {
+        ret = CRYPTOCB_UNAVAILABLE; /* return this to bypass HW and use SW */
     }
 
     (void)devIdArg;
@@ -366,20 +379,20 @@ static int gen_csr(const char* arg1)
     /* setup test key */
 #ifdef HAVE_ECC
     if (type == ECC_TYPE) {
-        myCtx.keyFilePub =  "../certs/ecc-keyPub.pem";
-        myCtx.keyFilePriv = "../certs/ecc-key.pem";
+        myCtx.keyFilePub =  ECC_KEYPUB_FILE;
+        myCtx.keyFilePriv = ECC_KEY_FILE;
     }
 #endif
 #ifndef NO_RSA
     if (type == RSA_TYPE) {
-        myCtx.keyFilePub =  "../certs/client-keyPub.pem";
-        myCtx.keyFilePriv = "../certs/client-key.pem";
+        myCtx.keyFilePub =  RSA_KEYPUB_FILE;
+        myCtx.keyFilePriv = RSA_KEY_FILE;
     }
 #endif
 #ifdef HAVE_ED25519
     if (type == ED25519_TYPE) {
-        myCtx.keyFilePub =  "../certs/ed25519-keyPub.pem";
-        myCtx.keyFilePriv = "../certs/ed25519-keyPriv.pem";
+        myCtx.keyFilePub =  ED25519_KEYPUB_FILE;
+        myCtx.keyFilePriv = ED25519_KEY_FILE;
     }
 #endif
 
