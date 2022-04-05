@@ -173,12 +173,18 @@ static int TLS_setup(void)
         return ERR_MEM;
     }
 
+    /* Load the CA */
     ret = wolfSSL_CTX_load_verify_buffer(ctx, CA_CERTS, CA_CERTS_LEN,
         WOLFSSL_FILETYPE_ASN1);
     if (ret != WOLFSSL_SUCCESS) {
         loggingCb(0, "error loading in verify buffer");
         return ERR_MEM;
     }
+
+#if 1
+    /* Disable peer certificate validation for testing */
+    wolfSSL_CTX_set_verify(ctx, WOLFSSL_VERIFY_NONE, NULL);
+#endif
 
     ssl = wolfSSL_new(ctx);
     if (ssl == NULL) {
