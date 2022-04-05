@@ -263,7 +263,7 @@ Tested with these wolfSSL build options:
 
 ```sh
 ./autogen.sh  # If cloned from GitHub
-./configure --enable-certreq --enable-certgen --enable-certext --enable-cryptocb
+./configure --enable-certreq --enable-certgen --enable-certext --enable-keygen --enable-cryptocb
 make
 make check
 sudo make install
