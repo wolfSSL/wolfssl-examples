@@ -1,8 +1,8 @@
 Example use cases when compiling wolfSSL with --enable-caam=seco
 
-## Setup Envirnment
+## Setup Environment
 
-Setup the location to SECO HSM and NVM library, cryptodev header (if wolfSSL is built to look for it), wolfSSL library path, and libz install path. The following is examples of setting the envirnment variables:
+Setup the location to SECO HSM and NVM library, cryptodev header (if wolfSSL is built to look for it), wolfSSL library path, and libz install path. The following is examples of setting the environment variables:
 
 export HSM_DIR=/home/user/imx-seco-libs/export/usr
 export CRYPTODEV_DIR=/home/user/build-xwayland/sysroots-components/aarch64/cryptodev-linux/usr/include

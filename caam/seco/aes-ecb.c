@@ -36,9 +36,9 @@ static unsigned int createAesKey()
     unsigned int keyIdOut;
     int keyInfo = CAAM_KEY_PERSISTENT;
     int keyType = CAAM_KEYTYPE_AES128;
-    byte pubOut[32];
+    byte pubOut[AES_MAX_KEY_SIZE];
 
-    /* generate a CMAC key in the HSM */
+    /* generate a AES-ECB key in the HSM */
     if (wc_SECO_GenerateKey(CAAM_GENERATE_KEY, keyGroup, pubOut, 0, keyType,
         keyInfo, &keyIdOut) != 0) {
         printf("Error generating key in hsm\n");
