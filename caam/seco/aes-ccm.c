@@ -59,7 +59,7 @@ static int doCcm(unsigned int keyId, const byte* in, int inSz,
 
     XMEMSET(authTag, 0, AES_BLOCK_SIZE);
     XMEMSET(cipherTxt, 0, sizeof(cipherTxt));
-    wc_AesInit(&aes, NULL, WOLFSSL_CAAM_DEVID);
+    wc_AesInit(&aes, NULL, WOLFSSL_SECO_DEVID);
     wc_SECO_AesSetKeyID(&aes, keyId);
 
     printf("Encrypting : ");
