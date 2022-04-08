@@ -83,6 +83,11 @@ int main(int argc, char** argv)
         if (XSTRNCMP(argv[1], "1", 1) == 0) {
             create = CAAM_KEYSTORE_CREATE;
         }
+        else {
+            printf("This example uses a transient key which gets deleted once"
+                   "HSM is closed down\n");
+            return -1;
+        }
 
         keyId      = (unsigned int)XATOI(argv[2]);
         keyStoreId = (unsigned int)XATOI(argv[3]);
