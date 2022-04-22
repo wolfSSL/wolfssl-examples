@@ -35,8 +35,6 @@
 
 #define LARGE_TEMP_SZ 4096
 
-#define DEBUG_CRYPTOCB
-
 #if defined(WOLF_CRYPTO_CB) && defined(WOLFSSL_CERT_REQ) && \
     defined(WOLFSSL_CERT_EXT) && defined(WOLFSSL_CERT_GEN) && \
     (!defined(NO_RSA) || defined(HAVE_ECC) || defined(HAVE_ED25519))
@@ -72,14 +70,10 @@ typedef struct {
 /* Forward declarations */
 static int load_key_file(const char* fname, byte* derBuf, word32* derLen,
     int isPubKey);
-#ifdef DEBUG_CRYPTOCB
-static const char* GetAlgoTypeStr(int algo);
-static const char* GetPkTypeStr(int pk);
-#endif
 
 /* Example crypto dev callback function that calls software version */
 /* This is where you would plug-in calls to your own hardware crypto */
-static int myCryptoDevCb(int devIdArg, wc_CryptoInfo* info, void* ctx)
+static int myCryptoCb(int devIdArg, wc_CryptoInfo* info, void* ctx)
 {
     int ret = CRYPTOCB_UNAVAILABLE; /* return this to bypass HW and use SW */
     myCryptoCbCtx* myCtx = (myCryptoCbCtx*)ctx;
@@ -88,14 +82,13 @@ static int myCryptoDevCb(int devIdArg, wc_CryptoInfo* info, void* ctx)
     if (info == NULL)
         return BAD_FUNC_ARG;
 
+#ifdef DEBUG_CRYPTOCB
+    wc_CryptoCb_InfoString(info);
+#endif
+
     if (info->algo_type == WC_ALGO_TYPE_PK) {
         byte   der[LARGE_TEMP_SZ];
         word32 derSz;
-
-    #ifdef DEBUG_CRYPTOCB
-        printf("CryptoCb: %s %s (%d)\n", GetAlgoTypeStr(info->algo_type),
-            GetPkTypeStr(info->pk.type), info->pk.type);
-    #endif
 
         ret = load_key_file(myCtx->keyFilePriv, der, &derSz, 0);
         if (ret != 0) {
@@ -105,36 +98,42 @@ static int myCryptoDevCb(int devIdArg, wc_CryptoInfo* info, void* ctx)
 
     #ifndef NO_RSA
         if (info->pk.type == WC_PK_TYPE_RSA) {
-            RsaKey rsaPriv;
-            ret = wc_InitRsaKey_ex(&rsaPriv, NULL, INVALID_DEVID);
-            if (ret != 0) {
-                return ret;
-            }
-            ret = wc_RsaPrivateKeyDecode(der, &idx, &rsaPriv, derSz);
-            if (ret != 0) {
-                wc_FreeRsaKey(&rsaPriv);
-                return ret;
-            }
-
             switch (info->pk.rsa.type) {
                 case RSA_PUBLIC_ENCRYPT:
                 case RSA_PUBLIC_DECRYPT:
+                    /* set devId to invalid, so software is used */
+                    info->pk.rsa.key->devId = INVALID_DEVID;
                     /* perform software based RSA public op */
                     ret = wc_RsaFunction(
                         info->pk.rsa.in, info->pk.rsa.inLen,
                         info->pk.rsa.out, info->pk.rsa.outLen,
-                        info->pk.rsa.type, &rsaPriv, info->pk.rsa.rng);
+                        info->pk.rsa.type, info->pk.rsa.key, info->pk.rsa.rng);
+                    info->pk.rsa.key->devId = devIdArg; /* reset devId */
                     break;
                 case RSA_PRIVATE_ENCRYPT:
                 case RSA_PRIVATE_DECRYPT:
+                {
+                    RsaKey rsaPriv;
+
+                    ret = wc_InitRsaKey_ex(&rsaPriv, NULL, INVALID_DEVID);
+                    if (ret != 0) {
+                        return ret;
+                    }
+                    ret = wc_RsaPrivateKeyDecode(der, &idx, &rsaPriv, derSz);
+                    if (ret != 0) {
+                        wc_FreeRsaKey(&rsaPriv);
+                        return ret;
+                    }
+                
                     /* perform software based RSA private op */
                     ret = wc_RsaFunction(
                         info->pk.rsa.in, info->pk.rsa.inLen,
                         info->pk.rsa.out, info->pk.rsa.outLen,
                         info->pk.rsa.type, &rsaPriv, info->pk.rsa.rng);
+                    wc_FreeRsaKey(&rsaPriv);
                     break;
+                }
             }
-            wc_FreeRsaKey(&rsaPriv);
         }
     #endif /* !NO_RSA */
     #ifdef HAVE_ECC
@@ -187,38 +186,6 @@ static int myCryptoDevCb(int devIdArg, wc_CryptoInfo* info, void* ctx)
 
     return ret;
 }
-
-
-#ifdef DEBUG_CRYPTOCB
-static const char* GetAlgoTypeStr(int algo)
-{
-    switch (algo) { /* enum wc_AlgoType */
-        case WC_ALGO_TYPE_HASH:   return "Hash";
-        case WC_ALGO_TYPE_CIPHER: return "Cipher";
-        case WC_ALGO_TYPE_PK:     return "PK";
-        case WC_ALGO_TYPE_RNG:    return "RNG";
-        case WC_ALGO_TYPE_SEED:   return "Seed";
-        case WC_ALGO_TYPE_HMAC:   return "HMAC";
-    }
-    return NULL;
-}
-static const char* GetPkTypeStr(int pk)
-{
-    switch (pk) {
-        case WC_PK_TYPE_RSA: return "RSA";
-        case WC_PK_TYPE_DH: return "DH";
-        case WC_PK_TYPE_ECDH: return "ECDH";
-        case WC_PK_TYPE_ECDSA_SIGN: return "ECDSA-Sign";
-        case WC_PK_TYPE_ECDSA_VERIFY: return "ECDSA-Verify";
-        case WC_PK_TYPE_ED25519_SIGN: return "ED25519-Sign";
-        case WC_PK_TYPE_ED25519_VERIFY: return "ED25519-Verify";
-        case WC_PK_TYPE_CURVE25519: return "CURVE25519";
-        case WC_PK_TYPE_RSA_KEYGEN: return "RSA KeyGen";
-        case WC_PK_TYPE_EC_KEYGEN: return "ECC KeyGen";
-    }
-    return NULL;
-}
-#endif /* DEBUG_CRYPTOCB */
 
 /* reads file size, allocates buffer, reads into buffer, returns buffer */
 static int load_file(const char* fname, byte** buf, size_t* bufLen)
@@ -364,7 +331,7 @@ static int gen_csr(const char* arg1)
     wolfCrypt_Init();
 
     /* register a devID for crypto callbacks */
-    ret = wc_CryptoCb_RegisterDevice(devId, myCryptoDevCb, &myCtx);
+    ret = wc_CryptoCb_RegisterDevice(devId, myCryptoCb, &myCtx);
     if (ret != 0) {
         printf("Crypto callback register failed: %d\n", ret);
         goto exit;
@@ -481,7 +448,7 @@ static int gen_csr(const char* arg1)
     if (type == ED25519_TYPE)
         req.sigType = CTC_ED25519;
 #endif
-    /* Because the key has devId set, it will call myCryptoDevCb for signing */
+    /* Because the key has devId set, it will call myCryptoCb for signing */
     ret = wc_SignCert_ex(req.bodySz, req.sigType, der, sizeof(der), type,
         keyPtr, &rng);
     if (ret <= 0) {

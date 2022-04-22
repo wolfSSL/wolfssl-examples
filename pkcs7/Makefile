@@ -4,7 +4,7 @@ LIB_PATH = /usr/local
 CFLAGS   = -Wall -I$(LIB_PATH)/include
 ZLIB     =
 #ZLIB    += -lz
-LIBS     = -L$(LIB_PATH)/lib -lwolfssl -lm ${ZLIB}
+LIBS     = -L$(LIB_PATH)/lib -lm ${ZLIB}
 
 # option variables
 DYN_LIB         = -lwolfssl

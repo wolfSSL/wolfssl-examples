@@ -9,9 +9,25 @@ CC=gcc
 #END EXAMPLE
 
 WOLF_INSTALL_DIR=/usr/local
-CFLAGS=-I$(WOLF_INSTALL_DIR)/include -Wall
-LIBS=-L$(WOLF_INSTALL_DIR)/lib -lwolfssl
 
+# ECC Examples Makefile
+CC       = gcc
+LIB_PATH = /usr/local
+CFLAGS   = -Wall -I$(LIB_PATH)/include
+LIBS     = -L$(LIB_PATH)/lib -lm
+
+# option variables
+DYN_LIB         = -lwolfssl
+STATIC_LIB      = $(LIB_PATH)/lib/libwolfssl.a
+DEBUG_FLAGS     = -g -DDEBUG
+DEBUG_INC_PATHS = -MD
+OPTIMIZE        = -Os
+
+# Options
+#CFLAGS+=$(DEBUG_FLAGS)
+CFLAGS+=$(OPTIMIZE)
+#LIBS+=$(STATIC_LIB)
+LIBS+=$(DYN_LIB)
 
 all:certgen_example csr_example csr_w_ed25519_example csr_sign csr_cryptocb custom_ext custom_ext_callback
 
