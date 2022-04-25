@@ -39,14 +39,13 @@
 
 #define DEFAULT_PORT 11111
 
-#define CERT_FILE "../certs/ca-cert.pem"
-#define DEBUG_CRYPTOCB
+#define CA_FILE "../certs/ca-cert.pem"
 
 #ifdef WOLF_CRYPTO_CB
 /* Example custom context for crypto callback */
 typedef struct {
     int exampleVar; /* example, not used */
-} myCryptoDevCtx;
+} myCryptoCbCtx;
 
 static void error_out(char* msg, int err)
 {
@@ -54,88 +53,22 @@ static void error_out(char* msg, int err)
     exit(1);
 }
 
-#ifdef DEBUG_CRYPTOCB
-static const char* GetAlgoTypeStr(int algo)
-{
-    switch (algo) { /* enum wc_AlgoType */
-        case WC_ALGO_TYPE_HASH:   return "Hash";
-        case WC_ALGO_TYPE_CIPHER: return "Cipher";
-        case WC_ALGO_TYPE_PK:     return "PK";
-        case WC_ALGO_TYPE_RNG:    return "RNG";
-        case WC_ALGO_TYPE_SEED:   return "Seed";
-        case WC_ALGO_TYPE_HMAC:   return "HMAC";
-    }
-    return NULL;
-}
-static const char* GetPkTypeStr(int pk)
-{
-    switch (pk) {
-        case WC_PK_TYPE_RSA: return "RSA";
-        case WC_PK_TYPE_DH: return "DH";
-        case WC_PK_TYPE_ECDH: return "ECDH";
-        case WC_PK_TYPE_ECDSA_SIGN: return "ECDSA-Sign";
-        case WC_PK_TYPE_ECDSA_VERIFY: return "ECDSA-Verify";
-        case WC_PK_TYPE_ED25519_SIGN: return "ED25519-Sign";
-        case WC_PK_TYPE_ED25519_VERIFY: return "ED25519-Verify"; 
-        case WC_PK_TYPE_CURVE25519: return "CURVE25519";
-        case WC_PK_TYPE_RSA_KEYGEN: return "RSA KeyGen";
-        case WC_PK_TYPE_EC_KEYGEN: return "ECC KeyGen";
-    }
-    return NULL;
-}
-static const char* GetCipherTypeStr(int cipher)
-{
-    switch (cipher) {
-        case WC_CIPHER_AES: return "AES ECB";
-        case WC_CIPHER_AES_CBC: return "AES CBC";
-        case WC_CIPHER_AES_GCM: return "AES GCM";
-        case WC_CIPHER_AES_CTR: return "AES CTR";
-        case WC_CIPHER_AES_XTS: return "AES XTS";
-        case WC_CIPHER_AES_CFB: return "AES CFB";
-        case WC_CIPHER_DES3: return "DES3";
-        case WC_CIPHER_DES: return "DES";
-        case WC_CIPHER_CHACHA: return "ChaCha20";
-    }
-    return NULL;
-}
-static const char* GetHashTypeStr(int hash)
-{
-    switch (hash) {
-        case WC_HASH_TYPE_MD2: return "MD2";
-        case WC_HASH_TYPE_MD4: return "MD4";
-        case WC_HASH_TYPE_MD5: return "MD5";
-        case WC_HASH_TYPE_SHA: return "SHA-1";
-        case WC_HASH_TYPE_SHA224: return "SHA-224";
-        case WC_HASH_TYPE_SHA256: return "SHA-256";
-        case WC_HASH_TYPE_SHA384: return "SHA-384";
-        case WC_HASH_TYPE_SHA512: return "SHA-512";
-        case WC_HASH_TYPE_MD5_SHA: return "MD5-SHA1";
-        case WC_HASH_TYPE_SHA3_224: return "SHA3-224";
-        case WC_HASH_TYPE_SHA3_256: return "SHA3-256";
-        case WC_HASH_TYPE_SHA3_384: return "SHA3-384";
-        case WC_HASH_TYPE_SHA3_512: return "SHA3-512";
-        case WC_HASH_TYPE_BLAKE2B: return "Blake2B";
-        case WC_HASH_TYPE_BLAKE2S: return "Blake2S";
-    }
-    return NULL;
-}
-#endif /* DEBUG_CRYPTOCB */
-
 
 /* Example crypto dev callback function that calls software version */
 /* This is where you would plug-in calls to your own hardware crypto */
-static int myCryptoDevCb(int devIdArg, wc_CryptoInfo* info, void* ctx)
+static int myCryptoCb(int devIdArg, wc_CryptoInfo* info, void* ctx)
 {
     int ret = CRYPTOCB_UNAVAILABLE; /* return this to bypass HW and use SW */
-    myCryptoDevCtx* myCtx = (myCryptoDevCtx*)ctx;
+    myCryptoCbCtx* myCtx = (myCryptoCbCtx*)ctx;
 
     if (info == NULL)
         return BAD_FUNC_ARG;
 
+#ifdef DEBUG_CRYPTOCB
+    wc_CryptoCb_InfoString(info);
+#endif
+
     if (info->algo_type == WC_ALGO_TYPE_RNG) {
-    #ifdef DEBUG_CRYPTOCB
-        printf("CryptoCb: %s \n", GetAlgoTypeStr(info->algo_type));
-    #endif
     #ifndef WC_NO_RNG
         /* set devId to invalid, so software is used */
         info->rng.rng->devId = INVALID_DEVID;
@@ -168,11 +101,6 @@ static int myCryptoDevCb(int devIdArg, wc_CryptoInfo* info, void* ctx)
     #endif
     }
     else if (info->algo_type == WC_ALGO_TYPE_PK) {
-    #ifdef DEBUG_CRYPTOCB
-        printf("CryptoCb: %s %s (%d)\n", GetAlgoTypeStr(info->algo_type), 
-            GetPkTypeStr(info->pk.type), info->pk.type);
-    #endif
-
     #ifndef NO_RSA
         if (info->pk.type == WC_PK_TYPE_RSA) {
             /* set devId to invalid, so software is used */
@@ -261,10 +189,6 @@ static int myCryptoDevCb(int devIdArg, wc_CryptoInfo* info, void* ctx)
     #endif /* HAVE_ECC */
     }
     else if (info->algo_type == WC_ALGO_TYPE_CIPHER) {
-    #ifdef DEBUG_CRYPTOCB
-        printf("CryptoCb: %s %s (%d)\n", GetAlgoTypeStr(info->algo_type),
-            GetCipherTypeStr(info->cipher.type), info->cipher.type);
-    #endif
 #if !defined(NO_AES) || !defined(NO_DES3)
     #ifdef HAVE_AESGCM
         if (info->cipher.type == WC_CIPHER_AES_GCM) {
@@ -372,10 +296,6 @@ static int myCryptoDevCb(int devIdArg, wc_CryptoInfo* info, void* ctx)
     }
     else if (info->algo_type == WC_ALGO_TYPE_HASH) {
 #if !defined(NO_SHA) || !defined(NO_SHA256)
-    #ifdef DEBUG_CRYPTOCB
-        printf("CryptoCb: %s %s (%d)\n", GetAlgoTypeStr(info->algo_type),
-            GetHashTypeStr(info->hash.type), info->hash.type);
-    #endif
     #if !defined(NO_SHA)
         if (info->hash.type == WC_HASH_TYPE_SHA) {
             if (info->hash.sha1 == NULL)
@@ -432,11 +352,6 @@ static int myCryptoDevCb(int devIdArg, wc_CryptoInfo* info, void* ctx)
     }
     else if (info->algo_type == WC_ALGO_TYPE_HMAC) {
 #ifndef NO_HMAC
-    #ifdef DEBUG_CRYPTOCB
-        printf("CryptoCb: %s %s (%d)\n", GetAlgoTypeStr(info->algo_type),
-            GetHashTypeStr(info->hmac.macType), info->hmac.macType);
-    #endif
-
         if (info->hmac.hmac == NULL)
             return CRYPTOCB_UNAVAILABLE;
 
@@ -481,7 +396,7 @@ int main(int argc, char** argv)
     WOLFSSL*     ssl;
 
     int devId = 1; /* anything besides -2 (INVALID_DEVID) */
-    myCryptoDevCtx myCtx;
+    myCryptoCbCtx myCtx;
 
     /* example data for callback */
     myCtx.exampleVar = 1;
@@ -539,7 +454,7 @@ int main(int argc, char** argv)
     }
 
     /* register a devID for crypto callbacks */
-    ret = wc_CryptoCb_RegisterDevice(devId, myCryptoDevCb, &myCtx);
+    ret = wc_CryptoCb_RegisterDevice(devId, myCryptoCb, &myCtx);
     if (ret != 0)
         error_out("wc_CryptoCb_RegisterDevice", ret);
 
@@ -547,10 +462,10 @@ int main(int argc, char** argv)
     wolfSSL_CTX_SetDevId(ctx, devId);
 
     /* Load client certificates into WOLFSSL_CTX */
-    if ((ret = wolfSSL_CTX_load_verify_locations(ctx, CERT_FILE, NULL))
+    if ((ret = wolfSSL_CTX_load_verify_locations(ctx, CA_FILE, NULL))
          != SSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
-                CERT_FILE);
+                CA_FILE);
         goto ctx_cleanup;
     }
 

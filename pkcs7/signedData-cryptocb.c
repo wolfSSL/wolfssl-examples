@@ -1,6 +1,6 @@
-/* signedData-cryptodev.c
+/* signedData-cryptocb.c
  *
- * Copyright (C) 2006-2020 wolfSSL Inc.
+ * Copyright (C) 2006-2022 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -25,10 +25,13 @@
 #include <wolfssl/wolfcrypt/logging.h>
 #include <wolfssl/wolfcrypt/cryptocb.h>
 
-#define certFile "../certs/client-cert.der"
-#define keyFile  "../certs/client-key.der"
-#define encodedFileNoAttrs "signedData_cryptodev_noattrs.der"
-#define encodedFileAttrs   "signedData_cryptodev_attrs.der"
+#define CERT_FILE   "../certs/client-cert.der"
+#define KEY_FILE    "../certs/client-key.der"
+#define KEYPUB_FILE "../certs/client-keyPub.der"
+#define encodedFileNoAttrs "signedData_cryptocb_noattrs.der"
+#define encodedFileAttrs   "signedData_cryptocb_attrs.der"
+
+#define LARGE_TEMP_SZ 4096
 
 #if defined(HAVE_PKCS7) && defined(WOLF_CRYPTO_CB)
 
@@ -42,7 +45,7 @@ static int load_certs(byte* cert, word32* certSz, byte* key, word32* keySz)
     FILE* file;
 
     /* certificate file */
-    file = fopen(certFile, "rb");
+    file = fopen(CERT_FILE, "rb");
     if (!file)
         return -1;
 
@@ -50,7 +53,7 @@ static int load_certs(byte* cert, word32* certSz, byte* key, word32* keySz)
     fclose(file);
 
     /* key file */
-    file = fopen(keyFile, "rb");
+    file = fopen(KEYPUB_FILE, "rb");
     if (!file)
         return -1;
 
@@ -267,54 +270,124 @@ static int signedData_verify(byte* in, word32 inSz, byte* cert,
     return ret;
 }
 
+/* reads file size, allocates buffer, reads into buffer, returns buffer */
+static int load_file(const char* fname, byte** buf, size_t* bufLen)
+{
+    int ret;
+    long int fileSz;
+    XFILE lFile;
+
+    if (fname == NULL || buf == NULL || bufLen == NULL)
+        return BAD_FUNC_ARG;
+
+    /* set defaults */
+    *buf = NULL;
+    *bufLen = 0;
+
+    /* open file (read-only binary) */
+    lFile = XFOPEN(fname, "rb");
+    if (!lFile) {
+        printf("Error loading %s\n", fname);
+        return BAD_PATH_ERROR;
+    }
+
+    fseek(lFile, 0, SEEK_END);
+    fileSz = (int)ftell(lFile);
+    rewind(lFile);
+    if (fileSz > 0) {
+        *bufLen = (size_t)fileSz;
+        *buf = (byte*)malloc(*bufLen);
+        if (*buf == NULL) {
+            ret = MEMORY_E;
+            printf("Error allocating %lu bytes\n", (unsigned long)*bufLen);
+        }
+        else {
+            size_t readLen = fread(*buf, *bufLen, 1, lFile);
+
+            /* check response code */
+            ret = (readLen > 0) ? 0 : -1;
+        }
+    }
+    else {
+        ret = BUFFER_E;
+    }
+    fclose(lFile);
+
+    return ret;
+}
+
 typedef struct {
-    int exampleVar; /* example, not used */
-} myCryptoDevCtx;
+    const char* keyFilePub;
+    const char* keyFilePriv;
+} myCryptoCbCtx;
 
 /* Example crypto dev callback function that calls software versions, could
  * be set up to call down to hardware module for crypto operations if
  * desired by user. If an algorithm is not supported by hardware, or user
- * callback, the cryptodev callback can return NOT_COMPILED_IN to default
+ * callback, the crypto callback can return CRYPTOCB_UNAVAILABLE to default
  * back to using software crypto implementation. */
-static int myCryptoDevCb(int devIdArg, wc_CryptoInfo* info, void* ctx)
+static int myCryptoCb(int devIdArg, wc_CryptoInfo* info, void* ctx)
 {
-    int ret = NOT_COMPILED_IN; /* return this to bypass HW and use SW */
-    myCryptoDevCtx* myCtx = (myCryptoDevCtx*)ctx;
+    int ret = CRYPTOCB_UNAVAILABLE; /* return this to bypass HW and use SW */
+    myCryptoCbCtx* myCtx = (myCryptoCbCtx*)ctx;
 
     if (info == NULL)
         return BAD_FUNC_ARG;
 
-    if (info->algo_type == WC_ALGO_TYPE_PK) {
-    #ifdef DEBUG_WOLFSSL
-        printf("CryptoDevCb: Pk Type %d\n", info->pk.type);
-    #endif
+#ifdef DEBUG_CRYPTOCB
+    wc_CryptoCb_InfoString(info);
+#endif
 
+    if (info->algo_type == WC_ALGO_TYPE_PK) {
     #ifndef NO_RSA
         if (info->pk.type == WC_PK_TYPE_RSA) {
-            /* set devId to invalid, so software is used */
-            info->pk.rsa.key->devId = INVALID_DEVID;
-
             switch (info->pk.rsa.type) {
                 case RSA_PUBLIC_ENCRYPT:
                 case RSA_PUBLIC_DECRYPT:
+                    /* set devId to invalid, so software is used */
+                    info->pk.rsa.key->devId = INVALID_DEVID;
                     /* perform software based RSA public op */
                     ret = wc_RsaFunction(
                         info->pk.rsa.in, info->pk.rsa.inLen,
                         info->pk.rsa.out, info->pk.rsa.outLen,
                         info->pk.rsa.type, info->pk.rsa.key, info->pk.rsa.rng);
+                    info->pk.rsa.key->devId = devIdArg; /* reset devId */
                     break;
                 case RSA_PRIVATE_ENCRYPT:
                 case RSA_PRIVATE_DECRYPT:
+                {
+                    RsaKey rsaPriv;
+                    byte*  der = NULL;
+                    size_t derSz = 0;
+                    word32 idx = 0;
+
+                    ret = load_file(myCtx->keyFilePriv, &der, &derSz);
+                    if (ret != 0) {
+                        printf("Error %d loading %s\n", ret, myCtx->keyFilePriv);
+                        return ret;
+                    }
+
+                    ret = wc_InitRsaKey_ex(&rsaPriv, NULL, INVALID_DEVID);
+                    if (ret != 0) {
+                        return ret;
+                    }
+                    ret = wc_RsaPrivateKeyDecode(der, &idx, &rsaPriv, derSz);
+                    if (ret != 0) {
+                        wc_FreeRsaKey(&rsaPriv);
+                        return ret;
+                    }
+                
                     /* perform software based RSA private op */
                     ret = wc_RsaFunction(
                         info->pk.rsa.in, info->pk.rsa.inLen,
                         info->pk.rsa.out, info->pk.rsa.outLen,
-                        info->pk.rsa.type, info->pk.rsa.key, info->pk.rsa.rng);
+                        info->pk.rsa.type, &rsaPriv, info->pk.rsa.rng);
+                    wc_FreeRsaKey(&rsaPriv);
+                    if (der != NULL)
+                        free(der);
                     break;
+                }
             }
-
-            /* reset devId */
-            info->pk.rsa.key->devId = devIdArg;
         }
     #ifdef WOLFSSL_KEY_GEN
         else if (info->pk.type == WC_PK_TYPE_RSA_KEYGEN) {
@@ -433,7 +506,7 @@ int main(int argc, char** argv)
     int ret, devId;
     int encryptedSz, decryptedSz;
     word32 certSz, keySz;
-    myCryptoDevCtx myCtx;
+    myCryptoCbCtx myCtx;
 
     byte cert[2048];
     byte key[2048];
@@ -450,13 +523,13 @@ int main(int argc, char** argv)
         return -1;
     }
 
-    /* example data for callback */
-    myCtx.exampleVar = 1;
+    /* provide private key to crypto callback */
+    myCtx.keyFilePriv = KEY_FILE;
 
     /* setting devId to something other than INVALID_DEVID, enables
-       cryptodev callback to be used internally by wolfCrypt */
+     * crypto callback to be used internally by wolfCrypt */
     devId = 1;
-    ret = wc_CryptoDev_RegisterDevice(devId, myCryptoDevCb, &myCtx);
+    ret = wc_CryptoCb_RegisterDevice(devId, myCryptoCb, &myCtx);
     if (ret != 0) {
         printf("Failed to register crypto dev device, ret = %d\n", ret);
         return -1;

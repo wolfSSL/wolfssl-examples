@@ -443,7 +443,7 @@ Generated bundle files: `signedEncryptedFirmwarePkgData_noattrs.der`,
 This example creates two PKCS#7/CMS SignedData bundles, one with attributes and
 one without them. It uses RSA with SHA256 as the the signature algorithm,
 and specifies the signed content type as EncryptedData. The inner EncryptedData
-content type encpasulates a FirmwarePkgData type. After creating the
+content type encapsulates a FirmwarePkgData type. After creating the
 bundles, the app decodes them and verifies the operation was successful.
 
 The generated SignedData bundles are written out to a file for analysis and
@@ -469,7 +469,7 @@ Generated bundle files: `signedCompressedFirmwarePkgData_noattrs.der`,
 This example creates two PKCS#7/CMS SignedData bundles, one with attributes and
 one without them. It uses RSA with SHA256 as the the signature algorithm,
 and specifies the signed content type as CompressedData. The inner
-CompressedData content type encpasulates a FirmwarePkgData type. After creating
+CompressedData content type encapsulates a FirmwarePkgData type. After creating
 the bundles, the app decodes them and verifies the operation was successful.
 
 The generated SignedData bundles are written out to a file for analysis and
@@ -479,21 +479,23 @@ If wolfSSL has been configured and compiled with debug support, the bytes
 of the bundle will be printed out to the terminal window.
 
 ```
-./signedData-CommpressedFirmwarePkgData
+./signedData-CompressedFirmwarePkgData
 Successfully encoded Signed Compressed FirmwarePkgData (signedCompressedFPD_noattrs.der)
 Successfully extracted and verified bundle contents
 Successfully encoded Signed Compressed FirmwarePkgData (signedCompressedFPD_attrs.der)
 Successfully extracted and verified bundle contents
 ```
 
-### SignedData using CryptoDev Callback
+### SignedData using Crypto Callback
 
-Example file: `signedData-cryptodev.c`
-Generated bundle files: `signedData_cryptodev_noattrs.der`,
-                        `signedData_cryptodev_attrs.der`
+Build wolfssl using: `./configure --enable-pkcs7 --enable-pwdbased --enable-cryptocb`.
+
+Example file: `signedData-cryptocb.c`
+Generated bundle files: `signedData_cryptocb_noattrs.der`,
+                        `signedData_cryptocb_attrs.der`
 
 This example creates a PKCS#7/CMS SignedData bundle using the wolfCrypt
-CryptoDev callback. CryptoDev allows a user to register a callback to do
+Crypto callback. This allows a user to register a callback to do
 cryptographic operations outside of wolfCrypt proper. This can be useful
 in order to take advantage of hardware-based cryptography instead of the
 default software implementation.
@@ -509,10 +511,10 @@ If wolfSSL has been configured and compiled with debug support, the bytes
 of the bundle will be printed out to the terminal window.
 
 ```
-./signedData-cryptodev
-Successfully encoded SignedData bundle (signedData_cryptodev_noattrs.der)
+./signedData-cryptocb
+Successfully encoded SignedData bundle (signedData_cryptocb_noattrs.der)
 Successfully verified SignedData bundle.
-Successfully encoded SignedData bundle (signedData_cryptodev_attrs.der)
+Successfully encoded SignedData bundle (signedData_cryptocb_attrs.der)
 Successfully verified SignedData bundle.
 ```
 
@@ -552,7 +554,7 @@ Generated bundle files: `signedEncryptedCompressedFirmwarePkgData_noattrs.der`,
 This example creates two PKCS#7/CMS SignedData bundles, one with attributes and
 one without them. It uses RSA with SHA256 as the the signature algorithm,
 and specifies the signed content type as CompressedData. The inner
-CompressedData content type encpasulates an EncryptedData type, which in turn
+CompressedData content type encapsulates an EncryptedData type, which in turn
 encapsulates a FirmwarePkgData type. After creating the bundles, the app
 decodes them and verifies the operation was successful.
 
@@ -563,7 +565,7 @@ If wolfSSL has been configured and compiled with debug support, the bytes
 of the bundle will be printed out to the terminal window.
 
 ```
-./signedData-EncryptedCommpressedFirmwarePkgData
+./signedData-EncryptedCompressedFirmwarePkgData
 Successfully encoded Signed Encrypted Compressed FirmwarePkgData (signedEncryptedCompressedFPD_noattrs.der)
 Successfully extracted and verified bundle contents
 Successfully encoded Signed Encrypted Compressed FirmwarePkgData (signedEncryptedCompressedFPD_attrs.der)
