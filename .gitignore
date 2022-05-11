@@ -220,6 +220,7 @@ pk/ed25519_gen/gen_key_files
 pk/ed25519_gen/sign_and_verify
 pk/ecdh_generate_secret/ecdh_gen_secret
 pk/rsa-kg/rsa-kg-sv
+pk/rsa-kg/rsa-kg
 pk/dh-pg/dh-pg-ka
 pk/test_cert_and_private_keypair/test-cert-privkey-pair
 pk/srp/srp_gen
