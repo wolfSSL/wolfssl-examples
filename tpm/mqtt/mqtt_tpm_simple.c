@@ -21,19 +21,35 @@
 
 /* Standalone Example */
 
-#include "wolfmqtt/mqtt_client.h"
-#include "wolftpm/options.h"
-#include "wolftpm/tpm2.h"
-#include "wolftpm/tpm2_wrap.h"
-//#include "mqttsimple.h"
+#ifdef _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
 
+#pragma comment(lib, "ws2_32.lib")
+
+#define CLOSE_SOCKET(sock) closesocket(sock)
+
+#else
 /* Requires BSD Style Socket */
-
-#include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
 #include <unistd.h>
+
+#define CLOSE_SOCKET(sock) close(sock)
+#endif
+
+#include <sys/types.h>
+
+#include <wolfssl/options.h>
+
+#include "wolfmqtt/mqtt_client.h"
+#ifndef WOLFTPM_USER_SETTINGS
+#include "wolftpm/options.h"
+#endif
+#include "wolftpm/tpm2.h"
+#include "wolftpm/tpm2_wrap.h"
+
 
 /* Configuration */
 #define MQTT_HOST            "127.0.0.1"
@@ -57,7 +73,7 @@
 /* Local Variables */
 static MqttClient mClient;
 static MqttNet mNetwork;
-static int mSockFd = INVALID_SOCKET_FD;
+static SOCKET mSockFd = INVALID_SOCKET_FD;
 static byte mSendBuf[MQTT_MAX_PACKET_SZ];
 static byte mReadBuf[MQTT_MAX_PACKET_SZ];
 static volatile word16 mPacketIdLast;
@@ -129,22 +145,37 @@ static void setup_timeout(struct timeval* tv, int timeout_ms)
     }
 }
 
-static int socket_get_error(int sockFd)
+static int socket_get_error(SOCKET sockFd)
 {
+#ifdef _WIN32
+    return WSAGetLastError();
+#else
     int so_error = 0;
     socklen_t len = sizeof(so_error);
     getsockopt(sockFd, SOL_SOCKET, SO_ERROR, &so_error, &len);
     return so_error;
+#endif
 }
 
 static int mqtt_net_connect(void *context, const char* host, word16 port,
     int timeout_ms)
 {
     int rc;
-    int sockFd, *pSockFd = (int*)context;
+    SOCKET sockFd, *pSockFd = (SOCKET*)context;
     struct sockaddr_in addr;
     struct addrinfo *result = NULL;
     struct addrinfo hints;
+
+    {
+        WORD wVersionRequested;
+    WSADATA wsaData;
+    int err;
+
+    /* Use the MAKEWORD(lowbyte, highbyte) macro declared in Windef.h */
+    wVersionRequested = MAKEWORD(2, 2);
+
+    err = WSAStartup(wVersionRequested, &wsaData); 
+    }
 
     if (pSockFd == NULL) {
         return MQTT_CODE_ERROR_BAD_ARG;
@@ -198,7 +229,7 @@ static int mqtt_net_connect(void *context, const char* host, word16 port,
     if (rc < 0) {
         PRINTF("NetConnect: Error %d (Sock Err %d)",
             rc, socket_get_error(*pSockFd));
-        close(sockFd);
+        CLOSE_SOCKET(sockFd);
         return MQTT_CODE_ERROR_NETWORK;
     }
 
@@ -213,6 +244,7 @@ static int mqtt_net_read(void *context, byte* buf, int buf_len, int timeout_ms)
     int rc;
     int *pSockFd = (int*)context;
     int bytes = 0;
+    
     struct timeval tv;
 
     if (pSockFd == NULL) {
@@ -276,7 +308,7 @@ static int mqtt_net_disconnect(void *context)
         return MQTT_CODE_ERROR_BAD_ARG;
     }
 
-    close(*pSockFd);
+    CLOSE_SOCKET(*pSockFd);
     *pSockFd = INVALID_SOCKET_FD;
 
     return MQTT_CODE_SUCCESS;
@@ -533,9 +565,6 @@ static int readKeyBlob(const char* filename, WOLFTPM2_KEYBLOB* key)
         rc = TPM2_ParsePublic(&key->pub, pubAreaBuffer,
             (word32)sizeof(pubAreaBuffer), &pubAreaSize);
         if (rc != TPM_RC_SUCCESS) return rc;
-    #ifdef DEBUG_WOLFTPM
-        TPM2_PrintPublicArea(&key->pub);
-    #endif
 
         if (fileSz > 0) {
             printf("Reading the private part of the key\n");
@@ -590,9 +619,12 @@ static int mqtt_tls_cb(MqttClient* client)
 
     int tpmDevId;
 
-    rc = readKeyBlob("tmp_certs_and_keys/rsa_test_blob.raw", &keyblob);
-    //rc = readKeyBlob("ecc_test_blob.raw", &keyblob);
-
+#ifdef WOLFSSL_RSA
+    rc = readKeyBlob("rsa_test_blob.raw", &keyblob);
+#else
+    rc = readKeyBlob("ecc_test_blob.raw", &keyblob);
+#endif
+    
     /* Use highest available and allow downgrade. If wolfSSL is built with
      * old TLS support, it is possible for a server to force a downgrade to
      * an insecure version. */
@@ -601,12 +633,16 @@ static int mqtt_tls_cb(MqttClient* client)
         wolfSSL_CTX_set_verify(client->tls.ctx, WOLFSSL_VERIFY_PEER,
                                mqtt_tls_verify_cb);
 
+#if 0 /* Example how to enable CRL and OCSP */
+        wolfSSL_CTX_EnableCRL(client->tls.ctx, WOLFSSL_CRL_CHECKALL);
+        wolfSSL_CTX_EnableOCSP(client->tls.ctx, WOLFSSL_OCSP_CHECKALL);
+        wolfSSL_CTX_EnableOCSPStapling(client->tls.ctx);
+#endif
+
         /* default to success */
         rc = WOLFSSL_SUCCESS;
 
-        // TODO: Add cert and private key here
-
-        /* Initi TPM */
+        /* Initialize TPM */
         rc = wolfTPM2_Init(&dev, NULL, NULL);
         if (rc != 0) {
           PRINTF("TPM init failed\n");
@@ -623,7 +659,7 @@ static int mqtt_tls_cb(MqttClient* client)
             return rc;
         }
 
-        //TODO: load key
+        /* load SRK and tpm key */
         rc = wolfTPM2_CreateSRK(&dev, &storageKey, alg,
                                 (byte*)gStorageKeyAuth, sizeof(gStorageKeyAuth)-1);
         if (rc != 0) goto exit;
@@ -635,7 +671,7 @@ static int mqtt_tls_cb(MqttClient* client)
         }
         printf("Loaded key to 0x%x\n", (word32)keyblob.handle.hndl);
 
-        //set auth
+        /* set authentication */
         key.handle = keyblob.handle;
         key.pub    = keyblob.pub;
         key.handle.auth.size = sizeof(gKeyAuth)-1;
@@ -655,9 +691,9 @@ static int mqtt_tls_cb(MqttClient* client)
             goto exit;
         }
 
-        // load certificate
+        /* load certificate */
         rc = wolfSSL_CTX_use_certificate_file(client->tls.ctx,
-                                              "tmp_certs_and_keys/client-rsa-cert.pem",
+                                              "client-rsa-cert.pem",
                                               WOLFSSL_FILETYPE_PEM);
 
     }
@@ -744,7 +780,7 @@ int mqttsimple_test(void)
     mqttObj.publish.topic_name = MQTT_TOPIC_NAME;
     mqttObj.publish.packet_id = mqtt_get_packetid();
     mqttObj.publish.buffer = (byte*)MQTT_PUBLISH_MSG;
-    mqttObj.publish.total_len = XSTRLEN(MQTT_PUBLISH_MSG);
+    mqttObj.publish.total_len = (word32)XSTRLEN(MQTT_PUBLISH_MSG);
     rc = MqttClient_Publish(&mClient, &mqttObj.publish);
     if (rc != MQTT_CODE_SUCCESS) {
         goto exit;
@@ -781,6 +817,7 @@ int main(int argc, char** argv)
     int rc = -1;
     (void)argc;
     (void)argv;
+
     wolfSSL_Debugging_ON();
     rc = mqttsimple_test();
 
