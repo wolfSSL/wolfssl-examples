@@ -1,6 +1,7 @@
-/* OpenSSL specific */
+/* wolfSSL specific with TPM callbacks*/
 
 #include <wolfssl/options.h>
+
 #ifndef WOLFTPM_USER_SETTINGS
 #include <wolftpm/options.h>
 #endif
@@ -391,7 +392,6 @@ int main(void)
      * 
      */
     rv = curl_easy_setopt(ch, CURLOPT_SSL_CTX_FUNCTION, *sslctx_function);
-    //curl_easy_setopt(ch, CURLOPT_SSL_CTX_DATA, mypem);
     rv = curl_easy_perform(ch);
     if (!rv)
         printf("*** transfer succeeded ***\n");
