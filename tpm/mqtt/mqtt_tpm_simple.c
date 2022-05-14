@@ -36,6 +36,7 @@
 #include <netdb.h>
 #include <unistd.h>
 
+#define SOCKET int
 #define CLOSE_SOCKET(sock) close(sock)
 #endif
 
@@ -166,16 +167,18 @@ static int mqtt_net_connect(void *context, const char* host, word16 port,
     struct addrinfo *result = NULL;
     struct addrinfo hints;
 
+#ifdef _WIN32
     {
-        WORD wVersionRequested;
-    WSADATA wsaData;
-    int err;
+      WORD wVersionRequested;
+      WSADATA wsaData;
+      int err;
 
-    /* Use the MAKEWORD(lowbyte, highbyte) macro declared in Windef.h */
-    wVersionRequested = MAKEWORD(2, 2);
+      /* Use the MAKEWORD(lowbyte, highbyte) macro declared in Windef.h */
+      wVersionRequested = MAKEWORD(2, 2);
 
-    err = WSAStartup(wVersionRequested, &wsaData); 
+      err = WSAStartup(wVersionRequested, &wsaData); 
     }
+#endif
 
     if (pSockFd == NULL) {
         return MQTT_CODE_ERROR_BAD_ARG;
@@ -619,10 +622,10 @@ static int mqtt_tls_cb(MqttClient* client)
 
     int tpmDevId;
 
-#ifdef WOLFSSL_RSA
-    rc = readKeyBlob("rsa_test_blob.raw", &keyblob);
+#ifndef NO_RSA
+    rc = readKeyBlob(CERT_PATH "rsa_test_blob.raw", &keyblob);
 #else
-    rc = readKeyBlob("ecc_test_blob.raw", &keyblob);
+    rc = readKeyBlob(CERT_PATH "ecc_test_blob.raw", &keyblob);
 #endif
     
     /* Use highest available and allow downgrade. If wolfSSL is built with
@@ -693,7 +696,7 @@ static int mqtt_tls_cb(MqttClient* client)
 
         /* load certificate */
         rc = wolfSSL_CTX_use_certificate_file(client->tls.ctx,
-                                              "client-rsa-cert.pem",
+                                              CERT_PATH "client-rsa-cert.pem",
                                               WOLFSSL_FILETYPE_PEM);
 
     }
