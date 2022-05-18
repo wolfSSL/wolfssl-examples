@@ -51,6 +51,9 @@
 #include "wolftpm/tpm2.h"
 #include "wolftpm/tpm2_wrap.h"
 
+#ifndef CERT_PATH
+#  define CERT_PATH ""
+#endif
 
 /* Configuration */
 #define MQTT_HOST            "127.0.0.1"
