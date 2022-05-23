@@ -4,13 +4,31 @@
 # Sets the minimum version of CMake required to build the native library.
 
 cmake_minimum_required(VERSION 3.4.1)
+project("wolfssljni-ndk-gradle")
 
-# Add preprocessor defines to CFLAGS
-add_definitions(-DWOLFSSL_JNI -DWOLFSSL_DTLS -DOPENSSL_EXTRA -DHAVE_CRL -DHAVE_CRL_MONITOR
-                -DHAVE_OCSP -DPERSIST_SESSION_CACHE -DPERSIST_CERT_CACHE -DATOMIC_USER
-                -DHAVE_ECC -DTFM_ECC256 -DHAVE_PK_CALLBACKS -DHAVE_DH -DUSE_FAST_MATH
-                -DTFM_TIMING_RESISTANT -DECC_TIMING_RESISTANT -DWC_RSA_BLINDING -DTFM_NO_ASM
-                )
+# Add preprocessor defines to CFLAGS, these match those placed into
+# wolfssl/options.h by configure if using: "./configure --enable-jni".
+# This list may be configurable depending on use case.
+add_definitions(-DUSE_FAST_MATH -DTFM_TIMING_RESISTANT -DECC_TIMING_RESISTANT
+                -DWC_RSA_BLINDING -DWOLFSSL_SHA224 -DWOLFSSL_SHA384
+                -DWOLFSSL_SHA512 -DHAVE_HKDF -DNO_DSA -DHAVE_ECC -DTFM_ECC256
+                -DECC_SHAMIR -DWC_RSA_PSS -DWOLFSSL_BASE64_ENCODE
+                -DWOLFSSL_SHA3 -DHAVE_POLY1305 -DHAVE_CHACHA -DHAVE_HASHDRBG
+                -DHAVE_TLS_EXTENSIONS -DHAVE_SUPPORTED_CURVES -DHAVE_FFDHE_2048
+                -DWOLFSSL_TLS13 -DHAVE_EXTENDED_MASTER -DWOLFSSL_JNI
+                -DHAVE_EX_DATA -DWOLFSSL_DTLS -DOPENSSL_EXTRA -DOPENSSL_ALL
+                -DHAVE_CRL -DHAVE_OCSP -DHAVE_CRL_MONITOR
+                -DPERSIST_SESSION_CACHE -DPERSIST_CERT_CACHE -DATOMIC_USER
+                -DHAVE_PK_CALLBACKS -DWOLFSSL_CERT_EXT -DWOLFSSL_CERT_GEN
+                -DHAVE_SNI -DHAVE_ALPN -DNO_RC4 -DHAVE_ENCRYPT_THEN_MAC
+                -DNO_MD4 -DWOLFSSL_ENCRYPTED_KEYS -DHAVE_DH_DEFAULT_PARAMS
+                -DNO_ERROR_QUEUE -DWOLFSSL_EITHER_SIDE -DWC_RSA_NO_PADDING
+                -DWC_RSA_PSS -DWOLFSSL_PSS_LONG_SALT -DWOLFSSL_TICKET_HAVE_ID
+                -DWOLFSSL_ERROR_CODE_OPENSSL -DWOLFSSL_ALWAYS_VERIFY_CB
+                -DWOLFSSL_VERIFY_CB_ALL_CERTS -DWOLFSSL_EXTRA_ALERTS
+                -DHAVE_EXT_CACHE -DWOLFSSL_FORCE_CACHE_ON_TICKET
+                -DWOLFSSL_AKID_NAME -DHAVE_CTS -DNO_DES3 -DGCM_TABLE_4BIT
+                -DHAVE_AESGCM -DSIZEOF_LONG=4 -DSIZEOF_LONG_LONG=8 -DTFM_NO_ASM)
 
 # set wolfSSL JNI location as environment variable, change if needed
 set(wolfssljni_DIR ${CMAKE_SOURCE_DIR}/../wolfssljni)
@@ -51,6 +69,7 @@ add_library(wolfssl SHARED
             ${wolfssl_DIR}/wolfcrypt/src/hash.c
             ${wolfssl_DIR}/wolfcrypt/src/hmac.c
             ${wolfssl_DIR}/wolfcrypt/src/integer.c
+            ${wolfssl_DIR}/wolfcrypt/src/kdf.c
             ${wolfssl_DIR}/wolfcrypt/src/logging.c
             ${wolfssl_DIR}/wolfcrypt/src/md2.c
             ${wolfssl_DIR}/wolfcrypt/src/md4.c
