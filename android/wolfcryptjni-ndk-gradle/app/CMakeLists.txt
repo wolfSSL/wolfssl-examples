@@ -4,14 +4,20 @@
 # Sets the minimum version of CMake required to build the native library.
 
 cmake_minimum_required(VERSION 3.4.1)
+project("wolfcryptjni-ndk-gradle")
 
-# Add preprocessor defines to CFLAGS
-add_definitions(-DNO_DSA -DNO_PSK -DNO_MD4 -DNO_HC128 -DNO_RABBIT
-                -DWOLFSSL_SHA512 -DWOLFSSL_SHA384 -DHAVE_AESGCM -DHAVE_HASHDRBG
-                -DHAVE_ECC -DWOLFSSL_KEY_GEN -DNO_PWDBASED -DUSE_FAST_MATH
-                -DTFM_ECC256 -DHAVE_DH -DUSE_FAST_MATH -DTFM_TIMING_RESISTANT
-                -DECC_TIMING_RESISTANT -DWC_RSA_BLINDING -DTFM_NO_ASM
-                )
+# Add preprocessor defines to CFLAGS. These mirror the CFLAGS set in
+# wolfssl/options.h if using './configure --enable-keygen'
+add_definitions(-DUSE_FAST_MATH -DTFM_TIMING_RESISTANT -DECC_TIMING_RESISTANT
+                -DWC_RSA_BLINDING -DWOLFSSL_SHA224 -DWOLFSSL_SHA384
+                -DWOLFSSL_SHA512 -DHAVE_HKDF -DNO_DSA -DHAVE_ECC -DTFM_ECC256
+                -DECC_SHAMIR -DWC_RSA_PSS -DWOLFSSL_BASE64_ENCODE -DWOLFSSL_SHA3
+                -DHAVE_POLY1305 -DHAVE_CHACHA -DHAVE_HASHDRBG
+                -DHAVE_TLS_EXTENSIONS -DHAVE_SUPPORTED_CURVES -DHAVE_FFDHE_2048
+                -DWOLFSSL_TLS13 -DHAVE_EXTENDED_MASTER -DNO_RC4 -DNO_MD4
+                -DHAVE_ENCRYPT_THEN_MAC -DNO_PSK -DHAVE_DH_DEFAULT_PARAMS
+                -DWOLFSSL_KEY_GEN -DNO_DES3 -DGCM_TABLE_4BIT -DHAVE_AESGCM
+                -DTFM_NO_ASM)
 
 # set wolfSSL JNI location as environment variable, change if needed
 set(wolfcryptjni_DIR ${CMAKE_SOURCE_DIR}/../wolfcrypt-jni)
@@ -52,6 +58,7 @@ add_library(wolfssl SHARED
             ${wolfssl_DIR}/wolfcrypt/src/hash.c
             ${wolfssl_DIR}/wolfcrypt/src/hmac.c
             ${wolfssl_DIR}/wolfcrypt/src/integer.c
+            ${wolfssl_DIR}/wolfcrypt/src/kdf.c
             ${wolfssl_DIR}/wolfcrypt/src/logging.c
             ${wolfssl_DIR}/wolfcrypt/src/md2.c
             ${wolfssl_DIR}/wolfcrypt/src/md4.c
@@ -99,6 +106,7 @@ add_library(wolfcryptjni SHARED
             ${wolfcryptjni_DIR}/jni/jni_ecc.c
             ${wolfcryptjni_DIR}/jni/jni_ed25519.c
             ${wolfcryptjni_DIR}/jni/jni_error.c
+            ${wolfcryptjni_DIR}/jni/jni_feature_detect.c
             ${wolfcryptjni_DIR}/jni/jni_fips.c
             ${wolfcryptjni_DIR}/jni/jni_hmac.c
             ${wolfcryptjni_DIR}/jni/jni_logging.c
@@ -107,6 +115,7 @@ add_library(wolfcryptjni SHARED
             ${wolfcryptjni_DIR}/jni/jni_rng.c
             ${wolfcryptjni_DIR}/jni/jni_rsa.c
             ${wolfcryptjni_DIR}/jni/jni_sha.c
+            ${wolfcryptjni_DIR}/jni/jni_wolfobject.c
            )
 
 # Include libraries needed for wolfSSL and wolfCrypt JNI libs
