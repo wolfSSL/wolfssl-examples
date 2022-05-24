@@ -31,6 +31,7 @@ android {
         // wolfSSL JNI Java source files are added here
         main.java.srcDirs += '../wolfssljni/src/java'
     }
+    namespace 'com.wolfssl.wolfssljni_ndk_gradle'
 }
 
 dependencies {

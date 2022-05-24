@@ -11,10 +11,11 @@ contains a Makefile as well as a simple tutorial on the given topic.
 ## Current Examples
 
 
-#### android (Android NDK Examples)
+#### android (Android Studio and NDK Examples)
 
-This directory contains examples that demonstrate using wolfSSL and wolfSSLJNI
-on the Android platform, using the Android NDK toolchain.
+This directory contains examples that demonstrate using wolfSSL,
+wolfSSL JNI/JSSE, and wolfCrypt JNI/JCE on the Android platform. Examples
+use either Android Studio with Gradle or the Android NDK standalone toolchain.
 
 Please see the [android/README.md](android/README.md) for further usage and 
 details.
