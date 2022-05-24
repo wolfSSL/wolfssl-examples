@@ -143,27 +143,27 @@ int main(int argc, char** argv)
     if (name == NULL)
         err_sys("wolfSSL_X509_get_subject_name failed", 0);
 
-    nameSz = wolfSSL_X509_NAME_get_text_by_NID(name, ASN_COMMON_NAME,
+    nameSz = wolfSSL_X509_NAME_get_text_by_NID(name, NID_commonName,
                                             commonName, sizeof(commonName));
     printf("CN = %s (%d)\n", commonName, nameSz);
 
-    nameSz = wolfSSL_X509_NAME_get_text_by_NID(name, ASN_COUNTRY_NAME,
+    nameSz = wolfSSL_X509_NAME_get_text_by_NID(name, NID_countryName,
                                             countryName, sizeof(countryName));
     printf("COUNTRY = %s (%d)\n", countryName, nameSz);
 
-    nameSz = wolfSSL_X509_NAME_get_text_by_NID(name, ASN_LOCALITY_NAME,
+    nameSz = wolfSSL_X509_NAME_get_text_by_NID(name, NID_localityName,
                                             localityName, sizeof(localityName));
     printf("LOCALITY = %s (%d)\n", localityName, nameSz);
 
-    nameSz = wolfSSL_X509_NAME_get_text_by_NID(name, ASN_STATE_NAME,
+    nameSz = wolfSSL_X509_NAME_get_text_by_NID(name, NID_stateOrProvinceName,
                                             stateName, sizeof(stateName));
     printf("STATE = %s (%d)\n", stateName, nameSz);
 
-    nameSz = wolfSSL_X509_NAME_get_text_by_NID(name, ASN_ORG_NAME,
+    nameSz = wolfSSL_X509_NAME_get_text_by_NID(name, NID_organizationName,
                                             orgName, sizeof(orgName));
     printf("ORG = %s (%d)\n", orgName, nameSz);
 
-    nameSz = wolfSSL_X509_NAME_get_text_by_NID(name, ASN_ORGUNIT_NAME,
+    nameSz = wolfSSL_X509_NAME_get_text_by_NID(name, NID_organizationalUnitName,
                                             orgUnit, sizeof(orgUnit));
     printf("ORG UNIT = %s (%d)\n", orgUnit, nameSz);
 
