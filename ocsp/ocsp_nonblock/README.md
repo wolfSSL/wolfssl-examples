@@ -16,12 +16,11 @@ $ ./configure --enable-ocsp CFLAGS="-DHAVE_IO_TIMEOUT -DWOLFSSL_NONBLOCK_OCSP"
 $ make
 $ sudo make install
 
-$ make
-# gcc -o ocsp_nonblock ocsp_nonblock.c -Wall -I/usr/local/include -Os -L/usr/local/lib -lwolfssl
+% make
+gcc -o ocsp_nonblock ocsp_nonblock.c -Wall -I/usr/local/include -Os -L/usr/local/lib -lwolfssl
 
-$ ./ocsp_nonblock
-Load Trusted: GlobalSign CA (ret 1)
-Load Trusted: GTS CA 101 (ret 1)
+% ./ocsp_nonblock
+Loaded Trusted CA dir ca_certs (ret 1)
 Convert Google.com PEM cert to DER (ret 1)
 Verify Google.com cert: 1
 OCSP Lookup:
@@ -29,7 +28,7 @@ OCSP Lookup:
 	Domain: ocsp.pki.goog
 	Path: /gts1c3
 	Port: 80
-OCSP Response: ret 471, nonblock count 681228
+OCSP Response: ret 471, nonblock count 409421
 Check OCSP for Google.com (ret 1)
 Ret = 1: success
 ```
