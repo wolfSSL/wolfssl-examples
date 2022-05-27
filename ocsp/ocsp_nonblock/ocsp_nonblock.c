@@ -42,16 +42,31 @@ static const char* kGoogleCom = "google.pem"; /* www.google.com */
 
 static int io_timeout_sec = DEFAULT_TIMEOUT_SEC;
 
+
+static SOCKET_T sfd = SOCKET_INVALID;
+static word16   port;
+static int      ret = -1;
+static char     path[MAX_URL_ITEM_SIZE];
+static char     domainName[MAX_URL_ITEM_SIZE];
+static int      nonBlockCnt = 0;
+static byte*    httpBuf;
+
 /* Return size of the OCSP response or negative for error */
 static int OcspLookupNonBlockCb(void* ctx, const char* url, int urlSz,
                         byte* ocspReqBuf, int ocspReqSz, byte** ocspRespBuf)
 {
-    SOCKET_T sfd = SOCKET_INVALID;
-    word16   port;
-    int      ret = -1;
-    char     path[MAX_URL_ITEM_SIZE];
-    char     domainName[MAX_URL_ITEM_SIZE];
-    int      nonBlockCnt = 0;
+    if (sfd != SOCKET_INVALID) {
+        ret = wolfIO_HttpProcessResponseOcsp(sfd, ocspRespBuf,
+                        httpBuf, HTTP_SCRATCH_BUFFER_SIZE, ctx);
+        nonBlockCnt++;
+        if (ret == OCSP_WANT_READ)
+            return WOLFSSL_CBIO_ERR_WANT_READ;
+        printf("OCSP Response: ret %d, nonblock count %d\n",
+            ret, nonBlockCnt);
+        XFREE(httpBuf, ctx, DYNAMIC_TYPE_OCSP);
+        httpBuf = NULL;
+        return ret;
+    }
 
     if (ocspReqBuf == NULL || ocspReqSz == 0) {
         printf("OCSP request is required for lookup\n");
@@ -65,7 +80,7 @@ static int OcspLookupNonBlockCb(void* ctx, const char* url, int urlSz,
     else {
         /* Note: This is free'd in OcspRespFreeCb callback */
         int   httpBufSz = HTTP_SCRATCH_BUFFER_SIZE;
-        byte* httpBuf   = (byte*)XMALLOC(httpBufSz, NULL, DYNAMIC_TYPE_OCSP);
+        httpBuf         = (byte*)XMALLOC(httpBufSz, NULL, DYNAMIC_TYPE_OCSP);
 
         printf("OCSP Lookup:\n");
         printf("\tURL: %s\n", url);
@@ -99,6 +114,8 @@ static int OcspLookupNonBlockCb(void* ctx, const char* url, int urlSz,
                         ret = wolfIO_HttpProcessResponseOcsp(sfd, ocspRespBuf, 
                                         httpBuf, HTTP_SCRATCH_BUFFER_SIZE, NULL);
                         nonBlockCnt++;
+                        if (ret == OCSP_WANT_READ)
+                            return WOLFSSL_CBIO_ERR_WANT_READ;
                     } while (ret == OCSP_WANT_READ);
                     printf("OCSP Response: ret %d, nonblock count %d\n", 
                         ret, nonBlockCnt);
@@ -110,8 +127,10 @@ static int OcspLookupNonBlockCb(void* ctx, const char* url, int urlSz,
             if (sfd != SOCKET_INVALID)
                 CloseSocket(sfd);
             XFREE(httpBuf, ctx, DYNAMIC_TYPE_OCSP);
+            httpBuf = NULL;
         }
     }
+    printf("Resp ret: %d\n", ret);
     return ret;
 }
 
@@ -119,6 +138,7 @@ static void OcspRespFreeCb(void* ctx, byte *resp)
 {
     if (resp)
         XFREE(resp, NULL, DYNAMIC_TYPE_OCSP);
+    httpBuf = NULL;
 
     (void)ctx;
 }
@@ -130,7 +150,7 @@ int main(int argc, char** argv)
     char pem[2048];
     int pemSz = 0;
     byte der[2000];
-    int derSz;
+    int derSz = 0;
     FILE* file;
     const char* certFile = kGoogleCom;
 
@@ -191,8 +211,10 @@ int main(int argc, char** argv)
     #ifdef HAVE_OCSP
         if (ret == WOLFSSL_SUCCESS) {
             /* Check OCSP for certificate */
-            ret = wolfSSL_CertManagerCheckOCSP(pCm, 
-                der, derSz);
+            do {
+                ret = wolfSSL_CertManagerCheckOCSP(pCm,
+                    der, derSz);
+            } while (ret == OCSP_WANT_READ);
             printf("Check OCSP for Google.com (ret %d)\n", ret);
         }
     #endif
