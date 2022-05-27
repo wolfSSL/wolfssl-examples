@@ -199,6 +199,7 @@ pkcs11/pkcs11_aesgcm
 pkcs11/pkcs11_aescbc
 pkcs11/pkcs11_hmac
 pkcs11/pkcs11_rand
+pkcs11/pkcs11_csr
 pkcs11/server-tls-pkcs11
 pkcs11/server-tls-pkcs11-ecc
 pkcs11/softhsm2.conf
