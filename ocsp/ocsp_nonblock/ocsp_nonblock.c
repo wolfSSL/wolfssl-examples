@@ -45,7 +45,6 @@ static int io_timeout_sec = DEFAULT_TIMEOUT_SEC;
 
 static SOCKET_T sfd = SOCKET_INVALID;
 static word16   port;
-static int      ret = -1;
 static char     path[MAX_URL_ITEM_SIZE];
 static char     domainName[MAX_URL_ITEM_SIZE];
 static int      nonBlockCnt = 0;
@@ -55,15 +54,17 @@ static byte*    httpBuf;
 static int OcspLookupNonBlockCb(void* ctx, const char* url, int urlSz,
                         byte* ocspReqBuf, int ocspReqSz, byte** ocspRespBuf)
 {
+    int ret = WOLFSSL_CBIO_ERR_GENERAL;
+
     if (sfd != SOCKET_INVALID) {
         ret = wolfIO_HttpProcessResponseOcsp(sfd, ocspRespBuf,
-                        httpBuf, HTTP_SCRATCH_BUFFER_SIZE, ctx);
+                        httpBuf, HTTP_SCRATCH_BUFFER_SIZE, NULL);
         nonBlockCnt++;
         if (ret == OCSP_WANT_READ)
             return WOLFSSL_CBIO_ERR_WANT_READ;
         printf("OCSP Response: ret %d, nonblock count %d\n",
             ret, nonBlockCnt);
-        XFREE(httpBuf, ctx, DYNAMIC_TYPE_OCSP);
+        XFREE(httpBuf, NULL, DYNAMIC_TYPE_OCSP);
         httpBuf = NULL;
         return ret;
     }
@@ -126,10 +127,11 @@ static int OcspLookupNonBlockCb(void* ctx, const char* url, int urlSz,
             }
             if (sfd != SOCKET_INVALID)
                 CloseSocket(sfd);
-            XFREE(httpBuf, ctx, DYNAMIC_TYPE_OCSP);
+            XFREE(httpBuf, NULL, DYNAMIC_TYPE_OCSP);
             httpBuf = NULL;
         }
     }
+    (void)ctx;
     printf("Resp ret: %d\n", ret);
     return ret;
 }
