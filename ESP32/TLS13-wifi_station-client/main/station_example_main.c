@@ -72,7 +72,8 @@
 #define TLS_SMP_CLIENT_TASK_WORDS        10240
 #define TLS_SMP_CLIENT_TASK_PRIORITY     8
 
-#define TLS_SMP_TARGET_HOST              "192.168.1.144"
+#define EXAMPLE_TLS_SMP_TARGET_HOST CONFIG_TLS_SMP_TARGET_HOST
+#define TLS_SMP_TARGET_HOST EXAMPLE_ESP_MAXIMUM_RETRY
 
 
 /* include certificates. Note that there is an experiation date! 
