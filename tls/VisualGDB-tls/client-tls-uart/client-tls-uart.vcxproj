@@ -68,7 +68,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <NMakeIncludeSearchPath>\\wsl$\Ubuntu\usr\include\c++\9;\\wsl$\Ubuntu\usr\include\x86_64-linux-gnu\c++\9;\\wsl$\Ubuntu\usr\include\c++\9\backward;\\wsl$\Ubuntu\usr\local\include;\\wsl$\Ubuntu\usr\lib\llvm-10\lib\clang\10.0.0\include;\\wsl$\Ubuntu\usr\include\x86_64-linux-gnu;\\wsl$\Ubuntu\usr\include;$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
+    <NMakeIncludeSearchPath>\\wsl$\Ubuntu\usr\include\c++\9;\\wsl$\Ubuntu\usr\include\x86_64-linux-gnu\c++\9;\\wsl$\Ubuntu\usr\include\c++\9\backward;\\wsl$\Ubuntu\usr\local\include;\\wsl$\Ubuntu\usr\lib\llvm-10\lib\clang\10.0.0\include;\\wsl$\Ubuntu\usr\include\x86_64-linux-gnu;\\wsl$\Ubuntu\usr\include;\\wsl$\Ubuntu\usr\include\c++\9;\\wsl$\Ubuntu\usr\include\x86_64-linux-gnu\c++\9;\\wsl$\Ubuntu\usr\include\c++\9\backward;\\wsl$\Ubuntu\usr\local\include;\\wsl$\Ubuntu\usr\lib\llvm-10\lib\clang\10.0.0\include;\\wsl$\Ubuntu\usr\include\x86_64-linux-gnu;\\wsl$\Ubuntu\usr\include;$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
     <NMakeForcedIncludes>$(ProjectDir)\gcc_Debug.h;$(VISUALGDB_DIR)\gcc_compat.h;$(NMakeForcedIncludes)</NMakeForcedIncludes>
     <NMakeBuildCommandLine>"$(VISUALGDB_DIR)\VisualGDB.exe" /build "$(ProjectPath)" "/solution:$(SolutionPath)"  "/config:$(Configuration)" "/platform:$(Platform)"</NMakeBuildCommandLine>
     <NMakeCleanCommandLine>"$(VISUALGDB_DIR)\VisualGDB.exe" /clean "$(ProjectPath)" "/solution:$(SolutionPath)"  "/config:$(Configuration)" "/platform:$(Platform)"</NMakeCleanCommandLine>

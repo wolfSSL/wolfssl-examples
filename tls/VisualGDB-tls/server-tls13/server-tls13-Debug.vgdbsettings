@@ -8,31 +8,9 @@
     </CustomSourceDirectories>
     <AutoProgramSPIFFSPartition>true</AutoProgramSPIFFSPartition>
     <BuildHost>
-      <HostName>localhost-lxss-Ubuntu</HostName>
+      <HostName>localhost-lxss</HostName>
       <Transport>LinuxSubsystem</Transport>
     </BuildHost>
-    <MainSourceTransferCommand>
-      <SkipWhenRunningCommandList>false</SkipWhenRunningCommandList>
-      <LocalDirectory>$(ProjectDir)</LocalDirectory>
-      <RemoteDirectory>/tmp/VisualGDB/$(ProjectDirUnixStyle)</RemoteDirectory>
-      <FileMasks>
-        <string>*.cpp</string>
-        <string>*.h</string>
-        <string>*.hpp</string>
-        <string>*.c</string>
-        <string>*.cc</string>
-        <string>*.cxx</string>
-        <string>*.mak</string>
-        <string>Makefile</string>
-        <string>*.txt</string>
-        <string>*.cmake</string>
-      </FileMasks>
-      <TransferNewFilesOnly>true</TransferNewFilesOnly>
-      <IncludeSubdirectories>true</IncludeSubdirectories>
-      <SelectedDirectories />
-      <DeleteDisappearedFiles>false</DeleteDisappearedFiles>
-      <ApplyGlobalExclusionList>true</ApplyGlobalExclusionList>
-    </MainSourceTransferCommand>
     <AllowChangingHostForMainCommands>false</AllowChangingHostForMainCommands>
     <SkipBuildIfNoSourceFilesChanged>false</SkipBuildIfNoSourceFilesChanged>
     <IgnoreFileTransferErrors>false</IgnoreFileTransferErrors>
@@ -131,7 +109,6 @@
       <DebuggedProgram>$(TargetPath)</DebuggedProgram>
       <GDBServerPort>2000</GDBServerPort>
       <ProgramArguments />
-      <WorkingDirectory>$(SourceDir)/../../</WorkingDirectory>
       <ArgumentEscapingMode>Auto</ArgumentEscapingMode>
     </LaunchGDBSettings>
     <GenerateCtrlBreakInsteadOfCtrlC>false</GenerateCtrlBreakInsteadOfCtrlC>

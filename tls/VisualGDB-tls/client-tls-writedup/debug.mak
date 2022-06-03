@@ -18,14 +18,14 @@ LIBRARY_DIRS := wolfssl
 LIBRARY_NAMES := wolfssl
 ADDITIONAL_LINKER_INPUTS := 
 MACOS_FRAMEWORKS := 
-LINUX_PACKAGES := 
+LINUX_PACKAGES :=
 
 CFLAGS := -ggdb -ffunction-sections -O0
 CXXFLAGS := -ggdb -ffunction-sections -O0
 ASFLAGS := 
 LDFLAGS := -Wl,-gc-sections
 COMMONFLAGS := 
-LINKER_SCRIPT := 
+LINKER_SCRIPT :=
 
 START_GROUP := -Wl,--start-group
 END_GROUP := -Wl,--end-group

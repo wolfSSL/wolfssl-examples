@@ -299,7 +299,7 @@ tpm/evp_tpm
 **/*/*.vcxproj.filters
 **/*/*.vcxproj.user
 
-# EDP-IDF 
+# EDP-IDF
 **/main/build/CMakeFiles/*
 **/build/*
 
