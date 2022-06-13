@@ -115,6 +115,13 @@ with the example certs in
 
 ## Troubleshooting
 
+### Could not identify the WSL2 network interface. No network interfaces with the (WSL) tag found.
+
+This error may occur if there are multiple WSL distros installed, or different from the one saved here. Pick a WSL:
+
+![VisualGDB-pick-WSL.png](./images/VisualGDB-pick-WSL.png)
+
+
 
 ### Failed to start GDB session
 
