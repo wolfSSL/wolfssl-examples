@@ -7,13 +7,13 @@ LIBS     = -L$(LIB_PATH)/lib -lm
 # option variables
 DYN_LIB         = -lwolfssl
 STATIC_LIB      = $(LIB_PATH)/lib/libwolfssl.a
-DEBUG_FLAGS     = -g -DDEBUG
+DEBUG_FLAGS     = -g3 -DDEBUG -O0
 DEBUG_INC_PATHS = -MD
 OPTIMIZE        = -Os
 
 # Options
-#CFLAGS+=$(DEBUG_FLAGS)
-CFLAGS+=$(OPTIMIZE)
+CFLAGS+=$(DEBUG_FLAGS)
+#CFLAGS+=$(OPTIMIZE)
 #LIBS+=$(STATIC_LIB)
 LIBS+=$(DYN_LIB)
 
@@ -33,6 +33,8 @@ debug: all
 %-threaded: LIBS+=-lpthread
 %-shared: CFLAGS+=-pthread
 %-shared: LIBS+=-lpthread
+
+server-dtls13-event: LIBS+=-levent
 
 # build template
 %: %.c
