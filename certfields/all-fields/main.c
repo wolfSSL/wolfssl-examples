@@ -113,13 +113,18 @@ int main(int argc, char** argv)
     if (pubKeyTmp == NULL)
         err_sys("wolfSSL_X509_get_pubkey failed", 0);
 
+
+    /* always initialize both key structs since both are free'd at the end */
+    ret =  wc_InitRsaKey(&pubKeyRsa, 0);
+    ret |= wc_ecc_init(&pubKeyEcc);
+    if (ret != 0)
+        err_sys("init key failed", ret);
+
     idx = 0;
     if (keyType == RSA_KEY_TYPE) {
-        wc_InitRsaKey(&pubKeyRsa, 0);
         ret = wc_RsaPublicKeyDecode((byte*)pubKeyTmp->pkey.ptr, &idx,
                                     &pubKeyRsa, pubKeyTmp->pkey_sz);
     } else {
-        wc_ecc_init(&pubKeyEcc);
         ret = wc_EccPublicKeyDecode((byte*)pubKeyTmp->pkey.ptr, &idx,
                                     &pubKeyEcc, pubKeyTmp->pkey_sz);
     }
