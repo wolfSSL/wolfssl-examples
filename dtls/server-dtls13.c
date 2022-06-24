@@ -158,7 +158,7 @@ int main(int argc, char** argv)
             fprintf(stderr, "SSL_accept failed.\n");
             goto cleanup;
         }
-        printf("Connected!\n");
+        showConnInfo(ssl);
         if ((recvLen = wolfSSL_read(ssl, buff, sizeof(buff)-1)) > 0) {
             printf("heard %d bytes\n", recvLen);
 

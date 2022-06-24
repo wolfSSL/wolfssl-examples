@@ -35,6 +35,7 @@
 #include <netinet/in.h>             /* used for sockaddr_in */
 #include <arpa/inet.h>
 #include <wolfssl/ssl.h>
+#include <wolfssl/error-ssl.h>
 #include <errno.h>
 #include <signal.h>
 #include <unistd.h>
@@ -49,10 +50,11 @@
 #define QUICK_MULT  4               /* Our quick timeout multiplier */
 #define CHGOODCB_E  (-1000)         /* An error outside the range of wolfSSL
                                      * errors */
-#define CONN_TIMEOUT 5              /* How long we wait for peer data before
+#define CONN_TIMEOUT 10             /* How long we wait for peer data before
                                      * closing the connection */
 
 typedef struct conn_ctx {
+    struct conn_ctx* next;
     WOLFSSL* ssl;
     struct event* readEv;
     struct event* writeEv;
@@ -63,14 +65,18 @@ WOLFSSL_CTX*  ctx = NULL;
 struct event_base* base = NULL;
 WOLFSSL*      pendingSSL = NULL;
 int           listenfd = INVALID_SOCKET;   /* Initialize our socket */
+conn_ctx* active = NULL;
+struct event* newConnEvent = NULL;
 
 static void sig_handler(const int sig);
 static void free_resources(void);
 static void newConn(evutil_socket_t fd, short events, void* arg);
 static void dataReady(evutil_socket_t fd, short events, void* arg);
 static int chGoodCb(WOLFSSL* ssl, void*);
+static int hsDoneCb(WOLFSSL* ssl, void*);
 static int newPendingSSL(void);
 static int newFD(void);
+static void conn_ctx_free(conn_ctx* connCtx);
 
 int main(int argc, char** argv)
 {
@@ -79,7 +85,6 @@ int main(int argc, char** argv)
     char          servCertLoc[] = "../certs/server-cert.pem";
     char          servKeyLoc[] = "../certs/server-key.pem";
     int           exitVal = 1;
-    struct event* newConnEvent = NULL;
 
     /* Initialize wolfSSL before assigning ctx */
     if (wolfSSL_Init() != WOLFSSL_SUCCESS) {
@@ -206,23 +211,43 @@ cleanup:
 
 static int newPendingSSL(void)
 {
+    /* Applications should update this secret periodically */
+    char *secret = "My secret";
+    WOLFSSL* ssl;
+
     /* Create the pending WOLFSSL Object */
-    if ((pendingSSL = wolfSSL_new(ctx)) == NULL) {
+    if ((ssl = wolfSSL_new(ctx)) == NULL) {
         fprintf(stderr, "wolfSSL_new error.\n");
         return 0;
     }
 
-    wolfSSL_dtls_set_using_nonblock(pendingSSL, 1);
+    wolfSSL_dtls_set_using_nonblock(ssl, 1);
 
-    if (wolfSSL_SetChGoodCb(pendingSSL, chGoodCb, NULL) != WOLFSSL_SUCCESS ) {
+    if (wolfSSL_SetChGoodCb(ssl, chGoodCb, NULL) != WOLFSSL_SUCCESS ) {
         fprintf(stderr, "wolfSSL_SetChGoodCb error.\n");
+        wolfSSL_free(ssl);
         return 0;
     }
 
-    if (wolfSSL_set_fd(pendingSSL, listenfd) != WOLFSSL_SUCCESS) {
-        fprintf(stderr, "wolfSSL_set_fd error.\n");
+    if (wolfSSL_SetHsDoneCb(ssl, hsDoneCb, NULL) != WOLFSSL_SUCCESS ) {
+        fprintf(stderr, "wolfSSL_SetHsDoneCb error.\n");
+        wolfSSL_free(ssl);
         return 0;
     }
+
+    if (wolfSSL_set_fd(ssl, listenfd) != WOLFSSL_SUCCESS) {
+        fprintf(stderr, "wolfSSL_set_fd error.\n");
+        wolfSSL_free(ssl);
+        return 0;
+    }
+
+    if (wolfSSL_send_hrr_cookie(ssl, (byte*)secret, strlen(secret)) != WOLFSSL_SUCCESS) {
+        fprintf(stderr, "wolfSSL_set_fd error.\n");
+        wolfSSL_free(ssl);
+        return 0;
+    }
+
+    pendingSSL = ssl;
 
     return 1;
 }
@@ -281,27 +306,25 @@ static int chGoodCb(WOLFSSL* ssl, void* arg)
     int fd = INVALID_SOCKET;
     struct sockaddr_in cliaddr;         /* the client's address */
     socklen_t          cliLen = sizeof(cliaddr);
-    conn_ctx* new_ctx = (conn_ctx*)calloc(1, sizeof(conn_ctx));
+    conn_ctx* connCtx = (conn_ctx*)calloc(1, sizeof(conn_ctx));
     int timeout = wolfSSL_dtls_get_current_timeout(ssl);
     struct timeval tv;
 
     (void)arg;
 
-    if (new_ctx == NULL) {
+    if (connCtx == NULL) {
         fprintf(stderr, "Out of memory!\n");
         goto error;
     }
 
-    new_ctx->ssl = ssl;
+    /* Push to active connection stack */
+    connCtx->next = active;
+    active = connCtx;
 
     if (wolfSSL_dtls_get_peer(ssl, &cliaddr, &cliLen) != WOLFSSL_SUCCESS) {
         fprintf(stderr, "wolfSSL_dtls_get_peer failed\n");
         goto error;
     }
-
-    /* Promote the pending connection to an active connection */
-    if (!newPendingSSL())
-        goto error;
 
     /* We need to change the sfd here so that the ssl object doesn't drop any
      * new connections */
@@ -327,13 +350,13 @@ static int chGoodCb(WOLFSSL* ssl, void* arg)
         goto error;
     }
 
-    new_ctx->writeEv = event_new(base, fd, EV_WRITE, dataReady, new_ctx);
-    if (new_ctx->writeEv == NULL) {
+    connCtx->writeEv = event_new(base, fd, EV_WRITE, dataReady, connCtx);
+    if (connCtx->writeEv == NULL) {
         fprintf(stderr, "event_new failed for srvEvent\n");
         goto error;
     }
-    new_ctx->readEv = event_new(base, fd, EV_READ, dataReady, new_ctx);
-    if (new_ctx->readEv == NULL) {
+    connCtx->readEv = event_new(base, fd, EV_READ, dataReady, connCtx);
+    if (connCtx->readEv == NULL) {
         fprintf(stderr, "event_new failed for srvEvent\n");
         goto error;
     }
@@ -348,10 +371,15 @@ static int chGoodCb(WOLFSSL* ssl, void* arg)
         tv.tv_sec = timeout;
     /* We are using non-blocking sockets so we will definitely be waiting for
      * the peer. Start the timer now. */
-    if (event_add(new_ctx->readEv, &tv) != 0) {
+    if (event_add(connCtx->readEv, &tv) != 0) {
         fprintf(stderr, "event_add failed\n");
         goto error;
     }
+
+    /* Promote the pending connection to an active connection */
+    if (!newPendingSSL())
+        goto error;
+    connCtx->ssl = ssl;
 
     return 0;
 error:
@@ -359,8 +387,19 @@ error:
         close(fd);
         fd = INVALID_SOCKET;
     }
+    if (connCtx != NULL) {
+        connCtx->ssl = NULL;
+        conn_ctx_free(connCtx);
+    }
     (void)wolfSSL_set_fd(ssl, INVALID_SOCKET);
     return CHGOODCB_E;
+}
+
+static int hsDoneCb(WOLFSSL* ssl, void* arg)
+{
+    showConnInfo(ssl);
+    (void)arg;
+    return 0;
 }
 
 static void dataReady(evutil_socket_t fd, short events, void* arg)
@@ -400,7 +439,7 @@ static void dataReady(evutil_socket_t fd, short events, void* arg)
             if (connCtx->waitingOnData) {
                 /* Too long waiting for peer data. Shutdown the connection.
                  * Don't wait for a response from the peer. */
-                printf("Closing connection after timeout");
+                printf("Closing connection after timeout\n");
                 (void)wolfSSL_shutdown(connCtx->ssl);
                 goto error;
             }
@@ -476,18 +515,41 @@ static void dataReady(evutil_socket_t fd, short events, void* arg)
     return;
 error:
     /* Free the connection */
-    (void)event_del(connCtx->readEv);
-    (void)event_del(connCtx->writeEv);
-    event_free(connCtx->readEv); /* EV_PERSIST not used so safe to free here */
-    event_free(connCtx->writeEv); /* EV_PERSIST not used so safe to free here */
-    wolfSSL_Free(connCtx->ssl);
+    conn_ctx_free(connCtx);
     close(fd);
-    free(connCtx);
+}
+
+static void conn_ctx_free(conn_ctx* connCtx)
+{
+    if (connCtx != NULL) {
+        /* Remove from active stack */
+        if (active != NULL) {
+            conn_ctx** prev = &active;
+            while (*prev != NULL) {
+                if (*prev == connCtx) {
+                    *prev = connCtx->next;
+                    break;
+                }
+                prev = &(*prev)->next;
+            }
+        }
+        if (connCtx->ssl != NULL)
+            wolfSSL_free(connCtx->ssl);
+        if (connCtx->readEv != NULL) {
+            (void)event_del(connCtx->readEv);
+            event_free(connCtx->readEv);
+        }
+        if (connCtx->writeEv != NULL) {
+            (void)event_del(connCtx->writeEv);
+            event_free(connCtx->writeEv);
+        }
+        free(connCtx);
+    }
 }
 
 void sig_handler(const int sig)
 {
-    (void)sig;
+    printf("Received signal %d. Cleaning up.\n", sig);
     free_resources();
     wolfSSL_Cleanup();
     exit(0);
@@ -495,6 +557,12 @@ void sig_handler(const int sig)
 
 void free_resources(void)
 {
+    conn_ctx* connCtx = active;
+    while (connCtx != NULL) {
+        active = active->next;
+        conn_ctx_free(connCtx);
+        connCtx = active;
+    }
     if (pendingSSL != NULL) {
         wolfSSL_shutdown(pendingSSL);
         wolfSSL_free(pendingSSL);
@@ -507,5 +575,14 @@ void free_resources(void)
     if (listenfd != INVALID_SOCKET) {
         close(listenfd);
         listenfd = INVALID_SOCKET;
+    }
+    if (newConnEvent != NULL) {
+        (void)event_del(newConnEvent);
+        event_free(newConnEvent);
+        newConnEvent = NULL;
+    }
+    if (base != NULL) {
+        event_base_free(base);
+        base = NULL;
     }
 }

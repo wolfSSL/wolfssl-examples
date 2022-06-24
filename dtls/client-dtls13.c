@@ -127,9 +127,16 @@ int main (int argc, char** argv)
         goto cleanup;
     }
 
+    showConnInfo(ssl);
+
 /*****************************************************************************/
 /*                  Code for sending datagram to server                      */
-    if (fgets(sendLine, MAXLINE, stdin) != NULL) {
+    while (1) {
+        if (fgets(sendLine, MAXLINE, stdin) == NULL)
+            break;
+
+        if (strncmp(sendLine, "end", 3) == 0)
+            break;
 
         /* Send sendLine to the server */
         if (wolfSSL_write(ssl, sendLine, strlen(sendLine)) != strlen(sendLine)) {

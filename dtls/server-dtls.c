@@ -175,25 +175,27 @@ int main(int argc, char** argv)
             printf("SSL_accept failed.\n");
             break;
         }
-        if ((recvLen = wolfSSL_read(ssl, buff, sizeof(buff)-1)) > 0) {
-            printf("heard %d bytes\n", recvLen);
+        while (1) {
+            if ((recvLen = wolfSSL_read(ssl, buff, sizeof(buff)-1)) > 0) {
+                printf("heard %d bytes\n", recvLen);
 
-            buff[recvLen] = 0;
-            printf("I heard this: \"%s\"\n", buff);
-        }
-        else if (recvLen < 0) {
-            int readErr = wolfSSL_get_error(ssl, 0);
-            if(readErr != SSL_ERROR_WANT_READ) {
-                printf("SSL_read failed.\n");
-                break;
+                buff[recvLen] = 0;
+                printf("I heard this: \"%s\"\n", buff);
             }
-        }
-        if (wolfSSL_write(ssl, ack, sizeof(ack)) < 0) {
-            printf("wolfSSL_write fail.\n");
-            break;
-        }
-        else {
-            printf("Sending reply.\n");
+            else if (recvLen < 0) {
+                int readErr = wolfSSL_get_error(ssl, 0);
+                if(readErr != SSL_ERROR_WANT_READ) {
+                    printf("SSL_read failed.\n");
+                    goto error;
+                }
+            }
+            if (wolfSSL_write(ssl, ack, sizeof(ack)) < 0) {
+                printf("wolfSSL_write fail.\n");
+                goto error;
+            }
+            else {
+                printf("Sending reply.\n");
+            }
         }
 
         printf("reply sent \"%s\"\n", ack);
@@ -207,8 +209,7 @@ int main(int argc, char** argv)
         printf("Client left cont to idle state\n");
     }
     
-    /* With the "continue" keywords, it is possible for the loop to exit *
-     * without changing the value of cont                                */
+error:
     if (cleanup == 1) {
         wolfSSL_set_fd(ssl, 0);
         wolfSSL_shutdown(ssl);

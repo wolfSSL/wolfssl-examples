@@ -19,9 +19,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  *
- *=============================================================================
- *
- * Bare-bones example of a DTLS 1.3 client for instructional/learning purposes.
  */
 
 #ifndef DTLS_COMMON_H_
@@ -29,45 +26,9 @@
 
 #define INVALID_SOCKET (-1)
 
-#define SFD_TIMEOUT_E (-1)
-#define SFD_SOCKET_E  (-2)
-#define SFD_SELECT_E  (-3)
-
-int wait_sfd(SOCKET_T socketfd, int to, int rx) {
-    fd_set fds, errfds;
-    fd_set* recvfds = NULL;
-    fd_set* sendfds = NULL;
-    SOCKET_T nfds = socketfd + 1;
-    struct timeval timeout;
-    int result;
-
-    memset(&timeout, 0, sizeof(timeout));
-    timeout.tv_sec = to;
-
-    FD_ZERO(&fds);
-    FD_SET(socketfd, &fds);
-    FD_ZERO(&errfds);
-    FD_SET(socketfd, &errfds);
-
-    if (rx)
-        recvfds = &fds;
-    else
-        sendfds = &fds;
-
-    result = select(nfds, recvfds, sendfds, &errfds, &timeout);
-
-    if (result == 0)
-        return SFD_TIMEOUT_E;
-    else if (result > 0) {
-        if (FD_ISSET(socketfd, &fds)) {
-            return 0;
-        }
-        else if(FD_ISSET(socketfd, &errfds))
-            return SFD_SOCKET_E;
-    }
-    perror("select()");
-
-    return SFD_SELECT_E;
+void showConnInfo(WOLFSSL* ssl) {
+    printf("New connection established using %s %s\n",
+            wolfSSL_get_version(ssl), wolfSSL_get_cipher(ssl));
 }
 
 
