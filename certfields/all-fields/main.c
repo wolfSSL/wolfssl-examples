@@ -115,7 +115,7 @@ int main(int argc, char** argv)
 
 
     /* always initialize both key structs since both are free'd at the end */
-    ret =  wc_InitRsaKey(&pubKeyRsa, 0);
+    ret =  wc_InitRsaKey(&pubKeyRsa, NULL);
     ret |= wc_ecc_init(&pubKeyEcc);
     if (ret != 0)
         err_sys("init key failed", ret);
