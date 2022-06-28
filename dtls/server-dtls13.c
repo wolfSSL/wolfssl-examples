@@ -39,9 +39,6 @@
 
 #include "dtls-common.h"
 
-#define SERV_PORT   11111           /* define our server port number */
-#define MSGLEN      4096
-
 WOLFSSL_CTX*  ctx = NULL;
 WOLFSSL*      ssl = NULL;
 int           listenfd = INVALID_SOCKET;   /* Initialize our socket */
@@ -52,9 +49,6 @@ void free_resources(void);
 int main(int argc, char** argv)
 {
     /* Loc short for "location" */
-    char          caCertLoc[] = "../certs/ca-cert.pem";
-    char          servCertLoc[] = "../certs/server-cert.pem";
-    char          servKeyLoc[] = "../certs/server-key.pem";
     int           exitVal = 1;
     struct sockaddr_in servAddr;        /* our server's address */
     struct sockaddr_in cliaddr;         /* the client's address */
@@ -62,8 +56,7 @@ int main(int argc, char** argv)
     int           err;
     int           recvLen = 0;    /* length of message */
     socklen_t     cliLen;
-    unsigned char b[MSGLEN];      /* watch for incoming messages */
-    char          buff[MSGLEN];   /* the incoming message */
+    char          buff[MAXLINE];   /* the incoming message */
     char          ack[] = "I hear you fashizzle!\n";
 
     /* Initialize wolfSSL before assigning ctx */
@@ -124,7 +117,7 @@ int main(int argc, char** argv)
         printf("Awaiting client connection on port %d\n", SERV_PORT);
 
         cliLen = sizeof(cliaddr);
-        ret = (int)recvfrom(listenfd, (char *)&b, sizeof(b), MSG_PEEK,
+        ret = (int)recvfrom(listenfd, (char *)&buff, sizeof(buff), MSG_PEEK,
                 (struct sockaddr*)&cliaddr, &cliLen);
 
         if (ret < 0) {

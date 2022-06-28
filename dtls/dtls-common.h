@@ -24,7 +24,16 @@
 #ifndef DTLS_COMMON_H_
 #define DTLS_COMMON_H_
 
-#define INVALID_SOCKET (-1)
+#define INVALID_SOCKET -1
+#define MAXLINE   4096
+#define SERV_PORT 11111
+#define LOOP_LIMIT 5
+#define SFD_TIMEOUT 1
+
+/* Loc short for "location" */
+const char caCertLoc[] = "../certs/ca-cert.pem";
+const char servCertLoc[] = "../certs/server-cert.pem";
+const char servKeyLoc[] = "../certs/server-key.pem";
 
 void showConnInfo(WOLFSSL* ssl) {
     printf("New connection established using %s %s\n",

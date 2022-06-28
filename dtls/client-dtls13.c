@@ -39,11 +39,6 @@
 
 #include "dtls-common.h"
 
-#define MAXLINE   4096
-#define SERV_PORT 11111
-#define LOOP_LIMIT 5
-#define SFD_TIMEOUT 1
-
 int main (int argc, char** argv)
 {
     /* standard variables used in a dtls client*/
@@ -55,7 +50,6 @@ int main (int argc, char** argv)
     struct          sockaddr_in servAddr;
     WOLFSSL*        ssl = NULL;
     WOLFSSL_CTX*    ctx = NULL;
-    char*           certs = "../certs/ca-cert.pem";
     char            sendLine[MAXLINE];
     char            recvLine[MAXLINE - 1];
 
@@ -80,9 +74,9 @@ int main (int argc, char** argv)
     }
 
     /* Load certificates into ctx variable */
-    if (wolfSSL_CTX_load_verify_locations(ctx, certs, 0)
+    if (wolfSSL_CTX_load_verify_locations(ctx, caCertLoc, 0)
 	    != SSL_SUCCESS) {
-        fprintf(stderr, "Error loading %s, please check the file.\n", certs);
+        fprintf(stderr, "Error loading %s, please check the file.\n", caCertLoc);
         goto cleanup;
     }
 

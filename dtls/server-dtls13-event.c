@@ -1,4 +1,4 @@
-/* server-dtls13.c
+/* server-dtls13-event.c
  *
  * Copyright (C) 2006-2022 wolfSSL Inc.
  *
@@ -45,8 +45,6 @@
 
 #include "dtls-common.h"
 
-#define SERV_PORT   11111           /* define our server port number */
-#define MSGLEN      4096
 #define QUICK_MULT  4               /* Our quick timeout multiplier */
 #define CHGOODCB_E  (-1000)         /* An error outside the range of wolfSSL
                                      * errors */
@@ -80,10 +78,6 @@ static void conn_ctx_free(conn_ctx* connCtx);
 
 int main(int argc, char** argv)
 {
-    /* Loc short for "location" */
-    char          caCertLoc[] = "../certs/ca-cert.pem";
-    char          servCertLoc[] = "../certs/server-cert.pem";
-    char          servKeyLoc[] = "../certs/server-key.pem";
     int           exitVal = 1;
 
     /* Initialize wolfSSL before assigning ctx */
