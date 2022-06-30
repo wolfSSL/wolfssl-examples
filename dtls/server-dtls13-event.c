@@ -24,6 +24,8 @@
  * purposes. This example can handle multiple simultaneous connections by using
  * the libevent library to handle the event loop. Please note that this example
  * is not thread safe as access to global objects is not protected.
+ *
+ * Define USE_DTLS12 to use DTLS 1.2 instead of DTLS 1.3
  */
 
 #include <wolfssl/options.h>
@@ -90,7 +92,13 @@ int main(int argc, char** argv)
     wolfSSL_Debugging_ON();
 
     /* Set ctx to DTLS 1.3 */
-    if ((ctx = wolfSSL_CTX_new(wolfDTLSv1_3_server_method())) == NULL) {
+    if ((ctx = wolfSSL_CTX_new(
+#ifndef USE_DTLS12
+            wolfDTLSv1_3_server_method()
+#else
+            wolfDTLSv1_2_server_method()
+#endif
+            )) == NULL) {
         fprintf(stderr, "wolfSSL_CTX_new error.\n");
         goto cleanup;
     }
@@ -205,8 +213,6 @@ cleanup:
 
 static int newPendingSSL(void)
 {
-    /* Applications should update this secret periodically */
-    char *secret = "My secret";
     WOLFSSL* ssl;
 
     /* Create the pending WOLFSSL Object */
@@ -235,11 +241,18 @@ static int newPendingSSL(void)
         return 0;
     }
 
-    if (wolfSSL_send_hrr_cookie(ssl, (byte*)secret, strlen(secret)) != WOLFSSL_SUCCESS) {
-        fprintf(stderr, "wolfSSL_set_fd error.\n");
-        wolfSSL_free(ssl);
-        return 0;
+#ifndef USE_DTLS12
+    {
+        /* Applications should update this secret periodically */
+        char *secret = "My secret";
+        if (wolfSSL_send_hrr_cookie(ssl, (byte*)secret, strlen(secret))
+                != WOLFSSL_SUCCESS) {
+            fprintf(stderr, "wolfSSL_send_hrr_cookie error.\n");
+            wolfSSL_free(ssl);
+            return 0;
+        }
     }
+#endif
 
     pendingSSL = ssl;
 
@@ -273,6 +286,7 @@ static void newConn(evutil_socket_t fd, short events, void* arg)
 static void setHsTimeout(WOLFSSL* ssl, struct timeval *tv)
 {
     int timeout = wolfSSL_dtls_get_current_timeout(ssl);
+#ifndef USE_DTLS12
     if (wolfSSL_dtls13_use_quick_timeout(ssl)) {
         if (timeout >= QUICK_MULT)
             tv->tv_sec = timeout / QUICK_MULT;
@@ -280,6 +294,7 @@ static void setHsTimeout(WOLFSSL* ssl, struct timeval *tv)
             tv->tv_usec = timeout * 1000000 / QUICK_MULT;
     }
     else
+#endif
         tv->tv_sec = timeout;
 }
 
@@ -290,7 +305,6 @@ static int chGoodCb(WOLFSSL* ssl, void* arg)
     struct sockaddr_in cliaddr;         /* the client's address */
     socklen_t          cliLen = sizeof(cliaddr);
     conn_ctx* connCtx = (conn_ctx*)calloc(1, sizeof(conn_ctx));
-    int timeout = wolfSSL_dtls_get_current_timeout(ssl);
     struct timeval tv;
 
     (void)arg;
@@ -322,7 +336,7 @@ static int chGoodCb(WOLFSSL* ssl, void* arg)
     }
 
     if (wolfSSL_set_dtls_fd_connected(ssl, fd) != WOLFSSL_SUCCESS) {
-        fprintf(stderr, "wolfSSL_set_fd error.\n");
+        fprintf(stderr, "wolfSSL_set_dtls_fd_connected error.\n");
         goto error;
     }
 
@@ -376,7 +390,6 @@ static void dataReady(evutil_socket_t fd, short events, void* arg)
     conn_ctx* connCtx = (conn_ctx*)arg;
     int ret;
     int err;
-    int timeout;
     struct timeval tv;
     char msg[100];
     int msgSz;

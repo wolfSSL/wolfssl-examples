@@ -23,6 +23,10 @@
  *
  * Bare-bones example of a DTLS 1.3 client for instructional/learning purposes.
  * This example uses blocking sockets for simplicity.
+ *
+ * To exit the sending loop enter "end" or Ctrl+D
+ *
+ * Define USE_DTLS12 to use DTLS 1.2 instead of DTLS 1.3
  */
 
 #include <wolfssl/options.h>
@@ -68,7 +72,13 @@ int main (int argc, char** argv)
     /* No-op when debugging is not compiled in */
     wolfSSL_Debugging_ON();
 
-    if ( (ctx = wolfSSL_CTX_new(wolfDTLSv1_3_client_method())) == NULL) {
+    if ( (ctx = wolfSSL_CTX_new(
+#ifndef USE_DTLS12
+            wolfDTLSv1_3_client_method()
+#else
+            wolfDTLSv1_2_client_method()
+#endif
+            )) == NULL) {
         fprintf(stderr, "wolfSSL_CTX_new error.\n");
         goto cleanup;
     }
