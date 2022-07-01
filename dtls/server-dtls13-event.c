@@ -223,8 +223,8 @@ static int newPendingSSL(void)
 
     wolfSSL_dtls_set_using_nonblock(ssl, 1);
 
-    if (wolfSSL_SetChGoodCb(ssl, chGoodCb, NULL) != WOLFSSL_SUCCESS ) {
-        fprintf(stderr, "wolfSSL_SetChGoodCb error.\n");
+    if (wolfDTLS_SetChGoodCb(ssl, chGoodCb, NULL) != WOLFSSL_SUCCESS ) {
+        fprintf(stderr, "wolfDTLS_SetChGoodCb error.\n");
         wolfSSL_free(ssl);
         return 0;
     }
