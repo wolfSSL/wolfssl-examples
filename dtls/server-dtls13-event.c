@@ -391,9 +391,9 @@ static void dataReady(evutil_socket_t fd, short events, void* arg)
     int ret;
     int err;
     struct timeval tv;
-    char msg[100];
+    char msg[MAXLINE];
     int msgSz;
-    char* ack = "I hear you fashizzle!\n";
+    const char* ack = "I hear you fashizzle!\n";
 
     memset(&tv, 0, sizeof(tv));
     if (events & EV_TIMEOUT) {
@@ -513,7 +513,7 @@ static void conn_ctx_free(conn_ctx* connCtx)
     }
 }
 
-void sig_handler(const int sig)
+static void sig_handler(const int sig)
 {
     printf("Received signal %d. Cleaning up.\n", sig);
     free_resources();
@@ -521,7 +521,7 @@ void sig_handler(const int sig)
     exit(0);
 }
 
-void free_resources(void)
+static void free_resources(void)
 {
     conn_ctx* connCtx = active;
     while (connCtx != NULL) {

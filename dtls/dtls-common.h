@@ -19,6 +19,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  *
+ * -----------------------------------------------------------------------------
+ *
+ * Define USE_DTLS12 to use DTLS 1.2 instead of DTLS 1.3
+ *
  */
 
 #ifndef DTLS_COMMON_H_
@@ -35,7 +39,7 @@ const char caCertLoc[] = "../certs/ca-cert.pem";
 const char servCertLoc[] = "../certs/server-cert.pem";
 const char servKeyLoc[] = "../certs/server-key.pem";
 
-void showConnInfo(WOLFSSL* ssl) {
+static inline void showConnInfo(WOLFSSL* ssl) {
     printf("New connection established using %s %s\n",
             wolfSSL_get_version(ssl), wolfSSL_get_cipher(ssl));
 }

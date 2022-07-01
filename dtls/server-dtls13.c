@@ -22,6 +22,8 @@
  *
  * Bare-bones example of a DTLS 1.3 server for instructional/learning purposes.
  * This example can only accept one connection at a time.
+ *
+ * Define USE_DTLS12 to use DTLS 1.2 instead of DTLS 1.3
  */
 
 #include <wolfssl/options.h>
@@ -43,8 +45,8 @@ WOLFSSL_CTX*  ctx = NULL;
 WOLFSSL*      ssl = NULL;
 int           listenfd = INVALID_SOCKET;   /* Initialize our socket */
 
-void sig_handler(const int sig);
-void free_resources(void);
+static void sig_handler(const int sig);
+static void free_resources(void);
 
 int main(int argc, char** argv)
 {
@@ -69,7 +71,13 @@ int main(int argc, char** argv)
     wolfSSL_Debugging_ON();
 
     /* Set ctx to DTLS 1.3 */
-    if ((ctx = wolfSSL_CTX_new(wolfDTLSv1_3_server_method())) == NULL) {
+    if ((ctx = wolfSSL_CTX_new(
+#ifndef USE_DTLS12
+            wolfDTLSv1_3_server_method()
+#else
+            wolfDTLSv1_2_server_method()
+#endif
+            )) == NULL) {
         fprintf(stderr, "wolfSSL_CTX_new error.\n");
         goto cleanup;
     }
@@ -152,24 +160,28 @@ int main(int argc, char** argv)
             goto cleanup;
         }
         showConnInfo(ssl);
-        if ((recvLen = wolfSSL_read(ssl, buff, sizeof(buff)-1)) > 0) {
-            printf("heard %d bytes\n", recvLen);
+        while (1) {
+            if ((recvLen = wolfSSL_read(ssl, buff, sizeof(buff)-1)) > 0) {
+                printf("heard %d bytes\n", recvLen);
 
-            buff[recvLen] = '\0';
-            printf("I heard this: \"%s\"\n", buff);
-        }
-        else if (recvLen <= 0) {
-            err = wolfSSL_get_error(ssl, 0);
-            fprintf(stderr, "error = %d, %s\n", err, wolfSSL_ERR_reason_error_string(err));
-            fprintf(stderr, "SSL_read failed.\n");
-            goto cleanup;
-        }
-        printf("Sending reply.\n");
-        if (wolfSSL_write(ssl, ack, sizeof(ack)) < 0) {
-            err = wolfSSL_get_error(ssl, 0);
-            fprintf(stderr, "error = %d, %s\n", err, wolfSSL_ERR_reason_error_string(err));
-            fprintf(stderr, "wolfSSL_write failed.\n");
-            goto cleanup;
+                buff[recvLen] = '\0';
+                printf("I heard this: \"%s\"\n", buff);
+            }
+            else if (recvLen <= 0) {
+                err = wolfSSL_get_error(ssl, 0);
+                if (err == WOLFSSL_ERROR_ZERO_RETURN) /* Received shutdown */
+                    break;
+                fprintf(stderr, "error = %d, %s\n", err, wolfSSL_ERR_reason_error_string(err));
+                fprintf(stderr, "SSL_read failed.\n");
+                goto cleanup;
+            }
+            printf("Sending reply.\n");
+            if (wolfSSL_write(ssl, ack, sizeof(ack)) < 0) {
+                err = wolfSSL_get_error(ssl, 0);
+                fprintf(stderr, "error = %d, %s\n", err, wolfSSL_ERR_reason_error_string(err));
+                fprintf(stderr, "wolfSSL_write failed.\n");
+                goto cleanup;
+            }
         }
 
         printf("reply sent \"%s\"\n", ack);
@@ -186,7 +198,7 @@ int main(int argc, char** argv)
         wolfSSL_free(ssl);
         ssl = NULL;
 
-        printf("Client left cont to idle state\n");
+        printf("Awaiting new connection\n");
     }
     
     exitVal = 0;
@@ -198,14 +210,14 @@ cleanup:
 }
 
 
-void sig_handler(const int sig)
+static void sig_handler(const int sig)
 {
     (void)sig;
     free_resources();
     wolfSSL_Cleanup();
 }
 
-void free_resources(void)
+static void free_resources(void)
 {
     if (ssl != NULL) {
         wolfSSL_shutdown(ssl);
