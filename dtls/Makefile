@@ -7,7 +7,7 @@ LIBS     = -L$(LIB_PATH)/lib -lm
 # option variables
 DYN_LIB         = -lwolfssl
 STATIC_LIB      = $(LIB_PATH)/lib/libwolfssl.a
-DEBUG_FLAGS     = -g -DDEBUG
+DEBUG_FLAGS     = -g3 -DDEBUG -O0
 DEBUG_INC_PATHS = -MD
 OPTIMIZE        = -Os
 
@@ -33,6 +33,10 @@ debug: all
 %-threaded: LIBS+=-lpthread
 %-shared: CFLAGS+=-pthread
 %-shared: LIBS+=-lpthread
+
+# try to build the libevent server. "|| true" ignores the error return.
+server-dtls13-event: server-dtls13-event.c
+	$(CC) -o $@ $< $(CFLAGS) $(LIBS) -levent || true
 
 # build template
 %: %.c
