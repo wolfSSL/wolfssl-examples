@@ -241,7 +241,7 @@ static int newPendingSSL(void)
         return 0;
     }
 
-#ifndef USE_DTLS12
+#if !defined(USE_DTLS12) && defined(WOLFSSL_SEND_HRR_COOKIE)
     {
         /* Applications should update this secret periodically */
         char *secret = "My secret";
