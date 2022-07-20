@@ -246,7 +246,8 @@ int main(int argc, char** argv)
         err = wolfSSL_get_error(ssl, 0);
         if (err == WOLFSSL_ERROR_WANT_READ)
             tcp_select(sockfd, SELECT_WAIT_SEC, 1);
-    } while (err == WOLFSSL_ERROR_WANT_READ || err == WOLFSSL_ERROR_WANT_WRITE);
+    } while (ret == WOLFSSL_ERROR_WANT_READ ||
+             ret == WOLFSSL_ERROR_WANT_WRITE);
     printf("Shutdown complete\n");
 
     ret = 0;
