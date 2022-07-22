@@ -105,6 +105,7 @@ android/wolfssljni-ndk-sample/proguard-project.txt
 /tls/client-tls-pkcallback
 /tls/server-tls-uart
 /tls/server-tls-verifycallback
+/tls/server-tls-writedup
 
 
 
