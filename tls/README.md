@@ -132,19 +132,20 @@ If you have installed wolfSSL in another location, edit `Makefile` so that the
 `LIB_PATH` variable reflects this.
 
 If you have configured wolfSSL to use static linking, comment out the line
+
 ```makefile
 LIBS+=$(DYN_LIB)
 ```
 and uncomment the line
+
 ```makefile
 #LIBS+=$(STATIC_LIB)
 ```
 to statically link against wolfSSL in these examples.
 
-For `client-tls-writedup`, it is required that wolfSSL be configured with the
-`--enable-writedup` flag. Remember to build and install wolfSSL after
-configuring it with this flag.
-
+For `client-tls-writedup` and `server-tls-writedup`, it is required that
+wolfSSL be configured with the `--enable-writedup` flag. Remember to build 
+and install wolfSSL after configuring it with this flag.
 
 
 ## <a name="tcp">A simple TCP client/server pair</a>
@@ -905,6 +906,7 @@ And we're done. We should now have a fully functional TLS client.
 * `server-tls-callback`
 * `server-tls-nonblocking`
 * `server-tls-threaded`
+* `server-tls-writedup`
 
 
 
@@ -1074,6 +1076,7 @@ when this program is run we should see a number of "my\_OISend: sent" and
 * `server-tls-callback`
 * `server-tls-nonblocking`
 * `server-tls-threaded`
+* `server-tls-writedup`
 
 
 
