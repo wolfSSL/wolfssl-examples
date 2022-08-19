@@ -1,6 +1,6 @@
 /* server-tls-threaded.c
  *
- * Copyright (C) 2006-2020 wolfSSL Inc.
+ * Copyright (C) 2006-2022 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -115,7 +115,7 @@ void* ClientHandler(void* args)
         wolfSSL_free(ssl);      /* Free the wolfSSL object              */
         close(pkg->connd);      /* Close the connection to the server   */
         pkg->open = 1;          /* Indicate that execution is over      */
-        pthread_exit(NULL);     /* End theread execution                */
+        pthread_exit(NULL);     /* End thread execution                */
     }
 
     /* Check for server shutdown command */
@@ -147,7 +147,10 @@ void* ClientHandler(void* args)
     wolfSSL_free(ssl);      /* Free the wolfSSL object              */
     close(pkg->connd);      /* Close the connection to the server   */
     pkg->open = 1;          /* Indicate that execution is over      */
-    pthread_exit(NULL);     /* End theread execution                */
+#if defined(HAVE_ECC) && defined(FP_ECC)
+    wc_ecc_fp_free();  /* free per thread cache */
+#endif
+    pthread_exit(NULL);     /* End thread execution                */
 }
 
 
@@ -245,7 +248,7 @@ int main()
 
 
 
-    /* initialise thread array */
+    /* Initialize thread array */
     for (i = 0; i < MAX_CONCURRENT_THREADS; ++i) {
         printf("Creating %d thread\n", i);
         thread[i].open = 1;
@@ -274,7 +277,7 @@ int main()
 
 
 
-        /* Fill out the relevent thread argument package information */
+        /* Fill out the relevant thread argument package information */
         thread[i].open = 0;
         thread[i].connd = connd;
 
