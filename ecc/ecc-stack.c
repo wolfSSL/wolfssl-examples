@@ -42,7 +42,10 @@ static void* do_it(void* args)
 
     InitMemoryTracker();
 
-    ret = wc_ecc_make_key(&mRng, TEST_KEY_SZ, &mGenKey);
+    ret = wc_ecc_init(&mGenKey);
+    if (ret == 0) {
+        ret = wc_ecc_make_key(&mRng, TEST_KEY_SZ, &mGenKey);
+    }
     if (ret != 0) {
         printf("ecc make key failed %d\n", ret);
     }
