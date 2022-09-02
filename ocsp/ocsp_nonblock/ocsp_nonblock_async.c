@@ -38,7 +38,11 @@
 #define SERVER_PORT 443
 #define ALPN_PROTOS "http/1.1"
 
-#define SYS_CERTS_FILE "/etc/ssl/certs/ca-certificates.crt"
+#if defined(WOLFSSL_ASYNC_CRYPT) && defined(HAVE_SNI) && defined(HAVE_ALPN) \
+    && defined(WOLFSSL_NONBLOCK_OCSP) && defined(HAVE_CERTIFICATE_STATUS_REQUEST) \
+    && defined(HAVE_CERTIFICATE_STATUS_REQUEST_V2)
+
+static const char* sys_certs_file = "/etc/ssl/certs/ca-certificates.crt";
 
 #if defined(WOLFSSL_ASYNC_CRYPT)
 static int wait_async(WOLFSSL_CTX* ctx, WOLFSSL* ssl)
@@ -89,7 +93,7 @@ static int ocsp_cb(void* ctx, const char* url, int urlSz, unsigned char* request
     if (frq != NULL) {
         size_t nbytes = fwrite(request, 1, requestSz, frq);
         if (requestSz != nbytes) {
-            printf("Failed to write all data. Wrote only %u bytes.\n", nbytes);
+            printf("Failed to write all data. Wrote only %zu bytes.\n", nbytes);
         }
         fclose(frq);
         frq = NULL;
@@ -107,12 +111,12 @@ static int ocsp_cb(void* ctx, const char* url, int urlSz, unsigned char* request
             printf("Reading OCSP response from file...\n");
             char resp[4096];
             size_t nbytes = fread(resp, 1, sizeof(resp), frsp);
-            printf("Read %u bytes.\n", nbytes);
+            printf("Read %zu bytes.\n", nbytes);
             fclose(frsp);
             frsp = NULL;
 
             printf("*response is %p\n", *response);
-            printf("Allocating %u bytes...\n", nbytes);
+            printf("Allocating %zu bytes...\n", nbytes);
             *response = malloc(nbytes);
             if (*response == NULL) {
                 printf("malloc() failed\n");
@@ -307,9 +311,14 @@ exit_closefd:
 exit:
     return result;
 }
+#endif
 
-int main(void)
+int main(int argc, char** argv)
 {
+ #if defined(WOLFSSL_ASYNC_CRYPT) && defined(HAVE_SNI) && defined(HAVE_ALPN) \
+    && defined(WOLFSSL_NONBLOCK_OCSP) && defined(HAVE_CERTIFICATE_STATUS_REQUEST) \
+    && defined(HAVE_CERTIFICATE_STATUS_REQUEST_V2)
+
     int err;
     int result = 0;
     WC_RNG rng;
@@ -318,10 +327,29 @@ int main(void)
     WOLFSSL_METHOD *method = NULL;
     WOLFSSL_CTX *ctx = NULL;
 
+    /* Check presence of sys_certs_file */
+    if (access (sys_certs_file, F_OK) == -1 && argc == 1) {
+        fprintf(stderr, "Default system cert file /etc/ssl/certs/ca-certificates.crt doesn't exist."
+                " Please provide cert file path as show below.\n");
+        fprintf(stderr, "./ocsp_nonblock_asynccrypt ../../mycerts/ca.crt\n");
+        return -1;
+    }
+    /* Handle user provided certs file */
+    else if (argc == 2) {
+        if (access (argv[1], F_OK) == -1) {
+            fprintf(stderr, "Provided cert file %s doesn't exist."
+                    " Please provide a valid path.\n", argv[1]);
+            return -1;
+        }
+        else {
+            sys_certs_file = argv[1];
+        }
+    }
+
     wolfSSL_Debugging_ON();
 
     err = wolfSSL_Init();
-    if (err != 0) {
+    if (err != SSL_SUCCESS) {
         fprintf(stderr, "wolfSSL_Init() failed with code %d\n", err);
         return -1;
     }
@@ -398,7 +426,7 @@ int main(void)
         goto exit;
     }
 
-    err = wolfSSL_CTX_load_verify_locations(ctx, SYS_CERTS_FILE, NULL);
+    err = wolfSSL_CTX_load_verify_locations(ctx, sys_certs_file, NULL);
     if (err != SSL_SUCCESS) {
         fprintf(stderr, "wolfSSL_CTX_load_verify_locations() returned %d\n", err);
         result = -1;
@@ -443,4 +471,13 @@ exit:
     wolfSSL_Cleanup();
 
     return result;
+#else
+    (void)argc;
+    (void)argv;
+
+    printf("Please compile wolfSSL with  ./configure --enable-asynccrypt --enable-sni" 
+           " --enable-alpn --enable-ocspstapling --enable-ocspstapling2 --enable-opensslextra"
+           " --enable-curve25519 CFLAGS=-DWOLFSSL_NONBLOCK_OCSP")
+    return -1;
+#endif
 }
