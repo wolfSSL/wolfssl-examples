@@ -4,6 +4,10 @@ This directory contains:
 
 - A simple example of using the wolfSSL CertManager to verify a falcon
   certificate chain in a standalone manner, separate from an SSL/TLS connection.
+- A simple example of using wolfCrypt APIs to sign a message with a SPHINCS+
+  private key and verify that message using the corresponding SPHINCS+ public
+  key from a an X.509 certificate.
+  certificate chain in a standalone manner, separate from an SSL/TLS connection.
 - A server application that perform a completely quantum-safe TLS 1.3
   connection.
 - A client application that perform a completely quantum-safe TLS 1.3
@@ -13,24 +17,16 @@ This directory contains:
 
 # Prerequisites
 
-Please see wolfssl/INSTALL for instructions on how to build and install the
-Open Quantum Safe project's liboqs. For a quick start, you can go into wolfssl
-and do the following:
+Please see the wolfSSL repo's INSTALL file:
 
-```
-$ ./autogen.sh
-$ ./configure --with-liboqs
-$ make all check
-# sudo make install
-```
+https://github.com/wolfSSL/wolfssl/blob/master/INSTALL
 
-Once you have built that, you will then need to build the Open Quantum Safe
-project's OpenSSL. Instructions for downloading and building their OpenSSL fork
-can be found here:
+Item 15 (Building with liboqs for TLS 1.3 [EXPERIMENTAL]) has instructions on
+how to configure and build:
 
-https://github.com/open-quantum-safe/openssl/releases/tag/OQS-OpenSSL_1_1_1-stable-snapshot-2021-08
-
-Note that installation of the OpenSSL fork is NOT neccessary.
+- liboqs
+- wolfssl
+- patched OQS's OpenSSL fork
 
 ## Building the Applications
 
@@ -40,11 +36,13 @@ $ make
 
 ## Verification of OQS Falcon Certificates
 
-The `generate_falcon_chains.sh` script will allow you to use the OQS project's
-OpenSSL in order to generate a self-signed CA certificate and entity
-certificate that uses the Falcon signature scheme. In the OpenSSL directory,
-run the script to generate the certificates and then copy them into this
-directory.
+The `generate_falcon_chains.sh` script in the `oqs` directory in the `osp` repo
+will allow you to use a patched version of OQS's OpenSSL fork in order to
+generate a self-signed CA certificate and entity certificate that uses the
+Falcon signature scheme. In the OpenSSL directory, run the script to generate
+the certificates and then copy them into this directory. Please see
+https://github.com/wolfSSL/osp/tree/master/oqs/README.md for further
+instructions about certificate generation.
 
 Once that is complete, execute `falcon_certverify`:
 
@@ -52,12 +50,30 @@ Once that is complete, execute `falcon_certverify`:
 $ ./falcon_certverify
 ```
 
+## Signing and Verifying a Message with SPHINCS+
+
+The `generate_sphincs_chains.sh` script in the `oqs` directory in the `osp` repo
+will allow you to use a patched version of OQS's OpenSSL fork in order to
+generate a self-signed CA certificate and entity certificate that uses the
+SPHINCS+ signature scheme. In the OpenSSL directory, run the script to generate
+the certificates and then copy them into this directory. Please see
+https://github.com/wolfSSL/osp/tree/master/oqs/README.md for further
+instructions about certificate generation.
+
+Once that is complete, execute `sphincs_sign_verify`:
+
+```
+$ ./sphincs_sign_verify
+```
+
 ## Quantum safe TLS 1.3 Connection
 
 `client-pq-tls13` will connect with `server-pq-tls13` via a completely quantum-
 safe connection. Authentication will be done via the FALCON signature scheme.
 Ephemeral key establishment will be done via kYBER KEM. Both are NIST PQC
-competition round 3 finalists.
+competition round 3 finalists. Please see
+https://github.com/wolfSSL/osp/tree/master/oqs/README.md for further
+instructions about certificate generation. 
 
 In a terminal, execute the server:
 
