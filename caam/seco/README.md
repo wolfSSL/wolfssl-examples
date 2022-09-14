@@ -66,4 +66,4 @@ Cipher text: E7241091DEF6ACFEE558AA23318BCE75
 Decrypted : 74657374206D65737361676520746F20
 ```
    
-This will create the keystores at /etc/seco_hsm . So far none of he keystores that wolfSSL creates are PERMENANT type ones, just either persistent or ephemeral. So to reset the keystore root can do "rm -rf /etc/seco_hsm" (as suggested by one of NXP's manuals on it) and reset the device.
+This will create the keystores at /etc/seco_hsm . So far none of the keystores that wolfSSL creates are PERMENANT type ones, just either persistent or ephemeral. So to reset the keystore root can do "rm -rf /etc/seco_hsm" (as suggested by one of NXP's manuals on it) and reset the device.
