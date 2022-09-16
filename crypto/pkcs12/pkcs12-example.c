@@ -41,7 +41,8 @@ int main()
     FILE *f;
     int  bytes, ret;
 
-    printf("extracting private key and certificate from PKCS12 (test-servercert.p12)\n");
+    printf("extracting private key and certificate from PKCS12"
+            " (test-servercert.p12)\n");
 
     pkcs12 = wc_PKCS12_new();
     if (pkcs12 == NULL) {
@@ -61,7 +62,8 @@ int main()
 
     /* convert the DER file into an internal structure */
     ret = wc_d2i_PKCS12(buffer, bytes, pkcs12);
-    printf("return value of d2i pkcs12 = %d %s\n", ret, (ret == 1)? "SUCCESS": "FAIL");
+    printf("return value of d2i pkcs12 = %d %s\n", ret,
+            (ret == 0) ? "SUCCESS": "FAIL");
     if (ret != 0) {
         printf("\t error converting pkcs12 to an internal structure\n");
         wc_PKCS12_free(pkcs12);
@@ -71,7 +73,8 @@ int main()
     /* parse the internal structure into its parts */
     ret = wc_PKCS12_parse(pkcs12, "wolfSSL test", &keyDer, &keySz,
             &certDer, &certSz, &list);
-    printf("return value of parsing pkcs12 = %d %s\n", ret, (ret == 1)? "SUCCESS": "FAIL");
+    printf("return value of parsing pkcs12 = %d %s\n", ret,
+            (ret == 0) ? "SUCCESS": "FAIL");
     if (ret != 0 || keyDer == NULL || certDer == NULL) {
         printf("\t error parsing pkcs12\n");
         wc_PKCS12_free(pkcs12);
