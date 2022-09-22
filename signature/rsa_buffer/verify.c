@@ -25,7 +25,8 @@
  * "signature.h", used by this program, can be generated using "sign.c".
  */
 
-#include <wolfssl/options.h>
+// #include <wolfssl/options.h>
+#include "user_settings.h"
 #include <wolfssl/wolfcrypt/rsa.h>
 #include <wolfssl/wolfcrypt/sha256.h>
 #include <wolfssl/wolfcrypt/asn.h>
@@ -33,6 +34,7 @@
 
 #include "rsa_pub_2048.h"
 #include "signature.h"
+
 
 /* Maximum bound on digest algorithm encoding around digest */
 #define MAX_ENC_ALG_SZ      32

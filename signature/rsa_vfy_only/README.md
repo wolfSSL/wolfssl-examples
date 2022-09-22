@@ -1,9 +1,7 @@
 Configure and install wolfSSL with these options:
 
-./configure --disable-asn --disable-filesystem \
-    --enable-cryptonly --enable-sp=smallrsa2048 --enable-sp-math \
-    --disable-dh --disable-ecc --disable-sha224 --enable-rsavfy \
-    CFLAGS="-DWOLFSSL_PUBLIC_MP"
+./configure --enable-stable
+CFLAGS="-DWOLFSSL_PUBLIC_MP"
 make
 make install
 

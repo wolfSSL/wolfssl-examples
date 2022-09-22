@@ -1,7 +1,7 @@
 # RSA Examples Makefile
 CC       = gcc
 LIB_PATH = /usr/local
-CFLAGS   = -Wall -I$(LIB_PATH)/include
+CFLAGS   = -Wall -I$(LIB_PATH)/include -include $(LIB_PATH)/include/wolfssl/options.h
 LIBS     = -L$(LIB_PATH)/lib -lm
 
 # option variables
@@ -14,8 +14,8 @@ OPTIMIZE        = -Os
 # Options
 #CFLAGS+=$(DEBUG_FLAGS)
 CFLAGS+=$(OPTIMIZE)
-#LIBS+=$(STATIC_LIB)
-LIBS+=$(DYN_LIB)
+LIBS+=$(STATIC_LIB)
+#LIBS+=$(DYN_LIB)
 
 # build targets
 SRC=$(wildcard *.c)

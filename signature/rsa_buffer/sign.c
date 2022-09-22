@@ -25,15 +25,17 @@
  * The output of this program can be used with "verify.c".
  */
 
+// #include <wolfssl/options.h>
+#include "user_settings.h"
 #include <stdio.h>
 
-#include <wolfssl/options.h>
 #include <wolfssl/wolfcrypt/rsa.h>
 #include <wolfssl/wolfcrypt/sha256.h>
 #include <wolfssl/wolfcrypt/asn.h>
 #include <wolfssl/wolfcrypt/asn_public.h>
 
 #include "rsa_priv_2048.h"
+
 
 /* Signature size is the length of the modulus of the RSA key */
 #define SIG_SZ              (2048 / 8)

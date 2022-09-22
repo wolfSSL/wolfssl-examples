@@ -20,7 +20,6 @@
  */
 
 #include <stdio.h>
-#include <wolfssl/options.h>
 #include <wolfssl/wolfcrypt/settings.h>
 #include <wolfssl/wolfcrypt/rsa.h>
 #include <wolfssl/wolfcrypt/sha256.h>
@@ -170,7 +169,6 @@ int main(int argc, char* argv[])
         wc_FreeRsaKey(pRsaKey);
     if (pSha256 != NULL)
         wc_Sha256Free(pSha256);
-
     return ret == 0 ? 0 : 1;
 }
 
