@@ -19,15 +19,24 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
  */
 
+#include <stdio.h>
 #include <wolfssl/options.h>
 #include <wolfssl/wolfcrypt/logging.h>
 #include <wolfssl/wolfcrypt/pkcs12.h>
 #include <wolfssl/wolfcrypt/asn.h>
 #include <wolfssl/wolfcrypt/rsa.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
+#include <wolfssl/wolfcrypt/wc_port.h>
 
 #define WC_RSA_KEYSIZE 2048
 #define HEAP_HINT NULL
+#ifndef CA_CERT
+    #define CA_CERT "../../certs/ca-cert.der"
+#endif
+#ifndef CA_KEY
+    #define CA_KEY "../../certs/ca-key.der"
+#endif
+static int devId = INVALID_DEVID; /* set to alternate dev id if wanted */
 
 #if defined(HAVE_PKCS12) && defined(WOLFSSL_KEY_GEN) && \
     defined(WOLFSSL_CERT_GEN) && !defined(NO_RSA)
@@ -38,9 +47,9 @@ static int createKey(byte** keyDer, word32* keySz, RsaKey* key, WC_RNG* rng)
     *keyDer = NULL;
     *keySz  = 0;
 
-    ret = wc_InitRsaKey(key, HEAP_HINT);
+    ret = wc_InitRsaKey_ex(key, HEAP_HINT, devId);
     if (ret == 0) {
-        ret = wc_InitRng(rng);
+        ret = wc_InitRng_ex(rng, HEAP_HINT, devId);
     }
 
     if (ret == 0) {
@@ -125,11 +134,38 @@ static int readFile(byte** out, word32* outSz, char* fileName)
 }
 
 
+static int loadKey(byte** keyDer, word32* keySz, RsaKey* key, const char* f)
+{
+    int ret;
+
+    *keyDer = NULL;
+    *keySz  = 0;
+
+    ret = wc_InitRsaKey_ex(key, HEAP_HINT, devId);
+    if (ret == 0) {
+        ret = readFile(keyDer, keySz, (char*)f);
+    }
+
+    if (ret == 0) {
+        word32 idx = 0;
+        ret = wc_RsaPrivateKeyDecode(*keyDer, &idx, key, *keySz);
+        printf("return from loading in private key = %d\n", ret);
+    }
+
+    if (*keySz < 0) {
+        printf("unable to decode private key\n");
+        ret = *keySz;
+    }
+
+    return ret;
+}
+
+
 static int getCa(byte** caCert, word32* caCertSz, RsaKey* caKey)
 {
     int   ret;
-    char caCertFile[] = "../../certs/ca-cert.der";
-    char caKeyFile[] =  "../../certs/ca-key.der";
+    char caCertFile[] = CA_CERT;
+    char caKeyFile[]  = CA_KEY;
 
     byte* caKeyDer = NULL;
     word32 caKeyDerSz;
@@ -138,11 +174,10 @@ static int getCa(byte** caCert, word32* caCertSz, RsaKey* caKey)
     *caCert = NULL;
     *caCertSz = 0;
 
-
     printf("Getting the caKey from %s\n", caKeyFile);
     ret = readFile(&caKeyDer, &caKeyDerSz, caKeyFile);
     if (ret == 0) {
-        ret = wc_InitRsaKey(caKey, HEAP_HINT);
+        ret = wc_InitRsaKey_ex(caKey, HEAP_HINT, devId);
     }
 
     if (ret == 0) {
@@ -233,9 +268,26 @@ int main(int argc, char* argv[])
     byte* certDer = NULL;
     word32 certSz;
 
-    if (createKey(&keyDer, &keySz, &rsa, &rng) != 0) {
-        printf("Unable to create RSA key\n");
+    if (wolfCrypt_Init() != 0) {
+        printf("issue with wolfCrypt_Init()\n");
         return -1;
+    }
+
+    if (argc == 2) {
+        if (loadKey(&keyDer, &keySz, &rsa, argv[1]) != 0) {
+            printf("Unable to create RSA key\n");
+            return -1;
+        }
+        else {
+            printf("loaded in key %s\n", argv[1]);
+            wc_InitRng_ex(&rng, HEAP_HINT, devId);
+        }
+    }
+    else {
+        if (createKey(&keyDer, &keySz, &rsa, &rng) != 0) {
+            printf("Unable to create RSA key\n");
+            return -1;
+        }
     }
 
     if (createCert(&certDer, &certSz, &rsa, &rng) != 0) {
@@ -246,7 +298,7 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    pkcs12 = wc_PKCS12_create("test password", strlen("test password"),
+    pkcs12 = wc_PKCS12_create("wolfSSL test", strlen("wolfSSL test"),
         NULL, keyDer, keySz, certDer, certSz,
         NULL, PBE_SHA1_DES3, PBE_SHA1_DES3, 100, 100, 0, HEAP_HINT);
 
@@ -267,11 +319,16 @@ int main(int argc, char* argv[])
         }
         wc_PKCS12_free(pkcs12);
     }
+    else {
+        printf("Issue creating new PKCS12 structure\n");
+    }
 
     wc_FreeRsaKey(&rsa);
     wc_FreeRng(&rng);
     XFREE(keyDer, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
     XFREE(certDer, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+
+    wolfCrypt_Cleanup();
 #else
     printf("pkcs12-create-key requires wolfssl to be built with:\n");
     printf("\t./configure --enable-pkcs12 --enable-pwdbased --enable-des3 --enable-keygen --enable-certgen\n");
