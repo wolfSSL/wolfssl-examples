@@ -160,7 +160,7 @@ static int psa_private_key_provisioning(psa_key_id_t *key_id)
 
     psa_set_key_type(&key_attr, key_type);
     psa_set_key_usage_flags(&key_attr, PSA_KEY_USAGE_SIGN_HASH);
-    psa_set_key_algorithm(&key_attr, PSA_ALG_ECDSA_ANY);
+    psa_set_key_algorithm(&key_attr, PSA_ALG_ECDSA(PSA_ALG_ANY_HASH));
 
     status = psa_import_key(&key_attr, ecc_key_256,
                             sizeof(ecc_key_256), key_id);
