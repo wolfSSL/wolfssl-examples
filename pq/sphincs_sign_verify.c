@@ -161,8 +161,8 @@ int main(int argc, char** argv)
     }
 
     if (ret == 0) {
-        InitDecodedCert(&decodedCert, cert_der_buf, cert_der_len, 0);
-        ret = ParseCert(&decodedCert, CERT_TYPE, NO_VERIFY, NULL);
+        wc_InitDecodedCert(&decodedCert, cert_der_buf, cert_der_len, 0);
+        ret = wc_ParseCert(&decodedCert, CERT_TYPE, NO_VERIFY, NULL);
         check_ret("ParseCert", ret);
     }
 
