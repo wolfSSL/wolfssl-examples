@@ -195,6 +195,7 @@ int main(int argc, char** argv)
 
     printf("verify result: %s\n", verify_result == 1 ? "SUCCESS" : "FAILURE");
 
+    wc_FreeDecodedCert(&decodedCert);
     wc_sphincs_free(&priv_key);
     wc_sphincs_free(&pub_key);
     wc_FreeRng(&rng);
