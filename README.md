@@ -285,6 +285,16 @@ Please see the [RT1060/README.md](RT1060/README.md) for further usage and detail
 
 <br />
 
+#### NXP SE050
+
+This directory contains example applications for NXP's SE050. The examples
+have been tested on a Raspberry Pi with SE050 EdgeLock.
+
+Please see the [SE050/README.md](SE050/README.md) for further details.
+
+
+<br />
+
 #### SGX_Linux (Linux Enclave)
 
 This directory contains an example application, written in C, which demonstrates

@@ -1,0 +1,4 @@
+ADD_SUBDIRECTORY(wolfcrypt_benchmark)
+ADD_SUBDIRECTORY(wolfcrypt_test)
+ADD_SUBDIRECTORY(wolfcrypt_key_cert_insert)
+ADD_SUBDIRECTORY(wolfcrypt_generate_csr)
