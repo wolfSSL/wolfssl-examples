@@ -29,17 +29,36 @@ $ make
 
 ## Configuring the STM32CubeIDE Project
 
-Please see the following video for highlights on how the project was configured
-and how to configure wolfSSL to enable our PQM4 integration.
+Please see the following video for highlights on how to configure wolfSSL to
+enable our PQM4 integration.
 
 https://www.youtube.com/watch?v=OK6MKXYiVBY
 
-To setup the required PQM4 source files, please run the `setup_kyber.sh` script
-in this directory. It will clone releveant git repos from github and generate
-the directories and files you need.
+Detailed instructions on how to build a project with wolfssl can be found at:
+
+https://github.com/wolfSSL/wolfssl/tree/master/IDE/STM32Cube
+
+1. Follow instructions at the link above and make sure you can perform "Example
+   for TLS v1.3 over UART".
+2. Run the `setup_kyber.sh` script in this directory. It will clone relevant
+   git repos from github and generate the directories and files you need.
+3. Drag and drop the include files into `Inc` and the `pqm4_kyber512` directory
+   into `Core`.
+4. Turn on the PQM4 integration.
+   - Open the .ioc file
+   - Click "Software Packs"
+   - Click on the wolfSSL.I-CUBE-wolfSSL.<version> that appears.
+   - In the Configuration box that appears, set "PQM4 Post-Quantum Integration
+     Support" to "True"
+   - Close the .ioc file and generate code.
+   - Build your project.
+
+For your reference, `wolfssl_stm32_pq` is a minimal starting project that has
+many things already configured. If you have a NUCLEO-F446ZE evaluation board
+Then you can skip step 1 and 4 and just use that.
 
 Once you have successfully built and flashed the project, the STM32 terminal
-should should display the following menu: 
+should should display the following menu:
 
 ```
                                 MENU
@@ -92,7 +111,7 @@ ECDSA [      SECP256R1]   256 sign           78 ops took 1.019 sec, avg 13.064 m
 ECDSA [      SECP256R1]   256 verify         38 ops took 1.012 sec, avg 26.632 ms, 37.549 ops/sec
 kyber_level1-kg         62 ops took 1.004 sec, avg 16.194 ms, 61.753 ops/sec
 kyber_level1-ed         28 ops took 1.043 sec, avg 37.250 ms, 26.846 ops/sec
-Benchmark complete 
+Benchmark complete
 ```
 
 ## Quantum safe TLS 1.3 Connection Over UART (Linux server, STM32 client)
