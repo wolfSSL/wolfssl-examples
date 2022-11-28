@@ -10,15 +10,15 @@ diff -u pqm4_kyber512.old/kem.c pqm4_kyber512/kem.c
 diff -u pqm4_kyber512.old/randombytes.c pqm4_kyber512/randombytes.c
 --- pqm4_kyber512.old/randombytes.c	2022-03-28 16:36:40.037940919 -0400
 +++ pqm4_kyber512/randombytes.c		2022-03-11 14:38:18.192717915 -0500
-@@ -320,6 +320,10 @@
-     /* Use windows API */
-     return randombytes_win32_randombytes(buf, n);
+@@ -357,6 +357,10 @@
+     /* Use WASI */
+     return randombytes_wasi_randombytes(buf, n);
      #else
--#error "randombytes(...) is not supported on this platform"
+-# error "randombytes(...) is not supported on this platform"
 +    #warning randombytes() is not supported on this platform!
 +    for (size_t i = 0; i < n; i++) {
-+         buf[i] = (uint8_t)i;
-+    } 
++         output[i] = (uint8_t)i;
++    }
 +    return 0;
      #endif
  }
