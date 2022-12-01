@@ -186,6 +186,7 @@ static int gen_csr(const char* arg1)
     strncpy(req.subject.unit, "Development", CTC_NAME_SIZE);
     strncpy(req.subject.commonName, "www.wolfssl.com", CTC_NAME_SIZE);
     strncpy(req.subject.email, "info@wolfssl.com", CTC_NAME_SIZE);
+    req.version = 0;
     ret = wc_MakeCertReq_ex(&req, der, sizeof(der), type, keyPtr);
     if (ret <= 0) {
         printf("Make Cert Req failed: %d\n", ret);
