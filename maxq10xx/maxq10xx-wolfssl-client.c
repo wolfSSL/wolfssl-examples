@@ -27,9 +27,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
 #include <unistd.h>
 
 /* wolfSSL */
@@ -43,6 +40,14 @@
 #include <wolfssl/wolfcrypt/rsa.h>
 #include <wolfssl/wolfcrypt/asn.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
+
+#ifdef USE_WINDOWS_API
+#include <winsock2.h>
+#else
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#endif
 
 #if (defined(WOLFSSL_MAXQ1065) || defined(WOLFSSL_MAXQ108X)) && \
     defined(HAVE_PK_CALLBACKS) && defined(WOLF_CRYPTO_CB) && \
@@ -181,7 +186,11 @@ static int cmd_line_parse(int argc, char** argv) {
 int main(int argc, char** argv)
 {
     int                ret, err;
+    #ifdef USE_WINDOWS_API
+    SOCKET             sockfd = SOCKET_INVALID;
+    #else
     int                sockfd = SOCKET_INVALID;
+    #endif
     struct sockaddr_in servAddr;
     char               buff[256];
     size_t             len;
@@ -195,6 +204,10 @@ int main(int argc, char** argv)
     if (ret < 0) {
         goto exit;
     }
+
+#ifdef USE_WINDOWS_API
+    StartTCP();
+#endif
 
     /* Create a socket that uses an internet IPv4 address.
      * Sets the socket to be stream based (TCP).
