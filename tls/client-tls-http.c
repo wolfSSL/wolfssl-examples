@@ -134,20 +134,13 @@ int main(int argc, char** argv)
         goto cleanup;
     }
 
-    /* Initialize the buff */
-    memset(buff, 0, sizeof(buff));
-
-    /* Copy HTTP GET request to the buff*/
-    memcpy(buff,kHttpGetMsg,sizeof(kHttpGetMsg));
-
-    /* Buff length */
-    len = strnlen(buff, sizeof(buff));
+    /* kHttpGetMsg length */
+    len = strnlen(kHttpGetMsg, sizeof(kHttpGetMsg));
 
     /* Send HTTP GET request to the server */
     printf("Sending HTTP GET request ...\n");
-
-    if ((ret = wolfSSL_write(ssl, buff, len)) != len) {
-        fprintf(stderr, "ERROR: failed to write entire message\n");
+    if ((ret = wolfSSL_write(ssl, kHttpGetMsg, len)) != len) {
+        fprintf(stderr, "ERROR: failed to send HTTP GET request.\n");
         fprintf(stderr, "%d bytes of %d bytes were sent", ret, (int) len);
         goto cleanup;
     }
