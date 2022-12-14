@@ -23,7 +23,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include<stdint.h>
 #include<sys/types.h>
 
 /* socket includes */
@@ -43,8 +42,6 @@
 int main(int argc, char** argv)
 {
     int                sockfd;
-    struct sockaddr_in servAddr;
-    struct in_addr     addr;
     struct addrinfo hints,*res;
     char               buff[256];
     size_t             len;
@@ -74,12 +71,6 @@ int main(int argc, char** argv)
         ret = -1;
         goto end;
     }
-    
-    /* Assign server IP to in_addr struct */
-    addr.s_addr = ((struct sockaddr_in *)(res->ai_addr))->sin_addr.s_addr;
-
-    /* Free a list pointed by res */
-    freeaddrinfo(res);
 
     /* Create a socket that uses an internet IPv4 address,
      * Sets the socket to be stream based (TCP),
@@ -89,30 +80,14 @@ int main(int argc, char** argv)
         ret = -1;
         goto end;
     }
-
-    /* Initialize the server address struct with zeros */
-    memset(&servAddr, 0, sizeof(servAddr));
-    
-    /* Fill in the server address */
-    servAddr.sin_family = AF_INET;             /* using IPv4      */
-    servAddr.sin_port   = htons(DEFAULT_PORT); /* on DEFAULT_PORT */
-    
-    /* Get the server IPv4 address using adderinfo struct 
-     * convert bytes to const char* via inet_ntoa() */
-    if (inet_pton(AF_INET, inet_ntoa(addr), &servAddr.sin_addr) != 1) {
-        fprintf(stderr, "ERROR: invalid address\n");
-        ret = -1;
-        goto end;
-    }
+    /* Free a list pointed by res */
+    freeaddrinfo(res);
 
     /* Connect to the server */
-    if ((ret = connect(sockfd, (struct sockaddr*) &servAddr, sizeof(servAddr)))
-         == -1) {
+    if ((ret = connect(sockfd, res->ai_addr, res->ai_addrlen)) == -1) {
         fprintf(stderr, "ERROR: failed to connect\n");
         goto end;
     }
-
-    
 
     /*---------------------------------*/
     /* Start of wolfSSL initialization and configuration */
