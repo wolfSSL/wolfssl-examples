@@ -38,6 +38,7 @@
 
 #define DEFAULT_PORT 443
 
+static const char kHttpGetMsg[] = "GET /index.html HTTP/1.0\r\n\r\n";
 
 int main(int argc, char** argv)
 {
@@ -133,17 +134,18 @@ int main(int argc, char** argv)
         goto cleanup;
     }
 
-    /* Get a message for the server from stdin */
-    printf("Message for server: ");
+    /* Initialize the buff */
     memset(buff, 0, sizeof(buff));
-    if (fgets(buff, sizeof(buff), stdin) == NULL) {
-        fprintf(stderr, "ERROR: failed to get message for server\n");
-        ret = -1;
-        goto cleanup;
-    }
+
+    /* Copy HTTP GET request to the buff*/
+    memcpy(buff,kHttpGetMsg,sizeof(kHttpGetMsg));
+
+    /* Buff length */
     len = strnlen(buff, sizeof(buff));
 
-    /* Send the message to the server */
+    /* Send HTTP GET request to the server */
+    printf("Sending HTTP GET request ...\n");
+
     if ((ret = wolfSSL_write(ssl, buff, len)) != len) {
         fprintf(stderr, "ERROR: failed to write entire message\n");
         fprintf(stderr, "%d bytes of %d bytes were sent", ret, (int) len);
