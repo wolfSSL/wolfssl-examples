@@ -19,6 +19,10 @@ OBJ_SP_C32 := \
 	$(WOLFROOT)/wolfcrypt/src/sp_int.o\
 	$(WOLFROOT)/wolfcrypt/src/sp_c32.o\
 
+OBJ_SP_C64 := \
+	$(WOLFROOT)/wolfcrypt/src/sp_int.o\
+	$(WOLFROOT)/wolfcrypt/src/sp_c64.o\
+
 OBJ_SP_ARM64 := \
 	$(WOLFROOT)/wolfcrypt/src/sp_int.o\
 	$(WOLFROOT)/wolfcrypt/src/sp_arm64.o\
@@ -41,12 +45,18 @@ OBJ += $(OBJ_SP_X86_64)
 else ifeq ($(math) $(arch),sp arm64)
 CFLAGS += -DSP_ARM64_FLAG
 OBJ += $(OBJ_SP_ARM64)
+else ifeq ($(math) $(arch),sp c64)
+CFLAGS += -DSP_C64_FLAG
+OBJ += $(OBJ_SP_C64)
+else ifeq ($(math) $(arch),sp c32)
+CFLAGS += -DSP_C32_FLAG
+OBJ += $(OBJ_SP_C32)
 else ifeq ($(math), tfm)
 CFLAGS += -DTFM_FLAG
 OBJ += $(OBJ_TFM)
 else 
 CFLAGS += -DSP_FLAG
-OBJ += $(OBJ_SP_C32)
+OBJ += $(OBJ_SP_C64)
 endif
 
 all : ecc_sign_verify bench
@@ -63,4 +73,4 @@ clean:
 	rm -f ecc_sign_verify bench $(WOLFROOT)/wolfcrypt/src/*.o
 
 size :
-	size $(OBJ)
+	size $(OBJ) ecc_sign_verify

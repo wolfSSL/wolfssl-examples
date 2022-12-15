@@ -37,8 +37,23 @@
 
 #ifdef SP_FLAG
     #define WOLFSSL_HAVE_SP_ECC
-    #define WOLFSSL_SP_MATH_ALL
+    #define WOLFSSL_SP_MATH
     #undef USE_FAST_MATH
+#endif
+
+#if defined(SP_C32_FLAG)
+#define WOLFSSL_HAVE_SP_ECC
+#define WOLFSSL_SP_MATH
+#define WOLFSSL_SP_MATH_ALL
+#undef USE_FAST_MATH
+#endif
+
+#if defined(SP_C64_FLAG)
+#define WOLFSSL_HAVE_SP_ECC
+#define WOLFSSL_SP_MATH
+#define WOLFSSL_SP_MATH_ALL
+#define SP_WORD_SIZE 64
+#undef USE_FAST_MATH
 #endif
 
 #ifdef SP_ARM64_FLAG
