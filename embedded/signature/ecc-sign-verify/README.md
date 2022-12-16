@@ -67,9 +67,9 @@ make bench math=tfm
 NOTE: When using TFM, No Architecture specification is required.
 
 ## Example Output
-built with the option `math=sp arch=arm64`
+- built with the option `math=sp arch=arm64`
 ```
-./bench
+./ecc_sign_verify_bench
 ---------------------------------------------------------------
 Enabled WOLFSSL_SP_ARM64
 ---------------------------------------------------------------
@@ -95,7 +95,7 @@ make mem
 ```
 ## Example Output
 ```
-./ecc_sign_verify
+./ecc_sign_verify_mem
 Key size is 112, byteField = 14
 Successfully verified signature w/ ecc key size 112!
 Key size is 128, byteField = 16
@@ -121,10 +121,10 @@ Successfully verified signature w/ ecc key size 521!
 
 total   Allocs   =       522
 total   Deallocs =       522
-total   Bytes    =    225047
-peak    Bytes    =      5161
+total   Bytes    =    243047
+peak    Bytes    =      5557
 current Bytes    =         0
-stack used = 16752
+stack used = 14448
 ```
 
 
