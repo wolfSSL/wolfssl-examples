@@ -43,9 +43,9 @@ make bench math=tfm
 ```
 NOTE: When using TFM, No Architecture specification is required.
 ## Example Output
-built with the option `math=sp arch=arm64`
+- built with the option `math=sp arch=arm64`
 ```
-./bench
+./verify_bench
 ---------------------------------------------------------------
 Enabled WOLFSSL_SP_ARM64
 ---------------------------------------------------------------
@@ -56,8 +56,9 @@ Finished Benchmark
 ```
 
 
-built with the option `math=tfm`
+- built with the option `math=tfm`
 ```
+./verify_bench
 ---------------------------------------------------------------
 Enabled TFM
 ---------------------------------------------------------------
@@ -75,14 +76,14 @@ make mem
 ```
 ## Example Output
 ```
-./verify
+./verify_mem
 Verified
 total   Allocs   =         0
 total   Deallocs =         0
 total   Bytes    =         0
 peak    Bytes    =         0
 current Bytes    =         0
-stack used = 13528
+stack used = 12392
 ```
 
 

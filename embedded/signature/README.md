@@ -6,7 +6,7 @@ This directory includes the following examples under the sub-directories.Each ha
 |---|---|---|
 |RSA|rsa_vfy_only |verify signature|
 ||rsa_buffer|sign/verify signature |
-|ECDSA|signature/ecc-sign-verify/ecc_sign_verify.c|sign msg and verify signature|
+|ECDSA|signature/ecc-sign-verify/|sign msg and verify signature|
 
 You can specify a target function of Simple example, Benchemark or Memory track program.It also has options for optimized code for MCU architectures such as Intel x86, ARM64 or a generic code by default, as well as Math library of Single Precision or TFM.
 
@@ -27,13 +27,15 @@ $ make <Function> math=<Mathlib> arch=<MCU>
 |math|Description|
 |---|---|
 |Default|Generic architecture by pure C language source code|
-|sp| SP for specified archtecture|
+|sp| SP for generic or specified  archtecture|
 |tfm|TFM for generic architecture|
 ## MCU Architectures
 NOTE:  No architecture specification is required when using TFM.
 |arch|Description|
 |---|---|
 |Default|Generic architecture by pure C language source code|
+|c32| SP using 32-bit data type |
+|c64| SP using 64-bit data type   (default)   |
 |arm64|SP for ARM64 |
 |x64|SP for x86 64bit|
 

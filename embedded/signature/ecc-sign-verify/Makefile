@@ -1,6 +1,6 @@
 WOLFROOT = ../../../../wolfssl
 
-CFLAGS = -DWOLFSSL_USER_SETTINGS -I. -I$(WOLFROOT) -Os
+CFLAGS = $(EX_CFLAGS) -DWOLFSSL_USER_SETTINGS -I. -I$(WOLFROOT) -Os
 ASFLAGS = -DWOLFSSL_USER_SETTINGS -I. -I$(WOLFROOT)
 
 OBJ=\
@@ -14,7 +14,6 @@ OBJ=\
 	$(WOLFROOT)/wolfcrypt/src/memory.o\
 	$(WOLFROOT)/wolfcrypt/src/wolfmath.o\
 
-
 OBJ_SP_C32 := \
 	$(WOLFROOT)/wolfcrypt/src/sp_int.o\
 	$(WOLFROOT)/wolfcrypt/src/sp_c32.o\
@@ -27,7 +26,6 @@ OBJ_SP_ARM64 := \
 	$(WOLFROOT)/wolfcrypt/src/sp_int.o\
 	$(WOLFROOT)/wolfcrypt/src/sp_arm64.o\
 
-
 OBJ_SP_X86_64 := \
 	$(WOLFROOT)/wolfcrypt/src/sp_int.o\
 	$(WOLFROOT)/wolfcrypt/src/cpuid.o\
@@ -37,7 +35,7 @@ OBJ_SP_X86_64 := \
 OBJ_TFM := \
 	$(WOLFROOT)/wolfcrypt/src/tfm.o\
 
-.PHONY: all clean mem size 
+.PHONY: all clean mem size bench
 
 ifeq ($(math) $(arch),sp x64) 
 ASFLAGS+= -DSP_X86_64_FLAG
@@ -55,22 +53,22 @@ else ifeq ($(math), tfm)
 CFLAGS += -DTFM_FLAG
 OBJ += $(OBJ_TFM)
 else 
-CFLAGS += -DSP_FLAG
+CFLAGS += -DSP_C64_FLAG
 OBJ += $(OBJ_SP_C64)
 endif
 
-all : ecc_sign_verify bench
-mem:CFLAGS+= -DDEBUG_MEMORY
-mem: ecc_sign_verify 
+all : ecc_sign_verify bench mem
 
 ecc_sign_verify: $(OBJ)
 	$(CC) $(CFLAGS) -o ecc_sign_verify ecc_sign_verify.c $(OBJ)
 
 bench: $(OBJ)
-	$(CC) $(CFLAGS) -DBENCHMARK -o bench ecc_sign_verify.c $(OBJ)
+	$(CC) $(CFLAGS) -DBENCHMARK -o ecc_sign_verify_bench ecc_sign_verify.c $(OBJ)
 
+mem: $(OBJ)
+	$(CC) $(CFLAGS) -DDEBUG_MEMORY -o ecc_sign_verify_mem ecc_sign_verify.c $(OBJ)
 clean:
-	rm -f ecc_sign_verify bench $(WOLFROOT)/wolfcrypt/src/*.o
+	rm -f ecc_sign_verify ecc_sign_verify_bench ecc_sign_verify_mem $(WOLFROOT)/wolfcrypt/src/*.o
 
 size :
 	size $(OBJ) ecc_sign_verify
