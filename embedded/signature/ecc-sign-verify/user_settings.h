@@ -28,32 +28,28 @@
 
 
 #ifdef DEBUG_MEMORY
-    // #define WOLFSSL_TRACK_MEMORY
+    #define WOLFSSL_TRACK_MEMORY
     #define HAVE_STACK_SIZE
-    #define WOLFSSL_DEBUG_MEMORY
+    // #define WOLFSSL_DEBUG_MEMORY
     // #define WOLFSSL_DEBUG_MEMORY_PRINT
+    #undef BENCHMARK
 #endif
 
 
-#ifdef SP_FLAG
+
+#ifdef SP_C32_FLAG
     #define WOLFSSL_HAVE_SP_ECC
-    #define WOLFSSL_SP_MATH
+    #define WOLFSSL_SP_MATH_ALL
+    #define SP_WORD_SIZE 32
     #undef USE_FAST_MATH
 #endif
 
-#if defined(SP_C32_FLAG)
-#define WOLFSSL_HAVE_SP_ECC
-#define WOLFSSL_SP_MATH
-#define WOLFSSL_SP_MATH_ALL
-#undef USE_FAST_MATH
-#endif
-
-#if defined(SP_C64_FLAG)
-#define WOLFSSL_HAVE_SP_ECC
-#define WOLFSSL_SP_MATH
-#define WOLFSSL_SP_MATH_ALL
-#define SP_WORD_SIZE 64
-#undef USE_FAST_MATH
+#ifdef SP_C64_FLAG
+    #define WOLFSSL_HAVE_SP_ECC
+    #define WOLFSSL_SP_MATH_ALL
+    #define SP_WORD_SIZE 64
+    #define HAVE___UINT128_T
+    #undef USE_FAST_MATH
 #endif
 
 #ifdef SP_ARM64_FLAG

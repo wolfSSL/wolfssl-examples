@@ -25,9 +25,6 @@
 #define WOLFSSL_NO_ASN_STRICT 
 
 
-
-
-
 #ifdef DEBUG_MEMORY
     #define WOLFSSL_TRACK_MEMORY
     #define HAVE_STACK_SIZE
@@ -36,16 +33,23 @@
 #endif
 
 
-#ifdef SP_FLAG  /* Use multi-platform SP (sp_c32.c) by default*/
+#ifdef SP_C32_FLAG  /* Use multi-platform SP (sp_c32.c) by default*/
     #define WOLFSSL_HAVE_SP_RSA
-    #define WOLFSSL_SP_MATH
     #define WOLFSSL_SP_MATH_ALL
     #undef USE_FAST_MATH
 #endif 
 
+#ifdef SP_C64_FLAG
+    #define WOLFSSL_HAVE_SP_RSA
+    #define WOLFSSL_SP_MATH_ALL
+    #define SP_WORD_SIZE 64
+    #define HAVE___UINT128_T
+    #undef USE_FAST_MATH
+
+#endif
+
 #ifdef SP_ARM64_FLAG
     #define WOLFSSL_HAVE_SP_RSA
-    #define WOLFSSL_SP_MATH
     #define WOLFSSL_SP_MATH_ALL
     #define WOLFSSL_SP_ARM64
     #define WOLFSSL_SP_ARM64_ASM
@@ -54,7 +58,6 @@
 
 #ifdef SP_X86_64_FLAG
     #define WOLFSSL_HAVE_SP_RSA
-    #define WOLFSSL_SP_MATH
     #define WOLFSSL_SP_MATH_ALL
     #define WOLFSSL_SP_X86_64
     #define WOLFSSL_SP_X86_64_ASM

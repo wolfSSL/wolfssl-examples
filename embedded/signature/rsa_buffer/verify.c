@@ -25,8 +25,7 @@
  * "signature.h", used by this program, can be generated using "sign.c".
  */
 
-#include <wolfssl/options.h>
-#include "user_settings.h"
+#include <wolfssl/wolfcrypt/settings.h>
 #include <wolfssl/ssl.h>
 #include <wolfssl/wolfcrypt/rsa.h>
 #include <wolfssl/wolfcrypt/sha256.h>
@@ -62,6 +61,7 @@ int verify()
     int count;
 
 #ifdef DEBUG_MEMORY
+    wolfCrypt_Init();
     InitMemoryTracker();
 #endif
     /* Calculate SHA-256 digest of message */
@@ -137,6 +137,7 @@ finish:
 #ifdef DEBUG_MEMORY
     ShowMemoryTracker();
     CleanupMemoryTracker();
+    wolfCrypt_Cleanup();
 #endif 
     return ret;
 }
@@ -144,22 +145,23 @@ finish:
 int main(){
 #ifdef BENCHMARK
     printf("---------------------------------------------------------------\n");
-#if defined(WOLFSSL_HAVE_SP_RSA) && !defined(SP_X86_64_FLAG) && !defined(SP_ARM64_FLAG)
-    printf("Enabled WOLFSSL_HAVE_SP_RSA \n");
+#if defined(SP_C64_FLAG)
+    printf("Enabled 64-bit SP \n");
+#elif defined(SP_C32_FLAG)
+    printf("Enabled 32-bit SP \n");
 #elif defined(SP_X86_64_FLAG)
-    printf("Enabled WOLFSSL_SP_X86_64\n");
+    printf("Enabled SP for x86_64\n");
 #elif defined(SP_ARM64_FLAG)
-    printf("Enabled WOLFSSL_SP_ARM64\n");
+    printf("Enabled SP for Arm64\n");
 #elif defined(TFM_FLAG)
     printf("Enabled TFM \n");
 #endif
     printf("---------------------------------------------------------------\n");
-#endif /* BENCHMARK*/
+#endif /* BENCHMARK */
 
 #ifdef DEBUG_MEMORY
     return StackSizeCheck(NULL, (thread_func)verify);
 #else 
-
 
     return verify();
 #endif

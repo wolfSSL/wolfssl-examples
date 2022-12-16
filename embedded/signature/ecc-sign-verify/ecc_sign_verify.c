@@ -20,8 +20,7 @@
  */
 
 #include <stdio.h>
-#include <wolfssl/options.h>
-
+#include <wolfssl/wolfcrypt/settings.h>
 #include <wolfssl/ssl.h>
 #include <wolfssl/wolfcrypt/ecc.h>
 #include <wolfssl/wolfcrypt/signature.h>
@@ -71,6 +70,7 @@ int ecc_sign_verify(void)
 {
     int ret = 0;
 #ifdef DEBUG_MEMORY
+    wolfCrypt_Init();
     InitMemoryTracker();
 #endif
     ret = do_sig_ver_test(ECC_KEY_SIZE_112);
@@ -102,6 +102,7 @@ finished:
     printf("\n");
     ShowMemoryTracker();
     CleanupMemoryTracker();
+    wolfCrypt_Cleanup();
 #endif
     return ret;
 }
@@ -149,8 +150,6 @@ int do_sig_ver_test(int eccKeySz)
         printf("Failed to allocate sig buff\n");
         return -1001;
     }
-    
-    wolfCrypt_Init();
 
 
     
@@ -205,7 +204,6 @@ key_done:
     wc_ecc_free(&key);
 sig_done:
     XFREE(sig, NULL, DYNAMIC_TYPE_TMP_BUFFER);
-
     return ret;
 }
 
@@ -229,12 +227,14 @@ static void hexdump(const void *buffer, word32 len, byte cols)
 int main(){
 #ifdef BENCHMARK
     printf("---------------------------------------------------------------\n");
-#if defined(WOLFSSL_HAVE_SP_ECC) && !defined(SP_X86_64_FLAG) && !defined(SP_ARM64_FLAG)
-    printf("Enabled WOLFSSL_HAVE_SP_ECC \n");
+#if defined(SP_C64_FLAG)
+    printf("Enabled 64-bit SP \n");
+#elif defined(SP_C32_FLAG)
+    printf("Enabled 32-bit SP \n");
 #elif defined(SP_X86_64_FLAG)
-    printf("Enabled WOLFSSL_SP_X86_64\n");
+    printf("Enabled SP for x86_64\n");
 #elif defined(SP_ARM64_FLAG)
-    printf("Enabled WOLFSSL_SP_ARM64\n");
+    printf("Enabled SP for Arm64\n");
 #elif defined(TFM_FLAG)
     printf("Enabled TFM \n");
 #endif
