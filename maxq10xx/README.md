@@ -137,12 +137,11 @@ associated commands as shown.
 The server will print very little status information about the algorithms and
 ciphersuite negotiated. It will wait for a message from the client.
 
-The client will give lots of debug and status logging. It will then prompt the
-user for a message. You should type in something like "Hello, this is MAXQ!" and
-press enter.
+The client will give lots of debug and status logging. It will then send the
+message "Hello from MAXQ10xx!".
 
-The server will print out the message you typed, send the message "I hear you
-fa shizzle!" and then terminate.
+The server will print out the message it received and send the message "I hear
+you fa shizzle!" and then terminate.
 
 The client will print the message it received from the server along with more
 debug and status logging and then terminate.

@@ -64,6 +64,8 @@
 /* Please set the server's address and the port it listens on */
 #define DEFAULT_SERVER "127.0.0.1"
 #define DEFAULT_PORT   11111
+#define MESSAGE        "Hello from MAXQ10xx!"
+#define MESSAGE_LEN    20
 
 /* ------------------------------------ */
 /* No modifications required below here */
@@ -338,18 +340,8 @@ int main(int argc, char** argv)
         goto exit;
     }
 
-    /* Get a message for the server from stdin */
-    printf("Message for server: ");
-    memset(buff, 0, sizeof(buff));
-    if (fgets(buff, sizeof(buff), stdin) == NULL) {
-        fprintf(stderr, "ERROR: failed to get message for server\n");
-        ret = -1;
-        goto exit;
-    }
-    len = strnlen(buff, sizeof(buff));
-
     /* Send the message to the server */
-    if ((ret = wolfSSL_write(ssl, buff, len)) != len) {
+    if ((ret = wolfSSL_write(ssl, MESSAGE, MESSAGE_LEN)) != len) {
         fprintf(stderr, "ERROR: failed to write entire message\n");
         fprintf(stderr, "%d bytes of %d bytes were sent", ret, (int) len);
         goto exit;
