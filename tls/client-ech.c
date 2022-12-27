@@ -26,36 +26,39 @@
 
 #define SERV_PORT 443
 #define CERT_FILE "../certs/ech-client-cert.pem"
+#define RDBUFF_LEN 512
+#define ECHBUFF_LEN 256
 
 #ifdef HAVE_ECH
 int main(void)
 {
     int ret = 0;
-    byte rd_buf[512];
-    int sockfd = 0;
+    byte rd_buf[RDBUFF_LEN];
+    int sockfd = -1;
     WOLFSSL_CTX* ctx = NULL;
     WOLFSSL* ssl = NULL;
     WOLFSSL_METHOD* method;
     struct  sockaddr_in servAddr;
     const char message[] =
-    "GET /cdn-cgi/trace/ HTTP/1.1\r\n"
-    "Host: crypto.cloudflare.com\r\n"
-    "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:105.0) Gecko/20100101 Firefox/105.0\r\n"
-    "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8\r\n"
-    "Accept-Language: en-US,en;q=0.5\r\n"
-    "Referer: https://www.google.com/\r\n"
-    "DNT: 1\r\n"
-    "Connection: keep-alive\r\n"
-    "Upgrade-Insecure-Requests: 1\r\n"
-    "Sec-Fetch-Dest: document\r\n"
-    "Sec-Fetch-Mode: navigate\r\n"
-    "Sec-Fetch-Site: cross-site\r\n"
-    "Pragma: no-cache\r\n"
-    "Cache-Control: no-cache\r\n"
-    "\r\n";
+        "GET /cdn-cgi/trace/ HTTP/1.1\r\n"
+        "Host: crypto.cloudflare.com\r\n"
+        "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:105.0) Gecko/20100101 Firefox/105.0\r\n"
+        "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8\r\n"
+        "Accept-Language: en-US,en;q=0.5\r\n"
+        "Referer: https://www.google.com/\r\n"
+        "DNT: 1\r\n"
+        "Connection: keep-alive\r\n"
+        "Upgrade-Insecure-Requests: 1\r\n"
+        "Sec-Fetch-Dest: document\r\n"
+        "Sec-Fetch-Mode: navigate\r\n"
+        "Sec-Fetch-Site: cross-site\r\n"
+        "Pragma: no-cache\r\n"
+        "Cache-Control: no-cache\r\n"
+        "\r\n";
     const char ip_string[] = "162.159.137.85";
-    uint8_t ech_configs[72];
-    uint32_t ech_configs_len = 72;
+    const char SNI[] = "crypto.cloudflare.com";
+    uint8_t ech_configs[ECHBUFF_LEN];
+    uint32_t ech_configs_len = ECHBUFF_LEN;
 
     /* this first tls connection is only used to get the retry configs */
     /* these configs can also be retrieved from DNS */
@@ -78,30 +81,30 @@ int main(void)
     /* make new ssl context */
     if ((ctx = wolfSSL_CTX_new(method)) == NULL) {
         ret = 1;
-        goto end;
+        goto cleanup;
     }
 
     /* set the server name we want to connect to */
     ret = wolfSSL_CTX_UseSNI( ctx, WOLFSSL_SNI_HOST_NAME,
-        "crypto.cloudflare.com", strlen("crypto.cloudflare.com") );
+        SNI, strlen(SNI) );
 
     if (ret != WOLFSSL_SUCCESS) {
         printf("wolfSSL_CTX_UseSNI error %d", ret);
-        goto end;
+        goto ctx_clean;
     }
 
     /* make new wolfSSL struct */
     if ((ssl = wolfSSL_new(ctx)) == NULL) {
         printf("wolfSSL_new error");
         ret = 1;
-        goto end;
+        goto ctx_clean;
     }
 
     /* Add cert to ctx */
     if ((ret = wolfSSL_CTX_load_verify_locations(ctx, CERT_FILE, 0)) !=
       WOLFSSL_SUCCESS) {
         printf("wolfSSL_CTX_load_verify_locations error %d", ret);
-        goto end;
+        goto ssl_clean;
     }
 
     /* Connect wolfssl to the socket, server, then send message */
@@ -111,8 +114,8 @@ int main(void)
     ret = wolfSSL_connect(ssl);
 
     if (ret != WOLFSSL_SUCCESS) {
-        printf("%d %d\n", ret, wolfSSL_get_error( ssl, ret ));
-        goto end;
+        printf("%d %d\n", ret, wolfSSL_get_error(ssl, ret));
+        goto ssl_clean;
     }
 
     /* retrieve the retry configs sent by the server */
@@ -120,12 +123,15 @@ int main(void)
 
     if (ret != WOLFSSL_SUCCESS) {
         printf("wolfSSL_GetEchConfigs error %d\n", ret);
-        goto end;
+        goto ssl_clean;
     }
 
     /* frees all data before client termination */
     wolfSSL_free(ssl);
     close(sockfd);
+
+    ssl = NULL;
+    sockfd = -1;
 
     /* now we create a new connection that will send the real ech */
 
@@ -144,7 +150,7 @@ int main(void)
     if ( (ssl = wolfSSL_new(ctx)) == NULL) {
         printf("wolfSSL_new error");
         ret = 1;
-        goto end;
+        goto ctx_clean;
     }
 
     /* set the ech configs taken from dns */
@@ -152,7 +158,7 @@ int main(void)
 
     if ( ret != WOLFSSL_SUCCESS ) {
         printf("wolfSSL_SetEchConfigs error %d", ret);
-        goto end;
+        goto ssl_clean;
     }
 
     /* Connect wolfssl to the socket, server, then send message */
@@ -163,26 +169,28 @@ int main(void)
 
     if (ret != WOLFSSL_SUCCESS) {
         printf( "%d %d\n", ret, wolfSSL_get_error( ssl, ret ) );
-        goto end;
+        goto ssl_clean;
     }
 
     wolfSSL_write(ssl, message, strlen(message));
 
     do
     {
-        ret = wolfSSL_read( ssl, rd_buf, sizeof(rd_buf) );
-        printf( "%.*s", ret, rd_buf );
+        ret = wolfSSL_read(ssl, rd_buf, RDBUFF_LEN);
+        printf("%.*s", ret, rd_buf);
     /* read until the chunk size is 0 */
     } while (rd_buf[0] != '0');
 
     ret = 0;
 
+ssl_clean:
     wolfSSL_free(ssl);
-
+    close(sockfd);
+ctx_clean:
     wolfSSL_CTX_free(ctx);
+cleanup:
     wolfSSL_Cleanup();
 
-end:
     return ret;
 }
 #else
