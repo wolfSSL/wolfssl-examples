@@ -177,6 +177,10 @@ int main(void)
     do
     {
         ret = wolfSSL_read(ssl, rd_buf, RDBUFF_LEN);
+
+        if (ret <= 0)
+            break;
+
         printf("%.*s", ret, rd_buf);
     /* read until the chunk size is 0 */
     } while (rd_buf[0] != '0');
