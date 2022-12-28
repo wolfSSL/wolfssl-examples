@@ -65,14 +65,14 @@ int main(int argc, char** argv)
     hints.ai_family = AF_INET;       /* using IPv4 */
     hints.ai_socktype = SOCK_STREAM; /* means TCP socket */
     char *service = "https";         /* using https */
-
+    
     /* Get a Domain IP address */
     if(getaddrinfo(argv[1],service,&hints,&res) != 0){
         fprintf(stderr, "ERROR: failed to get the server ip\n");
         ret = -1;
         goto end;
     }
-
+    
     /* Create a socket that uses an internet IPv4 address,
      * Sets the socket to be stream based (TCP),
      * 0 means choose the default protocol. */
@@ -83,13 +83,13 @@ int main(int argc, char** argv)
     }
     /* Free a list pointed by res */
     freeaddrinfo(res);
-
+    
     /* Connect to the server */
     if ((ret = connect(sockfd, res->ai_addr, res->ai_addrlen)) == -1) {
         fprintf(stderr, "ERROR: failed to connect\n");
         goto end;
     }
-
+    printf("Debug \n");
     /*---------------------------------*/
     /* Start of wolfSSL initialization and configuration */
     /*---------------------------------*/
@@ -98,7 +98,7 @@ int main(int argc, char** argv)
         fprintf(stderr, "ERROR: Failed to initialize the library\n");
         goto socket_cleanup;
     }
-
+    
     /* Create and initialize WOLFSSL_CTX */
     if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method())) == NULL) {
         fprintf(stderr, "ERROR: failed to create WOLFSSL_CTX\n");
@@ -130,7 +130,6 @@ int main(int argc, char** argv)
     /* Connect to wolfSSL on the server side */
     if ((ret = wolfSSL_connect(ssl)) != SSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to connect to wolfSSL\n");
-        printf("%d\n",ret);
         goto cleanup;
     }
 
