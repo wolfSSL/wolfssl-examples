@@ -195,7 +195,6 @@ int main(int argc, char** argv)
     #endif
     struct sockaddr_in servAddr;
     char               buff[256];
-    size_t             len;
 
     /* declare wolfSSL objects */
     WOLFSSL_CTX* ctx = NULL;
@@ -341,9 +340,9 @@ int main(int argc, char** argv)
     }
 
     /* Send the message to the server */
-    if ((ret = wolfSSL_write(ssl, MESSAGE, MESSAGE_LEN)) != len) {
+    if ((ret = wolfSSL_write(ssl, MESSAGE, MESSAGE_LEN)) != MESSAGE_LEN) {
         fprintf(stderr, "ERROR: failed to write entire message\n");
-        fprintf(stderr, "%d bytes of %d bytes were sent", ret, (int) len);
+        fprintf(stderr, "%d bytes of %d bytes were sent", ret, MESSAGE_LEN);
         goto exit;
     }
 
