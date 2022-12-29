@@ -21,6 +21,7 @@
 
 #include <wolfssl/wolfcrypt/settings.h> /* using user_settings.h for example */
 #include <wolfssl/wolfcrypt/sha256.h>
+#include <wolfssl/wolfcrypt/wc_port.h>
 #include <stdio.h>
 
 
@@ -35,14 +36,21 @@ int main(int argc, char** argv)
         return -1;
     }
 
-    ret = wc_InitSha256(&sha);
-    if (ret == 0)
-        ret = wc_Sha256Update(&sha, argv[1], (word32)XSTRLEN(argv[1]));
-    if (ret == 0)
+    ret = wolfCrypt_Init();
+    if (ret == 0) {
+        ret = wc_InitSha256(&sha);
+    }
+    if (ret == 0) {
+        ret = wc_Sha256Update(&sha, (const byte*)argv[1],
+            (word32)XSTRLEN(argv[1]));
+    }
+    if (ret == 0) {
         ret = wc_Sha256Final(&sha, digest);
+    }
 
-    if (ret != 0)
+    if (ret != 0) {
         printf("Error %d\n", ret);
+    }
 
     if (ret == 0) {
         printf("Hash in hex : ");
@@ -52,5 +60,6 @@ int main(int argc, char** argv)
         printf("\n");
     }
 
+    wolfCrypt_Cleanup();
     return 0;
 }
