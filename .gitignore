@@ -304,3 +304,18 @@ tpm/evp_tpm
 **/main/build/CMakeFiles/*
 **/build/*
 
+# VisualGDB
+**/.visualgdb
+
+# Espressif sdk config default should be saved in sdkconfig.defaults
+# we won't track the actual working sdkconfig files
+/ESP32/**/sdkconfig
+/ESP32/**/sdkconfig.old
+/ESP32/**/sdkconfig.bak
+
+# the solution files are not needed (Visual Studio will generated them)
+/ESP32/**/*.sln
+
+# auto-created CMake backups
+**/CMakeLists.txt.old
+
