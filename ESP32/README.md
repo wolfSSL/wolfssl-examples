@@ -1,5 +1,12 @@
 # wolfSSL ESP32 Examples
 
+These are wolfSSL TLS 1.3 clients and servers for both wired and wireless Internet.
+
+Note: wolfSSL v5.5.4 or newer is needed to use these examples with ESP-IDF v5.
+
+See the [setup scripts](https://github.com/wolfSSL/wolfssl/tree/master/IDE/Espressif/ESP-IDF) to install.
+
+
 ## ESP32 TLS 1.3 Server
 
 - [Wireless STA server](./TLS13-wifi_station-server/README.md)
@@ -39,7 +46,7 @@ coming soon:
 ## ESP-IDF
 
 Although the examples were created using VisualGDB extension for Visual Studio, the 
-examples can be compiled using the ESP-IDF.
+examples can of course be compiled using the ESP-IDF `idf.py`.
 
 Once the EDP-IDF is installed, use the [setp_win.bat](https://github.com/wolfSSL/wolfssl/blob/master/IDE/Espressif/ESP-IDF/setup_win.bat) to copy wolfSSL files to
 the `esp-idf\components` directory, typically in 
@@ -54,12 +61,39 @@ cd wolfssl\IDE\Espressif\ESP-IDF\
 .\setup_win.bat
 ```
 
-# Tips
+Build with VisualGDB toolchain from WSL
+```
+. /mnt/c/SysGCC/esp32/esp-idf/v5.0/export.sh
+idf.py -b 115200 -p /dev/ttyS15 build flash monitor
+```
+
+
+## Tips
 
 If JTAG gets into a mode where it is simply always returning an error (app continually resetting)
 try using serial port to program a basic, operational ["hello world"](./ESP32-hello-world/README.md). 
 The Arduino IDE or command-line ESP-IDF can be handy here.
 
+## Toolchain Switching in VisualGDB
+
+Due to occasional difficulty in switching between toolchains, separate VisualGDB solution
+files are included for ESP-IDF v4.4.1 and v5.0.
+
+See the `ProjectModeSettings` of the respective .`vgdbproj` file:
+
+```
+      <ESPIDFExtension>
+        <IDFCheckout>
+          <Version>release/v5.0</Version>
+          <Subdirectory>esp-idf/v5.0</Subdirectory>
+          <Type>ESPIDF</Type>
+        </IDFCheckout>
+        <COMPort>COM20</COMPort>
+        <SuppressTestPrerequisiteChecks>false</SuppressTestPrerequisiteChecks>
+        <UseCCache>false</UseCCache>
+        <DeviceID>ESP32</DeviceID>
+      </ESPIDFExtension>
+```
 
 ## See also:
 
