@@ -29,9 +29,12 @@ CFLAGS+=$(OPTIMIZE)
 #LIBS+=$(STATIC_LIB)
 LIBS+=$(DYN_LIB)
 
-all:certgen_example csr_example csr_w_ed25519_example csr_sign csr_cryptocb custom_ext custom_ext_callback
+all:certgen_example certgen_ca_example csr_example csr_w_ed25519_example csr_sign csr_cryptocb custom_ext custom_ext_callback
 
 certgen_example:certgen_example.o
+	$(CC) -o $@ $^ $(CFLAGS) $(CPPFLAGS) $(LIBS)
+
+certgen_ca_example:certgen_ca_example.o
 	$(CC) -o $@ $^ $(CFLAGS) $(CPPFLAGS) $(LIBS)
 
 csr_example:csr_example.o
@@ -55,5 +58,5 @@ custom_ext_callback:custom_ext_callback.o
 .PHONY: clean all
 
 clean:
-	rm -f *.o certgen_example csr_example csr_w_ed25519_example csr_sign csr_cryptocb custom_ext custom_ext_callback
+	rm -f *.o certgen_example certgen_ca_example csr_example csr_w_ed25519_example csr_sign csr_cryptocb custom_ext custom_ext_callback
 	rm -f newCert.*
