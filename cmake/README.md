@@ -1,15 +1,8 @@
 This is an example of adding the wolfSSL library as a subdirectory to a project
-and using cmake to build.
+and using cmake to build. Each subdirectory has a README file on how to build the example.
 
-## Steps to build:
-    
-```
-# clone or download the wolfssl bundle and put it in the subdirectory wolfssl
-git clone https://github.com/wolfssl/wolfssl
-mkdir build
-cd build
-cmake .. -DCMAKE_C_FLAGS=-I../include/
-make
-./hash example_string
-```
+## Example Builds:
+
+- user-settings-example (contains a very bare user_settings.h example)
+- caam-nxp-example (contains an example of building with NXP SDK and CAAM)
 
