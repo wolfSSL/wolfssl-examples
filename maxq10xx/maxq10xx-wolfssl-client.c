@@ -27,9 +27,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
 #include <unistd.h>
 
 /* wolfSSL */
@@ -43,6 +40,14 @@
 #include <wolfssl/wolfcrypt/rsa.h>
 #include <wolfssl/wolfcrypt/asn.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
+
+#ifdef USE_WINDOWS_API
+#include <winsock2.h>
+#else
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#endif
 
 #if (defined(WOLFSSL_MAXQ1065) || defined(WOLFSSL_MAXQ108X)) && \
     defined(HAVE_PK_CALLBACKS) && defined(WOLF_CRYPTO_CB) && \
@@ -59,6 +64,8 @@
 /* Please set the server's address and the port it listens on */
 #define DEFAULT_SERVER "127.0.0.1"
 #define DEFAULT_PORT   11111
+#define MESSAGE        "Hello from MAXQ10xx!"
+#define MESSAGE_LEN    20
 
 /* ------------------------------------ */
 /* No modifications required below here */
@@ -181,10 +188,13 @@ static int cmd_line_parse(int argc, char** argv) {
 int main(int argc, char** argv)
 {
     int                ret, err;
+    #ifdef USE_WINDOWS_API
+    SOCKET             sockfd = SOCKET_INVALID;
+    #else
     int                sockfd = SOCKET_INVALID;
+    #endif
     struct sockaddr_in servAddr;
     char               buff[256];
-    size_t             len;
 
     /* declare wolfSSL objects */
     WOLFSSL_CTX* ctx = NULL;
@@ -195,6 +205,10 @@ int main(int argc, char** argv)
     if (ret < 0) {
         goto exit;
     }
+
+#ifdef USE_WINDOWS_API
+    StartTCP();
+#endif
 
     /* Create a socket that uses an internet IPv4 address.
      * Sets the socket to be stream based (TCP).
@@ -325,20 +339,10 @@ int main(int argc, char** argv)
         goto exit;
     }
 
-    /* Get a message for the server from stdin */
-    printf("Message for server: ");
-    memset(buff, 0, sizeof(buff));
-    if (fgets(buff, sizeof(buff), stdin) == NULL) {
-        fprintf(stderr, "ERROR: failed to get message for server\n");
-        ret = -1;
-        goto exit;
-    }
-    len = strnlen(buff, sizeof(buff));
-
     /* Send the message to the server */
-    if ((ret = wolfSSL_write(ssl, buff, len)) != len) {
+    if ((ret = wolfSSL_write(ssl, MESSAGE, MESSAGE_LEN)) != MESSAGE_LEN) {
         fprintf(stderr, "ERROR: failed to write entire message\n");
-        fprintf(stderr, "%d bytes of %d bytes were sent", ret, (int) len);
+        fprintf(stderr, "%d bytes of %d bytes were sent", ret, MESSAGE_LEN);
         goto exit;
     }
 
