@@ -47,7 +47,6 @@
 #define ECC_KEY_SIZE_512 512
 #define ECC_KEY_SIZE_521 521
 #define BYTE_SZ 8
-#define BENCH_TIME_SEC 1
 #define CHECK_RET(a, b, eLabel, msg) { \
                                         if (a != b) {                    \
                                             printf("failed %s\n", msg);  \
@@ -61,10 +60,6 @@ int do_sig_ver_test(int eccKeySz);
 #ifdef SHOW_SIGS_IN_EXAMPLE
     static void hexdump(const void *buffer, word32 len, byte cols);
 #endif
-
-// int ret;
-double start_time, total_time;
-
 
 int ecc_sign_verify(void)
 {
@@ -121,7 +116,13 @@ int do_sig_ver_test(int eccKeySz)
     byte* sig = NULL; // get rid of this magic number
     WC_RNG rng;
     int verified = 0;
-    int count;       // for the benchmark
+
+/* Variables for Benchmark */
+double start_time, total_time;
+#ifndef BENCH_TIME_SEC
+    #define BENCH_TIME_SEC 1
+#endif
+    int count;    
 
 
     /*
@@ -164,7 +165,7 @@ int do_sig_ver_test(int eccKeySz)
     count = 0;
     start_time = current_time(1);
 
-    while( BENCH_TIME_SEC > (total_time = current_time(0) - start_time ) ){
+    while( (double)BENCH_TIME_SEC > (total_time = current_time(0) - start_time ) ){
 #endif 
         ret = wc_ecc_init(&key);
         CHECK_RET(ret, 0, sig_done, "wc_ecc_init()");
