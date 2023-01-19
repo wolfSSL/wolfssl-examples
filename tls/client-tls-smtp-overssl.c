@@ -1,6 +1,6 @@
 /* client-tls-smtp-overssl.c
  *
- * Copyright (C) 2006-2022 wolfSSL Inc.
+ * Copyright (C) 2006-2023 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -37,12 +37,35 @@
 #include <wolfssl/ssl.h>
 #include <wolfssl/wolfcrypt/coding.h>
 
+/*smtp overssl commands */
+const char* oversslCmd[19] = {
+    "220",
+    "EHLO mail.example.com\r\n",
+    "250",
+    "AUTH LOGIN\r\n",
+    "334",
+    "334",
+    "235",
+    "MAIL FROM: <",
+    "250",
+    "RCPT TO:<",
+    "250",
+    "DATA\r\n",
+    "354",
+    "Subject: ",
+    "To: ",
+    "From: ",
+    "250",
+    "QUIT\r\n",
+    "221"
+
+};
 
 int main(int argc, char** argv)
 {
     int                sockfd;
     struct addrinfo hints,*res;
-    char               buff[512];
+    char               buff[512], plain[512];
     size_t             len;
     int                ret;
 
@@ -129,31 +152,6 @@ int main(int argc, char** argv)
         fprintf(stderr, "ERROR: failed to connect to wolfSSL\n");
         goto cleanup;
     }
-
-    /*smtp overssl commands */
-    const char* oversslCmd[19] = {
-        "220",
-        "EHLO mail.example.com\r\n",
-        "250",
-        "AUTH LOGIN\r\n",
-        "334",
-        "334",
-        "235",
-        "MAIL FROM: <",
-        "250",
-        "RCPT TO:<",
-        "250",
-        "DATA\r\n",
-        "354",
-        "Subject: ",
-        "To: ",
-        "From: ",
-        "250",
-        "QUIT\r\n",
-        "221"
-
-    };
-    char plain[256]; /* Buffer for user input */
 
     /* Read the server data into our buff array */
     memset(buff, 0, sizeof(buff));
