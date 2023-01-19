@@ -56,8 +56,11 @@ int verify()
     unsigned char  decSig[sizeof(rsa_sig_2048)];
     word32         decSigLen = 0;
 
+/* Variables for benchmark */
     double start, total_time;
+#ifndef BENCH_TIME_SEC
     #define BENCH_TIME_SEC 3
+#endif
     int count;
 
 #ifdef DEBUG_MEMORY
@@ -97,7 +100,7 @@ int verify()
     printf("Running benchmark...\n");
     printf("Please Wait %.2f seconds\n", (double)BENCH_TIME_SEC);
     start = current_time(0);// 1 0
-    while( BENCH_TIME_SEC > (total_time = current_time(0) - start ) ){
+    while( (double)BENCH_TIME_SEC > (total_time = current_time(0) - start ) ){
 #endif
         /* Verify the signature by decrypting the value. */
         if (ret == 0) {
