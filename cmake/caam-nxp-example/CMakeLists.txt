@@ -71,7 +71,7 @@ include_directories(
 
 # add in our application and boad files
 add_executable(${MCUX_SDK_PROJECT_NAME}
-    ${CMAKE_SOURCE_DIR}/wolfssl/IDE/MCUEXPRESSO/RT1170/CSR_example_cm7/source/CSR_example.c
+    ${CMAKE_SOURCE_DIR}/CSR_example.c
 
     "${NXP_PROJECT_TEMPLATE}/pin_mux.c"
     "${NXP_PROJECT_TEMPLATE}/pin_mux.h"
