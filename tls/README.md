@@ -1249,6 +1249,59 @@ Sent (0): Testing 1, 2 and 3
 Read (0): Testing 1, 2 and 3
 ```
 
+## SMTP client Examples using TLS
+Two types of SMTP client using TLS are available, both SMTP over SSL and STARTTLS.
+
+See `client-tls-smtp-overssl.c` and `client-tls-smtp-starttls.c`.
+
+Here are usage:
+
+```
+% ./client-tls-smtp-overssl <SERVER_NAME> <CERT_FILE>
+
+% ./client-tls-smtp-starttls <SERVER_NAME> <CERT_FILE>
+```
+
+Example Output:
+```
+% ./client-tls-smtp-overssl smtp.gmail.com roots.pem
+220 smtp.gmail.com ESMTP XXX-XXXX.....XX.XXX - gsmtp
+
+250-smtp.gmail.com at your service, [...]
+250-SIZE 35882577
+250-8BITMIME
+250-AUTH LOGIN PLAIN XOAUTH2 PLAIN-CLIENTTOKEN OAUTHBEARER XOAUTH
+250-ENHANCEDSTATUSCODES
+250-PIPELINING
+250-CHUNKING
+250 SMTPUTF8
+
+334 VXNlcm5hbWU6
+
+Mail Address
+
+```
+```
+ % ./client-tls-smtp-starttls smtp.gmail.com roots.pem
+ 220 smtp.gmail.com ESMTP XXX-XXX.....XX.XXX - gsmtp
+
+250-smtp.gmail.com at your service, [...]
+250-SIZE 35882577
+250-8BITMIME
+250-STARTTLS
+250-ENHANCEDSTATUSCODES
+250-PIPELINING
+250-CHUNKING
+250 SMTPUTF8
+
+220 2.0.0 Ready to start TLS
+
+334 VXNlcm5hbWU6
+
+Mail Address:
+
+```
+
 
 ## TLS Example with PK Callbacks and optionally Async
 

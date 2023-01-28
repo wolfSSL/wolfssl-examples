@@ -37,7 +37,7 @@
 #include <wolfssl/ssl.h>
 #include <wolfssl/wolfcrypt/coding.h>
 
-/*smtp overssl commands */
+/* smtp overssl commands */
 const char* oversslCmd[19] = {
     "220",
     "EHLO mail.example.com\r\n",
@@ -46,7 +46,7 @@ const char* oversslCmd[19] = {
     "334",
     "334",
     "235",
-    "MAIL FROM: <",
+    "MAIL FROM:<",
     "250",
     "RCPT TO:<",
     "250",
@@ -68,6 +68,7 @@ int main(int argc, char** argv)
     char               buff[512], plain[512];
     size_t             len;
     int                ret;
+    word32             outLen;
 
     /* declare wolfSSL objects */
     WOLFSSL_CTX* ctx;
@@ -80,7 +81,7 @@ int main(int argc, char** argv)
     }
 
     /* Initialize the addrinfo struct with zero */
-    memset(&hints,0,sizeof(hints));
+    memset(&hints, 0, sizeof(hints));
 
     /* Fill in the addrinfo struct */
     hints.ai_family = AF_INET;       /* using IPv4 */
@@ -88,7 +89,7 @@ int main(int argc, char** argv)
     char *service = "465";         /* use port 465 as a default */
 
     /* Get a Domain IP address */
-    if(getaddrinfo(argv[1],service,&hints,&res) != 0){
+    if(getaddrinfo(argv[1], service,&hints, &res) != 0){
         fprintf(stderr, "ERROR: failed to get the server ip\n");
         ret = -1;
         goto end;
@@ -160,10 +161,10 @@ int main(int argc, char** argv)
         goto cleanup;
     }
     /* Compare if the response is right code or not */
-    if (!strncmp(buff, oversslCmd[0],strlen(oversslCmd[0]))) {
+    if (!strncmp(buff, oversslCmd[0], strlen(oversslCmd[0]))) {
         printf("%s\n", buff);
     } else {
-        fprintf(stderr,"%s\n",buff);
+        fprintf(stderr, "%s\n",buff);
         goto cleanup;
     }
 
@@ -182,7 +183,7 @@ int main(int argc, char** argv)
         goto cleanup;
     }
     /* Compare if the response is right code or not */
-    if (!strncmp(buff, oversslCmd[2],strlen(oversslCmd[2]))) {
+    if (!strncmp(buff, oversslCmd[2], strlen(oversslCmd[2]))) {
         printf("%s\n", buff);
     } else {
         fprintf(stderr,"ERROR: incorrect command received\n");
@@ -205,31 +206,31 @@ int main(int argc, char** argv)
         goto cleanup;
     }
     /* Compare if the response is right code or not */
-    if (!strncmp(buff, oversslCmd[4],strlen(oversslCmd[4]))) {
+    if (!strncmp(buff, oversslCmd[4], strlen(oversslCmd[4]))) {
         printf("%s\n", buff);
     } else {
-        fprintf(stderr,"ERROR: incorrect command received\n");
+        fprintf(stderr, "ERROR: incorrect command received\n");
         printf("%s\n", buff);
         goto cleanup;
     }
 
     /* Get the mail address */
     printf("Mail Address: ");
-    memset(plain,0,sizeof(plain));
+    memset(plain, 0, sizeof(plain));
     if (fgets(plain, sizeof(plain), stdin) == NULL) {
         fprintf(stderr, "ERROR: failed to get mail address.\n");
         ret = -1;
         goto cleanup;
     }
     /* Get the right mail address length */
-    for(len=0;len<sizeof(plain);len++){
+    for(len=0; len<sizeof(plain); len++){
         if(plain[len] =='\n') break;
     }
 
     /* Encode the mail to Base64 */
-    word32 outLen = sizeof(buff);
+    outLen = sizeof(buff);
     memset(buff, 0, sizeof(buff));
-    if(Base64_Encode((unsigned char*)plain,len,(unsigned char*)buff,&outLen) !=0){
+    if(Base64_Encode((unsigned char*) plain, len, (unsigned char*) buff, &outLen) !=0){
         fprintf(stderr, "ERROR: failed to encode the mail address.\n");
         ret = -1;
         goto cleanup;
@@ -237,7 +238,7 @@ int main(int argc, char** argv)
 
 
     /*Change the line end to CRLF */
-    strcpy(buff+outLen-1,"\r\n");
+    strcpy(buff+outLen-1, "\r\n");
 
     /* Send encoded email address to the server */
     len = strnlen(buff, sizeof(buff));
@@ -254,7 +255,7 @@ int main(int argc, char** argv)
         goto cleanup;
     }
     /* Compare if the response is right code or not */
-    if (!strncmp(buff, oversslCmd[5],strlen(oversslCmd[5]))) {
+    if (!strncmp(buff, oversslCmd[5], strlen(oversslCmd[5]))) {
         printf("%s\n", buff);
     } else {
         fprintf(stderr,"ERROR: incorrect command received\n");
@@ -264,28 +265,28 @@ int main(int argc, char** argv)
 
     /* Get the password for mail account */
     printf("Password: ");
-    memset(plain,0,sizeof(plain));
+    memset(plain, 0, sizeof(plain));
     if (fgets(plain, sizeof(plain), stdin) == NULL) {
         fprintf(stderr, "ERROR: failed to get password\n");
         ret = -1;
         goto cleanup;
     }
     /* Get the right password length */
-    for(len=0;len<sizeof(plain);len++){
+    for(len=0; len<sizeof(plain); len++){
         if(plain[len] =='\n') break;
     }
 
     /* Encode the password to Base64 */
     outLen = sizeof(buff);
     memset(buff, 0, sizeof(buff));
-    if(Base64_Encode((unsigned char*)plain,len,(unsigned char*)buff,&outLen) !=0){
+    if(Base64_Encode((unsigned char*) plain, len, (unsigned char*) buff, &outLen) !=0){
         fprintf(stderr, "ERROR: failed to encode the mail address.\n");
         ret = -1;
         goto cleanup;
     }
 
     /* Change the line end to CRLF */
-    strcpy(buff+outLen-1,"\r\n");
+    strcpy(buff+outLen-1, "\r\n");
 
     /* Send the encoded password to the server */
     len = strnlen(buff, sizeof(buff));
@@ -302,26 +303,26 @@ int main(int argc, char** argv)
         goto cleanup;
     }
     /* Compare if the response is right code or not */
-    if (!strncmp(buff, oversslCmd[6],strlen(oversslCmd[6]))) {
+    if (!strncmp(buff, oversslCmd[6], strlen(oversslCmd[6]))) {
         printf("%s\n", buff);
     } else {
-        fprintf(stderr,"ERROR: incorrect command received\n");
+        fprintf(stderr, "ERROR: incorrect command received\n");
         printf("%s\n", buff);
         goto cleanup;
     }
 
     /* Get the sender mail address */
     printf("Mail From: ");
-    memset(buff,0,sizeof(buff));
-    strcpy(buff,oversslCmd[7]);
+    memset(buff, 0, sizeof(buff));
+    strcpy(buff, oversslCmd[7]);
     if (fgets(buff+strlen(oversslCmd[7]), sizeof(buff), stdin) == NULL) {
         fprintf(stderr, "ERROR: failed to get sender mail address.\n");
         ret = -1;
         goto cleanup;
     }
 
-    strcpy(buff+strlen(buff)-1,">\r\n");
-    printf("%s\n",buff);
+    strcpy(buff+strlen(buff)-1, ">\r\n");
+    printf("%s\n", buff);
 
     /* Send the sender mail address to the server */
     len = strnlen(buff, sizeof(buff));
@@ -338,25 +339,25 @@ int main(int argc, char** argv)
         goto cleanup;
     }
     /* Compare if the response is right code or not */
-    if (!strncmp(buff, oversslCmd[8],strlen(oversslCmd[8]))) {
+    if (!strncmp(buff, oversslCmd[8], strlen(oversslCmd[8]))) {
         printf("%s\n", buff);
     } else {
-        fprintf(stderr,"ERROR: incorrect command received\n");
+        fprintf(stderr, "ERROR: incorrect command received\n");
         printf("%s\n", buff);
         goto cleanup;
     }
 
     /* Get the right receiver mail address */
     printf("RCPT to: ");
-    memset(buff,0,sizeof(buff));
-    strcpy(buff,oversslCmd[9]);
+    memset(buff, 0, sizeof(buff));
+    strcpy(buff, oversslCmd[9]);
     if (fgets(buff+strlen(oversslCmd[9]), sizeof(buff), stdin) == NULL) {
         fprintf(stderr, "ERROR: failed to get message for server\n");
         ret = -1;
         goto cleanup;
     }
 
-    strcpy(buff+strlen(buff)-1,">\r\n");
+    strcpy(buff+strlen(buff)-1, ">\r\n");
     printf("%s\n", buff);
 
     /* Send the receiver mail address to the server */
@@ -374,15 +375,15 @@ int main(int argc, char** argv)
         goto cleanup;
     }
     /* Compare if the response is right code or not */
-    if (!strncmp(buff, oversslCmd[10],strlen(oversslCmd[10]))) {
+    if (!strncmp(buff, oversslCmd[10], strlen(oversslCmd[10]))) {
         printf("%s\n", buff);
     } else {
-        fprintf(stderr,"ERROR: incorrect command received\n");
+        fprintf(stderr, "ERROR: incorrect command received\n");
         printf("%s\n", buff);
         goto cleanup;
     }
     /* Send "DATA\r\n" to the server */
-    memset(buff,0,sizeof(buff));
+    memset(buff, 0, sizeof(buff));
     len = strlen(oversslCmd[11]);
     if ((ret = wolfSSL_write(ssl, oversslCmd[11], len)) != len) {
         fprintf(stderr, "ERROR: failed to send command.\n");
@@ -397,10 +398,10 @@ int main(int argc, char** argv)
         goto cleanup;
     }
     /* Compare if the response is right code or not */
-    if (!strncmp(buff, oversslCmd[12],strlen(oversslCmd[12]))) {
+    if (!strncmp(buff, oversslCmd[12], strlen(oversslCmd[12]))) {
         printf("%s\n", buff);
     } else {
-        fprintf(stderr,"ERROR: incorrect command received\n");
+        fprintf(stderr, "ERROR: incorrect command received\n");
         printf("%s\n", buff);
         goto cleanup;
     }
@@ -408,15 +409,15 @@ int main(int argc, char** argv)
     /* Compose the mail */
     /* Get the Subject */
     printf("Subject: ");
-    memset(buff,0,sizeof(buff));
-    strcpy(buff,oversslCmd[13]);
+    memset(buff, 0, sizeof(buff));
+    strcpy(buff, oversslCmd[13]);
     if (fgets(buff+strlen(oversslCmd[13]), sizeof(buff), stdin) == NULL) {
         fprintf(stderr, "ERROR: failed to get the mail subject.\n");
         ret = -1;
         goto cleanup;
     }
 
-    strcpy(buff+strlen(buff),"\r\n");
+    strcpy(buff+strlen(buff), "\r\n");
 
     /* Send the mail Subject to the server */
     len = strnlen(buff, sizeof(buff));
@@ -428,15 +429,15 @@ int main(int argc, char** argv)
 
     /* Receiver mail address */
     printf("To: ");
-    memset(buff,0,sizeof(buff));
-    strcpy(buff,oversslCmd[14]);
+    memset(buff, 0, sizeof(buff));
+    strcpy(buff, oversslCmd[14]);
     if (fgets(buff+strlen(oversslCmd[14]), sizeof(buff), stdin) == NULL) {
         fprintf(stderr, "ERROR: failed to get message for server\n");
         ret = -1;
         goto cleanup;
     }
 
-    strcpy(buff+strlen(buff),"\r\n");
+    strcpy(buff+strlen(buff), "\r\n");
 
     /* Send the receiver mail address to the server */
     len = strnlen(buff, sizeof(buff));
@@ -448,15 +449,15 @@ int main(int argc, char** argv)
 
     /* Sender mail address */
     printf("From: ");
-    memset(buff,0,sizeof(buff));
-    strcpy(buff,oversslCmd[15]);
+    memset(buff, 0, sizeof(buff));
+    strcpy(buff, oversslCmd[15]);
     if (fgets(buff+strlen(oversslCmd[15]), sizeof(buff), stdin) == NULL) {
         fprintf(stderr, "ERROR: failed to get message for server\n");
         ret = -1;
         goto cleanup;
     }
 
-    strcpy(buff+strlen(buff),"\r\n");
+    strcpy(buff+strlen(buff), "\r\n");
 
     /* Send the sender mail address to the server */
     len = strnlen(buff, sizeof(buff));
@@ -468,14 +469,14 @@ int main(int argc, char** argv)
 
     /* main message */
     printf("main message: ");
-    memset(buff,0,sizeof(buff));
+    memset(buff, 0, sizeof(buff));
     if (fgets(buff, sizeof(buff), stdin) == NULL) {
         fprintf(stderr, "ERROR: failed to get message.\n");
         ret = -1;
         goto cleanup;
     }
 
-    strcpy(buff+strlen(buff),"\r\n");
+    strcpy(buff+strlen(buff), "\r\n");
 
     /* Send the main message to the server */
     len = strnlen(buff, sizeof(buff));
@@ -486,9 +487,9 @@ int main(int argc, char** argv)
     }
 
     /* Notify the end of the mail input to the server */
-    memset(buff,0,sizeof(buff));
-    strcpy(buff,".\r\n");
-    len = strnlen(buff,sizeof(buff));
+    memset(buff, 0, sizeof(buff));
+    strcpy(buff, ".\r\n");
+    len = strnlen(buff, sizeof(buff));
     if ((ret = wolfSSL_write(ssl, buff, len)) != len) {
         fprintf(stderr, "ERROR: failed to send command.\n");
         fprintf(stderr, "%d bytes of %d bytes were sent", ret, (int) len);
@@ -502,16 +503,16 @@ int main(int argc, char** argv)
         goto cleanup;
     }
     /* Compare if the response is right code or not */
-    if (!strncmp(buff, oversslCmd[16],strlen(oversslCmd[16]))) {
+    if (!strncmp(buff, oversslCmd[16], strlen(oversslCmd[16]))) {
         printf("%s\n", buff);
     } else {
-        fprintf(stderr,"ERROR: incorrect command received\n");
+        fprintf(stderr, "ERROR: incorrect command received\n");
         printf("%s\n", buff);
         goto cleanup;
     }
 
     /* Send "QUIT\r\n" to the server */
-    memset(buff,0,sizeof(buff));
+    memset(buff, 0, sizeof(buff));
     len = strlen(oversslCmd[17]);
     if ((ret = wolfSSL_write(ssl, oversslCmd[17], len)) != len) {
         fprintf(stderr, "ERROR: failed to send command.\n");
@@ -526,10 +527,10 @@ int main(int argc, char** argv)
         goto cleanup;
     }
     /* Compare if the response is right code or not */
-    if (!strncmp(buff, oversslCmd[18],strlen(oversslCmd[18]))) {
+    if (!strncmp(buff, oversslCmd[18], strlen(oversslCmd[18]))) {
         printf("%s\n", buff);
     } else {
-        fprintf(stderr,"ERROR: incorrect command received\n");
+        fprintf(stderr, "ERROR: incorrect command received\n");
         printf("%s\n", buff);
         goto cleanup;
     }
