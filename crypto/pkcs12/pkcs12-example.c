@@ -20,13 +20,15 @@
  */
 
 
+#include <stdio.h>
 #include <wolfssl/options.h>
 #include <wolfssl/wolfcrypt/pkcs12.h>
 #include <wolfssl/wolfcrypt/types.h>
+#include <wolfssl/wolfcrypt/wc_port.h>
 
 /* This is an example with using wc_ function for PKCS12. To see an example of
  * wolfSSL_PKCS12 functions look in tests/api.c */
-int main()
+int main(int argc, char** argv)
 {
 #if defined(HAVE_PKCS12) && !defined(NO_RSA)
     WC_DerCertList* list;
@@ -37,9 +39,15 @@ int main()
     word32 certSz;
     word32 i;
     byte buffer[5300];
-    char file[] = "./test-servercert.p12";
+    char *file;
+    char defaultFile[] = "./test-servercert.p12";
     FILE *f;
     int  bytes, ret;
+
+    if (wolfCrypt_Init() != 0) {
+        printf("issue with wolfCrypt_Init()\n");
+        return -1;
+    }
 
     printf("extracting private key and certificate from PKCS12 (test-servercert.p12)\n");
 
@@ -49,10 +57,17 @@ int main()
         return -1;
     }
 
+    if (argc == 2) {
+        file = argv[1];
+    }
+    else {
+        file = defaultFile;
+    }
+
     /* open PKCS12 file */
     f = fopen(file, "rb");
     if (f == NULL) {
-        printf("error opening test-servercert.p12\n");
+        printf("error opening file %s\n", file);
         wc_PKCS12_free(pkcs12);
         return -1;
     }
@@ -61,7 +76,7 @@ int main()
 
     /* convert the DER file into an internal structure */
     ret = wc_d2i_PKCS12(buffer, bytes, pkcs12);
-    printf("return value of d2i pkcs12 = %d %s\n", ret, (ret == 1)? "SUCCESS": "FAIL");
+    printf("return value of d2i pkcs12 = %d %s\n", ret, (ret == 0)? "SUCCESS": "FAIL");
     if (ret != 0) {
         printf("\t error converting pkcs12 to an internal structure\n");
         wc_PKCS12_free(pkcs12);
@@ -71,7 +86,7 @@ int main()
     /* parse the internal structure into its parts */
     ret = wc_PKCS12_parse(pkcs12, "wolfSSL test", &keyDer, &keySz,
             &certDer, &certSz, &list);
-    printf("return value of parsing pkcs12 = %d %s\n", ret, (ret == 1)? "SUCCESS": "FAIL");
+    printf("return value of parsing pkcs12 = %d %s\n", ret, (ret == 0)? "SUCCESS": "FAIL");
     if (ret != 0 || keyDer == NULL || certDer == NULL) {
         printf("\t error parsing pkcs12\n");
         wc_PKCS12_free(pkcs12);
@@ -116,6 +131,7 @@ int main()
     }
 
     wc_PKCS12_free(pkcs12);
+    wolfCrypt_Cleanup();
 #else
     printf("pkcs12-example requires wolfssl to be built with:\n");
     printf("\t./configure --enable-pkcs12 --enable-pwdbased --enable-des3\n");
