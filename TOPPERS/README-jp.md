@@ -1,7 +1,7 @@
 ## Renesas RX72N EnvisionKit with TOPPERS OS 
 
 
-本デモはルネサス「RX72N EnvisionKit 」に「Toopers OS」を適用し「WolfSSL」の動作を確認します
+本デモはルネサス「RX72N EnvisionKit 」に「Toppers OS」を適用し「WolfSSL」の動作を確認します
 
 
 # 本デモについては以下が必要です 
