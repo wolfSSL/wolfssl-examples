@@ -77,10 +77,10 @@ int test_hpke(Hpke* hpke)
         ret = XMEMCMP(plaintext, start_text, XSTRLEN(start_text));
 
     if (ephemeralKey != NULL)
-        wc_HpkeFreeKey(hpke->kem, ephemeralKey);
+        wc_HpkeFreeKey(hpke, hpke->kem, ephemeralKey, NULL);
 
     if (receiverKey != NULL)
-        wc_HpkeFreeKey(hpke->kem, receiverKey);
+        wc_HpkeFreeKey(hpke, hpke->kem, receiverKey, NULL);
 
     if (rngRet == 0)
         wc_FreeRng(rng);
