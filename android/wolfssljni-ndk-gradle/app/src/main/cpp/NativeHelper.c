@@ -29,6 +29,9 @@ Java_com_wolfssl_wolfssljni_1ndk_1gradle_MainActivity_testWolfCrypt(JNIEnv *env,
     int ret;
 
     ret = wolfCrypt_Init();
+#ifdef WC_RNG_SEED_CB
+    wc_SetSeed_Cb(wc_GenerateSeed);
+#endif
     if (ret == 0) {
         ret = wolfcrypt_test(NULL);
     }
@@ -42,6 +45,9 @@ Java_com_wolfssl_wolfssljni_1ndk_1gradle_MainActivity_benchWolfCrypt(JNIEnv *env
     int ret = 0;
 
     ret = wolfCrypt_Init();
+#ifdef WC_RNG_SEED_CB
+    wc_SetSeed_Cb(wc_GenerateSeed);
+#endif
     if (ret == 0) {
         ret = benchmark_test(NULL);
     }

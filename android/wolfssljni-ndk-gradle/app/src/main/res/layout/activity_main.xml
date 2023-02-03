@@ -17,38 +17,39 @@
             android:layout_height="532dp"
             android:layout_marginTop="10dp" />
 
-        <LinearLayout
+        <View
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="?android:attr/listDivider" />
+
+        <TextView
+            android:id="@+id/textView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:text="@string/select_operation_to_run"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
 
-            <Button
-                android:id="@+id/btn_wc_test"
-                android:layout_width="211dp"
-                android:layout_height="wrap_content"
-                android:text="wolfCrypt Test" />
-
-            <Button
-                android:id="@+id/btn_wc_bench"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="wolfCrypt Bench" />
-        </LinearLayout>
-
-        <LinearLayout
+        <Button
+            android:id="@+id/btn_wc_test"
+            style="@style/Widget.AppCompat.Button"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical">
+            android:layout_height="wrap_content"
+            android:text="@string/wolfcrypt_test" />
 
-            <Button
-                android:id="@+id/btn_sslsocket_connect"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="SSLSocket Connect (wolfssl.com)" />
-        </LinearLayout>
+        <Button
+            android:id="@+id/btn_wc_bench"
+            style="@style/Widget.AppCompat.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/wolfcrypt_bench" />
+
+        <Button
+            android:id="@+id/btn_sslsocket_connect"
+            style="@style/Widget.AppCompat.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sslsocket_connect_wolfssl_com" />
 
     </LinearLayout>
 
