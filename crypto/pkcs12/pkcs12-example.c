@@ -49,8 +49,6 @@ int main(int argc, char** argv)
         return -1;
     }
 
-    printf("extracting private key and certificate from PKCS12 (test-servercert.p12)\n");
-
     pkcs12 = wc_PKCS12_new();
     if (pkcs12 == NULL) {
         printf("issue creating pkcs12 object\n");
@@ -63,6 +61,7 @@ int main(int argc, char** argv)
     else {
         file = defaultFile;
     }
+    printf("extracting private key and certificate from PKCS12 (%s)\n", file);
 
     /* open PKCS12 file */
     f = fopen(file, "rb");
@@ -87,42 +86,50 @@ int main(int argc, char** argv)
     ret = wc_PKCS12_parse(pkcs12, "wolfSSL test", &keyDer, &keySz,
             &certDer, &certSz, &list);
     printf("return value of parsing pkcs12 = %d %s\n", ret, (ret == 0)? "SUCCESS": "FAIL");
-    if (ret != 0 || keyDer == NULL || certDer == NULL) {
+    if (ret != 0) {
         printf("\t error parsing pkcs12\n");
         wc_PKCS12_free(pkcs12);
         return -1;
     }
 
     /* print out key and cert found */
-    printf("HEX of Private Key Read (DER format) :\n");
-    for (i = 0; i < keySz; i++) {
-        if (i != 0 && !(i%16)) printf("\n");
-        printf("%02X", keyDer[i]);
-    }
-    printf("\n");
-
-    printf("\nHEX of Certificate Read (DER format) :\n");
-    for (i = 0; i < certSz; i++) {
-        if (i != 0 && !(i%16)) printf("\n");
-        printf("%02X", certDer[i]);
-    }
-    printf("\n");
-
     if (keyDer != NULL) {
+        printf("HEX of Private Key Read (DER format) :\n");
+        for (i = 0; i < keySz; i++) {
+            if (i != 0 && !(i%16)) printf("\n");
+            printf("%02X", keyDer[i]);
+        }
+        printf("\n");
         XFREE(keyDer, NULL, DYNAMIC_TYPE_PKCS);
     }
 
     if (certDer != NULL) {
+        printf("\nHEX of Certificate Read (DER format) :\n");
+        for (i = 0; i < certSz; i++) {
+            if (i != 0 && !(i%16)) printf("\n");
+            printf("%02X", certDer[i]);
+        }
+        printf("\n");
         XFREE(certDer, NULL, DYNAMIC_TYPE_PKCS);
     }
 
     /* itterate through list if was not passed as null and free each node */
     if (list != NULL) {
         WC_DerCertList* current;
+        int certIdx = 0;
+
+        printf("\nHEX of Certificate LIST (DER format) :\n");
         current = list;
         while (current != NULL) {
-            WC_DerCertList* next = current->next;
+            WC_DerCertList* next;
+
+            next  = current->next;
             if (current->buffer != NULL) {
+                 printf("[CERT %d] :", certIdx++);
+                 for (i = 0; i < current->bufferSz; i++)
+                     printf("%02X", current->buffer[i]);
+                 printf("\n");
+
                 XFREE(current->buffer, NULL, DYNAMIC_TYPE_PKCS);
             }
             XFREE(current, NULL, DYNAMIC_TYPE_PKCS);
