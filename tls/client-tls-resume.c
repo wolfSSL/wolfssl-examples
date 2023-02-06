@@ -63,6 +63,9 @@ int main(int argc, char** argv)
         return 0;
     }
 
+#ifdef DEBUG_WOLFSSL
+    wolfSSL_Debugging_ON();
+#endif
 
 
     /* Initialize wolfSSL */
@@ -174,11 +177,13 @@ int main(int argc, char** argv)
 
 
     /* Save the session */
-    session = wolfSSL_get_session(ssl);
+    session = wolfSSL_get1_session(ssl);
 
     /* Close the socket */
     wolfSSL_free(ssl);
+    ssl = NULL;
     close(sockfd);
+    sockfd = SOCKET_INVALID;
 
 
 
@@ -197,7 +202,8 @@ int main(int argc, char** argv)
 
     /* Set up to resume the session */
     if ((ret = wolfSSL_set_session(sslRes, session)) != WOLFSSL_SUCCESS) {
-        fprintf(stderr, "ERROR: failed to set session\n");
+        fprintf(stderr, "Failed to set session, make sure session ticket "
+                        "(--enable-session-ticket) is enabled\n");
         goto exit;
     }
 
@@ -275,6 +281,8 @@ exit:
     /* Cleanup and return */
     if (ssl)
         wolfSSL_free(ssl);      /* Free the wolfSSL object              */
+    if (sslRes)
+        wolfSSL_free(sslRes);   /* Free the wolfSSL object              */
 #ifdef OPENSSL_EXTRA   
     if (session)
         wolfSSL_SESSION_free(session);

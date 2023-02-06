@@ -55,12 +55,14 @@ android/wolfssljni-ndk-sample/proguard-project.txt
 /dtls/client-dtls-shared
 /dtls/client-dtls
 /dtls/client-udp
+/dtls/client-dtls13
 /dtls/server-dtls-callback
 /dtls/server-dtls-ipv6
 /dtls/server-dtls-nonblocking
 /dtls/server-dtls-threaded
 /dtls/server-dtls
 /dtls/server-udp
+/dtls/server-dtls13
 
 /psk/client-psk-bio-custom
 /psk/client-psk-nonblocking
@@ -106,7 +108,7 @@ android/wolfssljni-ndk-sample/proguard-project.txt
 /tls/server-tls-uart
 /tls/server-tls-verifycallback
 /tls/server-tls-writedup
-
+/tls/server-tls-poll-perf
 
 
 crypto/3des/3des-file-encrypt
