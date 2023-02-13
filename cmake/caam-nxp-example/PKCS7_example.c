@@ -354,7 +354,7 @@ int main(void)
             ret = VerifyBundle(&rng, cert, certSz, key, keySz, bundle, bundleSz);
         }
 
-        wc_InitRng(&rng);
+        wc_FreeRng(&rng);
 
         if (ret >= 0) {
             PRINTF("Done\r\n");
