@@ -26,6 +26,22 @@
 #include <wolfssl/wolfcrypt/types.h>
 #include <wolfssl/wolfcrypt/wc_port.h>
 
+static void PRINT_BUFFER(byte* der, int derSz)
+{
+    int i;
+
+    if (der != NULL) {
+        for (i = 0; i < derSz; i++) {
+            if (i != 0 && !(i%16)) {
+                printf("\n");
+            }
+            printf("%02X", der[i]);
+        }
+        printf("\n");
+    }
+}
+
+
 /* This is an example with using wc_ function for PKCS12. To see an example of
  * wolfSSL_PKCS12 functions look in tests/api.c */
 int main(int argc, char** argv)
@@ -37,7 +53,6 @@ int main(int argc, char** argv)
     byte* certDer = NULL;
     word32 keySz;
     word32 certSz;
-    word32 i;
     byte buffer[5300];
     char *file;
     char defaultFile[] = "./test-servercert.p12";
@@ -95,25 +110,18 @@ int main(int argc, char** argv)
     /* print out key and cert found */
     if (keyDer != NULL) {
         printf("HEX of Private Key Read (DER format) :\n");
-        for (i = 0; i < keySz; i++) {
-            if (i != 0 && !(i%16)) printf("\n");
-            printf("%02X", keyDer[i]);
-        }
-        printf("\n");
+        PRINT_BUFFER(keyDer, keySz);
         XFREE(keyDer, NULL, DYNAMIC_TYPE_PKCS);
     }
 
     if (certDer != NULL) {
         printf("\nHEX of Certificate Read (DER format) :\n");
-        for (i = 0; i < certSz; i++) {
-            if (i != 0 && !(i%16)) printf("\n");
-            printf("%02X", certDer[i]);
-        }
-        printf("\n");
+        PRINT_BUFFER(certDer, certSz);
         XFREE(certDer, NULL, DYNAMIC_TYPE_PKCS);
     }
 
-    /* itterate through list if was not passed as null and free each node */
+    /* Iterate through list of certificates and print each out if was not passed
+     * as null, and then free each node. */
     if (list != NULL) {
         WC_DerCertList* current;
         int certIdx = 0;
@@ -123,13 +131,10 @@ int main(int argc, char** argv)
         while (current != NULL) {
             WC_DerCertList* next;
 
-            next  = current->next;
+            next = current->next;
             if (current->buffer != NULL) {
-                 printf("[CERT %d] :", certIdx++);
-                 for (i = 0; i < current->bufferSz; i++)
-                     printf("%02X", current->buffer[i]);
-                 printf("\n");
-
+                printf("\n[CERT %d] :", certIdx++);
+                PRINT_BUFFER(current->buffer, current->bufferSz);
                 XFREE(current->buffer, NULL, DYNAMIC_TYPE_PKCS);
             }
             XFREE(current, NULL, DYNAMIC_TYPE_PKCS);
