@@ -1,3 +1,4 @@
+# The path to the wolfssl directory must be set correctly for your environment.
 WOLFROOT = ../../../../wolfssl
 
 CFLAGS = $(EX_CFLAGS) -DWOLFSSL_USER_SETTINGS -I. -I$(WOLFROOT) -Os
@@ -64,7 +65,7 @@ endif
 all: verify bench mem
 
 verify: clean $(OBJ)
-	$(CC) $(CFLAGS) -o verify verify.c $(OBJ) -lpthread
+	$(CC) $(CFLAGS) -o verify verify.c $(OBJ) 
 bench: clean $(OBJ)
 	$(CC) $(CFLAGS) -DBENCHMARK -o verify_bench verify.c $(OBJ) -lpthread
 mem: clean $(OBJ)

@@ -119,9 +119,9 @@ Successfully verified signature w/ ecc key size 512!
 Key size is 521, byteField = 66
 Successfully verified signature w/ ecc key size 521!
 
-total   Allocs   =       522
-total   Deallocs =       522
-total   Bytes    =    243047
+total   Allocs   =       422
+total   Deallocs =       422
+total   Bytes    =    195047
 peak    Bytes    =      5557
 current Bytes    =         0
 stack used = 14448

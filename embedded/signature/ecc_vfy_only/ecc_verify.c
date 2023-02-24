@@ -1,6 +1,6 @@
-/* ecc_sign_verify.c
+/* ecc_verify.c
  *
- * Copyright (C) 2006-2020 wolfSSL Inc.
+ * Copyright (C) 2006-2023 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -28,11 +28,8 @@
 #include <wolfssl/wolfcrypt/logging.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
 #include<wolfssl/test.h>
+#include "signature.h"
 
-
-
-/* uncomment to show signatures */
-/* #define SHOW_SIGS_IN_EXAMPLE */
 
 #define HEAP_HINT NULL
 #define ECC_KEY_SIZE_112 112
@@ -47,6 +44,11 @@
 #define ECC_KEY_SIZE_512 512
 #define ECC_KEY_SIZE_521 521
 #define BYTE_SZ 8
+
+
+int idx_key(int keysize);
+
+
 #define CHECK_RET(a, b, eLabel, msg) { \
                                         if (a != b) {                    \
                                             printf("failed %s\n", msg);  \
@@ -57,11 +59,8 @@
 
 int do_sig_ver_test(int eccKeySz);
 
-#ifdef SHOW_SIGS_IN_EXAMPLE
-    static void hexdump(const void *buffer, word32 len, byte cols);
-#endif
 
-int ecc_sign_verify(void)
+int ecc_verify(void)
 {
     int ret = 0;
 #ifdef DEBUG_MEMORY
@@ -116,6 +115,10 @@ int do_sig_ver_test(int eccKeySz)
     byte* sig = NULL; // get rid of this magic number
     WC_RNG rng;
     int verified = 0;
+    word32 sig_size;
+    int key_size;
+    unsigned char *pKeybuff;
+
 
 /* Variables for Benchmark */
 double start_time, total_time;
@@ -144,22 +147,10 @@ double start_time, total_time;
 #ifndef BENCHMARK
     printf("Key size is %d, byteField = %d\n", eccKeySz, byteField);
 #endif
-    sig = (byte*) XMALLOC(maxSigSz * sizeof(byte), NULL,
-                          DYNAMIC_TYPE_TMP_BUFFER);
-
-    if (sig == NULL) {
-        printf("Failed to allocate sig buff\n");
-        return -1001;
-    }
-
-
     
 
     ret = wc_InitRng(&rng);
     CHECK_RET(ret, 0, key_done, "wc_InitRng()");
-
-    ret = wc_ecc_make_key(&rng, byteField, &key);
-    CHECK_RET(ret, 0, rng_done, "wc_ecc_make_key()");
 
 #ifdef BENCHMARK
     count = 0;
@@ -170,19 +161,21 @@ double start_time, total_time;
         ret = wc_ecc_init(&key);
         CHECK_RET(ret, 0, sig_done, "wc_ecc_init()");
 
-        ret = wc_ecc_make_key(&rng, byteField, &key);
-        CHECK_RET(ret, 0, rng_done, "wc_ecc_make_key()");
-        // printf("%s\n",hash);
-        ret = wc_ecc_sign_hash(hash, sizeof(hash), sig, &maxSigSz, &rng, &key);
-        CHECK_RET(ret, 0, rng_done, "wc_ecc_sign_hash()");
 
-    #ifdef SHOW_SIGS_IN_EXAMPLE
-        hexdump(sig, maxSigSz, 16);
-    #endif
-        
+    /* Import signature and ecc_key */
 
-        ret = wc_ecc_verify_hash(sig, maxSigSz, hash, sizeof(hash), &verified,
-                                &key);
+        sig = sig_keys[idx_key(eccKeySz)].sig;
+        sig_size = sig_keys[idx_key(eccKeySz)].sig_size;
+        pKeybuff = sig_keys[idx_key(eccKeySz)].pubkey;
+        key_size = sig_keys[idx_key(eccKeySz)].key_size;
+
+        ret = wc_ecc_import_x963(pKeybuff, key_size, &key);
+        CHECK_RET(ret, 0, rng_done, "wc_ecc_import_x963()");
+    
+
+        ret = wc_ecc_verify_hash(sig, sig_size, hash, sizeof(hash), 
+                                                            &verified, &key);
+
         CHECK_RET(ret, 0, rng_done, "wc_ecc_verify_hash()");
         CHECK_RET(verified, 1, rng_done, "verification check");
         verified = 0;
@@ -197,32 +190,15 @@ double start_time, total_time;
 
 printf("Successfully verified signature w/ ecc key size %d!\n", eccKeySz);
 
-#endif
+#endif /* BENCHMARK */
 
 rng_done:
     wc_FreeRng(&rng);
 key_done:
     wc_ecc_free(&key);
 sig_done:
-    XFREE(sig, NULL, DYNAMIC_TYPE_TMP_BUFFER);
     return ret;
 }
-
-#ifdef SHOW_SIGS_IN_EXAMPLE
-static void hexdump(const void *buffer, word32 len, byte cols)
-{
-   word32 i;
-
-   for (i = 0; i < len + ((len % cols) ? (cols - len % cols) : 0); i++) {
-      /* print hex data */
-      if (i < len)
-         printf("%02X ", ((byte*)buffer)[i] & 0xFF);
-
-      if (i % cols == (cols - 1))
-         printf("\n");
-   }
-}
-#endif
 
 
 int main(){
@@ -244,8 +220,39 @@ int main(){
 #endif /* BENCHMARK */
 
 #ifdef DEBUG_MEMORY
-    return StackSizeCheck(NULL, (thread_func)ecc_sign_verify);
+    return StackSizeCheck(NULL, (thread_func)ecc_verify);
 #else 
-    return ecc_sign_verify();
+    return ecc_verify();
 #endif
 }
+
+int idx_key(int keysize){
+    switch(keysize){
+        case ECC_KEY_SIZE_112:
+            return 0;
+        case ECC_KEY_SIZE_128:
+            return 1;
+        case ECC_KEY_SIZE_160:
+            return 2;
+        case ECC_KEY_SIZE_192:
+            return 3;
+        case ECC_KEY_SIZE_224:
+            return 4;
+        case ECC_KEY_SIZE_239:
+            return 5;
+        case ECC_KEY_SIZE_256:
+            return 6;
+        case ECC_KEY_SIZE_320:
+            return 7;
+        case ECC_KEY_SIZE_384:
+            return 8;
+        case ECC_KEY_SIZE_512:
+            return 9;
+        case ECC_KEY_SIZE_521:
+            return 10;
+        default:
+            return -1;
+    } 
+
+}   
+

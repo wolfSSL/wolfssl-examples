@@ -1,6 +1,6 @@
-/* rsa_pub_2048.h
+/* verify.c
  *
- * Copyright (C) 2006-2020 wolfSSL Inc.
+ * Copyright (C) 2006-2023 wolfSSL Inc.
  *
  * This file is part of wolfSSL.
  *
@@ -57,11 +57,16 @@ int verify()
     word32         decSigLen = 0;
 
 /* Variables for benchmark */
+#ifdef BENCHMARK
     double start, total_time;
 #ifndef BENCH_TIME_SEC
     #define BENCH_TIME_SEC 3
 #endif
     int count;
+#endif
+
+
+
 
 #ifdef DEBUG_MEMORY
     wolfCrypt_Init();
@@ -99,9 +104,10 @@ int verify()
     count = 0;
     printf("Running benchmark...\n");
     printf("Please Wait %.2f seconds\n", (double)BENCH_TIME_SEC);
-    start = current_time(0);// 1 0
+    start = current_time(0);
     while( (double)BENCH_TIME_SEC > (total_time = current_time(0) - start ) ){
 #endif
+
         /* Verify the signature by decrypting the value. */
         if (ret == 0) {
             decSigLen = wc_RsaSSL_Verify(rsa_sig_2048, sizeof(rsa_sig_2048),
@@ -109,6 +115,7 @@ int verify()
             if ((int)decSigLen < 0)
                 ret = (int)decSigLen;
         }
+
         /* Check the decrypted result matches the encoded digest. */
         if (ret == 0 && encSigLen != decSigLen)
             ret = -1;
@@ -127,8 +134,9 @@ int verify()
     printf("Takes %1.2f Sec for %d times,    %6.2f Cycles/sec\n", total_time, count, count/total_time);
     printf("Finished Benchmark \n");
 #else 
-    printf("Verified\n");
+    printf("Verified!\n");
 #endif
+
 
 finish: 
     /* Free the data structures */
