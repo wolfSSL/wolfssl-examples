@@ -10,8 +10,8 @@
 /* rsa */
 #define WOLFSSL_RSA_VERIFY_INLINE
 #define WC_NO_RSA_OAEP
-#define WC_NO_RSA_PSS
 #define WC_NO_HARDEN
+#define WOLFSSL_KEY_GEN
 
 /* sp_int */
 #define NO_DH
@@ -33,7 +33,7 @@
 #endif
 
 
-#ifdef SP_C32_FLAG  /* Use multi-platform SP (sp_c32.c) by default*/
+#ifdef SP_C32_FLAG 
     #define WOLFSSL_HAVE_SP_RSA
     #define WOLFSSL_SP_MATH_ALL
     #undef USE_FAST_MATH
@@ -76,4 +76,18 @@
     #undef DEBUG_MEMORY
 #endif
 
+// #define PSS_PADDING
+#ifdef PSS_PADDING
+    #define WC_RSA_PSS
+    #define WC_RSA_BLINDING
+#endif
 
+/* Non-blocking */
+#if defined(NONBLOCK)
+    #define WC_RSA_NONBLOCK
+    #define TFM_TIMING_RESISTANT
+    #define WOLFSSL_SP_NONBLOCK
+    #define WOLFSSL_SP_SMALL
+    #define WOLFSSL_SP_NO_MALLOC
+    #undef BENCHMARK
+#endif /* NONBLOCK */

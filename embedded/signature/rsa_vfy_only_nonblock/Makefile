@@ -1,5 +1,6 @@
 # The path to the wolfssl directory must be set correctly for your environment.
 WOLFROOT = ../../../../wolfssl
+
 CFLAGS = $(EX_CFLAGS) -DWOLFSSL_USER_SETTINGS -I. -I$(WOLFROOT) -Os
 ASFLAGS=-DWOLFSSL_USER_SETTINGS -I. -I$(WOLFROOT)
 
@@ -37,40 +38,21 @@ OBJ_TFM := \
 	$(WOLFROOT)/wolfcrypt/src/tfm.o\
 
 
-.PHONY: all clean size mem bench
+.PHONY: all clean size mem
 
-ifeq ($(math) $(arch),sp x64) 
-ASFLAGS+= -DSP_X86_64_FLAG
-CFLAGS += -DSP_X86_64_FLAG
-OBJ += $(OBJ_SP_X86_64)
-else ifeq ($(math) $(arch),sp arm64)
-CFLAGS += -DSP_ARM64_FLAG
-OBJ += $(OBJ_SP_ARM64)
-else ifeq ($(math) $(arch),sp c64)
-CFLAGS += -DSP_C64_FLAG
-OBJ += $(OBJ_SP_C64)
-else ifeq ($(math) $(arch),sp c32)
-CFLAGS += -DSP_C32_FLAG
-OBJ += $(OBJ_SP_C32)
-else ifeq ($(math), tfm)
+
 CFLAGS += -DTFM_FLAG
 OBJ += $(OBJ_TFM)
-else 
-CFLAGS += -DSP_C64_FLAG
-OBJ += $(OBJ_SP_C64)
-endif
 
-all: verify sign bench mem
 
-verify: clean $(OBJ)
-	$(CC) $(CFLAGS) -o verify verify.c $(OBJ) 
-sign: clean $(OBJ)
-	$(CC) $(CFLAGS) -o sign sign.c $(OBJ) 
-bench: clean $(OBJ)
-	$(CC) $(CFLAGS) -DBENCHMARK -o verify_bench verify.c $(OBJ) -lpthread
+all: verify_nonblock mem
+
+verify_nonblock: clean $(OBJ)
+	$(CC) $(CFLAGS) -o verify_nonblock verify_nonblock.c $(OBJ) -lpthread
+
 mem: clean $(OBJ)
-	$(CC) $(CFLAGS) -DDEBUG_MEMORY -o verify_mem verify.c $(OBJ) -lpthread
+	$(CC) $(CFLAGS) -DDEBUG_MEMORY -o verify_mem_nonblock verify_nonblock.c $(OBJ) -lpthread
 clean:
-	rm -f sign verify verify_bench verify_mem $(WOLFROOT)/wolfcrypt/src/*.o
+	rm -f verify_nonblock verify_mem_nonblock $(WOLFROOT)/wolfcrypt/src/*.o
 size :
-	size $(OBJ) sign verify 
+	size $(OBJ) verify

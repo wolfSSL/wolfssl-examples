@@ -33,11 +33,12 @@
 #endif
 
 
-#ifdef SP_C32_FLAG  /* Use multi-platform SP (sp_c32.c) by default*/
+#ifdef SP_C32_FLAG 
     #define WOLFSSL_HAVE_SP_RSA
     #define WOLFSSL_SP_MATH_ALL
+    #define SP_WORD_SIZE 32
     #undef USE_FAST_MATH
-#endif 
+#endif /*SP_FLAG*/
 
 #ifdef SP_C64_FLAG
     #define WOLFSSL_HAVE_SP_RSA
@@ -72,8 +73,15 @@
     #undef WOLFSSL_SP_X86_64_ASM
 #endif /* TFM_FLAG*/
 
-#ifdef BENCHMARK
-    #undef DEBUG_MEMORY
-#endif
 
+/* Non-blocking */
+#define NONBLOCK
 
+#if defined(NONBLOCK)
+    #define WC_RSA_NONBLOCK
+    #define TFM_TIMING_RESISTANT
+    #define WOLFSSL_SP_NONBLOCK
+    #define WOLFSSL_SP_SMALL
+    #define WOLFSSL_SP_NO_MALLOC
+    #undef BENCHMARK
+#endif /* NONBLOCK */
