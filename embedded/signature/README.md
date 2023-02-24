@@ -4,9 +4,14 @@ This directory includes the following examples under the sub-directories.Each ha
 ​
 |Scheme|Directory|Description|
 |---|---|---|
-|RSA|rsa_vfy_only |verify signature|
-||rsa_buffer|sign/verify signature |
-|ECDSA|signature/ecc-sign-verify/|sign msg and verify signature|
+|RSA|rsa_sign_verify|sign/verify signature inline  |
+||rsa_buffer|sign/verify signature|
+||rsa_vfy_only |verify signature|
+||rsa_vfy_only_nonblock|verify signature with non-blocking|
+|ECDSA|ecc_sign_verify/|sign msg and verify signature|
+||ecc_vfy_only|verify Signature|
+||ecc_vfy_only_nonblock|verify signature with non-blocking|
+
 
 You can specify a target function of Simple example, Benchemark or Memory track program.It also has options for optimized code for MCU architectures such as Intel x86, ARM64 or a generic code by default, as well as Math library of Single Precision or TFM.
 
