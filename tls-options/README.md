@@ -60,6 +60,68 @@ You will be able to send a message from client to server.
 Sending "break" as a message to the server will break the session.  
 If you use TLS 1.3 server, You can resume many times.
 
+### Peer Authentication
+
+#### Enable peer authentication
+
+You can choose peer authentication mode using:
+
+```sh
+./server-tls-peerauth -a <Peer auth mode>
+```
+
+```sh
+./client-tls-peerauth -a <Peer auth mode>
+```
+
+Peer auth mode:
+- NONE (Server default)
+- PEER (Client default)
+- FAIL_IF_NO_PEER_CERT
+- FAIL_EXCEPT_PSK
+
+See below for details.  
+https://www.wolfssl.com/documentation/manuals/wolfssl/group__Setup.html#function-wolfssl_set_verify
+
+If you specify the mode, myVerify() will call and display information about the certificate.
+
+#### Use special verify mode
+
+You can choose verify mode using:
+
+```sh
+./server-tls-peerauth -m <Verify mode>
+```
+
+```sh
+./client-tls-peerauth -m <Verify mode>
+```
+
+Verify mode:
+- OVERRIDE_ERROR
+- FORCE_FAIL
+- USE_PREVERIFY (default)
+- OVERRIDE_DATE_ERR
+
+If you want to use default cert files for authentication testing in server-tls-peerauth.c, please specify OVERRIDE_ERROR option.  
+
+Because self-signed error occurs.
+
+#### Specify options simultaneously
+
+You can specify some options simultaneously.
+
+Example:
+
+```sh
+./server-tls-peerauth \
+    -a <Peer auth mode> -m <Verify mode>
+```
+
+```sh
+./client-tls-peerauth \
+    -a <Peer auth mode> -m <Verify mode>
+```
 
 ## Cleaning Up
 
