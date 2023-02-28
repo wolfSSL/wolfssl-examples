@@ -21,13 +21,15 @@ This demo client and server run on "Toppers OS" and Renesas "RX72N EnvisionKit" 
 <br>
 
 #The above version designations are limited to the versions used in order to make modifications to the designated versions as shown below.
+# advance preparation
+Copy [wolfssl-examples/TOPPERS] to [wolfssl/IDE/Renesas/e2studio/RX72N/].  
 # Build libraries
   # 1. Build the wolfSSL library
    Create the Toppers library and wolfSSL library required for this demo
 
   1-1.Press [Browse (R)] for [Select root directory (T)] in the [Import project] dialog
   
-  1-2. Select [wolflib] from the git repository wolfssl/IDE/Renesas/e2studio/RX72N/EnvisionKit_Toppers Press [Select Folder]
+  1-2. Select [wolflib] from the git repository wolfssl/IDE/Renesas/e2studio/RX72N/Toppers Press [Select Folder]
   
   1-3. Click the created project in Project Explorer and select the [Build Project (B)] key from the pull-down menu to build.
   (When performing the above operations, make sure that [Toolchain:] is selected in the [Project] [Properties] [Settings] [toolchain] tab.)
@@ -36,14 +38,14 @@ This demo client and server run on "Toppers OS" and Renesas "RX72N EnvisionKit" 
 
   # 2. Build TOPPERS library
   
-  2-1.To build the Toppers library, download [asp-1.9.3 Renesas BSP version] from [https://www.toppers.jp/asp-d-download.html] and download [/wolfssl/ IDE/Renesas/e2studio/RX72N/EnvisionKit_Toppers/]
+  2-1.To build the Toppers library, download [asp-1.9.3 Renesas BSP version] from [https://www.toppers.jp/asp-d-download.html] and download [/wolfssl/ IDE/Renesas/e2studio/RX72N/Toppers/]
   
   2-2.To build the Toppers library, download [Configurator Release 1.9.6 (binary for Windows)] from [https://www.toppers.jp/cfg-download.html] and unzip it with [2.1] Create a [cfg/cfg] directory in the [asp] directory and extract it as [cfg.exe] inside
   
   2-3.Execute the shell script shown below to apply the patch.
     (Copy the files necessary for using EDMAC)
 ```
-  $ pwd [Individual installation environment]/wolfssl/IDE/Renesas/e2studio/RX72N/EnvisionKit_Toppers
+  $ pwd [Individual installation environment]/wolfssl/IDE/Renesas/e2studio/RX72N/Toppers
   ./setting.sh
 ```
 
@@ -62,7 +64,7 @@ $ export PATH=PATH=$PATH:\/C/ProgramData\/GCC\ for\ Renesas\ RX\ 8.3.0.202202-GN
 2-5. After confirming the settings, do the following
 
 ```
-$ pwd [Individual installation environment]/wolfssl/IDE/Renesas/e2studio/RX72N/EnvisionKit_Toppers/asp
+$ pwd [Individual installation environment]/wolfssl/IDE/Renesas/e2studio/RX72N/Toppers/asp
 $ perl ./configure -T rx72n_gcc
 $ make depend
 ```
@@ -71,7 +73,7 @@ $ make depend
   
   2-7. Select [Open Project from File System...] in the menu
 
-  2-8. Select [Toppers_app] from the git repository wolfssl/IDE/Renesas/e2studio/RX72N/EnvisionKit_Toppers Press [Select Folder]　　
+  2-8. Select [Toppers_app] from the git repository wolfssl/IDE/Renesas/e2studio/RX72N/Toppers Press [Select Folder]　　
 
   2-9. Click the created project in Project Explorer and select the [Build Project (B)] key from the pull-down menu to build.
 
@@ -81,7 +83,7 @@ $ make depend
 
   3-1. Select [Open Project from File System...] in the menu
 
-  3-2. Select [wolfSSLDemo] from the git repository wolfssl/IDE/Renesas/e2studio/RX72N/EnvisionKit_Toppers Press [Select Folder]
+  3-2. Select [wolfSSLDemo] from the git repository wolfssl/IDE/Renesas/e2studio/RX72N/Toppers Press [Select Folder]
 
   3-3.Double-click [WolfSSLDemo.scfg] to display the setting dialog → Select [Components tab]
 
@@ -98,7 +100,7 @@ $ make depend
   do the following
   ```
 $pwd
-[Individual installation environment]/wolfssl/IDE/Renesas/e2studio/RX72N/EnvisionKit_Toppers/WolfSSLDemo
+[Individual installation environment]/wolfssl/IDE/Renesas/e2studio/RX72N/Toppers/WolfSSLDemo
   patch --binary -p0 < ./bsp.patch
 ```
 Note:  

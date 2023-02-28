@@ -21,23 +21,25 @@
 <br>
 
 #上記バージョンの指定については、下記に示す通り指定バージョンに修正を加える為、使用バージョンを限定しています  
+# 事前準備
+　[wolfssl-examples/TOPPERS]を[wolfssl/IDE/Renesas/e2studio/RX72N/]へコピーします  
 # 以下に環境構築手順を示します
  # 1.wolfSSLライブラリーのビルド
   本デモに必要なToppersライブラリー、wolfSSLライブラリーを作成します  
  1-1.[プロジェクトをインポート]ダイアログの[ルートディレクトリーの選択(T)]の[参照(R)]を押下  
- 1-2.git レポジトリwolfssl/IDE/Renesas/e2studio/RX72N/EnvisionKit_Toppersの[wolflib]を選択[フォルダーの選択]を押下      
+ 1-2.git レポジトリwolfssl/IDE/Renesas/e2studio/RX72N/Toppersの[wolflib]を選択[フォルダーの選択]を押下      
  1-3.プロジェクト・エクスプローラーの作成したプロジェクトをクリック後プルダウンメニューから[プロジェクトのビルド(B)]キーを選択しビルド
  (上記操作操作を行う場合[プロジェクト][プロパティ]の[設定][toolchain]タブで[ツールチェーン:]が選択されている事を確認ください)  
  1-4. [wolflib/Debug]に[libwolflib.a]が生成されます
 
  # 2. TOPPERSライブラリーのビルド  
- 2-1.Toppersライブラリーのビルドの為、[https://www.toppers.jp/asp-d-download.html] より[asp-1.9.3 Renesas BSP 適用version]をダウンロードし[/wolfssl/IDE/Renesas/e2studio/RX72N/EnvisionKit_Toppers/]に解凍します   
+ 2-1.Toppersライブラリーのビルドの為、[https://www.toppers.jp/asp-d-download.html] より[asp-1.9.3 Renesas BSP 適用version]をダウンロードし[/wolfssl/IDE/Renesas/e2studio/RX72N/Toppers/]に解凍します   
  2-2.Toppersライブラリーのビルドの為、[https://www.toppers.jp/cfg-download.html] より[コンフィギュレータ Release 1.9.6（Windows用バイナリ）]をダウンロードし[2.1]で解凍した[asp]ディレクトリに[cfg/cfg]ディレクトリを作成し中に[cfg.exe]として解凍します  
  2-3.Patch適用の為、以下に示すShellスクリプトを実行します  
    (EDMAC使用に必要なファイルをコピーします)
  ``` 
  $ pwd
-[個別インストール環境]/wolfssl/IDE/Renesas/e2studio/RX72N/EnvisionKit_Toppers
+[個別インストール環境]/wolfssl/IDE/Renesas/e2studio/RX72N/Toppers
  ./setting.sh 
 ```  
  2-4.事前準備確認  
@@ -51,19 +53,19 @@ export PATH=PATH=$PATH:\/C/ProgramData\/GCC\ for\ Renesas\ RX\ 8.3.0.202202-GNUR
 　2-5.設定を確認後、以下を行います
   ```  
 $ pwd
-[個別インストール環境]/wolfssl/IDE/Renesas/e2studio/RX72N/EnvisionKit_Toppers/asp
+[個別インストール環境]/wolfssl/IDE/Renesas/e2studio/RX72N/Toppers/asp
 $ perl ./configure -T rx72n_gcc
 $ make depend
 ```  
  2-6.プロジェクト[プロパティ]→[C/C++ビルド]→[環境]ダイアログ[設定する環境変数]の[追加]ボタンを押下、[新規変数]ダイアログの[名前:]に[C_PROJECT]を入力、[値:]に[${ProjDirPath}]を入力します。  
  2-7.メニューの[ファイル・システムからプロジェクトを開く...]を選択  
- 2-8.git レポジトリwolfssl/IDE/Renesas/e2studio/RX72N/EnvisionKit_Toppersの[Toppers_app]を選択[フォルダーの選択]を押下   
+ 2-8.git レポジトリwolfssl/IDE/Renesas/e2studio/RX72N/Toppersの[Toppers_app]を選択[フォルダーの選択]を押下   
  2-9.プロジェクト・エクスプローラーの作成したプロジェクトをクリック後プルダウンメニューから[プロジェクトのビルド(B)]キーを選択しビルド    
  2-10.[toppers_rx]に[libasp.a]が生成されます    
  
 # 3. wolfSSLDemoプロジェクトのビルド  
  3-1.メニューの[ファイル・システムからプロジェクトを開く...]を選択  
- 3-2.git レポジトリwolfssl/IDE/Renesas/e2studio/RX72N/EnvisionKit_Toppersの[wolfSSLDemo]を選択[フォルダーの選択]を押下  
+ 3-2.git レポジトリwolfssl/IDE/Renesas/e2studio/RX72N/Toppersの[wolfSSLDemo]を選択[フォルダーの選択]を押下  
  3-3.[WolfSSLDemo.scfg]をダブルクリックで設定ダイアログが表示→[コンポーネントタブ] を選択  
  3.4.[ソフトウェアコンポーネントダイアログ]ダイアログ右上の[コードの生成]を押下      
  3.5.ダイアログ左のコンポーネント選択で[Startup] [r_bsp]を選択右クリックしコンテキストメニュー[バージョン変更]を選択し[現在のバージョン]が[7.10]である事を確認してください([7.10]でない場合[変更後のバージョン:]で[7.10]を選択し[次へ(N)>]を押下しコードを生成して下さい)   
@@ -76,7 +78,7 @@ $ make depend
  以下を行います
  ```  
 $ pwd
-[個別インストール環境]/wolfssl/IDE/Renesas/e2studio/RX72N/EnvisionKit_Toppers/WolfSSLDemo
+[個別インストール環境]/wolfssl/IDE/Renesas/e2studio/RX72N/Toppers/WolfSSLDemo
  patch --binary -p0 < ./bsp.patch
 ```
 Note:  
