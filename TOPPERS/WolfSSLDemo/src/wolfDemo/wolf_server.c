@@ -33,7 +33,6 @@ static int my_IORecv(WOLFSSL* ssl, char* buff, int sz, void* ctx)
 {
     int ret;
     ID  cepid = 0;
-    printf("my_IORecv\n");
     if (ctx != NULL)
         cepid = *(ID *)ctx;
     else 
@@ -50,7 +49,6 @@ static int my_IOSend(WOLFSSL* ssl, char* buff, int sz, void* ctx)
 {
     int ret;
     ID  cepid = 0;
-    printf("my_IOSend sz %d\n",sz);
     if (ctx != NULL) {
         printf("my_IOSend cepid OK \n");
     	cepid = *(ID *)ctx;
@@ -60,7 +58,6 @@ static int my_IOSend(WOLFSSL* ssl, char* buff, int sz, void* ctx)
 	ret = tcp_snd_dat(cepid, buff, sz, TMO_FEVR);
 
     if (ret == sz) {
-        printf("my_IOSend OK \n");
     	return ret;
     } else {
         printf("my_IOSend NG \n");
@@ -137,20 +134,7 @@ WOLFSSL_CTX *wolfSSL_TLS_server_init(void)
 }
 #define BUFF_SIZE 256
 char buff[BUFF_SIZE];
-void wolfSSL_TLS_server2(void)
-{
-    ID cepid = 1;
-    ID repid = 1;
-    ER ercd;
 
-    T_IPV4EP dst_addr = {0, 0};
-    if ((ercd = tcp_acp_cep(cepid, repid, &dst_addr, TMO_FEVR)) != E_OK) {
-         printf("ERROR TCP Accept: %d\n", ercd);
-         return;
-     }
-
-    ercd = 0;
-}
 
 void wolfSSL_TLS_server(void *v_ctx, func_args *args)
 {
