@@ -176,9 +176,6 @@ void wolfSSL_TLS_client(void *v_ctx, func_args *args)
 
     /* frees all data before client termination */
     wolfSSL_free(ssl);
-    wolfSSL_CTX_free(ctx);
-    wolfSSL_Cleanup();
-
     tcp_sht_cep(cepid);
     tcp_cls_cep(cepid, TMO_FEVR);
 

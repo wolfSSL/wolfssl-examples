@@ -58,6 +58,9 @@ ER wolfSSL_TLS_client_Wrapper(void) {
 	printf("Start TLS Client\n");
 
 	wolfSSL_TLS_client(wolfSSL_cl_ctx, &args);
+    wolfSSL_CTX_free(wolfSSL_cl_ctx);
+    wolfSSL_Cleanup();
+
 	return ercd;
 }
 ER wolfSSL_TLS_server_Wrapper(void) {
@@ -71,5 +74,8 @@ ER wolfSSL_TLS_server_Wrapper(void) {
 	printf("Start TLS Server\n");
 
 	wolfSSL_TLS_server(wolfSSL_sv_ctx, &args);
+    wolfSSL_CTX_free(wolfSSL_sv_ctx);
+    wolfSSL_Cleanup();
+
 	return ercd;
 }
