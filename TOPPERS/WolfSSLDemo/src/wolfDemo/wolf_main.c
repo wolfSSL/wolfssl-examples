@@ -119,7 +119,7 @@ void taskDemoWolf(intptr_t exinf)
             dly_tsk(100);
 #ifdef SSL_SERVER
             if(wolfSSL_TLS_server_Wrapper() != E_OK) {
-                printf("wolfSSL client failure end of process\n");
+                printf("wolfSSL server failure end of process\n");
                 break;
             }
 #else
