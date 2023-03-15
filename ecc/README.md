@@ -5,7 +5,7 @@
 ### Build and install wolfSSL
 
 ```
-./configure --enable-ecc --enable-ecccustcurves CFLAGS="-DWOLFSSL_TEST_CERT -DWOLFSSL_DER_TO_PEM -DHAVE_ECC_KOBLITZ" && make && sudo make install
+./configure --enable-ecc --enable-ecccustcurves CFLAGS="-DWOLFSSL_TEST_CERT -DWOLFSSL_DER_TO_PEM -DHAVE_ECC_KOBLITZ -DWOLFSSL_PUBLIC_MP" && make && sudo make install
 ```
 
 ### Build Example
@@ -119,7 +119,7 @@ This example demonstrates using a Koblitz (SECP256K1) curve.
 hash_firmware_verify: 0
 ```
 
-### `ecc-key-decode`
+### `ecc-key-export`
 
 This example shows exporting an ECC private key and public key.
 

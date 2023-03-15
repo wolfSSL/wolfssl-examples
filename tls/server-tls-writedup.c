@@ -43,7 +43,7 @@
 
 int main()
 {
-    int                ret;
+    int                ret = 0;
 #ifdef HAVE_WRITE_DUP
     int                sockfd = SOCKET_INVALID;
     int                connd = SOCKET_INVALID;

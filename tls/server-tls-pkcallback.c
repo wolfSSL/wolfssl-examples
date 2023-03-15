@@ -530,6 +530,7 @@ int main(int argc, char** argv)
 
         /* Cleanup after this connection */
         wolfSSL_free(ssl);      /* Free the wolfSSL object              */
+        ssl = NULL;
         close(connd);           /* Close the connection to the client   */
         connd = SOCKET_INVALID;
     }

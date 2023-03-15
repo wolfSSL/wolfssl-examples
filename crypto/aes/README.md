@@ -6,7 +6,7 @@ How to use aes-file-encrypt.c
 2)  Make a file to encode. Can be any file (ex. .txt .in .out .file etc.)
 3)  run the executable, for help run with -h flag. Basic command is as follows:
 
-        ./aes-file-encrypt <-option> <KeySize> <input.file> <output.file>
+        ./aes-file-encrypt <-option> <KeySize> -i <input.file> -o <output.file>
 
         KeySize (in bits) allowed values: 128, 192, 256
 

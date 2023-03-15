@@ -361,7 +361,7 @@ int main(int argc, char** argv)
     printf("WolfSSL AsyncCrypt Enabled\n");
 #if defined(HAVE_INTEL_QA)
     printf("WolfSSL AsyncCrypt with IntelQA Mode\n");
-#elif defined(WOLFSSL_ASYNC_CRYPT_TEST)
+#elif defined(WOLFSSL_ASYNC_CRYPT_SW)
     printf("WolfSSL AsyncCrypt with Simulation Mode\n");
 #else
     #error Unknown HW Acceleration device
@@ -477,7 +477,7 @@ exit:
 
     printf("Please compile wolfSSL with  ./configure --enable-asynccrypt --enable-sni" 
            " --enable-alpn --enable-ocspstapling --enable-ocspstapling2 --enable-opensslextra"
-           " --enable-curve25519 CFLAGS=-DWOLFSSL_NONBLOCK_OCSP")
+           " --enable-curve25519 CFLAGS=-DWOLFSSL_NONBLOCK_OCSP");
     return -1;
 #endif
 }

@@ -1,11 +1,30 @@
-TCP/PSK Tutorial
-================
+This folder contains examples related to PSK, including:
+* Quick-Start section to simply build and run some of the examples
+* Tutorial section detailing the process of adding PSK support to a
+  client/server system.
+
+# Quick Start
+To build and run the basic PSK example:
+
+In the wolfSSL directory:
+```
+$ ./configure --enable-psk --enable-opensslextra CFLAGS="-DWOLFSSL_STATIC_PSK"
+$ make && make install
+```
+In the psk directory:
+```
+$ make
+$ ./server-psk
+$ ./client-psk
+```
+
+# TCP/PSK Tutorial
 
 ## **Tutorial for adding wolfSSL Security to a Simple Client.**
 
 1. Include the wolfSSL compatibility header:
 ``#include <wolfssl/ssl.h>``
-* Change all calls from read() or recv() to wolfSSL_read(), in the simple client
+2. Change all calls from read() or recv() to wolfSSL_read(), in the simple client
 
     ``read(sockfd, recvline, MAXLINE)`` becomes ``wolfSSL_read(ssl, recvline, MAXLINE)``
 
@@ -418,16 +437,16 @@ When a socket is setup as non-blocking, reads and writes to the socket do not ca
      * enum used for tcp_select function
      */
     enum {
-        TEST_SELECT_FAIL,
-        TEST_TIMEOUT,
-        TEST_RECV_READY,
-        TEST_ERROR_READY
+        TEST_SELECT_FAIL,
+        TEST_TIMEOUT,
+        TEST_RECV_READY,
+        TEST_ERROR_READY
     };
 
     static inline int tcp_select(int socketfd, int to_sec)
     {
-        fd_set recvfds, errfds;
-        int nfds = socketfd + 1;
+        fd_set recvfds, errfds;
+        int nfds = socketfd + 1;
         struct timeval timeout = { (to_sec > 0) ? to_sec : 0, 0};
         int result;
     
@@ -439,14 +458,14 @@ When a socket is setup as non-blocking, reads and writes to the socket do not ca
         result = select(nfds, &recvfds, NULL, &errfds, &timeout);
     
         if (result == 0)
-            return TEST_TIMEOUT;
+            return TEST_TIMEOUT;
         else if (result > 0) {
-            if (FD_ISSET(socketfd, &recvfds))
-                return TEST_RECV_READY;
-            else if(FD_ISSET(socketfd, &errfds))
-                return TEST_ERROR_READY;
+            if (FD_ISSET(socketfd, &recvfds))
+                return TEST_RECV_READY;
+            else if(FD_ISSET(socketfd, &errfds))
+                return TEST_ERROR_READY;
         }
-        return TEST_SELECT_FAIL;
+        return TEST_SELECT_FAIL;
         }
     ```
 
@@ -465,7 +484,7 @@ When a socket is setup as non-blocking, reads and writes to the socket do not ca
 	int select_ret;
 
 	while (ret != SSL_SUCCESS && (error == SSL_ERROR_WANT_READ ||
-	                           error == SSL_ERROR_WANT_WRITE)) {
+	                           error == SSL_ERROR_WANT_WRITE)) {
 		int currTimeout = 1;
 
 		if (error == SSL_ERROR_WANT_READ)
@@ -521,15 +540,15 @@ Nonblocking on the server side allows for switching between multiple client conn
     ```
 	/* timed loop to continue checking for a client message */
 	do {
-     	if (n < 0) {
-         	err = wolfSSL_get_error(ssl, 0);
-         	if (err != SSL_ERROR_WANT_READ)
-             	err_sys("respond: read error");
-         	n = wolfSSL_read(ssl, buf, MAXLINE);
-         	time(&current_time);
-     	}
+     	if (n < 0) {
+         	err = wolfSSL_get_error(ssl, 0);
+         	if (err != SSL_ERROR_WANT_READ)
+             	err_sys("respond: read error");
+         	n = wolfSSL_read(ssl, buf, MAXLINE);
+         	time(&current_time);
+     	}
  	} while (err == SSL_ERROR_WANT_READ && n < 0 &&
-          	difftime(current_time, start_time) < seconds);
+          	difftime(current_time, start_time) < seconds);
     ```
 
 

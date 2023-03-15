@@ -23,6 +23,39 @@ leaks, especially in error conditions.
 For Visual Studio users with the VisualGDB extension, there are additional
 example files in [VisualGDB-tls](./VisualGDB-tls/).
 
+
+Quick Start
+===========
+
+This portion of the `README` will show you how to quickly build and run some of
+the examples in this directory. For more detail on the examples and further 
+variations and features please see the *Tutorial* section.
+
+Build wolfSSL:
+
+```sh
+./configure --enable-asynccrypt && make && sudo make install
+```
+
+In wolfssl-examples/tls:
+
+```sh
+make clean && make
+```
+
+To run simple TLS example, in separate terminals enter:
+```sh
+./server-tls
+./client-tls 127.0.0.1
+```
+
+To run non-blocking / threaded TLS example, in separate terminals enter:
+```sh
+./server-tls-threaded
+./client-tls-nonblocking 127.0.0.1
+```
+
+
 Tutorial
 ========
 

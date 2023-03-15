@@ -91,6 +91,7 @@ void* wolfssl_thread(void* fd)
     if ((ret = wolfSSL_accept(ssl)) != WOLFSSL_SUCCESS) {
         printf("wolfSSL_accept failed with %d\n", ret);
         wolfSSL_free(ssl);
+        ssl = NULL;
         close(connfd);
         pthread_exit(NULL);
     }
@@ -113,6 +114,7 @@ void* wolfssl_thread(void* fd)
     /* closes the connections after responding */
     wolfSSL_shutdown(ssl);
     wolfSSL_free(ssl);
+    ssl = NULL;
     if (close(connfd) == -1) {
         printf("Fatal error : close error\n");
         /* place signal for forced error exit here */

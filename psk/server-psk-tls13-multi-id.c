@@ -208,6 +208,7 @@ int main()
             /* closes the connections after responding */
             wolfSSL_shutdown(ssl);
             wolfSSL_free(ssl);
+            ssl = NULL;
 
             if (close(connfd) == -1) {
                 printf("Fatal error : close error\n");
