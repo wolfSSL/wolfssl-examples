@@ -34,9 +34,18 @@
 #ifndef WOLFCRYPT_MAGIC
     #define WOLFCRYPT_MAGIC "WOLFSSL"
 #endif
+/*
+MIN_BUFFER_SIZE of less than
+*/
 #ifndef MIN_BUFFER_SIZE
     #define MIN_BUFFER_SIZE 1024
 #endif
+
+/*
+For optimum performance, MAX_BUFFER_SIZE should be >= page_size and less than
+system memory in order to prevent memory fragmentation,better work with MMU
+memory alignments, leverage cache speedup, and minimize OS overhead.
+*/
 #ifndef MAX_BUFFER_SIZE
     /* Use upto 1 GByte of RAM */
     #define MAX_BUFFER_SIZE (1 << 30)
@@ -91,6 +100,10 @@ static size_t get_optimal_buffer_sz(int fd, size_t memory_size)
     block_size = get_block_sz(fd);
     optimal_size = block_size;
     file_size = get_file_sz(fd);
+
+    if (optimal_size > MAX_BUFFER_SIZE) {
+        optimal_size = MAX_BUFFER_SIZE;
+    }
 
     while (optimal_size * 2 <= memory_size &&
            optimal_size * 2 <= MAX_BUFFER_SIZE &&
@@ -298,8 +311,8 @@ exit:
     \param out_file file name to hold plain text
     \param key_str key must be 32 Bytes
 */
-int decrypt_file_AesGCM(const char* in_file, const char* out_file,
-                        const char* key_str)
+int decrypt_file_AesGCM(const char *in_file, const char *out_file,
+                        const char *key_str)
 {
     byte* in_buf;
     byte* out_buf;
@@ -433,8 +446,9 @@ exit:
 }
 
 #ifdef OPENSSL_EXTRA
-int encrypt_file(const char* in_file, const char* out_file,
-                 const char* key_str, const char *iv_str)
+what
+int encrypt_file(const char *in_file, const char *out_file,
+                 const char *key_str, const char *iv_str)
 {
     int in_fd;
     int in_len;
@@ -713,15 +727,15 @@ exit:
 
 int sanityTest_default(int file_sz) {
 
-    const char* cmd_enc ="./aesgcm-file-encrypt -e 256 -m 1 \
+    const char *cmd_enc ="./aesgcm-file-encrypt -e 256 -m 1 \
                    -k 77CF00EC060192530B5D06B6B426799B \
                    -v 77CF00EC060192530B5D06B6B426799B \
                    -i text.bin -o text2cipher.bin";
-    const char* cmd_dec ="./aesgcm-file-encrypt -d 256 -m 1 \
+    const char *cmd_dec ="./aesgcm-file-encrypt -d 256 -m 1 \
                    -k 77CF00EC060192530B5D06B6B426799B \
                    -i text2cipher.bin -o text2cipher2text.bin";
-    const char* cmd_diff = "diff -q text.bin text2cipher2text.bin";
-    char buffer[MIN_BUFFER_SIZE];
+    const char *cmd_diff = "diff -q text.bin text2cipher2text.bin";
+    char buffer[1024];
 
     sprintf(buffer,"dd if=/dev/urandom bs=1024 count=%d | head -c %d > \
 text.bin", (file_sz/1024)+1, file_sz);
@@ -747,15 +761,15 @@ text.bin", (file_sz/1024)+1, file_sz);
     pclose(pipe);
 
 #ifdef OPENSSL_EXTRA
-    const char* cmd_enc_evp ="./aesgcm-file-encrypt -e 256 -m 1 \
+    const char *cmd_enc_evp ="./aesgcm-file-encrypt -e 256 -m 1 \
                               -k 77CF00EC060192530B5D06B6B426799B \
                               -v 77CF00EC060192530B5D06B6B426799B \
                               -i text.bin -o text2cipher.evp.bin";
-    const char* cmd_dec_evp ="./aesgcm-file-encrypt -d 256 -m 1 \
+    const char *cmd_dec_evp ="./aesgcm-file-encrypt -d 256 -m 1 \
                             -k 77CF00EC060192530B5D06B6B426799B \
                             -i text2cipher.evp.bin -o text2cipher2text.evp.bin";
-    const char* cmd_diff_evp = "diff -q text.bin text2cipher2text.evp.bin";
-    const char* cmd_diff_gcm_evp = "diff -q text2cipher2text.bin \
+    const char *cmd_diff_evp = "diff -q text.bin text2cipher2text.evp.bin";
+    const char *cmd_diff_gcm_evp = "diff -q text2cipher2text.bin \
                                     text2cipher2text.evp.bin";
 
     if (system(cmd_enc_evp) != 0 || system(cmd_dec_evp) != 0 ) {
@@ -821,10 +835,10 @@ test will create three files:text.bin, cipher, decrypted plain. \n");
 
 int main(int argc, char** argv)
 {
-    const char* inFile = NULL;
-    const char* ivStr = NULL;
-    const char* keyStr = NULL;
-    const char* outFile = NULL;
+    const char *inFile = NULL;
+    const char *ivStr = NULL;
+    const char *keyStr = NULL;
+    const char *outFile = NULL;
     int    file_sz = 0;
     int    key_sz = 0;
     int    method = 0;
