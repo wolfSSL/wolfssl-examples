@@ -1,6 +1,6 @@
 /* client-tls-http.c
  *
- * Copyright (C) 2006-2022 wolfSSL Inc.
+ * Copyright (C) 2006-2023 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -23,11 +23,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include<sys/types.h>
+#include <sys/types.h>
 
 /* socket includes */
 #include <sys/socket.h>
-#include<netdb.h>
+#include <netdb.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <unistd.h>
@@ -43,7 +43,7 @@ static const char kHttpGetMsg[] = "GET /index.html HTTP/1.0\r\n\r\n";
 int main(int argc, char** argv)
 {
     int                sockfd;
-    struct addrinfo hints,*res;
+    struct addrinfo hints, *res;
     char               buff[256];
     size_t             len;
     int                ret;
@@ -59,7 +59,7 @@ int main(int argc, char** argv)
     }
 
     /* Initialize the addrinfo struct with zero */
-    memset(&hints,0,sizeof(hints));
+    memset(&hints, 0, sizeof(hints));
 
     /* Fill in the addrinfo struct */
     hints.ai_family = AF_INET;       /* using IPv4 */
@@ -67,7 +67,7 @@ int main(int argc, char** argv)
     char *service = "https";         /* using https */
 
     /* Get a Domain IP address */
-    if(getaddrinfo(argv[1],service,&hints,&res) != 0){
+    if(getaddrinfo(argv[1], service, &hints, &res) != 0){
         fprintf(stderr, "ERROR: failed to get the server ip\n");
         ret = -1;
         goto end;
@@ -130,7 +130,6 @@ int main(int argc, char** argv)
     /* Connect to wolfSSL on the server side */
     if ((ret = wolfSSL_connect(ssl)) != SSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to connect to wolfSSL\n");
-        printf("%d\n",ret);
         goto cleanup;
     }
 
@@ -147,7 +146,7 @@ int main(int argc, char** argv)
 
     /* Read the server data into our buff array */
     memset(buff, 0, sizeof(buff));
-    if ((ret = wolfSSL_read(ssl, buff, sizeof(buff)-1)) == -1) {
+    if ((ret = wolfSSL_read(ssl, buff, sizeof(buff) - 1)) == -1) {
         fprintf(stderr, "ERROR: failed to read\n");
         goto cleanup;
     }
