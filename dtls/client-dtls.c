@@ -56,7 +56,7 @@ int main (int argc, char** argv)
 
     /* Program argument checking */
     if (argc != 2) {
-        printf("usage: udpcli <IP address>\n");
+        printf("usage: %s <IP address>\n", argv[0]);
         return 1;
     }
 

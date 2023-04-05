@@ -14,8 +14,8 @@ OPTIMIZE        = -Os
 # Options
 #CFLAGS+=$(DEBUG_FLAGS)
 CFLAGS+=$(OPTIMIZE)
-LIBS+=$(STATIC_LIB)
-#LIBS+=$(DYN_LIB)
+#LIBS+=$(STATIC_LIB)
+LIBS+=$(DYN_LIB)
 
 # build targets
 SRC=$(wildcard *.c)

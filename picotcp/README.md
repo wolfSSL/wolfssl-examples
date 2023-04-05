@@ -8,12 +8,12 @@ This TLS server runs in userspace, using picoTCP as compiled-in TCP/IP stack.
 ### Requirements
 
 - PicoTCP v.1.7 or later
-- wolfSSL
+- wolfSSL (default configuration)
 - Access to `/dev/net/tun` on the host system (typically root privileges)
 
 ### How to compile picotcp-server
 
-- clone or download picoTCP
+- clone or download [picoTCP](https://github.com/tass-belgium/picotcp.git)
 - compile picoTCP with `make ARCH=shared TAP=1 WOLFSSL=1`
 - modify `PICOTCP_PATH` at the top of Makefile, pointing to the picoTCP root directory
 - run `make`

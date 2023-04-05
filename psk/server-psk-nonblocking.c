@@ -356,6 +356,7 @@ int main()
             }
             wolfSSL_shutdown(ssl);
             wolfSSL_free(ssl);
+            ssl = NULL;
         }
     }
 

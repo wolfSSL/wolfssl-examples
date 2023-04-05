@@ -308,6 +308,7 @@ int main()
 
         /* Cleanup after this connection */
         wolfSSL_free(ssl);      /* Free the wolfSSL object              */
+        ssl = NULL;
         close(connd);           /* Close the connection to the client   */
     }
 
@@ -326,6 +327,6 @@ exit:
     if (ctx)
         wolfSSL_CTX_free(ctx);  /* Free the wolfSSL context object          */
     wolfSSL_Cleanup();          /* Cleanup the wolfSSL environment          */
-    
+
     return ret;               /* Return reporting a success               */
 }

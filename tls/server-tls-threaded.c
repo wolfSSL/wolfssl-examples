@@ -113,6 +113,7 @@ void* ClientHandler(void* args)
         printf("wolfSSL_read encountered an error with code %d and msg %s\n",
                ret, wolfSSL_ERR_error_string(ret, buff));
         wolfSSL_free(ssl);      /* Free the wolfSSL object              */
+        ssl = NULL;
         close(pkg->connd);      /* Close the connection to the server   */
         pkg->open = 1;          /* Indicate that execution is over      */
         pthread_exit(NULL);     /* End thread execution                */
@@ -145,6 +146,7 @@ void* ClientHandler(void* args)
 
     /* Cleanup after this connection */
     wolfSSL_free(ssl);      /* Free the wolfSSL object              */
+    ssl = NULL;
     close(pkg->connd);      /* Close the connection to the server   */
     pkg->open = 1;          /* Indicate that execution is over      */
 #if defined(HAVE_ECC) && defined(FP_ECC)
