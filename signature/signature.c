@@ -19,7 +19,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
-#include <wolfssl/options.h>
+#ifndef WOLFSSL_USER_SETTINGS
+    #include <wolfssl/options.h>
+#endif
 
 #include <wolfssl/ssl.h>
 #include <wolfssl/wolfcrypt/ecc.h>
@@ -395,7 +397,7 @@ int main(int argc, char** argv)
     int ret = 0;
     int fileLen;
     byte* fileBuf = NULL;
-    int verifyFileLen;
+    int verifyFileLen = 0;
     byte* verifyFileBuf = NULL;
     const char* verify_file = NULL;
     enum wc_SignatureType sig_type = WC_SIGNATURE_TYPE_NONE;
