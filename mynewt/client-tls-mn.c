@@ -49,6 +49,7 @@
 
 #ifdef ARCH_sim
 #include <mcu/mcu_sim.h>
+extern time_t time(time_t*);
 #endif
 
 /* wolfSSL */
@@ -96,6 +97,8 @@ time_cli(int argc, char **argv)
     tz.tz_minuteswest = 0;
     tz.tz_dsttime = 0;
     os_settimeofday(&utctime, &tz);
+
+    return 0;
 }
 
 /* net command */
@@ -419,8 +422,6 @@ wolfssl_cli(int argc, char **argv)
 {
     int rc;
     int err = 0;
-    char errBuffer[80];
-    struct os_mbuf *m;
 
     if (argc < 2) {
         return 0;
@@ -470,7 +471,7 @@ wolfssl_cli(int argc, char **argv)
             }
             console_printf("%.*s\n", rc, buff);
         }
-        console_printf("\n", buff);
+        console_printf("\n");
 
     } else {
         console_printf("ERROR: unknown command: %s\n", subCommand);

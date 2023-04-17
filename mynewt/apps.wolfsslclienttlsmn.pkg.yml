@@ -28,7 +28,7 @@ pkg.deps:
     - "@apache-mynewt-core/kernel/os"
     - "@apache-mynewt-core/sys/console/full"
     - "@apache-mynewt-core/net/ip/mn_socket"
-    - "@apache-mynewt-core/boot/bootutil"
+    - "@mcuboot/boot/bootutil"
     - "@apache-mynewt-core/sys/shell"
     - "@apache-mynewt-core/sys/config"
     - "@apache-mynewt-core/sys/console/full"
