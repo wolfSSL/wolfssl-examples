@@ -22,13 +22,18 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <termios.h>
-#include <wolfssl/options.h>
+
+#ifndef WOLFSSL_USER_SETTINGS
+    #include <wolfssl/options.h>
+#endif
+#include <wolfssl/wolfcrypt/settings.h>
 #include <wolfssl/wolfcrypt/aes.h>
 #include <wolfssl/wolfcrypt/sha256.h>
 #include <wolfssl/wolfcrypt/random.h>
 #include <wolfssl/wolfcrypt/pwdbased.h>
 
 #if defined(HAVE_PBKDF2) && !defined(NO_PWDBASED)
+
 #define SALT_SIZE 8
 
 /*

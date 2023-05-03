@@ -21,12 +21,20 @@
 
 /* aesgcm-file-encrypt */
 
-#include <wolfssl/options.h>
+#ifndef WOLFSSL_USER_SETTINGS
+    #include <wolfssl/options.h>
+#endif
+#include <wolfssl/wolfcrypt/settings.h>
 #include <wolfssl/wolfcrypt/aes.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
 #include <wolfssl/wolfcrypt/types.h>
 
+#include <stdio.h>
 #include <fcntl.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
+#ifdef WOLFSSL_AESGCM_STREAM
 
 #ifdef OPENSSL_EXTRA
     #include <wolfssl/ssl.h>
@@ -952,3 +960,12 @@ int main(int argc, char** argv)
     }
     return 0;
 }
+
+#else
+int main()
+{
+    printf("This example requires AES GCM streaming. Build wolfSSL with "
+        "./configure --enable-aesgcm-stream\n");
+    return 0;
+}
+#endif
