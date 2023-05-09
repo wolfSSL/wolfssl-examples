@@ -198,7 +198,7 @@ int main(int argc, char** argv)
     /* Initialize wolfSSL */
     wolfSSL_Init();
 
-#ifdef DEBUG
+#ifdef DEBUG_WOLFSSL
     wolfSSL_Debugging_ON();
 #endif
 

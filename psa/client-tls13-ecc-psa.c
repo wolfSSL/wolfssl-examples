@@ -131,7 +131,7 @@ int main(int argc, char** argv)
         return 0;
     }
 
-#ifdef DEBUG
+#ifdef DEBUG_WOLFSSL
     wolfSSL_Debugging_ON();
 #endif
 
