@@ -178,10 +178,17 @@ int main(int argc, char** argv)
         ret = Create(smime, &smimeSz, key, keySz, cert, certSz,
                 content, contentSz, 0);
     if (ret == 0) {
+        FILE* f;
         printf("Generated SMIME : ");
         for (i = 0; i < smimeSz; i++)
             printf("%02X", smime[i]);
         printf("\n");
+        printf("output to file ./smime-created.p7s\n");
+        f = fopen("./smime-created.p7s", "wb");
+        if (f != NULL) {
+            fwrite(smime, 1, smimeSz, f);
+            fclose(f);
+        }
     }
 
     return ret;

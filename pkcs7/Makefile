@@ -49,4 +49,5 @@ clean:
         envelopedDataPWRI.der envelopedDataORI.der envelopedDataKEKRI.der \
         authEnvelopedDataKARI.der authEnvelopedDataKTRI.der \
         authEnvelopedDataORI.der authEnvelopedDataPWRI.der encryptedData.der \
-        authEnvelopedDataKEKRI.der compressedData.der
+        authEnvelopedDataKEKRI.der compressedData.der \
+        smime-created.p7s
