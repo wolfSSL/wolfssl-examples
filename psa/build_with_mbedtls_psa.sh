@@ -9,6 +9,7 @@ MBEDTLS_COMMIT_ID=acc74b841307659eea0461275c7c0309874c87d7
 MBEDTLS_DIR=${MBEDTLS_DIR:="/tmp/mbedtls"}
 MBEDTLS_INCLUDE_DIR=${MBEDTLS_DIR}/build/include/
 MBEDTLS_LIB_DIR=${MBEDTLS_DIR}/build/library/
+WOLFSSL_INSTALL=${WOLFSSL_INSTALL:="/usr/local"}
 
 # uncomment to enable debug build
 #MBEDTLS_DEBUG="-DCMAKE_BUILD_TYPE=Debug"
@@ -48,7 +49,7 @@ build_wolfssl() {
     CFLAGS="-Wno-error=redundant-decls -Werror -Wswitch-enum -Wno-error=switch-enum -DWOLFSSL_PSA_GLOBAL_LOCK ${WOLFSSL_DEBUG}" \
           ./configure \
           --enable-psa --with-psa-include="${MBEDTLS_INCLUDE_DIR}" --enable-pkcallbacks\
-          --disable-examples --disable-benchmark --disable-crypttests
+          --disable-examples --disable-benchmark --disable-crypttests --prefix="${WOLFSSL_INSTALL}"
     make
 }
 
