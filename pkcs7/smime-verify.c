@@ -135,9 +135,16 @@ static int ReadSmimeAndCert(char* smimeFile, char* certFile, byte* smime,
     else {
         ret = XFREAD(smime, 1, *smimeSz, f);
         if (ret >= 0) {
-            *smimeSz = ret;
-            ret = 0;
-            XFCLOSE(f);
+            if (ret == *smimeSz) {
+                printf("smime read in was larger than buffer\n");
+                XFCLOSE(f);
+                return -1;
+            }
+            else {
+                *smimeSz = ret;
+                ret = 0;
+                XFCLOSE(f);
+            }
         }
     }
 
@@ -149,9 +156,16 @@ static int ReadSmimeAndCert(char* smimeFile, char* certFile, byte* smime,
     else {
         ret = XFREAD(cert, 1, *certSz, f);
         if (ret >= 0) {
-            *certSz = ret;
-            ret = 0;
-            XFCLOSE(f);
+            if (ret == *certSz) {
+                printf("Cert read in was larger than buffer\n");
+                XFCLOSE(f);
+                return -1;
+            }
+            else {
+                *certSz = ret;
+                ret = 0;
+                XFCLOSE(f);
+            }
         }
     }
 
@@ -173,6 +187,11 @@ int main(int argc, char** argv)
         return -1;
     }
 
+    if (wolfSSL_Init() != WOLFSSL_SUCCESS) {
+        printf("Failure to initialize wolfSSL library\n");
+        return -1;
+    }
+
     ret = ReadSmimeAndCert(argv[1], argv[2], smime, &smimeSz, cert, &certSz);
     if (ret == 0) {
         ret = Verify(smime, smimeSz, cert, certSz, 0);
@@ -184,6 +203,7 @@ int main(int argc, char** argv)
         }
     }
 
+    wolfSSL_Cleanup();
     return ret;
 }
 #else

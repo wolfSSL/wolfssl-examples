@@ -98,8 +98,14 @@ static int Create(byte* smime, int* smimeSz, byte* key, int keySz,
     if (ret == 0) {
         ret = wolfSSL_BIO_read(out, smime, *smimeSz);
         if (ret > 0) {
-            *smimeSz = ret;
-            ret = 0;
+            if (ret == *smimeSz) {
+                printf("output smime buffer too small\n");
+                ret = -1;
+            }
+            else {
+                *smimeSz = ret;
+                ret = 0;
+            }
         }
         else {
             ret = -1;
@@ -128,9 +134,16 @@ static int ReadKeyAndCert(char* keyFile, char* certFile, byte* key, int* keySz,
     else {
         ret = XFREAD(key, 1, *keySz, f);
         if (ret >= 0) {
-            *keySz = ret;
-            ret = 0;
-            XFCLOSE(f);
+            if (ret == *keySz) {
+                printf("Key read in is larger than buffer\n");
+                XFCLOSE(f);
+                return -1;
+            }
+            else {
+                *keySz = ret;
+                ret = 0;
+                XFCLOSE(f);
+            }
         }
     }
 
@@ -142,9 +155,16 @@ static int ReadKeyAndCert(char* keyFile, char* certFile, byte* key, int* keySz,
     else {
         ret = XFREAD(cert, 1, *certSz, f);
         if (ret >= 0) {
-            *certSz = ret;
-            ret = 0;
-            XFCLOSE(f);
+            if (ret == *certSz) {
+                printf("Cert read in is larger than buffer\n");
+                XFCLOSE(f);
+                return -1;
+            }
+            else {
+                *certSz = ret;
+                ret = 0;
+                XFCLOSE(f);
+            }
         }
     }
 
@@ -173,6 +193,11 @@ int main(int argc, char** argv)
         return -1;
     }
 
+    if (wolfSSL_Init() != WOLFSSL_SUCCESS) {
+        printf("Failure to initialize wolfSSL library\n");
+        return -1;
+    }
+
     ret = ReadKeyAndCert(argv[1], argv[2], key, &keySz, cert, &certSz);
     if (ret == 0)
         ret = Create(smime, &smimeSz, key, keySz, cert, certSz,
@@ -191,6 +216,28 @@ int main(int argc, char** argv)
         }
     }
 
+    /* create detached pkcs7 smime bundle */
+    printf("\n");
+    smimeSz = 3072;
+    memset(smime, 0, smimeSz);
+    if (ret == 0)
+        ret = Create(smime, &smimeSz, key, keySz, cert, certSz,
+                content, contentSz, PKCS7_DETACHED);
+    if (ret == 0) {
+        FILE* f;
+        printf("Generated SMIME : ");
+        for (i = 0; i < smimeSz; i++)
+            printf("%02X", smime[i]);
+        printf("\n");
+        printf("output to file ./detached-smime-created.p7s\n");
+        f = fopen("./detached-smime-created.p7s", "wb");
+        if (f != NULL) {
+            fwrite(smime, 1, smimeSz, f);
+            fclose(f);
+        }
+    }
+
+    wolfSSL_Cleanup();
     return ret;
 }
 #else
