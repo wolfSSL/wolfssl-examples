@@ -454,7 +454,6 @@ exit:
 }
 
 #ifdef OPENSSL_EXTRA
-what
 int encrypt_file(const char *in_file, const char *out_file,
                  const char *key_str, const char *iv_str)
 {
