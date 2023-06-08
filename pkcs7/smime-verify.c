@@ -97,6 +97,18 @@ static int Verify(byte* smime, int smimeSz, byte* ca, int caSz, int detached)
         if (ret == WOLFSSL_SUCCESS) {
             ret = 0;
         }
+        else {
+            /* print out certificate that could not be verified */
+            int i;
+            byte* pt = pkcs7Compat->pkcs7.verifyCert;
+
+            printf("Could not verify certificate :");
+            for (i = 0; i < pkcs7Compat->pkcs7.verifyCertSz; i++) {
+                printf("%02X", pt[i]);
+            }
+            printf("\n");
+            ret = -1;
+        }
     }
 
 
