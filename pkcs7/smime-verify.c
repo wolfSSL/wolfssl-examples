@@ -29,7 +29,7 @@
 
 #ifdef HAVE_SMIME
 
-static int Verify(byte* smime, int smimeSz, byte* ca, int caSz, int detached)
+static int Verify(byte* smime, int smimeSz, byte* ca, int caSz, byte* contentIn, int contentInSz, int detached)
 {
     WOLFSSL_PKCS7* pkcs7Compat = NULL;
     WOLFSSL_BIO *in, *content = NULL;
@@ -90,6 +90,12 @@ static int Verify(byte* smime, int smimeSz, byte* ca, int caSz, int detached)
         }
     }
 
+    if (ret == 0 && contentIn != NULL) {
+        pkcs7Compat->pkcs7.content  = contentIn;
+        pkcs7Compat->pkcs7.contentSz = contentInSz;
+        wc_PKCS7_SetDetached(&pkcs7Compat->pkcs7, 1);
+    }
+
     if (ret == 0) {
         content = wolfSSL_BIO_new(wolfSSL_BIO_s_mem());
         ret = wolfSSL_PKCS7_verify((PKCS7*)pkcs7Compat, NULL, store, NULL,
@@ -133,8 +139,9 @@ static int Verify(byte* smime, int smimeSz, byte* ca, int caSz, int detached)
 
 
 /* read private smime and signer certificate in DER format */
-static int ReadSmimeAndCert(char* smimeFile, char* certFile, byte* smime,
-    int* smimeSz, byte* cert, int* certSz)
+static int ReadSmimeAndCert(char* smimeFile, char* certFile, char* contentFile,
+    byte* smime,
+    int* smimeSz, byte* cert, int* certSz, byte* content, int* contentSz)
 {
     int ret;
     XFILE f;
@@ -181,21 +188,45 @@ static int ReadSmimeAndCert(char* smimeFile, char* certFile, byte* smime,
         }
     }
 
+    f = XFOPEN(contentFile, "rb");
+    if (f == NULL) {
+        printf("Error opening file %s\n", contentFile);
+        return -1;
+    }
+    else {
+        ret = XFREAD(content, 1, *contentSz, f);
+        if (ret >= 0) {
+            if (ret == *contentSz) {
+                printf("Cert read in was larger than buffer\n");
+                XFCLOSE(f);
+                return -1;
+            }
+            else {
+                *contentSz = ret;
+                ret = 0;
+                XFCLOSE(f);
+            }
+        }
+    }
+
     return ret;
 }
 
 int main(int argc, char** argv)
 {
-    byte cert[2048];
-    int certSz = 2048;
+    byte cert[4096];
+    int certSz = 4096;
 
-    byte smime[3072];
-    int smimeSz = 3072;
+    byte smime[10000];
+    int smimeSz = 10000;
+
+    byte content[10000];
+    int contentSz = 10000;
 
     int ret;
 
-    if (argc != 3) {
-        printf("Use ./smime-verify <smime file> <der cert file>\n");
+    if (argc != 4) {
+        printf("Use ./smime-verify <smime file> <der cert file> <content file>\n");
         return -1;
     }
 
@@ -204,9 +235,10 @@ int main(int argc, char** argv)
         return -1;
     }
 
-    ret = ReadSmimeAndCert(argv[1], argv[2], smime, &smimeSz, cert, &certSz);
+    ret = ReadSmimeAndCert(argv[1], argv[2], argv[3], smime, &smimeSz, cert,
+        &certSz, content, &contentSz);
     if (ret == 0) {
-        ret = Verify(smime, smimeSz, cert, certSz, 0);
+        ret = Verify(smime, smimeSz, cert, certSz, content, contentSz, 0);
         if (ret == 0) {
             printf("Verify Success\n");
         }
