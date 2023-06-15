@@ -111,13 +111,11 @@ static int OcspLookupNonBlockCb(void* ctx, const char* url, int urlSz,
                     printf("OCSP ocsp request failed\n");
                 }
                 else {
-                    do {
-                        ret = wolfIO_HttpProcessResponseOcsp(sfd, ocspRespBuf, 
-                                        httpBuf, HTTP_SCRATCH_BUFFER_SIZE, NULL);
-                        nonBlockCnt++;
-                        if (ret == OCSP_WANT_READ)
-                            return WOLFSSL_CBIO_ERR_WANT_READ;
-                    } while (ret == OCSP_WANT_READ);
+                    ret = wolfIO_HttpProcessResponseOcsp(sfd, ocspRespBuf, 
+                                    httpBuf, HTTP_SCRATCH_BUFFER_SIZE, NULL);
+                    nonBlockCnt++;
+                    if (ret == OCSP_WANT_READ)
+                        return WOLFSSL_CBIO_ERR_WANT_READ;
                     printf("OCSP Response: ret %d, nonblock count %d\n", 
                         ret, nonBlockCnt);
                 }
@@ -149,9 +147,9 @@ int main(int argc, char** argv)
 {
     int ret;
     WOLFSSL_CERT_MANAGER* pCm;
-    char pem[2048];
+    char pem[14000];
     int pemSz = 0;
-    byte der[2000];
+    byte der[4000];
     int derSz = 0;
     FILE* file;
     const char* certFile = kGoogleCom;
@@ -191,6 +189,7 @@ int main(int argc, char** argv)
             file = fopen(certFile, "rb");
             if (file != NULL) {
                 pemSz = fread(pem, 1, sizeof(pem), file);
+                printf("pemSz = %d\n", pemSz);
                 fclose(file);
             }
 
