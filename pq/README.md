@@ -14,6 +14,9 @@ This directory contains:
   connection with the server above.
 - An STM32CubeIDE project for doing quantum-safe TLS 1.3 connection over UART
   and some applications that run on the Linux side to connect with it.
+- A simple example of using wolfCrypt LMS hooks to generate and sign a message
+  with configurable LMS-HSS parameters. Requires wolfssl with --enable-lms=yes
+  and --with-liblms=yes.
 
 # Prerequisites
 
@@ -27,6 +30,10 @@ how to configure and build:
 - liboqs
 - wolfssl
 - patched OQS's OpenSSL fork
+
+The LMS sign verify example requires that hash-sigs has been built, and
+wolfSSL has been built with LMS/HSS support enabled.  Please see Item 17
+in the wolfSSL repo's INSTALL file.
 
 ## Building the Applications
 
@@ -91,3 +98,21 @@ The client will be prompted for a message to send to the server. Once you see
 this prompt, a quantum-safe connection has already been established. Use the
 client to send the message "shutdown" in order to end the execution of the
 server.
+
+
+## Signing and Verifying a Message with LMS/HSS
+
+Run the `lms_sign_verify` example without options to see its help and usage:
+```sh
+$./lms_sign_verify
+usage:
+  ./lms_sign_verify <levels> <height> <winternitz> [num signatures]
+
+examples:
+  ./lms_sign_verify 1 5 1
+  ./lms_sign_verify 3 5 4 100
+  ./lms_sign_verify 2 10 2 0
+
+description:
+...
+```
