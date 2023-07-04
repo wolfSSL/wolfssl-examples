@@ -6,7 +6,7 @@ How to use camellia-encrypt.c
 2)  Make a file to encode. Can be any file (ex. .txt .in .out .file etc.)
 3)  run the executable, for help run with -h flag. Basic command is as follows:
 
-        ./camellia-encrypt <-option> <input.file> <KeySize> <output.file>
+        ./camellia-encrypt <option> <KeySize> -i <input.file> -o <output.file>
 
         KeySize examples: 128, 192, 256
 

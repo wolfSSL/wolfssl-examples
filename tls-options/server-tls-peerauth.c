@@ -1,6 +1,6 @@
-/* server-tls-verifycallback.c
+/* server-tls.c
  *
- * Copyright (C) 2006-2020 wolfSSL Inc.
+ * Copyright (C) 2006-2023 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -19,11 +19,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
-/* This example requires the client to send "client-cert.pem" */
-/* Test using wolfSSL example client: 
-./examples/client/client */
-
-
 /* the usual suspects */
 #include <stdlib.h>
 #include <stdio.h>
@@ -41,109 +36,107 @@
 
 #define DEFAULT_PORT 11111
 
-#define CERT_FILE "../certs/server-cert.pem"
-#define KEY_FILE  "../certs/server-key.pem"
-#define CLIENT_CERT_FILE "../certs/client-cert.pem"
+#define CA_CERT_FILE "../certs/ca-cert.pem"
+#define CERT_FILE    "../certs/server-cert.pem"
+#define KEY_FILE     "../certs/server-key.pem"
 
+#define CERT_BUFFER_SZ 2048
 
-/* The verify callback is called for every certificate only when
- * --enable-opensslextra is defined because it sets WOLFSSL_ALWAYS_VERIFY_CB and
- * WOLFSSL_VERIFY_CB_ALL_CERTS.
- * Normal cases of the verify callback only occur on certificate failures when the
- * wolfSSL_set_verify(ssl, SSL_VERIFY_PEER, myVerifyCb); is called
-*/
-static int myVerifyCb(int preverify, WOLFSSL_X509_STORE_CTX* store)
+enum {
+    VERIFY_OVERRIDE_ERROR,
+    VERIFY_FORCE_FAIL,
+    VERIFY_USE_PREVERIFY,
+    VERIFY_DEFAULT,
+    VERIFY_OVERRIDE_DATE_ERR
+};
+
+static THREAD_LS_T int myVerifyAction = VERIFY_DEFAULT;
+
+static WC_INLINE int myVerify(int preverify, WOLFSSL_X509_STORE_CTX* store)
 {
     char buffer[WOLFSSL_MAX_ERROR_SZ];
-#if defined(OPENSSL_EXTRA) || defined(OPENSSL_EXTRA_X509_SMALL)
     WOLFSSL_X509* peer;
-#if defined(SHOW_CERTS) && !defined(NO_FILESYSTEM)
-    WOLFSSL_BIO* bio = NULL;
-    WOLFSSL_STACK* sk = NULL;
-    X509* x509 = NULL;
-    int i = 0;
-#endif
-#endif
-    (void)preverify;
+    char issuerBuffer[CERT_BUFFER_SZ];
+    char subjectBuffer[CERT_BUFFER_SZ];
 
-    /* Verify Callback Arguments:
-     * preverify:           1=Verify Okay, 0=Failure
-     * store->error:        Failure error code (0 indicates no failure)
-     * store->current_cert: Current WOLFSSL_X509 object (only with OPENSSL_EXTRA)
-     * store->error_depth:  Current Index
-     * store->domain:       Subject CN as string (null term)
-     * store->totalCerts:   Number of certs presented by peer
-     * store->certs[i]:     A `WOLFSSL_BUFFER_INFO` with plain DER for each cert
-     * store->store:        WOLFSSL_X509_STORE with CA cert chain
-     * store->store->cm:    WOLFSSL_CERT_MANAGER
-     * store->ex_data:      The WOLFSSL object pointer
-     * store->discardSessionCerts: When set to non-zero value session certs
-        will be discarded (only with SESSION_CERTS)
-     */
-
-    printf("In verification callback, error = %d, %s\n", store->error,
+    fprintf(stderr, "In verification callback, error = %d, %s\n", store->error,
                                  wolfSSL_ERR_error_string(store->error, buffer));
-#if defined(OPENSSL_EXTRA) || defined(OPENSSL_EXTRA_X509_SMALL)
     peer = store->current_cert;
     if (peer) {
-        char* issuer  = wolfSSL_X509_NAME_oneline(
-                                       wolfSSL_X509_get_issuer_name(peer), 0, 0);
-        char* subject = wolfSSL_X509_NAME_oneline(
-                                      wolfSSL_X509_get_subject_name(peer), 0, 0);
-        printf("\tPeer's cert info:\n issuer : %s\n subject: %s\n", issuer,
-                                                                  subject);
-        XFREE(subject, 0, DYNAMIC_TYPE_OPENSSL);
-        XFREE(issuer,  0, DYNAMIC_TYPE_OPENSSL);
-#if defined(SHOW_CERTS) && !defined(NO_FILESYSTEM)
-/* avoid printing duplicate certs */
-        if (store->depth == 1) {
-            /* retrieve x509 certs and display them on stdout */
-            sk = wolfSSL_X509_STORE_GetCerts(store);
-
-            for (i = 0; i < wolfSSL_sk_X509_num(sk); i++) {
-                x509 = wolfSSL_sk_X509_value(sk, i);
-                bio = wolfSSL_BIO_new(wolfSSL_BIO_s_file());
-                if (bio != NULL) {
-                    wolfSSL_BIO_set_fp(bio, stdout, BIO_NOCLOSE);
-                    wolfSSL_X509_print(bio, x509);
-                    wolfSSL_BIO_free(bio);
-                }
-            }
-            wolfSSL_sk_X509_free(sk);
-        }
-#endif
+        wolfSSL_X509_NAME_oneline(
+            wolfSSL_X509_get_issuer_name(peer), issuerBuffer, CERT_BUFFER_SZ);
+        wolfSSL_X509_NAME_oneline(
+            wolfSSL_X509_get_subject_name(peer), subjectBuffer, CERT_BUFFER_SZ);
+        printf("\tPeer's cert info:\n issuer : %s\n subject: %s\n",
+                                                issuerBuffer, subjectBuffer);
     }
     else
-        printf("\tPeer has no cert!\n");
-#else
-    printf("\tPeer certs: %d\n", store->totalCerts);
-    #ifdef SHOW_CERTS
-    {   int i;
-        for (i=0; i<store->totalCerts; i++) {
-            WOLFSSL_BUFFER_INFO* cert = &store->certs[i];
-            printf("\t\tCert %d: Ptr %p, Len %u\n", i, cert->buffer, cert->length);
-        }
+        fprintf(stderr, "\tPeer has no cert!\n");
+
+    printf("\tSubject's domain name at %d is %s\n",
+                                            store->error_depth, store->domain);
+
+    switch (myVerifyAction) {
+        case VERIFY_OVERRIDE_ERROR:
+            return 1;
+
+        case VERIFY_FORCE_FAIL:
+            return 0;
+
+        case VERIFY_DEFAULT:
+        case VERIFY_USE_PREVERIFY:
+            return preverify;
+        
+        case VERIFY_OVERRIDE_DATE_ERR:
+            if (store->error == ASN_BEFORE_DATE_E
+                || store->error == ASN_AFTER_DATE_E)
+                return 1;
+            return 0;
     }
-    #endif /* SHOW_CERTS */
-#endif /* OPENSSL_EXTRA || OPENSSL_EXTRA_X509_SMALL */
-
-    printf("\tSubject's domain name at %d is %s\n", store->error_depth, store->domain);
-
-    /* If error indicate we are overriding it for testing purposes */
-    if (store->error != 0) {
-        printf("\tAllowing failed certificate check, testing only "
-            "(shouldn't do this in production)\n");
-    }
-
-    /* A non-zero return code indicates failure override */
-    return preverify;
+    fprintf(stderr, "Invalid verify action.\n");
+    exit(1);
 }
 
+int switchPeerAuthMode(char *mode)
+{
+    if (XSTRCMP("NONE", mode) == 0) {
+        return SSL_VERIFY_NONE;
+    }
+    else if (XSTRCMP("PEER", mode) == 0) {
+        return SSL_VERIFY_PEER;
+    }
+    else if (XSTRCMP("FAIL_IN_NO_PEER_CERT", mode) == 0) {
+        return SSL_VERIFY_FAIL_IF_NO_PEER_CERT;
+    }
+    else if (XSTRCMP("FAIL_EXCEPT_PSK", mode) == 0) {
+        return SSL_VERIFY_FAIL_EXCEPT_PSK;
+    }
+    fprintf(stderr, "Invalid peer auth mode.\n");
+    exit(1);
+}
 
-int main()
+int switchMyVerifyAction(char *mode)
+{
+    if (XSTRCMP("OVERRIDE_ERROR", mode) == 0) {
+        return VERIFY_OVERRIDE_ERROR;
+    }
+    else if (XSTRCMP("FORCE_FAIL", mode) == 0) {
+        return VERIFY_FORCE_FAIL;
+    }
+    else if (XSTRCMP("USE_PREVERIFY", mode) == 0) {
+        return VERIFY_USE_PREVERIFY;
+    }
+    else if (XSTRCMP("OVERRIDE_DATE_ERR", mode) == 0) {
+        return VERIFY_OVERRIDE_DATE_ERR;
+    }
+    fprintf(stderr, "Invalid verify action.\n");
+    exit(1);
+}
+
+int main(int argc, char **argv)
 {
     int                sockfd = SOCKET_INVALID;
-    int                connd  = SOCKET_INVALID;
+    int                connd = SOCKET_INVALID;
     struct sockaddr_in servAddr;
     struct sockaddr_in clientAddr;
     socklen_t          size = sizeof(clientAddr);
@@ -151,29 +144,68 @@ int main()
     size_t             len;
     int                shutdown = 0;
     int                ret;
+    int                diff = 0;
+    int                peerAuthMode = WOLFSSL_VERIFY_DEFAULT;
     const char*        reply = "I hear ya fa shizzle!\n";
 
     /* declare wolfSSL objects */
     WOLFSSL_CTX* ctx = NULL;
     WOLFSSL*     ssl = NULL;
 
-
-
     /* Initialize wolfSSL */
     wolfSSL_Init();
 
+    /* Check options */
+    if (argc >= 3) {
+        if (XSTRCMP("-a", argv[1]) == 0) {
+            peerAuthMode = switchPeerAuthMode(argv[2]);
+            diff += 2;
+        }
+        if (XSTRCMP("-m", argv[1]) == 0) {
+            myVerifyAction = switchMyVerifyAction(argv[2]);
+            diff += 2;
+        }
+    }
+    if (argc >= 5) {
+        if (XSTRCMP("-a", argv[3]) == 0) {
+            peerAuthMode = switchPeerAuthMode(argv[4]);
+            diff += 2;
+        }
+        if (XSTRCMP("-m", argv[3]) == 0) {
+            myVerifyAction = switchMyVerifyAction(argv[4]);
+            diff += 2;
+        }
+    }
 
+    /* Set specify cert/key files */
+    if (argc-diff != 1) {
+        printf("usage:\n"
+                    "\t./server-tls-peerauth -a <Peer auth mode>\n"
+                    "\t./server-tls-peerauth -m <Verify mode>\n"
+                    "\t./server-tls-peerauth \\\n"
+                        "\t\t-a <Peer auth mode> -m <Verify mode> \n"
+                "\n"
+                "Peer auth mode:\n"
+                    "\tNONE, PEER,\n"
+                    "\tFAIL_IF_NO_PEER_CERT,\n"
+                    "\tFAIL_EXCEPT_PSK\n"
+                "\n"
+                "Verify mode:\n"
+                    "\tOVERRIDE_ERROR,\n"
+                    "\tFORCE_FAIL,\n"
+                    "\tUSE_PREVERIFY,\n"
+                    "\tOVERRIDE_DATE_ERR\n");
+        return 0;
+    }
 
     /* Create a socket that uses an internet IPv4 address,
      * Sets the socket to be stream based (TCP),
      * 0 means choose the default protocol. */
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
         fprintf(stderr, "ERROR: failed to create the socket\n");
-        ret = -1; 
+        ret = -1;
         goto exit;
     }
-
-
 
     /* Create and initialize WOLFSSL_CTX */
     if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_server_method())) == NULL) {
@@ -182,37 +214,37 @@ int main()
         goto exit;
     }
 
+    /* Set peer auth mode */
+    if (peerAuthMode != WOLFSSL_VERIFY_DEFAULT) {
+        wolfSSL_CTX_set_verify(ctx, peerAuthMode, myVerify);
+    }
+
+    /* If peer auth is enabled, Load CA certificates into WOLFSSL_CTX */
+    if (peerAuthMode != WOLFSSL_VERIFY_DEFAULT
+        && peerAuthMode != WOLFSSL_VERIFY_NONE) {
+        if ((ret = wolfSSL_CTX_load_verify_locations(ctx, CA_CERT_FILE, NULL))
+         != SSL_SUCCESS) {
+            fprintf(stderr, "ERROR: failed to load %s, "
+                            "please check the file.\n", CA_CERT_FILE);
+            goto exit;
+        }
+    }
+
     /* Load server certificates into WOLFSSL_CTX */
-    if ((ret = wolfSSL_CTX_use_certificate_file(ctx, CERT_FILE, WOLFSSL_FILETYPE_PEM))
-        != WOLFSSL_SUCCESS) {
+    if ((ret = wolfSSL_CTX_use_certificate_file(ctx, CERT_FILE,
+        SSL_FILETYPE_PEM)) != WOLFSSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
                 CERT_FILE);
         goto exit;
     }
 
     /* Load server key into WOLFSSL_CTX */
-    if ((ret = wolfSSL_CTX_use_PrivateKey_file(ctx, KEY_FILE, WOLFSSL_FILETYPE_PEM))
+    if ((ret = wolfSSL_CTX_use_PrivateKey_file(ctx, KEY_FILE, SSL_FILETYPE_PEM))
         != WOLFSSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
                 KEY_FILE);
         goto exit;
     }
-
-    /* Load the trusted certificates */
-    /* May be called multiple times to continue loading trusted certs into the 
-        wolfSSL Certificate Manager */
-    if ((ret = wolfSSL_CTX_load_verify_locations(ctx, CLIENT_CERT_FILE, NULL)) 
-        != WOLFSSL_SUCCESS) {
-        fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
-                CLIENT_CERT_FILE);
-        goto exit;
-    }
-
-    /* require client certificate and verify all peers */
-    wolfSSL_CTX_set_verify(ctx, 
-        (WOLFSSL_VERIFY_PEER | WOLFSSL_VERIFY_FAIL_IF_NO_PEER_CERT), 
-        myVerifyCb);
-
 
     /* Initialize the server address struct with zeros */
     memset(&servAddr, 0, sizeof(servAddr));
@@ -222,12 +254,10 @@ int main()
     servAddr.sin_port        = htons(DEFAULT_PORT); /* on DEFAULT_PORT */
     servAddr.sin_addr.s_addr = INADDR_ANY;          /* from anywhere   */
 
-
-
     /* Bind the server socket to our port */
     if (bind(sockfd, (struct sockaddr*)&servAddr, sizeof(servAddr)) == -1) {
         fprintf(stderr, "ERROR: failed to bind\n");
-        ret = -1;
+        ret = -1; 
         goto exit;
     }
 
@@ -237,8 +267,6 @@ int main()
         ret = -1;
         goto exit;
     }
-
-
 
     /* Continue to accept clients until shutdown is issued */
     while (!shutdown) {
@@ -270,10 +298,7 @@ int main()
             goto exit;
         }
 
-
         printf("Client connected successfully\n");
-
-
 
         /* Read the client data into our buff array */
         memset(buff, 0, sizeof(buff));
@@ -291,8 +316,6 @@ int main()
             shutdown = 1;
         }
 
-
-
         /* Write our reply into buff */
         memset(buff, 0, sizeof(buff));
         memcpy(buff, reply, strlen(reply));
@@ -304,15 +327,15 @@ int main()
             goto exit;
         }
 
-
+        /* Notify the client that the connection is ending */
+        wolfSSL_shutdown(ssl);
+        printf("Shutdown complete\n");
 
         /* Cleanup after this connection */
         wolfSSL_free(ssl);      /* Free the wolfSSL object              */
         ssl = NULL;
         close(connd);           /* Close the connection to the client   */
     }
-
-    printf("Shutdown complete\n");
 
     ret = 0;
 

@@ -96,8 +96,8 @@ int main(int argc, char *argv[])
     int ret;
     RsaKey key;
     WC_RNG rng;
-    unsigned char hash[SHA512_DIGEST_SIZE];
-    int hashSz = SHA512_DIGEST_SIZE;
+    unsigned char hash[WC_SHA512_DIGEST_SIZE];
+    int hashSz = WC_SHA512_DIGEST_SIZE;
     int hashAlg = WC_HASH_TYPE_SHA512;
     unsigned char sig[MAX_RSA_BITS/8];
     int sig_len;
@@ -227,9 +227,9 @@ int main(int argc, char *argv[])
         return 1;
     }
     /* Check hash size is valid */
-    if (hashSz < 1 || hashSz > SHA512_DIGEST_SIZE) {
+    if (hashSz < 1 || hashSz > WC_SHA512_DIGEST_SIZE) {
         fprintf(stderr, "Hash size out of range (1-%d): %d\n",
-                SHA512_DIGEST_SIZE, hashSz);
+                WC_SHA512_DIGEST_SIZE, hashSz);
         usage();
         return 1;
     }

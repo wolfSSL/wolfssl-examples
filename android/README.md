@@ -38,22 +38,29 @@ wolfCrypt JNI/JCE + wolfSSL bundle on the Emulator:
 
 1) Change directories into the android/wolfssljni-ndk-gradle directory
 
+```
+$ cd android/wolfssljni-ndk-gradle
+```
+
 2) Checkout wolfssl and wolfssljni git submodules
+
+```
+$ git submodule init
+$ git submodule update
+```
 
 3) Create stub options.h (when using GitHub repo for wolfSSL)
 
-4) Open "wolfssljni-ndk-gradle" project in Android Studio and build project
-
 ```
-$ cd android/wolfssljni-ndk-gradle
-$ git submodule init
-$ git submodule update
 $ cp ./wolfssl/wolfssl/options.h.in ./wolfssl/wolfssl/options.h
 ```
 
+4) Open "wolfssljni-ndk-gradle" project in Android Studio and build project
+
 wolfSSL stable releases, available from the wolfSSL download page, contain
-<wolfssl/options.h>, but the GitHub development branch for wolfSSL does not.
-This is why options.h.in needs to be copied to options.h above.
+`<wolfssl/options.h>`, but wolfSSL cloned from GitHub does not.
+This is why `options.h.in` needs to be copied to `options.h` above for a GitHub
+cloned repository.
 
 If you would like to update the git submodules for wolfssl and wolfssljni to
 the most current development HEAD, use the following submodule update command
@@ -81,6 +88,69 @@ while the emulator is running and issuing:
 ```
 $ adb logcat
 ```
+
+### wolfSSL JNI/JSSE Sample App with wolfSSL FIPS Ready Package
+
+The wolfSSL JNI/JSSE Android Studio gradle sample application can be used
+along with the wolfSSL FIPS Ready package, in place of a normal/standard
+wolfSSL distribution. To use the `wolfssljni-ndk-gradle` sample app with
+wolfSSL FIPS Ready use the following steps.
+
+For more information about wolfSSL FIPS Ready, see the
+[wolfSSL Website](https://www.wolfssl.com/license/fips/).
+
+1) Download a GPLv3-licensed wolfSSL FIPS Ready package from the
+   [wolfSSL Download Page](https://www.wolfssl.com/download/).
+
+2) Move the archive under the `wolfssljni-ndk-gradle` app directory, extract,
+   and rename to `wolfssl`:
+
+```
+$ cd wolfssl-examples/android/wolfssljni-ndk-gradle
+$ mv /path/to/wolfssl-X.X.X-gplv3-fips-ready.zip ./
+$ unzip wolfssl-X.X.X-gplv3-fips-ready.zip
+$ mv wolfssl-X.X.X-gplv3-fips-ready wolfssl
+```
+
+3) Edit the following `CMakeLists.txt` file and change `WOLFSSL_PKG_TYPE` to
+   `fipsready`:
+
+```
+wolfssl-examples/android/wolfssljni-ndk-gradle/app/CMakeLists.txt
+```
+
+The `WOLFSSL_PKG_TYPE` selection should look like:
+
+```
+set(WOLFSSL_PKG_TYPE "fipsready")
+```
+
+4) Compile and Install the application on a device or in an emulator
+
+5) Run the "WOLFCRYPT TEST" selection to run the wolfCrypt test application.
+You will need to monitor the adb logcat output to see the expected
+in-core integrity hash. wolfSSL FIPS Ready does an in-core integrity check
+using HMAC-SHA256 over the object files within the FIPS Ready boundary. The
+calculated HMAC at runtime is compared to an expected HMAC. If the values do
+not match, access is not allowed into the wolfCrypt library.
+
+Upon first compilation, or if settings change and the library is recompiled,
+the expected verifyCore[] needs to be updated. To do this:
+
+a) Copy the expected hash from the "adb logcat" output:
+
+```
+D/[WOLFCRYPT]: in my Fips callback, ok = 0, err = -203
+D/[WOLFCRYPT]: message = In Core Integrity check FIPS error
+D/[WOLFCRYPT]: hash = C4EAF104446F5B6918B266A5D65223C8E7ADED2CC41D547ED0C855A50858DE82
+D/[WOLFCRYPT]: In core integrity hash check failure, copy above hash
+D/[WOLFCRYPT]: into verifyCore[] in fips_test.c and rebuild
+```
+
+b) Open `app/wolfssl/wolfcrypt/src/fips_test.c` and copy the hash into the
+   `verifyCore[]` array and save the file.
+
+c) Re-compile the application again, and re-run the wolfCrypt test.
 
 ### Sample Application Functionality
 

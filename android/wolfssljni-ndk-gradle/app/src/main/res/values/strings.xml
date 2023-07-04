@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">wolfssl_ndk_gradle</string>
+    <string name="select_operation_to_run">Select Operation to Run:</string>
+    <string name="wolfcrypt_test">wolfCrypt Test</string>
+    <string name="wolfcrypt_bench">wolfCrypt Bench</string>
+    <string name="sslsocket_connect_wolfssl_com">SSLSocket Connect (wolfssl.com)</string>
 </resources>

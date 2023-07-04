@@ -1,4 +1,4 @@
-# RSA Examples Makefile
+# TLS Examples Makefile
 CC       = gcc
 LIB_PATH = /usr/local
 CFLAGS   = -Wall -I$(LIB_PATH)/include
@@ -21,12 +21,18 @@ LIBS+=$(DYN_LIB)
 SRC=$(wildcard *.c)
 TARGETS=$(patsubst %.c, %, $(SRC))
 
-.PHONY: clean all
-
 all: $(TARGETS)
 
 debug: CFLAGS+=$(DEBUG_FLAGS)
 debug: all
+
+# add the -pthread flag to any threaded examples
+%-threaded: CFLAGS+=-pthread
+%-writedup: CFLAGS+=-pthread
+memory-tls: CFLAGS+=-pthread
+
+# compile tcp examples without the LIBS variable
+%-tcp: LIBS=
 
 # build template
 %: %.c
@@ -34,3 +40,4 @@ debug: all
 
 clean:
 	rm -f $(TARGETS)
+	rm -f session.bin

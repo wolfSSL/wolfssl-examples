@@ -13,12 +13,26 @@ Other transports might be:
 These examples use the wolfSSL Custom IO Callbacks to read and write to the file
 system and perform a successful handshake.
 
-The configuration used for these examples:
+Building the examples:
 
-`./configure --enable-debug`
+From the wolfssl directory:
+```
+./configure --enable-debug
+sudo make install
+```
 
-Debug was enabled in case a user wishes to use the verbose flag to see what is
-happening in real time:
+**NOTE:** Debug was enabled in case a user wishes to use the verbose flag to see
+          what is happening in real time:
+
+From the file-server directory:
+```
+make
+```
+
+From the file-client directory:
+```
+make
+```
 
 Usage examples:
 

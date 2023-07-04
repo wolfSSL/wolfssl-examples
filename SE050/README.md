@@ -8,7 +8,7 @@ written for and tested on a Raspberry Pi with NXP SE050 EdgeLock development
 kit.
 
 For complete details on wolfSSL's support for NXP SE050, see
-[README_SE050.md](https://www.github.com/wolfssl/wolfssl/wolfcrypt/src/port/nxp/README_SE050.md).
+[README_SE050.md](https://www.github.com/wolfssl/wolfssl/tree/master/wolfcrypt/src/port/nxp/README_SE050.md).
 That document also describes how to download, build, and compile the SE05x
 Middleware. It should be followed first before moving on to installing and
 running these examples.

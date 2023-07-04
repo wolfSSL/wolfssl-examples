@@ -35,8 +35,12 @@ Ret = 1: success
 
 ## OCSP non-blocking Async example
 
-This uses your system certificate chain to demonstrate validating revocation status using an OCSP 
-public server with wolfSSL's Asynchronous crypto.
+This uses your system certificate chain to demonstrate validating revocation status using an OCSP
+public server with wolfSSL's Asynchronous cryptography support.  i
+
+**NOTE:** Before building this example the asynchronous support must be obtained from
+(https://github.com/wolfSSL/wolfAsyncCrypt) and installed into wolfSSL by following the
+instructions in the *README* file contained in the wolfAsyncCrypt repository.
 
 The example uses youtube.com as the public server.
 

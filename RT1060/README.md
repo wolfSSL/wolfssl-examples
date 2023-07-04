@@ -1,26 +1,89 @@
-Building wolfCrypt benchmark on i.MX RT1060-EVK
+The examples for NXP i.MXRT1060 support the MMIMXRT1060-EVKB and the MMIMXRT1060-EVK boards.
 
-1. Go to  https://mcuxpresso.nxp.com and download the SDK archive for RT1060 - version 2.8.2
+Building and running the examples
+====
 
-2. Unpack the SDK archive into `./SDK-2.8.2_EVK-MIMXRT1060`
+Set up the NXP MCUXpresso SDK
+----
 
-3. Download latest wolfSSL (e.g. clone via `git clone git@github.com:wolfssl/wolfssl.git`) in the same directory as `wolfssl-examples`
+- Use the NXP _MCUXpresso SDK Builder_ available from NXP (https://mcuxpresso.nxp.com) to generate the SDK choosing:
 
-4. Ensure that a recent arm-gcc toolchain is installed and reachable from your path. A recent toolchain can be obtained from:
-    https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm
+    - _Required Toolchains_: `GCC ARM Embedded`
 
-5. Clone this repository
+    For **MIMXRT1060-EVKB**:
+    - _Development Board_: `MIMXRT1060-EVKB (IMXRT1062xxxxA)`
+    - _Version_: `2.13.1`
 
-6. Enter the repository directory and run `make`
+    For **EVK-IMXRT1060**:
+    - _Development Board_: `EVK-MIMXRT1060 (IMXRT1062xxxxA)`
+    - _Version_: `2.8.2`
 
-7. Connect the RT1060-EVK to the computer via the OpenSDA USB port (L23)
+- Download the generated SDK archive and unpack it into:
 
-8. Copy either `wolfcrypt-test.bin` or `wolfcrypt-benchmark.bin` to the storage device associated to the RT1060-EVK
+    For **MIMXRT1060-EVKB**:
+    - `wolfssl-examples/RT1060/SDK_2_13_1_MIMXRT1060-EVKB`
 
-9. Open a terminal console emulator and connect it to the port associated to the RT1060-RVK (e.g. `/dev/ttyACM0`)
+    For **EVK-MIMXRT1060**:
+    - `wolfssl-examples/RT1060/SDK_2_8_2_EVK-MIMXRT1060`
 
-10. Reset the board to start the test or benchmark and read the result on the terminal console
+Set up ARM cross-compilation tools
+----
+
+- Ensure that a recent arm-gcc toolchain is installed and reachable via the `CC` environment variable.
+
+    - A recent toolchain can be obtained from ARM (https://developer.arm.com)
+
+    - Example: `CC=arm-none-eabi-gcc`
+
+Set up wolfSSL
+----
+
+- In the same directory as `wolfssl-examples` (i.e. the parent directory):
+
+```
+$ git clone git@github.com:wolfssl/wolfssl.git
+```
+
+Build wolfSSL
+----
+
+- In the `wolfssl-examples/RT1060` directory:
+
+    - For **MIMXRT1060-EVKB**:
+
+```
+$ SDK=SDK_2_13_1_MIMXRT1060-EVKB make
+```
+
+- For **EVK-MIMXRT106**:
 
 
-Benchmark results are also available in the file [results.md](results.md)
+```
+$ SDK=SDK_2_8_2_EVK-MIMXRT1060 make
+```
 
+The resulting binary files will be in `wolfssl-examples/RT1060`:
+
+- `wolfcrypt-test.bin` - wolfCrypt crytography test
+
+- `wolfcrypt-benchmark.bin` - wolfCrypt cryptography benchmark
+
+Download and run the built wolfSSL examples
+----
+
+- Connect the board to the host computer via the debug port
+
+- Copy a wolfSSL example binary file to the storage device associated with the board
+
+- Wait for the board to flash the image and reset
+
+- Open a terminal console emulator and connect it to the port associated with the board, e.g. `/dev/ttyACM0`
+
+- Reset the board.  The wolfSSL example output will display in the terminal console
+
+Notes
+====
+
+- EVK-MIMXRT1060 benchmark results are also available in the file [results.md](results.md)
+
+- MIMXRT1060-EVKB example developed using _arm-none-eabi-gcc (15:10.3-2021.07-4) 10.3.1 20210621 (release)_ on _Ubuntu 22.04LTS_ host

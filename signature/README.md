@@ -11,7 +11,7 @@ This example creates a signature from a hash of the file and signs it using a ge
 
 ```
 $ make
-$ ./firmware [filename] [sig] [hash]
+$ ./signature [filename] [sig] [hash]
 ```
 
 ## Usage

@@ -30,6 +30,9 @@
 
 #ifdef WOLFSSL_CAAM
     #include <wolfssl/wolfcrypt/port/caam/wolfcaam.h>
+    static int devId = WOLFSSL_CAAM_DEVID;
+#else
+    static int devId = INVALID_DEVID;
 #endif
 
 #if defined(WOLFSSL_CERT_REQ) && defined(WOLFSSL_CERT_GEN) && \
@@ -37,7 +40,6 @@
 
 #define HEAP_HINT NULL
 #define LARGE_TEMP_SZ 4096
-static int devId = WOLFSSL_CAAM_DEVID;
 
 static int do_cagen(int argc, char** argv)
 {

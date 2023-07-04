@@ -5,7 +5,7 @@ How to use 3des-file-encrypt.c
    b. In the crypto/3des directory run the Makefile by typing 'make'.
 2)  Make a file to encode. Can be any file (ex. .txt .in .out .file etc.)
 3)  run the executable, for help run with -h flag. Basic command is as follows:
-        ./3des-file-encrypt <-option> <KeySize> <input.file> <output.file>
+        ./3des-file-encrypt <-option> <KeySize> -i <input.file> -o <output.file>
 
         KeySize examples: 56, 112, or 168
 

@@ -74,3 +74,5 @@ ECC Curve BRAINPOOLP384R1, KeySz 48, Sig: CurveMax 104, ActMax 104, CalcMax 104
 ```
 
 Note: The extra 2-bytes of padding is to account for the case where R or S has the Most Significant Bit (MSB) set.
+
+Please contact support@wolfssl.com with any questions or concerns!
