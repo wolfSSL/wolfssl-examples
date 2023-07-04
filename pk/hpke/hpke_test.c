@@ -148,11 +148,12 @@ int main(void)
 
     printf("HPKE test success\n");
 
-    return;
+    return ret;
 
 fail:
     printf("HPKE test error %d: %s\n", ret, wc_GetErrorString(ret));
 /* x448 and chacha20 are unimplemented */
+    return 1;
 }
 #else
 int main(void)
