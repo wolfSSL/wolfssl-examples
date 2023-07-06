@@ -18,24 +18,20 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
  */
-#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #include <wolfssl/options.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
-#include <wolfssl/wolfcrypt/asn.h>
 
 #ifdef HAVE_LIBLMS
 
 #include <wolfssl/wolfcrypt/lms.h>
 #include <wolfssl/wolfcrypt/ext_lms.h>
 
-static void print_usage_and_die(void) WC_NORETURN;
-static bool write_key_file(unsigned char * priv, size_t priv_len,
-                           void * context);
-static bool read_key_file(unsigned char * priv, size_t priv_len,
-                          void * context);
+static void print_usage(void);
+static int  write_key_file(const byte * priv, word32 privSz, void * context);
+static int  read_key_file(byte * priv, word32 privSz, void * context);
 static int  lms_sign_verify(int levels, int height, int winternitz,
                             size_t sigs_to_do);
 static void dump_hex(const char * what, const uint8_t * buf, size_t len);
@@ -53,7 +49,8 @@ main(int    argc,
     int    ret = 0;
 
     if (argc < 4 || argc > 5) {
-        print_usage_and_die();
+        print_usage();
+        return EXIT_FAILURE;
     }
 
     levels = atoi(argv[1]);
@@ -78,10 +75,10 @@ main(int    argc,
 }
 
 static void
-print_usage_and_die(void)
+print_usage(void)
 {
     fprintf(stderr, "usage:\n");
-    fprintf(stderr, "  ./lms_sign_verify <levels> <height> <winternitz> [num signatures]\n");
+    fprintf(stderr, "  ./lms_sign_verify <levels> <height> <Winternitz> [num signatures]\n");
     fprintf(stderr, "\n");
     fprintf(stderr, "examples:\n");
     fprintf(stderr, "  ./lms_sign_verify 1 5 1\n");
@@ -90,7 +87,7 @@ print_usage_and_die(void)
     fprintf(stderr, "\n");
     fprintf(stderr, "description:\n");
     fprintf(stderr, "  Generates an LMS/HSS key pair with L=levels, H=height, and\n");
-    fprintf(stderr, "  W=winternitz parameters, then signs and verifies a given\n");
+    fprintf(stderr, "  W=Winternitz parameters, then signs and verifies a given\n");
     fprintf(stderr, "  number of signatures (1 by default).\n");
     fprintf(stderr, "\n");
     fprintf(stderr, "  If 0 is given for num signatures, it prints the private and\n");
@@ -100,13 +97,18 @@ print_usage_and_die(void)
     fprintf(stderr, " - The acceptable parameter values are those in RFC8554:\n");
     fprintf(stderr, "     levels = {1..8}\n");
     fprintf(stderr, "     height = {5, 10, 15, 20, 25}\n");
-    fprintf(stderr, "     winternitz = {1, 2, 4, 8}\n");
+    fprintf(stderr, "     Winternitz = {1, 2, 4, 8}\n");
     fprintf(stderr, "\n");
     fprintf(stderr, " - The number of available signatures is\n");
     fprintf(stderr, "     n = 2 ** (levels * height)\n");
     fprintf(stderr, "\n");
-    fprintf(stderr, " - Larger winternitz values will reduce the signature size, at\n");
-    fprintf(stderr, "   the expense of longer key generation and signature times.\n");
+    fprintf(stderr, " - The Signature size is directly proportional to the levels value,\n");
+    fprintf(stderr, "   and inversely proportional to the Winternitz value. However it\n");
+    fprintf(stderr, "   grows only modestly with the height parameter.\n");
+    fprintf(stderr, "\n");
+    fprintf(stderr, " - The Winternitz value is a space-time tradeoff parameter. Larger values\n");
+    fprintf(stderr, "   will reduce signature size, while increasing times for key generation,\n");
+    fprintf(stderr, "   signing, and verifying.\n");
     fprintf(stderr, "\n");
     fprintf(stderr, " - Key generation time is strongly determined by the height of\n");
     fprintf(stderr, "   the first level tree. A 3 level, 5 height tree is much faster\n");
@@ -116,73 +118,106 @@ print_usage_and_die(void)
     exit(EXIT_FAILURE);
 }
 
-static bool
-write_key_file(unsigned char * priv,
-               size_t          priv_len,
-               void *          context)
+static int
+write_key_file(const byte * priv,
+               word32       privSz,
+               void *       context)
 {
     FILE *       file = NULL;
     const char * filename = NULL;
+    int          n_cmp = 0;
+    size_t       n_read = 0;
     size_t       n_write = 0;
+    byte         buff[HSS_MAX_PRIVATE_KEY_LEN];
+    int          err = 0;
 
-    if (priv == NULL || context == NULL || priv_len == 0) {
-        fprintf(stderr, "error: invalid args\n");
-        return false;
+    if (priv == NULL || context == NULL || privSz == 0) {
+        fprintf(stderr, "error: invalid write args\n");
+        return WC_LMS_RC_BAD_ARG;
     }
 
     filename = context;
 
-    file = fopen(filename, "wb");
+    /* Open file for read and write. */
+    file = fopen(filename, "r+");
     if (!file) {
-        fprintf(stderr, "error: fopen(%s, \"wb\") failed\n", filename);
-        return false;
+        /* Create the file if it didn't exist. */
+        file = fopen(filename, "w+");
+        if (!file) {
+            fprintf(stderr, "error: fopen(%s, \"w+\") failed: %d\n", filename,
+                    ferror(file));
+            return WC_LMS_RC_WRITE_FAIL;
+        }
     }
 
-    n_write = fwrite(priv, 1, priv_len, file);
+    n_write = fwrite(priv, 1, privSz, file);
 
-    if (n_write != priv_len) {
-        fprintf(stderr, "error: wrote %zu, expected %zu: %d\n", n_write, priv_len,
+    if (n_write != privSz) {
+        fprintf(stderr, "error: wrote %zu, expected %d: %d\n", n_write, privSz,
                 ferror(file));
-        return false;
+        return WC_LMS_RC_WRITE_FAIL;
     }
 
-    fclose(file);
+    rewind(file);
 
-    return true;
+    XMEMSET(buff, 0, n_write);
+
+    n_read = fread(buff, 1, n_write, file);
+
+    if (n_read != n_write) {
+        fprintf(stderr, "error: read %zu, expected %zu: %d\n", n_read, n_write,
+                ferror(file));
+        return WC_LMS_RC_WRITE_FAIL;
+    }
+
+    n_cmp = XMEMCMP(buff, priv, n_write);
+    if (n_cmp != 0) {
+        fprintf(stderr, "error: write data was corrupted: %d\n", n_cmp);
+        return WC_LMS_RC_WRITE_FAIL;
+    }
+
+    err = fclose(file);
+    if (err) {
+        fprintf(stderr, "error: fclose returned %d\n", err);
+        return WC_LMS_RC_WRITE_FAIL;
+    }
+
+    return WC_LMS_RC_SAVED_TO_NV_MEMORY;
 }
 
-static bool
-read_key_file(unsigned char * priv,
-              size_t          priv_len,
-              void *          context)
+static int
+read_key_file(byte * priv,
+              word32 privSz,
+              void * context)
 {
     FILE *       file = NULL;
     const char * filename = NULL;
     size_t       n_read = 0;
 
-    if (priv == NULL || context == NULL || priv_len == 0) {
-        fprintf(stderr, "error: invalid args\n");
-        return false;
+    if (priv == NULL || context == NULL || privSz == 0) {
+        fprintf(stderr, "error: invalid read args\n");
+        return WC_LMS_RC_BAD_ARG;
     }
 
     filename = context;
 
     file = fopen(filename, "rb");
     if (!file) {
-        fprintf(stderr, "error: fopen(%s, \"wb\") failed\n", filename);
-        return false;
+        fprintf(stderr, "error: fopen(%s, \"rb\") failed\n", filename);
+        return WC_LMS_RC_READ_FAIL;
     }
 
-    n_read = fread(priv, 1, priv_len, file);
+    n_read = fread(priv, 1, privSz, file);
 
-    if (n_read != priv_len) {
-        fprintf(stderr, "error: read %zu, expected %zu\n", n_read, priv_len);
-        return false;
+    if (n_read != privSz) {
+        fprintf(stderr, "error: read %zu, expected %d: %d\n", n_read, privSz,
+                ferror(file));
+        return WC_LMS_RC_READ_FAIL;
     }
 
     fclose(file);
 
-    return true;
+    return WC_LMS_RC_READ_TO_MEMORY;
 }
 
 static int
