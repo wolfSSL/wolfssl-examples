@@ -33,6 +33,7 @@
 /* wolfSSL */
 #include <wolfssl/options.h>
 #include <wolfssl/ssl.h>
+#include <wolfssl/wolfcrypt/coding.h>
 
 #define DEFAULT_PORT 11111
 
@@ -55,8 +56,10 @@ int main()
     const char*        publicName = "ech-public-name.com";
     const char*        privateName = "ech-private-name.com";
     int                privateNameLen = strlen(privateName);
-    char               echConfig[512];
+    byte               echConfig[512];
     word32             echConfigLen = 512;
+    char               echConfigBase64[512];
+    word32             echConfigBase64Len = 512;
 
     /* declare wolfSSL objects */
     WOLFSSL_CTX* ctx = NULL;
@@ -89,14 +92,21 @@ int main()
         goto exit;
     }
 
-    if(wolfSSL_CTX_GetEchConfigsBase64(ctx, (byte*)echConfig, &echConfigLen) !=
+    if(wolfSSL_CTX_GetEchConfigs(ctx, echConfig, &echConfigLen) !=
         WOLFSSL_SUCCESS) {
-        fprintf(stderr, "ERROR: failed to wolfSSL_CTX_GetEchConfigsBase64\n");
+        fprintf(stderr, "ERROR: failed to wolfSSL_CTX_GetEchConfigs\n");
         ret = -1;
         goto exit;
     }
 
-    fprintf(stdout, "ECH config: %s\n", echConfig);
+    if (Base64_Encode_NoNl(echConfig, echConfigLen, (byte*)echConfigBase64,
+        &echConfigBase64Len) != 0) {
+        fprintf(stderr, "ERROR: failed to Base64_Encode_NoNl\n");
+        ret = -1;
+        goto exit;
+    }
+
+    fprintf(stdout, "ECH config: %s\n", echConfigBase64);
 
     if(wolfSSL_CTX_UseSNI(ctx, WOLFSSL_SNI_HOST_NAME, privateName,
         privateNameLen) != WOLFSSL_SUCCESS) {
