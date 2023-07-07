@@ -158,6 +158,7 @@ write_key_file(const byte * priv,
         return WC_LMS_RC_WRITE_FAIL;
     }
 
+    /* Verify data has actually been written to disk correctly. */
     rewind(file);
 
     XMEMSET(buff, 0, n_write);
@@ -236,6 +237,7 @@ lms_sign_verify(int    levels,
     word32       sigSz = 0;
     word32       privSz = 0;
     word32       pubSz = 0;
+    byte         priv[HSS_MAX_PRIVATE_KEY_LEN];
 
     printf("using parameters: levels=%d, height=%d, winternitz=%d\n",
            levels, height, winternitz);
@@ -309,8 +311,8 @@ lms_sign_verify(int    levels,
 
     if (sigs_to_do == 0) {
         /* If using callbacks the .priv member will not be filled. */
-        read_key_file(signingKey.priv, privSz, (void *) filename);
-        dump_hex("priv", signingKey.priv, privSz);
+        read_key_file(priv, privSz, (void *) filename);
+        dump_hex("priv", priv, privSz);
         dump_hex("pub", signingKey.pub, pubSz);
         goto exit_sign_verify;
     }

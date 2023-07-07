@@ -73,7 +73,7 @@ safe connection. Authentication will be done via the FALCON signature scheme.
 Ephemeral key establishment will be done via kYBER KEM. Both are NIST PQC
 competition round 3 finalists. Please see
 https://github.com/wolfSSL/osp/tree/master/oqs/README.md for further
-instructions about certificate generation. 
+instructions about certificate generation.
 
 In a terminal, execute the server:
 
@@ -91,4 +91,3 @@ The client will be prompted for a message to send to the server. Once you see
 this prompt, a quantum-safe connection has already been established. Use the
 client to send the message "shutdown" in order to end the execution of the
 server.
-

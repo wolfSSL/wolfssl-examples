@@ -108,7 +108,7 @@ int main(int argc, char** argv)
     }
 
     if (ret == 0) {
-        ret = wc_KeyPemToDer((const byte*)pem_buf, pem_len, 
+        ret = wc_KeyPemToDer((const byte*)pem_buf, pem_len,
                   priv_der_buf, priv_der_len, NULL);
         if (ret > 0) {
             priv_der_len = ret;
