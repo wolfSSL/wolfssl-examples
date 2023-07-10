@@ -91,7 +91,6 @@ int test_hpke(Hpke* hpke)
 int main(void)
 {
     int ret = 0;
-    int rngRet = 0;
     Hpke hpke[1];
 
 #if defined(HAVE_ECC)
