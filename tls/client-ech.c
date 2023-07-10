@@ -189,6 +189,7 @@ int main(void)
 
 ssl_clean:
     wolfSSL_free(ssl);
+    ssl = NULL;
     close(sockfd);
     sockfd = -1;
 ctx_clean:
