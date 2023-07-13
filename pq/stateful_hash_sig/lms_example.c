@@ -1,4 +1,4 @@
-/* lms_sign_verify.c
+/* lms_example.c
  *
  * Copyright (C) 2022 wolfSSL Inc.
  *
@@ -32,8 +32,8 @@
 static void print_usage(void);
 static int  write_key_file(const byte * priv, word32 privSz, void * context);
 static int  read_key_file(byte * priv, word32 privSz, void * context);
-static int  lms_sign_verify(int levels, int height, int winternitz,
-                            size_t sigs_to_do);
+static int  do_lms_example(int levels, int height, int winternitz,
+                           size_t sigs_to_do);
 static void dump_hex(const char * what, const uint8_t * buf, size_t len);
 
 static WC_RNG rng;
@@ -67,7 +67,7 @@ main(int    argc,
         return EXIT_FAILURE;
     }
 
-    ret = lms_sign_verify(levels, height, winternitz, sigs_to_do);
+    ret = do_lms_example(levels, height, winternitz, sigs_to_do);
 
     wc_FreeRng(&rng);
 
@@ -78,12 +78,12 @@ static void
 print_usage(void)
 {
     fprintf(stderr, "usage:\n");
-    fprintf(stderr, "  ./lms_sign_verify <levels> <height> <Winternitz> [num signatures]\n");
+    fprintf(stderr, "  ./lms_example <levels> <height> <Winternitz> [num signatures]\n");
     fprintf(stderr, "\n");
     fprintf(stderr, "examples:\n");
-    fprintf(stderr, "  ./lms_sign_verify 1 5 1\n");
-    fprintf(stderr, "  ./lms_sign_verify 3 5 4 100\n");
-    fprintf(stderr, "  ./lms_sign_verify 2 10 2 0\n");
+    fprintf(stderr, "  ./lms_example 1 5 1\n");
+    fprintf(stderr, "  ./lms_example 3 5 4 100\n");
+    fprintf(stderr, "  ./lms_example 2 10 2 0\n");
     fprintf(stderr, "\n");
     fprintf(stderr, "description:\n");
     fprintf(stderr, "  Generates an LMS/HSS key pair with L=levels, H=height, and\n");
@@ -222,10 +222,10 @@ read_key_file(byte * priv,
 }
 
 static int
-lms_sign_verify(int    levels,
-                int    height,
-                int    winternitz,
-                size_t sigs_to_do)
+do_lms_example(int    levels,
+               int    height,
+               int    winternitz,
+               size_t sigs_to_do)
 {
     LmsKey       signingKey;
     LmsKey       verifyKey;
@@ -246,46 +246,46 @@ lms_sign_verify(int    levels,
     if (ret) {
         fprintf(stderr, "error: wc_LmsKey_Init_ex(%d, %d, %d) returned %d\n",
                 levels, height, winternitz, ret);
-        goto exit_sign_verify;
+        goto exit_lms_example;
     }
 
     ret = wc_LmsKey_SetWriteCb(&signingKey, write_key_file);
     if (ret) {
         fprintf(stderr, "error: wc_LmsKey_SetWriteCb failed: %d\n", ret);
-        goto exit_sign_verify;
+        goto exit_lms_example;
     }
 
     ret = wc_LmsKey_SetReadCb(&signingKey, read_key_file);
     if (ret) {
         fprintf(stderr, "error: wc_LmsKey_SetReadCb failed: %d\n", ret);
-        goto exit_sign_verify;
+        goto exit_lms_example;
     }
 
     ret = wc_LmsKey_SetContext(&signingKey, (void *) filename);
     if (ret) {
         fprintf(stderr, "error: wc_LmsKey_SetContext failed: %d\n", ret);
-        goto exit_sign_verify;
+        goto exit_lms_example;
     }
 
     ret = wc_LmsKey_GetSigLen(&signingKey, &sigSz);
     if (ret || sigSz == 0) {
         fprintf(stderr, "error: wc_LmsKey_GetSigLen returned: %d, %d\n",
                 ret, sigSz);
-        goto exit_sign_verify;
+        goto exit_lms_example;
     }
 
     ret = wc_LmsKey_GetPubLen(&signingKey, &pubSz);
     if (ret || pubSz == 0) {
         fprintf(stderr, "error: wc_LmsKey_GetPubLen returned: %d, %d\n",
                 ret, pubSz);
-        goto exit_sign_verify;
+        goto exit_lms_example;
     }
 
     ret = wc_LmsKey_GetPrivLen(&signingKey, &privSz);
     if (ret || pubSz == 0) {
         fprintf(stderr, "error: wc_LmsKey_GetPrivLen returned: %d, %d\n",
                 ret, privSz);
-        goto exit_sign_verify;
+        goto exit_lms_example;
     }
 
     printf("signature length: %d\n", sigSz);
@@ -304,7 +304,7 @@ lms_sign_verify(int    levels,
     ret = wc_LmsKey_MakeKey(&signingKey, &rng);
     if (ret) {
         fprintf(stderr, "error: wc_LmsKey_MakeKey returned %d\n", ret);
-        goto exit_sign_verify;
+        goto exit_lms_example;
     }
 
     printf("...done!\n");
@@ -314,47 +314,47 @@ lms_sign_verify(int    levels,
         read_key_file(priv, privSz, (void *) filename);
         dump_hex("priv", priv, privSz);
         dump_hex("pub", signingKey.pub, pubSz);
-        goto exit_sign_verify;
+        goto exit_lms_example;
     }
 
     sig = malloc(sigSz);
     if (sig == NULL) {
         fprintf(stderr, "error: malloc(%d) failed\n", sigSz);
-        goto exit_sign_verify;
+        goto exit_lms_example;
     }
 
     ret = wc_LmsKey_ExportPub(&verifyKey, &signingKey);
     if (ret) {
         fprintf(stderr, "error: wc_LmsKey_ExportPub returned %d\n", ret);
-        goto exit_sign_verify;
+        goto exit_lms_example;
     }
 
     printf("signing and verifying %zu signatures...\n", sigs_to_do);
     for (size_t i = 0; i < sigs_to_do; ++i) {
         if (wc_LmsKey_SigsLeft(&signingKey) <= 0) {
             fprintf(stderr, "error: no remaining signatures\n");
-            goto exit_sign_verify;
+            goto exit_lms_example;
         }
 
         ret = wc_LmsKey_Sign(&signingKey, sig, &sigSz,(byte *) msg,
                              strlen(msg));
         if (ret) {
             fprintf(stderr, "error: %zu: wc_LmsKey_Sign returned %d\n", i, ret);
-            goto exit_sign_verify;
+            goto exit_lms_example;
         }
 
         ret = wc_LmsKey_Verify(&verifyKey, sig, sigSz, (const byte *) msg,
                                strlen(msg));
         if (ret) {
             fprintf(stderr, "error: %zu: wc_LmsKey_Verify returned %d\n", i, ret);
-            goto exit_sign_verify;
+            goto exit_lms_example;
         }
     }
 
     printf("...done!\n");
     printf("finished\n");
 
-exit_sign_verify:
+exit_lms_example:
 
     if (sig != NULL) {
         free(sig);

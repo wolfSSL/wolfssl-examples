@@ -54,14 +54,14 @@ The supported parameter values are those in RFC8554:
 
 To see the help and usage, run the program without options:
 ```sh
-$./lms_sign_verify
+$./lms_example
 usage:
-  ./lms_sign_verify <levels> <height> <winternitz> [num signatures]
+  ./lms_example <levels> <height> <winternitz> [num signatures]
 
 examples:
-  ./lms_sign_verify 1 5 1
-  ./lms_sign_verify 3 5 4 100
-  ./lms_sign_verify 2 10 2 0
+  ./lms_example 1 5 1
+  ./lms_example 3 5 4 100
+  ./lms_example 2 10 2 0
 
 description:
 ...

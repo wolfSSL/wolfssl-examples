@@ -32,7 +32,7 @@ debug: CFLAGS+=$(DEBUG_FLAGS)
 debug: all
 
 # build template
-lms_sign_verify: lms_sign_verify.c
+lms_example: lms_example.c
 	$(CC) -o $@ $< $(CFLAGS) $(LIBS)
 
 clean:
