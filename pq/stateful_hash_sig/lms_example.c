@@ -242,9 +242,15 @@ do_lms_example(int    levels,
     printf("using parameters: levels=%d, height=%d, winternitz=%d\n",
            levels, height, winternitz);
 
-    ret = wc_LmsKey_Init_ex(&signingKey, levels, height, winternitz, NULL, 0);
+    ret = wc_LmsKey_Init(&signingKey, NULL, 0);
     if (ret) {
-        fprintf(stderr, "error: wc_LmsKey_Init_ex(%d, %d, %d) returned %d\n",
+        fprintf(stderr, "error: wc_LmsKey_Init returned %d\n", ret);
+        goto exit_lms_example;
+    }
+
+    ret = wc_LmsKey_SetParameters(&signingKey, levels, height, winternitz);
+    if (ret) {
+        fprintf(stderr, "error: wc_LmsKey_SetParameters(%d, %d, %d) returned %d\n",
                 levels, height, winternitz, ret);
         goto exit_lms_example;
     }
