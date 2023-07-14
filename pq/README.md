@@ -73,7 +73,7 @@ safe connection. Authentication will be done via the FALCON signature scheme.
 Ephemeral key establishment will be done via kYBER KEM. Both are NIST PQC
 competition round 3 finalists. Please see
 https://github.com/wolfSSL/osp/tree/master/oqs/README.md for further
-instructions about certificate generation. 
+instructions about certificate generation.
 
 In a terminal, execute the server:
 
