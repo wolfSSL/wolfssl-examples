@@ -12,17 +12,18 @@ WOLFSSL_DIR?=../../bill_wolfssl
 VAULTIC_DIR?=VaultIC-TLS_420/vaultic_tls-4xx
 
 # Common settings and files
-CFLAGS+=-I.
+CFLAGS+=-I. -O2
 OBJS=ccb_vaultic.o
 
 # Uncomment to enable verbose debug logging
-#CFLAGS+=-DDEBUG_VAULTIC
+#CFLAGS+=-DCCBVAULTIC_DEBUG
+#CFLAGS+=-DCCBVAULTIC_DEBUG_ALL
 #CFLAGS+=-DSPI_TRACE_ERRORS
 
 # Optionally disable certain kinds of offload
-#CFLAGS+=-DNO_WKVIC_AES
-CFLAGS+=-DNO_WKVIC_SHA
-#CFLAGS+=-DNO_WKVIC_RSA
+#CFLAGS+=-DNO_CCBVIC_AES
+CFLAGS+=-DNO_CCBVIC_SHA
+#CFLAGS+=-DNO_CCBVIC_RSA
 
 # wolfSSL settings and files
 # ./configure --enable-cryptocb --enable-static --disable-shared --host aarch64-linux-android

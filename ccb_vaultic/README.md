@@ -71,14 +71,28 @@ Benchmark using unoptimized ARMv8 (imx8) and VaultIC 420 for AES128-CBC:
 ```
 Math: 	Multi-Precision: Wolf(SP) word-size=64 bits=4096 sp_int.c
 wolfCrypt Benchmark (block bytes 1024, min 1.0 sec each)
-Math: 	Multi-Precision: Wolf(SP) word-size=64 bits=4096 sp_int.c
-wolfCrypt Benchmark (block bytes 1024, min 1.0 sec each)
+
 AESCBC Internal with useDevice:0 and devid:56490420
 AES-128-CBC-enc             78 MiB took 1.000 seconds,   77.604 MiB/s
 AES-128-CBC-dec             77 MiB took 1.000 seconds,   77.361 MiB/s
 AESCBC Internal with useDevice:1 and devid:56490420
-AES-128-CBC-enc             25 KiB took 25.530 seconds,    0.979 KiB/s
-AES-128-CBC-dec             25 KiB took 25.582 seconds,    0.977 KiB/s
+AES-128-CBC-enc             25 KiB took 25.647 seconds,    0.975 KiB/s
+AES-128-CBC-dec             25 KiB took 24.884 seconds,    1.005 KiB/s
+
+SHA256 with useDevice:0 and devid:56490420
+SHA-256                     74 MiB took 1.000 seconds,   74.240 MiB/s
+SHA256 with useDevice:1 and devid:56490420
+SHA-256                     25 KiB took 25.626 seconds,    0.976 KiB/s
+
+HMAC SHA256 with useDevice:0 and devid:56490420
+HMAC-SHA256                 73 MiB took 1.000 seconds,   73.406 MiB/s
+HMAC SHA256 with useDevice:1 and devid:56490420
+HMAC-SHA256                 25 KiB took 25.490 seconds,    0.981 KiB/s
+
+RSA with useDevice:0 and devid:56490420
+RSA     2048   public      2834 ops took 1.001 sec, avg 0.353 ms, 2832.561 ops/sec
+RSA with useDevice:1 and devid:56490420
+RSA     2048   public         2 ops took 2.463 sec, avg 1231.505 ms, 0.812 ops/sec
 ```
 
 Known answer test program output with VaultIC performing AES128-CBC test:

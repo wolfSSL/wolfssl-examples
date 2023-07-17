@@ -61,7 +61,6 @@ int main(int argc, char **argv)
     }
 
     /* Run benchmarks */
-    benchmark_init();
     benchmark_test(NULL);
 
     wc_CryptoCb_UnRegisterDevice(CCBVAULTIC420_DEVID);

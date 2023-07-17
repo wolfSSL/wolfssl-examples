@@ -46,10 +46,10 @@
 #include "ccb_vaultic.h"
 
 /* Defined options:
- * DEBUG_VAULTIC: Print copious callback info using printf
- * NO_WKVIC_SHA: Do not handle SHA256 callback
- * NO_WKVIC_RSA: Do not handle RSA callback
- * NO_WKVIC_AES: Do not handle AES callback
+ * CCBVAULTIC_DEBUG: Print copious callback info using printf
+ * NO_CCBVIC_SHA: Do not handle SHA256 callback
+ * NO_CCBVIC_RSA: Do not handle RSA callback
+ * NO_CCBVIC_AES: Do not handle AES callback
  */
 
 
@@ -113,7 +113,7 @@ int ccbVaultIc_CryptoDevCb(int devId,
     (void)devId;
     if(!info || !c || !c->initialized) {
         /* Invalid info or context */
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG)
         printf("Invalid callback. info:%p c:%p c->init:%d\n",
                 info, c, c ? c->initialized : -1);
 #endif
@@ -121,14 +121,14 @@ int ccbVaultIc_CryptoDevCb(int devId,
     }
     switch(info->algo_type) {
     case WC_ALGO_TYPE_NONE:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG_ALL)
         printf(" CryptoDevCb NONE:\n");
 #endif
         /* Nothing to do */
         break;
 
     case WC_ALGO_TYPE_HASH:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG_ALL)
         printf(" CryptoDevCb HASH: Type:%d\n", info->hash.type);
 #endif
 #if !defined(NO_SHA) || !defined(NO_SHA256)
@@ -138,7 +138,7 @@ int ccbVaultIc_CryptoDevCb(int devId,
         break;
 
     case WC_ALGO_TYPE_CIPHER:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG_ALL)
         printf(" CryptoDevCb CIPHER: Type:%d\n", info->cipher.type);
 #endif
 #if !defined(NO_AES)
@@ -148,7 +148,7 @@ int ccbVaultIc_CryptoDevCb(int devId,
         break;
 
     case WC_ALGO_TYPE_PK:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG_ALL)
         printf(" CryptoDevCb PK: Type:%d\n", info->pk.type);
 #endif
 #if !defined(NO_RSA) || defined(HAVE_ECC)
@@ -158,7 +158,7 @@ int ccbVaultIc_CryptoDevCb(int devId,
         break;
 
     case WC_ALGO_TYPE_RNG:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG_ALL)
         printf(" CryptoDevCb RNG: Out:%p Sz:%d\n", info->rng.out, info->rng.sz);
 #endif
 #if !defined(WC_NO_RNG)
@@ -169,7 +169,7 @@ int ccbVaultIc_CryptoDevCb(int devId,
         break;
 
     case WC_ALGO_TYPE_SEED:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG_ALL)
         printf(" CryptoDevCb SEED: Seed:%p Sz:%d\n", info->seed.seed,
                 info->seed.sz);
 #endif
@@ -180,19 +180,19 @@ int ccbVaultIc_CryptoDevCb(int devId,
         break;
 
     case WC_ALGO_TYPE_HMAC:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG_ALL)
         printf(" CryptoDevCb HMAC:\n");
 #endif
         break;
 
     case WC_ALGO_TYPE_CMAC:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG_ALL)
         printf(" CryptoDevCb CMAC:\n");
 #endif
         break;
 
     default:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG_ALL)
         printf(" CryptoDevCb UNKNOWN\n");
 #endif
         break;
@@ -205,16 +205,16 @@ static int HandlePkCallback(int devId, wc_CryptoInfo* info, ccbVaultIc_Context *
     int rc = CRYPTOCB_UNAVAILABLE;
     switch(info->pk.type) {
     case WC_PK_TYPE_NONE:
-    #if defined(DEBUG_VAULTIC)
+    #if defined(CCBVAULTIC_DEBUG_ALL)
         printf("  HandlePkCallback NONE\n");
     #endif
         break;
 
     case WC_PK_TYPE_RSA:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG)
         printf("  HandlePkCallback RSA: Type:%d\n",info->pk.rsa.type);
 #endif
-#if !defined(NO_WKVIC_RSA)
+#if !defined(NO_CCBVIC_RSA)
         {
 
             if((info->pk.rsa.type == RSA_PUBLIC_DECRYPT) || /* RSA Verify */
@@ -232,7 +232,7 @@ static int HandlePkCallback(int devId, wc_CryptoInfo* info, ccbVaultIc_Context *
                 byte e_pad[sizeof(e)] = {0};
                 memcpy(&e_pad[(sizeof(e_pad)-eSz)],e,eSz);
 
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG)
                 printf("   RSA Flatten Pub Key:%d, eSz:%u nSz:%u\n", rc, eSz, nSz);
                 hexdump(e,sizeof(e));
                 hexdump(e_pad,sizeof(e_pad));
@@ -266,7 +266,7 @@ static int HandlePkCallback(int devId, wc_CryptoInfo* info, ccbVaultIc_Context *
                         CCBVAULTIC_TMPRSA_KEYID,
                         &keyPrivileges,
                         &tmpRsaKey);
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG)
                 printf("   VLT PutKey:%x\n", vlt_rc);
 #endif
 
@@ -281,14 +281,14 @@ static int HandlePkCallback(int devId, wc_CryptoInfo* info, ccbVaultIc_Context *
                         CCBVAULTIC_WOLFSSL_GRPID,
                         CCBVAULTIC_TMPRSA_KEYID,
                         VLT_ENCRYPT_MODE,&rsapub_algo_params);
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG)
                 printf("   VLT InitAlgo:%x\n", vlt_rc);
 #endif
                 vlt_rc=VltEncrypt(info->pk.rsa.inLen, info->pk.rsa.in,
                             &out_len,
                             info->pk.rsa.inLen, info->pk.rsa.out);
                 if(info->pk.rsa.outLen) *(info->pk.rsa.outLen)=out_len;
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG)
                 printf("   VLT Encrypt:%x inSz:%u outSz:%lu\n", vlt_rc, info->pk.rsa.inLen, out_len);
 #endif
 
@@ -308,103 +308,103 @@ static int HandlePkCallback(int devId, wc_CryptoInfo* info, ccbVaultIc_Context *
         break;
 
     case WC_PK_TYPE_DH:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG_ALL)
         printf("  HandlePkCallback DH\n");
 #endif
         break;
 
     case WC_PK_TYPE_ECDH:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG_ALL)
         printf("  HandlePkCallback ECDH\n");
 #endif
         break;
 
     case WC_PK_TYPE_ECDSA_SIGN:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG_ALL)
         printf("  HandlePkCallback ECDSA_SIGN\n");
 #endif
         break;
 
     case WC_PK_TYPE_ECDSA_VERIFY:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG_ALL)
         printf("  HandlePkCallback ECDSA_VERIFY\n");
 #endif
         break;
 
     case WC_PK_TYPE_ED25519_SIGN:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG_ALL)
         printf("  HandlePkCallback ED25519_SIGN\n");
 #endif
         break;
 
     case WC_PK_TYPE_CURVE25519:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG_ALL)
         printf("  HandlePkCallback CURVE25519\n");
 #endif
         break;
 
     case WC_PK_TYPE_RSA_KEYGEN:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG_ALL)
         printf("  HandlePkCallback RSA_KEYGEN\n");
 #endif
         break;
 
     case WC_PK_TYPE_EC_KEYGEN:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG_ALL)
         printf("  HandlePkCallback EC_KEYGEN\n");
 #endif
         break;
 
     case WC_PK_TYPE_RSA_CHECK_PRIV_KEY:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG_ALL)
         printf("  HandlePkCallback RSA_CHECK_PRIV_KEY\n");
 #endif
         break;
 
     case WC_PK_TYPE_EC_CHECK_PRIV_KEY:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG_ALL)
         printf("  HandlePkCallback EC_CHECK_PRIV_KEY\n");
 #endif
         break;
 
     case WC_PK_TYPE_ED448:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG_ALL)
         printf("  HandlePkCallback ED448\n");
 #endif
         break;
 
     case WC_PK_TYPE_CURVE448:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG_ALL)
         printf("  HandlePkCallback CRUVE448\n");
 #endif
         break;
 
     case WC_PK_TYPE_ED25519_VERIFY:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG_ALL)
         printf("  HandlePkCallback ED25519_VERIFY\n");
 #endif
         break;
 
     case WC_PK_TYPE_ED25519_KEYGEN:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG_ALL)
         printf("  HandlePkCallback ED25519_KEYGEN\n");
 #endif
         break;
 
     case WC_PK_TYPE_CURVE25519_KEYGEN:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG_ALL)
         printf("  HandlePkCallback CURVE25519_KEYGEN\n");
 #endif
         break;
 
     case WC_PK_TYPE_RSA_GET_SIZE:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG)
         printf("  HandlePkCallback RSA_GET_SIZE\n");
 #endif
         break;
 
     default:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG_ALL)
         printf("  HandlePkCallback UNKNOWN\n");
 #endif
         break;
@@ -423,26 +423,26 @@ static int HandleHashCallback(int devId, wc_CryptoInfo* info, ccbVaultIc_Context
 
     switch(info->hash.type) {
     case WC_HASH_TYPE_NONE:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG_ALL)
         printf("  HandleHashCallback NONE\n");
 #endif
         break;
     case WC_HASH_TYPE_SHA:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG_ALL)
         printf("  HandleHashCallback SHA\n");
 #endif
         break;
     case WC_HASH_TYPE_SHA224:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG_ALL)
         printf("  HandleHashCallback SHA224\n");
 #endif
         break;
     case WC_HASH_TYPE_SHA256:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG)
         printf("  HandleHashCallback SHA256. In:%p InSz:%u Digest:%p c->m:%p c->m_len:%lu c->t:%d\n",
                 info->hash.in, info->hash.inSz, info->hash.digest, c->m, c->m_len, c->hash_type);
 #endif
-#if !defined(NO_WKVIC_SHA)
+#if !defined(NO_CCBVIC_SHA)
         /*
          *  info->hash.flag | WC_HASH_FLAGS_WILL_COPY --> Must buffer entire message
          *  info->hash.in != NULL                     --> Update
@@ -452,7 +452,7 @@ static int HandleHashCallback(int devId, wc_CryptoInfo* info, ccbVaultIc_Context
             /* III Buffer all messages */
             if(c->hash_type != info->hash.type) {
                 /* New/different hash than last time.  Erase state */
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG)
                 printf("   New Hash\n");
 #endif
                 if(c->m) free(c->m);
@@ -468,34 +468,34 @@ static int HandleHashCallback(int devId, wc_CryptoInfo* info, ccbVaultIc_Context
                     void *new_buf=realloc(c->m,c->m_len + info->hash.inSz);
                     if(!new_buf) {
                         /* Failure to allocate.  Must return error */
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG)
                         printf("   Failed to realloc. New size:%lu\n", c->m_len+info->hash.inSz);
 #endif
                         rc = MEMORY_E;
                         break;
                     }
                     c->m=new_buf;
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG)
                     printf("   Realloc to %p. New size:%lu\n", c->m, c->m_len+info->hash.inSz);
 #endif
                     } else {
                     c->m = malloc(info->hash.inSz);
                     if(!c->m) {
                         /* Failure to allocate.  Must return error */
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG)
                         printf("   Failed to alloc. Size:%u\n", info->hash.inSz);
 #endif
                         rc = MEMORY_E;
                         break;
                     }
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG)
                     printf("   Alloc to %p. Size:%u\n", c->m, info->hash.inSz);
 #endif
                     c->m_len=0;
                 }
                 memcpy(c->m + c->m_len, info->hash.in, info->hash.inSz);
                 c->m_len += info->hash.inSz;
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG)
                 printf("   Buffered to %p. Buffer size:%lu\n", c->m, c->m_len);
 #endif
                 rc = 0;
@@ -510,7 +510,7 @@ static int HandleHashCallback(int devId, wc_CryptoInfo* info, ccbVaultIc_Context
                 int vlt_rc=0;
                 vlt_rc=VltInitializeAlgorithm(0,0, VLT_DIGEST_MODE, &sha256_algo_params);
 
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG)
                 printf("   VltInit SHA256:%x\n", vlt_rc);
                 memset(info->hash.digest, 0, WC_SHA256_DIGEST_SIZE);
 #endif
@@ -519,14 +519,14 @@ static int HandleHashCallback(int devId, wc_CryptoInfo* info, ccbVaultIc_Context
                 {
                     vlt_rc=VltUpdateMessageDigest(c->m_len,
                             c->m);
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG)
                     printf("   VltUpdate SHA256:%x\n", vlt_rc);
 #endif
                     vlt_rc=VltComputeMessageDigestFinal(
                             &sha_out_len,
                             WC_SHA256_DIGEST_SIZE,
                             info->hash.digest);
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG)
                     printf("   VltFinal SHA256:%x\n", vlt_rc);
 #endif
                 }
@@ -535,17 +535,17 @@ static int HandleHashCallback(int devId, wc_CryptoInfo* info, ccbVaultIc_Context
                         &sha_out_len,
                         WC_SHA256_DIGEST_SIZE,
                         info->hash.digest);
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG)
                 printf("   VltCompute SHA256:%x\n", vlt_rc);
                 hexdump(info->hash.digest, WC_SHA256_DIGEST_SIZE);
 #endif
                 /* Deallocate/clear if this hash was NOT a copy */
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG)
                 printf("   Hash flags:%x\n", info->hash.sha256 ? info->hash.sha256->flags : -1);
 #endif
                 if(     !info->hash.sha256 ||
                         !(info->hash.sha256->flags&WC_HASH_FLAG_ISCOPY)) {
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG)
                     printf("   Freeing hash state\n");
 #endif
                     if(c->m) free(c->m);
@@ -560,12 +560,12 @@ static int HandleHashCallback(int devId, wc_CryptoInfo* info, ccbVaultIc_Context
 #endif
         break;
     case WC_HASH_TYPE_SHA384:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG_ALL)
         printf("  HandleHashCallback SHA384\n");
 #endif
         break;
     case WC_HASH_TYPE_SHA512:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG_ALL)
         printf("  HandleHashCallback SHA512\n");
 #endif
         break;
@@ -580,26 +580,27 @@ static int HandleCipherCallback(int devId, wc_CryptoInfo* info, ccbVaultIc_Conte
     int rc = CRYPTOCB_UNAVAILABLE;
     switch(info->cipher.type) {
     case WC_CIPHER_NONE:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG_ALL)
         printf("  HandleCipherCallback NONE\n");
 #endif
         break;
 
     case WC_CIPHER_AES:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG_ALL)
         printf("  HandleCipherCallback AES\n");
 #endif
         break;
 
     case WC_CIPHER_AES_CBC:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG)
         printf("  HandleCipherCallback AES_CBC\n");
 #endif
-#if !defined(NO_WKVIC_AES)
+#if !defined(NO_CCBVIC_AES)
         {
             Aes* aes=info->cipher.aescbc.aes;
             int encrypt=info->cipher.enc;
             VLT_U32 out_len=0;
+            int vlt_rc=0;
             if(!aes) break;
 
             /* Support AES128 for now */
@@ -612,15 +613,26 @@ static int HandleCipherCallback(int devId, wc_CryptoInfo* info, ccbVaultIc_Conte
             /* Check if key is not he same as last time */
             if(     (c->aescbc_key == NULL) ||
                     (c->aescbc_keylen != aes->keylen) ||
-                    (!memcmp(c->aescbc_key, aes->devKey,aes->keylen))) {
-                if(c->aescbc_key) {
+                    (memcmp(c->aescbc_key, aes->devKey, aes->keylen))) {
+#if defined(CCBVAULTIC_DEBUG)
+        printf("   New AES Key: ckey:%p clen:%lu akey:%p alen:%u\n",
+                c->aescbc_key,c->aescbc_keylen, aes->devKey, aes->keylen);
+        hexdump((void*)aes->devKey, aes->keylen);
+#endif
+                if(c->aescbc_key != NULL) {
                     free(c->aescbc_key);
                     c->aescbc_key=NULL;
                     c->aescbc_keylen=0;
                 }
                 /* Allocate key buffer */
                 c->aescbc_key=malloc(aes->keylen);
-                if(!c->aescbc_key) break;
+                if(!c->aescbc_key) {
+#if defined(CCBVAULTIC_DEBUG)
+                    printf("   Failed to allocate new AES Key of size:%u\n",
+                            aes->keylen);
+#endif
+                    break;
+                }
 
                 c->aescbc_keylen=aes->keylen;
                 memcpy(c->aescbc_key,aes->devKey,aes->keylen);
@@ -646,12 +658,15 @@ static int HandleCipherCallback(int devId, wc_CryptoInfo* info, ccbVaultIc_Conte
                         CCBVAULTIC_TMPAES_KEYID);
 
                 /* Putkey aes->devKey, aes->keylen */
-                VltPutKey(
+                vlt_rc=VltPutKey(
                         CCBVAULTIC_WOLFSSL_GRPID,
                         CCBVAULTIC_TMPAES_KEYID,
                         &keyPrivileges,
                         &tmpAesKey);
-
+#if defined(CCBVAULTIC_DEBUG)
+                printf("   VLT PutKey:%x\n", vlt_rc);
+                hexdump(c->aescbc_key, c->aescbc_keylen);
+#endif
             }
 
             /* Initialize Algo for AES-CBC */
@@ -667,25 +682,38 @@ static int HandleCipherCallback(int devId, wc_CryptoInfo* info, ccbVaultIc_Conte
 
             /* Perform encrypt/decrypt*/
             if(encrypt) {
-                VltInitializeAlgorithm(
+                vlt_rc=VltInitializeAlgorithm(
                         CCBVAULTIC_WOLFSSL_GRPID,
                         CCBVAULTIC_TMPAES_KEYID,
                         VLT_ENCRYPT_MODE,
                         &aescbc_algo_params);
-                VltEncrypt(info->cipher.aescbc.sz, info->cipher.aescbc.in,
+#if defined(CCBVAULTIC_DEBUG)
+                printf("   VLT InitAlgo:%x\n", vlt_rc);
+#endif
+                vlt_rc=VltEncrypt(info->cipher.aescbc.sz, info->cipher.aescbc.in,
                             &out_len,
                             info->cipher.aescbc.sz, info->cipher.aescbc.out);
+#if defined(CCBVAULTIC_DEBUG)
+                printf("   VLT Encrypt:%x\n", vlt_rc);
+#endif
+
                 const byte *last_block = info->cipher.aescbc.out + (blocks -1) * AES_BLOCK_SIZE;
                 memcpy(aes->reg, last_block, AES_BLOCK_SIZE);
             } else {
-                VltInitializeAlgorithm(
+                vlt_rc=VltInitializeAlgorithm(
                         CCBVAULTIC_WOLFSSL_GRPID,
                         CCBVAULTIC_TMPAES_KEYID,
                         VLT_DECRYPT_MODE,
                         &aescbc_algo_params);
-                VltDecrypt(info->cipher.aescbc.sz, info->cipher.aescbc.in,
+#if defined(CCBVAULTIC_DEBUG)
+                printf("   VLT InitAlgo:%x\n", vlt_rc);
+#endif
+                vlt_rc=VltDecrypt(info->cipher.aescbc.sz, info->cipher.aescbc.in,
                             &out_len,
                             info->cipher.aescbc.sz, info->cipher.aescbc.out);
+#if defined(CCBVAULTIC_DEBUG)
+                printf("   VLT Decrypt:%x\n", vlt_rc);
+#endif
                 const byte *last_block = info->cipher.aescbc.in + (blocks -1) * AES_BLOCK_SIZE;
                 memcpy(aes->reg, last_block, AES_BLOCK_SIZE);
             }
@@ -699,46 +727,46 @@ static int HandleCipherCallback(int devId, wc_CryptoInfo* info, ccbVaultIc_Conte
             /* Update return value to indicate success */
             rc=0;
         }
-#endif /* NO_WKVIC_AES */
+#endif /* NO_CCBVIC_AES */
         break;
 
     case WC_CIPHER_AES_GCM:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG_ALL)
         printf("  HandleCipherCallback AES_GCM\n");
 #endif
         break;
 
     case WC_CIPHER_AES_CTR:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG_ALL)
         printf("  HandleCipherCallback AES_CTR\n");
 #endif
         break;
 
     case WC_CIPHER_AES_XTS:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG_ALL)
         printf("  HandleCipherCallback AES_XTS\n");
 #endif
         break;
 
     case WC_CIPHER_AES_CFB:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG_ALL)
         printf("  HandleCipherCallback AES_CFB\n");
 #endif
         break;
 
     case WC_CIPHER_AES_CCM:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG_ALL)
         printf("  HandleCipherCallback AES_CCM\n");
 #endif
         break;
 
     case WC_CIPHER_AES_ECB:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG_ALL)
         printf("  HandleCipherCallback AES_ECB\n");
 #endif
         break;
     default:
-#if defined(DEBUG_VAULTIC)
+#if defined(CCBVAULTIC_DEBUG_ALL)
         printf("  HandleCipherCallback UNKNOWN\n");
 #endif
         break;
