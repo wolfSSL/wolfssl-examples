@@ -1,5 +1,5 @@
 /*
- * wisekey_vaultic_defs.h
+ * ccb_vaultic_defs.h
  *
  * Copyright (C) 2023 wolfSSL Inc.
  *
@@ -18,17 +18,17 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
  */
 
-#ifndef WISEKEY_VAULTIC_DEFS_H
-#define WISEKEY_VAULTIC_DEFS_H
+#ifndef CCB_VAULTIC_DEFS_H
+#define CCB_VAULTIC_DEFS_H
 
 /* VaultIC DevID MSBs are ASCII "VI" */
-#define WISEKEY_VAULTIC_DEVID (0x56490000ul)
-#define WISEKEY_VAULTIC420_DEVID (WISEKEY_VAULTIC_DEVID + 0x0420)
+#define CCBVAULTIC_DEVID (0x56490000ul)
+#define CCBVAULTIC420_DEVID (CCBVAULTIC_DEVID + 0x0420)
 
 /* Key/Group ID's to support temporary wolfSSL usage */
-#define WISEKEY_VAULTIC_WOLFSSL_GRPID 0xBB
-#define WISEKEY_VAULTIC_TMPAES_KEYID 0x01
-#define WISEKEY_VAULTIC_TMPHMAC_KEYID 0x02
-#define WISEKEY_VAULTIC_TMPRSA_KEYID 0x03
+#define CCBVAULTIC_WOLFSSL_GRPID 0xBB
+#define CCBVAULTIC_TMPAES_KEYID 0x01
+#define CCBVAULTIC_TMPHMAC_KEYID 0x02
+#define CCBVAULTIC_TMPRSA_KEYID 0x03
 
 #endif

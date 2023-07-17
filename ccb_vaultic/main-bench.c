@@ -16,13 +16,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
  */
-#include "wolfssl/wolfcrypt/settings.h"
-#include "wolfssl/ssl.h"
-#include "wolfcrypt/benchmark/benchmark.h"
 
 #include <stdio.h>
 
-#include "wisekey_vaultic.h"
+#include "wolfssl/options.h"
+#include "wolfssl/ssl.h"
+#include "wolfcrypt/benchmark/benchmark.h"
+
+#include "ccb_vaultic.h"
 
 int main(int argc, char **argv)
 {
@@ -30,31 +31,32 @@ int main(int argc, char **argv)
 
     int rc=0;
 
-    wkvicContext ctx;
-
-    /* Initialize VaultIC */
-    rc= WisekeyVaultIC_Init(&ctx);
-    if(rc) {
-        fprintf(stderr, "Failed to initialize the VaultIC: %d\n",rc);
-        return(rc);
-    }
+    ccbVaultIc_Context ctx;
 
     /* Initialize wolfSSL and wolfCrypt */
     rc=wolfSSL_Init();
     if(rc!=WOLFSSL_SUCCESS) {
         fprintf(stderr, "Failed to initialize wolfSSL: %d\n", rc);
-        WisekeyVaultIC_Cleanup(&ctx);
         return(rc);
     }
 
+    /* Initialize VaultIC */
+    rc= ccbVaultIc_Init(&ctx);
+    if(rc) {
+        fprintf(stderr, "Failed to initialize the VaultIC: %d\n",rc);
+        wolfSSL_Cleanup();
+        return(rc);
+    }
+
+
     /* Register VaultIC as cryptocb */
 
-    rc = wc_CryptoCb_RegisterDevice(WISEKEY_VAULTIC420_DEVID,
-                          WisekeyVaultIC_CryptoDevCb, &ctx);
+    rc = wc_CryptoCb_RegisterDevice(CCBVAULTIC420_DEVID,
+                          ccbVaultIc_CryptoDevCb, &ctx);
     if(rc) {
         fprintf(stderr, "Failed to register cryptocb: %d\n", rc);
+        ccbVaultIc_Cleanup(&ctx);
         wolfSSL_Cleanup();
-        WisekeyVaultIC_Cleanup(&ctx);
         return(rc);
     }
 
@@ -62,8 +64,9 @@ int main(int argc, char **argv)
     benchmark_init();
     benchmark_test(NULL);
 
+    wc_CryptoCb_UnRegisterDevice(CCBVAULTIC420_DEVID);
+    ccbVaultIc_Cleanup(&ctx);
     wolfSSL_Cleanup();
-    WisekeyVaultIC_Cleanup(&ctx);
 
     return 0;
 
