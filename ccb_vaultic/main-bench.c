@@ -31,8 +31,6 @@ int main(int argc, char **argv)
 
     int rc=0;
 
-    ccbVaultIc_Context ctx;
-
     /* Initialize wolfSSL and wolfCrypt */
     rc=wolfSSL_Init();
     if(rc!=WOLFSSL_SUCCESS) {
@@ -40,22 +38,11 @@ int main(int argc, char **argv)
         return(rc);
     }
 
-    /* Initialize VaultIC */
-    rc= ccbVaultIc_Init(&ctx);
-    if(rc) {
-        fprintf(stderr, "Failed to initialize the VaultIC: %d\n",rc);
-        wolfSSL_Cleanup();
-        return(rc);
-    }
-
-
     /* Register VaultIC as cryptocb */
-
     rc = wc_CryptoCb_RegisterDevice(CCBVAULTIC420_DEVID,
-                          ccbVaultIc_CryptoDevCb, &ctx);
+                          ccbVaultIc_CryptoDevCb, NULL);
     if(rc) {
         fprintf(stderr, "Failed to register cryptocb: %d\n", rc);
-        ccbVaultIc_Cleanup(&ctx);
         wolfSSL_Cleanup();
         return(rc);
     }
@@ -64,7 +51,6 @@ int main(int argc, char **argv)
     benchmark_test(NULL);
 
     wc_CryptoCb_UnRegisterDevice(CCBVAULTIC420_DEVID);
-    ccbVaultIc_Cleanup(&ctx);
     wolfSSL_Cleanup();
 
     return 0;

@@ -31,7 +31,7 @@
 #include "wolfssl/wolfcrypt/cryptocb.h"
 
 /*
- * Implementation of wolfCrypt devcrypto callbacks
+ * Implementation of wolfCrypt cryptocb callbacks
  *
  * The wolfSSL port of the Wisekey VaultIC provides a wrapper library to allow
  * the VaultIC to be used as an external crypto provider.  This library depends
@@ -56,9 +56,13 @@ typedef struct {
 /* Initialize the Wisekey VaultIC library and clear the context.
  * Returns: 0 on success
  *          BAD_FUNC_ARGS with NULL context
- *          WC_INIT_E on error initializing the VaultIC
- * */
+ *          WC_INIT_E on error initializing the VaultIC.
+ *                    c->vlt_rc will have error code
+ */
 int ccbVaultIc_Init(ccbVaultIc_Context *c);
+
+/* Close the Wisekey VaultIC library. */
+void ccbVaultIc_Cleanup(ccbVaultIc_Context *c);
 
 /* Register this callback and associate with a context using:
  *      ccbVaultIc_Context ctx={0};
@@ -71,13 +75,10 @@ int ccbVaultIc_Init(ccbVaultIc_Context *c);
  *      wc_AesInit(&aes, NULL, CCBVAULTIC420_DEVID);
  * Returns: 0 on success
  *          CRYPTOCB_UNAVAILABLE if not initialized or not implemented
- *
+ *          MEMORY_E if memory allocation fails
  */
 int ccbVaultIc_CryptoDevCb(int devId,
                                wc_CryptoInfo* info,
                                void* ctx);
-
-/* Close the Wisekey VaultIC library. */
-int ccbVaultIc_Cleanup(ccbVaultIc_Context *c);
 
 #endif /* CCB_VAULTIC_H_ */

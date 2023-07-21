@@ -30,7 +30,7 @@ To enable hardware offload support via cryptocb, configure wolfSSL to include cr
 ```
 git clone git@github.com:wolfssl/wolfssl.git
 cd wolfssl
-./configure --host aarch64-linux-android CC=$NDK_CC AS=$NDK_AS RANLIB=$NDK_RANLIB AR=$NDK_AR LD=$NDK_LD STRIP=$NDK_STRIP CXX=$NDK_CXX  --enable-cryptocb --enable-static --disable-shared
+./configure --host aarch64-linux-android CC=$NDK_CC AS=$NDK_AS RANLIB=$NDK_RANLIB AR=$NDK_AR LD=$NDK_LD STRIP=$NDK_STRIP CXX=$NDK_CXX CFLAGS=-DWOLF_CRYPTO_CB_CMD --enable-cryptocb --enable-static --disable-shared
 make 
 ```
 

@@ -17,7 +17,8 @@ OBJS=ccb_vaultic.o
 
 # Uncomment to enable verbose debug logging
 CFLAGS+=-DCCBVAULTIC_DEBUG
-CFLAGS+=-DCCBVAULTIC_DEBUG_ALL
+CFLAGS+=-DCCBVAULTIC_DEBUG_TIMING
+#CFLAGS+=-DCCBVAULTIC_DEBUG_ALL
 #CFLAGS+=-DSPI_TRACE_ERRORS
 
 # Optionally disable certain kinds of offload
@@ -46,7 +47,7 @@ CFLAGS+=-I$(VAULTIC_TLS)
 LDFLAGS+=-L$(VAULTIC_TLS)/VaultIC_420_TLS_Lib-SPI-Release -lvaultic420_tls
 
 #Test and Benchmark targets
-CFLAGS+=-DFORCE_DEVID=0x56490420 -DBENCH_EMBEDDED -DNO_MAIN_DRIVER
+CFLAGS+=-DWC_USE_DEVID=0x56490420 -DBENCH_EMBEDDED -DNO_MAIN_DRIVER
 TEST_OBJS:=$(WOLFSSL_DIR)/wolfcrypt/test/test.o main-test.o
 BENCH_OBJS:=$(WOLFSSL_DIR)/wolfcrypt/benchmark/benchmark.o main-bench.o
 
@@ -59,6 +60,10 @@ wolfcrypt-test: $(OBJS) $(TEST_OBJS)
 wolfcrypt-benchmark: $(OBJS) $(BENCH_OBJS)
 	$(CC) -o $@ $^ $(LDFLAGS)
 
+lib: $(OBJS)
+	cp $(VAULTIC_TLS)/VaultIC_420_TLS_Lib-SPI-Release/libvaultic420_tls.a libccbvaultic.a
+	$(AR) -r libccbvaultic.a $(OBJS)
+	
 clean:
 	rm -f *.o *.d wolfcrypt-test wolfcrypt-benchmark
 	rm -f $(WOLFSSL_DIR)/wolfcrypt/benchmark/*.o
