@@ -27,7 +27,8 @@ CFLAGS+=-DCCBVAULTIC_NO_SHA
 #CFLAGS+=-DCCBVAULTIC_NO_RSA
 
 # wolfSSL settings and files
-# ./configure --enable-cryptocb --enable-static --disable-shared --host aarch64-linux-android
+# ./configure --enable-cryptocb --enable-static --disable-shared 
+#                      --host aarch64-linux-android CFLAGS=-DWOLF_CRYPTO_CB_CMD
 CFLAGS+=-I$(WOLFSSL_DIR)
 LDFLAGS+=-L$(WOLFSSL_DIR)/src/.libs -lwolfssl -lm
 
