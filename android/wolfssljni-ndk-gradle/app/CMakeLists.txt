@@ -60,14 +60,15 @@ if ("${WOLFSSL_PKG_TYPE}" MATCHES "normal")
         -DTFM_TIMING_RESISTANT -DECC_TIMING_RESISTANT
         -DHAVE_AESGCM -DSIZEOF_LONG=4 -DSIZEOF_LONG_LONG=8
 
+        # Defines added for debugging. These can be removed if debug logging is not needed
+        # and will increase performance and reduce library footprint size if removed.
+        -DEBUG_WOLFSSL
+
         # Defines added for wolfCrypt test and benchmark only, may not be needed for your
         # own application.
         -DUSE_CERT_BUFFERS_2048 -DUSE_CERT_BUFFERS_256 -DNO_WRITE_TEMP_FILES
         -DNO_FILESYSTEM -DNO_MAIN_DRIVER
-
-        # Defines added for debugging. These can be removed if debug logging is not needed
-        # and will increase performance and reduce library footprint size if removed.
-        -DEBUG_WOLFSSL)
+    )
 
 elseif("${WOLFSSL_PKG_TYPE}" MATCHES "fipsready")
     # Add preprocessor defines to CFLAGS, these match those placed into
@@ -116,7 +117,8 @@ elseif("${WOLFSSL_PKG_TYPE}" MATCHES "fipsready")
             # Below options are added only for wolfCrypt test and benchmark applications.
             # These can be left off / removed when integrating into a real-world application.
             -DNO_FILESYSTEM -DUSE_CERT_BUFFERS_2048 -DUSE_CERT_BUFFERS_256
-            -DNO_WRITE_TEMP_FILES -DNO_MAIN_DRIVER)
+            -DNO_WRITE_TEMP_FILES -DNO_MAIN_DRIVER
+        )
 endif()
 
 if ("$WOLFSSL_MATH_LIB" MATCHES "fastmath")
@@ -150,6 +152,9 @@ aux_source_directory(${wolfssl_DIR}/src TLS_SOURCES)
 list(REMOVE_ITEM TLS_SOURCES ${wolfssl_DIR}/src/bio.c)
 list(REMOVE_ITEM TLS_SOURCES ${wolfssl_DIR}/src/conf.c)
 list(REMOVE_ITEM TLS_SOURCES ${wolfssl_DIR}/src/pk.c)
+list(REMOVE_ITEM TLS_SOURCES ${wolfssl_DIR}/src/ssl_bn.c)
+list(REMOVE_ITEM TLS_SOURCES ${wolfssl_DIR}/src/ssl_asn1.c)
+list(REMOVE_ITEM TLS_SOURCES ${wolfssl_DIR}/src/ssl_certman.c)
 list(REMOVE_ITEM TLS_SOURCES ${wolfssl_DIR}/src/ssl_misc.c)
 list(REMOVE_ITEM TLS_SOURCES ${wolfssl_DIR}/src/x509.c)
 list(REMOVE_ITEM TLS_SOURCES ${wolfssl_DIR}/src/x509_str.c)
@@ -264,3 +269,71 @@ target_link_libraries(
         wolfssljni
         wolfssl
 )
+
+# --------------------------- wolfCrypt CryptoCb Source Files --------------------------------------
+# set which cryptocb subsystem (if any) will be used
+#set(WOLFSSL_CRYPTOCB_TYPE "")
+set(WOLFSSL_CRYPTOCB_TYPE "ccb_vaultic")
+
+# Support for ccb_vaultic
+if("${WOLFSSL_CRYPTOCB_TYPE}" MATCHES "ccb_vaultic")
+    set(cryptocb_DIR   ${CMAKE_SOURCE_DIR}/../../../ccb_vaultic)
+    add_definitions (
+            -DWOLF_CRYPTO_CB -DWOLF_CRYPTO_CB_CMD
+    )
+    include_directories(
+            ${cryptocb_DIR}
+    )
+
+    add_library(ccbvaultic SHARED
+            ${cryptocb_DIR}/ccb_vaultic.c)
+
+    # TODO Add support for other architectures
+    if("${ANDROID_ABI}" MATCHES "arm64-v8a")
+        add_definitions(
+                -DHAVE_CCBVAULTIC -DWC_USE_DEVID=0x56490420 -DBENCH_EMBEDDED
+                #-DCCBVAULTIC_NO_AES
+                #-DCCBVAULTIC_NO_RSA
+                -DCCBVAULTIC_NO_SHA
+                #-DCCBVAULTIC_DEBUG
+                -DCCBVAULTIC_DEBUG_TIMING
+        )
+
+        set(VAULTIC_DIR ${cryptocb_DIR}/VaultIC-TLS_420/vaultic_tls-4xx)
+        set(VAULTIC_CHIP 420)
+        set(CHIP_TARGET TARGETCHIP_VAULTIC_${VAULTIC_CHIP})
+        add_definitions ( -D${CHIP_TARGET} -DUSE_SPI )
+
+        set(VAULTIC_ELIB ${VAULTIC_DIR}/VaultIC-Elib_${VAULTIC_CHIP}/src )
+        include_directories(
+                ${VAULTIC_ELIB}/common
+                ${VAULTIC_ELIB}/device/vaultic_4XX_family
+        )
+        SET(VAULTIC_TLS ${VAULTIC_DIR}/lib/VaultIC_420_TLS_Lib/target/raspberry/dist)
+        include_directories(
+                ${VAULTIC_TLS}
+        )
+
+        # Select whether to use the debug or release static hardware library
+        #SET(VAULTIC_TLS_LIB ${VAULTIC_TLS}/VaultIC_420_TLS_Lib-SPI-Debug/libvaultic420_tls.a)
+        SET(VAULTIC_TLS_LIB ${VAULTIC_TLS}/VaultIC_420_TLS_Lib-SPI-Release/libvaultic420_tls.a)
+
+        # Link ccbvaultic to static hardware library
+        target_link_libraries(
+                ccbvaultic
+                PRIVATE ${VAULTIC_TLS_LIB}
+        )
+    endif() #arm64-v8a
+
+    # Link ccbvaultic to wolfssl and log
+    target_link_libraries(
+            ccbvaultic
+            PUBLIC wolfssl
+            PUBLIC ${lib-log}
+    )
+    # Link wolfssljni to ccbvaultic
+    target_link_libraries(
+            wolfssljni
+            ccbvaultic
+    )
+endif() #ccb_vaultic

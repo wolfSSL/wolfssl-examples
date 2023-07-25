@@ -24,15 +24,49 @@
 #include <wolfcrypt/test/test.h>
 #include <wolfcrypt/benchmark/benchmark.h>
 
-JNIEXPORT jint JNICALL
-Java_com_wolfssl_wolfssljni_1ndk_1gradle_MainActivity_testWolfCrypt(JNIEnv *env, jobject thiz) {
-    int ret;
+#if defined(WOLF_CRYPTO_CB)
+    #if defined(HAVE_CCBVAULTIC) && defined(WOLF_CRYPTO_CB_CMD)
+        #include "ccb_vaultic.h"
+    #endif
+#endif
 
-    ret = wolfCrypt_Init();
+static int nativeStartup(void)
+{
+    int ret = wolfCrypt_Init();
+
+#ifdef WOLF_CRYPTO_CB
+    {
+    #ifdef WC_USE_DEVID
+        int devId = WC_USE_DEVID;
+    #else
+        int devId = INVALID_DEVID;
+    #endif
+
+    #if defined(HAVE_CCBVAULTIC) && defined(WOLF_CRYPTO_CB_CMD)
+        if((ret == 0) && (devId == CCBVAULTIC420_DEVID)) {
+            ret = wc_CryptoCb_RegisterDevice((int) devId,
+                                       ccbVaultIc_CryptoDevCb, NULL);
+        }
+    #endif
+
+    }
+#endif /* WOLF_CRYPTO_CB */
+
 #ifdef WC_RNG_SEED_CB
     wc_SetSeed_Cb(wc_GenerateSeed);
 #endif
+    return ret;
+}
+
+JNIEXPORT jint JNICALL
+Java_com_wolfssl_wolfssljni_1ndk_1gradle_MainActivity_testWolfCrypt(JNIEnv *env, jobject thiz) {
+    (void)env;
+    (void)thiz;
+
+    int ret = nativeStartup();
+
     if (ret == 0) {
+        /* test uses WC_USE_DEVID for hardware offload tests */
         ret = wolfcrypt_test(NULL);
     }
     wolfCrypt_Cleanup();
@@ -42,13 +76,13 @@ Java_com_wolfssl_wolfssljni_1ndk_1gradle_MainActivity_testWolfCrypt(JNIEnv *env,
 
 JNIEXPORT jint JNICALL
 Java_com_wolfssl_wolfssljni_1ndk_1gradle_MainActivity_benchWolfCrypt(JNIEnv *env, jobject thiz) {
-    int ret = 0;
+    (void)env;
+    (void)thiz;
 
-    ret = wolfCrypt_Init();
-#ifdef WC_RNG_SEED_CB
-    wc_SetSeed_Cb(wc_GenerateSeed);
-#endif
+    int ret = nativeStartup();
+
     if (ret == 0) {
+        /* benchmark uses WC_USE_DEVID for hardware offload tests */
         ret = benchmark_test(NULL);
     }
     wolfCrypt_Cleanup();
