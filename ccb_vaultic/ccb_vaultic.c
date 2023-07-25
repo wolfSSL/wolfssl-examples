@@ -35,6 +35,30 @@
 #include "wolfssl/wolfcrypt/hash.h"  /* For HASH_FLAGS and types */
 #include "wolfssl/wolfcrypt/rsa.h"   /* For RSA_MAX_SIZE */
 
+/* Local include */
+#include "ccb_vaultic.h"
+
+#ifndef HAVE_CCBVAULTIC
+/* Provide dummy implementations of callbacks */
+int ccbVaultIc_Init(ccbVaultIc_Context *c)
+{
+    return CRYPTOCB_UNAVAILABLE;
+}
+
+/* Close the Wisekey VaultIC library. */
+void ccbVaultIc_Cleanup(ccbVaultIc_Context *c) {
+    return;
+}
+
+
+int ccbVaultIc_CryptoDevCb(int devId,
+                               wc_CryptoInfo* info,
+                               void* ctx)
+{
+    return CRYPTOCB_UNAVAILABLE;
+}
+#else
+
 /* WiseKey VaultIC includes */
 #include "vaultic_tls.h"
 #include "vaultic_config.h"
@@ -45,16 +69,15 @@
 #define VAULTIC_KP_ALL 0xFF  /* Allow all users all privileges */
 #define VAULTIC_PKV_ASSURED VLT_PKV_ASSURED_EXPLICIT_VALIDATION
 
-/* Local include */
-#include "ccb_vaultic.h"
+
 
 /* Defined options:
  * CCBVAULTIC_DEBUG: Print useful callback info using printf
  * CCBVAULTIC_DEBUG_TIMING: Print useful timing info using printf
  * CCBVAULTIC_DEBUG_ALL: Print copious info using printf
- * NO_CCBVIC_SHA: Do not handle SHA256 callback
- * NO_CCBVIC_RSA: Do not handle RSA callback
- * NO_CCBVIC_AES: Do not handle AES callback
+ * CCBVAULTIC_NO_SHA: Do not handle SHA256 callback
+ * CCBVAULTIC_NO_RSA: Do not handle RSA callback
+ * CCBVAULTIC_NO_AES: Do not handle AES callback
  */
 
 #ifdef CCBVAULTIC_DEBUG_ALL
@@ -335,7 +358,7 @@ static int HandlePkCallback(int devId, wc_CryptoInfo* info,
 #if defined(CCBVAULTIC_DEBUG_ALL)
         printf("  HandlePkCallback RSA: Type:%d\n",info->pk.rsa.type);
 #endif
-#if !defined(NO_CCBVIC_RSA)
+#if !defined(CCBVAULTIC_NO_RSA)
         {
 
             if((info->pk.rsa.type == RSA_PUBLIC_DECRYPT) || /* RSA Verify */
@@ -587,7 +610,7 @@ static int HandleHashCallback(int devId, wc_CryptoInfo* info,
                 info->hash.in, info->hash.inSz, info->hash.digest,
                 c->m, c->m_len, c->hash_type);
 #endif
-#if !defined(NO_CCBVIC_SHA)
+#if !defined(CCBVAULTIC_NO_SHA)
         /*
          *  info->hash.flag | WC_HASH_FLAGS_WILL_COPY --> Buffer entire message
          *  info->hash.in != NULL                     --> Update
@@ -778,7 +801,7 @@ static int HandleCipherCallback(int devId, wc_CryptoInfo* info,
 #if defined(CCBVAULTIC_DEBUG_ALL)
         printf("  HandleCipherCallback AES_CBC\n");
 #endif
-#if !defined(NO_CCBVIC_AES)
+#if !defined(CCBVAULTIC_NO_AES)
         {
             Aes* aes    = info->cipher.aescbc.aes;
             int encrypt = info->cipher.enc;
@@ -948,7 +971,7 @@ static int HandleCipherCallback(int devId, wc_CryptoInfo* info,
             /* Update return value to indicate success */
             rc=0;
         }
-#endif /* NO_CCBVIC_AES */
+#endif /* CCBVAULTIC_NO_AES */
         break;
 
     case WC_CIPHER_AES_GCM:
@@ -994,3 +1017,5 @@ static int HandleCipherCallback(int devId, wc_CryptoInfo* info,
     }
     return rc;
 }
+
+#endif /* HAVE_CCBVAULTIC */

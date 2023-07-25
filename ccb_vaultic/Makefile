@@ -12,7 +12,7 @@ WOLFSSL_DIR?=../../bill_wolfssl
 VAULTIC_DIR?=VaultIC-TLS_420/vaultic_tls-4xx
 
 # Common settings and files
-CFLAGS+=-I. -O2
+CFLAGS+=-I. -O2 -DHAVE_CCBVAULTIC
 OBJS=ccb_vaultic.o
 
 # Uncomment to enable verbose debug logging
@@ -22,9 +22,9 @@ CFLAGS+=-DCCBVAULTIC_DEBUG_TIMING
 #CFLAGS+=-DSPI_TRACE_ERRORS
 
 # Optionally disable certain kinds of offload
-#CFLAGS+=-DNO_CCBVIC_AES
-CFLAGS+=-DNO_CCBVIC_SHA
-#CFLAGS+=-DNO_CCBVIC_RSA
+#CFLAGS+=-DCCBVAULTIC_NO_AES
+CFLAGS+=-DCCBVAULTIC_NO_SHA
+#CFLAGS+=-DCCBVAULTIC_NO_RSA
 
 # wolfSSL settings and files
 # ./configure --enable-cryptocb --enable-static --disable-shared --host aarch64-linux-android
@@ -60,10 +60,6 @@ wolfcrypt-test: $(OBJS) $(TEST_OBJS)
 wolfcrypt-benchmark: $(OBJS) $(BENCH_OBJS)
 	$(CC) -o $@ $^ $(LDFLAGS)
 
-lib: $(OBJS)
-	cp $(VAULTIC_TLS)/VaultIC_420_TLS_Lib-SPI-Release/libvaultic420_tls.a libccbvaultic.a
-	$(AR) -r libccbvaultic.a $(OBJS)
-	
 clean:
 	rm -f *.o *.d wolfcrypt-test wolfcrypt-benchmark
 	rm -f $(WOLFSSL_DIR)/wolfcrypt/benchmark/*.o
