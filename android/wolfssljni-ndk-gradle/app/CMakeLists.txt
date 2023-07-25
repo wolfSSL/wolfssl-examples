@@ -272,8 +272,8 @@ target_link_libraries(
 
 # --------------------------- wolfCrypt CryptoCb Source Files --------------------------------------
 # set which cryptocb subsystem (if any) will be used
-#set(WOLFSSL_CRYPTOCB_TYPE "")
-set(WOLFSSL_CRYPTOCB_TYPE "ccb_vaultic")
+set(WOLFSSL_CRYPTOCB_TYPE "")
+#set(WOLFSSL_CRYPTOCB_TYPE "ccb_vaultic")
 
 # Support for ccb_vaultic
 if("${WOLFSSL_CRYPTOCB_TYPE}" MATCHES "ccb_vaultic")
