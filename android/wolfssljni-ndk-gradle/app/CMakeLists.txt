@@ -296,7 +296,7 @@ if("${WOLFSSL_CRYPTOCB_TYPE}" MATCHES "ccb_vaultic")
                 #-DCCBVAULTIC_NO_RSA
                 -DCCBVAULTIC_NO_SHA
                 #-DCCBVAULTIC_DEBUG
-                -DCCBVAULTIC_DEBUG_TIMING
+                #-DCCBVAULTIC_DEBUG_TIMING
         )
 
         set(VAULTIC_DIR ${cryptocb_DIR}/VaultIC-TLS_420/vaultic_tls-4xx)

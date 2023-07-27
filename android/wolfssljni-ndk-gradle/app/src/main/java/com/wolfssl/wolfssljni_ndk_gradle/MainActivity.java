@@ -86,6 +86,14 @@ public class MainActivity extends AppCompatActivity {
                 /* Enable wolfJSSE debug messages */
                 System.setProperty("wolfjsse.debug", "true");
 
+                /* Select The devId which will be registered and used on every other invocation */
+                /* Unique devId's are compiled into wolfssljni */
+                //int devId = 0x56490420;  /* VaultIC 420 */
+                int devId = WolfSSL.INVALID_DEVID;  /* No hardware offload */
+
+                /* Select if the cipher suites and protocols will be limited */
+                boolean limitCipherProtocol = false;
+
                 long[] ts = new long[10];
 
                 ts[0] = System.currentTimeMillis();
@@ -95,9 +103,8 @@ public class MainActivity extends AppCompatActivity {
 
                 ts[1] = System.currentTimeMillis();
                 connectCount++;
-                /* Unique devId's are compiled into wolfssljni */
-                int devId = 0x56490420;
-                if ((connectCount % 2) == 0) {
+
+                if (((connectCount % 2) == 0) && (devId != WolfSSL.INVALID_DEVID)) {
                     appendDisplayText("B. Using hardware offload\n");
                     wolfProv.registerDevId(devId);
                     wolfProv.setDevId(devId);
@@ -117,11 +124,13 @@ public class MainActivity extends AppCompatActivity {
                 SSLSocketFactory sf = ctx.getSocketFactory();
                 SSLSocket sock = (SSLSocket) sf.createSocket(host, port);
 
-                /* Limit cipherSuites and protocol */
-                String[] cipherSuites = new String[] {"TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"};
-                sock.setEnabledCipherSuites(cipherSuites);
-                String[] protocols = new String[]{"TLSv1.2"};
-                sock.setEnabledProtocols(protocols);
+                if (limitCipherProtocol) {
+                    /* Limit cipherSuites and protocol */
+                    String[] cipherSuites = new String[]{"TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"};
+                    sock.setEnabledCipherSuites(cipherSuites);
+                    String[] protocols = new String[]{"TLSv1.2"};
+                    sock.setEnabledProtocols(protocols);
+                }
 
                 ts[3] = System.currentTimeMillis();
                 appendDisplayText("D. Starting Handshake\n");
@@ -153,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
                 sock.close();
 
                 ts[7] = System.currentTimeMillis();
-                if ((connectCount % 2) == 0) {
+                if (((connectCount % 2) == 0)  && (devId != WolfSSL.INVALID_DEVID)) {
                     appendDisplayText("H. Disabling hardware offload\n");
                     wolfProv.setDevId(WolfSSL.INVALID_DEVID);
                     wolfProv.unRegisterDevId(devId);
@@ -175,9 +184,9 @@ public class MainActivity extends AppCompatActivity {
                         " C:" + (ts[3] - ts[2]) +
                         " D:" + (ts[4] - ts[3]) +
                         " E:" + (ts[5] - ts[4]) +
-                        ", " + getCmd.length() * 1000 / (ts[5] - ts[4]) + "Bps" +
+                        ", " + getCmd.length() * 1000 / (ts[5] - ts[4] + 1) + "Bps" +
                         " F:" + (ts[6] - ts[5]) +
-                        ", " + totalRead * 1000 / (ts[6] - ts[5]) + "Bps" +
+                        ", " + totalRead * 1000 / (ts[6] - ts[5] + 1) + "Bps" +
                         " G:" + (ts[7] - ts[6]) +
                         " H:" + (ts[8] - ts[7]) +
                         " I:" + (ts[9] - ts[8]) +

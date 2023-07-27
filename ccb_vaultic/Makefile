@@ -6,7 +6,7 @@ AR=${NDK_AR}
 LD=${NDK_LD}
 
 # Relative path to wolfSSL source
-WOLFSSL_DIR?=../../bill_wolfssl
+WOLFSSL_DIR?=../../wolfssl
 
 # Relative path to VaultIC dev kit source
 VAULTIC_DIR?=VaultIC-TLS_420/vaultic_tls-4xx
