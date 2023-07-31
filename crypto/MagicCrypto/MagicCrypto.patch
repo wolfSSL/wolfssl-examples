@@ -1,0 +1,28 @@
+diff --git a/include/mcapi.h b/include/mcapi.h
+index ba426d8..278a8a4 100644
+--- a/include/mcapi.h
++++ b/include/mcapi.h
+@@ -62,8 +62,8 @@ MCAPI MC_RV MC_GetVersion(OUT MC_VERSION *pVersion);
+ MCAPI MC_RV MC_GetStatus(OUT MC_UINT *pFlag);
+ 
+ MCAPI MC_RV MC_Initialize(IN MC_VOID *pInitArgs);
+-MCAPI MC_RV MC_Finalize();
+-MCAPI MC_RV MC_Selftest();
++MCAPI MC_RV MC_Finalize(MC_VOID);
++MCAPI MC_RV MC_Selftest(MC_VOID);
+ MCAPI MC_STR MC_GetErrorString(MC_RV nRv);
+ 
+ MCAPI MC_RV MC_OpenSession(OUT MC_HSESSION *phSession);
+diff --git a/include/mcapi_error.h b/include/mcapi_error.h
+index c389d22..07ea9fc 100644
+--- a/include/mcapi_error.h
++++ b/include/mcapi_error.h
+@@ -55,7 +55,7 @@
+ #define MC_ERR_NOT_ENOUGH_BUFFER			MC_ERR_BASE+27
+ #define MC_ERR_NOT_SESSION_OBJECT			MC_ERR_BASE+28
+ 
+-//MC_STR MC_GetErrorString(MC_RV rv);
++/* MC_STR MC_GetErrorString(MC_RV rv); */
+ 
+ 
+ #endif /* _MC_HEADER_9330603E_D03D_4B8B_9746_9ED098D8A5CB */
