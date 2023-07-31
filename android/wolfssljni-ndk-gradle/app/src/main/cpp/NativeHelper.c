@@ -45,7 +45,7 @@ static int nativeStartup(void)
     #if defined(HAVE_CCBVAULTIC) && defined(WOLF_CRYPTO_CB_CMD)
         if((ret == 0) && (devId == CCBVAULTIC420_DEVID)) {
             ret = wc_CryptoCb_RegisterDevice((int) devId,
-                                       ccbVaultIc_CryptoDevCb, NULL);
+                                       ccbVaultIc_CryptoCb, NULL);
         }
     #endif
 

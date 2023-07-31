@@ -21,14 +21,11 @@
 #ifndef CCB_VAULTIC_H
 #define CCB_VAULTIC_H
 
-#include "ccb_vaultic_defs.h"
-#include "wolfssl/options.h"
+/* VaultIC DevID MSBs are ASCII "VI" */
+#define CCBVAULTIC_DEVID (0x56490000ul)
+#define CCBVAULTIC420_DEVID (CCBVAULTIC_DEVID + 0x0420)
 
-#if !defined(WOLF_CRYPTO_CB)
-#error "Missing WOLF_CRYPTO_CB.  Reconfigure wolfssl with --enable-cryptocb"
-#endif
-
-#include "wolfssl/wolfcrypt/cryptocb.h"
+#ifdef HAVE_CCBVAULTIC
 
 /*
  * Implementation of wolfCrypt cryptocb callbacks
@@ -53,6 +50,12 @@ typedef struct {
     size_t aescbc_keylen;
 } ccbVaultIc_Context;
 
+/* ccbVaultIc_Context static initializer */
+#define CCBVAULTIC_CONTEXT_INITIALIZER   \
+    {                                    \
+        .initialized = 0                 \
+    }
+
 /* Initialize the Wisekey VaultIC library and clear the context.
  * Returns: 0 on success
  *          BAD_FUNC_ARGS with NULL context
@@ -64,12 +67,15 @@ int ccbVaultIc_Init(ccbVaultIc_Context *c);
 /* Close the Wisekey VaultIC library. */
 void ccbVaultIc_Cleanup(ccbVaultIc_Context *c);
 
+#ifdef WOLF_CRYPTO_CB
+#include "wolfssl/wolfcrypt/cryptocb.h"  /* For wc_CryptInfo */
+
 /* Register this callback and associate with a context using:
- *      ccbVaultIc_Context ctx={0};
+ *      ccbVaultIc_Context ctx=CCBVAULTIC_CONTEXT_INITIALIZER;
  *      ccbVaultIc_Init(&ctx);
  *      wc_CryptoCb_RegisterDevice(
  *                      CCBVAULTIC420_DEVID,
- *                      ccbVaultIc_CryptoDevCb,
+ *                      ccbVaultIc_CryptoCb,
  *                      &ctx);
  *      wc_Aes aes={0};
  *      wc_AesInit(&aes, NULL, CCBVAULTIC420_DEVID);
@@ -77,8 +83,11 @@ void ccbVaultIc_Cleanup(ccbVaultIc_Context *c);
  *          CRYPTOCB_UNAVAILABLE if not initialized or not implemented
  *          MEMORY_E if memory allocation fails
  */
-int ccbVaultIc_CryptoDevCb(int devId,
-                               wc_CryptoInfo* info,
-                               void* ctx);
+int ccbVaultIc_CryptoCb(int devId,
+                        wc_CryptoInfo* info,
+                        void* ctx);
+#endif  /* WOLF_CRYPTO_CB */
+
+#endif  /* HAVE_CCBVAULTIC */
 
 #endif /* CCB_VAULTIC_H_ */

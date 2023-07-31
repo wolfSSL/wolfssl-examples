@@ -9,7 +9,7 @@ LD=${NDK_LD}
 WOLFSSL_DIR?=../../wolfssl
 
 # Relative path to VaultIC dev kit source
-VAULTIC_DIR?=VaultIC-TLS_420/vaultic_tls-4xx
+VAULTIC_DIR?=./VaultIC-TLS_420/vaultic_tls-4xx
 
 # Common settings and files
 CFLAGS+=-I. -O2 -DHAVE_CCBVAULTIC
@@ -19,7 +19,6 @@ OBJS=ccb_vaultic.o
 CFLAGS+=-DCCBVAULTIC_DEBUG
 CFLAGS+=-DCCBVAULTIC_DEBUG_TIMING
 #CFLAGS+=-DCCBVAULTIC_DEBUG_ALL
-#CFLAGS+=-DSPI_TRACE_ERRORS
 
 # Optionally disable certain kinds of offload
 #CFLAGS+=-DCCBVAULTIC_NO_AES
@@ -37,6 +36,7 @@ VAULTIC_CHIP=420
 CHIP_TARGET=TARGETCHIP_VAULTIC_$(VAULTIC_CHIP)
 CFLAGS+= -D$(CHIP_TARGET)
 CFLAGS+= -DUSE_SPI
+#CFLAGS+=-DSPI_TRACE_ERRORS
 
 VAULTIC_ELIB?=$(VAULTIC_DIR)/VaultIC-Elib_$(VAULTIC_CHIP)/src
 CFLAGS+=-I$(VAULTIC_ELIB)/common
@@ -52,7 +52,7 @@ CFLAGS+=-DWC_USE_DEVID=0x56490420 -DBENCH_EMBEDDED -DNO_MAIN_DRIVER
 TEST_OBJS:=$(WOLFSSL_DIR)/wolfcrypt/test/test.o main-test.o
 BENCH_OBJS:=$(WOLFSSL_DIR)/wolfcrypt/benchmark/benchmark.o main-bench.o
 
-
+#Makefile rules
 all: wolfcrypt-test wolfcrypt-benchmark
 
 wolfcrypt-test: $(OBJS) $(TEST_OBJS)
