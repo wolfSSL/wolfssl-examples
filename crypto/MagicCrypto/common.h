@@ -43,12 +43,12 @@
 
 #define DEFAULT_PORT 11111
 
-#define CA_FILE "../certs/ca-ecc-cert.pem"
+#define CA_FILE "./certs/ca-ecc-cert.pem"
 
-#define CLIENT_ECC_FILE    "../certs/intermediate/client-chain-ecc.pem"
-#define SERVER_ECC_FILE    "../certs/intermediate/server-chain-ecc.pem"
-#define CLIENT_KEY_FILE    "../certs/ecc-client-key.pem"
-#define SERVER_KEY_FILE    "../certs/ecc-key.pem"
+#define CLIENT_ECC_FILE    "./certs/intermediate/client-chain-ecc.pem"
+#define SERVER_ECC_FILE    "./certs/intermediate/server-chain-ecc.pem"
+#define CLIENT_KEY_FILE    "./certs/ecc-client-key.pem"
+#define SERVER_KEY_FILE    "./certs/ecc-key.pem"
 
 #define CIPHER_LIST "ECDHE-ECDSA-ARIA128-GCM-SHA256:ECDHE-ECDSA-ARIA256-GCM-SHA384"
 //#define CIPHER_LIST "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384"
