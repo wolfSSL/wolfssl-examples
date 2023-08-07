@@ -161,6 +161,7 @@ static int translateError(int vlt_rc)
 {
     /* vlt return codes are defined in src/common/vaultic_err.h */
     switch (vlt_rc) {
+    case 0:        /* returned on successful init */
     case VLT_OK:
         return 0;
     default:
@@ -935,13 +936,15 @@ static int HandleCipherCallback(int devId, wc_CryptoInfo* info,
         XMEMSET(ts, 0, sizeof(ts));
 #endif
         /* Invalid incoming context? Return error*/
-        if (aes == NULL)
+        if (aes == NULL) {
             rc = BAD_FUNC_ARG;
             break;
+        }
 
         /* Only support AES128 */
-        if (aes->keylen != AES_128_KEY_SIZE)
+        if (aes->keylen != AES_128_KEY_SIZE) {
             break;
+        }
 
         /* Check number of blocks */
         blocks = info->cipher.aescbc.sz / AES_BLOCK_SIZE;
