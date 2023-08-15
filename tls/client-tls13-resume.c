@@ -313,7 +313,7 @@ int main(int argc, char** argv)
     /* Set up to resume the session */
     if ((ret = wolfSSL_set_session(sslRes, session)) != WOLFSSL_SUCCESS) {
         fprintf(stderr, "Failed to set session, make sure session tickets "
-                        "(--enable-session ticket) is enabled\n");
+                        "(--enable-session-ticket) is enabled\n");
         /*goto exit;*/ /* not fatal */
     }
 
