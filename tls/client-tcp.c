@@ -27,14 +27,14 @@
 /* socket includes */
 #include <sys/socket.h>
 #include <arpa/inet.h>
-#include <netinet/in.h>
+//#include <netinet/in.h>
 #include <unistd.h>
 
 #define DEFAULT_PORT 11111
 
 
 
-int main(int argc, char** argv)
+int TCPclient(int argc, char** argv)
 {
     int                sockfd;
     struct sockaddr_in servAddr;

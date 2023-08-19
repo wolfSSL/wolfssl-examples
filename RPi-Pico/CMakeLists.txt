@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.13)
 
 # Pull in Pico and FreeRTOS
-include($ENV{PICO_SDK_PATH}/external/pico_sdk_import.cmake)
+include(pico_sdk_import.cmake)
+include(pico_extras_import_optional.cmake)
 #include($ENV{FREERTOS_KERNEL_PATH}/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_import.cmake)
 
 
@@ -9,7 +10,7 @@ if(PICO_SDK_VERSION_STRING VERSION_LESS "1.3.0")
     message(FATAL_ERROR "Raspberry Pi Pico SDK version 1.3.0 (or later) required. Your version is ${PICO_SDK_VERSION_STRING}")
 endif()
 
-project(wolf_pico_examples)
+project(wolf_pico_examples C CXX ASM)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 
@@ -30,6 +31,8 @@ include_directories(config)
 include_directories(include)
 include_directories(${PICO_SDK_PATH}/src/rp2_common/pico_lwip/include)
 include_directories(${PICO_SDK_PATH}/lib/lwip/contrib/ports/freertos/include)
+include_directories(${PICO_SDK_PATH}/lib/lwip/src/include)
+include_directories(${PICO_SDK_PATH}/src/rp2_common/pico_async_context/include)
 
 add_subdirectory(wolfssl)
 target_link_libraries(wolfssl PRIVATE
@@ -54,3 +57,54 @@ target_link_libraries(benchmark
     #FreeRTOS-Kernel-Heap4 # FreeRTOS kernel and dynamic heap
 )
 pico_add_extra_outputs(benchmark)
+
+if(1)
+    add_executable(TCPclient
+        src/blink.c
+        # src/TCPclient.c
+        src/TCPclient_main.c
+    )
+
+    # enable usb output, disable uart output
+    pico_enable_stdio_usb(TCPclient 1)
+    pico_enable_stdio_uart(TCPclient 0)
+
+    target_compile_definitions(TCPclient PRIVATE
+
+        # CYW43_NETUTILS
+        # PICO_CYW43_ARCH_FREERTOS
+        TEST_TCP_SERVER_IP="192.168.11.28"
+        PICO_CYW43_ARCH_POLL
+        NO_SYS=1
+
+        # SYS_LIGHTWEIGHT_PROT=1
+    )
+
+    target_link_libraries(TCPclient
+        pico_stdlib
+        pico_rand
+
+        # pico_cyw43_arch_lwip_sys_freertos
+        # pico_cyw43_arch_lwip_poll
+        # pico_cyw43_arch_none
+
+        pico_lwip
+        # pico_lwip_core4
+        # pico_lwip_core6
+        pico_cyw43_arch
+        pico_lwip_nosys
+        pico_async_context_poll
+        # pico_lwip_iperf
+
+        # pico_lwip_freertos
+        # pico_async_context_freertos
+        # pico_lwip_port
+        # pico_cyw43_driver
+        # pico_lwip_api
+        pico_lwip_netif
+        # FreeRTOS-Kernel
+        # FreeRTOS-Kernel-Heap4 # FreeRTOS kernel and dynamic heap
+    )
+
+    pico_add_extra_outputs(TCPclient)
+endif()
