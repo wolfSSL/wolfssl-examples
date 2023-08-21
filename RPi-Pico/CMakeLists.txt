@@ -58,7 +58,7 @@ target_link_libraries(benchmark
 )
 pico_add_extra_outputs(benchmark)
 
-if(1)
+if(0)
     add_executable(TCPclient
         src/blink.c
         # src/TCPclient.c
@@ -73,7 +73,9 @@ if(1)
 
         # CYW43_NETUTILS
         # PICO_CYW43_ARCH_FREERTOS
-        TEST_TCP_SERVER_IP="192.168.11.28"
+        TEST_TCP_SERVER_IP=\"${TEST_TCP_SERVER_IP}\"
+        WIFI_SSID=\"${WIFI_SSID}\"
+        WIFI_PASSWORD=\"${WIFI_PASSWORD}\"
         PICO_CYW43_ARCH_POLL
         NO_SYS=1
 
@@ -108,3 +110,61 @@ if(1)
 
     pico_add_extra_outputs(TCPclient)
 endif()
+
+add_executable(Wifi
+    src/blink.c
+    src/wifi.c
+    src/Wifi_main.c
+)
+
+# enable usb output, disable uart output
+pico_enable_stdio_usb(Wifi 1)
+pico_enable_stdio_uart(Wifi 0)
+
+target_compile_definitions(Wifi PRIVATE
+    WIFI_SSID=\"${WIFI_SSID}\"
+    WIFI_PASSWORD=\"${WIFI_PASSWORD}\"
+    PICO_CYW43_ARCH_POLL
+    NO_SYS=1
+)
+
+target_link_libraries(Wifi
+    pico_stdlib
+    pico_rand
+    pico_lwip
+    pico_cyw43_arch
+    pico_lwip_nosys
+    pico_async_context_poll
+)
+
+pico_add_extra_outputs(Wifi)
+
+add_executable(tcp_Client
+    src/blink.c
+    src/wifi.c
+    src/tcp.c
+    src/tcpClient_main.c
+)
+
+# enable usb output, disable uart output
+pico_enable_stdio_usb(tcp_Client 1)
+pico_enable_stdio_uart(tcp_Client 0)
+
+target_compile_definitions(tcp_Client PRIVATE
+    WIFI_SSID=\"${WIFI_SSID}\"
+    WIFI_PASSWORD=\"${WIFI_PASSWORD}\"
+    TEST_TCP_SERVER_IP=\"${TEST_TCP_SERVER_IP}\"
+    PICO_CYW43_ARCH_POLL
+    NO_SYS=1
+)
+
+target_link_libraries(tcp_Client
+    pico_stdlib
+    pico_rand
+    pico_lwip
+    pico_cyw43_arch
+    pico_lwip_nosys
+    pico_async_context_poll
+)
+
+pico_add_extra_outputs(tcp_Client)
