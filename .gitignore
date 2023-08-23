@@ -321,3 +321,5 @@ tpm/evp_tpm
 # auto-created CMake backups
 **/CMakeLists.txt.old
 
+# MacOS
+.DS_Store

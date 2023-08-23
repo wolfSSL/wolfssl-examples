@@ -5,6 +5,7 @@ android {
     defaultConfig {
         applicationId "com.wolfssl.wolfssl_ndk_gradle"
         minSdkVersion 30
+        //noinspection ExpiredTargetSdkVersion
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
@@ -19,6 +20,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.debug
         }
     }
     externalNativeBuild {
