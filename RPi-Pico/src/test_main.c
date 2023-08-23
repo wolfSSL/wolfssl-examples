@@ -23,14 +23,12 @@
 
 #include "wolfssl/wolfcrypt/settings.h"
 #include "wolfssl/ssl.h"
-#include <wolfcrypt/benchmark/benchmark.h>
+#include <wolfcrypt/test/test.h>
 
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include "pico/cyw43_arch.h"
 #include "wolf/blink.h"
-
-
 
 int main(int argc, char **argv)
 {
@@ -38,7 +36,11 @@ int main(int argc, char **argv)
     int ret;
 
     blink(10, WOLF_BLINK_INIT);
-    ret = benchmark_test(NULL);
+
+    wolfSSL_Init();
+    wolfSSL_Debugging_ON();
+
+    ret = wolfcrypt_test(NULL);
     printf("End: %d\n", ret);
     return ret;
 }

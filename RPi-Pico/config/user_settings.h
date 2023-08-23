@@ -32,7 +32,11 @@ extern "C"
 {
 #endif
 
+#include <stdio.h>
 #define TARGET_EMBEDDED
+
+extern time_t myTime(time_t *);
+#define XTIME(t) myTime(t)
 
 /* ------------------------------------------------------------------------- */
 /* Platform */
@@ -106,7 +110,9 @@ extern "C"
 /* Maximum math bits (Max RSA key bits * 2) */
 #define FP_MAX_BITS 4096
 #endif
+#endif
 
+#if 1
 /* half as much memory but twice as slow */
 // #define RSA_LOW_MEM
 
@@ -121,7 +127,7 @@ extern "C"
 
 /* DH */
 #undef NO_DH
-#if 0
+#if 1
 /* Use table for DH instead of -lm (math) lib dependency */
 #if 1
 #define WOLFSSL_DH_CONST
@@ -140,7 +146,7 @@ extern "C"
 #define HAVE_ECC
 
 /* Manually define enabled curves */
-#define ECC_USER_CURVES
+//#define ECC_USER_CURVES
 
 #ifdef ECC_USER_CURVES
 /* Manual Curve Selection */

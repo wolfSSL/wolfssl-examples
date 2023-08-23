@@ -29,7 +29,7 @@
 #include "wolf/common.h"
 
 #define DEBUG_printf printf
-#define BUF_SIZE 2048
+#define BUF_SIZE (4096*2)
 
 typedef struct {
     struct tcp_pcb *tcp_pcb;
@@ -45,5 +45,5 @@ typedef struct {
 WOLF_SOCKET_T *wolf_TCPsocket(void);
 static err_t wolf_TCPfree(WOLF_SOCKET_T *);
 bool wolf_TCPconnect(WOLF_SOCKET_T *, const char*, uint32_t);
-size_t wolf_TCPwrite(WOLF_SOCKET_T *, const unsigned char *, uint32_t);
-size_t wolf_TCPread(WOLF_SOCKET_T *, unsigned char *, uint32_t);
+int wolf_TCPread (WOLF_SOCKET_T *,       unsigned char *, long unsigned int);
+int wolf_TCPwrite(WOLF_SOCKET_T *, const unsigned char *, long unsigned int);

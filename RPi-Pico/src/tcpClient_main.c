@@ -31,17 +31,6 @@
 
 #define TCP_PORT 1111
 
-static void dump_bytes(const uint8_t *p, uint32_t len)
-{
-    for (; len; len--, p++) {
-        if (((unsigned long)p & 0x07) == 0) {
-            printf("\n");
-        }
-        printf("%02x ", *p);
-    }
-    printf("\n");
-}
-
 void tcpClient_test(void)
 {
     int i;
@@ -57,7 +46,7 @@ void tcpClient_test(void)
         printf("ERROR:wolf_TCPsocke()\n");
         return;
     }
-    if (!wolf_TCPconnect(sock, TEST_TCP_SERVER_IP, TCP_PORT)) {
+    if (wolf_TCPconnect(sock, TEST_TCP_SERVER_IP, TCP_PORT) != WOLF_SUCCESS) {
         printf("ERROR:wolf_TCPconnect()\n");
         goto exit;
     }
@@ -75,8 +64,7 @@ void tcpClient_test(void)
         DEBUG_printf("Failed to read data. err=%d\n", err);
         goto exit;
     }
-    DEBUG_printf("Read data %d bytes\n", err);
-    dump_bytes(buffer, err);
+    DEBUG_printf("Read data %d bytes: %s\n", err, buffer);
 
 exit:
     free(sock);
