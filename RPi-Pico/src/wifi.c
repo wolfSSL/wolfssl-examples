@@ -36,7 +36,6 @@ int wolf_wifiConnect(const char *ssid, const char *pw, uint32_t auth, uint32_t t
         if (cyw43_arch_wifi_connect_timeout_ms(ssid, pw, auth, timeout)) {
             fprintf(stderr, "failed to connect. Retrying\n");
         } else {
-            printf("Wifi Connected\n");
             return WOLF_SUCCESS;
         }
         sleep_ms(1000);

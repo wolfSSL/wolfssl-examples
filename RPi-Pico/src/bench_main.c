@@ -30,7 +30,7 @@
 #include "pico/cyw43_arch.h"
 #include "wolf/blink.h"
 
-
+#include "hardware/clocks.h"
 
 int main(int argc, char **argv)
 {
@@ -38,6 +38,7 @@ int main(int argc, char **argv)
     int ret;
 
     blink(10, WOLF_BLINK_INIT);
+    printf("\nSystem clock = %dMHz\n\n", clock_get_hz(clk_sys)/1000000);
     ret = benchmark_test(NULL);
     printf("End: %d\n", ret);
     return ret;

@@ -51,20 +51,19 @@ void tcpClient_test(void)
         goto exit;
     }
 
-    DEBUG_printf("Writing to server: %s\n", msg);
+    printf("Writing to server: %s\n", msg);
     err = wolf_TCPwrite(sock, msg, sizeof(msg));
     if (err < 0) {
         DEBUG_printf("Failed to write data. err=%d\n", err);
         goto exit;
     }
-    DEBUG_printf("Writen data %d bytes\n", err);   
     
     err = wolf_TCPread(sock, buffer, BUFF_SIZE);
     if (err < 0) {
         DEBUG_printf("Failed to read data. err=%d\n", err);
         goto exit;
     }
-    DEBUG_printf("Read data %d bytes: %s\n", err, buffer);
+    printf("Message: %s\n", buffer);
 
 exit:
     free(sock);
@@ -73,26 +72,26 @@ exit:
 void main(void)
 {
     blink(20, 1);
-    printf("Started main_task\n");
 
     cyw43_arch_enable_sta_mode();
     printf("Connecting to Wi-Fi...\n");
     printf("WIFI_SSID=%s, WIFI_PASSWORD=%s\n", WIFI_SSID, WIFI_PASSWORD);
-    if(wolf_wifiConnect(WIFI_SSID, WIFI_PASSWORD, CYW43_AUTH_WPA2_AES_PSK, 30000)) {
+    if (wolf_wifiConnect(WIFI_SSID, WIFI_PASSWORD, CYW43_AUTH_WPA2_AES_PSK, 30000)) {
         printf("failed to connect.\n");
         return;
     } else {
-        printf("Connected.\n");
+        printf("Wifi connected.\n");
     }
     cyw43_arch_lwip_begin();
-    printf("\nReady, running iperf client\n");
 
+    printf("Starting TCP client\n");
     tcpClient_test();
+    printf("End of TCP client\n");
 
     cyw43_arch_lwip_end();
     cyw43_arch_deinit();
 
-    printf("End of iperf client\n");
+    printf("Wifi disconnected\n");
 }
 
 void lwip_example_app_platform_assert(const char *msg, int line, const char *file)

@@ -23,8 +23,6 @@
 #include "pico/cyw43_arch.h"
 #include "pico/stdlib.h"
 
-#include "wolfssl/wolfcrypt/settings.h"
-#include "wolfssl/ssl.h"
 #include "wolf/tcp.h"
 
 #include "lwip/pbuf.h"
@@ -32,9 +30,6 @@
 
 #define TEST_ITERATIONS 10
 #define POLL_TIME_S 5
-
-#define TEST_TASK_PRIORITY (tskIDLE_PRIORITY + 2UL)
-#define BLINK_TASK_PRIORITY (tskIDLE_PRIORITY + 1UL)
 
 static void dump_bytes(const uint8_t *p, uint32_t len)
 {
@@ -84,7 +79,7 @@ static err_t tcp_result(WOLF_SOCKET_T *sock, int status)
 static err_t lwip_cb_client_sent(void *arg, struct tcp_pcb *tpcb, u16_t len)
 {
     WOLF_SOCKET_T *sock = (WOLF_SOCKET_T *)arg;
-    DEBUG_printf("tcp_client_sent %u\n", len);
+
     sock->sent_len += len;
 
     if (sock->sent_len >= BUF_SIZE)
@@ -100,7 +95,6 @@ static err_t lwip_cb_client_sent(void *arg, struct tcp_pcb *tpcb, u16_t len)
         // We should receive a new buffer from the server
         sock->buffer_len = 0;
         sock->sent_len = 0;
-        DEBUG_printf("Waiting for buffer from server\n");
     }
 
     return ERR_OK;
@@ -120,7 +114,7 @@ static err_t lwip_cb_client_connected(void *arg, struct tcp_pcb *tpcb, err_t err
 
 static err_t lwip_cb_client_poll(void *arg, struct tcp_pcb *tpcb)
 {
-    return tcp_result(arg, -1); // no response is an error?
+    return tcp_result(arg, 0);
 }
 
 static void lwip_cb_client_err(void *arg, err_t err)
@@ -135,7 +129,7 @@ static err_t lwip_cb_client_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p
 {
     WOLF_SOCKET_T *sock = (WOLF_SOCKET_T *)arg;
     if (!p) {
-        return tcp_result(arg, -1);
+        return ERR_OK;
     }
 
     cyw43_arch_lwip_check();
@@ -145,7 +139,6 @@ static err_t lwip_cb_client_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p
         sock->buffer_len += pbuf_copy_partial(p, sock->buffer + sock->buffer_len,
                                                p->tot_len > buffer_left ? buffer_left : p->tot_len, 0);
         tcp_recved(tpcb, p->tot_len);
-        DEBUG_printf("sock->buffer_len = %d\n", sock->buffer_len);
     }
     pbuf_free(p);
     return ERR_OK;
@@ -154,8 +147,6 @@ static err_t lwip_cb_client_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p
 bool wolf_TCPconnect(WOLF_SOCKET_T *sock, const char *ip, uint32_t port)
 {
     ip4addr_aton(ip, &sock->remote_addr);
-
-    DEBUG_printf("wolf_TCPconnect: Connecting to %s port %u\n", ip4addr_ntoa(&sock->remote_addr), port);
     sock->tcp_pcb = tcp_new_ip_type(IP_GET_TYPE(&sock->remote_addr));
     if (!sock->tcp_pcb) {
         DEBUG_printf("failed to create pcb\n");
@@ -173,9 +164,7 @@ bool wolf_TCPconnect(WOLF_SOCKET_T *sock, const char *ip, uint32_t port)
     cyw43_arch_lwip_begin();
     err_t err = tcp_connect(sock->tcp_pcb, &sock->remote_addr, port, lwip_cb_client_connected);
     cyw43_arch_lwip_end();
-    if (err == ERR_OK)
-        DEBUG_printf("wolf_TCPconnect: Connecting");
-    else {
+    if (err != ERR_OK) {
         DEBUG_printf("wolf_TCPconnect: Failed");
         return WOLF_FAIL;
     }
@@ -203,7 +192,6 @@ int wolf_TCPwrite(WOLF_SOCKET_T *sock, const unsigned char *buff, long unsigned 
     int ret;
     int i;
 
-    DEBUG_printf("wolf_TCPread(%lx, %lx, %d)\n", sock, buff, len);
     sock->sent_len = 0;
     ret = tcp_write(sock->tcp_pcb, buff, len, TCP_WRITE_FLAG_COPY);
  
@@ -211,11 +199,9 @@ int wolf_TCPwrite(WOLF_SOCKET_T *sock, const unsigned char *buff, long unsigned 
         tcp_output(sock->tcp_pcb);
     }
     while(sock->sent_len < len) {
-        putchar('>');
         cyw43_arch_poll();
         cyw43_arch_wait_for_work_until(make_timeout_time_ms(1000));
     }
-    putchar('\n');
     return (int)len;
 }
 
@@ -225,8 +211,6 @@ int wolf_TCPread(WOLF_SOCKET_T *sock, unsigned char *buff, long unsigned int len
     int remained;
     int i;
     #define POLLING 200
-    
-    DEBUG_printf("wolf_TCPread(%lx, %lx, %d)\n", sock, buff, len);
 
     for(i=0; i<POLLING; i++) {
         if(sock->buffer_len > 0) {
@@ -239,11 +223,8 @@ int wolf_TCPread(WOLF_SOCKET_T *sock, unsigned char *buff, long unsigned int len
                     sock->buffer[i] = sock->buffer[i+recv_len];
             } else
                 sock->buffer_len = 0;
-
-            DEBUG_printf("\n");
             return recv_len;
         } 
-        DEBUG_printf(">");
         cyw43_arch_poll();
         cyw43_arch_wait_for_work_until(make_timeout_time_ms(1000));
     }

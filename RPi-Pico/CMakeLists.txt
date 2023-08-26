@@ -13,182 +13,186 @@ endif()
 project(wolf_pico_examples C CXX ASM)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
-#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
-
 
 # Initialize the SDK
 pico_sdk_init()
 
-include_directories(config)
-include_directories(include)
-include_directories(${PICO_SDK_PATH}/src/rp2_common/pico_lwip/include)
-include_directories(${PICO_SDK_PATH}/lib/lwip/contrib/ports/freertos/include)
-include_directories(${PICO_SDK_PATH}/lib/lwip/src/include)
-include_directories(${PICO_SDK_PATH}/src/rp2_common/pico_async_context/include)
 
-set(WOLFSSL_ROOT $ENV{WOLFSSL_ROOT})
-include_directories(${WOLFSSL_ROOT})
+### Global Include Path
+    include_directories(config)
+    include_directories(include)
+    include_directories(${PICO_SDK_PATH}/src/rp2_common/pico_lwip/include)
+    include_directories(${PICO_SDK_PATH}/lib/lwip/contrib/ports/freertos/include)
+    include_directories(${PICO_SDK_PATH}/lib/lwip/src/include)
+    include_directories(${PICO_SDK_PATH}/src/rp2_common/pico_async_context/include)
 
-file(GLOB_RECURSE WOLFSSL_SRC
-    "${WOLFSSL_ROOT}/src/*.c"
-    "${WOLFSSL_ROOT}/wolfcrypt/src/*.c"
-)
-list(REMOVE_ITEM WOLFSSL_SRC EXCLUDE REGEX
-    "${WOLFSSL_ROOT}/src/bio.c"
-    "${WOLFSSL_ROOT}/src/conf.c"
-    "${WOLFSSL_ROOT}/src/pk.c"
-    "${WOLFSSL_ROOT}/src/ssl_asn1.c"
-    "${WOLFSSL_ROOT}/src/ssl_bn.c"
-    "${WOLFSSL_ROOT}/src/ssl_misc.c"
-    "${WOLFSSL_ROOT}/src/x509.c"
-    "${WOLFSSL_ROOT}/src/x509_str.c"
-    "${WOLFSSL_ROOT}/wolfcrypt/src/evp.c"
-    "${WOLFSSL_ROOT}/wolfcrypt/src/misc.c"
-)
+    set(WOLFSSL_ROOT $ENV{WOLFSSL_ROOT})
+    include_directories(${WOLFSSL_ROOT})
+### End of Global Include Path
 
-add_library(wolfssl STATIC
-    ${WOLFSSL_SRC}
-)
-target_include_directories(wolfssl PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/config
+
+### wolfSSL/wolfCrypt library
+    file(GLOB_RECURSE WOLFSSL_SRC
+        "${WOLFSSL_ROOT}/src/*.c"
+        "${WOLFSSL_ROOT}/wolfcrypt/src/*.c"
     )
-target_compile_definitions(wolfssl PRIVATE
-    WOLFSSL_USER_SETTINGS
-    WOLFSSL_SP_ARM_THUMB_ASM
-)
+    list(REMOVE_ITEM WOLFSSL_SRC EXCLUDE REGEX
+        "${WOLFSSL_ROOT}/src/bio.c"
+        "${WOLFSSL_ROOT}/src/conf.c"
+        "${WOLFSSL_ROOT}/src/pk.c"
+        "${WOLFSSL_ROOT}/src/ssl_asn1.c"
+        "${WOLFSSL_ROOT}/src/ssl_bn.c"
+        "${WOLFSSL_ROOT}/src/ssl_misc.c"
+        "${WOLFSSL_ROOT}/src/x509.c"
+        "${WOLFSSL_ROOT}/src/x509_str.c"
+        "${WOLFSSL_ROOT}/wolfcrypt/src/evp.c"
+        "${WOLFSSL_ROOT}/wolfcrypt/src/misc.c"
+    )
+
+    add_library(wolfssl STATIC
+        ${WOLFSSL_SRC}
+    )
+
+    target_compile_definitions(wolfssl PUBLIC
+        WOLFSSL_USER_SETTINGS
+    )
+### End of wolfSSL/wolfCrypt library
 
 
-add_executable(testwolfcrypt
-    src/test_main.c
-    src/blink.c
-    ${WOLFSSL_ROOT}/wolfcrypt/test/test.c
-)
+### Test wolfCrypt algorithms
+    add_executable(testwolfcrypt
+        src/test_main.c
+        src/blink.c
+        ${WOLFSSL_ROOT}/wolfcrypt/test/test.c
+    )
 
-pico_enable_stdio_usb(testwolfcrypt 1)
-pico_enable_stdio_uart(testwolfcrypt 0)
-target_compile_definitions(testwolfcrypt PRIVATE
-    WOLFSSL_USER_SETTINGS
-)
+    target_link_libraries(testwolfcrypt
+        wolfssl
+        pico_stdlib
+        pico_cyw43_arch_none
+        pico_rand
+    )
 
-target_link_libraries(testwolfcrypt
-    wolfssl
-    pico_stdlib
-    pico_cyw43_arch_none
-    pico_rand
-)
-pico_add_extra_outputs(testwolfcrypt)
+    pico_enable_stdio_usb(testwolfcrypt 1)
+    pico_enable_stdio_uart(testwolfcrypt 0)
 
-
-add_executable(benchmark
-    src/bench_main.c
-    src/blink.c
-    ${WOLFSSL_ROOT}/wolfcrypt/benchmark/benchmark.c
-)
-
-pico_enable_stdio_usb(benchmark 1)
-pico_enable_stdio_uart(benchmark 0)
-target_compile_definitions(benchmark PRIVATE
-    WOLFSSL_USER_SETTINGS
-)
-
-target_link_libraries(benchmark
-    wolfssl
-    pico_stdlib
-    pico_cyw43_arch_none
-    pico_rand
-)
-pico_add_extra_outputs(benchmark)
+    pico_add_extra_outputs(testwolfcrypt)
+### End of Test wolfCrypt algorithms
 
 
-add_executable(Wifi
-    src/blink.c
-    src/wifi.c
-    src/Wifi_main.c
-)
+### Benchmark wolfCrypt algorithms
+    add_executable(benchmark
+        src/bench_main.c
+        src/blink.c
+        ${WOLFSSL_ROOT}/wolfcrypt/benchmark/benchmark.c
+    )
 
-# enable usb output, disable uart output
-pico_enable_stdio_usb(Wifi 1)
-pico_enable_stdio_uart(Wifi 0)
+    target_link_libraries(benchmark
+        wolfssl
+        pico_stdlib
+        pico_cyw43_arch_none
+        pico_rand
+    )
 
-target_compile_definitions(Wifi PRIVATE
-    WIFI_SSID=\"${WIFI_SSID}\"
-    WIFI_PASSWORD=\"${WIFI_PASSWORD}\"
-    PICO_CYW43_ARCH_POLL
-    NO_SYS=1
-)
+    pico_enable_stdio_usb(benchmark 1)
+    pico_enable_stdio_uart(benchmark 0)
 
-target_link_libraries(Wifi
-    pico_stdlib
-    pico_rand
-    pico_lwip
-    pico_cyw43_arch
-    pico_lwip_nosys
-    pico_async_context_poll
-)
-
-pico_add_extra_outputs(Wifi)
-
-add_executable(tcp_Client
-    src/blink.c
-    src/wifi.c
-    src/tcp.c
-    src/tcpClient_main.c
-)
-
-# enable usb output, disable uart output
-pico_enable_stdio_usb(tcp_Client 1)
-pico_enable_stdio_uart(tcp_Client 0)
-
-target_compile_definitions(tcp_Client PRIVATE
-    WOLFSSL_USER_SETTINGS
-    WIFI_SSID=\"${WIFI_SSID}\"
-    WIFI_PASSWORD=\"${WIFI_PASSWORD}\"
-    TEST_TCP_SERVER_IP=\"${TEST_TCP_SERVER_IP}\"
-    PICO_CYW43_ARCH_POLL
-    NO_SYS=1
-)
-
-target_link_libraries(tcp_Client
-    pico_stdlib
-    pico_rand
-    pico_lwip
-    pico_cyw43_arch
-    pico_lwip_nosys
-    pico_async_context_poll
-)
-
-pico_add_extra_outputs(tcp_Client)
+    pico_add_extra_outputs(benchmark)
+### End of Benchmark wolfCrypt algorithms
 
 
-add_executable(tls_Client
-    src/blink.c
-    src/wifi.c
-    src/tcp.c
-    src/tlsClient_main.c
-)
+### Wifi connection
+    add_executable(Wifi
+        src/blink.c
+        src/wifi.c
+        src/Wifi_main.c
+    )
 
-# enable usb output, disable uart output
-pico_enable_stdio_usb(tls_Client 1)
-pico_enable_stdio_uart(tls_Client 0)
+    target_compile_definitions(Wifi PRIVATE
+        WIFI_SSID=\"${WIFI_SSID}\"
+        WIFI_PASSWORD=\"${WIFI_PASSWORD}\"
+        PICO_CYW43_ARCH_POLL
+        NO_SYS=1
+    )
 
-target_compile_definitions(tls_Client PRIVATE
-    WOLFSSL_USER_SETTINGS
-    WIFI_SSID=\"${WIFI_SSID}\"
-    WIFI_PASSWORD=\"${WIFI_PASSWORD}\"
-    TEST_TCP_SERVER_IP=\"${TEST_TCP_SERVER_IP}\"
-    PICO_CYW43_ARCH_POLL
-    NO_SYS=1
-)
+    target_link_libraries(Wifi
+        pico_stdlib
+        pico_rand
+        pico_lwip
+        pico_cyw43_arch
+        pico_lwip_nosys
+        pico_async_context_poll
+    )
 
-target_link_libraries(tls_Client
-    pico_stdlib
-    pico_rand
-    pico_lwip
-    pico_cyw43_arch
-    pico_lwip_nosys
-    pico_async_context_poll
-    wolfssl
-)
 
-pico_add_extra_outputs(tls_Client)
+    pico_enable_stdio_usb(Wifi 1)
+    pico_enable_stdio_uart(Wifi 0)
+
+    pico_add_extra_outputs(Wifi)
+### End of Wifi connection
+
+
+### TCP Client
+    add_executable(tcp_Client
+        src/blink.c
+        src/wifi.c
+        src/tcp.c
+        src/tcpClient_main.c
+    )
+
+    target_compile_definitions(tcp_Client PRIVATE
+        WIFI_SSID=\"${WIFI_SSID}\"
+        WIFI_PASSWORD=\"${WIFI_PASSWORD}\"
+        TEST_TCP_SERVER_IP=\"${TEST_TCP_SERVER_IP}\"
+        PICO_CYW43_ARCH_POLL
+        NO_SYS=1
+    )
+
+    target_link_libraries(tcp_Client
+        pico_stdlib
+        pico_rand
+        pico_lwip
+        pico_cyw43_arch
+        pico_lwip_nosys
+        pico_async_context_poll
+    )
+
+
+    pico_enable_stdio_usb(tcp_Client 1)
+    pico_enable_stdio_uart(tcp_Client 0)
+
+    pico_add_extra_outputs(tcp_Client)
+### End of TCP Client
+
+
+### TLS Client
+    add_executable(tls_Client
+        src/blink.c
+        src/wifi.c
+        src/tcp.c
+        src/tlsClient_main.c
+    )
+
+    target_compile_definitions(tls_Client PRIVATE
+        WIFI_SSID=\"${WIFI_SSID}\"
+        WIFI_PASSWORD=\"${WIFI_PASSWORD}\"
+        TEST_TCP_SERVER_IP=\"${TEST_TCP_SERVER_IP}\"
+        PICO_CYW43_ARCH_POLL
+        NO_SYS=1
+    )
+
+    target_link_libraries(tls_Client
+        pico_stdlib
+        pico_rand
+        pico_lwip
+        pico_cyw43_arch
+        pico_lwip_nosys
+        pico_async_context_poll
+        wolfssl
+    )
+
+    pico_enable_stdio_usb(tls_Client 1)
+    pico_enable_stdio_uart(tls_Client 0)
+
+    pico_add_extra_outputs(tls_Client)
+### End of TLS Client

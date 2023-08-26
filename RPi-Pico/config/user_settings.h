@@ -89,7 +89,7 @@ extern time_t myTime(time_t *);
     // #define WOLFSSL_SP_X86
     // #define WOLFSSL_SP_ARM32_ASM
     // #define WOLFSSL_SP_ARM64_ASM
-    // #define WOLFSSL_SP_ARM_THUMB_ASM
+       #define WOLFSSL_SP_ARM_THUMB_ASM
     // #define WOLFSSL_SP_ARM_CORTEX_M_ASM
 #elif 1
 /* Fast Math (tfm.c) (stack based and timing resistant) */
