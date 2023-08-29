@@ -67,6 +67,9 @@
 /* Local include */
 #include "ccb_vaultic.h"
 
+/* Provide default config struct if needed */
+static const ccbVaultIc_Config gDefaultConfig = CCBVAULTIC_CONFIG_DEFAULT;
+
 /* Debug defines */
 #ifdef CCBVAULTIC_DEBUG_ALL
     #ifndef CCBVAULTIC_DEBUG
@@ -84,66 +87,45 @@
 #endif
 
 
-
 /* wolfcrypt includes */
-#include "wolfssl/wolfcrypt/types.h"       /* types and X-defines */
+#include "wolfssl/wolfcrypt/types.h"        /* types and X-defines */
 
-#ifndef CCBVAULTIC_NO_SHA
-#include "wolfssl/wolfcrypt/hash.h"  /* For HASH_FLAGS and types */
-#endif
+#include "wolfssl/wolfcrypt/hmac.h"         /* For HMACSHA256 */
+/* Always need hash and hmac for kdf auth */
+#include "wolfssl/wolfcrypt/hash.h"         /* For HASH_FLAGS and types */
 
 #ifndef CCBVAULTIC_NO_RSA
-#include "wolfssl/wolfcrypt/rsa.h"   /* For RSA_MAX_SIZE and types */
+#include "wolfssl/wolfcrypt/rsa.h"          /* For RSA_MAX_SIZE and types */
 #endif
 
 #ifndef CCBVAULTIC_NO_AES
-#include "wolfssl/wolfcrypt/aes.h"   /* For AES_BLOCK_SIZE and types */
+#include "wolfssl/wolfcrypt/aes.h"          /* For AES_BLOCK_SIZE and types */
 #endif
 
-#ifdef CCBVAULTIC_DEBUG_TIMING
-    #ifndef XNOW
-        #include <time.h>
-        #include <stdint.h>
-        #define XNOW(...) _now(__VA_ARGS__)
+#if defined(CCBVAULTIC_DEBUG_TIMING) && !defined(XNOW)
+#include <time.h>
+#include <stdint.h>
+#define XNOW(...) _Now(__VA_ARGS__)
 
-        static uint64_t _now(void)
-        {
-            struct timespec t;
-            if (clock_gettime(CLOCK_MONOTONIC, &t) < 0)
-                /* Return 0 on error */
-                return 0;
-            return (uint64_t)t.tv_sec * 1000000000ull + t.tv_nsec;
-        }
-    #endif
+static uint64_t _Now(void)
+{
+    struct timespec t;
+    if (clock_gettime(CLOCK_MONOTONIC, &t) < 0)
+        /* Return 0 on error */
+        return 0;
+    return (uint64_t)t.tv_sec * 1000000000ull + t.tv_nsec;
+}
 #endif
-
-/* WiseKey VaultIC includes */
-#include "vaultic_tls.h"
-#include "vaultic_config.h"
-#include "vaultic_common.h"
-#include "vaultic_api.h"
-#include "vaultic_structs.h"
-
-/* Key/Group ID's to support temporary wolfSSL usage */
-#define CCBVAULTIC_WOLFSSL_GRPID 0xBB
-#define CCBVAULTIC_TMPAES_KEYID 0x01
-#define CCBVAULTIC_TMPHMAC_KEYID 0x02
-#define CCBVAULTIC_TMPRSA_KEYID 0x03
-
-/* Key attributes */
-#define VAULTIC_KP_ALL 0xFF  /* Allow all users all key privileges */
-#define VAULTIC_PKV_ASSURED VLT_PKV_ASSURED_EXPLICIT_VALIDATION
-
 
 #ifdef CCBVAULTIC_DEBUG
-/* Helper to provide simple hexdump */
-static void hexdump(const unsigned char* p, size_t len)
+/* Helper to provide simple _HexDump */
+static void _HexDump(const char* p, size_t data_len)
 {
-    XPRINTF("    HD:%p for %lu bytes\n",p, len);
-    if ( (p == NULL) || (len == 0))
+    XPRINTF("    HD:%p for %lu bytes\n",p, data_len);
+    if ( (p == NULL) || (data_len == 0))
         return;
     size_t off = 0;
-    for (off = 0; off < len; off++)
+    for (off = 0; off < data_len; off++)
     {
         if ((off % 16) == 0)
             XPRINTF("    ");
@@ -156,8 +138,29 @@ static void hexdump(const unsigned char* p, size_t len)
 }
 #endif
 
+
+/* WiseKey VaultIC includes */
+#include "vaultic_tls.h"
+#include "vaultic_config.h"
+#include "vaultic_common.h"
+#include "vaultic_api.h"
+#include "vaultic_structs.h"
+#include "auth/vaultic_identity_authentication.h"
+#include "vaultic_file_system.h"
+
+/* Key/Group ID's to support temporary wolfSSL usage */
+#define CCBVAULTIC_WOLFSSL_GRPID 0xBB
+#define CCBVAULTIC_TMPAES_KEYID 0x01
+#define CCBVAULTIC_TMPHMAC_KEYID 0x02
+#define CCBVAULTIC_TMPRSA_KEYID 0x03
+
+/* Key attributes */
+#define VAULTIC_KP_ALL 0xFF  /* Allow all users all key privileges */
+#define VAULTIC_PKV_ASSURED VLT_PKV_ASSURED_EXPLICIT_VALIDATION
+
+
 /* Helper to translate vlt return codes to wolfSSL code */
-static int translateError(int vlt_rc)
+static int _TranslateError(int vlt_rc)
 {
     /* vlt return codes are defined in src/common/vaultic_err.h */
     switch (vlt_rc) {
@@ -165,14 +168,296 @@ static int translateError(int vlt_rc)
     case VLT_OK:
         return 0;
     default:
-        /* Default to point to hardware */
-        return WC_HW_E;
+        /* Default to point to IO */
+        return IO_FAILED_E;
     }
 }
 
-static void clearContext(ccbVaultIc_Context *c)
+static int _GetInfo(ccbVaultIc_Context *c, VLT_TARGET_INFO *out_chipInfo)
 {
+    if ((c == NULL) || (out_chipInfo == NULL)) {
+        return BAD_FUNC_ARG;
+    }
+    XMEMSET(out_chipInfo, 0, sizeof(*out_chipInfo));
+
+    /* Get current chip info */
+    c->vlt_rc = VltGetInfo(out_chipInfo);
+#ifdef CCBVAULTIC_DEBUG_ALL
+    XPRINTF("_GetInfo: vlt_rc:%04X serial:%p firmware:%.*s, \n" \
+            "mode:%d, state:%02X, selftests:%d, space:%d\n",
+            c->vlt_rc, out_chipInfo->au8Serial,
+            (int)sizeof(out_chipInfo->au8Firmware), out_chipInfo->au8Firmware,
+            out_chipInfo->enMode, out_chipInfo->enState, out_chipInfo->enSelfTests,
+            (int)out_chipInfo->u32Space);
+    _HexDump((const char*)out_chipInfo->au8Serial, sizeof(out_chipInfo->au8Serial));
+#endif
+    return _TranslateError(c->vlt_rc);
+}
+
+static VLT_USER_ID _AuthId2VltUserId(int id)
+{
+    switch(id) {
+    case 0: return VLT_USER0;
+    case 1: return VLT_USER1;
+    case 2: return VLT_USER2;
+    case 3: return VLT_USER3;
+    case 4: return VLT_USER4;
+    case 5: return VLT_USER5;
+    case 6: return VLT_USER6;
+    case 7:
+    default: break;
+    }
+    return VLT_USER7;
+}
+static VLT_ROLE_ID _AuthRole2VltRoleId(int role)
+{
+    switch(role) {
+    case CCBVAULTIC_AUTH_ROLE_NONE:         return VLT_EVERYONE;
+    case CCBVAULTIC_AUTH_ROLE_APPROVED:     return VLT_APPROVED_USER;
+    case CCBVAULTIC_AUTH_ROLE_UNAPPROVED:   return VLT_NON_APPROVED_USER;
+    case CCBVAULTIC_AUTH_ROLE_MANUFACTURER: return VLT_MANUFACTURER;
+    default:
+        break;
+    }
+    return VLT_EVERYONE;
+}
+
+/* Perform HMAC SHA256 on input data to generate 2 keys up to 32 bytes total */
+static int _PerformKdf(int key_len, const char* key,
+        int in1_len, const char* in1,
+        int in2_len, const char* in2,
+        int in3_len, const char* in3,
+        int out1_len, char* out1,
+        int out2_len, char* out2)
+{
+    Hmac kdf;
+    int rc;
+    if (    (key_len   == 0) || (key  == NULL) ||      /* Key is required */
+            ((in1_len  <= 0) && (in1  == NULL)) ||
+            ((in2_len  <= 0) && (in2  == NULL)) ||
+            ((in3_len  <= 0) && (in3  == NULL)) ||
+            ((out1_len <= 0) && (out1 == NULL)) ||
+            ((out2_len <= 0) && (out2 == NULL)) ){
+        return BAD_FUNC_ARG;
+    }
+
+    rc = wc_HmacInit(&kdf, NULL, INVALID_DEVID);
+    if (rc == 0) {
+        int out_count=0;
+        byte digest[WC_SHA256_DIGEST_SIZE];
+        XMEMSET(digest, 0, sizeof(digest));
+
+        rc = wc_HmacSetKey(&kdf, WC_SHA256, (const byte*)key, key_len);
+        if (rc == 0) {
+            rc = wc_HmacUpdate(&kdf, (const byte*)in1, in1_len);
+        }
+        if ((rc == 0) && (in2_len > 0) && (in2 != NULL)) {
+            rc = wc_HmacUpdate(&kdf, (const byte*)in2, in2_len);
+        }
+        if ((rc == 0) && (in3_len > 0) && (in3 != NULL)) {
+            rc = wc_HmacUpdate(&kdf, (const byte*)in3, in3_len);
+        }
+        if (rc == 0) {
+            rc = wc_HmacFinal(&kdf, digest);
+            if ((rc == 0) && (out1_len > 0)) {
+                int this_len = sizeof(digest) - out_count;
+                if (this_len > out1_len) this_len = out1_len;
+                XMEMCPY(out1, &digest[out_count], this_len);
+                XMEMSET(out1 + this_len, 0, out1_len - this_len);
+                out_count += this_len;
+            }
+            if ((rc == 0) && (out2_len > 0)) {
+                int this_len = sizeof(digest) - out_count;
+                if (this_len > out2_len) this_len = out2_len;
+                XMEMCPY(out2, &digest[out_count], this_len);
+                XMEMSET(out2 + this_len, 0, out2_len - this_len);
+                out_count += this_len;
+            }
+        }
+        wc_HmacFree(&kdf);
+    }
+#ifdef CCBVAULTIC_DEBUG_ALL
+    XPRINTF("_PerformKdf: rc:%d key_len:%d key:%p, \n"
+            "in1_len:%d in1:%p, in2_len:%d in2:%p,in3_len:%d in3:%p \n"
+            "out1_len:%d out1:%p, out2_len:%d out2:%p,\n",
+            rc, key_len, key,
+            in1_len, in1, in2_len, in2, in3_len, in3,
+            out1_len, out1, out2_len, out2);
+    _HexDump(key, key_len);
+    _HexDump(in1, in1_len);
+    _HexDump(in2, in2_len);
+    _HexDump(in3, in3_len);
+    _HexDump(out1, out1_len);
+    _HexDump(out2, out2_len);
+#endif
+
+    return rc;
+}
+
+static int _AuthByPin(  ccbVaultIc_Context *c, int id, int role,
+                        int pin_len, const char* pin)
+{
+    if ((pin_len > CCBVAULTIC_AUTH_PIN_LEN_MAX) ||
+        (pin_len < CCBVAULTIC_AUTH_PIN_LEN_MIN)) {
+        return BAD_FUNC_ARG;
+    }
+#ifdef CCBVAULTIC_DEBUG_ALL
+    XPRINTF("_AuthByPin: c:%p id:%d role:%d, pin_len:%d pin:%p\n",
+            c, id, role, pin_len, pin);
+    _HexDump(pin, pin_len);
+#endif
+    /* Auth using password. */
+    c->vlt_rc= VltSubmitPassword(
+            _AuthId2VltUserId(id),
+            _AuthRole2VltRoleId(role),
+            (VLT_U8) pin_len,
+            (VLT_PU8) pin);
+    return _TranslateError(c->vlt_rc);
+}
+
+static int _AuthByScp03(    ccbVaultIc_Context *c, int id, int role,
+                            int mac_len, char* mac,
+                            int enc_len, char* enc)
+{
+    KEY_BLOB macKey;
+    KEY_BLOB encKey;
+    KEY_BLOB_ARRAY keys;
+
+#ifdef CCBVAULTIC_DEBUG_ALL
+    XPRINTF("_AuthByScp03: c:%p id:%d, role:%d, "
+            " mac_len:%d mac:%p, enc_len:%d enc:%p\n",
+            c, id, role,
+            mac_len, mac, enc_len, enc);
+    _HexDump(mac, mac_len);
+    _HexDump(enc, enc_len);
+#endif
+    XMEMSET(&macKey, 0, sizeof(macKey));
+    XMEMSET(&encKey, 0, sizeof(encKey));
+    XMEMSET(&keys, 0, sizeof(keys));
+
+    macKey.keyType = VLT_KEY_AES_128;
+    macKey.keySize = (VLT_U16) mac_len;
+    macKey.keyValue = (VLT_PU8) mac;
+
+    encKey.keyType = VLT_KEY_AES_128;
+    encKey.keySize = (VLT_U16) enc_len;
+    encKey.keyValue = (VLT_PU8) enc;
+
+    keys.u8ArraySize = 2;
+    keys.pKeys[0] = &macKey;
+    keys.pKeys[1] = &encKey;
+
+    c->vlt_rc=VltAuthInit(
+        VLT_AUTH_SCP03,
+        _AuthId2VltUserId(id),
+        _AuthRole2VltRoleId(role),
+        VLT_CMAC_CENC_RMAC_RENC,
+        keys);
+    return _TranslateError(c->vlt_rc);
+}
+
+static int _AuthByKdf(  ccbVaultIc_Context *c, int id, int role,
+                        int key_len, const char* key,
+                        int label_len, const char* label)
+{
+    char mac_data[CCBVAULTIC_AUTH_MAC_LEN];
+    char enc_data[CCBVAULTIC_AUTH_ENC_LEN];
+
+#ifdef CCBVAULTIC_DEBUG_ALL
+    XPRINTF("_AuthByKdf: c:%p id:%d role:%d, "
+            "key_len:%d key:%p, label_len:%d label:%p\n",
+            c, id, role,
+            key_len, key, label_len, label);
+    _HexDump(key, key_len);
+    _HexDump(label, label_len);
+#endif
+
+    int rc = _PerformKdf(   key_len, key,
+                            label_len, label,
+                            CCBVAULTIC_SERIAL_LEN, c->vlt_serial,
+                            CCBVAULTIC_VERSION_LEN, c->vlt_version,
+                            sizeof(mac_data), mac_data,
+                            sizeof(enc_data), enc_data);
+    if (rc == 0) {
+        rc = _AuthByScp03(  c, id, role,
+                            sizeof(mac_data), mac_data,
+                            sizeof(enc_data), enc_data);
+    }
+    return rc;
+}
+
+/* Helper to perform auth as the provided user */
+static int _InitAuth(ccbVaultIc_Context *c, const ccbVaultIc_Auth *a)
+{
+    int rc = 0;
+    if ((c == NULL) || (c->initialized != 0) || (a == NULL)) {
+        return BAD_FUNC_ARG;
+    }
+
+#ifdef CCBVAULTIC_DEBUG_ALL
+    XPRINTF("_InitAuth: c:%p a:%p kind:%d\n",
+            c, a, a->kind);
+#endif
+
+    switch(a->kind) {
+    case CCBVAULTIC_AUTH_KIND_NONE:
+    {
+        /* Ok.  Unexpected, but not an error */
+        rc = 0;
+    }; break;
+
+    case CCBVAULTIC_AUTH_KIND_PIN:
+    {
+        rc = _AuthByPin(c, a->id, a->role,
+                a->auth.pin.pin_len,a->auth.pin.pin);
+    };break;
+
+    case CCBVAULTIC_AUTH_KIND_SCP03:
+    {
+        char mac_data[CCBVAULTIC_AUTH_MAC_LEN];
+        char enc_data[CCBVAULTIC_AUTH_ENC_LEN];
+
+        if (    (a->auth.scp03.mac_len < sizeof(mac_data)) ||
+                (a->auth.scp03.enc_len < sizeof(enc_data))) {
+            rc = BAD_FUNC_ARG;
+            break;
+        }
+
+        /* Copy to temp buffer to support const auth */
+        XMEMCPY(mac_data, a->auth.scp03.mac, sizeof(mac_data));
+        XMEMCPY(enc_data, a->auth.scp03.enc, sizeof(enc_data));
+        rc = _AuthByScp03(  c, a->id, a->role,
+                            sizeof(mac_data), mac_data,
+                            sizeof(enc_data), enc_data);
+    };break;
+
+    case CCBVAULTIC_AUTH_KIND_KDF:
+    {
+        rc = _AuthByKdf(    c, a->id, a->role,
+                            a->auth.kdf.key_len, a->auth.kdf.key,
+                            a->auth.kdf.label_len, a->auth.kdf.label);
+    };break;
+
+    default:
+        rc = BAD_FUNC_ARG;
+    }
+    return rc;
+}
+
+/* Helper to check for NULL and uninitialized contexts */
+static int _CheckInitializedContext(ccbVaultIc_Context *c)
+{
+    if ((c == NULL) || (c->initialized == 0)) {
+        return BAD_FUNC_ARG;
+    }
+    return 0;
+}
+
+static void _ClearContext(ccbVaultIc_Context *c)
+{
+    const ccbVaultIc_Config* saveConfig = c->config;
     XMEMSET(c, 0, sizeof(*c));
+    c->config=saveConfig;
     c->m = NULL;
     c->aescbc_key = NULL;
 }
@@ -181,28 +466,82 @@ int ccbVaultIc_Init(ccbVaultIc_Context *c)
 {
     int rc = 0;
     if (c == NULL) {
-        rc = BAD_FUNC_ARG;
+        return BAD_FUNC_ARG;
     }
 
     /* Already Initialized? */
-    if ((rc == 0) && (c->initialized >0)) {
+    if (c->initialized > 0) {
         /* Increment use count */
         c->initialized++;
         return 0;
     }
-    if (rc == 0) {
-        clearContext(c);
-        /* Open the hardware and authenticate */
-        c->vlt_rc = vlt_tls_init();
-        rc = translateError(c->vlt_rc);
+    _ClearContext(c);
+
+    /* Open the hardware and authenticate */
+#if 0
+    c->vlt_rc = vlt_tls_init();
+    rc = _TranslateError(c->vlt_rc);
+#else
+    const ccbVaultIc_Config* config = &gDefaultConfig;
+    VLT_INIT_COMMS_PARAMS params;
+
+
+    /* Override config */
+    if (c->config != NULL) {
+        config = c->config;
     }
+
+    /* Set timeout, checksum, and interface type */
+    XMEMSET(&params, 0, sizeof(params));
+    params.VltBlockProtocolParams.u16msSelfTestDelay = config->startup_delay_ms;
+    params.VltBlockProtocolParams.u32msTimeout       = config->timeout_ms;
+    params.VltBlockProtocolParams.enCheckSumMode     = BLK_PTCL_CHECKSUM_SUM8;
+    params.enCommsProtocol                           = VLT_SPI_COMMS;
+    params.VltSpiParams.u16BitRate                   = config->spi_rate_khz;
+
+    /* Initialize the API and establish comms*/
+    c->vlt_rc = VltApiInit(&params);
+    rc = _TranslateError(c->vlt_rc);
+    if (rc == 0) {
+        VLT_TARGET_INFO chipInfo;
+
+        /* Cancel any active authentication, Ignore errors here */
+        VltAuthClose();
+
+        /* Get current chip info */
+        rc = _GetInfo(c, &chipInfo);
+        if (rc == 0) {
+#ifdef CCBVAULTIC_DEBUG
+    XPRINTF("ccbVaultIc_Info: serial:%p firmware:%.*s, \n" \
+            "mode:%d, state:%d, selftests:%d, space:%d\n",
+            chipInfo.au8Serial,
+            (int)sizeof(chipInfo.au8Firmware), chipInfo.au8Firmware,
+            chipInfo.enMode, chipInfo.enState, chipInfo.enSelfTests,
+            (int)chipInfo.u32Space);
+    _HexDump((const char*)chipInfo.au8Serial, sizeof(chipInfo.au8Serial));
+#endif
+
+            /* Save this data to the context */
+            XMEMCPY(c->vlt_serial, chipInfo.au8Serial, sizeof(chipInfo.au8Serial));
+            XMEMCPY(c->vlt_version, chipInfo.au8Firmware, sizeof(chipInfo.au8Firmware));
+
+            /* Ensure chip is not TERMINATED and no one is auth'ed */
+            if (    (chipInfo.enState == VLT_STATE_TERMINATED) ||
+                    (chipInfo.enRole != VLT_EVERYONE)){
+                /* Nothing to do.  Return hardware error */
+                rc = WC_HW_E;
+            }
+            if (rc == 0) {
+                rc = _InitAuth(c, &config->auth);
+            }
+        }
+    }
+#endif
+
     if (rc == 0) {
         c->initialized = 1;
     }
-    else {
-        /* Override with an init error */
-        rc = WC_INIT_E;
-    }
+
 #ifdef CCBVAULTIC_DEBUG
     XPRINTF("ccbVaultIc_Init: c:%p c->initialized:%d rc:%d vlt_rc:%d\n",
             c,
@@ -236,11 +575,414 @@ void ccbVaultIc_Cleanup(ccbVaultIc_Context *c)
     if (c->aescbc_key != NULL)
         XFREE(c->aescbc_key, NULL, NULL);
 
-    clearContext(c);
+    _ClearContext(c);
 
     /* Set the return value in the struct */
     /* Close the hardware */
     c->vlt_rc = vlt_tls_close();
+}
+
+/* Helper.  Missing XSTRNLEN */
+static int ccbVaultIc_Strnlen(const char *s, int n)
+{
+    int len = 0;
+    while( (len < n) && (s[len] != 0)) {
+        len++;
+    }
+    return len;
+}
+
+static int _CheckFile(  ccbVaultIc_Context *c,
+                        const ccbVaultIc_File *f,
+                        int userId, int adminId)
+{
+    int rc = _CheckInitializedContext(c);
+    if (rc == 0) {
+        if (    (f == NULL) ||
+                (f->name_len < CCBVAULTIC_FILE_NAME_LEN_MIN) ||
+                (f->name_len > CCBVAULTIC_FILE_NAME_LEN_MAX) ||
+                (f->data_len > CCBVAULTIC_FILE_DATA_LEN_MAX) ||
+                (userId < CCBVAULTIC_AUTH_ID_MIN) ||
+                (userId > CCBVAULTIC_AUTH_ID_MAX) ||
+                (adminId < CCBVAULTIC_AUTH_ID_MIN) ||
+                (adminId > CCBVAULTIC_AUTH_ID_MAX)) {
+            rc = BAD_FUNC_ARG;
+        }
+    }
+    return rc;
+}
+
+static int _OpenFile(   ccbVaultIc_Context *c,
+                        const ccbVaultIc_File *f,
+                        int *out_dataLen)
+{
+    int rc = _CheckFile(c, f,
+            CCBVAULTIC_AUTH_ID_MIN, CCBVAULTIC_AUTH_ID_MIN  /* Dummy Ids */
+            );
+    if (rc == 0) {
+        VLT_FS_ENTRY_PARAMS  structFileEntry;
+        XMEMSET(&structFileEntry, 0, sizeof(structFileEntry));
+
+        c->vlt_rc = VltFsOpenFile(
+                (VLT_U16)f->name_len,
+                (VLT_U8*)f->name,
+                (VLT_BOOL)FALSE,            /* No transaction */
+                &structFileEntry);
+        rc = _TranslateError(c->vlt_rc);
+
+#ifdef CCBVAULTIC_DEBUG_ALL
+    XPRINTF("ccbVaultIc_OpenFile rc:%d (%x) c:%p f:%p name_len:%d name:%.*s, data_len:%d data:%p\n",
+            rc, c->vlt_rc, c, f, f->name_len, (int)f->name_len, f->name, f->data_len, f->data);
+#endif
+        /* Update output on success */
+        if ((rc == 0) && (out_dataLen != NULL)) {
+            *out_dataLen = structFileEntry.u32FileSize;
+        }
+   }
+   return rc;
+}
+
+static void _SetVltUserAccessBit(VLT_USER_ACCESS* u, int userId)
+{
+    if (u == NULL) {
+        return;
+    }
+    switch(userId) {
+    case 0: u->user0 = 1; return;
+    case 1: u->user1 = 1; return;
+    case 2: u->user2 = 1; return;
+    case 3: u->user3 = 1; return;
+    case 4: u->user4 = 1; return;
+    case 5: u->user5 = 1; return;
+    case 6: u->user6 = 1; return;
+    case 7: u->user7 = 1; return;
+    default: break;
+    }
+}
+
+int ccbVaultIc_CreateUserFile(  ccbVaultIc_Context *c,
+                                const ccbVaultIc_File *f,
+                                int userId, int adminId)
+{
+    int rc = _CheckFile(c, f, userId, adminId);
+    if (rc == 0) {
+        VLT_USER_ACCESS priv;
+        VLT_FS_ENTRY_PARAMS entryParams;
+
+        XMEMSET(&priv, 0, sizeof(priv));
+        XMEMSET(&entryParams, 0, sizeof(entryParams));
+
+        /* All privileges for the user and the admin */
+        _SetVltUserAccessBit(&priv, userId);
+        _SetVltUserAccessBit(&priv, adminId);
+        entryParams.filePriv.readPrivilege    = priv;
+        entryParams.filePriv.writePrivilege   = priv;
+        entryParams.filePriv.deletePrivilege  = priv;
+        entryParams.filePriv.executePrivilege = priv;
+        entryParams.attribs.readOnly          = 0;      /* Read/Write */
+        entryParams.attribs.system            = 0;      /* Non-system */
+        entryParams.attribs.hidden            = 0;      /* Visible */
+        entryParams.u32FileSize               = 0;      /* Empty */
+        entryParams.u8EntryType               = VLT_FILE_ENTRY;
+
+        c->vlt_rc = VltFsCreate(
+                (VLT_U16)f->name_len,
+                (VLT_PU8)f->name,
+                &entryParams,
+                (VLT_USER_ID) userId);  /* Owner */
+        rc = _TranslateError(c->vlt_rc);
+#ifdef CCBVAULTIC_DEBUG_ALL
+    XPRINTF("ccbVaultIc_CreateUserFile rc:%d (%x) c:%p f:%p name_len:%d name:%.*s\n",
+            rc, c->vlt_rc, c, f, f->name_len, (int)f->name_len, f->name);
+#endif
+    }
+    return rc;
+}
+
+int ccbVaultIc_DeleteFile(  ccbVaultIc_Context *c,
+                            const ccbVaultIc_File *f)
+{
+
+    int rc = _CheckFile(c, f,
+            CCBVAULTIC_AUTH_ID_MIN, CCBVAULTIC_AUTH_ID_MIN /* Dummy Ids */
+            );
+    if (rc == 0) {
+        c->vlt_rc = VltFsDelete(
+                (VLT_U16)f->name_len,
+                (VLT_U8*)f->name,
+                (VLT_BOOL)FALSE);           /* Not recursive */
+        rc = _TranslateError(c->vlt_rc);
+#ifdef CCBVAULTIC_DEBUG_ALL
+    XPRINTF("ccbVaultIc_DeleteFile rc:%d (%x) c:%p f:%p name_len:%d name:%.*s\n",
+            rc, c->vlt_rc, c, f, f->name_len, (int)f->name_len, f->name);
+#endif
+    }
+    return rc;
+}
+
+int ccbVaultIc_WriteFile(   ccbVaultIc_Context *c,
+                            const ccbVaultIc_File *f)
+{
+    int rc = _OpenFile(c, f, NULL);
+    if (rc == 0) {
+        c->vlt_rc = VltFsWriteFile(
+                (VLT_U32)VLT_SEEK_FROM_START,
+                (VLT_U8*)f->data,
+                (VLT_U32)f->data_len,
+                (VLT_BOOL)TRUE);                  /* Reclaim space */
+        rc = _TranslateError(c->vlt_rc);
+#ifdef CCBVAULTIC_DEBUG_ALL
+    XPRINTF("ccbVaultIc_WriteFile rc:%d (%x) c:%p f:%p name_len:%d name:%.*s, data_len:%d data:%p\n",
+            rc, c->vlt_rc, c, f, f->name_len, (int)f->name_len, f->name, f->data_len, f->data);
+    _HexDump(f->data, f->data_len);
+#endif
+
+        /* Close and ignore error here */
+        VltFsCloseFile();
+    }
+    return rc;
+}
+
+int ccbVaultIc_ReadFile(    ccbVaultIc_Context *c,
+                            ccbVaultIc_File *f)
+{
+    int fileLen = 0;
+    int maxLen = f->data_len;
+    int rc = _OpenFile(c, f, &fileLen);
+    if (rc == 0) {
+        VLT_U32 readLen = fileLen;
+        if (readLen > maxLen) {
+            readLen = maxLen;
+        }
+
+        /* Reset file struct data */
+        XMEMSET(f->data, 0, maxLen);
+
+        c->vlt_rc = VltFsReadFile(
+                (VLT_U32)VLT_SEEK_FROM_START,
+                (VLT_U8*) f->data,
+                &readLen);
+        rc = _TranslateError(c->vlt_rc);
+
+        if (rc == 0) {
+            /* Success.  Update file struct */
+            f->data_len = readLen;
+        }
+#ifdef CCBVAULTIC_DEBUG_ALL
+    XPRINTF("ccbVaultIc_ReadFile rc:%d (%x) c:%p f:%p name_len:%d name:%.*s, data_len:%d data:%p\n",
+            rc, c->vlt_rc, c, f, f->name_len, (int)f->name_len, f->name, f->data_len, f->data);
+    _HexDump(f->data, f->data_len);
+#endif
+
+        /* Close and ignore error here */
+        VltFsCloseFile();
+    }
+    return rc;
+}
+
+
+static int _SetState(ccbVaultIc_Context *c, VLT_STATE state)
+{
+    int rc = _CheckInitializedContext(c);
+    if (rc == 0) {
+        VLT_TARGET_INFO chipInfo;
+        rc = _GetInfo(c, &chipInfo);
+        if (rc == 0) {
+            if (chipInfo.enState != state) {
+                c->vlt_rc = VltSetStatus(state);
+                rc = _TranslateError(c->vlt_rc);
+            }
+        }
+    }
+    return rc;
+}
+static int _SetCreationState(ccbVaultIc_Context *c)
+{
+    return _SetState(c, VLT_STATE_CREATION);
+}
+static int _SetActivatedState(ccbVaultIc_Context *c)
+{
+    return _SetState(c, VLT_STATE_ACTIVATED);
+}
+
+#if 0
+static int _CreatePinUser(ccbVaultIc_Context *c,
+        int user, int role,
+        int pin_len, const char* pin)
+{
+
+}
+
+static int _CreateScp03User(ccbVaultIc_Context *c,
+        int user, int role,
+        int ,a_len, const char* pin)
+{
+
+}
+
+static int _CreateKdfUser(ccbVaultIc_Context *c,
+        int user, int role,
+        int pin_len, const char* pin)
+{
+
+}
+
+static int _CreateUser( ccbVaultIc_Context *c, ccbVaultIc_Auth *a)
+{
+    int rc = _CheckInitializedContext(c);
+    if (rc == 0) {
+        if (a == NULL) {
+            rc = BAD_FUNC_ARG;
+        }
+        if(rc == 0) {
+
+        }
+    }
+
+    VLT_MANAGE_AUTH_DATA structAuthSetup;
+    structAuthSetup.enOperationID = VLT_DELETE_USER;
+    structAuthSetup.enUserID = VLT_USER0;
+    for ( VLT_USER_ID i = VLT_USER0; i <= VLT_USER6; i++) {
+        structAuthSetup.enUserID = i;
+        VltManageAuthenticationData(&structAuthSetup);
+    }
+
+    // Create TLS user
+    //---------------------------------------------------------------------
+    structAuthSetup.enOperationID = VLT_CREATE_USER;
+    structAuthSetup.u8TryCount = 5;
+    structAuthSetup.enSecurityOption = VLT_NO_DELETE_ON_LOCK;
+    structAuthSetup.enUserID = TLS_USER_ID;
+    structAuthSetup.enRoleID = VLT_NON_APPROVED_USER;
+
+#ifdef USE_SEC_CHANNEL
+    // SCP03 auth method
+    //---------------------------------------------------------------------
+    VLT_U8 au8S_MacStaticKey[] = SMAC_KEY;
+    VLT_U8 au8S_EncStaticKey[] = SENC_KEY;
+    structAuthSetup.enMethod = VLT_AUTH_SCP03;
+    structAuthSetup.enChannelLevel = VLT_CMAC_CENC;
+    structAuthSetup.data.secret.u8NumberOfKeys = 2;
+    structAuthSetup.data.secret.aKeys[0].enKeyID = VLT_KEY_AES_128;
+    structAuthSetup.data.secret.aKeys[0].u8Mask = 0xBE;
+    structAuthSetup.data.secret.aKeys[0].u16KeyLength = sizeof(au8S_MacStaticKey);
+    structAuthSetup.data.secret.aKeys[0].pu8Key = au8S_MacStaticKey;
+    structAuthSetup.data.secret.aKeys[1].enKeyID = VLT_KEY_AES_128;
+    structAuthSetup.data.secret.aKeys[1].u8Mask = 0xEF;
+    structAuthSetup.data.secret.aKeys[1].u16KeyLength = sizeof(au8S_EncStaticKey);
+    structAuthSetup.data.secret.aKeys[1].pu8Key = au8S_EncStaticKey;
+    printf("Encrypted channel enabled, TLS_USER = USER%d (SCP03)\n",TLS_USER_ID);
+#else
+    // Create user 00 with password auth method
+    //---------------------------------------------------------------------
+    structAuthSetup.enMethod = VLT_AUTH_PASSWORD;
+    structAuthSetup.enChannelLevel = VLT_NO_CHANNEL;
+    structAuthSetup.data.password.u8PasswordLength = TLS_USER_PIN_LEN;
+    memset(structAuthSetup.data.password.u8Password, 0x00, sizeof (structAuthSetup.data.password.u8Password));
+    memcpy(structAuthSetup.data.password.u8Password, (VLT_PU8) TLS_USER_PIN, TLS_USER_PIN_LEN);
+    printf("Encrypted channel disabled, TLS_USER = USER%d (PIN)\n",TLS_USER_ID);
+#endif
+
+    CHECK_STATUS("VltManageAuthenticationData Create Tls User" , VltManageAuthenticationData(&structAuthSetup),TRUE);
+
+
+}
+
+static int _DeleteUser( ccbVaultIc_Context *c, ccbVaultIc_Auth *a)
+{
+    int rc = _CheckInitializedContext(c);
+    if (rc == 0) {
+        if (a == NULL) {
+            rc = BAD_FUNC_ARG;
+        }
+        if(rc == 0) {
+            VLT_MANAGE_AUTH_DATA authSetup;
+            XMEMSET(authSetup, 0, sizeof(authSetup));
+            authSetup.enOperationID = VLT_DELETE_USER;
+            authSetup.enUserID = _AuthId2VltUserId(a->id);
+            c->vlt_rc = VltManageAuthenticationData(&authSetup);
+            rc = _TranslateError(c->vlt_rc);
+        }
+    }
+    return rc;
+}
+#endif
+
+/* Perform the load action as the currently authed user */
+int ccbVaultIc_LoadAction(  ccbVaultIc_Context *c,
+                            ccbVaultIc_Load *l)
+{
+    int rc = _CheckInitializedContext(c);
+    if (rc == 0) {
+        if (l == NULL) {
+            rc = BAD_FUNC_ARG;
+        }
+        /* Read file data into the load structure */
+        if (rc == 0) {
+            int counter = 0;
+            for(counter = 0; counter < l->file_count; counter++) {
+                rc = ccbVaultIc_ReadFile(c, &l->file[counter]);
+                if (rc != 0) break;
+            }
+        }
+    }
+    return rc;
+}
+
+/* Perform the provision action as the currently authed user */
+int ccbVaultIc_ProvisionAction( ccbVaultIc_Context *c,
+                                const ccbVaultIc_Provision *p)
+{
+    int rc = _CheckInitializedContext(c);
+    if (rc == 0) {
+        if (p == NULL) {
+            rc = BAD_FUNC_ARG;
+        }
+
+        if (rc == 0) {
+            /* Setting creation mode should delete all users and their files */
+            // rc = _SetCreationState(c);
+        }
+
+        if (rc == 0) {
+            /* Update self test configuration */
+            // rc = ccbVaultIc_SetSelfTest(c, p->self_test);
+        }
+
+        /* Add User */
+        if (rc == 0) {
+            /* Create the requested user */
+            //ccbVaultIc_DeleteUser(c, &p->create);
+            // rc = ccbVaultIc_CreateUser(c, &p->create);
+
+        }
+
+        /* Create and write file data from the provision structure */
+        if (rc == 0) {
+            int counter = 0;
+            int userId = p->create.id;
+            int adminId = c->config->auth.id;
+            for(counter = 0; counter < p->file_count; counter++) {
+                /* Delete any existing file.  Ignore errors */
+                ccbVaultIc_DeleteFile(c, &p->file[counter]);
+
+                /* Create the file */
+                rc = ccbVaultIc_CreateUserFile(c, &p->file[counter],
+                        userId, adminId);
+                if (rc == 0) {
+                    /* Write the file */
+                    rc = ccbVaultIc_WriteFile(c, &p->file[counter]);
+                }
+                if (rc != 0) break;
+            }
+        }
+
+        if (rc == 0) {
+            /* Set Activated State */
+            // rc = _SetActivatedState(c);
+        }
+    }
+    return rc;
 }
 
 #ifdef WOLF_CRYPTO_CB
@@ -404,6 +1146,10 @@ static int HandleCmdCallback(int devId, wc_CryptoInfo* info,
     default:
         break;
     }
+#if defined(CCBVAULTIC_DEBUG_ALL)
+        XPRINTF("HandleCmdCallback %d: c:%p rc:%d\n", info->cmd.type, c, rc);
+#endif
+
     return rc;
 }
 #endif
@@ -460,9 +1206,9 @@ static int HandlePkCallback(int devId, wc_CryptoInfo* info,
 #if defined(CCBVAULTIC_DEBUG_ALL)
             XPRINTF("   RSA Flatten Pub Key:%d, eSz:%u nSz:%u\n",
                     rc, eSz, nSz);
-            hexdump(e,sizeof(e));
-            hexdump(e_pad,sizeof(e_pad));
-            hexdump(n,sizeof(n));
+            _HexDump((const char*)e,sizeof(e));
+            _HexDump((const char*)e_pad,sizeof(e_pad));
+            _HexDump((const char*)n,sizeof(n));
 #endif
             /* Set tmpRsaKey privileges */
             keyPrivileges.u8Read    = VAULTIC_KP_ALL;
@@ -501,7 +1247,7 @@ static int HandlePkCallback(int devId, wc_CryptoInfo* info,
 #if defined(CCBVAULTIC_DEBUG_ALL)
             XPRINTF("   VLT PutKey:%x\n", c->vlt_rc);
 #endif
-            rc = translateError(c->vlt_rc);
+            rc = _TranslateError(c->vlt_rc);
             if (rc != 0)
                 break;
 
@@ -517,7 +1263,7 @@ static int HandlePkCallback(int devId, wc_CryptoInfo* info,
 #if defined(CCBVAULTIC_DEBUG_ALL)
             XPRINTF("   VLT InitAlgo:%x\n", c->vlt_rc);
 #endif
-            rc = translateError(c->vlt_rc);
+            rc = _TranslateError(c->vlt_rc);
             if (rc != 0)
                 break;
 
@@ -538,7 +1284,7 @@ static int HandlePkCallback(int devId, wc_CryptoInfo* info,
             XPRINTF("   VLT Encrypt:%x inSz:%u outSz:%lu\n",
                     c->vlt_rc, info->pk.rsa.inLen, out_len);
 #endif
-            rc = translateError(c->vlt_rc);
+            rc = _TranslateError(c->vlt_rc);
             if (rc != 0)
                 break;
 
@@ -731,7 +1477,7 @@ static int HandleHashCallback(int devId, wc_CryptoInfo* info,
                 (info->hash.inSz > 0)) {
             /* Buffer data */
             if (c->m == NULL) {
-                c->m = XMALLOC(info->hash.inSz, NULL, NULL);
+                c->m = (unsigned char*)XMALLOC(info->hash.inSz, NULL, NULL);
                 if (c->m == NULL) {
                     /* Failure to allocate.  Must return error */
 #if defined(CCBVAULTIC_DEBUG)
@@ -795,7 +1541,7 @@ static int HandleHashCallback(int devId, wc_CryptoInfo* info,
 #if defined(CCBVAULTIC_DEBUG_ALL)
             XPRINTF("   VltInit SHA256:%x\n", c->vlt_rc);
 #endif
-            rc = translateError(c->vlt_rc);
+            rc = _TranslateError(c->vlt_rc);
             if (rc != 0)
                 break;
 
@@ -811,7 +1557,7 @@ static int HandleHashCallback(int devId, wc_CryptoInfo* info,
 #if defined(CCBVAULTIC_DEBUG_ALL)
                 XPRINTF("   VltUpdate SHA256:%x\n", c->vlt_rc);
 #endif
-                rc = translateError(c->vlt_rc);
+                rc = _TranslateError(c->vlt_rc);
                 if (rc != 0)
                     break;
 
@@ -822,7 +1568,7 @@ static int HandleHashCallback(int devId, wc_CryptoInfo* info,
 #if defined(CCBVAULTIC_DEBUG_ALL)
                 XPRINTF("   VltFinal SHA256:%x\n", c->vlt_rc);
 #endif
-                rc = translateError(c->vlt_rc);
+                rc = _TranslateError(c->vlt_rc);
                 if (rc != 0)
                     break;
             }
@@ -835,9 +1581,9 @@ static int HandleHashCallback(int devId, wc_CryptoInfo* info,
                         info->hash.digest);
 #if defined(CCBVAULTIC_DEBUG_ALL)
             XPRINTF("   VltCompute SHA256:%x\n", c->vlt_rc);
-            hexdump(info->hash.digest, WC_SHA256_DIGEST_SIZE);
+            _HexDump(info->hash.digest, WC_SHA256_DIGEST_SIZE);
 #endif
-                rc = translateError(c->vlt_rc);
+                rc = _TranslateError(c->vlt_rc);
                 if (rc != 0)
                     break;
             }
@@ -982,7 +1728,7 @@ static int HandleCipherCallback(int devId, wc_CryptoInfo* info,
 #if defined(CCBVAULTIC_DEBUG_ALL)
             XPRINTF("   New AES Key: ckey:%p clen:%lu akey:%p alen:%u\n",
                     c->aescbc_key,c->aescbc_keylen, aes->devKey, aes->keylen);
-            hexdump((void*)aes->devKey, aes->keylen);
+            _HexDump((void*)aes->devKey, aes->keylen);
 #endif
             /* Free the current key buffer if necessary */
             if (c->aescbc_key != NULL) {
@@ -992,7 +1738,7 @@ static int HandleCipherCallback(int devId, wc_CryptoInfo* info,
             }
 
             /* Allocate key buffer */
-            c->aescbc_key = XMALLOC(aes->keylen, NULL, NULL);
+            c->aescbc_key = (unsigned char*)XMALLOC(aes->keylen, NULL, NULL);
             if (c->aescbc_key == NULL) {
 #if defined(CCBVAULTIC_DEBUG)
                 XPRINTF("   Failed to allocate new AES Key of size:%u\n",
@@ -1036,9 +1782,9 @@ static int HandleCipherCallback(int devId, wc_CryptoInfo* info,
                     &tmpAesKey);
 #if defined(CCBVAULTIC_DEBUG_ALL)
             XPRINTF("   VLT PutKey:%x\n", c->vlt_rc);
-            hexdump(c->aescbc_key, c->aescbc_keylen);
+            _HexDump((const char*)c->aescbc_key, c->aescbc_keylen);
 #endif
-            rc = translateError(c->vlt_rc);
+            rc = _TranslateError(c->vlt_rc);
             if (rc != 0)
                 break;
         }
@@ -1054,7 +1800,7 @@ static int HandleCipherCallback(int devId, wc_CryptoInfo* info,
 #if defined(CCBVAULTIC_DEBUG_ALL)
         XPRINTF("   VLT InitAlgo:%x\n", c->vlt_rc);
 #endif
-        rc = translateError(c->vlt_rc);
+        rc = _TranslateError(c->vlt_rc);
         if (rc != 0)
             break;
 
@@ -1083,7 +1829,7 @@ static int HandleCipherCallback(int devId, wc_CryptoInfo* info,
             XPRINTF("   VLT Decrypt:%x\n", c->vlt_rc);
 #endif
         }
-        rc = translateError(c->vlt_rc);
+        rc = _TranslateError(c->vlt_rc);
         if (rc != 0)
             break;
 

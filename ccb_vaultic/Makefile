@@ -53,7 +53,7 @@ TEST_OBJS:=$(WOLFSSL_DIR)/wolfcrypt/test/test.o main-test.o
 BENCH_OBJS:=$(WOLFSSL_DIR)/wolfcrypt/benchmark/benchmark.o main-bench.o
 
 #Makefile rules
-all: wolfcrypt-test wolfcrypt-benchmark
+all: wolfcrypt-test wolfcrypt-benchmark vlt-load vlt-prov
 
 wolfcrypt-test: $(OBJS) $(TEST_OBJS)
 	$(CC) -o $@ $^ $(LDFLAGS)
@@ -61,7 +61,13 @@ wolfcrypt-test: $(OBJS) $(TEST_OBJS)
 wolfcrypt-benchmark: $(OBJS) $(BENCH_OBJS)
 	$(CC) -o $@ $^ $(LDFLAGS)
 
+vlt-load: $(OBJS) main-load.o
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+vlt-prov: $(OBJS) main-prov.o
+	$(CC) -o $@ $^ $(LDFLAGS)
+
 clean:
-	rm -f *.o *.d wolfcrypt-test wolfcrypt-benchmark
+	rm -f *.o *.d wolfcrypt-test wolfcrypt-benchmark vlt-load vlt-prov
 	rm -f $(WOLFSSL_DIR)/wolfcrypt/benchmark/*.o
 	rm -f $(WOLFSSL_DIR)/wolfcrypt/test/*.o
