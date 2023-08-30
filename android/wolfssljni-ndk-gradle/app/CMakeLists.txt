@@ -272,8 +272,8 @@ target_link_libraries(
 
 # --------------------------- wolfCrypt CryptoCb Source Files --------------------------------------
 # set which cryptocb subsystem (if any) will be used
-set(WOLFSSL_CRYPTOCB_TYPE "")
-#set(WOLFSSL_CRYPTOCB_TYPE "ccb_vaultic")
+#set(WOLFSSL_CRYPTOCB_TYPE "")
+set(WOLFSSL_CRYPTOCB_TYPE "ccb_vaultic")
 
 # Support for ccb_vaultic
 if("${WOLFSSL_CRYPTOCB_TYPE}" MATCHES "ccb_vaultic")
@@ -288,6 +288,9 @@ if("${WOLFSSL_CRYPTOCB_TYPE}" MATCHES "ccb_vaultic")
     add_library(ccbvaultic SHARED
             ${cryptocb_DIR}/ccb_vaultic.c)
 
+    add_library(ccbvaulticjni SHARED
+            ${cryptocb_DIR}/com_wolfssl_ccbvaultic_ccbVaultic.c)
+
     # TODO Add support for other architectures
     if("${ANDROID_ABI}" MATCHES "arm64-v8a")
         add_definitions(
@@ -295,8 +298,8 @@ if("${WOLFSSL_CRYPTOCB_TYPE}" MATCHES "ccb_vaultic")
                 #-DCCBVAULTIC_NO_AES
                 #-DCCBVAULTIC_NO_RSA
                 -DCCBVAULTIC_NO_SHA
-                #-DCCBVAULTIC_DEBUG
-                #-DCCBVAULTIC_DEBUG_TIMING
+                -DCCBVAULTIC_DEBUG
+                -DCCBVAULTIC_DEBUG_TIMING
         )
 
         set(VAULTIC_DIR ${cryptocb_DIR}/VaultIC-TLS_420/vaultic_tls-4xx)
@@ -336,4 +339,10 @@ if("${WOLFSSL_CRYPTOCB_TYPE}" MATCHES "ccb_vaultic")
             wolfssljni
             ccbvaultic
     )
+    # Link ccbvaulticjni to ccbvaultic
+    target_link_libraries(
+            ccbvaulticjni
+            ccbvaultic
+    )
+
 endif() #ccb_vaultic

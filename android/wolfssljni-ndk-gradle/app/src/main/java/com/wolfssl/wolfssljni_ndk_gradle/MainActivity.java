@@ -7,9 +7,14 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.wolfssl.WolfSSL;
+import com.wolfssl.provider.jsse.WolfSSLKeyX509;
 import com.wolfssl.provider.jsse.WolfSSLProvider;
 
+import com.wolfssl.ccbvaultic.ccbVaultIc;
+
 import java.io.ByteArrayOutputStream;
+import java.nio.ByteBuffer;
+import java.security.KeyStore;
 import java.security.Security;
 import java.util.concurrent.Executors;
 
@@ -88,11 +93,12 @@ public class MainActivity extends AppCompatActivity {
 
                 /* Select The devId which will be registered and used on every other invocation */
                 /* Unique devId's are compiled into wolfssljni */
-                //int devId = 0x56490420;  /* VaultIC 420 */
-                int devId = WolfSSL.INVALID_DEVID;  /* No hardware offload */
+                int devId = 0x56490420;  /* VaultIC 420 */
+                //int devId = WolfSSL.INVALID_DEVID;  /* No hardware offload */
 
                 /* Select if the cipher suites and protocols will be limited */
-                boolean limitCipherProtocol = false;
+                boolean limitCipherProtocol = true;
+                //boolean limitCipherProtocol = false;
 
                 long[] ts = new long[10];
 
@@ -108,6 +114,15 @@ public class MainActivity extends AppCompatActivity {
                     appendDisplayText("B. Using hardware offload\n");
                     wolfProv.registerDevId(devId);
                     wolfProv.setDevId(devId);
+
+                    ccbVaultIc cv = new ccbVaultIc();
+                    ByteBuffer text = ByteBuffer.allocateDirect(1024);
+                    long[] text_len = {1024};
+                    int rc = cv.GetInfoText(devId, text, text_len);
+
+                    byte[] data = new byte[1024];
+                    text.get(data,0,(int)(text_len[0]));
+                    appendDisplayText("GetInfoText rc=" + rc +", text_len=" + text_len[0]+", text=" + new String(data));
                 } else {
                     appendDisplayText("B. Using software crypto.\n");
                     wolfProv.setDevId(WolfSSL.INVALID_DEVID);
@@ -119,6 +134,9 @@ public class MainActivity extends AppCompatActivity {
                 /* not setting up KeyStore or TrustStore, wolfJSSE will load
                  * CA certs from the Android system KeyStore by default. */
                 SSLContext ctx = SSLContext.getInstance("TLS", wolfProv.getName());
+
+                //WolfSSLKeyX509 key = new WolfSSLKeyX509(new KeyStore());
+
                 ctx.init(null, null, null);
 
                 SSLSocketFactory sf = ctx.getSocketFactory();

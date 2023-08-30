@@ -39,6 +39,7 @@
  * CCBVAULTIC_NO_RSA: Do not handle RSA callback
  * CCBVAULTIC_NO_AES: Do not handle AES callback
  *
+ *
  * Expected wolfSSL/wolfCrypt defines from wolfcrypt/types.h or settings.h:
  * XMALLOC:  malloc() equivalent
  * XREALLOC: realloc() equivalent
@@ -68,7 +69,7 @@
 #include "ccb_vaultic.h"
 
 /* Provide default config struct if needed */
-static const ccbVaultIc_Config gDefaultConfig = CCBVAULTIC_CONFIG_DEFAULT;
+static ccbVaultIc_Config gDefaultConfig = CCBVAULTIC_CONFIG_DEFAULT;
 
 /* Debug defines */
 #ifdef CCBVAULTIC_DEBUG_ALL
@@ -192,6 +193,42 @@ static int _GetInfo(ccbVaultIc_Context *c, VLT_TARGET_INFO *out_chipInfo)
     _HexDump((const char*)out_chipInfo->au8Serial, sizeof(out_chipInfo->au8Serial));
 #endif
     return _TranslateError(c->vlt_rc);
+}
+
+static int _GetInfoText(ccbVaultIc_Context* c, int text_len, char* text,
+        int *out_len)
+{
+    VLT_TARGET_INFO chipInfo;
+    int rc = _GetInfo(c, &chipInfo);
+    if ((rc == 0) && (text != NULL) && (text_len > 0)) {
+        int len = snprintf(text, text_len,
+                "VERSION:%.*s\n"
+                "SERIAL:%02X%02X%02X%02X%02X%02X%02X%02X\n"
+                "STATE:%02X\n"
+                "MODE:%02X\n"
+                "ROLE:%02X\n"
+                "SELFTEST:%02X\n"
+                "SPACE:%d\n",
+                (int)sizeof(chipInfo.au8Firmware),
+                (const char*)chipInfo.au8Firmware,
+                chipInfo.au8Serial[0],
+                chipInfo.au8Serial[1],
+                chipInfo.au8Serial[2],
+                chipInfo.au8Serial[3],
+                chipInfo.au8Serial[4],
+                chipInfo.au8Serial[5],
+                chipInfo.au8Serial[6],
+                chipInfo.au8Serial[7],
+                chipInfo.enState,
+                chipInfo.enMode,
+                chipInfo.enRole,
+                chipInfo.enSelfTests,
+                 (int)chipInfo.u32Space);
+        if (out_len != NULL) {
+            *out_len = len;
+        }
+    }
+    return rc;
 }
 
 static VLT_USER_ID _AuthId2VltUserId(int id)
@@ -1141,6 +1178,44 @@ static int HandleCmdCallback(int devId, wc_CryptoInfo* info,
         ccbVaultIc_Cleanup(c);
         /* Return success */
         rc = 0;
+    }; break;
+
+    case CCBVAULTIC_CMD_INFO:
+    {
+        /* Issue an info command and convert the results to a text string */
+        ccbVaultIc_Info* i = info->cmd.ctx;
+
+        char* text = NULL;
+        int text_len = 0;
+
+        if(i != NULL) {
+            text = i->text;
+            text_len = i->text_len;
+        }
+
+        rc = _GetInfoText(c, text_len, text, &text_len);
+        if(i != NULL) {
+            i->text_len = text_len;
+        }
+    }; break;
+
+    case CCBVAULTIC_CMD_LOADACTION:
+    {
+        if(_CheckInitializedContext(c) != 0)
+            break;
+        rc = ccbVaultIc_LoadAction(c, info->cmd.ctx);
+    }; break;
+
+    case CCBVAULTIC_CMD_PROVISIONACTION:
+    {
+        if(_CheckInitializedContext(c) != 0)
+            break;
+        rc = ccbVaultIc_ProvisionAction(c, info->cmd.ctx);
+    }; break;
+
+    case CCBVAULTIC_CMD_NVMREAD:
+    {
+
     }; break;
 
     default:

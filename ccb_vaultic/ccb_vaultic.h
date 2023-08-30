@@ -40,6 +40,14 @@
 enum {
     CCBVAULTIC_SERIAL_LEN               = 8,
     CCBVAULTIC_VERSION_LEN              = 32,
+
+    CCBVAULTIC_CMD_INFO                 = 0x8000,
+    CCBVAULTIC_CMD_LOADACTION           = 0x8001,
+    CCBVAULTIC_CMD_PROVISIONACTION      = 0x8002,
+
+    CCBVAULTIC_CMD_NVMREAD              = 0x8100,
+
+    CCBVAULTIC_INFO_LEN                 = 64,
 };
 
 /* Configuration choices */
@@ -177,6 +185,18 @@ typedef struct {
     ccbVaultIc_File* file;
 } ccbVaultIc_Load;
 
+typedef struct {
+    int text_len;
+    char* text;
+} ccbVaultIc_Info;
+
+typedef struct {
+    int index;
+    int label_len;
+    char* label;
+    int data_len;
+    char* data;
+} ccbVaultIc_Nvm;
 
 /* Initialize the VaultIC library and clear the context.
  * Returns: 0 on success
@@ -242,24 +262,25 @@ int ccbVaultIc_CryptoCb(int devId,
     "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F"
 #define CCBVAULTIC_SCP03_ENC_DEFAULT \
     "\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1A\x1B\x1C\x1D\x1E\x1F"
-#define CCBVAULTIC_AUTH_DEFAULT                                 \
-    {                                                           \
-        .id          = CCBVAULTIC_AUTH_ID_DEFAULT,              \
-        .kind        = CCBVAULTIC_AUTH_KIND_SCP03,              \
-        .auth.scp03 = {                                         \
-            .mac_len = sizeof(CCBVAULTIC_SCP03_MAC_DEFAULT),    \
-            .mac     = CCBVAULTIC_SCP03_ENC_DEFAULT,            \
-            .enc_len = sizeof(CCBVAULTIC_SCP03_MAC_DEFAULT),    \
-            .enc     = CCBVAULTIC_SCP03_ENC_DEFAULT,            \
-        }                                                       \
+#define CCBVAULTIC_AUTH_DEFAULT                                     \
+    {                                                               \
+        .id          = CCBVAULTIC_AUTH_ID_DEFAULT,                  \
+        .role        = CCBVAULTIC_AUTH_ROLE_UNAPPROVED,             \
+        .kind        = CCBVAULTIC_AUTH_KIND_SCP03,                  \
+        .auth.scp03 = {                                             \
+            .mac_len = sizeof(CCBVAULTIC_SCP03_MAC_DEFAULT) - 1,    \
+            .mac     = CCBVAULTIC_SCP03_MAC_DEFAULT,                \
+            .enc_len = sizeof(CCBVAULTIC_SCP03_ENC_DEFAULT) - 1,    \
+            .enc     = CCBVAULTIC_SCP03_ENC_DEFAULT,                \
+        }                                                           \
     }
 
-#define CCBVAULTIC_CONFIG_DEFAULT                               \
-    {                                                           \
-        .startup_delay_ms = CCBVAULTIC_FAST_START_MS,           \
-        .timeout_ms       = CCBVAULTIC_APDU_TIMEOUT_MS,         \
-        .spi_rate_khz     = CCBVAULTIC_SPI_RATE_KHZ,            \
-        .auth             = CCBVAULTIC_AUTH_DEFAULT,            \
+#define CCBVAULTIC_CONFIG_DEFAULT                                   \
+    {                                                               \
+        .startup_delay_ms = CCBVAULTIC_FAST_START_MS,               \
+        .timeout_ms       = CCBVAULTIC_APDU_TIMEOUT_MS,             \
+        .spi_rate_khz     = CCBVAULTIC_SPI_RATE_KHZ,                \
+        .auth             = CCBVAULTIC_AUTH_DEFAULT,                \
     }
 
 #endif  /* HAVE_CCBVAULTIC */
