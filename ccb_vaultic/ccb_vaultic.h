@@ -47,7 +47,7 @@ enum {
 
     CCBVAULTIC_CMD_NVMREAD              = 0x8100,
 
-    CCBVAULTIC_INFO_LEN                 = 64,
+    CCBVAULTIC_INFO_LEN                 = 128,
 };
 
 /* Configuration choices */
@@ -83,7 +83,9 @@ enum {
     CCBVAULTIC_AUTH_ENC_LEN = 0x10,          /* AES128 keys only */
 
     CCBVAULTIC_AUTH_KDF_KEY_LEN_MIN = 0x10,
+    CCBVAULTIC_AUTH_KDF_KEY_LEN_MAX = 0x40,
     CCBVAULTIC_AUTH_KDF_LABEL_LEN_MIN = 0x0,
+    CCBVAULTIC_AUTH_KDF_LABEL_LEN_MAX = 0x40,
 };
 
 typedef struct {
@@ -197,6 +199,12 @@ typedef struct {
     int data_len;
     char* data;
 } ccbVaultIc_Nvm;
+
+/* Get a pointer to the default configuration data, which is used when the
+ * context passed into ccbVaultIc_Init has c->config == NULL.  This will happen
+ * when the the CryptoCb_Register() is invoked with a NULL context.
+ */
+int ccbVaultIc_GetDefaultConfig(ccbVaultIc_Config* *out_c);
 
 /* Initialize the VaultIC library and clear the context.
  * Returns: 0 on success

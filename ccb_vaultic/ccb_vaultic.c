@@ -499,6 +499,15 @@ static void _ClearContext(ccbVaultIc_Context *c)
     c->aescbc_key = NULL;
 }
 
+int ccbVaultIc_GetDefaultConfig(ccbVaultIc_Config* *out_c)
+{
+    if (out_c == NULL) {
+        return BAD_FUNC_ARG;
+    }
+    *out_c = &gDefaultConfig;
+    return 0;
+}
+
 int ccbVaultIc_Init(ccbVaultIc_Context *c)
 {
     int rc = 0;

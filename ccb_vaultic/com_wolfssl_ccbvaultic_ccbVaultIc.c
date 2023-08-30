@@ -12,12 +12,8 @@
 
 #include "ccb_vaultic.h"
 
-#include "com_wolfssl_ccbvaultic_ccbVaultIc.h"
-/*
- * Class:     com_wolfssl_ccbvaultic_ccbVaultIc
- * Method:    GetInfoText
- * Signature: (I[B)I
- */
+/* Prototypes are in ccbVaultIc.java */
+
 JNIEXPORT jint JNICALL Java_com_wolfssl_ccbvaultic_ccbVaultIc_GetInfoText
   (JNIEnv* jenv, jobject jcl, jint devId, jobject out, jlongArray outSz)
 {
@@ -50,3 +46,55 @@ JNIEXPORT jint JNICALL Java_com_wolfssl_ccbvaultic_ccbVaultIc_GetInfoText
 #endif
 }
 
+
+JNIEXPORT jint JNICALL
+Java_com_wolfssl_ccbvaultic_ccbVaultIc_UpdateDefaultAuth(JNIEnv *env, jobject thiz, jint id,
+                                                         jint role, jint kind, jobject in1,
+                                                         jlongArray in1_sz, jobject in2,
+                                                         jlongArray in2_sz) {
+    // TODO: implement UpdateDefaultAuth()
+    return (jint)CRYPTOCB_UNAVAILABLE;
+}
+
+JNIEXPORT jint JNICALL
+Java_com_wolfssl_ccbvaultic_ccbVaultIc_ProvisionAction(JNIEnv *env, jobject thiz, jint devId,
+                                                       jboolean selftest, jint id, jint role,
+                                                       jint kind, jstring in_name1, jobject in1,
+                                                       jlongArray in1_sz, jstring in_name2,
+                                                       jobject in2, jlongArray in2_sz,
+                                                       jstring in_name3, jobject in3,
+                                                       jlongArray in3_sz) {
+    // TODO: implement ProvisionAction()
+
+    //ccbVaultIc_Provision prov;
+    //prov.self_test= selftest;
+    //switch(kind)
+    //{
+        //setup auth.
+    //}
+    //Set the file data
+
+
+    /* Invoke the callback */
+    //int rc = wc_CryptoCb_Command((int)devId, CCBVAULTIC_CMD_PROVISIONACTION, (void*) &info, NULL);
+
+    //return (jint)rc;
+    return (jint)CRYPTOCB_UNAVAILABLE;
+}
+
+JNIEXPORT jint JNICALL
+Java_com_wolfssl_ccbvaultic_ccbVaultIc_LoadAction(JNIEnv *env, jobject thiz, jint devId,
+                                                  jstring in_name1, jobject in1, jlongArray in1_sz,
+                                                  jstring in_name2, jobject in2, jlongArray in2_sz,
+                                                  jstring in_name3, jobject in3,
+                                                  jlongArray in3_sz) {
+    // TODO: implement LoadAction()
+    //Handle null or emtpy strings
+    return (jint)CRYPTOCB_UNAVAILABLE;
+}
+
+JNIEXPORT jint JNICALL
+Java_com_wolfssl_ccbvaultic_ccbVaultIc_PerformSelfTest(JNIEnv *env, jobject thiz, jint devId) {
+    // TODO: implement PerformSelfTest()
+    return (jint)CRYPTOCB_UNAVAILABLE;
+}
