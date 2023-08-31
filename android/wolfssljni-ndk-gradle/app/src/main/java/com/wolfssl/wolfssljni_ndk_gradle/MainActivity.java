@@ -18,9 +18,11 @@ import java.security.KeyStore;
 import java.security.Security;
 import java.util.concurrent.Executors;
 
+import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -81,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
         });
     };
 
+    
     private final View.OnClickListener sslSocketConnectListener = v -> {
         setDisplayText("Making simple SSL/TLS connection to:\n" +
                 host + ":" + port + "\n" +
@@ -112,17 +115,39 @@ public class MainActivity extends AppCompatActivity {
 
                 if (((connectCount % 2) == 0) && (devId != WolfSSL.INVALID_DEVID)) {
                     appendDisplayText("B. Using hardware offload\n");
+                    ccbVaultIc cv = new ccbVaultIc();
+
+                    // MANU
+                    // cv.UpdateDefaultAuth_Manu("PASSWORD".getBytes());
+
+                    // APP
+                    //cv.UpdateDefaultAuth_App("KEY".getBytes, "LABEL".getBytes());
+
                     wolfProv.registerDevId(devId);
                     wolfProv.setDevId(devId);
 
-                    ccbVaultIc cv = new ccbVaultIc();
-                    ByteBuffer text = ByteBuffer.allocateDirect(1024);
-                    long[] text_len = {1024};
-                    int rc = cv.GetInfoText(devId, text, text_len);
+                    // MANU
+                    //cv.ProvisionAction_App(devId, TRUE,
+                    //        "KEY".getBytes(), "LABEL".getBytes(),
+                    //        "key.pem", "KEYPEM".getBytes(),
+                    //        "crt.pem", "CRTPEM".getBytes(),
+                    //        "ca.pem", "CAPEM".getBytes());
+                    // done;
 
-                    byte[] data = new byte[1024];
-                    text.get(data,0,(int)(text_len[0]));
-                    appendDisplayText("GetInfoText rc=" + rc +", text_len=" + text_len[0]+", text=" + new String(data));
+                    // APP:
+                    //byte[] keyFile = new byte[ccbVaultIc.CCBVAULTIC_FILE_DATA_LEN_MAX];
+                    //byte[] crtFile = new byte[ccbVaultIc.CCBVAULTIC_FILE_DATA_LEN_MAX];
+                    //byte[] caFile = new byte[ccbVaultIc.CCBVAULTIC_FILE_DATA_LEN_MAX];
+                    //cv.LoadAction(devId,
+                    //        "key.pem", keyFile,
+                    //        "crt.pem", crtFile,
+                    //        "ca.pem", caFile);
+                    //KeyManager km = cv.GenerateKM(keyFile, crtFile);
+                    //TrustManager tm = cv.GenerateTM(caFile);
+
+                    byte[] data = new byte[ccbVaultIc.CCBVAULTIC_INFO_LEN];
+                    int rc = cv.GetInfoText(devId,data);
+                    appendDisplayText("GetInfoText rc=" + rc +"\n" + new String(data));
                 } else {
                     appendDisplayText("B. Using software crypto.\n");
                     wolfProv.setDevId(WolfSSL.INVALID_DEVID);
@@ -135,9 +160,9 @@ public class MainActivity extends AppCompatActivity {
                  * CA certs from the Android system KeyStore by default. */
                 SSLContext ctx = SSLContext.getInstance("TLS", wolfProv.getName());
 
-                //WolfSSLKeyX509 key = new WolfSSLKeyX509(new KeyStore());
 
                 ctx.init(null, null, null);
+                //ctx.init(km, tm, null);
 
                 SSLSocketFactory sf = ctx.getSocketFactory();
                 SSLSocket sock = (SSLSocket) sf.createSocket(host, port);
