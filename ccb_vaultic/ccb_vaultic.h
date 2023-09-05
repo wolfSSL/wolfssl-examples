@@ -44,8 +44,7 @@ enum {
     CCBVAULTIC_CMD_INFO                 = 0x8000,
     CCBVAULTIC_CMD_LOADACTION           = 0x8001,
     CCBVAULTIC_CMD_PROVISIONACTION      = 0x8002,
-
-    CCBVAULTIC_CMD_NVMREAD              = 0x8100,
+    CCBVAULTIC_CMD_SELFTEST             = 0x8003,
 
     CCBVAULTIC_INFO_LEN                 = 128,
 };
@@ -119,6 +118,9 @@ typedef struct {
 
     ccbVaultIc_Auth auth;
 } ccbVaultIc_Config;
+
+/* Storage for default auth config.  Declared in ccb_vaultic.c */
+extern ccbVaultIc_Config gDefaultConfig;
 
 typedef struct {
     int initialized;
@@ -241,6 +243,9 @@ int ccbVaultIc_LoadAction(      ccbVaultIc_Context *c,
 /* Perform the provision action as the currently authed user */
 int ccbVaultIc_ProvisionAction( ccbVaultIc_Context *c,
                                 const ccbVaultIc_Provision *p);
+
+/* Perform selftest.  Chip will timeout on failure */
+int ccbVaultIc_SelfTest( ccbVaultIc_Context *c);
 
 #ifdef WOLF_CRYPTO_CB
 #include "wolfssl/wolfcrypt/cryptocb.h"  /* For wc_CryptInfo */

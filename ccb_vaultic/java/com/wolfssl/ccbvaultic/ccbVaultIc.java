@@ -1,8 +1,23 @@
 package com.wolfssl.ccbvaultic;
 
+import android.util.Base64;
+
+import java.io.ByteArrayInputStream;
 import java.nio.ByteBuffer;
+import java.security.BasicPermission;
+import java.security.KeyFactory;
+import java.security.KeyStore;
+import java.security.PrivateKey;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.security.spec.EncodedKeySpec;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.Arrays;
+import java.util.Collection;
 
 import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.TrustManager;
 
 public class ccbVaultIc {
@@ -61,6 +76,30 @@ public class ccbVaultIc {
     public static final int CCBVAULTIC_AUTH_ID_DEBUG = 1;
 
 
+    public void SetByteBufferWithLen(ByteBuffer byteBuffer, long[] len, byte[] inData)
+    {
+        if ((byteBuffer == null) || (len == null)) {
+            return;
+        }
+        if((inData == null) || (inData.length == 0)) {
+            len[0] = 0;
+            return;
+        }
+        int minLen = Math.min(byteBuffer.limit(), inData.length);
+        byteBuffer.put(inData, 0 , minLen);
+        len[0] = minLen;
+    }
+
+    public byte[] GetByteBufferWithLen(ByteBuffer byteBuffer, long[] len)
+    {
+        if ((byteBuffer == null) || (len == null) || (len[0] <= 0)) {
+            return null;
+        }
+        byte[] out = new byte[(int)len[0]];
+        byteBuffer.get(out, 0, (int)len[0]);
+        return out;
+    }
+
     /* Buffer should be at least CCBVAULTIC_INFO_LEN bytes */
     public native int GetInfoText(int devId, ByteBuffer out, long[] outSz);
 
@@ -71,7 +110,8 @@ public class ccbVaultIc {
         int rc = GetInfoText(devId, text, text_len);
 
         if (rc == 0) {
-            text.get(out, 0, (int)text_len[0]);
+            int minLen = Math.min((int)text_len[0], out.length);
+            text.get(out, 0, minLen);
         }
         return rc;
     }
@@ -83,8 +123,8 @@ public class ccbVaultIc {
     public int UpdateDefaultAuth_Pin(int id,  int role, byte[] pin)
     {
         ByteBuffer pinBytes = ByteBuffer.allocateDirect(CCBVAULTIC_AUTH_PIN_LEN_MAX);
-        pinBytes.put(pin, 0, pin.length);
-        long[] pinLen = {(long)pin.length};
+        long[] pinLen = {0};
+        SetByteBufferWithLen(pinBytes, pinLen, pin);
 
         return UpdateDefaultAuth(id, role, CCBVAULTIC_AUTH_KIND_PIN,
                 pinBytes, pinLen,
@@ -95,12 +135,13 @@ public class ccbVaultIc {
     public int UpdateDefaultAuth_SCP03(int id,  int role, byte[] mac, byte[] enc)
     {
         ByteBuffer macBytes = ByteBuffer.allocateDirect(CCBVAULTIC_AUTH_MAC_LEN);
-        macBytes.put(mac, 0, mac.length);
-        long[] macLen = {(long)mac.length};
+        long[] macLen = {0};
 
         ByteBuffer encBytes = ByteBuffer.allocateDirect(CCBVAULTIC_AUTH_ENC_LEN);
-        encBytes.put(enc, 0, enc.length);
-        long[] encLen = {(long)enc.length};
+        long[] encLen = {0};
+
+        SetByteBufferWithLen(macBytes, macLen, mac);
+        SetByteBufferWithLen(encBytes, encLen, enc);
 
         return UpdateDefaultAuth(id, role, CCBVAULTIC_AUTH_KIND_SCP03,
                 macBytes, macLen,
@@ -111,12 +152,13 @@ public class ccbVaultIc {
     public int UpdateDefaultAuth_KDF(int id,  int role, byte[] key, byte[] label)
     {
         ByteBuffer keyBytes = ByteBuffer.allocateDirect(CCBVAULTIC_AUTH_KDF_KEY_LEN_MAX);
-        keyBytes.put(key, 0, key.length);
-        long[] keyLen = {(long)key.length};
+        long[] keyLen = {0};
 
         ByteBuffer labelBytes = ByteBuffer.allocateDirect(CCBVAULTIC_AUTH_KDF_LABEL_LEN_MAX);
-        labelBytes.put(label, 0, label.length);
-        long[] labelLen = {(long)label.length};
+        long[] labelLen = {0};
+
+        SetByteBufferWithLen(keyBytes, keyLen, key);
+        SetByteBufferWithLen(labelBytes, labelLen, label);
 
         return UpdateDefaultAuth(id, role, CCBVAULTIC_AUTH_KIND_KDF,
                 keyBytes, keyLen,
@@ -141,7 +183,7 @@ public class ccbVaultIc {
                 key, label);
     }
 
-    /* Debug */
+    /* Debug login*/
     public int UpdateDefaultAuth_Debug(byte[] mac, byte[] enc)
     {
         return UpdateDefaultAuth_SCP03(
@@ -159,6 +201,39 @@ public class ccbVaultIc {
                                       String inName1, ByteBuffer in1, long[] in1Sz,
                                       String inName2, ByteBuffer in2, long[] in2Sz,
                                       String inName3, ByteBuffer in3, long[] in3Sz);
+    public int ProvisionAction( int devId,
+                                boolean poweron_selftest,
+                                int id, int role, int kind,
+                                byte[] userin1, byte[] userin2,
+                                String inName1, byte[] in1,
+                                String inName2, byte[] in2,
+                                String inName3, byte[] in3
+                                )
+    {
+        ByteBuffer userin1Bytes = ByteBuffer.allocateDirect(CCBVAULTIC_AUTH_KDF_KEY_LEN_MAX);
+        long[] userin1Len = {0};
+        ByteBuffer userin2Bytes = ByteBuffer.allocateDirect(CCBVAULTIC_AUTH_KDF_LABEL_LEN_MAX);
+        long[] userin2Len = {0};
+        ByteBuffer in1Bytes = ByteBuffer.allocateDirect(CCBVAULTIC_FILE_DATA_LEN_MAX);
+        long[] in1Len = {0};
+        ByteBuffer in2Bytes = ByteBuffer.allocateDirect(CCBVAULTIC_FILE_DATA_LEN_MAX);
+        long[] in2Len = {0};
+        ByteBuffer in3Bytes = ByteBuffer.allocateDirect(CCBVAULTIC_FILE_DATA_LEN_MAX);
+        long[] in3Len = {0};
+
+        SetByteBufferWithLen(userin1Bytes, userin1Len, userin1);
+        SetByteBufferWithLen(userin2Bytes, userin2Len, userin2);
+        SetByteBufferWithLen(in1Bytes, in1Len, in1);
+        SetByteBufferWithLen(in2Bytes, in2Len, in2);
+        SetByteBufferWithLen(in3Bytes, in3Len, in3);
+
+        return ProvisionAction(devId, poweron_selftest,
+                id, role,
+                kind, userin1Bytes, userin1Len, userin2Bytes, userin2Len,
+                inName1, in1Bytes, in1Len,
+                inName2, in2Bytes, in2Len,
+                inName3, in3Bytes, in3Len);
+    }
     public int ProvisionAction_KDF(int devId,
                                    boolean poweron_selftest,
                                    int id, int role,        //create user data
@@ -167,12 +242,20 @@ public class ccbVaultIc {
                                    String inName2, byte[] in2,
                                    String inName3, byte[] in3)
     {
-        //return ProvisionAction(devId, poweron_selftest, id, role, CCBVAULTIC_AUTH_KIND_KDF,
-        // keyBytes, keyLen, labelBytes, labelLen,
-        // inName1, in1Bytes, in1Len,
-        // inName1, in2Bytes, in2Len,
-        // inName1, in3Bytes, in3Len,)
-        return -1;
+        if((key ==  null) || (key.length < CCBVAULTIC_AUTH_KDF_KEY_LEN_MIN) ||
+                (key.length > CCBVAULTIC_AUTH_KDF_KEY_LEN_MAX)) {
+            return -1;
+        }
+        if((label ==  null) || (label.length < CCBVAULTIC_AUTH_KDF_LABEL_LEN_MIN) ||
+                (label.length > CCBVAULTIC_AUTH_KDF_LABEL_LEN_MAX)) {
+            return -1;
+        }
+        return ProvisionAction(devId, poweron_selftest,
+                id, role,
+                CCBVAULTIC_AUTH_KIND_KDF, key, label,
+                inName1, in1,
+                inName2, in2,
+                inName3, in3);
     }
     public int ProvisionAction_App(int devId, boolean poweron_selftest,
                                    byte[] key, byte[] label,
@@ -181,31 +264,138 @@ public class ccbVaultIc {
                                    String inName3, byte[] in3)
     {
         return ProvisionAction_KDF(devId, poweron_selftest,
-                CCBVAULTIC_AUTH_ID_APP,CCBVAULTIC_AUTH_ROLE_APP,
+                CCBVAULTIC_AUTH_ID_APP, CCBVAULTIC_AUTH_ROLE_APP,
                 key, label,inName1, in1, inName2, in2, inName3, in3);
     }
-    public native int LoadAction(int devId,
-                                      String inName1, ByteBuffer in1, long[] in1Sz,
-                                      String inName2, ByteBuffer in2, long[] in2Sz,
-                                      String inName3, ByteBuffer in3, long[] in3Sz);
 
-    public int LoadAction(int devId,
-                            String inName1, byte[] in1,
-                            String inName2, byte[] in2,
-                            String inName3, byte[] in3)
-    {
-        //return LoadAction(devId, inName1, in1Bytes, in1Len,
-        //        inName2, in2Bytes, in2Len,
-        //        inName3, in3Bytes, in3Len);
-        return -1;
+    /* Invoke the load action using the provided devId */
+    public native int LoadAction(int devId,
+                                      String inName1, ByteBuffer out1Bytes, long[] out1Len,
+                                      String inName2, ByteBuffer out2Bytes, long[] out2Len,
+                                      String inName3, ByteBuffer out3Bytes, long[] out3Len);
+
+    public class LoadFiles {
+        public int rc;
+        public byte[] file1;
+        public byte[] file2;
+        public byte[] file3;
     }
-    public KeyManager GenerateKM(byte[] keyFile, byte[] crtFile)
+    public LoadFiles LoadAction(int devId,
+                            String inName1,
+                            String inName2,
+                            String inName3)
     {
+        ByteBuffer out1Bytes = ByteBuffer.allocateDirect(CCBVAULTIC_FILE_DATA_LEN_MAX);
+        long[] out1Len = {CCBVAULTIC_FILE_DATA_LEN_MAX};
+        ByteBuffer out2Bytes = ByteBuffer.allocateDirect(CCBVAULTIC_FILE_DATA_LEN_MAX);
+        long[] out2Len = {CCBVAULTIC_FILE_DATA_LEN_MAX};
+        ByteBuffer out3Bytes = ByteBuffer.allocateDirect(CCBVAULTIC_FILE_DATA_LEN_MAX);
+        long[] out3Len = {CCBVAULTIC_FILE_DATA_LEN_MAX};
+
+        LoadFiles out = new LoadFiles();
+        out.rc= LoadAction(devId,
+                inName1, out1Bytes, out1Len,
+                inName2, out2Bytes, out2Len,
+                inName3, out3Bytes, out3Len);
+        if (out.rc == 0) {
+            out.file1 = GetByteBufferWithLen(out1Bytes,out1Len);
+            out.file2 = GetByteBufferWithLen(out2Bytes,out2Len);
+            out.file3 = GetByteBufferWithLen(out3Bytes,out3Len);
+        }
+        return out;
+    }
+
+
+    /* Copy data that is not a PEM header.  Note this does not handle non-base64 text prior to the
+     * first  header. */
+    private byte[] StripPemHeaders(byte[] data)
+    {
+        if (data == null) return null;
+        /* Don't copy sections "-----xxxx-----"
+         *                      ^head
+         *                           ^desc
+         *                               ^foot
+         */
+        int outSize = 0;
+        byte[] outData = new byte[data.length];
+        boolean inHead = false;
+        boolean inDesc = false;
+        boolean inFoot = false;
+        for (byte datum : data) {
+            if (datum == '-') {
+                if (!inHead) {
+                    inHead = true;
+                } else {
+                    if (inDesc) {
+                        inFoot = true;
+                    }
+                }
+                // Always remove -'s
+            } else {
+                // Not a -
+                if (inFoot) {
+                    //End of footer
+                    inFoot = false;
+                    inDesc = false;
+                    inHead = false;
+                } else {
+                    if (inHead) {
+                        inDesc = true;
+                    }
+                }
+                if (!inDesc) {
+                    //Keep this byte
+                    outData[outSize++] = datum;
+                }
+            }
+        }
+        //Truncate the output
+        return Arrays.copyOfRange(outData, 0, outSize);
+    }
+    public KeyManager[] GenerateKM(byte[] keyPem, byte[] crtPem)
+    {
+        /* Check for empty or missing files */
+        if( (keyPem == null) || (keyPem.length == 0) ||
+                (crtPem == null) || (crtPem.length == 0)) {
+            return null;
+        }
+        try {
+            byte[] keyFile = Base64.decode(StripPemHeaders(keyPem),Base64.DEFAULT);
+            byte[] crtFile = Base64.decode(StripPemHeaders(crtPem),Base64.DEFAULT);
+
+            /* Parse the provided keyFile into a PrivateKey */
+            KeyFactory kF = KeyFactory.getInstance("RSA");
+            PrivateKey pK = kF.generatePrivate(new PKCS8EncodedKeySpec(keyFile));
+
+            /* Parse the provided crtFile into a X509Certificate[] CertChain */
+            CertificateFactory cF = CertificateFactory.getInstance("X.509");
+            Collection<? extends Certificate> certs =
+                    cF.generateCertificates(new ByteArrayInputStream(crtFile));
+            X509Certificate[] certChain = new X509Certificate[certs.size()];
+            int i=0;
+            for (Certificate cert:certs) {
+                certChain[i++] = (X509Certificate) cert;
+            }
+
+            /* Create a PKCS12 KeyStore and put the PrivateKey and CertChain in */
+            KeyStore kS = KeyStore.getInstance("PKCS12");
+            kS.load(null, null);
+            kS.setKeyEntry("alias", pK, null, certChain);
+
+            /* Create a KeyManagerFactory and Init it using the KeyStore */
+            KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+            kmf.init(kS, null);
+            return kmf.getKeyManagers();
+        }
+        catch (Exception e){
+            /* Do something?*/
+        }
         return null;
     }
 
-    public TrustManager GenerateTM(byte[] cafile)
+    public TrustManager[] GenerateTM(byte[] cafile)
     {
+
         return null;
     }
 

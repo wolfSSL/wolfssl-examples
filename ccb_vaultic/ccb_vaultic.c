@@ -69,7 +69,7 @@
 #include "ccb_vaultic.h"
 
 /* Provide default config struct if needed */
-static ccbVaultIc_Config gDefaultConfig = CCBVAULTIC_CONFIG_DEFAULT;
+ccbVaultIc_Config gDefaultConfig = CCBVAULTIC_CONFIG_DEFAULT;
 
 /* Debug defines */
 #ifdef CCBVAULTIC_DEBUG_ALL
@@ -628,6 +628,17 @@ void ccbVaultIc_Cleanup(ccbVaultIc_Context *c)
     c->vlt_rc = vlt_tls_close();
 }
 
+int ccbVaultIc_SelfTest( ccbVaultIc_Context *c)
+{
+    int rc = _CheckInitializedContext(c);
+    if (rc == 0) {
+        //XXX SKIP FOR NOW.  Failure will set TERMINATED
+        //c->vlt_rc = VltSelfTest();
+        c->vlt_rc = VLT_OK;
+        rc = _TranslateError(c->vlt_rc);
+    }
+    return rc;
+}
 /* Helper.  Missing XSTRNLEN */
 static int ccbVaultIc_Strnlen(const char *s, int n)
 {
@@ -826,6 +837,97 @@ int ccbVaultIc_ReadFile(    ccbVaultIc_Context *c,
     return rc;
 }
 
+static int _DeleteUser(ccbVaultIc_Context *c, ccbVaultIc_Auth *a)
+{
+    int rc = _CheckInitializedContext(c);
+    if (rc == 0) {
+        if (a == NULL) {
+            rc = BAD_FUNC_ARG;
+        }
+        if(rc == 0) {
+            VLT_MANAGE_AUTH_DATA authData;
+            authData.enOperationID = VLT_DELETE_USER;
+            authData.enUserID = _AuthId2VltUserId(a->id);
+
+            c->vlt_rc = VltManageAuthenticationData(&authData);
+            rc = _TranslateError(c->vlt_rc);
+        }
+    }
+    return rc;
+}
+static int _CreateUser_SCP03(ccbVaultIc_Context *c, int id, int role,
+                             int mac_len, char* mac,
+                            int enc_len, char* enc)
+{
+    int rc = 0;
+    VLT_MANAGE_AUTH_DATA authData;
+    authData.enOperationID = VLT_CREATE_USER;
+    authData.enUserID = _AuthId2VltUserId(id);
+    authData.u8TryCount = 5; /* From VLT example */
+    authData.enSecurityOption = VLT_NO_DELETE_ON_LOCK;
+    authData.enRoleID = _AuthRole2VltRoleId(role);
+    authData.enMethod = VLT_AUTH_SCP03;
+    authData.enChannelLevel = VLT_CMAC_CENC;
+    authData.data.secret.u8NumberOfKeys = 2;
+    authData.data.secret.aKeys[0].enKeyID = VLT_KEY_AES_128;
+    authData.data.secret.aKeys[0].u8Mask = 0xBE;
+    authData.data.secret.aKeys[0].u16KeyLength = mac_len;
+    authData.data.secret.aKeys[0].pu8Key = mac;
+    authData.data.secret.aKeys[1].enKeyID = VLT_KEY_AES_128;
+    authData.data.secret.aKeys[1].u8Mask = 0xEF;
+    authData.data.secret.aKeys[1].u16KeyLength = enc_len;
+    authData.data.secret.aKeys[1].pu8Key = enc;
+
+    c->vlt_rc = VltManageAuthenticationData(&authData);
+    rc = _TranslateError(c->vlt_rc);
+    return rc;
+}
+static int _CreateUser(ccbVaultIc_Context *c, ccbVaultIc_Auth *a)
+{
+    int rc = _CheckInitializedContext(c);
+    if (rc == 0) {
+        if (a == NULL) {
+            rc = BAD_FUNC_ARG;
+        }
+        if(rc == 0) {
+            char mac[CCBVAULTIC_AUTH_MAC_LEN];
+            char enc[CCBVAULTIC_AUTH_ENC_LEN];
+
+            XMEMSET (mac, 0, sizeof(mac));
+            XMEMSET (enc, 0, sizeof(enc));
+            switch (a->kind) {
+                case CCBVAULTIC_AUTH_KIND_SCP03:
+                {
+                    XMEMCPY(mac, a->auth.scp03.mac, a->auth.scp03.mac_len);
+                    XMEMCPY(enc, a->auth.scp03.enc, a->auth.scp03.enc_len);
+                    rc = _CreateUser_SCP03(c, a->id, a->role,
+                                           a->auth.scp03.mac_len, mac,
+                                           a->auth.scp03.enc_len, enc);
+                };break;
+                case CCBVAULTIC_AUTH_KIND_KDF:
+                {
+                    int rc = _PerformKdf(   a->auth.kdf.key_len, a->auth.kdf.key,
+                                            a->auth.kdf.label_len, a->auth.kdf.label,
+                                            CCBVAULTIC_SERIAL_LEN, c->vlt_serial,
+                                            CCBVAULTIC_VERSION_LEN, c->vlt_version,
+                                            sizeof(mac), mac,
+                                            sizeof(enc), enc);
+                    if (rc == 0) {
+                        rc = _CreateUser_SCP03(  c, a->id, a->role,
+                                            sizeof(mac), mac,
+                                            sizeof(enc), enc);
+                    }
+                };break;
+                case CCBVAULTIC_AUTH_KIND_NONE:
+                case CCBVAULTIC_AUTH_KIND_PIN:
+                default:
+                    rc = BAD_FUNC_ARG;
+                    break;
+            }
+        }
+    }
+    return rc;
+}
 
 static int _SetState(ccbVaultIc_Context *c, VLT_STATE state)
 {
@@ -851,109 +953,6 @@ static int _SetActivatedState(ccbVaultIc_Context *c)
     return _SetState(c, VLT_STATE_ACTIVATED);
 }
 
-#if 0
-static int _CreatePinUser(ccbVaultIc_Context *c,
-        int user, int role,
-        int pin_len, const char* pin)
-{
-
-}
-
-static int _CreateScp03User(ccbVaultIc_Context *c,
-        int user, int role,
-        int ,a_len, const char* pin)
-{
-
-}
-
-static int _CreateKdfUser(ccbVaultIc_Context *c,
-        int user, int role,
-        int pin_len, const char* pin)
-{
-
-}
-
-static int _CreateUser( ccbVaultIc_Context *c, ccbVaultIc_Auth *a)
-{
-    int rc = _CheckInitializedContext(c);
-    if (rc == 0) {
-        if (a == NULL) {
-            rc = BAD_FUNC_ARG;
-        }
-        if(rc == 0) {
-
-        }
-    }
-
-    VLT_MANAGE_AUTH_DATA structAuthSetup;
-    structAuthSetup.enOperationID = VLT_DELETE_USER;
-    structAuthSetup.enUserID = VLT_USER0;
-    for ( VLT_USER_ID i = VLT_USER0; i <= VLT_USER6; i++) {
-        structAuthSetup.enUserID = i;
-        VltManageAuthenticationData(&structAuthSetup);
-    }
-
-    // Create TLS user
-    //---------------------------------------------------------------------
-    structAuthSetup.enOperationID = VLT_CREATE_USER;
-    structAuthSetup.u8TryCount = 5;
-    structAuthSetup.enSecurityOption = VLT_NO_DELETE_ON_LOCK;
-    structAuthSetup.enUserID = TLS_USER_ID;
-    structAuthSetup.enRoleID = VLT_NON_APPROVED_USER;
-
-#ifdef USE_SEC_CHANNEL
-    // SCP03 auth method
-    //---------------------------------------------------------------------
-    VLT_U8 au8S_MacStaticKey[] = SMAC_KEY;
-    VLT_U8 au8S_EncStaticKey[] = SENC_KEY;
-    structAuthSetup.enMethod = VLT_AUTH_SCP03;
-    structAuthSetup.enChannelLevel = VLT_CMAC_CENC;
-    structAuthSetup.data.secret.u8NumberOfKeys = 2;
-    structAuthSetup.data.secret.aKeys[0].enKeyID = VLT_KEY_AES_128;
-    structAuthSetup.data.secret.aKeys[0].u8Mask = 0xBE;
-    structAuthSetup.data.secret.aKeys[0].u16KeyLength = sizeof(au8S_MacStaticKey);
-    structAuthSetup.data.secret.aKeys[0].pu8Key = au8S_MacStaticKey;
-    structAuthSetup.data.secret.aKeys[1].enKeyID = VLT_KEY_AES_128;
-    structAuthSetup.data.secret.aKeys[1].u8Mask = 0xEF;
-    structAuthSetup.data.secret.aKeys[1].u16KeyLength = sizeof(au8S_EncStaticKey);
-    structAuthSetup.data.secret.aKeys[1].pu8Key = au8S_EncStaticKey;
-    printf("Encrypted channel enabled, TLS_USER = USER%d (SCP03)\n",TLS_USER_ID);
-#else
-    // Create user 00 with password auth method
-    //---------------------------------------------------------------------
-    structAuthSetup.enMethod = VLT_AUTH_PASSWORD;
-    structAuthSetup.enChannelLevel = VLT_NO_CHANNEL;
-    structAuthSetup.data.password.u8PasswordLength = TLS_USER_PIN_LEN;
-    memset(structAuthSetup.data.password.u8Password, 0x00, sizeof (structAuthSetup.data.password.u8Password));
-    memcpy(structAuthSetup.data.password.u8Password, (VLT_PU8) TLS_USER_PIN, TLS_USER_PIN_LEN);
-    printf("Encrypted channel disabled, TLS_USER = USER%d (PIN)\n",TLS_USER_ID);
-#endif
-
-    CHECK_STATUS("VltManageAuthenticationData Create Tls User" , VltManageAuthenticationData(&structAuthSetup),TRUE);
-
-
-}
-
-static int _DeleteUser( ccbVaultIc_Context *c, ccbVaultIc_Auth *a)
-{
-    int rc = _CheckInitializedContext(c);
-    if (rc == 0) {
-        if (a == NULL) {
-            rc = BAD_FUNC_ARG;
-        }
-        if(rc == 0) {
-            VLT_MANAGE_AUTH_DATA authSetup;
-            XMEMSET(authSetup, 0, sizeof(authSetup));
-            authSetup.enOperationID = VLT_DELETE_USER;
-            authSetup.enUserID = _AuthId2VltUserId(a->id);
-            c->vlt_rc = VltManageAuthenticationData(&authSetup);
-            rc = _TranslateError(c->vlt_rc);
-        }
-    }
-    return rc;
-}
-#endif
-
 /* Perform the load action as the currently authed user */
 int ccbVaultIc_LoadAction(  ccbVaultIc_Context *c,
                             ccbVaultIc_Load *l)
@@ -967,8 +966,14 @@ int ccbVaultIc_LoadAction(  ccbVaultIc_Context *c,
         if (rc == 0) {
             int counter = 0;
             for(counter = 0; counter < l->file_count; counter++) {
-                rc = ccbVaultIc_ReadFile(c, &l->file[counter]);
-                if (rc != 0) break;
+                /* Ok to skip empty files */
+                if(     (l->file[counter].name != NULL) &&
+                        (l->file[counter].name_len > 0) &&
+                        (l->file[counter].data != NULL) &&
+                        (l->file[counter].data_len > 0)) {
+                    rc = ccbVaultIc_ReadFile(c, &l->file[counter]);
+                    if (rc != 0) break;
+                }
             }
         }
     }
@@ -987,7 +992,7 @@ int ccbVaultIc_ProvisionAction( ccbVaultIc_Context *c,
 
         if (rc == 0) {
             /* Setting creation mode should delete all users and their files */
-            // rc = _SetCreationState(c);
+            //rc = _SetCreationState(c);
         }
 
         if (rc == 0) {
@@ -998,9 +1003,8 @@ int ccbVaultIc_ProvisionAction( ccbVaultIc_Context *c,
         /* Add User */
         if (rc == 0) {
             /* Create the requested user */
-            //ccbVaultIc_DeleteUser(c, &p->create);
-            // rc = ccbVaultIc_CreateUser(c, &p->create);
-
+            _DeleteUser(c, &p->create);
+            rc = _CreateUser(c, &p->create);
         }
 
         /* Create and write file data from the provision structure */
@@ -1222,9 +1226,11 @@ static int HandleCmdCallback(int devId, wc_CryptoInfo* info,
         rc = ccbVaultIc_ProvisionAction(c, info->cmd.ctx);
     }; break;
 
-    case CCBVAULTIC_CMD_NVMREAD:
+    case CCBVAULTIC_CMD_SELFTEST:
     {
-
+        if(_CheckInitializedContext(c) != 0)
+            break;
+        rc = ccbVaultIc_SelfTest(c);
     }; break;
 
     default:

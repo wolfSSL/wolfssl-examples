@@ -83,7 +83,11 @@ public class MainActivity extends AppCompatActivity {
         });
     };
 
-    
+    String[] filenames = {"/key.pem","/crt.pem",null}; //"/ca.pem"
+    byte[] debugMac = {0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A,0x0B,0x0C,0x0D,0x0E,0x0F};
+    byte[] debugEnc = {0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x1A,0x1B,0x1C,0x1D,0x1E,0x1F};
+
+
     private final View.OnClickListener sslSocketConnectListener = v -> {
         setDisplayText("Making simple SSL/TLS connection to:\n" +
                 host + ":" + port + "\n" +
@@ -113,56 +117,95 @@ public class MainActivity extends AppCompatActivity {
                 ts[1] = System.currentTimeMillis();
                 connectCount++;
 
-                if (((connectCount % 2) == 0) && (devId != WolfSSL.INVALID_DEVID)) {
-                    appendDisplayText("B. Using hardware offload\n");
-                    ccbVaultIc cv = new ccbVaultIc();
+                KeyManager[] km = null;
+                TrustManager[] tm = null;
 
-                    // MANU
-                    // cv.UpdateDefaultAuth_Manu("PASSWORD".getBytes());
+                ccbVaultIc cv = new ccbVaultIc();
 
-                    // APP
-                    //cv.UpdateDefaultAuth_App("KEY".getBytes, "LABEL".getBytes());
+                if(devId != WolfSSL.INVALID_DEVID) {
+                    switch(connectCount % 3) {
+                        case 1:  //SW
+                        {
+                            appendDisplayText("B. Using software crypto.\n");
+                            wolfProv.setDevId(WolfSSL.INVALID_DEVID);
+                        };break;
+                        case 2:  //HW Manu
+                        {
+                            appendDisplayText("B. Using hardware offload - MANU\n");
 
-                    wolfProv.registerDevId(devId);
-                    wolfProv.setDevId(devId);
+                            // MANU
+                            cv.UpdateDefaultAuth_Manu(medPin);
 
-                    // MANU
-                    //cv.ProvisionAction_App(devId, TRUE,
-                    //        "KEY".getBytes(), "LABEL".getBytes(),
-                    //        "key.pem", "KEYPEM".getBytes(),
-                    //        "crt.pem", "CRTPEM".getBytes(),
-                    //        "ca.pem", "CAPEM".getBytes());
-                    // done;
+                            wolfProv.registerDevId(devId);
+                            wolfProv.setDevId(devId);
 
-                    // APP:
-                    //byte[] keyFile = new byte[ccbVaultIc.CCBVAULTIC_FILE_DATA_LEN_MAX];
-                    //byte[] crtFile = new byte[ccbVaultIc.CCBVAULTIC_FILE_DATA_LEN_MAX];
-                    //byte[] caFile = new byte[ccbVaultIc.CCBVAULTIC_FILE_DATA_LEN_MAX];
-                    //cv.LoadAction(devId,
-                    //        "key.pem", keyFile,
-                    //        "crt.pem", crtFile,
-                    //        "ca.pem", caFile);
-                    //KeyManager km = cv.GenerateKM(keyFile, crtFile);
-                    //TrustManager tm = cv.GenerateTM(caFile);
+                            // MANU
+                            cv.ProvisionAction_App(
+                                    devId, Boolean.TRUE,
+                                    medKey, medLabel,
+                                    filenames[0], medKeyFile.getBytes(),
+                                    filenames[1], medCrtFile.getBytes(),
+                                    null, null);
 
-                    byte[] data = new byte[ccbVaultIc.CCBVAULTIC_INFO_LEN];
-                    int rc = cv.GetInfoText(devId,data);
-                    appendDisplayText("GetInfoText rc=" + rc +"\n" + new String(data));
-                } else {
-                    appendDisplayText("B. Using software crypto.\n");
+                            byte[] data = new byte[ccbVaultIc.CCBVAULTIC_INFO_LEN];
+                            int rc = cv.GetInfoText(devId, data);
+                            appendDisplayText("GetInfoText rc=" + rc + "\n" + new String(data));
+
+                            rc = cv.PerformSelfTest(devId);
+                            appendDisplayText("SelfTest rc=" + rc + "\n");
+
+                            // done;
+                        };break;
+                        case 0:  //HW App
+                        {
+                            appendDisplayText("B. Using hardware offload - APP\n");
+
+                            cv.UpdateDefaultAuth_Debug(debugMac, debugEnc);
+                            //cv.UpdateDefaultAuth_App("KEY".getBytes, "LABEL".getBytes());
+
+                            wolfProv.registerDevId(devId);
+                            wolfProv.setDevId(devId);
+
+                            //Load static data
+                            //km = cv.GenerateKM(medKeyFile.getBytes(), medCrtFile.getBytes());
+
+                            //Load data from VaultIC
+                            ccbVaultIc.LoadFiles loadFiles = cv.LoadAction(devId,
+                                    filenames[0], filenames[1],filenames[2]);
+                            if (loadFiles.rc == 0) {
+                                int[] sizes = new int[3];
+                                if (loadFiles.file1 != null) sizes[0] = loadFiles.file1.length;
+                                if (loadFiles.file2 != null) sizes[1] = loadFiles.file2.length;
+                                if (loadFiles.file3 != null) sizes[2] = loadFiles.file3.length;
+                                appendDisplayText("Loaded File sizes: " +
+                                        " 1:" + sizes[0] +
+                                        " 2:" + sizes[1] +
+                                        " 3:" + sizes[2] +
+                                        "\n");
+                                km = cv.GenerateKM(loadFiles.file1, loadFiles.file2);
+                                tm = cv.GenerateTM(loadFiles.file3);
+                            }
+
+                            byte[] data = new byte[ccbVaultIc.CCBVAULTIC_INFO_LEN];
+                            int rc = cv.GetInfoText(devId, data);
+                            //appendDisplayText("GetInfoText rc=" + rc + "\n" + new String(data));
+                        };break;
+                    }
+                }
+                else {
+                    appendDisplayText("B. Using internal crypto.\n");
                     wolfProv.setDevId(WolfSSL.INVALID_DEVID);
                 }
 
                 ts[2] = System.currentTimeMillis();
                 appendDisplayText("C. Setting up context and socket\n");
 
+
+                SSLContext ctx = SSLContext.getInstance("TLS", wolfProv.getName());
                 /* not setting up KeyStore or TrustStore, wolfJSSE will load
                  * CA certs from the Android system KeyStore by default. */
-                SSLContext ctx = SSLContext.getInstance("TLS", wolfProv.getName());
-
-
-                ctx.init(null, null, null);
-                //ctx.init(km, tm, null);
+                //ctx.init(null, null, null);
+                ctx.init(km, tm, null);
 
                 SSLSocketFactory sf = ctx.getSocketFactory();
                 SSLSocket sock = (SSLSocket) sf.createSocket(host, port);
@@ -205,12 +248,25 @@ public class MainActivity extends AppCompatActivity {
                 sock.close();
 
                 ts[7] = System.currentTimeMillis();
-                if (((connectCount % 2) == 0)  && (devId != WolfSSL.INVALID_DEVID)) {
-                    appendDisplayText("H. Disabling hardware offload\n");
-                    wolfProv.setDevId(WolfSSL.INVALID_DEVID);
-                    wolfProv.unRegisterDevId(devId);
+
+                if(devId != WolfSSL.INVALID_DEVID) {
+                    switch(connectCount % 3) {
+                        case 1:  //SW
+                        {
+                            appendDisplayText("H. Software crypto still enabled\n");
+                        }
+                        ;
+                        break;
+                        case 0:  //HW -App
+                        case 2:  //HW - Manu
+                        {
+                            appendDisplayText("H. Disabling hardware offload\n");
+                            wolfProv.setDevId(WolfSSL.INVALID_DEVID);
+                            wolfProv.unRegisterDevId(devId);
+                        };break;
+                    }
                 } else {
-                    appendDisplayText("H. Software crypto still enabled\n");
+                    appendDisplayText("H. Internal crypto still enabled\n");
                 }
 
                 ts[8] = System.currentTimeMillis();
