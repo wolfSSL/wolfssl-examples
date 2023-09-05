@@ -127,7 +127,7 @@ if ("$WOLFSSL_MATH_LIB" MATCHES "fastmath")
 
 elseif("${WOLFSSL_MATH_LIB}" MATCHES "spmath")
     # Use SP math Library
-    add_definitions(-DWOLFSSL_SP_MATH -DWOLFSSL_SP_MATH_ALL
+    add_definitions(
             -DWOLFSSL_HAVE_SP_RSA -DWOLFSSL_SP_4096
             -DWOLFSSL_HAVE_SP_DH
             -DWOLFSSL_HAVE_SP_ECC -DWOLFSSL_SP_384 -DWOLFSSL_SP_521
@@ -135,14 +135,25 @@ elseif("${WOLFSSL_MATH_LIB}" MATCHES "spmath")
 
     # SP Math architecture-specific settings (ex: assembly optimizations)
     if("${ANDROID_ABI}" MATCHES "arm64-v8a")
+        # Using ASM for SP, need to use WOLFSSL_SP_MATH instead of WOLFSSL_SP_MATH_ALL
+        add_definitions(-DWOLFSSL_SP_MATH)
         add_definitions(-DWOLFSSL_SP_ASM -DWOLFSSL_SP_ARM64 -DWOLFSSL_SP_ARM64_ASM -DHAVE___UINT128_T)
     elseif("${ANDROID_ABI}" MATCHES "armeabi-v7a")
         # Add SP optimizations for ARMv7 here when available.
+        # Not using ASM, need to use WOLFSSL_SP_MATH_ALL for SW-only implementation
+        add_definitions(-DWOLFSSL_SP_MATH_ALL)
     elseif("${ANDROID_ABI}" MATCHES "x86_64")
+        # Using ASM for SP, need to use WOLFSSL_SP_MATH instead of WOLFSSL_SP_MATH_ALL
+        add_definitions(-DWOLFSSL_SP_MATH)
         add_definitions(-DWOLFSSL_SP_ASM -DWOLFSSL_SP_X86_64 -DWOLFSSL_SP_X86_64_ASM -DHAVE___UINT128_T)
         list(APPEND CRYPTO_SOURCES ${wolfssl_DIR}/wolfcrypt/src/sp_x86_64_asm.S)
     elseif("${ANDROID_ABI}" MATCHES "x86")
         # Add SP optimizations for X86 here when available.
+        # Not using ASM, need to use WOLFSSL_SP_MATH_ALL for SW-only implementation
+        add_definitions(-DWOLFSSL_SP_MATH_ALL)
+    else()
+        # Not using ASM, need to use WOLFSSL_SP_MATH_ALL for SW-only implementation
+        add_definitions(-DWOLFSSL_SP_MATH_ALL)
     endif()
 endif()
 
