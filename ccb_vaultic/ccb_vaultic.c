@@ -1015,7 +1015,7 @@ int ccbVaultIc_ProvisionAction( ccbVaultIc_Context *c,
             int counter = 0;
             int userId = p->create.id;
             int adminId = 0;
-            ccbVaultIc_Config *config = c->config;
+            const ccbVaultIc_Config *config = c->config;
             if(config == NULL) {
                 ccbVaultIc_GetDefaultConfig(&config);
             }
