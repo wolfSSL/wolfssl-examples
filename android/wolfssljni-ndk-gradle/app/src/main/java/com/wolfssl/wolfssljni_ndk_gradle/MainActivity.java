@@ -165,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
                             if(useKdfUser) {
                                 rc = cv.ProvisionAction_App(
                                         devId, Boolean.TRUE,
-                                        debugKey, debugLabel
+                                        debugKey, debugLabel,
                                         filenames[0], debugFile1,
                                         filenames[1], debugFile2,
                                         null, null);
