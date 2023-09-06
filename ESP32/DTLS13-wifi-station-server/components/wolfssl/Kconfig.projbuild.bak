@@ -1,0 +1,38 @@
+#
+#  Copyright (C) 2006-2023 wolfSSL Inc.
+#
+#  This file is part of wolfSSL.
+#
+#  wolfSSL is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 2 of the License, or
+#  (at your option) any later version.
+#
+#  wolfSSL is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
+#
+
+#
+# See https://docs.espressif.com/projects/esp-idf/en/v4.2-beta1/esp32/api-guides/build-system.html#kconfig-projbuild
+#
+# " This is an equivalent to project_include.cmake for Component Configuration
+# KConfig files. If you want to include configuration options at the top-level
+# of menuconfig, rather than inside the “Component Configuration” sub-menu,
+# then these can be defined in the KConfig.projbuild file alongside the
+# CMakeLists.txt file. "
+
+menu "Example wolfSSL Configuration"
+
+    config EXAMPLE_CONNECT_WIFI
+        bool "connect wolfssl using WiFi interface"
+        depends on !IDF_TARGET_LINUX
+        default y
+        help
+            Protocol examples can use Wi-Fi and/or Ethernet to connect to the network.
+            Choose this option to connect with WiFi
