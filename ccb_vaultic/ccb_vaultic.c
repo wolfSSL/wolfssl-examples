@@ -743,7 +743,7 @@ int ccbVaultIc_CreateUserFile(  ccbVaultIc_Context *c,
         entryParams.u8EntryType               = VLT_FILE_ENTRY;
 
         c->vlt_rc = VltFsCreate(
-                (VLT_U16)f->name_len,
+                (VLT_U16)f->name_len+1,
                 (VLT_PU8)f->name,
                 &entryParams,
                 (VLT_USER_ID) userId);  /* Owner */
@@ -837,7 +837,7 @@ int ccbVaultIc_ReadFile(    ccbVaultIc_Context *c,
     return rc;
 }
 
-static int _DeleteUser(ccbVaultIc_Context *c, ccbVaultIc_Auth *a)
+static int _DeleteUser(ccbVaultIc_Context *c, const ccbVaultIc_Auth *a)
 {
     int rc = _CheckInitializedContext(c);
     if (rc == 0) {
@@ -846,6 +846,7 @@ static int _DeleteUser(ccbVaultIc_Context *c, ccbVaultIc_Auth *a)
         }
         if(rc == 0) {
             VLT_MANAGE_AUTH_DATA authData;
+            XMEMSET(&authData, 0, sizeof(authData));
             authData.enOperationID = VLT_DELETE_USER;
             authData.enUserID = _AuthId2VltUserId(a->id);
 
@@ -861,6 +862,8 @@ static int _CreateUser_SCP03(ccbVaultIc_Context *c, int id, int role,
 {
     int rc = 0;
     VLT_MANAGE_AUTH_DATA authData;
+    XMEMSET(&authData, 0, sizeof(authData));
+
     authData.enOperationID = VLT_CREATE_USER;
     authData.enUserID = _AuthId2VltUserId(id);
     authData.u8TryCount = 5; /* From VLT example */
@@ -872,17 +875,17 @@ static int _CreateUser_SCP03(ccbVaultIc_Context *c, int id, int role,
     authData.data.secret.aKeys[0].enKeyID = VLT_KEY_AES_128;
     authData.data.secret.aKeys[0].u8Mask = 0xBE;
     authData.data.secret.aKeys[0].u16KeyLength = mac_len;
-    authData.data.secret.aKeys[0].pu8Key = mac;
+    authData.data.secret.aKeys[0].pu8Key = (VLT_PU8) mac;
     authData.data.secret.aKeys[1].enKeyID = VLT_KEY_AES_128;
     authData.data.secret.aKeys[1].u8Mask = 0xEF;
     authData.data.secret.aKeys[1].u16KeyLength = enc_len;
-    authData.data.secret.aKeys[1].pu8Key = enc;
+    authData.data.secret.aKeys[1].pu8Key = (VLT_PU8) enc;
 
     c->vlt_rc = VltManageAuthenticationData(&authData);
     rc = _TranslateError(c->vlt_rc);
     return rc;
 }
-static int _CreateUser(ccbVaultIc_Context *c, ccbVaultIc_Auth *a)
+static int _CreateUser(ccbVaultIc_Context *c,const ccbVaultIc_Auth *a)
 {
     int rc = _CheckInitializedContext(c);
     if (rc == 0) {
@@ -992,7 +995,7 @@ int ccbVaultIc_ProvisionAction( ccbVaultIc_Context *c,
 
         if (rc == 0) {
             /* Setting creation mode should delete all users and their files */
-            //rc = _SetCreationState(c);
+            rc = _SetCreationState(c);
         }
 
         if (rc == 0) {
@@ -1011,25 +1014,33 @@ int ccbVaultIc_ProvisionAction( ccbVaultIc_Context *c,
         if (rc == 0) {
             int counter = 0;
             int userId = p->create.id;
-            int adminId = c->config->auth.id;
+            int adminId = 0;
+            ccbVaultIc_Config *config = c->config;
+            if(config == NULL) {
+                ccbVaultIc_GetDefaultConfig(&config);
+            }
+            adminId = config->auth.id;
             for(counter = 0; counter < p->file_count; counter++) {
-                /* Delete any existing file.  Ignore errors */
-                ccbVaultIc_DeleteFile(c, &p->file[counter]);
+                if( (p->file[counter].name != NULL) &&
+                    (p->file[counter].name_len > 0)) {
+                    /* Delete any existing file.  Ignore errors */
+                    ccbVaultIc_DeleteFile(c, &p->file[counter]);
 
-                /* Create the file */
-                rc = ccbVaultIc_CreateUserFile(c, &p->file[counter],
-                        userId, adminId);
-                if (rc == 0) {
-                    /* Write the file */
-                    rc = ccbVaultIc_WriteFile(c, &p->file[counter]);
+                    /* Create the file */
+                    rc = ccbVaultIc_CreateUserFile(c, &p->file[counter],
+                                                   userId, adminId);
+                    if (rc == 0) {
+                        /* Write the file */
+                        rc = ccbVaultIc_WriteFile(c, &p->file[counter]);
+                    }
+                    if (rc != 0) break;
                 }
-                if (rc != 0) break;
             }
         }
 
         if (rc == 0) {
             /* Set Activated State */
-            // rc = _SetActivatedState(c);
+            rc = _SetActivatedState(c);
         }
     }
     return rc;

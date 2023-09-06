@@ -84,15 +84,33 @@ public class MainActivity extends AppCompatActivity {
     };
 
     String[] filenames = {"/key.pem","/crt.pem",null}; //"/ca.pem"
-    byte[] debugMac = {0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A,0x0B,0x0C,0x0D,0x0E,0x0F};
-    byte[] debugEnc = {0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x1A,0x1B,0x1C,0x1D,0x1E,0x1F};
 
+    byte[] debugPin = { 0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07};
+
+    byte[] debugMac = { 0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,
+                        0x08,0x09,0x0A,0x0B,0x0C,0x0D,0x0E,0x0F};
+    byte[] debugEnc = { 0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,
+                        0x18,0x19,0x1A,0x1B,0x1C,0x1D,0x1E,0x1F};
+
+
+    byte[] debugKey = { 0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,
+                        0x08,0x09,0x0A,0x0B,0x0C,0x0D,0x0E,0x0F,
+                        0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,
+                        0x18,0x19,0x1A,0x1B,0x1C,0x1D,0x1E,0x1F};
+    byte[] debugLabel = "Debug Label".getBytes();
+
+    byte[] debugFile1 = "FILE1".getBytes();
+    byte[] debugFile2 = "FILE2".getBytes();
+
+
+    public String getCmd = "GET / HTTP/1.1\r\n" +
+            "Host: www.wolfssl.com\r\n" +
+            "Accept: */*\r\n\r\n";
 
     private final View.OnClickListener sslSocketConnectListener = v -> {
-        setDisplayText("Making simple SSL/TLS connection to:\n" +
+        setDisplayText("Making simple SSL/TLS connection to:" +
                 host + ":" + port + "\n" +
-                "See logcat output for details (adb logcat).\n" +
-                "...\n");
+                "See logcat output for details (adb logcat).\n");
         Executors.newSingleThreadExecutor().execute(() -> {
             try {
                 /* Enable wolfJSSE debug messages */
@@ -107,6 +125,10 @@ public class MainActivity extends AppCompatActivity {
                 boolean limitCipherProtocol = true;
                 //boolean limitCipherProtocol = false;
 
+                /* Select if using Debug or KDF user for HW provisioning and connection */
+                boolean useKdfUser = true;
+                //boolean useKdfUser = false;
+
                 long[] ts = new long[10];
 
                 ts[0] = System.currentTimeMillis();
@@ -119,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
 
                 KeyManager[] km = null;
                 TrustManager[] tm = null;
-
+                long totalRead = 0;
                 ccbVaultIc cv = new ccbVaultIc();
 
                 if(devId != WolfSSL.INVALID_DEVID) {
@@ -134,34 +156,45 @@ public class MainActivity extends AppCompatActivity {
                             appendDisplayText("B. Using hardware offload - MANU\n");
 
                             // MANU
-                            cv.UpdateDefaultAuth_Manu(medPin);
+                            cv.UpdateDefaultAuth_Manu(debugPin);
 
                             wolfProv.registerDevId(devId);
                             wolfProv.setDevId(devId);
 
-                            // MANU
-                            cv.ProvisionAction_App(
-                                    devId, Boolean.TRUE,
-                                    medKey, medLabel,
-                                    filenames[0], medKeyFile.getBytes(),
-                                    filenames[1], medCrtFile.getBytes(),
-                                    null, null);
-
+                            int rc = 0;
+                            if(useKdfUser) {
+                                rc = cv.ProvisionAction_App(
+                                        devId, Boolean.TRUE,
+                                        debugKey, debugLabel
+                                        filenames[0], debugFile1,
+                                        filenames[1], debugFile2,
+                                        null, null);
+                            } else {
+                                rc = cv.ProvisionAction_Debug(
+                                        devId, Boolean.TRUE,
+                                        debugMac, debugEnc,
+                                        filenames[0], debugFile1,
+                                        filenames[1], debugFile2,
+                                        null, null);
+                            }
+                            appendDisplayText("Provision rc=" + rc + "\n" );
                             byte[] data = new byte[ccbVaultIc.CCBVAULTIC_INFO_LEN];
-                            int rc = cv.GetInfoText(devId, data);
+                            rc = cv.GetInfoText(devId, data);
                             appendDisplayText("GetInfoText rc=" + rc + "\n" + new String(data));
 
                             rc = cv.PerformSelfTest(devId);
                             appendDisplayText("SelfTest rc=" + rc + "\n");
-
-                            // done;
+                            // Skip the connection tests
                         };break;
                         case 0:  //HW App
                         {
                             appendDisplayText("B. Using hardware offload - APP\n");
 
-                            cv.UpdateDefaultAuth_Debug(debugMac, debugEnc);
-                            //cv.UpdateDefaultAuth_App("KEY".getBytes, "LABEL".getBytes());
+                            if(useKdfUser) {
+                                cv.UpdateDefaultAuth_App(debugKey, debugLabel);
+                            } else {
+                                cv.UpdateDefaultAuth_Debug(debugMac, debugEnc);
+                            }
 
                             wolfProv.registerDevId(devId);
                             wolfProv.setDevId(devId);
@@ -188,7 +221,7 @@ public class MainActivity extends AppCompatActivity {
 
                             byte[] data = new byte[ccbVaultIc.CCBVAULTIC_INFO_LEN];
                             int rc = cv.GetInfoText(devId, data);
-                            //appendDisplayText("GetInfoText rc=" + rc + "\n" + new String(data));
+                            appendDisplayText("GetInfoText rc=" + rc + "\n" + new String(data));
                         };break;
                     }
                 }
@@ -198,65 +231,61 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 ts[2] = System.currentTimeMillis();
-                appendDisplayText("C. Setting up context and socket\n");
 
+                // Skip the connection if we are doing HW MANU
+                if((devId == WolfSSL.INVALID_DEVID)||((connectCount % 3) != 2)) {
+                    appendDisplayText("C. Setting up context and socket\n");
 
-                SSLContext ctx = SSLContext.getInstance("TLS", wolfProv.getName());
-                /* not setting up KeyStore or TrustStore, wolfJSSE will load
-                 * CA certs from the Android system KeyStore by default. */
-                //ctx.init(null, null, null);
-                ctx.init(km, tm, null);
+                    SSLContext ctx = SSLContext.getInstance("TLS", wolfProv.getName());
+                    /* not setting up KeyStore or TrustStore, wolfJSSE will load
+                     * CA certs from the Android system KeyStore by default. */
+                    ctx.init(km, tm, null);
 
-                SSLSocketFactory sf = ctx.getSocketFactory();
-                SSLSocket sock = (SSLSocket) sf.createSocket(host, port);
+                    SSLSocketFactory sf = ctx.getSocketFactory();
+                    SSLSocket sock = (SSLSocket) sf.createSocket(host, port);
 
-                if (limitCipherProtocol) {
-                    /* Limit cipherSuites and protocol */
-                    String[] cipherSuites = new String[]{"TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"};
-                    sock.setEnabledCipherSuites(cipherSuites);
-                    String[] protocols = new String[]{"TLSv1.2"};
-                    sock.setEnabledProtocols(protocols);
+                    if (limitCipherProtocol) {
+                        /* Limit cipherSuites and protocol */
+                        String[] cipherSuites = new String[]{"TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"};
+                        sock.setEnabledCipherSuites(cipherSuites);
+                        String[] protocols = new String[]{"TLSv1.2"};
+                        sock.setEnabledProtocols(protocols);
+                    }
+
+                    ts[3] = System.currentTimeMillis();
+                    appendDisplayText("D. Starting Handshake\n");
+                    sock.startHandshake();
+
+                    ts[4] = System.currentTimeMillis();
+                    appendDisplayText("E. Sending GET Request\n");
+                    sock.getOutputStream().write(getCmd.getBytes());
+
+                    ts[5] = System.currentTimeMillis();
+                    long sizeLimit = 10 * 1024;
+                    appendDisplayText("F. Receiving at least " + sizeLimit + " bytes\n");
+                    byte[] data = new byte[4 * 1024];
+                    ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+
+                    /* Read the first 10kB */
+                    while (totalRead < sizeLimit) {
+                        int nRead = sock.getInputStream().read(data, 0, data.length);
+                        if (nRead < 0) break;
+                        buffer.write(data, 0, nRead);
+                        totalRead = totalRead + nRead;
+                    }
+
+                    ts[6] = System.currentTimeMillis();
+                    appendDisplayText("G. Closing socket\n");
+                    sock.close();
+
+                    ts[7] = System.currentTimeMillis();
                 }
-
-                ts[3] = System.currentTimeMillis();
-                appendDisplayText("D. Starting Handshake\n");
-                sock.startHandshake();
-
-                ts[4] = System.currentTimeMillis();
-                appendDisplayText("E. Sending GET Request\n");
-                String getCmd = "GET / HTTP/1.1\r\n" +
-                                "Host: www.wolfssl.com\r\n" +
-                                "Accept: */*\r\n\r\n";
-                sock.getOutputStream().write(getCmd.getBytes());
-
-                ts[5] = System.currentTimeMillis();
-                long sizeLimit = 10 * 1024;
-                appendDisplayText("F. Receiving at least " + sizeLimit + " bytes\n");
-                byte[] data = new byte[4 * 1024];
-                ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-                long totalRead = 0;
-                /* Read the first 10kB */
-                while (totalRead < sizeLimit) {
-                    int nRead = sock.getInputStream().read(data, 0, data.length);
-                    if (nRead < 0) break;
-                    buffer.write(data, 0, nRead);
-                    totalRead = totalRead + nRead;
-                }
-
-                ts[6] = System.currentTimeMillis();
-                appendDisplayText("G. Closing socket\n");
-                sock.close();
-
-                ts[7] = System.currentTimeMillis();
-
                 if(devId != WolfSSL.INVALID_DEVID) {
                     switch(connectCount % 3) {
                         case 1:  //SW
                         {
                             appendDisplayText("H. Software crypto still enabled\n");
-                        }
-                        ;
-                        break;
+                        };break;
                         case 0:  //HW -App
                         case 2:  //HW - Manu
                         {

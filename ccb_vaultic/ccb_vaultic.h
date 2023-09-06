@@ -180,7 +180,7 @@ typedef struct {
     int self_test;
     ccbVaultIc_Auth create;
     int file_count;
-    const ccbVaultIc_File *file;
+    ccbVaultIc_File *file;
 } ccbVaultIc_Provision;
 
 /* Data provided to Load action */
