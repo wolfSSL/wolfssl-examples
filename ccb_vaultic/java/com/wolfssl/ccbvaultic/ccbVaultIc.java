@@ -32,8 +32,7 @@ public class ccbVaultIc {
     public static final int CCBVAULTIC_CMD_INFO                 = 0x8000;
     public static final int CCBVAULTIC_CMD_LOADACTION           = 0x8001;
     public static final int CCBVAULTIC_CMD_PROVISIONACTION      = 0x8002;
-
-    public static final int CCBVAULTIC_CMD_NVMREAD              = 0x8100;
+    public static final int CCBVAULTIC_CMD_SELFTEST             = 0x8003;
 
     public static final int CCBVAULTIC_INFO_LEN                 = 128;
     public static final int CCBVAULTIC_FAST_START_MS   = 700;
@@ -68,7 +67,7 @@ public class ccbVaultIc {
     public static final int CCBVAULTIC_AUTH_KDF_LABEL_LEN_MAX = 0x40;
 
     public static final int CCBVAULTIC_AUTH_ROLE_MANU = CCBVAULTIC_AUTH_ROLE_MANUFACTURER;
-    public static final int CCBVAULTIC_AUTH_ROLE_APP = CCBVAULTIC_AUTH_ROLE_APPROVED;
+    public static final int CCBVAULTIC_AUTH_ROLE_APP = CCBVAULTIC_AUTH_ROLE_UNAPPROVED;
     public static final int CCBVAULTIC_AUTH_ROLE_DEBUG = CCBVAULTIC_AUTH_ROLE_UNAPPROVED;
 
     public static final int CCBVAULTIC_AUTH_ID_MANU = 7;
@@ -234,6 +233,26 @@ public class ccbVaultIc {
                 inName2, in2Bytes, in2Len,
                 inName3, in3Bytes, in3Len);
     }
+
+    public int ProvisionAction_SCP03(int devId,
+                                   boolean poweron_selftest,
+                                   int id, int role,        //create user data
+                                   byte[] mac, byte[] enc,
+                                   String inName1, byte[] in1,
+                                   String inName2, byte[] in2,
+                                   String inName3, byte[] in3)
+    {
+        if( (mac ==  null) || (mac.length != CCBVAULTIC_AUTH_MAC_LEN) ||
+            (enc ==  null) || (enc.length != CCBVAULTIC_AUTH_ENC_LEN)) {
+            return -1;
+        }
+        return ProvisionAction(devId, poweron_selftest,
+                id, role,
+                CCBVAULTIC_AUTH_KIND_SCP03, mac, enc,
+                inName1, in1,
+                inName2, in2,
+                inName3, in3);
+    }
     public int ProvisionAction_KDF(int devId,
                                    boolean poweron_selftest,
                                    int id, int role,        //create user data
@@ -242,11 +261,11 @@ public class ccbVaultIc {
                                    String inName2, byte[] in2,
                                    String inName3, byte[] in3)
     {
-        if((key ==  null) || (key.length < CCBVAULTIC_AUTH_KDF_KEY_LEN_MIN) ||
-                (key.length > CCBVAULTIC_AUTH_KDF_KEY_LEN_MAX)) {
-            return -1;
-        }
-        if((label ==  null) || (label.length < CCBVAULTIC_AUTH_KDF_LABEL_LEN_MIN) ||
+        if(     (key ==  null) ||
+                (key.length < CCBVAULTIC_AUTH_KDF_KEY_LEN_MIN) ||
+                (key.length > CCBVAULTIC_AUTH_KDF_KEY_LEN_MAX) ||
+                (label ==  null) ||
+                (label.length < CCBVAULTIC_AUTH_KDF_LABEL_LEN_MIN) ||
                 (label.length > CCBVAULTIC_AUTH_KDF_LABEL_LEN_MAX)) {
             return -1;
         }
@@ -267,6 +286,17 @@ public class ccbVaultIc {
                 CCBVAULTIC_AUTH_ID_APP, CCBVAULTIC_AUTH_ROLE_APP,
                 key, label,inName1, in1, inName2, in2, inName3, in3);
     }
+    public int ProvisionAction_Debug(int devId, boolean poweron_selftest,
+                                   byte[] mac, byte[] enc,
+                                   String inName1, byte[] in1,
+                                   String inName2, byte[] in2,
+                                   String inName3, byte[] in3)
+    {
+        return ProvisionAction_SCP03(devId, poweron_selftest,
+                CCBVAULTIC_AUTH_ID_DEBUG, CCBVAULTIC_AUTH_ROLE_DEBUG,
+                mac, enc, inName1, in1, inName2, in2, inName3, in3);
+    }
+
 
     /* Invoke the load action using the provided devId */
     public native int LoadAction(int devId,
@@ -395,7 +425,7 @@ public class ccbVaultIc {
 
     public TrustManager[] GenerateTM(byte[] cafile)
     {
-
+        //TODO Process ca PEM file into a valid trust manager, similar to the KM above
         return null;
     }
 
