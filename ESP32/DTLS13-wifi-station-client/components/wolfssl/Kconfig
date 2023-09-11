@@ -1,0 +1,33 @@
+#
+# Copyright (C) 2006-2022 wolfSSL Inc.  All rights reserved.
+#
+# This file is part of wolfSSL.
+#
+# Contact licensing@wolfssl.com with any questions or comments.
+#
+# https://www.wolfssl.com
+#/
+#
+# Kconfig for wolfssl
+#
+menu "wolfSSL"
+
+    config TLS_STACK_WOLFSSL
+        bool "Include wolfSSL in ESP-TLS"
+        default y
+        select FREERTOS_ENABLE_BACKWARD_COMPATIBILITY
+        help
+            Includes wolfSSL in ESP-TLS so that it can be compiled with wolfSSL as its SSL/TLS library.
+
+    config WOLFSSL_HAVE_ALPN
+        bool "Enable ALPN (Application Layer Protocol Negotiation) in wolfSSL"
+        default n
+
+    config WOLFSSL_ALLOW_TLS12
+        bool "Allow TLS 1.2"
+        default n
+        help
+            Allow TLS to fallback to TLS1.2. Memory footprint will likely be larger for TLS1.2.
+            When disabled HTTPS and MQTT over TLS connections will fail if TLS1.3 not accepted.
+
+endmenu # wolfSSL
