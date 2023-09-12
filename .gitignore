@@ -185,6 +185,8 @@ pkcs7/signedData-CompressedFirmwarePkgData
 pkcs7/signedData-EncryptedCompressedFirmwarePkgData
 pkcs7/signedData-EncryptedFirmwareCB
 pkcs7/signedData-p7b
+pkcs7/signedData-cryptocb
+pkcs7/signedData-verifyFile
 
 *.dSYM
 certmanager/certloadverifybuffer
