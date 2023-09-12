@@ -72,7 +72,7 @@ extern time_t myTime(time_t *);
 // #define WOLFSSL_SP_384 /* Enable ECC 384-bit SECP384R1 support */
 
 // #define WOLFSSL_SP_CACHE_RESISTANT
-// #define WOLFSSL_SP_MATH     /* only SP math - disables integer.c/tfm.c */
+#define WOLFSSL_SP_MATH     /* only SP math - disables integer.c/tfm.c */
 #define WOLFSSL_SP_MATH_ALL /* use SP math for all key sizes and curves */
 
     // #define WOLFSSL_SP_NO_MALLOC
@@ -254,8 +254,9 @@ extern time_t myTime(time_t *);
 #if 1
 #define HAVE_CURVE448
 #define HAVE_ED448 /* ED448 Requires SHA512 */
+#define WOLFSSL_SHAKE256
 
-    /* Optionally use small math (less flash usage, but much slower) */
+/* Optionally use small math (less flash usage, but much slower) */
 #if 0
 #define CURVED448_SMALL
 #endif

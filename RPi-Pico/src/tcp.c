@@ -43,7 +43,7 @@ static void dump_bytes(const uint8_t *p, uint32_t len)
 }
 
 
-err_t wolf_TCPclose(WOLF_SOCKET_T *sock)
+int wolf_TCPclose(WOLF_SOCKET_T sock)
 {
     err_t err = ERR_OK;
     if (sock->tcp_pcb != NULL)
@@ -65,7 +65,7 @@ err_t wolf_TCPclose(WOLF_SOCKET_T *sock)
     return err;
 }
 
-static err_t tcp_result(WOLF_SOCKET_T *sock, int status)
+static err_t tcp_result(WOLF_SOCKET_T sock, int status)
 {
     if (status == 0) {
         DEBUG_printf("test success\n");
@@ -78,7 +78,7 @@ static err_t tcp_result(WOLF_SOCKET_T *sock, int status)
 
 static err_t lwip_cb_client_sent(void *arg, struct tcp_pcb *tpcb, u16_t len)
 {
-    WOLF_SOCKET_T *sock = (WOLF_SOCKET_T *)arg;
+    WOLF_SOCKET_T sock = (WOLF_SOCKET_T)arg;
 
     sock->sent_len += len;
 
@@ -102,7 +102,8 @@ static err_t lwip_cb_client_sent(void *arg, struct tcp_pcb *tpcb, u16_t len)
 
 static err_t lwip_cb_client_connected(void *arg, struct tcp_pcb *tpcb, err_t err)
 {
-    WOLF_SOCKET_T *sock = (WOLF_SOCKET_T *)arg;
+    WOLF_SOCKET_T sock = (WOLF_SOCKET_T)arg;
+
     if (err != ERR_OK)
     {
         DEBUG_printf("connect failed %d\n", err);
@@ -127,14 +128,13 @@ static void lwip_cb_client_err(void *arg, err_t err)
 
 static err_t lwip_cb_client_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err)
 {
-    WOLF_SOCKET_T *sock = (WOLF_SOCKET_T *)arg;
+    WOLF_SOCKET_T sock = (WOLF_SOCKET_T)arg;
     if (!p) {
         return ERR_OK;
     }
 
     cyw43_arch_lwip_check();
-    if (p->tot_len > 0)
-    {
+    if (p->tot_len > 0) {
         const uint16_t buffer_left = BUF_SIZE - sock->buffer_len;
         sock->buffer_len += pbuf_copy_partial(p, sock->buffer + sock->buffer_len,
                                                p->tot_len > buffer_left ? buffer_left : p->tot_len, 0);
@@ -144,10 +144,26 @@ static err_t lwip_cb_client_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p
     return ERR_OK;
 }
 
-bool wolf_TCPconnect(WOLF_SOCKET_T *sock, const char *ip, uint32_t port)
+int wolf_inet_pton(int af, const char *ip_str, void *ip_dst)
 {
-    ip4addr_aton(ip, &sock->remote_addr);
-    sock->tcp_pcb = tcp_new_ip_type(IP_GET_TYPE(&sock->remote_addr));
+    (void)af;
+    struct sockaddr_in *addr = (struct sockaddr_in *)ip_dst;
+
+    return ip4addr_aton(ip_str, ip_dst);
+}
+
+static u32_t swapBytes(u16_t a)
+{
+    u8_t *p = (u8_t *)&a;
+    return p[0] << 8 | p[1];
+}
+
+int wolf_TCPconnect(WOLF_SOCKET_T sock, const struct sockaddr *addr, socklen_t addrlen)
+{
+    int err;
+    struct sockaddr_in *addr_in = (struct sockaddr_in *)addr;
+
+    sock->tcp_pcb = tcp_new_ip_type(IP_GET_TYPE(&addr_in->sin_addr));
     if (!sock->tcp_pcb) {
         DEBUG_printf("failed to create pcb\n");
         return false;
@@ -162,13 +178,17 @@ bool wolf_TCPconnect(WOLF_SOCKET_T *sock, const char *ip, uint32_t port)
     sock->buffer_len = 0;
 
     cyw43_arch_lwip_begin();
-    err_t err = tcp_connect(sock->tcp_pcb, &sock->remote_addr, port, lwip_cb_client_connected);
+    err = tcp_connect(sock->tcp_pcb, (const ip_addr_t *)&addr_in->sin_addr,
+                      swapBytes(addr_in->sin_port), lwip_cb_client_connected);
     cyw43_arch_lwip_end();
     if (err != ERR_OK) {
         DEBUG_printf("wolf_TCPconnect: Failed");
         return WOLF_FAIL;
     }
-    while (sock->connected != true) {
+    sock->connected = false;
+    
+    while (sock->connected != true)
+    {
         cyw43_arch_poll();
         cyw43_arch_wait_for_work_until(make_timeout_time_ms(1000));
     }
@@ -176,18 +196,17 @@ bool wolf_TCPconnect(WOLF_SOCKET_T *sock, const char *ip, uint32_t port)
 }
 
 // get a new TCP client
-WOLF_SOCKET_T *wolf_TCPsocket()
+WOLF_SOCKET_T wolf_TCPsocket()
 {
-    WOLF_SOCKET_T *sock = calloc(1, sizeof(WOLF_SOCKET_T));
+    WOLF_SOCKET_T sock = calloc(1, sizeof(*sock));
     if (!sock) {
         DEBUG_printf("failed to allocate state\n");
         return NULL;
     }
-
     return sock;
 }
 
-int wolf_TCPwrite(WOLF_SOCKET_T *sock, const unsigned char *buff, long unsigned int len)
+int wolf_TCPwrite(WOLF_SOCKET_T sock, const unsigned char *buff, long unsigned int len)
 {
     int ret;
     int i;
@@ -198,23 +217,19 @@ int wolf_TCPwrite(WOLF_SOCKET_T *sock, const unsigned char *buff, long unsigned 
     if (ret == ERR_OK) {
         tcp_output(sock->tcp_pcb);
     }
-    while(sock->sent_len < len) {
-        cyw43_arch_poll();
-        cyw43_arch_wait_for_work_until(make_timeout_time_ms(1000));
-    }
+    sock->sent_len = 0;
     return (int)len;
 }
 
-int wolf_TCPread(WOLF_SOCKET_T *sock, unsigned char *buff, long unsigned int len)
+int wolf_TCPread(WOLF_SOCKET_T sock, unsigned char *buff, long unsigned int len)
 {
     int recv_len;
     int remained;
     int i;
-    #define POLLING 200
 
-    for(i=0; i<POLLING; i++) {
+    while (1) { /* no timeout for now */
         if(sock->buffer_len > 0) {
-            recv_len = len < sock->buffer_len ? len : sock->buffer_len;
+            recv_len = len <= sock->buffer_len ? len : sock->buffer_len;
             memcpy(buff, sock->buffer, recv_len);
             if(recv_len >= len) {
                 remained = sock->buffer_len - recv_len;
@@ -226,6 +241,6 @@ int wolf_TCPread(WOLF_SOCKET_T *sock, unsigned char *buff, long unsigned int len
             return recv_len;
         } 
         cyw43_arch_poll();
-        cyw43_arch_wait_for_work_until(make_timeout_time_ms(1000));
+        cyw43_arch_wait_for_work_until(make_timeout_time_ms(10));
     }
 }

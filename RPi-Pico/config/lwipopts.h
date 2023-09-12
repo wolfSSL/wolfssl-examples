@@ -28,4 +28,7 @@
 #define LWIP_PROVIDE_ERRNO
 #define LWIP_FREERTOS_SYS_ARCH_PROTECT_USES_MUTEX 1
 
+/* wolfTCP config */
+#define WOLF_SOCKET 1
+
 #endif

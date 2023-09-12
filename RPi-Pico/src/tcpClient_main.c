@@ -27,46 +27,58 @@
 #include "wolf/tcp.h"
 #include "wolf/wifi.h"
 #include "wolf/blink.h"
-#include "lwip/tcp.h"
 
 #define TCP_PORT 1111
 
 void tcpClient_test(void)
 {
     int i;
-    int err;
+    int ret;
     #define BUFF_SIZE 2048
     char buffer[BUFF_SIZE];
     #define SIZE_OF_CLIENT_HELLO 815
     char msg[SIZE_OF_CLIENT_HELLO] = "\026\003\003\003\052\001\000\003\046 Fake Client Hello";
 
-    WOLF_SOCKET_T *sock = wolf_TCPsocket();
+    SOCKET_T sock;
+    struct sockaddr_in servAddr;
+
+    sock = socket();
     if (!sock)
     {
         printf("ERROR:wolf_TCPsocke()\n");
         return;
     }
-    if (wolf_TCPconnect(sock, TEST_TCP_SERVER_IP, TCP_PORT) != WOLF_SUCCESS) {
+
+    memset(&servAddr, 0, sizeof(servAddr));
+    servAddr.sin_family = AF_INET;           /* using IPv4      */
+    servAddr.sin_port = htons(TCP_PORT); /* on DEFAULT_PORT */
+
+    if (inet_pton(AF_INET, TEST_TCP_SERVER_IP, &servAddr.sin_addr) != 1) {
+        fprintf(stderr, "ERROR: invalid address\n");
+        goto exit;
+    }
+
+    if (connect(sock,(struct sockaddr*) &servAddr, sizeof(servAddr)) != WOLF_SUCCESS) {
         printf("ERROR:wolf_TCPconnect()\n");
         goto exit;
     }
 
     printf("Writing to server: %s\n", msg);
-    err = wolf_TCPwrite(sock, msg, sizeof(msg));
-    if (err < 0) {
-        DEBUG_printf("Failed to write data. err=%d\n", err);
+    ret = send(sock, msg, sizeof(msg));
+    if (ret < 0) {
+        DEBUG_printf("Failed to write data. err=%d\n", ret);
         goto exit;
     }
     
-    err = wolf_TCPread(sock, buffer, BUFF_SIZE);
-    if (err < 0) {
-        DEBUG_printf("Failed to read data. err=%d\n", err);
+    ret = recv(sock, buffer, BUFF_SIZE);
+    if (ret < 0) {
+        DEBUG_printf("Failed to read data. err=%d\n", ret);
         goto exit;
     }
     printf("Message: %s\n", buffer);
 
 exit:
-    free(sock);
+    close(sock);
 }
 
 void main(void)

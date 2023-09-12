@@ -45,19 +45,18 @@ int wolf_cb_TCPwrite(WOLFSSL *ssl, const unsigned char *buff, long unsigned int 
 {
     (void)ssl;
     unsigned long ret;
-    WOLF_SOCKET_T *sock = (WOLF_SOCKET_T *)ctx;
-    ret = wolf_TCPwrite(sock, buff, len);
-
+    SOCKET_T sock = (SOCKET_T)ctx;
+    ret = send(sock, buff, len);
     return ret;
 }
 
 int wolf_cb_TCPread(WOLFSSL *ssl, unsigned char *buff, long unsigned int len, void *ctx)
 {
     (void)ssl;
-    WOLF_SOCKET_T *sock = (WOLF_SOCKET_T *)ctx;
+    SOCKET_T sock = (SOCKET_T)ctx;
     int ret;
 
-    ret = wolf_TCPread(sock, buff, len);
+    ret = recv(sock, buff, len);
     return ret;
 }
 
@@ -69,7 +68,9 @@ void tlsClient_test(void)
     static char buffer[BUFF_SIZE];
     char msg[] = "Hello Server";
 
-    WOLF_SOCKET_T *sock = NULL;
+    SOCKET_T sock;
+    struct sockaddr_in servAddr;
+
     WOLFSSL_CTX *ctx    = NULL;
     WOLFSSL     *ssl    = NULL;
 
@@ -91,15 +92,27 @@ void tlsClient_test(void)
     wolfSSL_SetIORecv(ctx, (CallbackIORecv)wolf_cb_TCPread);
     wolfSSL_SetIOSend(ctx, (CallbackIOSend)wolf_cb_TCPwrite);
 
-    if ((sock = wolf_TCPsocket()) == NULL) {
+    sock = socket();
+    if (!sock)
+    {
         printf("ERROR:wolf_TCPsocke()\n");
         return;
     }
 
-    if ((ret = wolf_TCPconnect(sock, TEST_TCP_SERVER_IP, TCP_PORT) != WOLF_SUCCESS)) {
-        printf("ERROR:wolf_TCPconnect\n");
+    memset(&servAddr, 0, sizeof(servAddr));
+    servAddr.sin_family = AF_INET;           /* using IPv4      */
+    servAddr.sin_port = htons(TCP_PORT); /* on DEFAULT_PORT */
+
+    if (inet_pton(AF_INET, TEST_TCP_SERVER_IP, &servAddr.sin_addr) != 1) {
+        fprintf(stderr, "ERROR: invalid address\n");
         goto exit;
     }
+
+    if (connect(sock,(struct sockaddr*) &servAddr, sizeof(servAddr)) != WOLF_SUCCESS) {
+        printf("ERROR:wolf_TCPconnect()\n");
+        goto exit;
+    }
+
 
     if ((ssl = wolfSSL_new(ctx)) == NULL) {
         fprintf(stderr, "ERROR: failed to create WOLFSSL object\n");
@@ -110,7 +123,8 @@ void tlsClient_test(void)
     wolfSSL_SetIOReadCtx(ssl, sock);
     wolfSSL_SetIOWriteCtx(ssl, sock);
 
-   if ((ret = wolfSSL_connect(ssl)) != WOLFSSL_SUCCESS) {
+    printf("TLS Connecting\n");
+    if ((ret = wolfSSL_connect(ssl)) != WOLFSSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to connect to wolfSSL(%d)\n",
             wolfSSL_get_error(ssl, ret));
         goto exit;
