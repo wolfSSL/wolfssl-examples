@@ -572,6 +572,50 @@ Successfully encoded Signed Encrypted Compressed FirmwarePkgData (signedEncrypte
 Successfully extracted and verified bundle contents
 ```
 
+### Verify SignedData bundle from existing file
+
+Example file: `signedData-verifyFile.c`
+
+This example allows the caller to pass in an existing PKCS#7/CMS bundle
+in DER format, then attempts to verify the SignedData bundle using wolfCrypt.
+
+Usage for this example is:
+
+```
+signedData-verifyFile X.X.X (NOTE: All files relative to current directory)
+-?            Help, print this usage
+-b <file>     PKCS#7/CMS bundle to verify (DER format)
+-c <content>  Detached content, if needed
+```
+
+If wolfSSL has been configured and compiled with debug support, the bytes
+of the bundle will be printed out to the terminal window. For example to verify
+the bundle created by the `signedData` example:
+
+```
+./signedData-verifyFile -b signedData_noattrs.der
+wolfCrypt PKCS#7/CMS SignedData verification example
+
+Read 1982 bytes from signedData_noattrs.der
+Decoded content size is 11 bytes
+Successfully verified SignedData bundle!
+```
+
+To verify SignedData bundles that represent a detached signature (which does
+not include content in the bundle), use the `-c` option to pass in a file to
+be used as the content. For example, to verify the bundle created by the
+example application `signedData-DetachedSignature`:
+
+```
+./signedData-verifyFile -b signedData_detached_attrs.der -c content.txt
+wolfCrypt PKCS#7/CMS SignedData verification example
+
+Read 1987 bytes from signedData_detached_attrs.der
+Read 11 bytes from content file: content.txt
+Decoded content size is 11 bytes
+Successfully verified SignedData bundle!
+```
+
 ### Converting P7B Certificate Bundle to PEM using PKCS7 SignedData API
 
 Build wolfssl using: `./configure --enable-pkcs7 CFLAGS="-DWOLFSSL_DER_TO_PEM"`
