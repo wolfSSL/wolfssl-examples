@@ -1,0 +1,315 @@
+# Renesas RX72N EnvisionKit with Toppers OS
+
+
+This demonstration runs client, server, crypt test and benchmark exmples of <b>wolfSSL</b> with <b>Toppers OS</b> and <b>Renesas RX72N Envision Kit</b>.
+
+
+## Prerequisite
+
+
+1.Renesas e² studio Version: 2022-07 (22.7.0) or later
+
+2.Renesas e² studio BSP
+
+3.Toppers OS 1.9.1 (Patch RX72N version)
+
+
+|element|name/version|
+|:--|:--|
+|Renesas e² studio Version|GR-2022-07 (22.7.0) or later|
+|Toppers OS|1.9.3|
+|Toppers Configurator|1.9.6|
+|Renesas BSP r_bsp|7.10|
+|Renesas BSP r_cmt_rx|5.10|
+
+
+Note:The above version designations are limited to the versions used in order to make modifications to the designated versions as shown below.
+
+## Advance preparation
+Copy `wolfssl-examples/TOPPERS` to `wolfssl/IDE/Renesas/e2studio/RX72N/`.
+
+## Build libraries
+## 1. Build the wolfSSL library
+This step creates the Toppers and wolfSSL library.
+
+1-1. Press [Browse (R)] for [Select root directory (T)] in the [Import project] dialog
+
+1-2. Select `wolflib` from the git repository `wolfssl/IDE/Renesas/e2studio/RX72N/Toppers` Press [Select Folder]
+
+1-3. Click the created project in Project Explorer and select the [Build Project (B)] key from the pull-down menu to build.
+
+(When performing the above operations, make sure that [Toolchain:] is selected in the [Project] [Properties] [Settings] [toolchain] tab.)
+
+1-4. [libwolflib.a] is generated in [wolflib/Debug]
+
+## 2. Build TOPPERS library
+This step is to build the Toppers library.
+
+2-1. Download [asp-1.9.3 Renesas BSP version] (https://www.toppers.jp/asp-d-download.html) and unzip it to `/wolfssl/ IDE/Renesas/e2studio/RX72N/Toppers/`
+
+2-2. Download [Configurator Release 1.9.6 (binary for Windows)](https://www.toppers.jp/cfg-download.html) and unzip it with [2.1] Create a [cfg/cfg] directory in the [asp] directory. After extracting the zip, you can find `cfg.exe` in the folder.
+
+2-3. Execute the shell script shown below to apply the patch. Copy the files necessary for using EDMAC
+
+```
+$ pwd [Individual installation environment]/wolfssl/IDE/Renesas/e2studio/RX72N/Toppers
+./setting.sh
+```
+
+2-4. Confirmation of advance preparation
+
+a). Please prepare an environment such as Msys2 in advance for command execution.
+
+b). Install the gcc toolchain with Msys2.
+
+c). In the Msys2 environment, it is necessary to set the path of the Renesas environment in advance.bashrc etc.
+
+--- Here is a setting example: Specify the Renesas toolchain path ---
+
+```
+$ export PATH=PATH=$PATH:\/C/ProgramData\/GCC\ for\ Renesas\ RX\ 8.3.0.202202-GNURX-ELF/rx-elf/rx-elf/bin
+```
+
+
+2-5. To configure rx72n and make dependency, execute the following commands
+
+```
+$ pwd [Individual installation environment]/wolfssl/IDE/Renesas/e2studio/RX72N/Toppers/asp
+$ perl ./configure -T rx72n_gcc
+$ make depend
+```
+
+2-6. Project [Properties] → [C/C++ Build] → [Environment] dialog [Environment variable to set] [Add] button, enter [C_PROJECT] in [Name:] in [New variable] dialog , enter ${ProjDirPath} for [Value:]
+
+2-7. Select [Open Project from File System...] in the menu
+
+2-8. Select [Toppers_app] from the git repository wolfssl/IDE/Renesas/e2studio/RX72N/Toppers Press [Select Folder]
+
+2-9. Click the created project in Project Explorer and select the [Build Project (B)] key from the pull-down menu to build.
+
+2-10.[toppers_rx] will generate [libasp.a]
+
+## 3. Build the wolfSSLDemo project
+
+3-1. Select [Open Project from File System...] in the menu
+
+3-2. Select `WolfSSLDemo` from the git repository `wolfssl/IDE/Renesas/e2studio/RX72N/Toppers`. Press [Select Folder]
+
+3-3.Double-click `WolfSSLDemo.scfg` to display the setting dialog → Select [Components tab]
+
+3.4. Click [Generate Code] on the upper right of the [Software Component Dialog] dialog.
+
+3.5. Select [Startup] [r_bsp] in the component selection on the left side of the dialog Right-click, select [Change version] from the context menu, and confirm that [Current version] is [7.10] (not [7.10] If so, select [7.10] in [Version after change:] and press [Next (N) >] to generate the code)
+
+3-6. Select [Drivers] [r_cmt_rx] in the component selection on the left side of the dialog, right-click, select [Change version] from the context menu, and confirm that [Current version] is [5.10] ([5.10 If it is not ], select [5.10] in [Changed version:] and press [Next (N) >] to generate the code)
+
+3-7. Apply patch to work generated code on `TOPPERS`
+
+(If you cannot use the patch command with Msys2, you need to install it with [pacman -S patch]) do the following
+
+```
+$pwd
+[Individual installation environment]/wolfssl/IDE/Renesas/e2studio/RX72N/Toppers/WolfSSLDemo
+$patch --binary -p0 < ./bsp.patch
+```
+
+Note:<br>
+If you have used the smart configurator to generate code for [r_bsp],[r_cmt_rx], you will need to reapply the patch
+
+3-8. Select the [Build Project (B)] key from the pull-down menu to build.
+
+3-9. Transfer the ELF file generated by the build to the board with [Menu] → [Run (R)] → [Run (R)] or [Debug (D)] and execute it
+
+Note:<br>
+`T4_Library_ether_ccrx_rxv1_little` may be an error in the linker immediately after configuration/build Clear There is, but `T4_Library_ether_ccrx_rxv1_little`` from [Linker]/[Archives]/[User defined archive (library) files (-I)]/[×] in [Settings] of the [Properties] dialog [C/C++ Build] of the project. Please delete it.
+
+### 3-1 Run Server Program
+
+3-1-1. Enable `#define WOLFSSL_SERVER_TEST` in `wolf_demo.h`. IP addres will be assigned by DHCP.
+
+3-1-2. Check runtime message on `Renesas Debug Virtual Console`
+
+```
+Start WolfSSL Demo !!
+Accept DHCP.ipaddr[4]   192.168.11.6
+Accept DHCP.maskaddr[4] 255.255.255.0
+Accept DHCP.gwaddr[4]   192.168.11.1
+Accept DHCP.dnsaddr[4]  192.168.11.1
+Accept DHCP.dnsaddr2[4] 0.0.0.0
+Accept DHCP.macaddr[6]  74:90:50:10:FE:77
+Accept DHCP.domain[0]
+
+Start TLS Server
+
+```
+
+3-1-3. Run client program against to Server's IP address
+
+```
+$ ./examples/client/client -h 192.168.11.6 -p 11111
+SSL version is TLSv1.2
+SSL cipher suite is TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+SSL curve name is SECP256R1
+hello wolfssl!
+```
+
+You would see the following messages on `Renesas Debug Virtual Console` when TLS connection between Server and Client is successful.
+```
+Start TLS Server
+SSL Accept
+SSL Read
+Received Data: hello wolfssl!
+my_IOSend NG
+Start TLS Server
+```
+
+### 3-2 Run Client Program
+
+3-2-1. Enable `#define WOLFSSL_CLIENT_TEST` in `wolf_demo.h`. IP addres will be assigned by DHCP.
+
+3-2-2. Server IP address and Port number are defined as `SERVER_IP` and `SERVER_PortNo` in `wolf_demo.h`. Change them if needed.
+
+3-2-3. Run Server program in advance
+
+```
+$ ./examples/server/server -b -d -i -v 4
+```
+
+3-2-4. Run Client program from e2studio
+
+You would see the following messages on `Renesas Debug Virtual Console` when TLS connection between Client and Server is successful. The Client program repeatedly runs until it stops.
+```
+Start WolfSSL Demo !!
+Accept DHCP.ipaddr[4]   192.168.11.6
+Accept DHCP.maskaddr[4] 255.255.255.0
+Accept DHCP.gwaddr[4]   192.168.11.1
+Accept DHCP.dnsaddr[4]  192.168.11.1
+Accept DHCP.dnsaddr2[4] 0.0.0.0
+Accept DHCP.macaddr[6]  74:90:50:10:FE:77
+Accept DHCP.domain[0]
+
+Start TLS Client
+Received: I hear you fa shizzle!
+Start TLS Client
+Received: I hear you fa shizzle!
+Start TLS Client
+Received: I hear you fa shizzle!
+```
+### 3-3 Run Crypt Test Program
+
+3-3-1. Enable `#define WOLFCRYPT_TEST` in `wolf_demo.h`.
+
+3-3-2. Run the program from e2studio and check the message on `Renesas Debug Virtual Consol`
+
+```
+Start WolfSSL Demo !!
+
+
+Start wolfCrypt Test
+------------------------------------------------------------------------------
+wolfSSL version 5.6.3
+------------------------------------------------------------------------------
+error    test passed!
+MEMORY   test passed!
+base64   test passed!
+asn      test passed!
+RANDOM   test passed!
+MD5      test passed!
+MD4      test passed!
+SHA      test passed!
+SHA-256  test passed!
+SHA-384  test passed!
+SHA-512  test passed!
+SHA-512/224  test passed!
+SHA-512/256  test passed!
+Hash     test passed!
+HMAC-MD5 test passed!
+HMAC-SHA test passed!
+HMAC-SHA256 test passed!
+HMAC-SHA384 test passed!
+HMAC-SHA512 test passed!
+HMAC-KDF    test passed!
+TLSv1.3 KDF test passed!
+GMAC     test passed!
+DES      test passed!
+DES3     test passed!
+AES      test passed!
+AES192   test passed!
+AES256   test passed!
+AES-GCM  test passed!
+RSA      test passed!
+DH       test passed!
+DSA      test passed!
+PWDBASED test passed!
+ECC      test passed!
+ECC buffer test passed!
+CURVE25519 test passed!
+ED25519  test passed!
+logging  test passed!
+time test passed!
+mutex    test passed!
+memcb    test passed!
+Test complete
+End wolfCrypt Test
+```
+
+### 3-4 Run Benchmark program
+
+3-3-1. Enable `#define WOLF_BENCHMARK` in `wolf_demo.h`.
+
+3-3-2. Run the program from e2studio and check the message on `Renesas Debug Virtual Consol`
+
+```
+Start WolfSSL Demo !!
+Start wolfCrypt Benchmark
+wolfCrypt Benchmark (block bytes 1024, min 1.0 sec each)
+RNG                        275 KiB took 1.036 seconds,  265.444 KiB/s
+AES-128-CBC-enc            725 KiB took 1.017 seconds,  712.671 KiB/s
+AES-128-CBC-dec            700 KiB took 1.025 seconds,  682.727 KiB/s
+AES-192-CBC-enc            675 KiB took 1.006 seconds,  671.041 KiB/s
+AES-192-CBC-dec            650 KiB took 1.009 seconds,  644.266 KiB/s
+AES-256-CBC-enc            650 KiB took 1.024 seconds,  634.518 KiB/s
+AES-256-CBC-dec            625 KiB took 1.023 seconds,  610.709 KiB/s
+AES-128-GCM-enc            150 KiB took 1.040 seconds,  144.175 KiB/s
+AES-128-GCM-dec            150 KiB took 1.041 seconds,  144.134 KiB/s
+AES-192-GCM-enc            150 KiB took 1.054 seconds,  142.356 KiB/s
+AES-192-GCM-dec            150 KiB took 1.054 seconds,  142.315 KiB/s
+AES-256-GCM-enc            150 KiB took 1.067 seconds,  140.607 KiB/s
+AES-256-GCM-dec            150 KiB took 1.067 seconds,  140.581 KiB/s
+AES-128-GCM-enc-no_AAD     150 KiB took 1.028 seconds,  145.929 KiB/s
+AES-128-GCM-dec-no_AAD     150 KiB took 1.028 seconds,  145.886 KiB/s
+AES-192-GCM-enc-no_AAD     150 KiB took 1.041 seconds,  144.065 KiB/s
+AES-192-GCM-dec-no_AAD     150 KiB took 1.041 seconds,  144.023 KiB/s
+AES-256-GCM-enc-no_AAD     150 KiB took 1.054 seconds,  142.288 KiB/s
+AES-256-GCM-dec-no_AAD     150 KiB took 1.054 seconds,  142.248 KiB/s
+GMAC Default               184 KiB took 1.000 seconds,  183.963 KiB/s
+3DES                       275 KiB took 1.016 seconds,  270.536 KiB/s
+MD5                          5 MiB took 1.002 seconds,    4.900 MiB/s
+SHA                          2 MiB took 1.013 seconds,    1.857 MiB/s
+SHA-256                    625 KiB took 1.004 seconds,  622.634 KiB/s
+SHA-384                    475 KiB took 1.011 seconds,  469.832 KiB/s
+SHA-512                    475 KiB took 1.011 seconds,  469.832 KiB/s
+SHA-512/224                475 KiB took 1.011 seconds,  469.785 KiB/s
+SHA-512/256                475 KiB took 1.011 seconds,  469.785 KiB/s
+HMAC-MD5                     5 MiB took 1.001 seconds,    4.855 MiB/s
+HMAC-SHA                     2 MiB took 1.008 seconds,    1.841 MiB/s
+HMAC-SHA256                625 KiB took 1.012 seconds,  617.833 KiB/s
+HMAC-SHA384                475 KiB took 1.027 seconds,  462.512 KiB/s
+HMAC-SHA512                475 KiB took 1.027 seconds,  462.512 KiB/s
+PBKDF2                      96 bytes took 1.232 seconds,   77.890 bytes/s
+RSA     2048   public        18 ops took 1.020 sec, avg 56.639 ms, 17.656 ops/sec
+RSA     2048  private         2 ops took 6.787 sec, avg 3393.650 ms, 0.295 ops/sec
+DH      2048  key gen         2 ops took 1.466 sec, avg 732.950 ms, 1.364 ops/sec
+DH      2048    agree         2 ops took 3.182 sec, avg 1590.800 ms, 0.629 ops/sec
+ECC   [      SECP256R1]   256  key gen         4 ops took 1.704 sec, avg 425.875 ms, 2.348 ops/sec
+ECDHE [      SECP256R1]   256    agree         4 ops took 1.700 sec, avg 425.050 ms, 2.353 ops/sec
+ECDSA [      SECP256R1]   256     sign         4 ops took 1.716 sec, avg 429.050 ms, 2.331 ops/sec
+ECDSA [      SECP256R1]   256   verify         2 ops took 1.642 sec, avg 821.100 ms, 1.218 ops/sec
+CURVE  25519  key gen         2 ops took 1.343 sec, avg 671.700 ms, 1.489 ops/sec
+CURVE  25519    agree         2 ops took 1.342 sec, avg 670.900 ms, 1.491 ops/sec
+ED     25519  key gen        69 ops took 1.009 sec, avg 14.617 ms, 68.412 ops/sec
+ED     25519     sign        60 ops took 1.022 sec, avg 17.038 ms, 58.691 ops/sec
+ED     25519   verify        22 ops took 1.030 sec, avg 46.836 ms, 21.351 ops/sec
+Benchmark complete
+End wolfCrypt Benchmark
+```
