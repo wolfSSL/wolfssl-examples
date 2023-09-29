@@ -62,12 +62,15 @@ if ("${WOLFSSL_PKG_TYPE}" MATCHES "normal")
 
         # Defines added for debugging. These can be removed if debug logging is not needed
         # and will increase performance and reduce library footprint size if removed.
-        -DEBUG_WOLFSSL
+        -DDEBUG_WOLFSSL -DWOLFSSL_ANDROID_DEBUG
 
         # Defines added for wolfCrypt test and benchmark only, may not be needed for your
         # own application.
-        -DUSE_CERT_BUFFERS_2048 -DUSE_CERT_BUFFERS_256 -DNO_WRITE_TEMP_FILES
-        -DNO_FILESYSTEM -DNO_MAIN_DRIVER
+        # Add -DNO_FILESYSTEM to disable file system use for wolfCrypt test, but make sure
+        # to remove this define in production applications as filesystem access is required
+        # for wolfJSSE use.
+        -DUSE_CERT_BUFFERS_2048 -DUSE_CERT_BUFFERS_256
+        -DNO_WRITE_TEMP_FILES -DNO_MAIN_DRIVER
     )
 
 elseif("${WOLFSSL_PKG_TYPE}" MATCHES "fipsready")
@@ -116,7 +119,10 @@ elseif("${WOLFSSL_PKG_TYPE}" MATCHES "fipsready")
 
             # Below options are added only for wolfCrypt test and benchmark applications.
             # These can be left off / removed when integrating into a real-world application.
-            -DNO_FILESYSTEM -DUSE_CERT_BUFFERS_2048 -DUSE_CERT_BUFFERS_256
+            # Add -DNO_FILESYSTEM to disable file system use for wolfCrypt test, but make sure
+            # to remove this define in production applications as filesystem access is required
+            # for wolfJSSE use.
+            -DUSE_CERT_BUFFERS_2048 -DUSE_CERT_BUFFERS_256
             -DNO_WRITE_TEMP_FILES -DNO_MAIN_DRIVER
         )
 endif()
