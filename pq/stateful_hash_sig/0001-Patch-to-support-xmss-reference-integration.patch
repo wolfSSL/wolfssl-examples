@@ -1,0 +1,1410 @@
+From 14b855cbad45bd19ee3e9e591cc6b426f8b5c9da Mon Sep 17 00:00:00 2001
+From: jordan <jordan@wolfssl.com>
+Date: Thu, 5 Oct 2023 08:39:19 -0500
+Subject: [PATCH 1/1] Patch to support xmss-reference integration with
+ wolfCrypt and wolfBoot.
+
+---
+ Makefile          |   2 +
+ fips202.c         |   2 +-
+ hash_address.c    |   2 +
+ params.h          |  15 +++
+ hash.c => thash.c | 110 ++++++++++++++++++++--
+ hash.h => thash.h |   0
+ wots.c            |  35 ++++++-
+ xmss.c            |  53 ++++++-----
+ xmss.h            |  36 ++++----
+ xmss_commons.c    |  77 ++++++++++------
+ xmss_commons.h    |   4 +-
+ xmss_core.c       |  34 ++++---
+ xmss_core.h       |  26 +++---
+ xmss_core_fast.c  | 230 ++++++++++++++++++++++++++++++----------------
+ 14 files changed, 443 insertions(+), 183 deletions(-)
+ rename hash.c => thash.c (68%)
+ rename hash.h => thash.h (100%)
+
+diff --git a/Makefile b/Makefile
+index d1b95d5..435c854 100644
+--- a/Makefile
++++ b/Makefile
+@@ -87,3 +87,5 @@ clean:
+ 	-$(RM) $(TESTS)
+ 	-$(RM) test/vectors
+ 	-$(RM) $(UI)
++	-$(RM) *.o
++	-$(RM) *.lo
+diff --git a/fips202.c b/fips202.c
+index 5e36d66..4565782 100644
+--- a/fips202.c
++++ b/fips202.c
+@@ -62,7 +62,7 @@ static const uint64_t KeccakF_RoundConstants[NROUNDS] =
+     (uint64_t)0x8000000080008008ULL
+ };
+ 
+-void KeccakF1600_StatePermute(uint64_t * state)
++static void KeccakF1600_StatePermute(uint64_t * state)
+ {
+     int round;
+ 
+diff --git a/hash_address.c b/hash_address.c
+index 3a02473..5396796 100644
+--- a/hash_address.c
++++ b/hash_address.c
+@@ -1,5 +1,7 @@
+ #include <stdint.h>
+ 
++#include "hash_address.h"
++
+ void set_layer_addr(uint32_t addr[8], uint32_t layer)
+ {
+     addr[0] = layer;
+diff --git a/params.h b/params.h
+index 58c0619..c55ebaf 100644
+--- a/params.h
++++ b/params.h
+@@ -3,6 +3,21 @@
+ 
+ #include <stdint.h>
+ 
++/* Compile-time constants, assuming SHA256 parameter sets only.
++ *
++ * See params.c for how WOTS_SIG_BYTES and releated were calculated.
++ *
++ * These are to facilitate integration with embedded targets
++ * where variable-length arrays cannot be used (e.g. wolfBoot).
++ * */
++#define XMSS_SHA256_N                   32
++#define XMSS_SHA256_PADDING_LEN         32
++#define XMSS_SHA256_MSG_PREFIX_LEN   (3 * XMSS_SHA256_N + XMSS_SHA256_PADDING_LEN)
++#define XMSS_SHA256_MAX_MSG_LEN        128
++#define XMSS_SHA256_MAX_MSG_HASH_LEN (XMSS_SHA256_MSG_PREFIX_LEN + XMSS_SHA256_MAX_MSG_LEN)
++#define XMSS_SHA256_WOTS_SIG_BYTES    2144
++#define XMSS_SHA256_WOTS_LEN            67
++
+ /* These are merely internal identifiers for the supported hash functions. */
+ #define XMSS_SHA2 0
+ #define XMSS_SHAKE128 1
+diff --git a/hash.c b/thash.c
+similarity index 68%
+rename from hash.c
+rename to thash.c
+index 6724d43..e8af5c4 100644
+--- a/hash.c
++++ b/thash.c
+@@ -1,12 +1,14 @@
+ #include <stdint.h>
++#include <stdio.h>
+ #include <string.h>
+-#include <openssl/sha.h>
++
++#include <wolfssl/wolfcrypt/sha256.h>
++#include <wolfssl/wolfcrypt/sha512.h>
+ 
+ #include "hash_address.h"
+ #include "utils.h"
+ #include "params.h"
+-#include "hash.h"
+-#include "fips202.h"
++#include "thash.h"
+ 
+ #define XMSS_HASH_PADDING_F 0
+ #define XMSS_HASH_PADDING_H 1
+@@ -14,6 +16,69 @@
+ #define XMSS_HASH_PADDING_PRF 3
+ #define XMSS_HASH_PADDING_PRF_KEYGEN 4
+ 
++static int sha256(const unsigned char *in, unsigned long long inlen,
++                  unsigned char *out)
++{
++    wc_Sha256 sha;
++
++    if (wc_InitSha256_ex(&sha, NULL, INVALID_DEVID) != 0) {
++#if !defined WOLFBOOT_SIGN_XMSS
++        fprintf(stderr, "SHA256 Init failed");
++#endif
++        return -1;
++    }
++
++    if (wc_Sha256Update(&sha, in, (word32) inlen) != 0) {
++#if !defined WOLFBOOT_SIGN_XMSS
++        fprintf(stderr, "SHA256 Update failed");
++#endif
++        return -1;
++    }
++
++    if (wc_Sha256Final(&sha, out) != 0) {
++#if !defined WOLFBOOT_SIGN_XMSS
++        fprintf(stderr, "SHA256 Final failed");
++#endif
++        wc_Sha256Free(&sha);
++        return -1;
++    }
++    wc_Sha256Free(&sha);
++
++    return 0;
++}
++
++static int sha512(const unsigned char *in, unsigned long long inlen,
++                  unsigned char *out)
++{
++    /* Disabling everything but sha256 for now. */
++    (void) in;
++    (void) inlen;
++    (void) out;
++    return -1;
++}
++
++static int shake128(unsigned char *out, unsigned long long outlen,
++                    const unsigned char *in, unsigned long long inlen)
++{
++    /* Disabling everything but sha256 for now. */
++    (void) in;
++    (void) inlen;
++    (void) out;
++    (void) outlen;
++    return -1;
++}
++
++static int shake256(unsigned char *out, unsigned long long outlen,
++                    const unsigned char *in, unsigned long long inlen)
++{
++    /* Disabling everything but sha256 for now. */
++    (void) in;
++    (void) inlen;
++    (void) out;
++    (void) outlen;
++    return -1;
++}
++
+ void addr_to_bytes(unsigned char *bytes, const uint32_t addr[8])
+ {
+     int i;
+@@ -27,32 +92,39 @@ static int core_hash(const xmss_params *params,
+                      const unsigned char *in, unsigned long long inlen)
+ {
+     unsigned char buf[64];
++    int           ret = -1;
++
++    if (params == NULL || out == NULL || in == NULL) {
++        return -1;
++    }
+ 
+     if (params->n == 24 && params->func == XMSS_SHA2) {
+-        SHA256(in, inlen, buf);
++        ret = sha256(in, inlen, buf);
+         memcpy(out, buf, 24);
+     }
+     else if (params->n == 24 && params->func == XMSS_SHAKE256) {
+-        shake256(out, 24, in, inlen);
++        ret = shake256(out, 24, in, inlen);
+     }   
+     else if (params->n == 32 && params->func == XMSS_SHA2) {
+-        SHA256(in, inlen, out);
++        ret = sha256(in, inlen, out);
+     }
+     else if (params->n == 32 && params->func == XMSS_SHAKE128) {
+-        shake128(out, 32, in, inlen);
++        ret = shake128(out, 32, in, inlen);
+     }
+     else if (params->n == 32 && params->func == XMSS_SHAKE256) {
+-        shake256(out, 32, in, inlen);
++        ret = shake256(out, 32, in, inlen);
+     }
+     else if (params->n == 64 && params->func == XMSS_SHA2) {
+-        SHA512(in, inlen, out);
++        ret = sha512(in, inlen, out);
+     }
+     else if (params->n == 64 && params->func == XMSS_SHAKE256) {
+-        shake256(out, 64, in, inlen);
++        ret = shake256(out, 64, in, inlen);
+     }
+     else {
+         return -1;
+     }
++
++    if (ret != 0) { return ret; }
+     return 0;
+ }
+ 
+@@ -63,7 +135,11 @@ int prf(const xmss_params *params,
+         unsigned char *out, const unsigned char in[32],
+         const unsigned char *key)
+ {
++#if defined WOLFBOOT_SIGN_XMSS
++    unsigned char buf[XMSS_SHA256_PADDING_LEN + XMSS_SHA256_N + 32];
++#else
+     unsigned char buf[params->padding_len + params->n + 32];
++#endif
+ 
+     ull_to_bytes(buf, params->padding_len, XMSS_HASH_PADDING_PRF);
+     memcpy(buf + params->padding_len, key, params->n);
+@@ -80,7 +156,11 @@ int prf_keygen(const xmss_params *params,
+         unsigned char *out, const unsigned char *in,
+         const unsigned char *key)
+ {
++#if defined WOLFBOOT_SIGN_XMSS
++    unsigned char buf[XMSS_SHA256_PADDING_LEN + 2 * XMSS_SHA256_N + 32];
++#else
+     unsigned char buf[params->padding_len + 2*params->n + 32];
++#endif
+ 
+     ull_to_bytes(buf, params->padding_len, XMSS_HASH_PADDING_PRF_KEYGEN);
+     memcpy(buf + params->padding_len, key, params->n);
+@@ -118,8 +198,13 @@ int thash_h(const xmss_params *params,
+             unsigned char *out, const unsigned char *in,
+             const unsigned char *pub_seed, uint32_t addr[8])
+ {
++#if defined WOLFBOOT_SIGN_XMSS
++    unsigned char buf[XMSS_SHA256_PADDING_LEN + 3 * XMSS_SHA256_N];
++    unsigned char bitmask[2 * XMSS_SHA256_N];
++#else
+     unsigned char buf[params->padding_len + 3 * params->n];
+     unsigned char bitmask[2 * params->n];
++#endif
+     unsigned char addr_as_bytes[32];
+     unsigned int i;
+ 
+@@ -150,8 +235,13 @@ int thash_f(const xmss_params *params,
+             unsigned char *out, const unsigned char *in,
+             const unsigned char *pub_seed, uint32_t addr[8])
+ {
++#if defined WOLFBOOT_SIGN_XMSS
++    unsigned char buf[XMSS_SHA256_PADDING_LEN + 2 * XMSS_SHA256_N];
++    unsigned char bitmask[XMSS_SHA256_N];
++#else
+     unsigned char buf[params->padding_len + 2 * params->n];
+     unsigned char bitmask[params->n];
++#endif
+     unsigned char addr_as_bytes[32];
+     unsigned int i;
+ 
+diff --git a/hash.h b/thash.h
+similarity index 100%
+rename from hash.h
+rename to thash.h
+diff --git a/wots.c b/wots.c
+index d9c8449..8acb313 100644
+--- a/wots.c
++++ b/wots.c
+@@ -2,7 +2,7 @@
+ #include <string.h>
+ 
+ #include "utils.h"
+-#include "hash.h"
++#include "thash.h"
+ #include "wots.h"
+ #include "hash_address.h"
+ #include "params.h"
+@@ -16,7 +16,11 @@ static void expand_seed(const xmss_params *params,
+                         const unsigned char *pub_seed, uint32_t addr[8])
+ {
+     uint32_t i;
++#if defined WOLFBOOT_SIGN_XMSS
++    unsigned char buf[XMSS_SHA256_N + 32];
++#else
+     unsigned char buf[params->n + 32];
++#endif
+ 
+     set_hash_addr(addr, 0);
+     set_key_and_mask(addr, 0);
+@@ -83,7 +87,25 @@ static void wots_checksum(const xmss_params *params,
+                           int *csum_base_w, const int *msg_base_w)
+ {
+     int csum = 0;
++#if defined WOLFBOOT_SIGN_XMSS
++    /* See params.c
++     *
++     * For NIST SP 800-208 parm sets with SHA256, we have:
++     *
++     *   params->wots_w     == 16
++     *   params->wots_log_w ==  4
++     *   params->wots_len2  ==  3
++     *
++     * Therefore:
++     *
++     *   (params->wots_len2 * params->wots_log_w + 7) / 8 = 2
++     *
++     *   (3 * 4 + 7) / 8 = 2
++     * */
++    unsigned char csum_bytes[2];
++#else
+     unsigned char csum_bytes[(params->wots_len2 * params->wots_log_w + 7) / 8];
++#endif
+     unsigned int i;
+ 
+     /* Compute checksum. */
+@@ -94,7 +116,7 @@ static void wots_checksum(const xmss_params *params,
+     /* Convert checksum to base_w. */
+     /* Make sure expected empty zero bits are the least significant bits. */
+     csum = csum << (8 - ((params->wots_len2 * params->wots_log_w) % 8));
+-    ull_to_bytes(csum_bytes, sizeof(csum_bytes), csum);
++    ull_to_bytes(csum_bytes, (unsigned int) sizeof(csum_bytes), csum);
+     base_w(params, csum_base_w, params->wots_len2, csum_bytes);
+ }
+ 
+@@ -139,7 +161,12 @@ void wots_sign(const xmss_params *params,
+                const unsigned char *seed, const unsigned char *pub_seed,
+                uint32_t addr[8])
+ {
++#if defined WOLFBOOT_SIGN_XMSS
++    int lengths[XMSS_SHA256_WOTS_LEN];
++#else
+     int lengths[params->wots_len];
++#endif
++
+     uint32_t i;
+ 
+     chain_lengths(params, lengths, msg);
+@@ -163,7 +190,11 @@ void wots_pk_from_sig(const xmss_params *params, unsigned char *pk,
+                       const unsigned char *sig, const unsigned char *msg,
+                       const unsigned char *pub_seed, uint32_t addr[8])
+ {
++#if defined WOLFBOOT_SIGN_XMSS
++    int lengths[XMSS_SHA256_WOTS_LEN];
++#else
+     int lengths[params->wots_len];
++#endif
+     uint32_t i;
+ 
+     chain_lengths(params, lengths, msg);
+diff --git a/xmss.c b/xmss.c
+index 9030f6e..faaa000 100644
+--- a/xmss.c
++++ b/xmss.c
+@@ -1,5 +1,6 @@
+ #include <stdint.h>
+ 
++#include "xmss.h"
+ #include "params.h"
+ #include "xmss_core.h"
+ 
+@@ -7,7 +8,9 @@
+ identify the parameter set to be used. After setting the parameters accordingly
+ it falls back to the regular XMSS core functions. */
+ 
+-int xmss_keypair(unsigned char *pk, unsigned char *sk, const uint32_t oid)
++#ifndef XMSS_VERIFY_ONLY
++int xmss_keypair(unsigned char *pk, unsigned char *sk, const uint32_t oid,
++                 void * rng)
+ {
+     xmss_params params;
+     unsigned int i;
+@@ -22,7 +25,8 @@ int xmss_keypair(unsigned char *pk, unsigned char *sk, const uint32_t oid)
+         i.e. not just for interoperability, but also for internal use. */
+         sk[XMSS_OID_LEN - i - 1] = (oid >> (8 * i)) & 0xFF;
+     }
+-    return xmss_core_keypair(&params, pk + XMSS_OID_LEN, sk + XMSS_OID_LEN);
++    return xmss_core_keypair(&params, pk + XMSS_OID_LEN, sk + XMSS_OID_LEN,
++                             rng);
+ }
+ 
+ int xmss_sign(unsigned char *sk,
+@@ -42,24 +46,8 @@ int xmss_sign(unsigned char *sk,
+     return xmss_core_sign(&params, sk + XMSS_OID_LEN, sm, smlen, m, mlen);
+ }
+ 
+-int xmss_sign_open(unsigned char *m, unsigned long long *mlen,
+-                   const unsigned char *sm, unsigned long long smlen,
+-                   const unsigned char *pk)
+-{
+-    xmss_params params;
+-    uint32_t oid = 0;
+-    unsigned int i;
+-
+-    for (i = 0; i < XMSS_OID_LEN; i++) {
+-        oid |= pk[XMSS_OID_LEN - i - 1] << (i * 8);
+-    }
+-    if (xmss_parse_oid(&params, oid)) {
+-        return -1;
+-    }
+-    return xmss_core_sign_open(&params, m, mlen, sm, smlen, pk + XMSS_OID_LEN);
+-}
+-
+-int xmssmt_keypair(unsigned char *pk, unsigned char *sk, const uint32_t oid)
++int xmssmt_keypair(unsigned char *pk, unsigned char *sk, const uint32_t oid,
++                   void * rng)
+ {
+     xmss_params params;
+     unsigned int i;
+@@ -71,7 +59,8 @@ int xmssmt_keypair(unsigned char *pk, unsigned char *sk, const uint32_t oid)
+         pk[XMSS_OID_LEN - i - 1] = (oid >> (8 * i)) & 0xFF;
+         sk[XMSS_OID_LEN - i - 1] = (oid >> (8 * i)) & 0xFF;
+     }
+-    return xmssmt_core_keypair(&params, pk + XMSS_OID_LEN, sk + XMSS_OID_LEN);
++    return xmssmt_core_keypair(&params, pk + XMSS_OID_LEN, sk + XMSS_OID_LEN,
++                               rng);
+ }
+ 
+ int xmssmt_sign(unsigned char *sk,
+@@ -90,8 +79,26 @@ int xmssmt_sign(unsigned char *sk,
+     }
+     return xmssmt_core_sign(&params, sk + XMSS_OID_LEN, sm, smlen, m, mlen);
+ }
++#endif /* ifndef XMSS_VERIFY_ONLY */
++
++int xmss_sign_open(const unsigned char *msg, unsigned long long *msglen,
++                   const unsigned char *sm, unsigned long long smlen,
++                   const unsigned char *pk)
++{
++    xmss_params params;
++    uint32_t oid = 0;
++    unsigned int i;
++
++    for (i = 0; i < XMSS_OID_LEN; i++) {
++        oid |= pk[XMSS_OID_LEN - i - 1] << (i * 8);
++    }
++    if (xmss_parse_oid(&params, oid)) {
++        return -1;
++    }
++    return xmss_core_sign_open(&params, msg, msglen, sm, smlen, pk + XMSS_OID_LEN);
++}
+ 
+-int xmssmt_sign_open(unsigned char *m, unsigned long long *mlen,
++int xmssmt_sign_open(const unsigned char *msg, unsigned long long *msglen,
+                      const unsigned char *sm, unsigned long long smlen,
+                      const unsigned char *pk)
+ {
+@@ -105,5 +112,5 @@ int xmssmt_sign_open(unsigned char *m, unsigned long long *mlen,
+     if (xmssmt_parse_oid(&params, oid)) {
+         return -1;
+     }
+-    return xmssmt_core_sign_open(&params, m, mlen, sm, smlen, pk + XMSS_OID_LEN);
++    return xmssmt_core_sign_open(&params, msg, msglen, sm, smlen, pk + XMSS_OID_LEN);
+ }
+diff --git a/xmss.h b/xmss.h
+index c7b4b69..8f4bab4 100644
+--- a/xmss.h
++++ b/xmss.h
+@@ -3,50 +3,54 @@
+ 
+ #include <stdint.h>
+ 
++#ifndef XMSS_VERIFY_ONLY
+ /**
+  * Generates a XMSS key pair for a given parameter set.
+  * Format sk: [OID || (32bit) idx || SK_SEED || SK_PRF || PUB_SEED || root]
+  * Format pk: [OID || root || PUB_SEED]
+  */
+-int xmss_keypair(unsigned char *pk, unsigned char *sk, const uint32_t oid);
++int xmss_keypair(unsigned char *pk, unsigned char *sk, const uint32_t oid,
++                 void * rng);
+ 
+ /**
+  * Signs a message using an XMSS secret key.
+  * Returns
+- * 1. an array containing the signature followed by the message AND
++ * 1. an array containing the signature AND
+  * 2. an updated secret key!
+  */
+ int xmss_sign(unsigned char *sk,
+               unsigned char *sm, unsigned long long *smlen,
+               const unsigned char *m, unsigned long long mlen);
+ 
+-/**
+- * Verifies a given message signature pair using a given public key.
+- *
+- * Note: m and mlen are pure outputs which carry the message in case
+- * verification succeeds. The (input) message is assumed to be contained in sm
+- * which has the form [signature || message].
+- */
+-int xmss_sign_open(unsigned char *m, unsigned long long *mlen,
+-                   const unsigned char *sm, unsigned long long smlen,
+-                   const unsigned char *pk);
+-
+ /*
+  * Generates a XMSSMT key pair for a given parameter set.
+  * Format sk: [OID || (ceil(h/8) bit) idx || SK_SEED || SK_PRF || PUB_SEED || root]
+  * Format pk: [OID || root || PUB_SEED]
+  */
+-int xmssmt_keypair(unsigned char *pk, unsigned char *sk, const uint32_t oid);
++int xmssmt_keypair(unsigned char *pk, unsigned char *sk, const uint32_t oid,
++                   void * rng);
+ 
+ /**
+  * Signs a message using an XMSSMT secret key.
+  * Returns
+- * 1. an array containing the signature followed by the message AND
++ * 1. an array containing the signature AND
+  * 2. an updated secret key!
+  */
+ int xmssmt_sign(unsigned char *sk,
+                 unsigned char *sm, unsigned long long *smlen,
+                 const unsigned char *m, unsigned long long mlen);
++#endif /* ifndef XMSS_VERIFY_ONLY */
++
++/**
++ * Verifies a given message signature pair using a given public key.
++ *
++ * Note: m and mlen are pure outputs which carry the message in case
++ * verification succeeds. The (input) message is assumed to be contained in sm
++ * which has the form [signature || message].
++ */
++int xmss_sign_open(const unsigned char *msg, unsigned long long *msglen,
++                   const unsigned char *sm, unsigned long long smlen,
++                   const unsigned char *pk);
+ 
+ /**
+  * Verifies a given message signature pair using a given public key.
+@@ -55,7 +59,7 @@ int xmssmt_sign(unsigned char *sk,
+  * verification succeeds. The (input) message is assumed to be contained in sm
+  * which has the form [signature || message].
+  */
+-int xmssmt_sign_open(unsigned char *m, unsigned long long *mlen,
++int xmssmt_sign_open(const unsigned char *msg, unsigned long long *msglen,
+                      const unsigned char *sm, unsigned long long smlen,
+                      const unsigned char *pk);
+ #endif
+diff --git a/xmss_commons.c b/xmss_commons.c
+index 2b76b94..0599a76 100644
+--- a/xmss_commons.c
++++ b/xmss_commons.c
+@@ -2,7 +2,7 @@
+ #include <string.h>
+ #include <stdint.h>
+ 
+-#include "hash.h"
++#include "thash.h"
+ #include "hash_address.h"
+ #include "params.h"
+ #include "wots.h"
+@@ -57,7 +57,11 @@ static void compute_root(const xmss_params *params, unsigned char *root,
+                          const unsigned char *pub_seed, uint32_t addr[8])
+ {
+     uint32_t i;
++#if defined WOLFBOOT_SIGN_XMSS
++    unsigned char buffer[2 * XMSS_SHA256_N];
++#else
+     unsigned char buffer[2*params->n];
++#endif
+ 
+     /* If leafidx is odd (last bit = 1), current path element is a right child
+        and auth_path has to go left. Otherwise it is the other way around. */
+@@ -74,7 +78,7 @@ static void compute_root(const xmss_params *params, unsigned char *root,
+     for (i = 0; i < params->tree_height - 1; i++) {
+         set_tree_height(addr, i);
+         leafidx >>= 1;
+-        set_tree_index(addr, leafidx);
++        set_tree_index(addr, (uint32_t) leafidx);
+ 
+         /* Pick the right or left neighbor, depending on parity of the node. */
+         if (leafidx & 1) {
+@@ -91,7 +95,7 @@ static void compute_root(const xmss_params *params, unsigned char *root,
+     /* The last iteration is exceptional; we do not copy an auth_path node. */
+     set_tree_height(addr, params->tree_height - 1);
+     leafidx >>= 1;
+-    set_tree_index(addr, leafidx);
++    set_tree_index(addr, (uint32_t) leafidx);
+     thash_h(params, root, buffer, pub_seed, addr);
+ }
+ 
+@@ -105,7 +109,11 @@ void gen_leaf_wots(const xmss_params *params, unsigned char *leaf,
+                    const unsigned char *sk_seed, const unsigned char *pub_seed,
+                    uint32_t ltree_addr[8], uint32_t ots_addr[8])
+ {
++#if defined WOLFBOOT_SIGN_XMSS
++    unsigned char pk[XMSS_SHA256_WOTS_SIG_BYTES];
++#else
+     unsigned char pk[params->wots_sig_bytes];
++#endif
+ 
+     wots_pkgen(params, pk, sk_seed, pub_seed, ots_addr);
+ 
+@@ -118,31 +126,43 @@ void gen_leaf_wots(const xmss_params *params, unsigned char *leaf,
+  * Note that this assumes a pk without an OID, i.e. [root || PUB_SEED]
+  */
+ int xmss_core_sign_open(const xmss_params *params,
+-                        unsigned char *m, unsigned long long *mlen,
+-                        const unsigned char *sm, unsigned long long smlen,
++                        const unsigned char *msg, unsigned long long *msglen,
++                        const unsigned char *sig, unsigned long long siglen,
+                         const unsigned char *pk)
+ {
+     /* XMSS signatures are fundamentally an instance of XMSSMT signatures.
+        For d=1, as is the case with XMSS, some of the calls in the XMSSMT
+        routine become vacuous (i.e. the loop only iterates once, and address
+        management can be simplified a bit).*/
+-    return xmssmt_core_sign_open(params, m, mlen, sm, smlen, pk);
++    return xmssmt_core_sign_open(params, msg, msglen, sig, siglen, pk);
+ }
+ 
+ /**
+  * Verifies a given message signature pair under a given public key.
+  * Note that this assumes a pk without an OID, i.e. [root || PUB_SEED]
++ *
++ * Note: in WOLFBOOT_SIGN_XMSS build, the max allowed message length (msglen)
++ * is XMSS_SHA256_MAX_MSG_LEN. This is to facilitate having a manageable small
++ * static array, rather than a variable length array, for the message hash.
+  */
+ int xmssmt_core_sign_open(const xmss_params *params,
+-                          unsigned char *m, unsigned long long *mlen,
+-                          const unsigned char *sm, unsigned long long smlen,
++                          const unsigned char *msg, unsigned long long *msglen,
++                          const unsigned char *sig, unsigned long long siglen,
+                           const unsigned char *pk)
+ {
+     const unsigned char *pub_root = pk;
+     const unsigned char *pub_seed = pk + params->n;
++#if defined WOLFBOOT_SIGN_XMSS
++    unsigned char m_with_prefix[XMSS_SHA256_MAX_MSG_HASH_LEN];
++    unsigned char wots_pk[XMSS_SHA256_WOTS_SIG_BYTES];
++    unsigned char leaf[XMSS_SHA256_N];
++    unsigned char root[XMSS_SHA256_N];
++#else
++    unsigned char m_with_prefix[*msglen + params->padding_len + 3*params->n];
+     unsigned char wots_pk[params->wots_sig_bytes];
+     unsigned char leaf[params->n];
+     unsigned char root[params->n];
++#endif
+     unsigned char *mhash = root;
+     unsigned long long idx = 0;
+     unsigned int i;
+@@ -152,24 +172,33 @@ int xmssmt_core_sign_open(const xmss_params *params,
+     uint32_t ltree_addr[8] = {0};
+     uint32_t node_addr[8] = {0};
+ 
++#if defined WOLFBOOT_SIGN_XMSS
++    if (*msglen > XMSS_SHA256_MAX_MSG_LEN) {
++        return -1;
++    }
++#endif
++
++    if (siglen != params->sig_bytes) {
++        /* Some inconsistency has happened. */
++        return -1;
++    }
++
+     set_type(ots_addr, XMSS_ADDR_TYPE_OTS);
+     set_type(ltree_addr, XMSS_ADDR_TYPE_LTREE);
+     set_type(node_addr, XMSS_ADDR_TYPE_HASHTREE);
+ 
+-    *mlen = smlen - params->sig_bytes;
+-
+     /* Convert the index bytes from the signature to an integer. */
+-    idx = bytes_to_ull(sm, params->index_bytes);
++    idx = bytes_to_ull(sig, params->index_bytes);
+ 
+     /* Put the message all the way at the end of the m buffer, so that we can
+      * prepend the required other inputs for the hash function. */
+-    memcpy(m + params->sig_bytes, sm + params->sig_bytes, *mlen);
++    memset(m_with_prefix, 0, sizeof(m_with_prefix));
++    memcpy(m_with_prefix + params->padding_len + 3*params->n, msg, *msglen);
+ 
+     /* Compute the message hash. */
+-    hash_message(params, mhash, sm + params->index_bytes, pk, idx,
+-                 m + params->sig_bytes - params->padding_len - 3*params->n,
+-                 *mlen);
+-    sm += params->index_bytes + params->n;
++    hash_message(params, mhash, sig + params->index_bytes, pk, idx,
++                 m_with_prefix, *msglen);
++    sig += params->index_bytes + params->n;
+ 
+     /* For each subtree.. */
+     for (i = 0; i < params->d; i++) {
+@@ -188,28 +217,24 @@ int xmssmt_core_sign_open(const xmss_params *params,
+         set_ots_addr(ots_addr, idx_leaf);
+         /* Initially, root = mhash, but on subsequent iterations it is the root
+            of the subtree below the currently processed subtree. */
+-        wots_pk_from_sig(params, wots_pk, sm, root, pub_seed, ots_addr);
+-        sm += params->wots_sig_bytes;
++        wots_pk_from_sig(params, wots_pk, sig, root, pub_seed, ots_addr);
++        sig += params->wots_sig_bytes;
+ 
+         /* Compute the leaf node using the WOTS public key. */
+         set_ltree_addr(ltree_addr, idx_leaf);
+         l_tree(params, leaf, wots_pk, pub_seed, ltree_addr);
+ 
+         /* Compute the root node of this subtree. */
+-        compute_root(params, root, leaf, idx_leaf, sm, pub_seed, node_addr);
+-        sm += params->tree_height*params->n;
++        compute_root(params, root, leaf, idx_leaf, sig, pub_seed, node_addr);
++        sig += params->tree_height*params->n;
+     }
+ 
+     /* Check if the root node equals the root node in the public key. */
+     if (memcmp(root, pub_root, params->n)) {
+-        /* If not, zero the message */
+-        memset(m, 0, *mlen);
+-        *mlen = 0;
++        /* If not, set message length to zero */
++        *msglen = 0;
+         return -1;
+     }
+ 
+-    /* If verification was successful, copy the message from the signature. */
+-    memcpy(m, sm, *mlen);
+-
+     return 0;
+ }
+diff --git a/xmss_commons.h b/xmss_commons.h
+index 9d9f077..33dbffe 100644
+--- a/xmss_commons.h
++++ b/xmss_commons.h
+@@ -18,7 +18,7 @@ void gen_leaf_wots(const xmss_params *params, unsigned char *leaf,
+  * Note that this assumes a pk without an OID, i.e. [root || PUB_SEED]
+  */
+ int xmss_core_sign_open(const xmss_params *params,
+-                        unsigned char *m, unsigned long long *mlen,
++                        const unsigned char *msg, unsigned long long *msglen,
+                         const unsigned char *sm, unsigned long long smlen,
+                         const unsigned char *pk);
+ 
+@@ -27,7 +27,7 @@ int xmss_core_sign_open(const xmss_params *params,
+  * Note that this assumes a pk without an OID, i.e. [root || PUB_SEED]
+  */
+ int xmssmt_core_sign_open(const xmss_params *params,
+-                          unsigned char *m, unsigned long long *mlen,
++                          const unsigned char *msg, unsigned long long *msglen,
+                           const unsigned char *sm, unsigned long long smlen,
+                           const unsigned char *pk);
+ #endif
+diff --git a/xmss_core.c b/xmss_core.c
+index af9f8d1..6d3b2f1 100644
+--- a/xmss_core.c
++++ b/xmss_core.c
+@@ -2,15 +2,19 @@
+ #include <string.h>
+ #include <stdint.h>
+ 
+-#include "hash.h"
++#include "thash.h"
+ #include "hash_address.h"
+ #include "params.h"
+-#include "randombytes.h"
+ #include "wots.h"
+ #include "utils.h"
+ #include "xmss_commons.h"
+ #include "xmss_core.h"
+ 
++#include <wolfssl/options.h>
++#include <wolfssl/wolfcrypt/settings.h>
++#include <wolfssl/wolfcrypt/error-crypt.h>
++#include <wolfssl/wolfcrypt/logging.h>
++
+ /**
+  * For a given leaf index, computes the authentication path and the resulting
+  * root node using Merkle's TreeHash algorithm.
+@@ -101,28 +105,28 @@ unsigned long long xmss_xmssmt_core_sk_bytes(const xmss_params *params)
+  * Format pk: [root || PUB_SEED], omitting algorithm OID.
+  */
+ int xmss_core_keypair(const xmss_params *params,
+-                      unsigned char *pk, unsigned char *sk)
++                      unsigned char *pk, unsigned char *sk, void * rng)
+ {
+     /* The key generation procedure of XMSS and XMSSMT is exactly the same.
+        The only important detail is that the right subtree must be selected;
+        this requires us to correctly set the d=1 parameter for XMSS. */
+-    return xmssmt_core_keypair(params, pk, sk);
++    return xmssmt_core_keypair(params, pk, sk, rng);
+ }
+ 
+ /**
+- * Signs a message. Returns an array containing the signature followed by the
+- * message and an updated secret key.
++ * Signs a message. Returns an array containing the signature,
++ * and an updated secret key.
+  */
+ int xmss_core_sign(const xmss_params *params,
+                    unsigned char *sk,
+-                   unsigned char *sm, unsigned long long *smlen,
+-                   const unsigned char *m, unsigned long long mlen)
++                   unsigned char *sig, unsigned long long *siglen,
++                   const unsigned char *msg, unsigned long long msglen)
+ {
+     /* XMSS signatures are fundamentally an instance of XMSSMT signatures.
+        For d=1, as is the case with XMSS, some of the calls in the XMSSMT
+        routine become vacuous (i.e. the loop only iterates once, and address
+        management can be simplified a bit).*/
+-    return xmssmt_core_sign(params, sk, sm, smlen, m, mlen);
++    return xmssmt_core_sign(params, sk, sig, siglen, msg, msglen);
+ }
+ 
+ /*
+@@ -166,11 +170,19 @@ int xmssmt_core_seed_keypair(const xmss_params *params,
+  * Format pk: [root || PUB_SEED] omitting algorithm OID.
+  */
+ int xmssmt_core_keypair(const xmss_params *params,
+-                        unsigned char *pk, unsigned char *sk)
++                        unsigned char *pk, unsigned char *sk,
++                        void * rng)
+ {
+     unsigned char seed[3 * params->n];
++    int ret = 0;
++
++    ret = wc_RNG_GenerateBlock(rng, seed, (word32) sizeof(seed));
++
++    if (ret != 0) {
++        fprintf(stderr, "error: wc_RNG_GenerateBlock failed: %d\n", ret);
++        return -1;
++    }
+ 
+-    randombytes(seed, 3 * params->n);
+     xmssmt_core_seed_keypair(params, pk, sk, seed);
+ 
+     return 0;
+diff --git a/xmss_core.h b/xmss_core.h
+index e83bc7d..bc1d0c2 100644
+--- a/xmss_core.h
++++ b/xmss_core.h
+@@ -12,13 +12,14 @@
+  */
+ unsigned long long xmss_xmssmt_core_sk_bytes(const xmss_params *params);
+ 
++#ifndef XMSS_VERIFY_ONLY
+ /*
+  * Generates a XMSS key pair for a given parameter set.
+  * Format sk: [(32bit) index || SK_SEED || SK_PRF || PUB_SEED || root]
+  * Format pk: [root || PUB_SEED], omitting algorithm OID.
+  */
+ int xmss_core_keypair(const xmss_params *params,
+-                      unsigned char *pk, unsigned char *sk);
++                      unsigned char *pk, unsigned char *sk, void * rng);
+ 
+ /**
+  * Signs a message. Returns an array containing the signature followed by the
+@@ -29,22 +30,13 @@ int xmss_core_sign(const xmss_params *params,
+                    unsigned char *sm, unsigned long long *smlen,
+                    const unsigned char *m, unsigned long long mlen);
+ 
+-/**
+- * Verifies a given message signature pair under a given public key.
+- * Note that this assumes a pk without an OID, i.e. [root || PUB_SEED]
+- */
+-int xmss_core_sign_open(const xmss_params *params,
+-                        unsigned char *m, unsigned long long *mlen,
+-                        const unsigned char *sm, unsigned long long smlen,
+-                        const unsigned char *pk);
+-
+ /*
+  * Generates a XMSSMT key pair for a given parameter set.
+  * Format sk: [(ceil(h/8) bit) index || SK_SEED || SK_PRF || PUB_SEED || root]
+  * Format pk: [root || PUB_SEED] omitting algorithm OID.
+  */
+ int xmssmt_core_keypair(const xmss_params *params,
+-                        unsigned char *pk, unsigned char *sk);
++                        unsigned char *pk, unsigned char *sk, void * rng);
+ 
+ /*
+  * Derives a XMSSMT key pair for a given parameter set.
+@@ -64,13 +56,23 @@ int xmssmt_core_sign(const xmss_params *params,
+                      unsigned char *sk,
+                      unsigned char *sm, unsigned long long *smlen,
+                      const unsigned char *m, unsigned long long mlen);
++#endif /* ifndef XMSS_VERIFY_ONLY */
++
++/**
++ * Verifies a given message signature pair under a given public key.
++ * Note that this assumes a pk without an OID, i.e. [root || PUB_SEED]
++ */
++int xmss_core_sign_open(const xmss_params *params,
++                        const unsigned char *msg, unsigned long long *msglen,
++                        const unsigned char *sm, unsigned long long smlen,
++                        const unsigned char *pk);
+ 
+ /**
+  * Verifies a given message signature pair under a given public key.
+  * Note that this assumes a pk without an OID, i.e. [root || PUB_SEED]
+  */
+ int xmssmt_core_sign_open(const xmss_params *params,
+-                          unsigned char *m, unsigned long long *mlen,
++                          const unsigned char *msg, unsigned long long *msglen,
+                           const unsigned char *sm, unsigned long long smlen,
+                           const unsigned char *pk);
+ 
+diff --git a/xmss_core_fast.c b/xmss_core_fast.c
+index cbf87ec..7d75a22 100644
+--- a/xmss_core_fast.c
++++ b/xmss_core_fast.c
+@@ -2,15 +2,21 @@
+ #include <string.h>
+ #include <stdint.h>
+ 
+-#include "hash.h"
++#include "thash.h"
+ #include "hash_address.h"
+ #include "params.h"
+-#include "randombytes.h"
+ #include "wots.h"
+ #include "utils.h"
+ #include "xmss_commons.h"
+ #include "xmss_core.h"
+ 
++#include <wolfssl/wolfcrypt/random.h>
++#include <wolfssl/wolfcrypt/settings.h>
++#include <wolfssl/wolfcrypt/error-crypt.h>
++#include <wolfssl/wolfcrypt/logging.h>
++
++#ifndef XMSS_VERIFY_ONLY
++
+ typedef struct{
+     unsigned char h;
+     unsigned long next_idx;
+@@ -94,7 +100,7 @@ static void xmssmt_deserialize_state(const xmss_params *params,
+         states[i].stack = sk;
+         sk += (params->tree_height + 1) * params->n;
+ 
+-        states[i].stackoffset = bytes_to_ull(sk, 4);
++        states[i].stackoffset = (unsigned int) bytes_to_ull(sk, 4);
+         sk += 4;
+ 
+         states[i].stacklevels = sk;
+@@ -126,7 +132,7 @@ static void xmssmt_deserialize_state(const xmss_params *params,
+         states[i].retain = sk;
+         sk += ((1 << params->bds_k) - params->bds_k - 1) * params->n;
+ 
+-        states[i].next_leaf = bytes_to_ull(sk, 4);
++        states[i].next_leaf = (unsigned int) bytes_to_ull(sk, 4);
+         sk += 4;
+     }
+ 
+@@ -299,8 +305,8 @@ static void treehash_update(const xmss_params *params,
+     copy_subtree_addr(node_addr, addr);
+     set_type(node_addr, 2);
+ 
+-    set_ltree_addr(ltree_addr, treehash->next_idx);
+-    set_ots_addr(ots_addr, treehash->next_idx);
++    set_ltree_addr(ltree_addr, (uint32_t) treehash->next_idx);
++    set_ots_addr(ots_addr, (uint32_t) treehash->next_idx);
+ 
+     unsigned char nodebuffer[2 * params->n];
+     unsigned int nodeheight = 0;
+@@ -309,7 +315,7 @@ static void treehash_update(const xmss_params *params,
+         memcpy(nodebuffer + params->n, nodebuffer, params->n);
+         memcpy(nodebuffer, state->stack + (state->stackoffset-1)*params->n, params->n);
+         set_tree_height(node_addr, nodeheight);
+-        set_tree_index(node_addr, (treehash->next_idx >> (nodeheight+1)));
++        set_tree_index(node_addr, (uint32_t) (treehash->next_idx >> (nodeheight+1)));
+         thash_h(params, nodebuffer, nodebuffer, pub_seed, node_addr);
+         nodeheight++;
+         treehash->stackusage--;
+@@ -476,13 +482,13 @@ static void bds_round(const xmss_params *params,
+         memcpy(state->keep + (tau >> 1)*params->n, state->auth + tau*params->n, params->n);
+     }
+     if (tau == 0) {
+-        set_ltree_addr(ltree_addr, leaf_idx);
+-        set_ots_addr(ots_addr, leaf_idx);
++        set_ltree_addr(ltree_addr, (uint32_t) leaf_idx);
++        set_ots_addr(ots_addr, (uint32_t) leaf_idx);
+         gen_leaf_wots(params, state->auth, sk_seed, pub_seed, ltree_addr, ots_addr);
+     }
+     else {
+         set_tree_height(node_addr, (tau-1));
+-        set_tree_index(node_addr, leaf_idx >> tau);
++        set_tree_index(node_addr, (uint32_t) leaf_idx >> tau);
+         thash_h(params, state->auth + tau * params->n, buf, pub_seed, node_addr);
+         for (i = 0; i < tau; i++) {
+             if (i < params->tree_height - params->bds_k) {
+@@ -490,13 +496,13 @@ static void bds_round(const xmss_params *params,
+             }
+             else {
+                 offset = (1 << (params->tree_height - 1 - i)) + i - params->tree_height;
+-                rowidx = ((leaf_idx >> i) - 1) >> 1;
++                rowidx = (unsigned int) ((leaf_idx >> i) - 1) >> 1;
+                 memcpy(state->auth + i * params->n, state->retain + (offset + rowidx) * params->n, params->n);
+             }
+         }
+ 
+         for (i = 0; i < ((tau < params->tree_height - params->bds_k) ? tau : (params->tree_height - params->bds_k)); i++) {
+-            startidx = leaf_idx + 1 + 3 * (1 << i);
++            startidx = (unsigned int) leaf_idx + 1 + 3 * (1 << i);
+             if (startidx < 1U << params->tree_height) {
+                 state->treehash[i].h = i;
+                 state->treehash[i].next_idx = startidx;
+@@ -507,6 +513,8 @@ static void bds_round(const xmss_params *params,
+     }
+ }
+ 
++#endif /* ifndef XMSS_VERIFY_ONLY */
++
+ /**
+  * Given a set of parameters, this function returns the size of the secret key.
+  * This is implementation specific, as varying choices in tree traversal will
+@@ -530,15 +538,18 @@ unsigned long long xmss_xmssmt_core_sk_bytes(const xmss_params *params)
+         + (params->d - 1) * params->wots_sig_bytes;
+ }
+ 
++#ifndef XMSS_VERIFY_ONLY
+ /*
+  * Generates a XMSS key pair for a given parameter set.
+  * Format sk: [(32bit) idx || SK_SEED || SK_PRF || root || PUB_SEED]
+  * Format pk: [root || PUB_SEED] omitting algo oid.
+  */
+ int xmss_core_keypair(const xmss_params *params,
+-                      unsigned char *pk, unsigned char *sk)
++                      unsigned char *pk, unsigned char *sk,
++                      void * rng)
+ {
+     uint32_t addr[8] = {0};
++    int      ret = 0;
+ 
+     // TODO refactor BDS state not to need separate treehash instances
+     bds_state state;
+@@ -555,16 +566,27 @@ int xmss_core_keypair(const xmss_params *params,
+     sk[1] = 0;
+     sk[2] = 0;
+     sk[3] = 0;
++
+     // Init SK_SEED (n byte) and SK_PRF (n byte)
+-    randombytes(sk + params->index_bytes, 2*params->n);
++    ret = wc_RNG_GenerateBlock(rng, sk + params->index_bytes,
++                               (word32) 2*params->n);
++
++    if (ret != 0) { return -1; }
+ 
+     // Init PUB_SEED (n byte)
+-    randombytes(sk + params->index_bytes + 3*params->n, params->n);
++    ret = wc_RNG_GenerateBlock(rng, sk + params->index_bytes + 3*params->n,
++                               (word32) params->n);
++
++    if (ret != 0) { return -1; }
++
+     // Copy PUB_SEED to public key
+     memcpy(pk + params->n, sk + params->index_bytes + 3*params->n, params->n);
+ 
+     // Compute root
+-    treehash_init(params, pk, params->tree_height, 0, &state, sk + params->index_bytes, sk + params->index_bytes + 3*params->n, addr);
++    treehash_init(params, pk, params->tree_height, 0, &state,
++                  sk + params->index_bytes,
++                  sk + params->index_bytes + 3*params->n, addr);
++
+     // copy root to sk
+     memcpy(sk + params->index_bytes + 2*params->n, pk, params->n);
+ 
+@@ -577,19 +599,39 @@ int xmss_core_keypair(const xmss_params *params,
+ /**
+  * Signs a message.
+  * Returns
+- * 1. an array containing the signature followed by the message AND
++ * 1. an array containing the signature AND
+  * 2. an updated secret key!
+  *
++ * Note: in WOLFBOOT_SIGN_XMSS build, the max allowed message length (msglen)
++ * is XMSS_SHA256_MAX_MSG_LEN. This is to facilitate having a manageable small
++ * static array, rather than a variable length array, for the message hash.
+  */
+ int xmss_core_sign(const xmss_params *params,
+                    unsigned char *sk,
+-                   unsigned char *sm, unsigned long long *smlen,
+-                   const unsigned char *m, unsigned long long mlen)
++                   unsigned char *sig, unsigned long long *siglen,
++                   const unsigned char *msg, unsigned long long msglen)
+ {
+     const unsigned char *pub_root = sk + params->index_bytes + 2*params->n;
+ 
++#if defined WOLFBOOT_SIGN_XMSS
++    unsigned char m_with_prefix[XMSS_SHA256_MAX_MSG_HASH_LEN];
++#else
++    unsigned char m_with_prefix[msglen + params->padding_len + 3*params->n];
++#endif
++
+     uint16_t i = 0;
+ 
++#if defined WOLFBOOT_SIGN_XMSS
++    if (msglen > XMSS_SHA256_MAX_MSG_LEN) {
++        return -1;
++    }
++#endif
++
++    if (*siglen != params->sig_bytes) {
++        /* Some inconsistency has happened. */
++        return -1;
++    }
++
+     // TODO refactor BDS state not to need separate treehash instances
+     bds_state state;
+     treehash_inst treehash[params->tree_height - params->bds_k];
+@@ -599,7 +641,9 @@ int xmss_core_sign(const xmss_params *params,
+     xmss_deserialize_state(params, &state, sk);
+ 
+     // Extract SK
+-    unsigned long idx = ((unsigned long)sk[0] << 24) | ((unsigned long)sk[1] << 16) | ((unsigned long)sk[2] << 8) | sk[3];
++    unsigned long idx = ((unsigned long)sk[0] << 24) |
++                        ((unsigned long)sk[1] << 16) |
++                        ((unsigned long)sk[2] <<  8) | sk[3];
+     
+     /* Check if we can still sign with this sk.
+      * If not, return -2
+@@ -658,32 +702,32 @@ int xmss_core_sign(const xmss_params *params,
+ 
+     /* Already put the message in the right place, to make it easier to prepend
+      * things when computing the hash over the message. */
+-    memcpy(sm + params->sig_bytes, m, mlen);
++    memset(m_with_prefix, 0, sizeof(m_with_prefix));
++    memcpy(m_with_prefix + params->padding_len + 3*params->n, msg, msglen);
+ 
+     /* Compute the message hash. */
+     hash_message(params, msg_h, R, pub_root, idx,
+-                 sm + params->sig_bytes - params->padding_len - 3*params->n,
+-                 mlen);
++                 m_with_prefix, msglen);
+ 
+     // Start collecting signature
+-    *smlen = 0;
++    *siglen = 0;
+ 
+     // Copy index to signature
+-    sm[0] = (idx >> 24) & 255;
+-    sm[1] = (idx >> 16) & 255;
+-    sm[2] = (idx >> 8) & 255;
+-    sm[3] = idx & 255;
++    sig[0] = (idx >> 24) & 255;
++    sig[1] = (idx >> 16) & 255;
++    sig[2] = (idx >> 8) & 255;
++    sig[3] = idx & 255;
+ 
+-    sm += 4;
+-    *smlen += 4;
++    sig += 4;
++    *siglen += 4;
+ 
+     // Copy R to signature
+     for (i = 0; i < params->n; i++) {
+-        sm[i] = R[i];
++        sig[i] = R[i];
+     }
+ 
+-    sm += params->n;
+-    *smlen += params->n;
++    sig += params->n;
++    *siglen += params->n;
+ 
+     // ----------------------------------
+     // Now we start to "really sign"
+@@ -691,27 +735,24 @@ int xmss_core_sign(const xmss_params *params,
+ 
+     // Prepare Address
+     set_type(ots_addr, 0);
+-    set_ots_addr(ots_addr, idx);
++    set_ots_addr(ots_addr, (uint32_t) idx);
+ 
+     // Compute WOTS signature
+-    wots_sign(params, sm, msg_h, sk_seed, pub_seed, ots_addr);
++    wots_sign(params, sig, msg_h, sk_seed, pub_seed, ots_addr);
+ 
+-    sm += params->wots_sig_bytes;
+-    *smlen += params->wots_sig_bytes;
++    sig += params->wots_sig_bytes;
++    *siglen += params->wots_sig_bytes;
+ 
+     // the auth path was already computed during the previous round
+-    memcpy(sm, state.auth, params->tree_height*params->n);
++    memcpy(sig, state.auth, params->tree_height*params->n);
+ 
+     if (idx < (1U << params->tree_height) - 1) {
+         bds_round(params, &state, idx, sk_seed, pub_seed, ots_addr);
+         bds_treehash_update(params, &state, (params->tree_height - params->bds_k) >> 1, sk_seed, pub_seed, ots_addr);
+     }
+ 
+-    sm += params->tree_height*params->n;
+-    *smlen += params->tree_height*params->n;
+-
+-    memcpy(sm, m, mlen);
+-    *smlen += mlen;
++    sig += params->tree_height*params->n;
++    *siglen += params->tree_height*params->n;
+ 
+     /* Write the updated BDS state back into sk. */
+     xmss_serialize_state(params, sk, &state);
+@@ -725,11 +766,12 @@ int xmss_core_sign(const xmss_params *params,
+  * Format pk: [root || PUB_SEED] omitting algo oid.
+  */
+ int xmssmt_core_keypair(const xmss_params *params,
+-                        unsigned char *pk, unsigned char *sk)
++                        unsigned char *pk, unsigned char *sk, void * rng)
+ {
+-    uint32_t addr[8] = {0};
+-    unsigned int i;
+-    unsigned char *wots_sigs;
++    uint32_t        addr[8] = {0};
++    unsigned int    i;
++    unsigned char * wots_sigs;
++    int             ret = 0;
+ 
+     // TODO refactor BDS state not to need separate treehash instances
+     bds_state states[2*params->d - 1];
+@@ -750,10 +792,17 @@ int xmssmt_core_keypair(const xmss_params *params,
+         sk[i] = 0;
+     }
+     // Init SK_SEED (params->n byte) and SK_PRF (params->n byte)
+-    randombytes(sk+params->index_bytes, 2*params->n);
++    ret = wc_RNG_GenerateBlock(rng, sk+params->index_bytes,
++                               (word32) 2*params->n);
++
++    if (ret != 0) { return -1; }
+ 
+     // Init PUB_SEED (params->n byte)
+-    randombytes(sk+params->index_bytes + 3*params->n, params->n);
++    ret = wc_RNG_GenerateBlock(rng, sk+params->index_bytes + 3*params->n,
++                               (word32) params->n);
++
++    if (ret != 0) { return -1; }
++
+     // Copy PUB_SEED to public key
+     memcpy(pk+params->n, sk+params->index_bytes+3*params->n, params->n);
+ 
+@@ -778,17 +827,37 @@ int xmssmt_core_keypair(const xmss_params *params,
+ /**
+  * Signs a message.
+  * Returns
+- * 1. an array containing the signature followed by the message AND
++ * 1. an array containing the signature AND
+  * 2. an updated secret key!
+  *
++ * Note: in WOLFBOOT_SIGN_XMSS build, the max allowed message length (msglen)
++ * is XMSS_SHA256_MAX_MSG_LEN. This is to facilitate having a manageable small
++ * static array, rather than a variable length array, for the message hash.
+  */
+ int xmssmt_core_sign(const xmss_params *params,
+                      unsigned char *sk,
+-                     unsigned char *sm, unsigned long long *smlen,
+-                     const unsigned char *m, unsigned long long mlen)
++                     unsigned char *sig, unsigned long long *siglen,
++                     const unsigned char *msg, unsigned long long msglen)
+ {
+     const unsigned char *pub_root = sk + params->index_bytes + 2*params->n;
+ 
++#if defined WOLFBOOT_SIGN_XMSS
++    unsigned char m_with_prefix[XMSS_SHA256_MAX_MSG_HASH_LEN];
++#else
++    unsigned char m_with_prefix[msglen + params->padding_len + 3*params->n];
++#endif
++
++#if defined WOLFBOOT_SIGN_XMSS
++    if (msglen > XMSS_SHA256_MAX_MSG_LEN) {
++        return -1;
++    }
++#endif
++
++    if (*siglen != params->sig_bytes) {
++        /* Some inconsistency has happened. */
++        return -1;
++    }
++
+     uint64_t idx_tree;
+     uint32_t idx_leaf;
+     uint64_t i, j;
+@@ -867,31 +936,34 @@ int xmssmt_core_sign(const xmss_params *params,
+ 
+     /* Already put the message in the right place, to make it easier to prepend
+      * things when computing the hash over the message. */
+-    memcpy(sm + params->sig_bytes, m, mlen);
++    memset(m_with_prefix, 0, sizeof(m_with_prefix));
++    memcpy(m_with_prefix + params->padding_len + 3*params->n, msg, msglen);
++
+ 
+     /* Compute the message hash. */
+     hash_message(params, msg_h, R, pub_root, idx,
+-                 sm + params->sig_bytes - params->padding_len - 3*params->n,
+-                 mlen);
++                 m_with_prefix,
++              /* sig + params->sig_bytes - params->padding_len - 3*params->n, */
++                 msglen);
+ 
+     // Start collecting signature
+-    *smlen = 0;
++    *siglen = 0;
+ 
+     // Copy index to signature
+     for (i = 0; i < params->index_bytes; i++) {
+-        sm[i] = (idx >> 8*(params->index_bytes - 1 - i)) & 255;
++        sig[i] = (idx >> 8*(params->index_bytes - 1 - i)) & 255;
+     }
+ 
+-    sm += params->index_bytes;
+-    *smlen += params->index_bytes;
++    sig += params->index_bytes;
++    *siglen += params->index_bytes;
+ 
+     // Copy R to signature
+     for (i = 0; i < params->n; i++) {
+-        sm[i] = R[i];
++        sig[i] = R[i];
+     }
+ 
+-    sm += params->n;
+-    *smlen += params->n;
++    sig += params->n;
++    *siglen += params->n;
+ 
+     // ----------------------------------
+     // Now we start to "really sign"
+@@ -908,27 +980,27 @@ int xmssmt_core_sign(const xmss_params *params,
+     set_ots_addr(ots_addr, idx_leaf);
+ 
+     // Compute WOTS signature
+-    wots_sign(params, sm, msg_h, sk_seed, pub_seed, ots_addr);
++    wots_sign(params, sig, msg_h, sk_seed, pub_seed, ots_addr);
+ 
+-    sm += params->wots_sig_bytes;
+-    *smlen += params->wots_sig_bytes;
++    sig += params->wots_sig_bytes;
++    *siglen += params->wots_sig_bytes;
+ 
+-    memcpy(sm, states[0].auth, params->tree_height*params->n);
+-    sm += params->tree_height*params->n;
+-    *smlen += params->tree_height*params->n;
++    memcpy(sig, states[0].auth, params->tree_height*params->n);
++    sig += params->tree_height*params->n;
++    *siglen += params->tree_height*params->n;
+ 
+     // prepare signature of remaining layers
+     for (i = 1; i < params->d; i++) {
+         // put WOTS signature in place
+-        memcpy(sm, wots_sigs + (i-1)*params->wots_sig_bytes, params->wots_sig_bytes);
++        memcpy(sig, wots_sigs + (i-1)*params->wots_sig_bytes, params->wots_sig_bytes);
+ 
+-        sm += params->wots_sig_bytes;
+-        *smlen += params->wots_sig_bytes;
++        sig += params->wots_sig_bytes;
++        *siglen += params->wots_sig_bytes;
+ 
+         // put AUTH nodes in place
+-        memcpy(sm, states[i].auth, params->tree_height*params->n);
+-        sm += params->tree_height*params->n;
+-        *smlen += params->tree_height*params->n;
++        memcpy(sig, states[i].auth, params->tree_height*params->n);
++        sig += params->tree_height*params->n;
++        *siglen += params->tree_height*params->n;
+     }
+ 
+     updates = (params->tree_height - params->bds_k) >> 1;
+@@ -944,7 +1016,7 @@ int xmssmt_core_sign(const xmss_params *params,
+         if (! (((idx + 1) & ((1ULL << ((i+1)*params->tree_height)) - 1)) == 0)) {
+             idx_leaf = (idx >> (params->tree_height * i)) & ((1 << params->tree_height)-1);
+             idx_tree = (idx >> (params->tree_height * (i+1)));
+-            set_layer_addr(addr, i);
++            set_layer_addr(addr, (uint32_t) i);
+             set_tree_addr(addr, idx_tree);
+             if (i == (unsigned int) (needswap_upto + 1)) {
+                 bds_round(params, &states[i], idx_leaf, sk_seed, pub_seed, addr);
+@@ -962,7 +1034,7 @@ int xmssmt_core_sign(const xmss_params *params,
+         else if (idx < (1ULL << params->full_height) - 1) {
+             deep_state_swap(params, states+params->d + i, states + i);
+ 
+-            set_layer_addr(ots_addr, (i+1));
++            set_layer_addr(ots_addr, (uint32_t) (i+1));
+             set_tree_addr(ots_addr, ((idx + 1) >> ((i+2) * params->tree_height)));
+             set_ots_addr(ots_addr, (((idx >> ((i+1) * params->tree_height)) + 1) & ((1 << params->tree_height)-1)));
+ 
+@@ -972,17 +1044,15 @@ int xmssmt_core_sign(const xmss_params *params,
+             states[params->d + i].next_leaf = 0;
+ 
+             updates--; // WOTS-signing counts as one update
+-            needswap_upto = i;
++            needswap_upto = (int) i;
+             for (j = 0; j < params->tree_height-params->bds_k; j++) {
+                 states[i].treehash[j].completed = 1;
+             }
+         }
+     }
+ 
+-    memcpy(sm, m, mlen);
+-    *smlen += mlen;
+-
+     xmssmt_serialize_state(params, sk, states);
+ 
+     return 0;
+ }
++#endif /* ifndef XMSS_VERIFY_ONLY */
+-- 
+2.40.0
+

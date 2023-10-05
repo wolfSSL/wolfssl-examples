@@ -1,6 +1,6 @@
 /* lms_example.c
  *
- * Copyright (C) 2022 wolfSSL Inc.
+ * Copyright (C) 2023 wolfSSL Inc.
  *
  * This file is part of wolfSSL.
  *

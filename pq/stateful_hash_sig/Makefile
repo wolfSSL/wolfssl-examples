@@ -1,14 +1,15 @@
 # PQ Stateful Hash-Based Signature Examples Makefile
 CC       = gcc
 LIB_PATH = /usr/local
-HSS_INC  = <path to hss install>
-CFLAGS   = -Wall -I$(LIB_PATH)/include -I$(HSS_INC)
+HSS_INC  =
+XMSS_INC =
+CFLAGS   = -Wall -I$(LIB_PATH)/include
 LIBS     = -L$(LIB_PATH)/lib -lm
 
 # option variables
-DYN_LIB         = -lwolfssl
-STATIC_LIB      = $(LIB_PATH)/lib/libwolfssl.a
-HSS_LIB         = <path to hss_lib_thread.a>
+WOLF_DYN_LIB    = -lwolfssl
+WOLF_STATIC_LIB = $(LIB_PATH)/lib/libwolfssl.a
+HSS_LIB         =
 DEBUG_FLAGS     = -g -DDEBUG
 DEBUG_INC_PATHS = -MD
 OPTIMIZE        = -Os
@@ -16,9 +17,6 @@ OPTIMIZE        = -Os
 # Options
 #CFLAGS+=$(DEBUG_FLAGS)
 #CFLAGS+=$(OPTIMIZE)
-LIBS+=$(STATIC_LIB)
-#LIBS+=$(DYN_LIB)
-LIBS+=$(HSS_LIB)
 
 # build targets
 SRC=$(wildcard *.c)
@@ -33,8 +31,16 @@ debug: all
 
 # build template
 lms_example: lms_example.c
-	$(CC) -o $@ $< $(CFLAGS) $(LIBS)
+	$(CC) -o $@ $< $(CFLAGS) -I$(HSS_INC) $(LIBS) $(WOLF_STATIC_LIB) $(HSS_LIB)
+
+xmss_example: xmss_example.c
+	$(CC) -o $@ $< $(CFLAGS) -I$(XMSS_INC) $(LIBS) $(WOLF_DYN_LIB)
+
+xmss_example_verifyonly: xmss_example.c
+	$(CC) -o $@ $< $(CFLAGS) -I$(XMSS_INC) -DWOLFSSL_XMSS_VERIFY_ONLY $(LIBS) $(WOLF_DYN_LIB)
 
 clean:
 	rm -f $(TARGETS)
+	rm -f xmss_example_verifyonly
 	rm -f lms_example.key
+	rm -f xmss_example.key
