@@ -8,7 +8,18 @@ in a standalone manner, separate from an SSL/TLS connection.
 ## Compiling and Running the Example
 
 ```
-$ ./configure --enable-opensslextra
-$ make
+$ cd wolfssl
+$ ./autogen.sh                # If downloaded from github
+$ ./configure --enable-crl    # CRL is optional.
+$ make all
+$ make check
+$ sudo make install
+```
+
+```
+$ cd wolfssl-examples
+$ cd certmanager
+$ make all
 $ ./certverify
 ```
+
