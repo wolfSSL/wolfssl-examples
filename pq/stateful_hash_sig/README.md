@@ -19,9 +19,9 @@ in the wolfSSL repo's INSTALL file.
 https://github.com/wolfSSL/wolfssl/blob/master/INSTALL
 
 The XMSS/XMSS^MT example requires that the xmss-reference repository has been
-cloned and patched. Please see item 20 in the wolfSSL repo's INSTALL file.
+cloned, patched, and built. Please see item 20 in the wolfSSL repo's INSTALL file.
 
-The patch to use is `0001-Patch-to-support-xmss-reference-integration.patch` from this XMSS/XMSS^MT example.
+The patch to use is `0001-Patch-to-support-wolfSSL-xmss-reference-integration.patch` from this XMSS/XMSS^MT example.
 
 # Building the LMS/HSS example
 
@@ -84,22 +84,11 @@ Configure the Makefile to point to your xmss install:
 XMSS_INC = <path to patched xmss install>
 ```
 
-Nothing more is needed after patching, as wolfSSL will automatically
-build and link the xmss-reference objects it needs.
-
-Build wolfSSL XMSS/XMSS^MT hooks support with:
-
 ```
-$ ./configure \
-    --enable-xmss \
-    --with-libxmss=<path to xmss src dir>
-$ make
+XMSS_LIB = <path to xmss_lib.a or xmss_verify_lib.a>
 ```
 
-Note that depending on your architecture you may add `--enable-intelasm`
-or `--enable-armasm` to speedup the XMSS/XMSS^MT hash operations.
-
-Asumming wolfSSL has been built, you may finally build the xmss example with:
+Then build:
 
 ```
 $ make xmss_example
@@ -109,7 +98,6 @@ Build the verify-only example with
 ```
 $ make xmss_example_verifyonly
 ```
-
 
 ## Signing and Verifying a Message with XMSS/XMSS^MT
 

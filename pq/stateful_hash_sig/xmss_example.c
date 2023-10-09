@@ -271,6 +271,8 @@ do_xmss_example(const char * params,
         goto exit_xmss_example;
     }
 
+    printf("making key with %s parameters...\n", params);
+
     ret = wc_XmssKey_MakeKey(&signingKey, &rng);
     if (ret) {
         fprintf(stderr, "error: wc_XmssKey_MakeKey returned %d\n", ret);

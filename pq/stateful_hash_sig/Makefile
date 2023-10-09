@@ -10,6 +10,7 @@ LIBS     = -L$(LIB_PATH)/lib -lm
 WOLF_DYN_LIB    = -lwolfssl
 WOLF_STATIC_LIB = $(LIB_PATH)/lib/libwolfssl.a
 HSS_LIB         =
+XMSS_LIB        =
 DEBUG_FLAGS     = -g -DDEBUG
 DEBUG_INC_PATHS = -MD
 OPTIMIZE        = -Os
@@ -34,10 +35,10 @@ lms_example: lms_example.c
 	$(CC) -o $@ $< $(CFLAGS) -I$(HSS_INC) $(LIBS) $(WOLF_STATIC_LIB) $(HSS_LIB)
 
 xmss_example: xmss_example.c
-	$(CC) -o $@ $< $(CFLAGS) -I$(XMSS_INC) $(LIBS) $(WOLF_DYN_LIB)
+	$(CC) -o $@ $< $(CFLAGS) -I$(XMSS_INC) $(LIBS) $(WOLF_STATIC_LIB) $(XMSS_LIB)
 
 xmss_example_verifyonly: xmss_example.c
-	$(CC) -o $@ $< $(CFLAGS) -I$(XMSS_INC) -DWOLFSSL_XMSS_VERIFY_ONLY $(LIBS) $(WOLF_DYN_LIB)
+	$(CC) -o $@ $< $(CFLAGS) -I$(XMSS_INC) -DWOLFSSL_XMSS_VERIFY_ONLY $(LIBS) $(WOLF_STATIC_LIB) $(XMSS_LIB)
 
 clean:
 	rm -f $(TARGETS)
