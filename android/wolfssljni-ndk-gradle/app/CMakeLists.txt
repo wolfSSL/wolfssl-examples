@@ -75,12 +75,19 @@ if ("${WOLFSSL_PKG_TYPE}" MATCHES "normal")
 
 elseif("${WOLFSSL_PKG_TYPE}" MATCHES "fipsready")
     # Add preprocessor defines to CFLAGS, these match those placed into
-    # wolfssl/options.h by configure if using: "./configure" on a Unix/Linux platform. The options
-    # below have been chosen to match a FIPS Ready build, and are based on the example
-    # user_settings.h file located here:
+    # wolfssl/options.h by configure if using: "./configure" on a Unix/Linux
+    # platform. The options below have been chosen to match a FIPS Ready build,
+    # and are based on the example user_settings.h file located here:
     # https://github.com/wolfSSL/wolfssl/blob/master/examples/configs/user_settings_fipsv5.h
-    # This list may be configurable depending on use case and desired optimizations, being careful
-    # not to break FIPS compatibility if targeting FIPS proper in the future.
+    # This list may be configurable depending on use case and desired
+    # optimizations, being careful not to break FIPS compatibility if targeting
+    # FIPS proper in the future.
+
+    # NOTE: If using wolfSSL FIPS Ready or FIPS proper with this sample
+    # application and run into the scenario where the verifyCore[] hash output
+    # at runtime is empty, consider checking/increasing the size of the
+    # MAX_FIPS_DATA_SZ define in 'wolfcrypt/src/fips_test.c'.
+
     add_definitions(-DHAVE_FIPS -DHAVE_FIPS_VERSION=5 -DHAVE_FIPS_VERSION_MINOR=3
             -DHAVE_HASHDRBG -DHAVE_THREAD_LS -DHAVE_REPRODUCIBLE_BUILD
             -DFP_MAX_BITS=16384 -DSP_INT_BITS=8192 -DWOLFSSL_PUBLIC_MP
