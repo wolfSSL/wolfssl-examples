@@ -74,6 +74,45 @@ if ("${WOLFSSL_PKG_TYPE}" MATCHES "normal")
     )
 
 elseif("${WOLFSSL_PKG_TYPE}" MATCHES "fipsready")
+    # The wolfCrypt FIPS In Core Integrity checksum will vary with compiler
+    # versions, runtime library versions, target hardware, and build type.
+    # Anytime the module is shifted up or down in memory or loaded from a new
+    # memory location the hash will change. This is expected during normal
+    # development cycles but should be stable in a production deployment.
+    # The verifyCore[] hash can be manually updated in
+    # 'wolfcrypt/src/fips_test.c' and the app recompiled. Or, the define
+    # WOLFCRYPT_FIPS_CORE_HASH_VALUE can be set below, which is helpful
+    # for Android Studio, which builds for all these architectures in the same
+    # build.
+    #
+    # The hash values below are only for reference and will need to
+    # be updated to match your build. To update this value:
+    #
+    #  1. Build and install your app which contains wolfCrypt FIPS
+    #  2. Run your app on each architecture, looking at the logcat output
+    #     to see the expected verifyCore[] hash value.
+    #  3. Copy the expected hash value from logcat to the proper architecture
+    #     section below.
+    #  4. Re-build your application now that the expected hash value has
+    #     been set.
+    #  5. Re-install and re-run your application on each architecture to
+    #     confirm the hash is stable and application runs as expected.
+    #
+    # NOTE: If using wolfSSL FIPS Ready or FIPS proper with this sample
+    # application and run into the scenario where the verifyCore[] hash output
+    # at runtime is empty, consider checking/increasing the size of the
+    # MAX_FIPS_DATA_SZ define in 'wolfcrypt/src/fips_test.c'.
+
+    if("${ANDROID_ABI}" MATCHES "arm64-v8a")
+        add_definitions(-DWOLFCRYPT_FIPS_CORE_HASH_VALUE=6F0F3E0BDA9AF973D2B7243444DE8279DF9F98A533E60D1E076DE4B6B9416F11)
+    elseif("${ANDROID_ABI}" MATCHES "armeabi-v7a")
+        add_definitions(-DWOLFCRYPT_FIPS_CORE_HASH_VALUE=6F0F3E0BDA9AF973D2B7243444DE8279DF9F98A533E60D1E076DE4B6B9416F11)
+    elseif("${ANDROID_ABI}" MATCHES "x86_64")
+        add_definitions(-DWOLFCRYPT_FIPS_CORE_HASH_VALUE=6F0F3E0BDA9AF973D2B7243444DE8279DF9F98A533E60D1E076DE4B6B9416F11)
+    elseif("${ANDROID_ABI}" MATCHES "x86")
+        add_definitions(-DWOLFCRYPT_FIPS_CORE_HASH_VALUE=6F0F3E0BDA9AF973D2B7243444DE8279DF9F98A533E60D1E076DE4B6B9416F11)
+    endif()
+
     # Add preprocessor defines to CFLAGS, these match those placed into
     # wolfssl/options.h by configure if using: "./configure" on a Unix/Linux
     # platform. The options below have been chosen to match a FIPS Ready build,
@@ -82,12 +121,6 @@ elseif("${WOLFSSL_PKG_TYPE}" MATCHES "fipsready")
     # This list may be configurable depending on use case and desired
     # optimizations, being careful not to break FIPS compatibility if targeting
     # FIPS proper in the future.
-
-    # NOTE: If using wolfSSL FIPS Ready or FIPS proper with this sample
-    # application and run into the scenario where the verifyCore[] hash output
-    # at runtime is empty, consider checking/increasing the size of the
-    # MAX_FIPS_DATA_SZ define in 'wolfcrypt/src/fips_test.c'.
-
     add_definitions(-DHAVE_FIPS -DHAVE_FIPS_VERSION=5 -DHAVE_FIPS_VERSION_MINOR=3
             -DHAVE_HASHDRBG -DHAVE_THREAD_LS -DHAVE_REPRODUCIBLE_BUILD
             -DFP_MAX_BITS=16384 -DSP_INT_BITS=8192 -DWOLFSSL_PUBLIC_MP
