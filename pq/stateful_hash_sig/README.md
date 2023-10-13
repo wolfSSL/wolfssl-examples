@@ -22,6 +22,7 @@ The XMSS/XMSS^MT example requires that the xmss-reference repository has been
 cloned, patched, and built. Please see item 20 in the wolfSSL repo's INSTALL file.
 
 The patch to use is `0001-Patch-to-support-wolfSSL-xmss-reference-integration.patch` from this XMSS/XMSS^MT example.
+This patch includes an addendum readme, `patch_readme.md`, that lists all changes made and explains their rationale.
 
 # Building the LMS/HSS example
 
