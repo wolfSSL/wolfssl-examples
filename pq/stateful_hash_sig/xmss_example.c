@@ -32,9 +32,11 @@
 static void dump_hex(const char * what, const uint8_t * buf, size_t len);
 static void print_usage(void);
 #if !defined WOLFSSL_XMSS_VERIFY_ONLY
-static int  write_key_file(const byte * priv, word32 privSz, void * context);
-static int  read_key_file(byte * priv, word32 privSz, void * context);
 static int  do_xmss_example(const char * params, size_t sigs_to_do);
+static enum wc_XmssRc write_key_file(const byte * priv, word32 privSz,
+    void * context);
+static enum wc_XmssRc read_key_file(byte * priv, word32 privSz, void * context);
+
 
 static WC_RNG rng;
 static byte * read_buf = NULL;
@@ -85,7 +87,7 @@ print_usage(void)
     exit(EXIT_FAILURE);
 }
 
-static int
+enum wc_XmssRc
 write_key_file(const byte * priv,
                word32       privSz,
                void *       context)
@@ -152,7 +154,7 @@ write_key_file(const byte * priv,
     return WC_XMSS_RC_SAVED_TO_NV_MEMORY;
 }
 
-static int
+enum wc_XmssRc
 read_key_file(byte * priv,
               word32 privSz,
               void * context)
