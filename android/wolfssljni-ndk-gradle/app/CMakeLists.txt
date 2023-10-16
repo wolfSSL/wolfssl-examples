@@ -104,12 +104,16 @@ elseif("${WOLFSSL_PKG_TYPE}" MATCHES "fipsready")
     # MAX_FIPS_DATA_SZ define in 'wolfcrypt/src/fips_test.c'.
 
     if("${ANDROID_ABI}" MATCHES "arm64-v8a")
+        # https://developer.android.com/ndk/guides/abis#arm64-v8a
         add_definitions(-DWOLFCRYPT_FIPS_CORE_HASH_VALUE=6F0F3E0BDA9AF973D2B7243444DE8279DF9F98A533E60D1E076DE4B6B9416F11)
     elseif("${ANDROID_ABI}" MATCHES "armeabi-v7a")
+        # https://developer.android.com/ndk/guides/abis#v7a
         add_definitions(-DWOLFCRYPT_FIPS_CORE_HASH_VALUE=6F0F3E0BDA9AF973D2B7243444DE8279DF9F98A533E60D1E076DE4B6B9416F11)
     elseif("${ANDROID_ABI}" MATCHES "x86_64")
+        # https://developer.android.com/ndk/guides/abis#86-64
         add_definitions(-DWOLFCRYPT_FIPS_CORE_HASH_VALUE=6F0F3E0BDA9AF973D2B7243444DE8279DF9F98A533E60D1E076DE4B6B9416F11)
     elseif("${ANDROID_ABI}" MATCHES "x86")
+        # https://developer.android.com/ndk/guides/abis#x86
         add_definitions(-DWOLFCRYPT_FIPS_CORE_HASH_VALUE=6F0F3E0BDA9AF973D2B7243444DE8279DF9F98A533E60D1E076DE4B6B9416F11)
     endif()
 
