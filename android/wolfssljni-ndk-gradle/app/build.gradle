@@ -32,6 +32,8 @@ android {
     sourceSets {
         // wolfSSL JNI Java source files are added here
         main.java.srcDirs += '../wolfssljni/src/java'
+        // ccbVaultIc JNI Java source files
+        main.java.srcDirs += '../../../ccb_vaultic/java'
     }
     namespace 'com.wolfssl.wolfssljni_ndk_gradle'
 }
