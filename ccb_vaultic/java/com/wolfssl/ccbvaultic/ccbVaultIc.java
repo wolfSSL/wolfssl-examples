@@ -351,7 +351,20 @@ public class ccbVaultIc {
         boolean inHead = false;
         boolean inDesc = false;
         boolean inFoot = false;
-        for (byte datum : data) {
+
+        int dataoffset = 0;
+        // Search for "-----" and drop all data before then
+        for(dataoffset = 0; dataoffset < (data.length - 5); dataoffset ++) {
+            if( (data[dataoffset] == '-') &&
+                    (data[dataoffset + 1] == '-') &&
+                    (data[dataoffset + 2] == '-') &&
+                    (data[dataoffset + 3] == '-') &&
+                    (data[dataoffset + 4] == '-'))
+                break;
+        }
+        //Continue on removing comments
+        for (; dataoffset < data.length; dataoffset ++) {
+            byte datum = data[dataoffset];
             if (datum == '-') {
                 if (!inHead) {
                     inHead = true;

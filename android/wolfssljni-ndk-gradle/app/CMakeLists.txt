@@ -59,10 +59,14 @@ if ("${WOLFSSL_PKG_TYPE}" MATCHES "normal")
         -DWOLFSSL_AKID_NAME -DHAVE_CTS -DNO_DES3 -DGCM_TABLE_4BIT
         -DTFM_TIMING_RESISTANT -DECC_TIMING_RESISTANT
         -DHAVE_AESGCM -DSIZEOF_LONG=4 -DSIZEOF_LONG_LONG=8
+        
+        -DHAVE_SECURE_RENEGOTIATION
+        #-DHAVE_SERVER_RENEGOTIATION_INFO
+        -DWOLFSSL_ALT_CERT_CHAINS
 
         # Defines added for debugging. These can be removed if debug logging is not needed
         # and will increase performance and reduce library footprint size if removed.
-        -DEBUG_WOLFSSL
+        -DEBUG_WOLFSSL -DWOLFSSL_ANDROID_DEBUG
 
         # Defines added for wolfCrypt test and benchmark only, may not be needed for your
         # own application.
