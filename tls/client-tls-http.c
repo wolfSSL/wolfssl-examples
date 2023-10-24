@@ -1,6 +1,6 @@
-/* client-tls.c
+/* client-tls-http.c
  *
- * Copyright (C) 2006-2020 wolfSSL Inc.
+ * Copyright (C) 2006-2022 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -23,9 +23,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include<sys/types.h>
 
 /* socket includes */
 #include <sys/socket.h>
+#include<netdb.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <unistd.h>
@@ -34,16 +36,14 @@
 #include <wolfssl/options.h>
 #include <wolfssl/ssl.h>
 
-#define DEFAULT_PORT 11111
+#define DEFAULT_PORT 443
 
-#define CERT_FILE "../certs/ca-cert.pem"
-
-
+static const char kHttpGetMsg[] = "GET /index.html HTTP/1.0\r\n\r\n";
 
 int main(int argc, char** argv)
 {
     int                sockfd;
-    struct sockaddr_in servAddr;
+    struct addrinfo hints,*res;
     char               buff[256];
     size_t             len;
     int                ret;
@@ -52,14 +52,27 @@ int main(int argc, char** argv)
     WOLFSSL_CTX* ctx;
     WOLFSSL*     ssl;
 
-
-
     /* Check for proper calling convention */
-    if (argc != 2) {
-        printf("usage: %s <IPv4 address>\n", argv[0]);
+    if (argc != 3) {
+        printf("usage: %s <SERVER_NAME> <CERT_FILE>\n", argv[0]);
         return 0;
     }
 
+    /* Initialize the addrinfo struct with zero */
+    memset(&hints,0,sizeof(hints));
+
+    /* Fill in the addrinfo struct */
+    hints.ai_family = AF_INET;       /* using IPv4 */
+    hints.ai_socktype = SOCK_STREAM; /* means TCP socket */
+    char *service = "https";         /* using https */
+    
+    /* Get a Domain IP address */
+    if(getaddrinfo(argv[1],service,&hints,&res) != 0){
+        fprintf(stderr, "ERROR: failed to get the server ip\n");
+        ret = -1;
+        goto end;
+    }
+    
     /* Create a socket that uses an internet IPv4 address,
      * Sets the socket to be stream based (TCP),
      * 0 means choose the default protocol. */
@@ -68,28 +81,15 @@ int main(int argc, char** argv)
         ret = -1;
         goto end;
     }
-
-    /* Initialize the server address struct with zeros */
-    memset(&servAddr, 0, sizeof(servAddr));
-
-    /* Fill in the server address */
-    servAddr.sin_family = AF_INET;             /* using IPv4      */
-    servAddr.sin_port   = htons(DEFAULT_PORT); /* on DEFAULT_PORT */
-
-    /* Get the server IPv4 address from the command line call */
-    if (inet_pton(AF_INET, argv[1], &servAddr.sin_addr) != 1) {
-        fprintf(stderr, "ERROR: invalid address\n");
-        ret = -1;
-        goto end;
-    }
- 
+    /* Free a list pointed by res */
+    freeaddrinfo(res);
+    
     /* Connect to the server */
-    if ((ret = connect(sockfd, (struct sockaddr*) &servAddr, sizeof(servAddr)))
-         == -1) {
+    if ((ret = connect(sockfd, res->ai_addr, res->ai_addrlen)) == -1) {
         fprintf(stderr, "ERROR: failed to connect\n");
         goto end;
     }
-
+    printf("Debug \n");
     /*---------------------------------*/
     /* Start of wolfSSL initialization and configuration */
     /*---------------------------------*/
@@ -98,7 +98,7 @@ int main(int argc, char** argv)
         fprintf(stderr, "ERROR: Failed to initialize the library\n");
         goto socket_cleanup;
     }
-
+    
     /* Create and initialize WOLFSSL_CTX */
     if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method())) == NULL) {
         fprintf(stderr, "ERROR: failed to create WOLFSSL_CTX\n");
@@ -107,10 +107,10 @@ int main(int argc, char** argv)
     }
 
     /* Load client certificates into WOLFSSL_CTX */
-    if ((ret = wolfSSL_CTX_load_verify_locations(ctx, CERT_FILE, NULL))
+    if ((ret = wolfSSL_CTX_load_verify_locations(ctx, argv[2], NULL))
          != SSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
-                CERT_FILE);
+                argv[2]);
         goto ctx_cleanup;
     }
 
@@ -133,19 +133,13 @@ int main(int argc, char** argv)
         goto cleanup;
     }
 
-    /* Get a message for the server from stdin */
-    printf("Message for server: ");
-    memset(buff, 0, sizeof(buff));
-    if (fgets(buff, sizeof(buff), stdin) == NULL) {
-        fprintf(stderr, "ERROR: failed to get message for server\n");
-        ret = -1;
-        goto cleanup;
-    }
-    len = strnlen(buff, sizeof(buff));
+    /* kHttpGetMsg length */
+    len = strnlen(kHttpGetMsg, sizeof(kHttpGetMsg));
 
-    /* Send the message to the server */
-    if ((ret = wolfSSL_write(ssl, buff, len)) != len) {
-        fprintf(stderr, "ERROR: failed to write entire message\n");
+    /* Send HTTP GET request to the server */
+    printf("Sending HTTP GET request ...\n");
+    if ((ret = wolfSSL_write(ssl, kHttpGetMsg, len)) != len) {
+        fprintf(stderr, "ERROR: failed to send HTTP GET request.\n");
         fprintf(stderr, "%d bytes of %d bytes were sent", ret, (int) len);
         goto cleanup;
     }
