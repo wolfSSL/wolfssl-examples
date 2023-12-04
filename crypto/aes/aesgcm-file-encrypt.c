@@ -235,6 +235,13 @@ int encrypt_file_AesGCM(const char *in_file, const char *out_file,
     strncpy((char *)iv, iv_str, AES_IV_SIZE);
     strncpy((char *)key, key_str, AES_KEY_SIZE);
 
+    /* inits aes structure */
+    ret = wc_AesInit(&gcm, NULL, INVALID_DEVID);
+    if (ret != 0) {
+        printf("AesInit returned: %d\n", ret);
+        goto exit;
+    }
+
     ret = wc_AesGcmEncryptInit(&gcm, key, AES_KEY_SIZE, iv, AES_IV_SIZE);
     if (ret == 0) {
         /* Write magic label in the beginning of the cipher file */

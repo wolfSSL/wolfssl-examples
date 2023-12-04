@@ -95,10 +95,19 @@ int AesCtrEncrypt(Aes* aes, byte* key, int size, FILE* inFile, FILE* outFile)
     if (ret != 0)
         return -1040;
 
+    /* inits aes structure */
+    ret = wc_AesInit(aes, NULL, INVALID_DEVID);
+    if (ret != 0) {
+        printf("AesInit returned: %d\n", ret);
+        return -1001;
+    }
+
     /* sets key */
     ret = wc_AesSetKey(aes, key, size, iv, AES_ENCRYPTION);
-    if (ret != 0)
+    if (ret != 0) {
+        printf("SetKey returned: %d\n", ret);
         return -1001;
+    }
 
     /* encrypts the message to the output based on input length + padding */
     ret = wc_AesCtrEncrypt(aes, output, input, length);
@@ -164,11 +173,20 @@ int AesCtrDecrypt(Aes* aes, byte* key, int size, FILE* inFile, FILE* outFile)
     if (ret != 0)
         return -1050;
 
+    /* inits aes structure */
+    ret = wc_AesInit(aes, NULL, INVALID_DEVID);
+    if (ret != 0) {
+        printf("AesInit returned: %d\n", ret);
+        return -1002;
+    }
+
     /* sets key */
     /* decrypt uses AES_ENCRYPTION */
     ret = wc_AesSetKey(aes, key, size, iv, AES_ENCRYPTION);
-    if (ret != 0)
+    if (ret != 0) {
+        printf("SetKey returned: %d\n", ret);
         return -1002;
+    }
 
     ret = wc_AesCtrEncrypt(aes, output, c, cSz);
     if (ret != 0)
