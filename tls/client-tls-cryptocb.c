@@ -47,6 +47,54 @@ typedef struct {
     int exampleVar; /* example, not used */
 } myCryptoCbCtx;
 
+typedef struct {
+    word32 bufSz;
+} hash_ctx_t;
+
+/* type: WC_HASH_TYPE_SHA, WC_HASH_TYPE_SHA256, WC_HASH_TYPE_SHA384, etc */
+/* in: Update (when not NULL) / Final (when NULL) */
+static int cb_hash(int type, const byte* in, word32 inSz, byte* digest,
+    void* shactx, void** devCtx)
+{
+    int ret = 0;
+    enum wc_HashType hash_type = (enum wc_HashType)type;
+    hash_ctx_t* ctx = (hash_ctx_t*)*devCtx;
+    byte*  hashBuf = NULL;
+    word32 hashBufSz = 0;
+
+    /* for updates alloc/realloc and copy */
+    if (in != NULL) {
+        if (ctx == NULL) {
+            ctx = (hash_ctx_t*)malloc(sizeof(hash_ctx_t) + hashBufSz + inSz);
+        }
+        else {
+            hashBufSz = ctx->bufSz;
+            ctx = (hash_ctx_t*)realloc(ctx, sizeof(hash_ctx_t) + hashBufSz + inSz);
+        }
+        if (ctx == NULL) {
+            return MEMORY_E;
+        }
+        hashBuf = (byte*)ctx + sizeof(hash_ctx_t);
+        memcpy(&hashBuf[hashBufSz], in, inSz);
+        ctx->bufSz = hashBufSz + inSz;
+        *devCtx = ctx;
+    }
+    /* final */
+    else if (digest != NULL) {
+        if (ctx == NULL) {
+            /* valid case of empty hash (0 len hash) */
+        }
+        else {
+            hashBuf = (byte*)ctx + sizeof(hash_ctx_t);
+            hashBufSz = ctx->bufSz;
+        }
+        ret = wc_Hash_ex(hash_type,
+            hashBuf, hashBufSz,
+            digest, wc_HashGetDigestSize(hash_type),
+            NULL, INVALID_DEVID);
+    }
+    return ret;
+}
 
 /* Example crypto dev callback function that calls software version */
 /* This is where you would plug-in calls to your own hardware crypto */
@@ -289,7 +337,8 @@ static int myCryptoCb(int devIdArg, wc_CryptoInfo* info, void* ctx)
 #endif /* !NO_AES || !NO_DES3 */
     }
     else if (info->algo_type == WC_ALGO_TYPE_HASH) {
-#if !defined(NO_SHA) || !defined(NO_SHA256)
+#if !defined(NO_SHA) || !defined(NO_SHA256) || defined(WOLFSSL_SHA384) || \
+     defined(WOLFSSL_SHA512)
     #if !defined(NO_SHA)
         if (info->hash.type == WC_HASH_TYPE_SHA) {
             if (info->hash.sha1 == NULL)
@@ -298,17 +347,8 @@ static int myCryptoCb(int devIdArg, wc_CryptoInfo* info, void* ctx)
             /* set devId to invalid, so software is used */
             info->hash.sha1->devId = INVALID_DEVID;
 
-            if (info->hash.in != NULL) {
-                ret = wc_ShaUpdate(
-                    info->hash.sha1,
-                    info->hash.in,
-                    info->hash.inSz);
-            }
-            if (info->hash.digest != NULL) {
-                ret = wc_ShaFinal(
-                    info->hash.sha1,
-                    info->hash.digest);
-            }
+            ret = cb_hash(info->hash.type, info->hash.in, info->hash.inSz,
+                info->hash.digest, info->hash.sha1, &info->hash.sha1->devCtx);
 
             /* reset devId */
             info->hash.sha1->devId = devIdArg;
@@ -323,26 +363,49 @@ static int myCryptoCb(int devIdArg, wc_CryptoInfo* info, void* ctx)
             /* set devId to invalid, so software is used */
             info->hash.sha256->devId = INVALID_DEVID;
 
-            if (info->hash.in != NULL) {
-                ret = wc_Sha256Update(
-                    info->hash.sha256,
-                    info->hash.in,
-                    info->hash.inSz);
-            }
-            if (info->hash.digest != NULL) {
-                ret = wc_Sha256Final(
-                    info->hash.sha256,
-                    info->hash.digest);
-            }
+            ret = cb_hash(info->hash.type, info->hash.in, info->hash.inSz,
+                info->hash.digest, info->hash.sha256, &info->hash.sha256->devCtx);
 
             /* reset devId */
             info->hash.sha256->devId = devIdArg;
         }
         else
     #endif
+    #ifdef WOLFSSL_SHA384
+        if (info->hash.type == WC_HASH_TYPE_SHA384) {
+            if (info->hash.sha384 == NULL)
+                return CRYPTOCB_UNAVAILABLE;
+
+            /* set devId to invalid, so software is used */
+            info->hash.sha384->devId = INVALID_DEVID;
+
+            ret = cb_hash(info->hash.type, info->hash.in, info->hash.inSz,
+                info->hash.digest, info->hash.sha384, &info->hash.sha384->devCtx);
+
+            /* reset devId */
+            info->hash.sha384->devId = devIdArg;
+        }
+        else
+    #endif
+    #ifdef WOLFSSL_SHA512
+        if (info->hash.type == WC_HASH_TYPE_SHA512) {
+            if (info->hash.sha512 == NULL)
+                return CRYPTOCB_UNAVAILABLE;
+
+            /* set devId to invalid, so software is used */
+            info->hash.sha512->devId = INVALID_DEVID;
+
+            ret = cb_hash(info->hash.type, info->hash.in,  info->hash.inSz,
+                info->hash.digest, info->hash.sha512, &info->hash.sha512->devCtx);
+
+            /* reset devId */
+            info->hash.sha512->devId = devIdArg;
+        }
+        else
+    #endif
         {
         }
-#endif /* !NO_SHA || !NO_SHA256 */
+#endif /* !NO_SHA || !NO_SHA256 || WOLFSSL_SHA384 || WOLFSSL_SHA512 */
     }
     else if (info->algo_type == WC_ALGO_TYPE_HMAC) {
 #ifndef NO_HMAC
