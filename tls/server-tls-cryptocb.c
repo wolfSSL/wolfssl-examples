@@ -52,7 +52,7 @@ typedef struct {
 /* type: WC_HASH_TYPE_SHA, WC_HASH_TYPE_SHA256, WC_HASH_TYPE_SHA384, etc */
 /* in: Update (when not NULL) / Final (when NULL) */
 static int cb_hash(int type, const byte* in, word32 inSz, byte* digest,
-    void* shactx, void** devCtx)
+    void* shactx, void** devCtx, word32 flags)
 {
     int ret = 0;
     enum wc_HashType hash_type = (enum wc_HashType)type;
@@ -90,6 +90,11 @@ static int cb_hash(int type, const byte* in, word32 inSz, byte* digest,
             hashBuf, hashBufSz,
             digest, wc_HashGetDigestSize(hash_type),
             NULL, INVALID_DEVID);
+
+        if (!(flags & WC_HASH_FLAG_ISCOPY)) {
+            free(ctx);
+            *devCtx = NULL;
+        }
     }
     return ret;
 }
@@ -346,7 +351,8 @@ static int myCryptoCb(int devIdArg, wc_CryptoInfo* info, void* ctx)
             info->hash.sha1->devId = INVALID_DEVID;
 
             ret = cb_hash(info->hash.type, info->hash.in, info->hash.inSz,
-                info->hash.digest, info->hash.sha1, &info->hash.sha1->devCtx);
+                info->hash.digest, info->hash.sha1, &info->hash.sha1->devCtx,
+                info->hash.sha1->flags);
 
             /* reset devId */
             info->hash.sha1->devId = devIdArg;
@@ -362,7 +368,8 @@ static int myCryptoCb(int devIdArg, wc_CryptoInfo* info, void* ctx)
             info->hash.sha256->devId = INVALID_DEVID;
 
             ret = cb_hash(info->hash.type, info->hash.in, info->hash.inSz,
-                info->hash.digest, info->hash.sha256, &info->hash.sha256->devCtx);
+                info->hash.digest, info->hash.sha256, &info->hash.sha256->devCtx,
+                info->hash.sha256->flags);
 
             /* reset devId */
             info->hash.sha256->devId = devIdArg;
@@ -378,7 +385,8 @@ static int myCryptoCb(int devIdArg, wc_CryptoInfo* info, void* ctx)
             info->hash.sha384->devId = INVALID_DEVID;
 
             ret = cb_hash(info->hash.type, info->hash.in, info->hash.inSz,
-                info->hash.digest, info->hash.sha384, &info->hash.sha384->devCtx);
+                info->hash.digest, info->hash.sha384, &info->hash.sha384->devCtx,
+                info->hash.sha384->flags);
 
             /* reset devId */
             info->hash.sha384->devId = devIdArg;
@@ -394,7 +402,8 @@ static int myCryptoCb(int devIdArg, wc_CryptoInfo* info, void* ctx)
             info->hash.sha512->devId = INVALID_DEVID;
 
             ret = cb_hash(info->hash.type, info->hash.in,  info->hash.inSz,
-                info->hash.digest, info->hash.sha512, &info->hash.sha512->devCtx);
+                info->hash.digest, info->hash.sha512, &info->hash.sha512->devCtx,
+                info->hash.sha512->flags);
 
             /* reset devId */
             info->hash.sha512->devId = devIdArg;
