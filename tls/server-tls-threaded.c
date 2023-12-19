@@ -86,7 +86,7 @@ void* ClientHandler(void* args)
         ret = wolfSSL_accept(ssl);
     } while(wolfSSL_want_read(ssl));
 
-    if (ret != SSL_SUCCESS) {
+    if (ret != WOLFSSL_SUCCESS) {
         printf("ret = %d\n", ret);
         fprintf(stderr, "wolfSSL_accept error = %d\n",
             wolfSSL_get_error(ssl, ret));
@@ -159,7 +159,7 @@ void* ClientHandler(void* args)
 
 int main()
 {
-    int                ret; 
+    int                ret;
     int                sockfd = SOCKET_INVALID;
     int                connd;
     struct sockaddr_in servAddr;
@@ -186,7 +186,7 @@ int main()
      * 0 means choose the default protocol. */
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
         fprintf(stderr, "ERROR: failed to create the socket\n");
-        ret = -1; 
+        ret = -1;
         goto exit;
     }
 
@@ -207,7 +207,7 @@ int main()
     }
 
     /* Load server certificates into WOLFSSL_CTX */
-    if ((ret = wolfSSL_CTX_use_certificate_file(ctx, CERT_FILE, SSL_FILETYPE_PEM))
+    if ((ret = wolfSSL_CTX_use_certificate_file(ctx, CERT_FILE, WOLFSSL_FILETYPE_PEM))
         != WOLFSSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
                 CERT_FILE);
@@ -215,7 +215,7 @@ int main()
     }
 
     /* Load server key into WOLFSSL_CTX */
-    if ((ret = wolfSSL_CTX_use_PrivateKey_file(ctx, KEY_FILE, SSL_FILETYPE_PEM))
+    if ((ret = wolfSSL_CTX_use_PrivateKey_file(ctx, KEY_FILE, WOLFSSL_FILETYPE_PEM))
         != WOLFSSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
                 KEY_FILE);
@@ -237,14 +237,14 @@ int main()
     /* Bind the server socket to our port */
     if (bind(sockfd, (struct sockaddr*)&servAddr, sizeof(servAddr)) == -1) {
         fprintf(stderr, "ERROR: failed to bind\n");
-        ret = -1; 
+        ret = -1;
         goto exit;
     }
 
     /* Listen for a new connection, allow 5 pending connections */
     if (listen(sockfd, 5) == -1) {
         fprintf(stderr, "ERROR: failed to listen\n");
-        ret = -1; 
+        ret = -1;
         goto exit;
     }
 

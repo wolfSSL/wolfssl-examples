@@ -125,7 +125,7 @@ int main()
     if (fcntl(sockfd, F_SETFL, O_NONBLOCK) == -1) {
         fprintf(stderr, "ERROR: failed to set socket options\n");
         ret = -1;
-        goto exit; 
+        goto exit;
     }
 
 
@@ -138,7 +138,7 @@ int main()
     }
 
     /* Load server certificates into WOLFSSL_CTX */
-    if ((ret = wolfSSL_CTX_use_certificate_file(ctx, CERT_FILE, SSL_FILETYPE_PEM))
+    if ((ret = wolfSSL_CTX_use_certificate_file(ctx, CERT_FILE, WOLFSSL_FILETYPE_PEM))
         != WOLFSSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
                 CERT_FILE);
@@ -146,12 +146,12 @@ int main()
     }
 
     /* Load server key into WOLFSSL_CTX */
-    if (wolfSSL_CTX_use_PrivateKey_file(ctx, KEY_FILE, SSL_FILETYPE_PEM)
+    if (wolfSSL_CTX_use_PrivateKey_file(ctx, KEY_FILE, WOLFSSL_FILETYPE_PEM)
         != WOLFSSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
                 KEY_FILE);
         ret = -1;
-        goto exit;        
+        goto exit;
     }
 
 
@@ -191,7 +191,7 @@ int main()
                 /* non-blocking, wait for read activity on socket */
                 tcp_select(sockfd, SELECT_WAIT_SEC, 1);
                 continue;
-            } 
+            }
             else if (errno == EINPROGRESS || errno == EALREADY) {
                 break;
             }
@@ -212,10 +212,10 @@ int main()
             fprintf(stderr, "ERROR: Failed to set the file descriptor\n");
             goto exit;
         }
-        
+
         /* Establish TLS connection */
         printf("wolfSSL_accepting\n");
-       
+
         do {
             ret = wolfSSL_accept(ssl);
             err = wolfSSL_get_error(ssl, ret);
@@ -234,7 +234,7 @@ int main()
         do {
             ret = wolfSSL_read(ssl, buff, sizeof(buff)-1);
             err = wolfSSL_get_error(ssl, ret);
-            
+
             if (err == WOLFSSL_ERROR_WANT_READ)
                 tcp_select(sockfd, SELECT_WAIT_SEC, 1);
         }
@@ -302,6 +302,6 @@ exit:
     if (ctx)
         wolfSSL_CTX_free(ctx);  /* Free the wolfSSL context object          */
     wolfSSL_Cleanup();          /* Cleanup the wolfSSL environment          */
-   
+
     return ret;
 }

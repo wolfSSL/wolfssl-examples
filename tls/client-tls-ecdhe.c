@@ -46,7 +46,7 @@
 
 int main(int argc, char** argv)
 {
-    int                ret; 
+    int                ret;
     int                sockfd = SOCKET_INVALID;
     struct sockaddr_in servAddr;
     char               buff[256];
@@ -76,7 +76,7 @@ int main(int argc, char** argv)
      * 0 means choose the default protocol. */
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
         fprintf(stderr, "ERROR: failed to create the socket\n");
-        ret = -1; 
+        ret = -1;
         goto exit;
     }
 
@@ -85,7 +85,7 @@ int main(int argc, char** argv)
     /* Create and initialize WOLFSSL_CTX */
     if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method())) == NULL) {
         fprintf(stderr, "ERROR: failed to create WOLFSSL_CTX\n");
-        ret = -1; 
+        ret = -1;
         goto exit;
     }
 
@@ -98,7 +98,7 @@ int main(int argc, char** argv)
     }
 
     /* Load client ecc certificates into WOLFSSL_CTX */
-    if ((ret = wolfSSL_CTX_use_certificate_chain_file(ctx, ECC_FILE)) != 
+    if ((ret = wolfSSL_CTX_use_certificate_chain_file(ctx, ECC_FILE)) !=
             WOLFSSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
                 ECC_FILE);
@@ -106,7 +106,7 @@ int main(int argc, char** argv)
     }
 
     /* Load client ecc key into WOLFSSL_CTX */
-    if ((ret = wolfSSL_CTX_use_PrivateKey_file(ctx, KEY_FILE, SSL_FILETYPE_PEM))
+    if ((ret = wolfSSL_CTX_use_PrivateKey_file(ctx, KEY_FILE, WOLFSSL_FILETYPE_PEM))
         != WOLFSSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
                 KEY_FILE);
@@ -132,7 +132,7 @@ int main(int argc, char** argv)
     /* Get the server IPv4 address from the command line call */
     if (inet_pton(AF_INET, argv[1], &servAddr.sin_addr) != 1) {
         fprintf(stderr, "ERROR: invalid address\n");
-        ret = -1; 
+        ret = -1;
         goto exit;
     }
 
@@ -142,7 +142,7 @@ int main(int argc, char** argv)
     if (connect(sockfd, (struct sockaddr*) &servAddr, sizeof(servAddr))
         == -1) {
         fprintf(stderr, "ERROR: failed to connect\n");
-        ret = -1; 
+        ret = -1;
         goto exit;
     }
 
@@ -151,7 +151,7 @@ int main(int argc, char** argv)
     /* Create a WOLFSSL object */
     if ((ssl = wolfSSL_new(ctx)) == NULL) {
         fprintf(stderr, "ERROR: failed to create WOLFSSL object\n");
-        ret = -1;        
+        ret = -1;
         goto exit;
     }
 
@@ -171,7 +171,7 @@ int main(int argc, char** argv)
     memset(buff, 0, sizeof(buff));
     if (fgets(buff, sizeof(buff), stdin) == NULL) {
         fprintf(stderr, "ERROR: failed to get message for server\n");
-        ret = -1; 
+        ret = -1;
         goto exit;
     }
     len = strnlen(buff, sizeof(buff));

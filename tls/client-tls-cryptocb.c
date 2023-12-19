@@ -541,7 +541,7 @@ int main(int argc, char** argv)
 
     /* Load client certificates into WOLFSSL_CTX */
     if ((ret = wolfSSL_CTX_load_verify_locations(ctx, CA_FILE, NULL))
-         != SSL_SUCCESS) {
+         != WOLFSSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
                 CA_FILE);
         goto exit;
@@ -561,7 +561,7 @@ int main(int argc, char** argv)
     }
 
     /* Connect to wolfSSL on the server side */
-    if ((ret = wolfSSL_connect(ssl)) != SSL_SUCCESS) {
+    if ((ret = wolfSSL_connect(ssl)) != WOLFSSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to connect to wolfSSL\n");
         goto exit;
     }

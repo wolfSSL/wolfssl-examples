@@ -206,7 +206,7 @@ int main(int argc, char** argv)
     wolfSSL_CTX_SetIORecv(ctx, uartIORx);
 
     /* For testing disable peer cert verification */
-    wolfSSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, NULL);
+    wolfSSL_CTX_set_verify(ctx, WOLFSSL_VERIFY_NONE, NULL);
 
     ssl = wolfSSL_new(ctx);
     if (ssl == NULL) {
