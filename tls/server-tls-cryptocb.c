@@ -31,13 +31,28 @@
 #include <unistd.h>
 
 /* wolfSSL */
-#include <wolfssl/options.h>
+#ifndef WOLFSSL_USER_SETTINGS
+    #include <wolfssl/options.h>
+#endif
 #include <wolfssl/ssl.h>
+#include <wolfssl/wolfcrypt/sha256.h>
+#include <wolfssl/wolfcrypt/cryptocb.h>
+#include <wolfssl/wolfcrypt/error-crypt.h>
 
 #define DEFAULT_PORT 11111
 
-#define CERT_FILE "../certs/server-cert.pem"
-#define KEY_FILE  "../certs/server-key.pem"
+#define USE_ECDHE_ECDSA
+#define USE_TLSV13
+
+#ifdef USE_ECDHE_ECDSA
+#define CERT_FILE   "../certs/server-ecc.pem"
+#define KEY_FILE    "../certs/ecc-key.pem"
+#define CA_FILE     "../certs/client-ecc-cert.pem"
+#else
+#define CERT_FILE   "../certs/server-cert.pem"
+#define KEY_FILE    "../certs/server-key.pem"
+#define CA_FILE     "../certs/client-cert.pem"
+#endif
 
 #ifdef WOLF_CRYPTO_CB
 /* Example custom context for crypto callback */
@@ -518,7 +533,12 @@ int main(int argc, char** argv)
 #endif
 
     /* Create and initialize WOLFSSL_CTX */
-    if ((ctx = wolfSSL_CTX_new(wolfTLSv1_3_server_method())) == NULL) {
+#ifdef USE_TLSV13
+    ctx = wolfSSL_CTX_new(wolfTLSv1_3_server_method());
+#else
+    ctx = wolfSSL_CTX_new(wolfTLSv1_2_server_method());
+#endif
+    if (ctx == NULL) {
         fprintf(stderr, "ERROR: failed to create WOLFSSL_CTX\n");
         ret = -1;
         goto exit;
@@ -542,6 +562,18 @@ int main(int argc, char** argv)
                 KEY_FILE);
         goto exit;
     }
+
+    /* Load CA certificate into WOLFSSL_CTX for validating peer */
+    if ((ret = wolfSSL_CTX_load_verify_locations(ctx, CA_FILE, NULL))
+         != WOLFSSL_SUCCESS) {
+        fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
+                CA_FILE);
+        goto exit;
+    }
+
+    /* enable mutual authentication */
+    wolfSSL_CTX_set_verify(ctx,
+        WOLFSSL_VERIFY_PEER | WOLFSSL_VERIFY_FAIL_IF_NO_PEER_CERT, NULL);
 
 #if 0
     /* Example: "TLS13-AES256-GCM-SHA384", "TLS13-AES128-GCM-SHA256" or "TLS13-CHACHA20-POLY1305-SHA256" */

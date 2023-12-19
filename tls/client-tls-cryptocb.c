@@ -31,7 +31,9 @@
 #include <unistd.h>
 
 /* wolfSSL */
-#include <wolfssl/options.h>
+#ifndef WOLFSSL_USER_SETTINGS
+    #include <wolfssl/options.h>
+#endif
 #include <wolfssl/ssl.h>
 #include <wolfssl/wolfcrypt/sha256.h>
 #include <wolfssl/wolfcrypt/cryptocb.h>
@@ -39,7 +41,18 @@
 
 #define DEFAULT_PORT 11111
 
-#define CA_FILE "../certs/ca-cert.pem"
+#define USE_ECDHE_ECDSA
+#define USE_TLSV13
+
+#ifdef USE_ECDHE_ECDSA
+#define CERT_FILE   "../certs/client-ecc-cert.pem"
+#define KEY_FILE    "../certs/ecc-client-key.pem"
+#define CA_FILE     "../certs/ca-ecc-cert.pem"
+#else
+#define CERT_FILE   "../certs/client-cert.pem"
+#define KEY_FILE    "../certs/client-key.pem"
+#define CA_FILE     "../certs/ca-cert.pem"
+#endif
 
 #ifdef WOLF_CRYPTO_CB
 /* Example custom context for crypto callback */
@@ -555,11 +568,44 @@ int main(int argc, char** argv)
 #endif
 
     /* Create and initialize WOLFSSL_CTX */
-    if ((ctx = wolfSSL_CTX_new(wolfTLSv1_3_client_method())) == NULL) {
+#ifdef USE_TLSV13
+    ctx = wolfSSL_CTX_new(wolfTLSv1_3_client_method());
+#else
+    ctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method());
+#endif
+    if (ctx == NULL) {
         fprintf(stderr, "ERROR: failed to create WOLFSSL_CTX\n");
         ret = -1;
         goto exit;
     }
+
+    /* Mutual Authentication */
+    /* Load client certificate into WOLFSSL_CTX */
+    if ((ret = wolfSSL_CTX_use_certificate_file(ctx, CERT_FILE,
+                                    WOLFSSL_FILETYPE_PEM)) != WOLFSSL_SUCCESS) {
+        fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
+                CERT_FILE);
+        goto exit;
+    }
+
+    /* Load client key into WOLFSSL_CTX */
+    if ((ret = wolfSSL_CTX_use_PrivateKey_file(ctx, KEY_FILE,
+                                    WOLFSSL_FILETYPE_PEM)) != WOLFSSL_SUCCESS) {
+        fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
+                KEY_FILE);
+        goto exit;
+    }
+
+    /* Load CA certificate into WOLFSSL_CTX for validating peer */
+    if ((ret = wolfSSL_CTX_load_verify_locations(ctx, CA_FILE, NULL))
+         != WOLFSSL_SUCCESS) {
+        fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
+                CA_FILE);
+        goto exit;
+    }
+
+    /* validate peer certificate */
+    wolfSSL_CTX_set_verify(ctx, WOLFSSL_VERIFY_PEER, NULL);
 
     /* register a devID for crypto callbacks */
     wolfSSL_CTX_SetDevId(ctx, devId);
