@@ -19,6 +19,10 @@ CFLAGS+=$(OPTIMIZE)
 #LIBS+=$(STATIC_LIB)
 LIBS+=$(DYN_LIB)
 
+# Openssl Option
+#CFLAGS+=-DUSE_OPENSSL
+#LIBS+=-lcrypto
+
 # build targets
 SRC=$(wildcard *.c)
 TARGETS=$(patsubst %.c, %, $(SRC))

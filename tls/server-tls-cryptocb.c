@@ -49,6 +49,10 @@ typedef struct {
     word32 bufSz;
 } hash_ctx_t;
 
+#ifdef USE_OPENSSL
+#include <openssl/sha.h>
+#endif
+
 /* type: WC_HASH_TYPE_SHA, WC_HASH_TYPE_SHA256, WC_HASH_TYPE_SHA384, etc */
 /* in: Update (when not NULL) / Final (when NULL) */
 static int cb_hash(int type, const byte* in, word32 inSz, byte* digest,
@@ -86,11 +90,34 @@ static int cb_hash(int type, const byte* in, word32 inSz, byte* digest,
             hashBuf = (byte*)ctx + sizeof(hash_ctx_t);
             hashBufSz = ctx->bufSz;
         }
+
+#ifdef USE_OPENSSL
+        switch (hash_type) {
+            case WC_HASH_TYPE_SHA:
+                SHA1(hashBuf, hashBufSz, digest);
+                break;
+            case WC_HASH_TYPE_SHA224:
+                SHA224(hashBuf, hashBufSz, digest);
+                break;
+            case WC_HASH_TYPE_SHA256:
+                SHA256(hashBuf, hashBufSz, digest);
+                break;
+            case WC_HASH_TYPE_SHA384:
+                SHA384(hashBuf, hashBufSz, digest);
+                break;
+            case WC_HASH_TYPE_SHA512:
+                SHA512(hashBuf, hashBufSz, digest);
+                break;
+            default:
+                ret = NOT_COMPILED_IN;
+                break;
+        }
+#else
         ret = wc_Hash_ex(hash_type,
             hashBuf, hashBufSz,
             digest, wc_HashGetDigestSize(hash_type),
             NULL, INVALID_DEVID);
-
+#endif
         if (!(flags & WC_HASH_FLAG_ISCOPY)) {
             free(ctx);
             *devCtx = NULL;
@@ -481,6 +508,14 @@ int main(int argc, char** argv)
     memset(&myCtx, 0, sizeof(myCtx));
     myCtx.exampleVar = 1;
 
+#if 1
+    /* register a devID for crypto callbacks */
+    ret = wc_CryptoCb_RegisterDevice(devId, myCryptoCb, &myCtx);
+    if (ret != 0) {
+        fprintf(stderr, "ERROR: wc_CryptoCb_RegisterDevice failed %d\n", ret);
+        goto exit;
+    }
+#endif
 
     /* Create and initialize WOLFSSL_CTX */
     if ((ctx = wolfSSL_CTX_new(wolfTLSv1_3_server_method())) == NULL) {
@@ -488,6 +523,9 @@ int main(int argc, char** argv)
         ret = -1;
         goto exit;
     }
+
+    /* register a devID for crypto callbacks */
+    wolfSSL_CTX_SetDevId(ctx, devId);
 
     /* Load server certificates into WOLFSSL_CTX */
     if ((ret = wolfSSL_CTX_use_certificate_file(ctx, CERT_FILE, WOLFSSL_FILETYPE_PEM))
@@ -506,19 +544,9 @@ int main(int argc, char** argv)
     }
 
 #if 0
+    /* Example: "TLS13-AES256-GCM-SHA384", "TLS13-AES128-GCM-SHA256" or "TLS13-CHACHA20-POLY1305-SHA256" */
     wolfSSL_CTX_set_cipher_list(ctx, "TLS13-AES256-GCM-SHA384");
 #endif
-
-    /* register a devID for crypto callbacks */
-    ret = wc_CryptoCb_RegisterDevice(devId, myCryptoCb, &myCtx);
-    if (ret != 0) {
-        fprintf(stderr, "ERROR: wc_CryptoCb_RegisterDevice failed %d\n", ret);
-        goto exit;
-    }
-
-    /* register a devID for crypto callbacks */
-    wolfSSL_CTX_SetDevId(ctx, devId);
-
 
     /* Create a socket that uses an internet IPv4 address,
      * Sets the socket to be stream based (TCP),
