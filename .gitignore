@@ -73,6 +73,7 @@ android/wolfssljni-ndk-sample/proguard-project.txt
 /psk/server-psk
 /psk/server-tcp
 
+/tls/client-async
 /tls/client-tcp
 /tls/client-tls
 /tls/client-tls13
@@ -80,6 +81,7 @@ android/wolfssljni-ndk-sample/proguard-project.txt
 /tls/client-tls-bio
 /tls/client-tls-cacb
 /tls/client-tls-callback
+/tls/client-tls-cryptocb
 /tls/client-tls-ecdhe
 /tls/client-tls-nonblocking
 /tls/client-tls-perf
@@ -89,10 +91,12 @@ android/wolfssljni-ndk-sample/proguard-project.txt
 
 /tls/memory-tls
 
+/tls/server-async
 /tls/server-tcp
 /tls/server-tls
 /tls/server-tls13
 /tls/server-tls-callback
+/tls/server-tls-cryptocb
 /tls/server-tls-ecdhe
 /tls/server-tls-epoll-perf
 /tls/server-tls-epoll-threaded

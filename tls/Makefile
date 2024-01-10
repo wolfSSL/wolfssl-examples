@@ -10,6 +10,7 @@ STATIC_LIB      = $(LIB_PATH)/lib/libwolfssl.a
 DEBUG_FLAGS     = -g -DDEBUG
 DEBUG_INC_PATHS = -MD
 OPTIMIZE        = -Os
+DEPS            =
 
 # Options
 #CFLAGS+=$(DEBUG_FLAGS)
@@ -25,7 +26,8 @@ LIBS+=$(DYN_LIB)
 
 # build targets
 SRC=$(wildcard *.c)
-TARGETS=$(patsubst %.c, %, $(SRC))
+IGNORE_FILES=cryptocb-common
+TARGETS=$(filter-out $(IGNORE_FILES), $(patsubst %.c, %, $(SRC)))
 LINUX_SPECIFIC=client-tls-perf \
                server-tls-poll-perf \
                server-tls-epoll-perf \
@@ -101,9 +103,11 @@ memory-tls: CFLAGS+=-pthread
 # compile tcp examples without the LIBS variable
 %-tcp: LIBS=
 
+%-cryptocb: DEPS+=cryptocb-common.c
+
 # build template
 %: %.c
-	$(CC) -o $@ $< $(CFLAGS) $(LIBS)
+	$(CC) -o $@ $(DEPS) $< $(CFLAGS) $(LIBS)
 
 clean:
 	rm -f $(TARGETS)
