@@ -25,9 +25,16 @@
 #include <wolfssl/wolfcrypt/logging.h>
 #include <wolfssl/wolfcrypt/cryptocb.h>
 
+#if 0
 #define CERT_FILE   "../certs/client-cert.der"
 #define KEY_FILE    "../certs/client-key.der"
 #define KEYPUB_FILE "../certs/client-keyPub.der"
+#else
+#define CERT_FILE   "../certs/client-ecc-cert.der"
+#define KEY_FILE    "../certs/ecc-client-key.der"
+#define KEYPUB_FILE "../certs/ecc-client-keyPub.der"
+#endif
+
 #define encodedFileNoAttrs "signedData_cryptocb_noattrs.der"
 #define encodedFileAttrs   "signedData_cryptocb_attrs.der"
 
@@ -372,16 +379,13 @@ static int myCryptoCb(int devIdArg, wc_CryptoInfo* info, void* ctx)
                         return ret;
                     }
                     ret = wc_RsaPrivateKeyDecode(der, &idx, &rsaPriv, derSz);
-                    if (ret != 0) {
-                        wc_FreeRsaKey(&rsaPriv);
-                        return ret;
+                    if (ret == 0) {
+                        /* perform software based RSA private op */
+                        ret = wc_RsaFunction(
+                            info->pk.rsa.in, info->pk.rsa.inLen,
+                            info->pk.rsa.out, info->pk.rsa.outLen,
+                            info->pk.rsa.type, &rsaPriv, info->pk.rsa.rng);
                     }
-                
-                    /* perform software based RSA private op */
-                    ret = wc_RsaFunction(
-                        info->pk.rsa.in, info->pk.rsa.inLen,
-                        info->pk.rsa.out, info->pk.rsa.outLen,
-                        info->pk.rsa.type, &rsaPriv, info->pk.rsa.rng);
                     wc_FreeRsaKey(&rsaPriv);
                     if (der != NULL)
                         free(der);
@@ -413,16 +417,31 @@ static int myCryptoCb(int devIdArg, wc_CryptoInfo* info, void* ctx)
             info->pk.eckg.key->devId = devIdArg;
         }
         else if (info->pk.type == WC_PK_TYPE_ECDSA_SIGN) {
-            /* set devId to invalid, so software is used */
-            info->pk.eccsign.key->devId = INVALID_DEVID;
+            ecc_key eccPriv;
+            byte*  der = NULL;
+            size_t derSz = 0;
+            word32 idx = 0;
 
-            ret = wc_ecc_sign_hash(
-                info->pk.eccsign.in, info->pk.eccsign.inlen,
-                info->pk.eccsign.out, info->pk.eccsign.outlen,
-                info->pk.eccsign.rng, info->pk.eccsign.key);
+            ret = load_file(myCtx->keyFilePriv, &der, &derSz);
+            if (ret != 0) {
+                printf("Error %d loading %s\n", ret, myCtx->keyFilePriv);
+                return ret;
+            }
 
-            /* reset devId */
-            info->pk.eccsign.key->devId = devIdArg;
+            ret = wc_ecc_init_ex(&eccPriv, NULL, INVALID_DEVID);
+            if (ret != 0) {
+                return ret;
+            }
+            ret = wc_EccPrivateKeyDecode(der, &idx, &eccPriv, derSz);
+            if (ret == 0) {
+                ret = wc_ecc_sign_hash(
+                    info->pk.eccsign.in, info->pk.eccsign.inlen,
+                    info->pk.eccsign.out, info->pk.eccsign.outlen,
+                    info->pk.eccsign.rng, &eccPriv);
+            }
+            wc_ecc_free(&eccPriv);
+            if (der != NULL)
+                free(der);
         }
         else if (info->pk.type == WC_PK_TYPE_ECDSA_VERIFY) {
             /* set devId to invalid, so software is used */
