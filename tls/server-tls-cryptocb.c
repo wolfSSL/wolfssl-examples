@@ -142,7 +142,9 @@ int main(int argc, char** argv)
         WOLFSSL_VERIFY_PEER | WOLFSSL_VERIFY_FAIL_IF_NO_PEER_CERT, NULL);
 
 #if 0
-    /* Example: "TLS13-AES256-GCM-SHA384", "TLS13-AES128-GCM-SHA256" or "TLS13-CHACHA20-POLY1305-SHA256" */
+    /* Examples: "TLS13-AES256-GCM-SHA384",
+     *           "TLS13-AES128-GCM-SHA256" or
+     *           "TLS13-CHACHA20-POLY1305-SHA256" */
     wolfSSL_CTX_set_cipher_list(ctx, "TLS13-AES256-GCM-SHA384");
 #endif
 
@@ -238,7 +240,6 @@ int main(int argc, char** argv)
         }
 
 
-
         /* Write our reply into buff */
         memset(buff, 0, sizeof(buff));
         memcpy(buff, reply, strlen(reply));
@@ -264,14 +265,12 @@ int main(int argc, char** argv)
 
 exit:
     /* Cleanup and return */
-    if (ssl)
-        wolfSSL_free(ssl);      /* Free the wolfSSL object              */
+    wolfSSL_free(ssl);          /* Free the wolfSSL object                  */
     if (connd != SOCKET_INVALID)
-        close(connd);           /* Close the connection to the client   */
+        close(connd);           /* Close the connection to the client       */
     if (sockfd != SOCKET_INVALID)
         close(sockfd);          /* Close the socket listening for clients   */
-    if (ctx)
-        wolfSSL_CTX_free(ctx);  /* Free the wolfSSL context object          */
+    wolfSSL_CTX_free(ctx);      /* Free the wolfSSL context object          */
     wolfSSL_Cleanup();          /* Cleanup the wolfSSL environment          */
 #else
     printf("Please configure wolfSSL with --enable-cryptocb and try again\n");

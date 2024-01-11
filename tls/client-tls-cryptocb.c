@@ -178,7 +178,9 @@ int main(int argc, char** argv)
     wolfSSL_CTX_SetDevId(ctx, devId);
 
 #if 0
-    /* Example: "TLS13-AES256-GCM-SHA384", "TLS13-AES128-GCM-SHA256" or "TLS13-CHACHA20-POLY1305-SHA256" */
+    /* Examples: "TLS13-AES256-GCM-SHA384",
+     *           "TLS13-AES128-GCM-SHA256" or
+     *           "TLS13-CHACHA20-POLY1305-SHA256" */
     wolfSSL_CTX_set_cipher_list(ctx, "TLS13-AES256-GCM-SHA384");
 #endif
 
@@ -243,12 +245,10 @@ int main(int argc, char** argv)
 
 exit:
     /* Cleanup and return */
+    wolfSSL_free(ssl);      /* Free the wolfSSL object                  */
     if (sockfd != SOCKET_INVALID)
-        close(sockfd);          /* Close the connection to the server       */
-    if (ssl != NULL)
-        wolfSSL_free(ssl);      /* Free the wolfSSL object                  */
-    if (ctx != NULL)
-        wolfSSL_CTX_free(ctx);  /* Free the wolfSSL context object          */
+        close(sockfd);      /* Close the connection to the server       */
+    wolfSSL_CTX_free(ctx);  /* Free the wolfSSL context object          */
     wolfSSL_Cleanup();      /* Cleanup the wolfSSL environment          */
 
 #else
