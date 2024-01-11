@@ -97,7 +97,7 @@ static void CaCb(unsigned char* der, int sz, int type)
         }
 
         ret = wolfSSL_X509_get_serial_number(x509, serial, &sz);
-        if (ret == SSL_SUCCESS) {
+        if (ret == WOLFSSL_SUCCESS) {
             int  i;
             int  strLen;
             char serialMsg[80];
@@ -134,7 +134,7 @@ int Security(int sock)
     /* create and initialize WOLFSSL_CTX structure */
     if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method())) == NULL) {
         printf("SSL_CTX_new error.\n");
-        ret = EXIT_FAILURE;  
+        ret = EXIT_FAILURE;
         goto exit;
     }
 
@@ -142,20 +142,20 @@ int Security(int sock)
     wolfSSL_CTX_SetCACb(ctx, CaCb);
 
     /* load CA certificates into wolfSSL_CTX. which will verify the server */
-    if ((ret = wolfSSL_CTX_load_verify_locations(ctx, cert, 0)) 
+    if ((ret = wolfSSL_CTX_load_verify_locations(ctx, cert, 0))
             != WOLFSSL_SUCCESS) {
         printf("Error loading %s. Please check the file.\n", cert);
         goto exit;
     }
     if ((ssl = wolfSSL_new(ctx)) == NULL) {
         printf("wolfSSL_new error.\n");
-        ret = EXIT_FAILURE; 
+        ret = EXIT_FAILURE;
         goto exit;
     }
     wolfSSL_set_fd(ssl, sock);
 
     ret = wolfSSL_connect(ssl);
-    if (ret == SSL_SUCCESS) {
+    if (ret == WOLFSSL_SUCCESS) {
         ret = ClientGreet(sock, ssl);
     }
 
@@ -190,7 +190,7 @@ int main(int argc, char** argv)
 
     if (sockfd < 0) {
         printf("Failed to create socket. Error: %i\n", errno);
-        ret = EXIT_FAILURE; 
+        ret = EXIT_FAILURE;
         goto exit;
     }
 

@@ -147,7 +147,7 @@ static void* client_thread(void* args)
     if (cli_ctx == NULL) err_sys("bad client ctx new");
 
     int ret = wolfSSL_CTX_load_verify_locations(cli_ctx, cacert, NULL);
-    if (ret != SSL_SUCCESS) err_sys("bad ca load");
+    if (ret != WOLFSSL_SUCCESS) err_sys("bad ca load");
 
     wolfSSL_SetIOSend(cli_ctx, ClientSend);
     wolfSSL_SetIORecv(cli_ctx, ClientRecv);
@@ -156,7 +156,7 @@ static void* client_thread(void* args)
     if (cli_ctx == NULL) err_sys("bad client new");
 
     ret = wolfSSL_connect(cli_ssl);
-    if (ret != SSL_SUCCESS) err_sys("bad client tls connect");
+    if (ret != WOLFSSL_SUCCESS) err_sys("bad client tls connect");
     printf("wolfSSL client success!\n");
 
     ret = wolfSSL_write(cli_ssl, "hello memory wolfSSL!", 21);
@@ -175,11 +175,11 @@ int main()
     WOLFSSL_CTX* srv_ctx = wolfSSL_CTX_new(wolfTLSv1_2_server_method());
     if (srv_ctx == NULL) err_sys("bad server ctx new");
 
-    int ret = wolfSSL_CTX_use_PrivateKey_file(srv_ctx, key, SSL_FILETYPE_PEM);
-    if (ret != SSL_SUCCESS) err_sys("bad server key file load");
+    int ret = wolfSSL_CTX_use_PrivateKey_file(srv_ctx, key, WOLFSSL_FILETYPE_PEM);
+    if (ret != WOLFSSL_SUCCESS) err_sys("bad server key file load");
 
-    ret = wolfSSL_CTX_use_certificate_file(srv_ctx, cert, SSL_FILETYPE_PEM);
-    if (ret != SSL_SUCCESS) err_sys("bad server cert file load");
+    ret = wolfSSL_CTX_use_certificate_file(srv_ctx, cert, WOLFSSL_FILETYPE_PEM);
+    if (ret != WOLFSSL_SUCCESS) err_sys("bad server cert file load");
 
     wolfSSL_SetIOSend(srv_ctx, ServerSend);
     wolfSSL_SetIORecv(srv_ctx, ServerRecv);
@@ -193,7 +193,7 @@ int main()
 
     /* accept tls connection without tcp sockets */
     ret = wolfSSL_accept(srv_ssl);
-    if (ret != SSL_SUCCESS) err_sys("bad server tls accept");
+    if (ret != WOLFSSL_SUCCESS) err_sys("bad server tls accept");
     printf("wolfSSL accept success!\n");
 
     /* read msg post handshake from client */

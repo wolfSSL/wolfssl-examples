@@ -57,8 +57,11 @@ int main()
     /* declare wolfSSL objects */
     WOLFSSL_CTX* ctx = NULL;
     WOLFSSL*     ssl = NULL;
+    WOLFSSL_CIPHER* cipher;
 
-
+#if 0
+    wolfSSL_Debugging_ON();
+#endif
 
     /* Initialize wolfSSL */
     wolfSSL_Init();
@@ -84,7 +87,7 @@ int main()
     }
 
     /* Load server certificates into WOLFSSL_CTX */
-    if ((ret = wolfSSL_CTX_use_certificate_file(ctx, CERT_FILE, SSL_FILETYPE_PEM))
+    if ((ret = wolfSSL_CTX_use_certificate_file(ctx, CERT_FILE, WOLFSSL_FILETYPE_PEM))
         != WOLFSSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
                 CERT_FILE);
@@ -92,7 +95,7 @@ int main()
     }
 
     /* Load server key into WOLFSSL_CTX */
-    if ((ret = wolfSSL_CTX_use_PrivateKey_file(ctx, KEY_FILE, SSL_FILETYPE_PEM))
+    if ((ret = wolfSSL_CTX_use_PrivateKey_file(ctx, KEY_FILE, WOLFSSL_FILETYPE_PEM))
         != WOLFSSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
                 KEY_FILE);
@@ -114,7 +117,7 @@ int main()
     /* Bind the server socket to our port */
     if (bind(sockfd, (struct sockaddr*)&servAddr, sizeof(servAddr)) == -1) {
         fprintf(stderr, "ERROR: failed to bind\n");
-        ret = -1; 
+        ret = -1;
         goto exit;
     }
 
@@ -160,6 +163,8 @@ int main()
 
         printf("Client connected successfully\n");
 
+        cipher = wolfSSL_get_current_cipher(ssl);
+        printf("SSL cipher suite is %s\n", wolfSSL_CIPHER_get_name(cipher));
 
 
         /* Read the client data into our buff array */
