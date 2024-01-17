@@ -101,6 +101,11 @@ main(int   argc,
         }
     }
 
+    if (n_threads <= 0 || n_threads > DTLS_NUMTHREADS) {
+        printf("error: invalid n_threads: %d\n", n_threads);
+        return EXIT_FAILURE;
+    }
+
     /* Code for handling signals */
     struct sigaction act, oact;
     act.sa_handler = sig_handler;
