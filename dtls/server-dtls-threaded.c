@@ -63,6 +63,8 @@ static int    new_udp_listen_socket(void);
 static void   safer_shutdown(thread_args_t * args);
 static void * server_work(void * thread_args);
 static void   sig_handler(const int sig);
+static void   cleanup_threadpool(pthread_t * threads, thread_args_t * args,
+                                 int n_threads);
 
 int
 main(int   argc,
@@ -224,25 +226,19 @@ main(int   argc,
             }
         }
 
-    #ifdef USE_NONBLOCK_JOIN
-        for (size_t i = 0; i < n_threads; ++i) {
-            if (threads[i]) {
-                pthread_tryjoin_np(threads[i], NULL);
-                printf("info: joined thread: %ld\n", threads[i]);
-                threads[i] = 0;
-            }
-        }
-    #else
-        for (size_t i = 0; i < n_threads; ++i) {
-            if (threads[i] && args[i].done == 1) {
-                pthread_join(threads[i], NULL);
-                printf("info: joined thread: %ld\n", threads[i]);
-                threads[i] = 0;
-            }
-        }
-    #endif
+        cleanup_threadpool(threads, args, n_threads);
     }
 
+    /* Do a final blocking join. */
+    for (size_t i = 0; i < n_threads; ++i) {
+        if (threads[i]) {
+            pthread_join(threads[i], NULL);
+            printf("info: joined thread: %ld\n", threads[i]);
+            threads[i] = 0;
+        }
+    }
+
+    /* All threads exited. Do a final cleanup pass just in case. */
     for (size_t i = 0; i < n_threads; ++i) {
         safer_shutdown(&args[i]);
     }
@@ -396,5 +392,31 @@ sig_handler(const int sig)
 {
     printf("info: SIGINT %d handled\n", sig);
     stop_server = 1;
+    return;
+}
+
+static void
+cleanup_threadpool(pthread_t *     threads,
+                   thread_args_t * args,
+                   int             n_threads)
+{
+#ifdef USE_NONBLOCK_JOIN
+    for (size_t i = 0; i < n_threads; ++i) {
+        if (threads[i]) {
+            pthread_tryjoin_np(threads[i], NULL);
+            printf("info: joined thread: %ld\n", threads[i]);
+            threads[i] = 0;
+        }
+    }
+#else
+    for (size_t i = 0; i < n_threads; ++i) {
+        if (threads[i] && args[i].done == 1) {
+            pthread_join(threads[i], NULL);
+            printf("info: joined thread: %ld\n", threads[i]);
+            threads[i] = 0;
+        }
+    }
+#endif
+
     return;
 }
