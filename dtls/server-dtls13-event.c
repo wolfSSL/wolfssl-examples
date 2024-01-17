@@ -42,7 +42,7 @@
 #include <signal.h>
 #include <unistd.h>
 
-/* Requires libevent */
+/* Requires libevent-devel */
 #include <event2/event.h>
 
 #include "dtls-common.h"
