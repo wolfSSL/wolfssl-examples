@@ -2,7 +2,7 @@ MEMORY
 {
 	RAM : ORIGIN = 0x4, LENGTH = 0x7fffc
 	RAM2 : ORIGIN = 0x00800000, LENGTH = 524288
-	ROM : ORIGIN = 0xFFE00000, LENGTH = 2097152
+	ROM : ORIGIN = 0xFFC00000, LENGTH = 4194304
 	OFS : ORIGIN = 0xFE7F5D00, LENGTH = 128
 }
 SECTIONS
@@ -17,7 +17,7 @@ SECTIONS
 	{
 		KEEP(*(.fvectors))
 	} > ROM
-	.text 0xFFE00000: AT(0xFFE00000)
+	.text 0xFFC00000: AT(0xFFC00000)
 	{
 		*(.text)
 		*(.text.*)
@@ -27,6 +27,7 @@ SECTIONS
 	.rvectors ALIGN(4):
 	{
 		_rvectors_start = .;
+		INCLUDE ../src/smc_gen/r_bsp/mcu/all/linker_script_rvectors.inc
 		_rvectors_end = .;
 	} > ROM
 	.init :
@@ -106,23 +107,28 @@ SECTIONS
 		*(D_2)
 		_edata = .;
 	} > RAM
-	.B_TX_DESC_1  : ALIGN(16)
-	{
-		*(B_TX_DESC_1)
-		
-	}> RAM
-	.B_RX_DESC_1  : ALIGN(16)
-	{
-		*(B_RX_DESC_1)
-		
-	}> RAM
-	.B_ETHERNET_BUFFERS_1  : ALIGN(32)
-	{
-		*(B_ETHERNET_BUFFERS_1)
-		
-	}> RAM
-	
-	
+	B_ETHERNET_BUFFERS_1 0x00010000 (NOLOAD) : AT(0x00010000)
+    {
+        _B_ETHERNET_BUFFERS_1_start = .;
+        *(B_ETHERNET_BUFFERS_1)
+        _B_ETHERNET_BUFFERS_1_end = .;
+     } >RAM
+
+     B_RX_DESC_1 (NOLOAD) :
+	 {
+        _B_RX_DESC_1_start = .;
+        *(B_RX_DESC_1)
+        _B_RX_DESC_1_end = .;
+    } >RAM
+
+    B_TX_DESC_1 (NOLOAD) :
+    {
+        _B_TX_DESC_1_start = .;
+        *(B_TX_DESC_1)
+        _B_TX_DESC_1_end = .;
+    } >RAM
+
+
 	.bss : ALIGN(128)
 	{
 		_bss = .;
@@ -131,15 +137,11 @@ SECTIONS
 		*(COMMON)
 		*(B)
 		*(B_1)
-		
-		
-		
-		
 		*(B_2)
 		_ebss = .;
 		. = ALIGN(128);
 		_end = .;
-	} > RAM
+	} > RAM AT>RAM
 	.ofs1 0xFE7F5D00: AT(0xFE7F5D00)
 	{
 		KEEP(*(.ofs1))
@@ -176,19 +178,19 @@ SECTIONS
 	{
 		. += 0x100;
 		"_r_bsp_NULL_end" = .;
-	} >RAM
-.r_bsp_istack BLOCK(0x4) (NOLOAD) :
+	} >RAM AT>RAM
+.r_bsp_istack ALIGN(0x4) (NOLOAD) :
 	{
 		KEEP(*(.r_bsp_istack))
-	} >RAM
+	} >RAM AT>RAM
 .istack :
 	{
 		"_istack" = .;
 	} >RAM
-.r_bsp_ustack BLOCK(0x4) (NOLOAD) :
+.r_bsp_ustack ALIGN(0x4) (NOLOAD) :
 	{
 		KEEP(*(.r_bsp_ustack))
-	} >RAM
+	} >RAM AT>RAM
 .ustack :
 	{
 		"_ustack" = .;

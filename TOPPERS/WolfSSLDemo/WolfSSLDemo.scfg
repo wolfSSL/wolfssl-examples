@@ -10,8 +10,8 @@
                 <option id="com.renesas.smc.toolchain.option.dual" key="com.renesas.smc.toolchain.option.dual.false"/>
             </toolchain>
         </configuration>
-        <platform id="R5F572NDHxFB"/>
-        <option id="board" value="RX72NEnvisionKit (V1.11)"/>
+        <platform id="R5F572NNHxFB"/>
+        <option id="board" value="EnvisionKitRX72N (V1.13)"/>
     </general>
     <tool id="Clock">
         <option enabled="true" id="vccinput" selection="textinputitem">
@@ -588,28 +588,28 @@
     </tool>
     <tool id="Pins" version="1.0.1.0">
         <pinItem allocation="10" comments="" direction="None" id="EMLE" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
-        <pinItem allocation="68" comments="" direction="None" id="ET0_RX_ER" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
-        <pinItem allocation="65" comments="" direction="None" id="ET0_TX_EN" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
-        <pinItem allocation="70" comments="" direction="None" id="ET0_RX_DV" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
-        <pinItem allocation="66" comments="" direction="None" id="ET0_TX_CLK" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
-        <pinItem allocation="50" comments="" direction="None" id="CLKOUT25M" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
         <pinItem allocation="20" comments="" direction="None" id="XTAL" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
+        <pinItem allocation="50" comments="" direction="None" id="CLKOUT25M" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
+        <pinItem allocation="65" comments="" direction="None" id="ET0_TX_EN" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
         <pinItem allocation="67" comments="" direction="None" id="ET0_TX_ER" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
-        <pinItem allocation="58" comments="" direction="None" id="ET0_CRS" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
-        <pinItem allocation="75" comments="" direction="None" id="ET0_ERXD3" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
-        <pinItem allocation="73" comments="" direction="None" id="ET0_ERXD2" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
-        <pinItem allocation="61" comments="" direction="None" id="ET0_ETXD3" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
-        <pinItem allocation="72" comments="" direction="None" id="ET0_ERXD1" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
-        <pinItem allocation="16" comments="" direction="None" id="FINED" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
-        <pinItem allocation="62" comments="" direction="None" id="ET0_ETXD2" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
-        <pinItem allocation="71" comments="" direction="None" id="ET0_ERXD0" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
+        <pinItem allocation="85" comments="" direction="None" id="ET0_MDC" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
         <pinItem allocation="60" comments="" direction="None" id="ET0_COL" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
+        <pinItem allocation="58" comments="" direction="None" id="ET0_CRS" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
+        <pinItem allocation="22" comments="" direction="None" id="EXTAL" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
+        <pinItem allocation="16" comments="" direction="None" id="FINED" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
+        <pinItem allocation="70" comments="" direction="None" id="ET0_RX_DV" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
+        <pinItem allocation="68" comments="" direction="None" id="ET0_RX_ER" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
+        <pinItem allocation="61" comments="" direction="None" id="ET0_ETXD3" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
+        <pinItem allocation="62" comments="" direction="None" id="ET0_ETXD2" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
         <pinItem allocation="63" comments="" direction="None" id="ET0_ETXD1" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
         <pinItem allocation="64" comments="" direction="None" id="ET0_ETXD0" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
-        <pinItem allocation="86" comments="" direction="None" id="ET0_MDIO" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
-        <pinItem allocation="22" comments="" direction="None" id="EXTAL" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
-        <pinItem allocation="85" comments="" direction="None" id="ET0_MDC" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
         <pinItem allocation="69" comments="" direction="None" id="ET0_RX_CLK" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
+        <pinItem allocation="75" comments="" direction="None" id="ET0_ERXD3" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
+        <pinItem allocation="73" comments="" direction="None" id="ET0_ERXD2" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
+        <pinItem allocation="72" comments="" direction="None" id="ET0_ERXD1" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
+        <pinItem allocation="71" comments="" direction="None" id="ET0_ERXD0" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
+        <pinItem allocation="66" comments="" direction="None" id="ET0_TX_CLK" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
+        <pinItem allocation="86" comments="" direction="None" id="ET0_MDIO" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
         <pinnumItem comment="LCD-B4" id="88" symbolicname=""/>
         <pinnumItem comment="LCD-B5" id="89" symbolicname=""/>
         <pinnumItem comment="LCD-R7" id="110" symbolicname=""/>

@@ -29,6 +29,8 @@
 extern const UB _t4_dhcp_enable;
 static int dhcp_accept_flg = 0;
 static UW tcpudp_work[14800] = {0};
+static UW cnt = 0;
+static UB ctl = 0;
 UB	dhcp_evt = 0;
 void dhcp_check(void);
 void print_dhcp(VP param);
@@ -36,31 +38,36 @@ void print_dhcp(VP param);
 #define IF_CH_NUMBER       (0)
 
 
-void main(void) 
+void main(void)
 {
-    /*Toppers start function */
+    /* TOPPERS start function */
     startw();
 }
 
-void timer_int_Wrapper(void) 
+void timer_cm1_int_Wrapper(void)
 {
-#ifndef ETHER_TASK
+	if (!(cnt % 1000)) {
+		ctl = ctl ? 0 : 1;
+	}
+	LED_CTL(ctl)
     cmt1_isr();
-#endif
+    cnt++;
  }
 
- void timer_cm2_int_Wrapper(void) 
+void timer_cm2_int_Wrapper(void)
  {
     int du = 0;
     timeTick((void *)&du);
  }
+
 extern bool		sns_ctx(void);
 
-void ether_int_Wrapper(void) 
+void ether_int_Wrapper(void)
 {
-    R_BSP_InterruptControl(BSP_INT_SRC_AL1_EDMAC0_EINT0, BSP_INT_CMD_CALL_CALLBACK, FIT_NO_PTR);
+    R_BSP_InterruptControl(BSP_INT_SRC_AL1_EDMAC0_EINT0,
+                                        BSP_INT_CMD_CALL_CALLBACK, FIT_NO_PTR);
 }
-void taskEther(intptr_t exinf) 
+void taskEther(intptr_t exinf)
 {
     int dhcp_cnt = 0;
     bool flg = false;
@@ -76,7 +83,6 @@ void taskEther(intptr_t exinf)
 /* DHCP Reset Event Check */
 void dhcp_check(void)
 {
-
     if (DHCP_ENABEL == _t4_dhcp_enable && dhcp_evt == DHCP_EV_PLEASE_RESET) {
         tcpudp_reset(IF_CH_NUMBER);
         dhcp_evt = 0;
@@ -84,27 +90,10 @@ void dhcp_check(void)
     return;
 }
 
-void taskNetWork(intptr_t exinf) 
-{
-    UB ctl = 0;
-    UW i = 0;
-    while(1) {
-        if (!(i % 10)) {
-            ctl = ctl ? 0 : 1;
-        }
-        LED_CTL(ctl)
-        i++;
-#ifdef ETHER_TASK
-        cmt1_isr();
-#endif
-        dly_tsk(1);
-    }
-
-}
 #define FREQ 10000 /* Hz */
 extern void timeTick(void *pdata);
 
-void taskDemoWolf(intptr_t exinf) 
+void taskDemoWolf(intptr_t exinf)
 {
 	int ret;
 #if defined(WOLFCRYPT_TEST)
@@ -114,7 +103,7 @@ void taskDemoWolf(intptr_t exinf)
     printf("Start WolfSSL Demo !!\n");
 #if defined(WOLFSSL_SERVER_TEST) || \
     defined(WOLFSSL_CLIENT_TEST)
-    if (!init_ether()) 
+    if (!init_ether())
         return ;
 #endif
     R_CMT_CreatePeriodic(FREQ, &timeTick, &channel);
@@ -161,7 +150,7 @@ void taskDemoWolf(intptr_t exinf)
     }
 }
 
-bool init_ether(void) 
+bool init_ether(void)
 {
     ER   ercd;
     W    size;
@@ -194,26 +183,30 @@ bool init_ether(void)
 void print_dhcp(VP param)
 {
     DHCP* dhcp_data = (DHCP*)param;
-    printf("Accept DHCP.ipaddr[4]   %d.%d.%d.%d\n",dhcp_data->ipaddr[0], dhcp_data->ipaddr[1],
-    dhcp_data->ipaddr[2], dhcp_data->ipaddr[3]);
-    printf("Accept DHCP.maskaddr[4] %d.%d.%d.%d\n",dhcp_data->maskaddr[0], dhcp_data->maskaddr[1],
-    dhcp_data->maskaddr[2], dhcp_data->maskaddr[3]);
-    printf("Accept DHCP.gwaddr[4]   %d.%d.%d.%d\n",dhcp_data->gwaddr[0], dhcp_data->gwaddr[1],
-    dhcp_data->gwaddr[2], dhcp_data->gwaddr[3]);
-    printf("Accept DHCP.dnsaddr[4]  %d.%d.%d.%d\n",dhcp_data->dnsaddr[0], dhcp_data->dnsaddr[1],
-    dhcp_data->dnsaddr[2], dhcp_data->dnsaddr[3]);
-    printf("Accept DHCP.dnsaddr2[4] %d.%d.%d.%d\n",dhcp_data->dnsaddr2[0], dhcp_data->dnsaddr2[1],
-    dhcp_data->dnsaddr2[2], dhcp_data->dnsaddr2[3]);
-    printf("Accept DHCP.macaddr[6]  %02X:%02X:%02X:%02X:%02X:%02X\n",dhcp_data->macaddr[0],  dhcp_data->macaddr[1],  dhcp_data->macaddr[2],
-    dhcp_data->macaddr[3],  dhcp_data->macaddr[4],  dhcp_data->macaddr[5]);
-    printf("Accept DHCP.domain[%d] %s\n", strlen(dhcp_data->domain), dhcp_data->domain);
+    printf("Accept DHCP.ipaddr[4]   %d.%d.%d.%d\n",dhcp_data->ipaddr[0],
+    dhcp_data->ipaddr[1], dhcp_data->ipaddr[2], dhcp_data->ipaddr[3]);
+    printf("Accept DHCP.maskaddr[4] %d.%d.%d.%d\n",dhcp_data->maskaddr[0],
+    dhcp_data->maskaddr[1], dhcp_data->maskaddr[2], dhcp_data->maskaddr[3]);
+    printf("Accept DHCP.gwaddr[4]   %d.%d.%d.%d\n",dhcp_data->gwaddr[0],
+    dhcp_data->gwaddr[1], dhcp_data->gwaddr[2], dhcp_data->gwaddr[3]);
+    printf("Accept DHCP.dnsaddr[4]  %d.%d.%d.%d\n",dhcp_data->dnsaddr[0],
+    dhcp_data->dnsaddr[1], dhcp_data->dnsaddr[2], dhcp_data->dnsaddr[3]);
+    printf("Accept DHCP.dnsaddr2[4] %d.%d.%d.%d\n",dhcp_data->dnsaddr2[0],
+    dhcp_data->dnsaddr2[1], dhcp_data->dnsaddr2[2], dhcp_data->dnsaddr2[3]);
+    printf("Accept DHCP.macaddr[6]  %02X:%02X:%02X:%02X:%02X:%02X\n",
+        dhcp_data->macaddr[0],  dhcp_data->macaddr[1],  dhcp_data->macaddr[2],
+        dhcp_data->macaddr[3],  dhcp_data->macaddr[4],  dhcp_data->macaddr[5]);
+    printf("Accept DHCP.domain[%d] %s\n", strlen(dhcp_data->domain),
+        dhcp_data->domain);
     printf("\n");
     return;
 }
 
 ER system_callback(UB channel, UW eventid, VP param)
 {
-	debug_print("Network callback accept channel=%d,EventNo=%d \n",channel,eventid);
+	debug_print("Network callback accept channel=%d,EventNo=%d \n",
+        channel,eventid);
+
     dhcp_evt = eventid;
     switch(eventid) {
         case ETHER_EV_LINK_OFF:
@@ -246,7 +239,7 @@ ER system_callback(UB channel, UW eventid, VP param)
      case DHCP_EV_INIT:
            {
         	   debug_print("DHCP Event Accept DHCP_EV_INIT\n");
-           } 
+           }
            break;
      case DHCP_EV_INIT_REBOOT:
            {

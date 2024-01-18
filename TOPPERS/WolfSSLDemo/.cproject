@@ -19,9 +19,9 @@
 				<option id="toolchain.enable" value="true"/>
 			</storageModule>
 			<storageModule moduleId="com.renesas.cdt.managedbuild.core.boardInfo">
-				<option id="board.id" value="RX72NEnvisionKit"/>
-				<option id="board.name" value="RX72NEnvisionKit"/>
-				<option id="board.device" value="R5F572NDHxFB"/>
+				<option id="board.id" value="EnvisionKitRX72N"/>
+				<option id="board.name" value="EnvisionKitRX72N"/>
+				<option id="board.device" value="R5F572NNHxFB"/>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
 				<configuration artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" description="" id="com.renesas.cdt.managedbuild.gcc.rx.configuration.debug.update.1706953561" name="HardwareDebug" parent="com.renesas.cdt.managedbuild.gcc.rx.configuration.debug.update">
@@ -33,9 +33,9 @@
 							<option id="com.renesas.cdt.managedbuild.gcc.core.option.addtools.printsize.1018017424" name="Create Print Size" superClass="com.renesas.cdt.managedbuild.gcc.core.option.addtools.printsize" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 							<option id="com.renesas.cdt.managedbuild.gcc.core.option.cpu.architecture.2082429366" name="Architecture" superClass="com.renesas.cdt.managedbuild.gcc.core.option.cpu.architecture" useByScannerDiscovery="false" value="com.renesas.cdt.managedbuild.gcc.rx.architecture.v3" valueType="enumerated"/>
 							<option id="com.renesas.cdt.managedbuild.gcc.core.option.cpu.architecture.applicability.1723608165" name="Architecture Applicability" superClass="com.renesas.cdt.managedbuild.gcc.core.option.cpu.architecture.applicability" useByScannerDiscovery="false" value="true" valueType="boolean"/>
-							<option id="com.renesas.cdt.managedbuild.gcc.core.option.cpu.cpuType.567125430" name="CPU Type" superClass="com.renesas.cdt.managedbuild.gcc.core.option.cpu.cpuType" useByScannerDiscovery="false" value="com.renesas.cdt.managedbuild.gcc.core.option.cpu.cpuType.rx72n" valueType="enumerated"/>
-							<option id="com.renesas.cdt.managedbuild.gcc.core.option.deviceShortName.1490284704" name="DeviceName" superClass="com.renesas.cdt.managedbuild.gcc.core.option.deviceShortName" useByScannerDiscovery="false" value="R5F572NDHxFB" valueType="string"/>
-							<option id="com.renesas.cdt.managedbuild.gcc.core.option.deviceCommand.1013416035" name="DeviceCommand" superClass="com.renesas.cdt.managedbuild.gcc.core.option.deviceCommand" useByScannerDiscovery="false" value="R5F572ND" valueType="string"/>
+							<option id="com.renesas.cdt.managedbuild.gcc.core.option.cpu.cpuType.567125430" name="CPU Type" superClass="com.renesas.cdt.managedbuild.gcc.core.option.cpu.cpuType" useByScannerDiscovery="false" value="com.renesas.cdt.managedbuild.gcc.core.option.cpu.cpuType.default" valueType="enumerated"/>
+							<option id="com.renesas.cdt.managedbuild.gcc.core.option.deviceShortName.1490284704" name="DeviceName" superClass="com.renesas.cdt.managedbuild.gcc.core.option.deviceShortName" useByScannerDiscovery="false" value="R5F572NNHxFB" valueType="string"/>
+							<option id="com.renesas.cdt.managedbuild.gcc.core.option.deviceCommand.1013416035" name="DeviceCommand" superClass="com.renesas.cdt.managedbuild.gcc.core.option.deviceCommand" useByScannerDiscovery="false" value="R5F572NN" valueType="string"/>
 							<option id="com.renesas.cdt.managedbuild.gcc.rx.option.fdiagnostics.700449935" name="Fixit error parser" superClass="com.renesas.cdt.managedbuild.gcc.rx.option.fdiagnostics" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 							<option id="com.renesas.cdt.managedbuild.gcc.core.option.optimization.functionsections.1516014188" name="Function sections (-ffunction-sections)" superClass="com.renesas.cdt.managedbuild.gcc.core.option.optimization.functionsections" useByScannerDiscovery="true" value="true" valueType="boolean"/>
 							<option id="com.renesas.cdt.managedbuild.gcc.core.option.debug.warnStackSize.1547949648" name="Warn if stack size exceeds the limit, in bytes (-Wstack-usage)" superClass="com.renesas.cdt.managedbuild.gcc.core.option.debug.warnStackSize" useByScannerDiscovery="false" value="32400" valueType="string"/>
@@ -163,7 +163,6 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="generate"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
