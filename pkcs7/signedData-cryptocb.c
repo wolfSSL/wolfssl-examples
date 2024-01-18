@@ -1,6 +1,6 @@
 /* signedData-cryptocb.c
  *
- * Copyright (C) 2006-2022 wolfSSL Inc.
+ * Copyright (C) 2006-2024 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -24,258 +24,42 @@
 #include <wolfssl/wolfcrypt/error-crypt.h>
 #include <wolfssl/wolfcrypt/logging.h>
 #include <wolfssl/wolfcrypt/cryptocb.h>
-
-#if 0
-#define CERT_FILE   "../certs/client-cert.der"
-#define KEY_FILE    "../certs/client-key.der"
-#define KEYPUB_FILE "../certs/client-keyPub.der"
-#else
-#define CERT_FILE   "../certs/client-ecc-cert.der"
-#define KEY_FILE    "../certs/ecc-client-key.der"
-#define KEYPUB_FILE "../certs/ecc-client-keyPub.der"
+#ifdef USE_PSA
+#include <wolfssl/wolfcrypt/port/psa/psa.h>
+#include <psa/crypto.h>
 #endif
 
-#define encodedFileNoAttrs "signedData_cryptocb_noattrs.der"
-#define encodedFileAttrs   "signedData_cryptocb_attrs.der"
+/* Default certificates and keys */
+#define RSA_CERT_FILE   "../certs/client-cert.der"
+#define RSA_KEY_FILE    "../certs/client-key.der"
+#define RSA_KEYPUB_FILE "../certs/client-keyPub.der"
 
-#define LARGE_TEMP_SZ 4096
+#define ECC_CERT_FILE   "../certs/client-ecc-cert.der"
+#define ECC_KEY_FILE    "../certs/ecc-client-key.der"
+#define ECC_KEYPUB_FILE "../certs/ecc-client-keyPub.der"
+
+/* Default output file name */
+#define OUTPUT_FILE     "signedData_cryptocb.der"
+
+/* Maximum temporary buffer size */
+#define LARGE_TEMP_SZ 2048
+
 
 #if defined(HAVE_PKCS7) && defined(WOLF_CRYPTO_CB)
 
+/* crypto callback context */
+typedef struct {
+    const char* keyFilePriv;
+#ifdef USE_PSA
+    psa_key_id_t key_id;
+#endif
+} myCryptoCbCtx;
+
+/* test data to sign (could be CSR for example) */
 static const byte data[] = { /* Hello World */
-    0x48,0x65,0x6c,0x6c,0x6f,0x20,0x57,0x6f,
-    0x72,0x6c,0x64
+    0x48,0x65,0x6c,0x6c,0x6f,0x20,0x57,0x6f,0x72,0x6c,0x64
 };
 
-static int load_certs(byte* cert, word32* certSz, byte* key, word32* keySz)
-{
-    FILE* file;
-
-    /* certificate file */
-    file = fopen(CERT_FILE, "rb");
-    if (!file)
-        return -1;
-
-    *certSz = (word32)fread(cert, 1, *certSz, file);
-    fclose(file);
-
-    /* key file */
-    file = fopen(KEYPUB_FILE, "rb");
-    if (!file)
-        return -1;
-
-    *keySz = (word32)fread(key, 1, *keySz, file);
-    fclose(file);
-
-    return 0;
-}
-
-static int write_file_buffer(const char* fileName, byte* in, word32 inSz)
-{
-    int ret;
-    FILE* file;
-
-    file = fopen(fileName, "wb");
-    if (file == NULL) {
-        printf("ERROR: opening file for writing: %s\n", fileName);
-        return -1;
-    }
-
-    ret = (int)fwrite(in, 1, inSz, file);
-    if (ret == 0) {
-        printf("ERROR: writing buffer to output file\n");
-        return -1;
-    }
-    fclose(file);
-
-    return 0;
-}
-
-static int signedData_sign_noattrs(byte* cert, word32 certSz, byte* key,
-                                   word32 keySz, byte* out, word32 outSz,
-                                   int devId)
-{
-    int ret;
-    PKCS7* pkcs7;
-    WC_RNG rng;
-
-    /* init rng */
-    ret = wc_InitRng(&rng);
-    if (ret != 0) {
-        printf("ERROR: wc_InitRng() failed, ret = %d\n", ret);
-        return -1;
-    }
-
-    /* init PKCS7 */
-    pkcs7 = wc_PKCS7_New(NULL, devId);
-    if (pkcs7 == NULL) {
-        wc_FreeRng(&rng);
-        return -1;
-    }
-
-    ret = wc_PKCS7_InitWithCert(pkcs7, cert, certSz);
-    if (ret != 0) {
-        printf("ERROR: wc_PKCS7_InitWithCert() failed, ret = %d\n", ret);
-        wc_PKCS7_Free(pkcs7);
-        wc_FreeRng(&rng);
-        return -1;
-    }
-
-    pkcs7->rng             = &rng;
-    pkcs7->content         = (byte*)data;
-    pkcs7->contentSz       = sizeof(data);
-    pkcs7->contentOID      = DATA;
-    pkcs7->hashOID         = SHA256h;
-    pkcs7->encryptOID      = RSAk;
-    pkcs7->privateKey      = key;
-    pkcs7->privateKeySz    = keySz;
-    pkcs7->signedAttribs   = NULL;
-    pkcs7->signedAttribsSz = 0;
-
-    /* encode signedData, returns size */
-    ret = wc_PKCS7_EncodeSignedData(pkcs7, out, outSz);
-    if (ret <= 0) {
-        printf("ERROR: wc_PKCS7_EncodeSignedData() failed, ret = %d\n", ret);
-        wc_PKCS7_Free(pkcs7);
-        wc_FreeRng(&rng);
-        return -1;
-
-    } else {
-        printf("Successfully encoded SignedData bundle (%s)\n",
-               encodedFileNoAttrs);
-
-#ifdef DEBUG_WOLFSSL
-        printf("Encoded DER (%d bytes):\n", ret);
-        WOLFSSL_BUFFER(out, ret);
-#endif
-
-        if (write_file_buffer(encodedFileNoAttrs, out, ret) != 0) {
-            printf("ERROR: error writing encoded to output file\n");
-            return -1;
-        }
-    }
-
-    wc_PKCS7_Free(pkcs7);
-    wc_FreeRng(&rng);
-
-    return ret;
-}
-
-static int signedData_sign_attrs(byte* cert, word32 certSz, byte* key,
-                                 word32 keySz, byte* out, word32 outSz,
-                                 int devId)
-{
-    int ret;
-    PKCS7* pkcs7;
-    WC_RNG rng;
-
-    static byte messageTypeOid[] =
-               { 0x06, 0x0a, 0x60, 0x86, 0x48, 0x01, 0x86, 0xF8, 0x45, 0x01,
-                 0x09, 0x02 };
-    static byte messageType[] = { 0x13, 2, '1', '9' };
-
-    PKCS7Attrib attribs[] =
-    {
-        { messageTypeOid, sizeof(messageTypeOid), messageType,
-                                       sizeof(messageType) }
-    };
-
-    /* init rng */
-    ret = wc_InitRng(&rng);
-    if (ret != 0) {
-        printf("ERROR: wc_InitRng() failed, ret = %d\n", ret);
-        return -1;
-    }
-
-    /* init PKCS7 */
-    pkcs7 = wc_PKCS7_New(NULL, devId);
-    if (pkcs7 == NULL) {
-        wc_FreeRng(&rng);
-        return -1;
-    }
-
-    ret = wc_PKCS7_InitWithCert(pkcs7, cert, certSz);
-    if (ret != 0) {
-        printf("ERROR: wc_PKCS7_InitWithCert() failed, ret = %d\n", ret);
-        wc_PKCS7_Free(pkcs7);
-        wc_FreeRng(&rng);
-        return -1;
-    }
-
-    pkcs7->rng             = &rng;
-    pkcs7->content         = (byte*)data;
-    pkcs7->contentSz       = sizeof(data);
-    pkcs7->contentOID      = DATA;
-    pkcs7->hashOID         = SHA256h;
-    pkcs7->encryptOID      = RSAk;
-    pkcs7->privateKey      = key;
-    pkcs7->privateKeySz    = keySz;
-    pkcs7->signedAttribs   = attribs;
-    pkcs7->signedAttribsSz = sizeof(attribs)/sizeof(PKCS7Attrib);
-
-    /* encode signedData, returns size */
-    ret = wc_PKCS7_EncodeSignedData(pkcs7, out, outSz);
-    if (ret <= 0) {
-        printf("ERROR: wc_PKCS7_EncodeSignedData() failed, ret = %d\n", ret);
-        wc_PKCS7_Free(pkcs7);
-        wc_FreeRng(&rng);
-        return -1;
-
-    } else {
-        printf("Successfully encoded SignedData bundle (%s)\n",
-               encodedFileAttrs);
-
-#ifdef DEBUG_WOLFSSL
-        printf("Encoded DER (%d bytes):\n", ret);
-        WOLFSSL_BUFFER(out, ret);
-#endif
-
-        if (write_file_buffer(encodedFileAttrs, out, ret) != 0) {
-            printf("ERROR: error writing encoded to output file\n");
-            return -1;
-        }
-
-    }
-
-    wc_PKCS7_Free(pkcs7);
-    wc_FreeRng(&rng);
-
-    return ret;
-}
-
-static int signedData_verify(byte* in, word32 inSz, byte* cert,
-                             word32 certSz, byte* key, word32 keySz,
-                             byte* out, word32 outSz, int devId)
-{
-    int ret;
-    PKCS7* pkcs7;
-
-    pkcs7 = wc_PKCS7_New(NULL, devId);
-    if (pkcs7 == NULL)
-        return -1;
-
-    /* decode signedData, returns size */
-    ret = wc_PKCS7_VerifySignedData(pkcs7, in, inSz);
-
-    if (ret < 0 || (pkcs7->contentSz != sizeof(data)) ||
-        (XMEMCMP(pkcs7->content, data, pkcs7->contentSz) != 0)) {
-        printf("ERROR: Failed to verify SignedData bundle, ret = %d\n", ret);
-        wc_PKCS7_Free(pkcs7);
-        return -1;
-
-    } else {
-        printf("Successfully verified SignedData bundle.\n");
-
-#ifdef DEBUG_WOLFSSL
-        printf("Decoded content (%d bytes):\n", pkcs7->contentSz);
-        WOLFSSL_BUFFER(pkcs7->content, pkcs7->contentSz);
-#endif
-    }
-
-    wc_PKCS7_Free(pkcs7);
-
-    return ret;
-}
 
 /* reads file size, allocates buffer, reads into buffer, returns buffer */
 static int load_file(const char* fname, byte** buf, size_t* bufLen)
@@ -323,10 +107,91 @@ static int load_file(const char* fname, byte** buf, size_t* bufLen)
     return ret;
 }
 
-typedef struct {
-    const char* keyFilePub;
-    const char* keyFilePriv;
-} myCryptoCbCtx;
+static int write_file(const char* fileName, byte* in, word32 inSz)
+{
+    int ret;
+    FILE* file;
+
+    file = fopen(fileName, "wb");
+    if (file == NULL) {
+        printf("ERROR: opening file for writing: %s\n", fileName);
+        return -1;
+    }
+
+    ret = (int)fwrite(in, 1, inSz, file);
+    if (ret == 0) {
+        printf("ERROR: writing buffer to output file\n");
+        return -1;
+    }
+    fclose(file);
+
+    return 0;
+}
+
+#ifdef USE_PSA
+static int psa_map_hash_alg(int hash_len)
+{
+    switch (hash_len) {
+        case 20:
+            return PSA_ALG_SHA_1;
+        case 28:
+            return PSA_ALG_SHA_224;
+        case 32:
+            return PSA_ALG_SHA_256;
+        case 48:
+            return PSA_ALG_SHA_384;
+        case 64:
+            return PSA_ALG_SHA_512;
+        default:
+            return PSA_ALG_NONE;
+    }
+}
+
+/* import private key helper */
+static int import_ecc_key(byte* keyBuf, word32 keySz, psa_key_id_t* id)
+{
+    int ret;
+    psa_key_attributes_t key_attr = { 0 };
+    psa_key_type_t key_type;
+    psa_key_id_t key_id;
+    psa_status_t status;
+    ecc_key eccPriv;
+    byte   d[MAX_ECC_BYTES]; /* private d */
+    word32 dSz = (word32)sizeof(d);
+
+    memset(d, 0, sizeof(d));
+
+    ret = wc_ecc_init_ex(&eccPriv, NULL, INVALID_DEVID);
+    if (ret == 0) {
+        word32 idx = 0;
+        ret = wc_EccPrivateKeyDecode(keyBuf, &idx, &eccPriv, keySz);
+        if (ret == 0) {
+            ret = wc_ecc_export_private_only(&eccPriv, d, &dSz);
+        }
+        wc_ecc_free(&eccPriv);
+    }
+    if (ret == 0) {
+        psa_set_key_usage_flags(&key_attr, PSA_KEY_USAGE_SIGN_HASH);
+        psa_set_key_lifetime(&key_attr, PSA_KEY_LIFETIME_VOLATILE);
+        psa_set_key_algorithm(&key_attr, PSA_ALG_ECDSA(PSA_ALG_SHA_256));
+        key_type = PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1);
+        psa_set_key_type(&key_attr, key_type);
+        psa_set_key_bits(&key_attr, (dSz * 8));
+
+        status = psa_import_key(&key_attr, d, dSz, &key_id);
+        if (status != PSA_SUCCESS) {
+            fprintf(stderr,
+                "ERROR: provisioning of private key failed: [%d] \n", status);
+            ret = WC_HW_E;
+        }
+        else {
+            ret = 0;
+            *id = key_id;
+        }
+    }
+    return ret;
+}
+#endif
 
 /* Example crypto dev callback function that calls software versions, could
  * be set up to call down to hardware module for crypto operations if
@@ -393,30 +258,38 @@ static int myCryptoCb(int devIdArg, wc_CryptoInfo* info, void* ctx)
                 }
             }
         }
-    #ifdef WOLFSSL_KEY_GEN
-        else if (info->pk.type == WC_PK_TYPE_RSA_KEYGEN) {
-            info->pk.rsakg.key->devId = INVALID_DEVID;
-
-            ret = wc_MakeRsaKey(info->pk.rsakg.key, info->pk.rsakg.size,
-                info->pk.rsakg.e, info->pk.rsakg.rng);
-
-            /* reset devId */
-            info->pk.rsakg.key->devId = devIdArg;
-        }
-    #endif
     #endif /* !NO_RSA */
     #ifdef HAVE_ECC
-        if (info->pk.type == WC_PK_TYPE_EC_KEYGEN) {
-            /* set devId to invalid, so software is used */
-            info->pk.eckg.key->devId = INVALID_DEVID;
+        if (info->pk.type == WC_PK_TYPE_ECDSA_SIGN) {
+        #ifdef USE_PSA
+            uint8_t rs[MAX_ECC_BYTES * 2];
+            size_t  rs_length;
+            psa_status_t status;
+            psa_algorithm_t hash_algo;
 
-            ret = wc_ecc_make_key_ex(info->pk.eckg.rng, info->pk.eckg.size,
-                info->pk.eckg.key, info->pk.eckg.curveId);
+            /* get the desired key ID into your callback context */
+            psa_key_id_t id = myCtx->key_id;
 
-            /* reset devId */
-            info->pk.eckg.key->devId = devIdArg;
-        }
-        else if (info->pk.type == WC_PK_TYPE_ECDSA_SIGN) {
+            /* Get correct hash algorithm that matches input hash length */
+            hash_algo = psa_map_hash_alg(info->pk.eccsign.inlen);
+
+            status = psa_sign_hash(
+                id,
+                PSA_ALG_ECDSA(hash_algo),
+                info->pk.eccsign.in, info->pk.eccsign.inlen,
+                rs, sizeof(rs),
+                &rs_length);
+            if (status == PSA_SUCCESS) {
+                word32 point_len = (word32)(rs_length / 2);
+                ret = wc_ecc_rs_raw_to_sig(
+                    rs, point_len,
+                    rs + point_len, point_len,
+                    info->pk.eccsign.out, info->pk.eccsign.outlen);
+            }
+            else {
+                ret = WC_HW_E;
+            }
+        #else
             ecc_key eccPriv;
             byte*  der = NULL;
             size_t derSz = 0;
@@ -442,6 +315,7 @@ static int myCryptoCb(int devIdArg, wc_CryptoInfo* info, void* ctx)
             wc_ecc_free(&eccPriv);
             if (der != NULL)
                 free(der);
+        #endif
         }
         else if (info->pk.type == WC_PK_TYPE_ECDSA_VERIFY) {
             /* set devId to invalid, so software is used */
@@ -455,63 +329,7 @@ static int myCryptoCb(int devIdArg, wc_CryptoInfo* info, void* ctx)
             /* reset devId */
             info->pk.eccverify.key->devId = devIdArg;
         }
-        else if (info->pk.type == WC_PK_TYPE_ECDH) {
-            /* set devId to invalid, so software is used */
-            info->pk.ecdh.private_key->devId = INVALID_DEVID;
-
-            ret = wc_ecc_shared_secret(
-                info->pk.ecdh.private_key, info->pk.ecdh.public_key,
-                info->pk.ecdh.out, info->pk.ecdh.outlen);
-
-            /* reset devId */
-            info->pk.ecdh.private_key->devId = devIdArg;
-        }
     #endif /* HAVE_ECC */
-    }
-    else if (info->algo_type == WC_ALGO_TYPE_CIPHER) {
-    #if !defined(NO_AES) && defined(HAVE_AESGCM)
-        if (info->cipher.type == WC_CIPHER_AES_GCM) {
-
-            if (info->cipher.enc) {
-                /* set devId to invalid, so software is used */
-                info->cipher.aesgcm_enc.aes->devId = INVALID_DEVID;
-
-                ret = wc_AesGcmEncrypt(
-                    info->cipher.aesgcm_enc.aes,
-                    info->cipher.aesgcm_enc.out,
-                    info->cipher.aesgcm_enc.in,
-                    info->cipher.aesgcm_enc.sz,
-                    info->cipher.aesgcm_enc.iv,
-                    info->cipher.aesgcm_enc.ivSz,
-                    info->cipher.aesgcm_enc.authTag,
-                    info->cipher.aesgcm_enc.authTagSz,
-                    info->cipher.aesgcm_enc.authIn,
-                    info->cipher.aesgcm_enc.authInSz);
-
-                /* reset devId */
-                info->cipher.aesgcm_enc.aes->devId = devIdArg;
-            }
-            else {
-                /* set devId to invalid, so software is used */
-                info->cipher.aesgcm_dec.aes->devId = INVALID_DEVID;
-
-                ret = wc_AesGcmDecrypt(
-                    info->cipher.aesgcm_dec.aes,
-                    info->cipher.aesgcm_dec.out,
-                    info->cipher.aesgcm_dec.in,
-                    info->cipher.aesgcm_dec.sz,
-                    info->cipher.aesgcm_dec.iv,
-                    info->cipher.aesgcm_dec.ivSz,
-                    info->cipher.aesgcm_dec.authTag,
-                    info->cipher.aesgcm_dec.authTagSz,
-                    info->cipher.aesgcm_dec.authIn,
-                    info->cipher.aesgcm_dec.authInSz);
-
-                /* reset devId */
-                info->cipher.aesgcm_dec.aes->devId = devIdArg;
-            }
-        }
-    #endif /* !NO_AES && HAVE_AESGCM */
     }
 
     (void)devIdArg;
@@ -520,17 +338,182 @@ static int myCryptoCb(int devIdArg, wc_CryptoInfo* info, void* ctx)
     return ret;
 }
 
+
+static int signedData_sign(byte* cert, word32 certSz, byte* key,
+                           word32 keySz, byte* out, word32 outSz,
+                           int devId, int algOid, int hashOid)
+{
+    int ret;
+    PKCS7* pkcs7;
+    WC_RNG rng;
+
+    /* init rng */
+    ret = wc_InitRng(&rng);
+    if (ret != 0) {
+        printf("ERROR: wc_InitRng() failed, ret = %d\n", ret);
+        return -1;
+    }
+
+    /* init PKCS7 */
+    pkcs7 = wc_PKCS7_New(NULL, devId);
+    if (pkcs7 == NULL) {
+        wc_FreeRng(&rng);
+        return -1;
+    }
+
+    ret = wc_PKCS7_InitWithCert(pkcs7, cert, certSz);
+    if (ret != 0) {
+        printf("ERROR: wc_PKCS7_InitWithCert() failed, ret = %d\n", ret);
+        wc_PKCS7_Free(pkcs7);
+        wc_FreeRng(&rng);
+        return -1;
+    }
+
+    pkcs7->rng             = &rng;
+    pkcs7->content         = (byte*)data;
+    pkcs7->contentSz       = sizeof(data);
+    pkcs7->contentOID      = DATA;
+    pkcs7->hashOID         = hashOid;
+    pkcs7->encryptOID      = algOid;
+    pkcs7->privateKey      = key;
+    pkcs7->privateKeySz    = keySz;
+
+    /* encode signedData, returns size */
+    ret = wc_PKCS7_EncodeSignedData(pkcs7, out, outSz);
+    if (ret <= 0) {
+        printf("ERROR: wc_PKCS7_EncodeSignedData() failed, ret = %d\n", ret);
+        wc_PKCS7_Free(pkcs7);
+        wc_FreeRng(&rng);
+        return -1;
+
+    }
+    else {
+        printf("Successfully encoded SignedData bundle\n");
+#ifdef DEBUG_WOLFSSL
+        printf("Encoded DER (%d bytes):\n", ret);
+        WOLFSSL_BUFFER(out, ret);
+#endif
+    }
+
+    wc_PKCS7_Free(pkcs7);
+    wc_FreeRng(&rng);
+
+    return ret;
+}
+
+static int signedData_verify(byte* in, word32 inSz, byte* cert,
+                             word32 certSz, byte* key, word32 keySz,
+                             byte* out, word32 outSz, int devId)
+{
+    int ret;
+    PKCS7* pkcs7;
+
+    pkcs7 = wc_PKCS7_New(NULL, devId);
+    if (pkcs7 == NULL)
+        return -1;
+
+    /* decode signedData, returns size */
+    ret = wc_PKCS7_VerifySignedData(pkcs7, in, inSz);
+
+    if (ret < 0 || (pkcs7->contentSz != sizeof(data)) ||
+        (XMEMCMP(pkcs7->content, data, pkcs7->contentSz) != 0)) {
+        printf("ERROR: Failed to verify SignedData bundle, ret = %d\n", ret);
+        wc_PKCS7_Free(pkcs7);
+        return -1;
+
+    } else {
+        printf("Successfully verified SignedData bundle.\n");
+
+#ifdef DEBUG_WOLFSSL
+        printf("Decoded content (%d bytes):\n", pkcs7->contentSz);
+        WOLFSSL_BUFFER(pkcs7->content, pkcs7->contentSz);
+#endif
+    }
+
+    wc_PKCS7_Free(pkcs7);
+
+    return ret;
+}
+
+
+static void usage(void)
+{
+    printf("Expected usage:\n");
+    printf("./signData-cryptocb [-ecc/-rsa] [-out=]\n");
+    printf("* -ecc/-rsa: Use ECC or RSA key (default is ECC)\n");
+    printf("* -key=file: DER formatted private key\n");
+    printf("* -keyPub=file: DER formatted public key\n");
+    printf("* -cert=file: Certificate for signing key\n");
+    printf("* -out=file: Generated PKCS7 file containing signed data and certificate (default %s)\n", OUTPUT_FILE);
+}
+
 int main(int argc, char** argv)
 {
     int ret, devId;
     int encryptedSz, decryptedSz;
-    word32 certSz, keySz;
+    size_t certSz, keySz;
     myCryptoCbCtx myCtx;
+    const char* certFile = NULL;
+    const char* keyFile = NULL;
+    const char* keyFilePub = NULL;
+    const char* outFile = OUTPUT_FILE;
+    int algOid = ECDSAk;
+    int hashOid = SHA256h;
+    byte* cert = NULL;
+    byte* key = NULL;
 
-    byte cert[2048];
-    byte key[2048];
-    byte encrypted[2048];
-    byte decrypted[2048];
+    byte encrypted[LARGE_TEMP_SZ];
+    byte decrypted[LARGE_TEMP_SZ];
+
+    if (argc >= 2) {
+        if (XSTRCMP(argv[1], "-?") == 0 ||
+            XSTRCMP(argv[1], "-h") == 0 ||
+            XSTRCMP(argv[1], "--help") == 0) {
+            usage();
+            return 0;
+        }
+    }
+    while (argc > 1) {
+        if (XSTRCMP(argv[argc-1], "-ecc") == 0) {
+            algOid = ECDSAk;
+        }
+        else if (XSTRCMP(argv[argc-1], "-rsa") == 0) {
+            algOid = RSAk;
+        }
+        else if (XSTRNCMP(argv[argc-1], "-cert=",
+                XSTRLEN("-cert=")) == 0) {
+            certFile = argv[argc-1] + XSTRLEN("-cert=");
+        }
+        else if (XSTRNCMP(argv[argc-1], "-key=",
+                XSTRLEN("-key=")) == 0) {
+            keyFile = argv[argc-1] + XSTRLEN("-key=");
+        }
+        else if (XSTRNCMP(argv[argc-1], "-keyPub=",
+                XSTRLEN("-keyPub=")) == 0) {
+            keyFilePub = argv[argc-1] + XSTRLEN("-keyPub=");
+        }
+        else if (XSTRNCMP(argv[argc-1], "-out=",
+                XSTRLEN("-out=")) == 0) {
+            outFile = argv[argc-1] + XSTRLEN("-out=");
+        }
+        else {
+            printf("Warning: Unrecognized option: %s\n", argv[argc-1]);
+        }
+        argc--;
+    }
+
+    if (certFile == NULL) {
+        if (algOid == RSAk) {
+            certFile = RSA_CERT_FILE;
+            keyFile = RSA_KEY_FILE;
+            keyFilePub = RSA_KEYPUB_FILE;
+        }
+        else {
+            certFile = ECC_CERT_FILE;
+            keyFile = ECC_KEY_FILE;
+            keyFilePub = ECC_KEYPUB_FILE;
+        }
+    }
 
 #ifdef DEBUG_WOLFSSL
     wolfSSL_Debugging_ON();
@@ -543,7 +526,23 @@ int main(int argc, char** argv)
     }
 
     /* provide private key to crypto callback */
-    myCtx.keyFilePriv = KEY_FILE;
+    myCtx.keyFilePriv = keyFile;
+#ifdef USE_PSA
+    ret = load_file(keyFile, &key, &keySz);
+    if (ret == 0) {
+        ret = import_ecc_key(key, keySz, &myCtx.key_id);
+    }
+    free(key); key = NULL;
+    if (ret != 0)
+        goto exit;
+#endif
+
+    /* Load certificate and public key */
+    ret = load_file(certFile, &cert, &certSz);
+    if (ret == 0)
+        ret = load_file(keyFilePub, &key, &keySz);
+    if (ret != 0)
+        goto exit;
 
     /* setting devId to something other than INVALID_DEVID, enables
      * crypto callback to be used internally by wolfCrypt */
@@ -551,43 +550,40 @@ int main(int argc, char** argv)
     ret = wc_CryptoCb_RegisterDevice(devId, myCryptoCb, &myCtx);
     if (ret != 0) {
         printf("Failed to register crypto dev device, ret = %d\n", ret);
-        return -1;
+        goto exit;
     }
 
-    certSz = sizeof(cert);
-    keySz = sizeof(key);
-    ret = load_certs(cert, &certSz, key, &keySz);
-    if (ret != 0)
-        return -1;
+    /* Sign bundle */
+    encryptedSz = signedData_sign(cert, certSz, key, keySz,
+        encrypted, sizeof(encrypted), devId, algOid, hashOid);
+    if (encryptedSz >= 0) {
+        if (write_file(outFile, encrypted, encryptedSz) != 0) {
+            printf("ERROR: error writing encoded to output file %s\n", outFile);
+            ret =-1;
+        }
+        else {
+            printf("Wrote encoded PKCS7 bundle to file %s\n", outFile);
+            ret = 0;
+        }
+    }
+    else {
+        ret = -1; goto exit;
+    }
 
-    /* no attributes */
-    encryptedSz = signedData_sign_noattrs(cert, certSz, key, keySz,
-                                          encrypted, sizeof(encrypted), devId);
-    if (encryptedSz < 0)
-        return -1;
-
+    /* Verify bundle */
     decryptedSz = signedData_verify(encrypted, encryptedSz,
                                     cert, certSz, key, keySz,
                                     decrypted, sizeof(decrypted), devId);
-    if (decryptedSz < 0)
-        return -1;
+    if (decryptedSz < 0) {
+        ret = -1; goto exit;
+    }
 
-    /* default attributes + messageType attribute */
-    encryptedSz = signedData_sign_attrs(cert, certSz, key, keySz,
-                                        encrypted, sizeof(encrypted), devId);
-    if (encryptedSz < 0)
-        return -1;
+exit:
+    if (cert != NULL) free(cert);
+    if (key != NULL) free(key);
+    wolfCrypt_Cleanup();
 
-    decryptedSz = signedData_verify(encrypted, encryptedSz,
-                                    cert, certSz, key, keySz,
-                                    decrypted, sizeof(decrypted), devId);
-    if (decryptedSz < 0)
-        return -1;
-
-    (void)argc;
-    (void)argv;
-
-    return 0;
+    return ret;
 }
 
 #else

@@ -16,7 +16,7 @@ $ make
 $ sudo make install
 ```
 
-Note, some examples require additional features, such as "--with-libz" and 
+Note, some examples require additional features, such as "--with-libz" and
 "--enable-pwdbased". To build wolfSSL with support for all examples, use:
 
 ```
@@ -96,18 +96,18 @@ Debugging with `openssl cms`
 
 ```
 $ openssl cms -inform der -in envelopedData.der -cmsout -print -noout
-CMS_ContentInfo: 
+CMS_ContentInfo:
   contentType: pkcs7-encryptedData (1.2.840.113549.1.7.6)
-  d.encryptedData: 
+  d.encryptedData:
     version: <ABSENT>
-    encryptedContentInfo: 
+    encryptedContentInfo:
       contentType: pkcs7-data (1.2.840.113549.1.7.1)
-      contentEncryptionAlgorithm: 
+      contentEncryptionAlgorithm:
         algorithm: aes-256-cbc (2.16.840.1.101.3.4.1.42)
         parameter: OCTET STRING:
           0000 - 08 83 47 90 5d 9f d6 aa-dc 25 ce b2 87 9a 10   ..G.]....%.....
           000f - cf                                             .
-        encryptedContent: 
+        encryptedContent:
           0000 - 3c 22 ea 61 64 fb 21 30-77 8a ce b0 5a a7 35   <".ad.!0w...Z.5
           000f - de                                             .
   unprotectedAttrs:
@@ -119,7 +119,7 @@ CMS_ContentInfo:
 ### pkcs7-verify
 
 ```
-./pkcs7-verify 
+./pkcs7-verify
 Der 1633
 PKCS7 Verify Success
 ```
@@ -517,6 +517,27 @@ Successfully verified SignedData bundle.
 Successfully encoded SignedData bundle (signedData_cryptocb_attrs.der)
 Successfully verified SignedData bundle.
 ```
+
+#### Enabling PSA with the PKCS7 crypto callback example
+
+For wolfSSL PSA support see: https://github.com/wolfSSL/wolfssl/tree/master/wolfcrypt/src/port/psa
+See https://github.com/wolfSSL/wolfssl/pull/4739 for details on building a PSA crypto library to test against.
+
+Build wolfSSL with PSA enabled:
+
+```sh
+./configure --enable-psa --with-psa-lib-name=mbedcrypto --enable-cryptocb --enable-pkcallbacks CFLAGS="-DWOLFSSL_PSA_GLOBAL_LOCK"
+make
+sudo make install
+```
+
+Build example with PSA=1 set:
+
+```sh
+make clean
+make PSA=1
+```
+
 
 ### SignedData with Detached Signature
 
