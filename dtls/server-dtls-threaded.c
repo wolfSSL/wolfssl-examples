@@ -87,7 +87,7 @@ main(int   argc,
     memset(threads, 0, sizeof(threads));
     memset(args, 0, sizeof(args));
 
-    while ((opt = getopt(argc, argv, "vt:n::?")) != -1) {
+    while ((opt = getopt(argc, argv, "t:?")) != -1) {
         switch (opt) {
         case 't':
             n_threads = atoi(optarg);
@@ -96,6 +96,11 @@ main(int   argc,
         case '?':
             printf("usage:\n");
             printf("  ./server-dtls-threaded [-t n]\n");
+            printf("\n");
+            printf("description:\n");
+            printf("  A simple dtls server with configurable threadpool.\n");
+            printf("  Num allowed threads is: 1 <= n <= %d\n",
+                    DTLS_NUMTHREADS);
         default:
             return EXIT_FAILURE;
         }
@@ -223,7 +228,7 @@ main(int   argc,
             ret = pthread_create(&threads[i], NULL, server_work, &args[i]);
 
             if (ret == 0 ) {
-                printf("info: spawned thread: %ld\n", threads[i]);
+                printf("info: spawned thread: %ld\n", (long)threads[i]);
             }
             else {
                 printf("error: pthread_create returned %d\n", ret);
@@ -238,7 +243,7 @@ main(int   argc,
     for (size_t i = 0; i < n_threads; ++i) {
         if (threads[i]) {
             pthread_join(threads[i], NULL);
-            printf("info: joined thread: %ld\n", threads[i]);
+            printf("info: joined thread: %ld\n", (long)threads[i]);
             threads[i] = 0;
         }
     }
@@ -321,7 +326,7 @@ server_work(void * args)
         }
 
         sprintf(send_msg, "msg %zu from server thread %ld\n", i,
-                pthread_self());
+                (long)pthread_self());
 
         n_bytes = wolfSSL_read(thread_args->ssl, recv_msg, sizeof(recv_msg) - 1);
 
@@ -360,7 +365,7 @@ server_work(void * args)
     }
 
     safer_shutdown(thread_args);
-    printf("info: exiting thread %ld\n", pthread_self());
+    printf("info: exiting thread %ld\n", (long)pthread_self());
     pthread_exit(NULL);
 }
 
@@ -409,7 +414,7 @@ cleanup_threadpool(pthread_t *     threads,
     for (size_t i = 0; i < n_threads; ++i) {
         if (threads[i]) {
             pthread_tryjoin_np(threads[i], NULL);
-            printf("info: joined thread: %ld\n", threads[i]);
+            printf("info: joined thread: %ld\n", (long)threads[i]);
             threads[i] = 0;
         }
     }
@@ -417,7 +422,7 @@ cleanup_threadpool(pthread_t *     threads,
     for (size_t i = 0; i < n_threads; ++i) {
         if (threads[i] && args[i].done == 1) {
             pthread_join(threads[i], NULL);
-            printf("info: joined thread: %ld\n", threads[i]);
+            printf("info: joined thread: %ld\n", (long)threads[i]);
             threads[i] = 0;
         }
     }

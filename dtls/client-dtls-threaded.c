@@ -47,8 +47,8 @@ typedef struct {
     WOLFSSL_CTX * ctx;
 } thread_args_t;
 
-static void     safer_shutdown(thread_args_t * args);
-static void *   client_work(void * arg);
+static void   safer_shutdown(thread_args_t * args);
+static void * client_work(void * arg);
 
 int
 main(int    argc,
@@ -65,13 +65,20 @@ main(int    argc,
     memset(threads, 0, sizeof(threads));
     memset(args, 0, sizeof(args));
 
-    while ((opt = getopt(argc, argv, "vt:n::?")) != -1) {
+    while ((opt = getopt(argc, argv, "t:?")) != -1) {
         switch (opt) {
         case 't':
             n_threads = atoi(optarg);
             break;
 
         case '?':
+            printf("usage:\n");
+            printf("  ./client-dtls-threaded [-t n]\n");
+            printf("\n");
+            printf("description:\n");
+            printf("  A simple dtls client with configurable threadpool.\n");
+            printf("  Num allowed threads is: 1 <= n <= %d\n",
+                    DTLS_NUMTHREADS);
         default:
             return EXIT_FAILURE;
         }
@@ -103,7 +110,7 @@ main(int    argc,
         ret = pthread_create(&threads[i], NULL, client_work, &args[i]);
 
         if (ret == 0 ) {
-            printf("info: spawned thread: %ld\n", threads[i]);
+            printf("info: spawned thread: %ld\n", (long)threads[i]);
         }
         else {
             printf("error: pthread_create returned %d\n", ret);
@@ -115,7 +122,7 @@ main(int    argc,
     for (size_t i = 0; i < n_threads; ++i) {
         if (threads[i]) {
             pthread_join(threads[i], NULL);
-            printf("info: joined thread: %ld\n", threads[i]);
+            printf("info: joined thread: %ld\n", (long)threads[i]);
             threads[i] = 0;
         }
     }
@@ -168,12 +175,14 @@ client_work(void * args)
         return NULL;
     }
 
+    printf("info: opened socket: %d\n", thread_args->activefd);
+
     /* Set the file descriptor for ssl and connect with ssl variable */
     wolfSSL_set_fd(thread_args->ssl, thread_args->activefd);
     if (wolfSSL_connect(thread_args->ssl) != SSL_SUCCESS) {
         err1 = wolfSSL_get_error(thread_args->ssl, 0);
         printf("error: thread %ld: wolfSSL_connect returned = %d, %s\n",
-                pthread_self(), err1,
+                (long)pthread_self(), err1,
                 wolfSSL_ERR_reason_error_string(err1));
         return NULL;
     }
@@ -185,9 +194,12 @@ client_work(void * args)
     const char * tid_str = NULL; /* Str to thread id in response. */
 
     for (size_t i = 0; i < 4; ++i) {
+        memset(send_msg, '\0', sizeof(send_msg));
+        memset(recv_msg, '\0', sizeof(recv_msg));
+
         char seq = '0' + (int) i;
         sprintf(send_msg, "msg %zu from client thread %ld\n", i,
-                pthread_self());
+                (long)pthread_self());
 
         n_bytes = wolfSSL_write(thread_args->ssl, send_msg, strlen(send_msg));
 
@@ -210,7 +222,7 @@ client_work(void * args)
         /* Check the server replied with the correct sequence record, e.g.:
          *   "msg 2 from server thread 140146322425536" */
         if (recv_msg[4] != seq) {
-            printf("error: got msg %c, expected %c\n", recv_msg[5], seq);
+            printf("error: got msg %c, expected %c\n", recv_msg[4], seq);
             break;
         }
 
@@ -223,12 +235,12 @@ client_work(void * args)
             /* Compare saved thread id. */
             if (server_tid != atol(tid_str)) {
                 printf("error: got rsp from server thread %ld, expected %ld\n",
-                        server_tid, atol(tid_str));
+                       server_tid, atol(tid_str));
                 break;
             }
             else {
-            printf("info: got response from server thread %ld\n",
-                        server_tid);
+                printf("info: got response from server thread %ld\n",
+                       server_tid);
             }
         }
 
@@ -265,5 +277,3 @@ safer_shutdown(thread_args_t * args)
 
     return;
 }
-
-
