@@ -1,6 +1,6 @@
 /* server-dtls-threaded.c
  *
- * Copyright (C) 2006-2020 wolfSSL Inc.
+ * Copyright (C) 2006-2024 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -20,8 +20,8 @@
  *
  *=============================================================================
  *
- * Bare-bones example of a threaded DTLS server for instructional/learning
- * purposes. Utilizes DTLS 1.2 and multi-threading
+ * A simple dtls server example with configurable threadpool, for
+ * instructional/learning purposes. Utilizes DTLS 1.2.
  */
 
 #include <wolfssl/options.h>
@@ -36,118 +36,80 @@
 #include <errno.h>
 #include <signal.h>
 #include <unistd.h>
+/* Uncomment if you want to build with the less portable
+ * non-blocking pthread_tryjoin_np.*/
+/* #define USE_NONBLOCK_JOIN */
+#ifdef USE_NONBLOCK_JOIN
+    #define _GNU_SOURCE
+#endif
 #include <pthread.h>
 
-#define SERV_PORT   11111           /* define our server port number */
-#define MSGLEN      4096
+#include "dtls-common.h"
 
-static WOLFSSL_CTX* ctx;                    /* global for ThreadControl*/
-static int          cleanup;                /* To handle shutdown */
-static struct       sockaddr_in cliAddr;    /* the client's address */
-static struct       sockaddr_in servAddr;   /* our server's address */
-
-void sig_handler(const int sig);
-void* ThreadControl(void*);
+#define MSGLEN          4096
+#define DTLS_NUMTHREADS 32
 
 typedef struct {
-    int activefd;
-    int size;
-    unsigned char b[MSGLEN];
-} threadArgs;
+    WOLFSSL * ssl;
+    int       activefd;
+    int       peer_port;
+    int       done;
+} thread_args_t;
 
-void sig_handler(const int sig)
+static WOLFSSL_CTX * ctx = NULL;
+static volatile int  stop_server = 0;
+
+static int    new_udp_listen_socket(void);
+static void   safer_shutdown(thread_args_t * args);
+static void * server_work(void * thread_args);
+static void   sig_handler(const int sig);
+static void   cleanup_threadpool(pthread_t * threads, thread_args_t * args,
+                                 int n_threads);
+
+int
+main(int   argc,
+     char* argv[])
 {
-    printf("\nSIGINT %d handled\n", sig);
-    cleanup = 1;
-    return;
-}
+    char               caCertLoc[] =   "../certs/ca-cert.pem";
+    char               servCertLoc[] = "../certs/server-cert.pem";
+    char               servKeyLoc[] =  "../certs/server-key.pem";
+    int                ret = 0;
+    /* Variables for awaiting datagram */
+    int                listenfd = 0;   /* Initialize our socket */
+    struct sockaddr_in cliaddr;         /* the client's address */
+    socklen_t          cliLen = sizeof(cliaddr);
+    /* variables needed for threading */
+    int                n_threads = 2;
+    pthread_t          threads[DTLS_NUMTHREADS];
+    thread_args_t      args[DTLS_NUMTHREADS];
+    int                opt = 0;
 
-void* ThreadControl(void* openSock)
-{
-    pthread_detach(pthread_self());
+    memset(threads, 0, sizeof(threads));
+    memset(args, 0, sizeof(args));
 
-    threadArgs* args = (threadArgs*)openSock;
-    int                recvLen = 0;                /* length of message     */
-    int                activefd = args->activefd;  /* the active descriptor */
-    int                msgLen = args->size;        /* the size of message   */
-    unsigned char      buff[msgLen];               /* the incoming message  */
-    char               ack[] = "I hear you fashizzle!\n";
-    WOLFSSL*           ssl;
-    int                e;                          /* error */
+    while ((opt = getopt(argc, argv, "t:?")) != -1) {
+        switch (opt) {
+        case 't':
+            n_threads = atoi(optarg);
+            break;
 
-    memcpy(buff, args->b, msgLen);
-
-    /* Create the WOLFSSL Object */
-    if ((ssl = wolfSSL_new(ctx)) == NULL) {
-        printf("wolfSSL_new error.\n");
-        cleanup = 1;
-        return NULL;
-    }
-
-    /* set the session ssl to client connection port */
-    wolfSSL_set_fd(ssl, activefd);
-
-    if (wolfSSL_accept(ssl) != SSL_SUCCESS) {
-
-        e = wolfSSL_get_error(ssl, 0);
-
-        printf("error = %d, %s\n", e, wolfSSL_ERR_reason_error_string(e));
-        printf("SSL_accept failed.\n");
-        return NULL;
-    }
-    if ((recvLen = wolfSSL_read(ssl, buff, msgLen-1)) > 0) {
-        printf("heard %d bytes\n", recvLen);
-
-        buff[recvLen] = 0;
-        printf("I heard this: \"%s\"\n", buff);
-    }
-    else if (recvLen < 0) {
-        int readErr = wolfSSL_get_error(ssl, 0);
-        if(readErr != SSL_ERROR_WANT_READ) {
-            printf("SSL_read failed.\n");
-            cleanup = 1;
-            return NULL;
+        case '?':
+            printf("usage:\n");
+            printf("  ./server-dtls-threaded [-t n]\n");
+            printf("\n");
+            printf("description:\n");
+            printf("  A simple dtls server with configurable threadpool.\n");
+            printf("  Num allowed threads is: 1 <= n <= %d\n",
+                    DTLS_NUMTHREADS);
+        default:
+            return EXIT_FAILURE;
         }
     }
-    if (wolfSSL_write(ssl, ack, sizeof(ack)) < 0) {
-        printf("wolfSSL_write fail.\n");
-        cleanup = 1;
-        return NULL;
+
+    if (n_threads <= 0 || n_threads > DTLS_NUMTHREADS) {
+        printf("error: invalid n_threads: %d\n", n_threads);
+        return EXIT_FAILURE;
     }
-    else {
-        printf("Sending reply.\n");
-    }
-
-    printf("reply sent \"%s\"\n", ack);
-
-    wolfSSL_shutdown(ssl);
-    wolfSSL_free(ssl);
-    close(activefd);
-    free(openSock);                 /* valgrind friendly free */
-
-    printf("Client left return to idle state\n");
-    printf("Exiting thread.\n\n");
-    pthread_exit(openSock);
-}
-
-int main(int argc, char** argv)
-{
-    /* cont short for "continue?", Loc short for "location" */
-    int         cont = 0;
-    char        caCertLoc[] = "../certs/ca-cert.pem";
-    char        servCertLoc[] = "../certs/server-cert.pem";
-    char        servKeyLoc[] = "../certs/server-key.pem";
-
-    int           on = 1;
-    int           res = 1;
-    int           bytesRcvd = 0;
-    int           listenfd = 0;   /* Initialize our socket */
-    socklen_t     cliLen;
-    socklen_t     len = sizeof(on);
-    unsigned char buf[MSGLEN];      /* watch for incoming messages */
-    /* variables needed for threading */
-    threadArgs* args;
-    pthread_t threadid;
 
     /* Code for handling signals */
     struct sigaction act, oact;
@@ -156,161 +118,315 @@ int main(int argc, char** argv)
     act.sa_flags = 0;
     sigaction(SIGINT, &act, &oact);
 
-    /* "./config --enable-debug" and uncomment next line for debugging */
+    /* Uncomment if you want debugging. */
     /* wolfSSL_Debugging_ON(); */
 
     /* Initialize wolfSSL */
     wolfSSL_Init();
 
     /* Set ctx to DTLS 1.2 */
-    if ((ctx = wolfSSL_CTX_new(wolfDTLSv1_2_server_method())) == NULL) {
-        printf("wolfSSL_CTX_new error.\n");
-        return 1;
+    ctx = wolfSSL_CTX_new(wolfDTLSv1_2_server_method());
+    if (ctx == NULL) {
+        printf("error: wolfSSL_CTX_new error.\n");
+        return EXIT_FAILURE;
     }
+
     /* Load CA certificates */
-    if (wolfSSL_CTX_load_verify_locations(ctx,caCertLoc,0) !=
-            SSL_SUCCESS) {
-        printf("Error loading %s, please check the file.\n", caCertLoc);
-        return 1;
+    ret = wolfSSL_CTX_load_verify_locations(ctx,caCertLoc,0);
+    if (ret != SSL_SUCCESS) {
+        printf("error: error loading %s, please check the file.\n", caCertLoc);
+        return EXIT_FAILURE;
     }
+
     /* Load server certificates */
-    if (wolfSSL_CTX_use_certificate_file(ctx, servCertLoc, SSL_FILETYPE_PEM) != 
-            SSL_SUCCESS) {
-        printf("Error loading %s, please check the file.\n", servCertLoc);
-        return 1;
+    ret = wolfSSL_CTX_use_certificate_file(ctx, servCertLoc, SSL_FILETYPE_PEM);
+    if (ret != SSL_SUCCESS) {
+        printf("error: error loading %s, please check the file.\n", servCertLoc);
+        return EXIT_FAILURE;
     }
+
     /* Load server Keys */
-    if (wolfSSL_CTX_use_PrivateKey_file(ctx, servKeyLoc,
-                SSL_FILETYPE_PEM) != SSL_SUCCESS) {
+    ret = wolfSSL_CTX_use_PrivateKey_file(ctx, servKeyLoc, SSL_FILETYPE_PEM);
+
+    if (ret != SSL_SUCCESS) {
         printf("Error loading %s, please check the file.\n", servKeyLoc);
-        return 1;
+        return EXIT_FAILURE;
     }
 
     /* Create a UDP/IP socket */
-    if ((listenfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) {
-        printf("Cannot create socket.\n");
-        cleanup = 1;
-    }
-    printf("Socket allocated\n");
+    listenfd = new_udp_listen_socket();
 
-    /* clear servAddr each loop */
-    memset((char *)&servAddr, 0, sizeof(servAddr));
-
-    /* host-to-network-long conversion (htonl) */
-    /* host-to-network-short conversion (htons) */
-    servAddr.sin_family      = AF_INET;
-    servAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    servAddr.sin_port        = htons(SERV_PORT);
-
-    /* Eliminate socket already in use error */
-    res = setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &on, len);
-    if (res < 0) {
-        printf("Setsockopt SO_REUSEADDR failed.\n");
-        cleanup = 1;
-        return 1;
+    if (listenfd <= 0 ) {
+        printf("error: cannot create socket: %d\n", listenfd);
+        return EXIT_FAILURE;
     }
 
-    /*Bind Socket*/
-    if (bind(listenfd,
-                (struct sockaddr *)&servAddr, sizeof(servAddr)) < 0) {
-        printf("Bind failed.\n");
-        cleanup = 1;
-        return 1;
-    }
+    printf("info: awaiting client dtls on port %d\n", SERV_PORT);
 
-    printf("Awaiting client connection on port %d\n", SERV_PORT);
-
-    while (cleanup != 1) {
-
-        memset(&threadid, 0, sizeof(threadid));
-
-        args = (threadArgs *) malloc(sizeof(threadArgs));
-
-        cliLen = sizeof(cliAddr);
-       /* note argument 4 of recvfrom not MSG_PEEK as dtls will see
-        * handshake packets and think a message is arriving. Instead
-        * read any real message to struct and pass struct into thread
-        * for processing.
-        */
-
-        bytesRcvd = (int)recvfrom(listenfd, (char *)buf, sizeof(buf), 0,
-                (struct sockaddr*)&cliAddr, &cliLen);
-
-        if (cleanup == 1) {
-            free(args);
-            return 1;
-        }
-
-        if (bytesRcvd < 0) {
-            printf("No clients in que, enter idle state\n");
-            continue;
-        }
-
-        else if (bytesRcvd > 0) {
-
-            /* put all the bytes from buf into args */
-            memcpy(args->b, buf, sizeof(buf));
-
-            args->size = bytesRcvd;
-
-            if ((args->activefd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) {
-                printf("Cannot create socket.\n");
-                cleanup = 1;
+    while (stop_server != 1) {
+        for (size_t i = 0; i < n_threads; ++i) {
+            if (stop_server) {
+                break;
             }
 
-            res = setsockopt(args->activefd, SOL_SOCKET, SO_REUSEADDR, &on,
-                    len);
-
-            if (res < 0) {
-                printf("Setsockopt SO_REUSEADDR failed.\n");
-                cleanup = 1;
-                return 1;
+            if (threads[i] != 0) {
+                /* Skip threads already spawned. */
+                continue;
             }
 
-            #ifdef SO_REUSEPORT
-                res = setsockopt(args->activefd, SOL_SOCKET, SO_REUSEPORT, &on,
-                        len);
-                if (res < 0) {
-                    printf("Setsockopt SO_REUSEPORT failed.\n");
-                    cleanup = 1;
-                    return 1;
-                }
-            #endif
+            memset(&args[i], 0, sizeof(thread_args_t));
 
-            if (connect(args->activefd, (const struct sockaddr *)&cliAddr,
-                        sizeof(cliAddr)) != 0) {
-                printf("Udp connect failed.\n");
-                cleanup = 1;
-                return 1;
+            args[i].ssl = wolfSSL_new(ctx);
+            if (args[i].ssl == NULL) {
+                printf("error: wolfSSL_new returned null\n");
+                break;
+            }
+
+            /* set the session ssl to client connection port */
+            ret = wolfSSL_set_fd(args[i].ssl, listenfd);
+            if (ret != SSL_SUCCESS) {
+                printf("error: wolfSSL_set_fd returned %d\n", ret);
+                break;
+            }
+
+            ret = wolfSSL_accept(args[i].ssl);
+            if (ret != SSL_SUCCESS) {
+                printf("error: wolfSSL_accept returned %d\n", ret);
+                break;
+            }
+
+            ret = wolfSSL_dtls_get_peer(args[i].ssl, &cliaddr, &cliLen);
+            if (ret != WOLFSSL_SUCCESS) {
+                printf("error: wolfSSL_dtls_get_peer failed\n");
+                break;
+            }
+
+            args[i].peer_port = ntohs(cliaddr.sin_port);
+
+            printf("info: new dtls session: %p, %d\n", (void*) args[i].ssl,
+                   args[i].peer_port);
+
+            /* Open new UDP socket. */
+            args[i].activefd = new_udp_listen_socket();
+            if (args[i].activefd <= 0 ) {
+                break;
+            }
+
+            ret = connect(args[i].activefd, (const struct sockaddr *)&cliaddr,
+                          cliLen);
+            if (ret != 0) {
+                printf("error: connect returned: %d\n", ret);
+                break;
+            }
+
+            ret = wolfSSL_set_dtls_fd_connected(args[i].ssl, args[i].activefd);
+            if (ret != SSL_SUCCESS) {
+                printf("error: wolfSSL_set_dtls_fd_connected: %d\n", ret);
+                break;
+            }
+
+            ret = pthread_create(&threads[i], NULL, server_work, &args[i]);
+
+            if (ret == 0 ) {
+                printf("info: spawned thread: %ld\n", (long)threads[i]);
+            }
+            else {
+                printf("error: pthread_create returned %d\n", ret);
+                threads[i] = 0;
+            }
+        }
+
+        cleanup_threadpool(threads, args, n_threads);
+    }
+
+    /* Do a final blocking join. */
+    for (size_t i = 0; i < n_threads; ++i) {
+        if (threads[i]) {
+            pthread_join(threads[i], NULL);
+            printf("info: joined thread: %ld\n", (long)threads[i]);
+            threads[i] = 0;
+        }
+    }
+
+    /* All threads exited. Do a final cleanup pass just in case. */
+    for (size_t i = 0; i < n_threads; ++i) {
+        safer_shutdown(&args[i]);
+    }
+
+    wolfSSL_CTX_free(ctx);
+    wolfSSL_Cleanup();
+
+    return EXIT_SUCCESS;
+}
+
+static int
+new_udp_listen_socket(void)
+{
+    struct sockaddr_in listen_addr;        /* our server's address */
+    int                sockfd = 0;
+    int                ret = 0;
+    int                on = 1;
+
+    sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+
+    if (sockfd <= 0) {
+        int errsave = errno;
+        printf("error: socket returned %d\n", errsave);
+        return -1;
+    }
+
+    memset(&listen_addr, 0, sizeof(listen_addr));
+
+    listen_addr.sin_family      = AF_INET;
+    listen_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    listen_addr.sin_port        = htons(SERV_PORT);
+
+    if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (char*)&on, sizeof(on)) != 0) {
+        printf("error: setsockopt() with SO_REUSEADDR");
+        close(sockfd);
+        sockfd = 0;
+        return -1;
+    }
+#ifdef SO_REUSEPORT
+    if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEPORT, (char*)&on, sizeof(on)) != 0) {
+        printf("error: setsockopt() with SO_REUSEPORT");
+        close(sockfd);
+        sockfd = 0;
+        return -1;
+    }
+#endif
+
+    ret = bind(sockfd, (const struct sockaddr *)&listen_addr,
+               sizeof(listen_addr));
+
+    if (ret != 0) {
+        int errsave = errno;
+        printf("error: bind returned %d\n", errsave);
+        close(sockfd);
+        sockfd = 0;
+        return -1;
+    }
+
+    printf("info: opened socket: %d\n", sockfd);
+
+    return sockfd;
+}
+
+static void *
+server_work(void * args)
+{
+    thread_args_t * thread_args = (thread_args_t *) args;
+    int             n_bytes = 0;
+    char            recv_msg[MSGLEN];
+    char            send_msg[MSGLEN];
+
+    for (size_t i = 0; i < 4; ++i) {
+        if (stop_server) {
+            break;
+        }
+
+        sprintf(send_msg, "msg %zu from server thread %ld\n", i,
+                (long)pthread_self());
+
+        n_bytes = wolfSSL_read(thread_args->ssl, recv_msg, sizeof(recv_msg) - 1);
+
+        if (n_bytes > 0) {
+            recv_msg[n_bytes] = 0;
+            printf("%s", recv_msg);
+        }
+        else {
+            printf("error: wolfSSL_read returned: %d\n", n_bytes);
+
+            int readErr = wolfSSL_get_error(thread_args->ssl, 0);
+            if(readErr != SSL_ERROR_WANT_READ) {
+                printf("SSL_read failed: %d\n", readErr);
+                break;
+            }
+        }
+
+        n_bytes = wolfSSL_write(thread_args->ssl, send_msg, strlen(send_msg));
+
+        if (n_bytes > 0) {
+            if (n_bytes != strlen(send_msg)) {
+                printf("error: sent %d, expected %zu bytes\n", n_bytes,
+                       strlen(send_msg));
             }
         }
         else {
-            /* else bytesRcvd = 0 */
-            printf("Recvfrom failed.\n");
-            cleanup = 1;
-            return 1;
-        }
-        printf("Connected!\n");
+            printf("error: wolfSSL_write returned: %d\n", n_bytes);
 
-        if (cleanup != 1) {
-            /* SPIN A THREAD HERE TO HANDLE "buff" and "reply/ack" */
-            pthread_create(&threadid, NULL, ThreadControl, args);
-            printf("control passed to ThreadControl.\n");
-        }
-        else if (cleanup == 1) {
-            return 1;
-        } else {
-            printf("I don't know what to tell ya man\n");
-        }
+            int readErr = wolfSSL_get_error(thread_args->ssl, 0);
+            if(readErr != SSL_ERROR_WANT_WRITE) {
+                printf("SSL_write failed: %d\n", readErr);
+            }
 
-        /* clear servAddr each loop */
-        memset((char *)&servAddr, 0, sizeof(servAddr));
+            break;
+        }
     }
 
-    if (cont == 1) {
-        wolfSSL_CTX_free(ctx);
-        wolfSSL_Cleanup();
+    safer_shutdown(thread_args);
+    printf("info: exiting thread %ld\n", (long)pthread_self());
+    pthread_exit(NULL);
+}
+
+/* Small shutdown wrapper to safely clean up a thread's
+ * connection. */
+static void
+safer_shutdown(thread_args_t * args)
+{
+    if (args == NULL) {
+        printf("error: safer_shutdown with null args\n");
+        return;
     }
 
-    return 0;
+    if (args->ssl != NULL) {
+        printf("info: closed dtls session: %p\n", (void*) args->ssl);
+        wolfSSL_shutdown(args->ssl);
+        wolfSSL_free(args->ssl);
+        args->ssl = NULL;
+    }
+
+    if (args->activefd > 0) {
+        printf("info: closed socket: %d\n", args->activefd);
+        close(args->activefd);
+        args->activefd = 0;
+    }
+
+    args->done = 1;
+
+    return;
+}
+
+static void
+sig_handler(const int sig)
+{
+    printf("info: SIGINT %d handled\n", sig);
+    stop_server = 1;
+    return;
+}
+
+static void
+cleanup_threadpool(pthread_t *     threads,
+                   thread_args_t * args,
+                   int             n_threads)
+{
+#ifdef USE_NONBLOCK_JOIN
+    for (size_t i = 0; i < n_threads; ++i) {
+        if (threads[i]) {
+            pthread_tryjoin_np(threads[i], NULL);
+            printf("info: joined thread: %ld\n", (long)threads[i]);
+            threads[i] = 0;
+        }
+    }
+#else
+    for (size_t i = 0; i < n_threads; ++i) {
+        if (threads[i] && args[i].done == 1) {
+            pthread_join(threads[i], NULL);
+            printf("info: joined thread: %ld\n", (long)threads[i]);
+            threads[i] = 0;
+        }
+    }
+#endif
+
+    return;
 }

@@ -25,6 +25,7 @@
  */
 
 #include <wolfssl/options.h>
+#include <wolfssl/ssl.h>
 #include <stdio.h>                  /* standard in/out procedures */
 #include <stdlib.h>                 /* defines system calls */
 #include <string.h>                 /* necessary for memset */
@@ -32,7 +33,6 @@
 #include <sys/socket.h>             /* used for all socket calls */
 #include <netinet/in.h>             /* used for sockaddr_in */
 #include <arpa/inet.h>
-#include <wolfssl/ssl.h>
 #include <errno.h>
 #include <signal.h>
 #include <unistd.h>
@@ -41,8 +41,8 @@
 #define MSGLEN      4096
 
 static int cleanup = 0;                 /* To handle shutdown */
-struct sockaddr_in servAddr;        /* our server's address */
-struct sockaddr_in cliaddr;         /* the client's address */
+static struct sockaddr_in servAddr;     /* our server's address */
+static struct sockaddr_in cliaddr;      /* the client's address */
 
 void sig_handler(const int sig);
 
@@ -52,6 +52,7 @@ int main(int argc, char** argv)
     char        caCertLoc[] = "../certs/ca-cert.pem";
     char        servCertLoc[] = "../certs/server-cert.pem";
     char        servKeyLoc[] = "../certs/server-key.pem";
+    int         ret = 0;
     WOLFSSL_CTX* ctx;
     /* Variables for awaiting datagram */
     int           on = 1;
@@ -73,25 +74,30 @@ int main(int argc, char** argv)
     wolfSSL_Init();
 
     /* Set ctx to DTLS 1.2 */
-    if ((ctx = wolfSSL_CTX_new(wolfDTLSv1_2_server_method())) == NULL) {
+    ctx = wolfSSL_CTX_new(wolfDTLSv1_2_server_method());
+    if (ctx == NULL) {
         printf("wolfSSL_CTX_new error.\n");
         return 1;
     }
+
     /* Load CA certificates */
-    if (wolfSSL_CTX_load_verify_locations(ctx,caCertLoc,0) !=
-            SSL_SUCCESS) {
+    ret = wolfSSL_CTX_load_verify_locations(ctx,caCertLoc,0);
+    if (ret != SSL_SUCCESS) {
         printf("Error loading %s, please check the file.\n", caCertLoc);
         return 1;
     }
+
     /* Load server certificates */
-    if (wolfSSL_CTX_use_certificate_file(ctx, servCertLoc, SSL_FILETYPE_PEM) != 
-                                                                 SSL_SUCCESS) {
+    ret = wolfSSL_CTX_use_certificate_file(ctx, servCertLoc, SSL_FILETYPE_PEM);
+    if (ret != SSL_SUCCESS) {
         printf("Error loading %s, please check the file.\n", servCertLoc);
         return 1;
     }
+
     /* Load server Keys */
-    if (wolfSSL_CTX_use_PrivateKey_file(ctx, servKeyLoc,
-                SSL_FILETYPE_PEM) != SSL_SUCCESS) {
+    ret = wolfSSL_CTX_use_PrivateKey_file(ctx, servKeyLoc, SSL_FILETYPE_PEM);
+
+    if (ret != SSL_SUCCESS) {
         printf("Error loading %s, please check the file.\n", servKeyLoc);
         return 1;
     }
@@ -101,11 +107,13 @@ int main(int argc, char** argv)
 
     while (cleanup != 1) {
         /* Create a UDP/IP socket */
-        if ((listenfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) {
-            printf("Cannot create socket.\n");
+        listenfd = socket(AF_INET, SOCK_DGRAM, 0);
+
+        if (listenfd <= 0 ) {
+            printf("error: cannot create socket: %d\n", listenfd);
             break;
         }
-        printf("Socket allocated\n");
+        printf("info: socket allocated: %d\n", listenfd);
 
         /* clear servAddr each loop */
         memset((char *)&servAddr, 0, sizeof(servAddr));
