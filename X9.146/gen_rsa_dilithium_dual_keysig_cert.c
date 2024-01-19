@@ -1,6 +1,6 @@
-/* custom_ext.c
+/* gen_rsa_dilithium_dual_keysig_cert.c
  *
- * Copyright (C) 2006-2021 wolfSSL Inc.
+ * Copyright (C) 2006-2024 wolfSSL Inc.
  *
  * This file is part of wolfSSL.
  *
@@ -50,6 +50,23 @@
 #define SUBJECT_EMAIL "pq-server@YourDomain.com"
 #endif
 
+int readFileIntoBuffer(char *fname, byte *buf, int *sz)
+{
+    int ret;
+    FILE *file;
+    XMEMSET(buf, 0, *sz);
+    file = fopen(fname, "rb");
+    if (!file) {
+        printf("failed to open file: %s\n", fname);
+        return -1;
+    }
+    ret = fread(buf, 1, *sz, file);
+    fclose(file);
+    if (ret > 0)
+        *sz = ret;
+    return ret;
+}
+
 static int do_certgen(int argc, char** argv)
 {
     int ret = 0;
@@ -62,15 +79,17 @@ static int do_certgen(int argc, char** argv)
 #else
     char caCert[] = "./ca-cert-pq.der";
     char newCertOutput[] = "./server-cert-pq.der";
+    char serverKeyFile[] = "./server-key.der";
     char sapkiFile[] = "../certs/dilithium_level2_server_pubkey.der";
     char altPrivFile[] = "../certs/dilithium_level2_server_key.der";
-    char serverKeyFile[] = "./server-key.der";
 #endif
     FILE* file;
     Cert newCert;
     DecodedCert preTBS;
+    char *sapkiFile = NULL;
+    char *altPrivFile = NULL;
 
-#ifndef GEN_ROOT_CERT
+#ifndef GEN_ROOT_CERT 
     byte caCertBuf[LARGE_TEMP_SZ];
     int caCertSz = LARGE_TEMP_SZ;
     byte serverKeyBuf[LARGE_TEMP_SZ];
@@ -121,31 +140,15 @@ static int do_certgen(int argc, char** argv)
      * certificate. We need to get it's subject line to use in the new cert
      * we're creating as the "Issuer" line */
     printf("Loading CA certificate\n");
-    XMEMSET(caCertBuf, 0, caCertSz);
-    file = fopen(caCert, "rb");
-    if (!file) {
-        printf("failed to open file: %s\n", caCert);
-        goto exit;
-    }
-    ret = fread(caCertBuf, 1, caCertSz, file);
-    fclose(file);
+    ret = readFileIntoBuffer(caCert, caCertBuf, &caCertSz);
     if (ret <= 0) goto exit;
-    caCertSz = ret;
     printf("Successfully read %d bytes from %s\n\n", caCertSz, caCert);
 
     /* Open the server private key. We need this to embed the public part into
      * the certificate. */
     printf("Loading server private key\n");
-    XMEMSET(serverKeyBuf, 0, serverKeySz);
-    file = fopen(serverKeyFile, "rb");
-    if (!file) {
-        printf("failed to open file: %s\n", serverKeyFile);
-        goto exit;
-    }
-    ret = fread(serverKeyBuf, 1, serverKeySz, file);
-    fclose(file);
+    ret = readFileIntoBuffer(serverKeyFile, serverKeyBuf, &serverKeySz);
     if (ret <= 0) goto exit;
-    serverKeySz = ret;
     printf("Successfully read %d bytes from %s\n\n", serverKeySz,
            serverKeyFile);
 
@@ -162,16 +165,8 @@ static int do_certgen(int argc, char** argv)
 
     /* Open caKey file and get the caKey, we need it to sign our new cert. */
     printf("Loading the CA key\n");
-    XMEMSET(caKeyBuf, 0, caKeySz);
-    file = fopen(caKeyFile, "rb");
-    if (!file) {
-        printf("failed to open file: %s\n", caKeyFile);
-        goto exit;
-    }
-    ret = fread(caKeyBuf, 1, caKeySz, file);
-    fclose(file);
+    ret = readFileIntoBuffer(caKeyFile, caKeyBuf, &caKeySz);
     if (ret <= 0) goto exit;
-    caKeySz = ret;
     printf("Successfully read %d bytes from %s\n", caKeySz, caKeyFile);
 
     printf("Decoding the CA private key\n");
@@ -185,30 +180,14 @@ static int do_certgen(int argc, char** argv)
 
     /* Open the subject alternative public key file. */
     printf("Loading the subject alternative public key\n");
-    XMEMSET(sapkiBuf, 0, sapkiSz);
-    file = fopen(sapkiFile, "rb");
-    if (!file) {
-        printf("failed to open file: %s\n", sapkiFile);
-        goto exit;
-    }
-    ret = fread(sapkiBuf, 1, sapkiSz, file);
-    fclose(file);
+    ret = readFileIntoBuffer(sapkiFile, sapkiBuf, &sapkiSz);
     if (ret <= 0) goto exit;
-    sapkiSz = ret;
     printf("Successfully read %d bytes from %s\n", sapkiSz, sapkiFile);
 
     /* Open the issuer's alternative private key file. */
     printf("Loading the alternative private key\n");
-    XMEMSET(altPrivBuf, 0, altPrivSz);
-    file = fopen(altPrivFile, "rb");
-    if (!file) {
-        printf("failed to open file: %s\n", altPrivFile);
-        goto exit;
-    }
-    ret = fread(altPrivBuf, 1, altPrivSz, file);
-    fclose(file);
+    ret = readFileIntoBuffer(altPrivFile, altPrivBuf, &altPrivSz);
     if (ret <= 0) goto exit;
-    altPrivSz = ret;
     printf("Successfully read %d bytes from %s\n", altPrivSz, altPrivFile);
 
     printf("Decoding the CA alt private key\n");
@@ -223,6 +202,7 @@ static int do_certgen(int argc, char** argv)
     printf("Successfully decoded CA alt private key\n");
 
     XMEMSET(altSigAlgBuf, 0, altSigAlgSz);
+
     altSigAlgSz = SetAlgoID(CTC_DILITHIUM_LEVEL2, altSigAlgBuf, oidSigType, 0);
     if (altSigAlgSz <= 0) goto exit;
     printf("Successfully generated alternative signature algorithm;");

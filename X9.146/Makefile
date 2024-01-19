@@ -27,7 +27,7 @@ CFLAGS+=$(DEBUG_FLAGS)
 #LIBS+=$(STATIC_LIB)
 LIBS+=$(DYN_LIB)
 
-all: gen_dual_keysig_root_cert gen_dual_keysig_server_cert gen_dilithium2_dual_keysig_root_cert gen_dilithium2_dual_keysig_server_cert gen_dilithium3_dual_keysig_root_cert gen_dilithium3_dual_keysig_server_cert gen_dilithium5_dual_keysig_root_cert gen_dilithium5_dual_keysig_server_cert gen_falcon1_dual_keysig_root_cert gen_falcon1_dual_keysig_server_cert gen_ecdsa_dilithium2_dual_keysig_root_cert gen_ecdsa_dilithium2_dual_keysig_server_cert gen_ecdsa_dilithium3_dual_keysig_root_cert gen_ecdsa_dilithium3_dual_keysig_server_cert gen_ecdsa_dilithium5_dual_keysig_root_cert gen_ecdsa_dilithium5_dual_keysig_server_cert gen_ecdsa_falcon1_dual_keysig_root_cert gen_ecdsa_falcon1_dual_keysig_server_cert gen_ecdsa_falcon5_dual_keysig_root_cert gen_ecdsa_falcon5_dual_keysig_server_cert
+all: gen_dual_keysig_root_cert gen_dual_keysig_server_cert gen_rsa_dilithium_dual_keysig_root_cert gen_rsa_dilithium_dual_keysig_server_cert gen_rsa_falcon_dual_keysig_root_cert gen_rsa_falcon_dual_keysig_server_cert gen_ecdsa_dilithium_dual_keysig_root_cert gen_ecdsa_dilithium_dual_keysig_server_cert gen_ecdsa_falcon_dual_keysig_root_cert gen_ecdsa_falcon_dual_keysig_server_cert
 
 
 gen_dual_keysig_root_cert: gen_dual_keysig_cert.c
@@ -36,59 +36,29 @@ gen_dual_keysig_root_cert: gen_dual_keysig_cert.c
 gen_dual_keysig_server_cert: gen_dual_keysig_cert.c
 	$(CC) -o $@ gen_dual_keysig_cert.c $(CFLAGS) $(CPPFLAGS) $(LIBS) -DGEN_SERVER_CERT
 
-gen_dilithium2_dual_keysig_root_cert: gen_dilithium2_dual_keysig_cert.c
-	$(CC) -o $@ gen_dilithium2_dual_keysig_cert.c $(CFLAGS) $(CPPFLAGS) $(LIBS) -DGEN_ROOT_CERT
+gen_rsa_dilithium_dual_keysig_root_cert: gen_rsa_dilithium_dual_keysig_cert.c
+	$(CC) -o $@ gen_rsa_dilithium_dual_keysig_cert.c $(CFLAGS) $(CPPFLAGS) $(LIBS) -DGEN_ROOT_CERT
 
-gen_dilithium2_dual_keysig_server_cert: gen_dilithium2_dual_keysig_cert.c
-	$(CC) -o $@ gen_dilithium2_dual_keysig_cert.c $(CFLAGS) $(CPPFLAGS) $(LIBS) -DGEN_SERVER_CERT
+gen_rsa_dilithium_dual_keysig_server_cert: gen_rsa_dilithium_dual_keysig_cert.c
+	$(CC) -o $@ gen_rsa_dilithium_dual_keysig_cert.c $(CFLAGS) $(CPPFLAGS) $(LIBS) -DGEN_SERVER_CERT
 
-gen_dilithium3_dual_keysig_root_cert: gen_dilithium3_dual_keysig_cert.c
-	$(CC) -o $@ gen_dilithium3_dual_keysig_cert.c $(CFLAGS) $(CPPFLAGS) $(LIBS) -DGEN_ROOT_CERT
+gen_rsa_falcon_dual_keysig_root_cert: gen_rsa_falcon_dual_keysig_cert.c
+	$(CC) -o $@ gen_rsa_falcon_dual_keysig_cert.c $(CFLAGS) $(CPPFLAGS) $(LIBS) -DGEN_ROOT_CERT
 
-gen_dilithium3_dual_keysig_server_cert: gen_dilithium3_dual_keysig_cert.c
-	$(CC) -o $@ gen_dilithium3_dual_keysig_cert.c $(CFLAGS) $(CPPFLAGS) $(LIBS) -DGEN_SERVER_CERT
+gen_rsa_falcon_dual_keysig_server_cert: gen_rsa_falcon_dual_keysig_cert.c
+	$(CC) -o $@ gen_rsa_falcon_dual_keysig_cert.c $(CFLAGS) $(CPPFLAGS) $(LIBS) -DGEN_SERVER_CERT
 
-gen_dilithium5_dual_keysig_root_cert: gen_dilithium5_dual_keysig_cert.c
-	$(CC) -o $@ gen_dilithium5_dual_keysig_cert.c $(CFLAGS) $(CPPFLAGS) $(LIBS) -DGEN_ROOT_CERT
+gen_ecdsa_dilithium_dual_keysig_root_cert: gen_ecdsa_dilithium_dual_keysig_cert.c
+	$(CC) -o $@ gen_ecdsa_dilithium_dual_keysig_cert.c $(CFLAGS) $(CPPFLAGS) $(LIBS) -DGEN_ROOT_CERT
 
-gen_dilithium5_dual_keysig_server_cert: gen_dilithium5_dual_keysig_cert.c
-	$(CC) -o $@ gen_dilithium5_dual_keysig_cert.c $(CFLAGS) $(CPPFLAGS) $(LIBS) -DGEN_SERVER_CERT
+gen_ecdsa_dilithium_dual_keysig_server_cert: gen_ecdsa_dilithium_dual_keysig_cert.c
+	$(CC) -o $@ gen_ecdsa_dilithium_dual_keysig_cert.c $(CFLAGS) $(CPPFLAGS) $(LIBS) -DGEN_SERVER_CERT
 
-gen_falcon1_dual_keysig_root_cert: gen_falcon1_dual_keysig_cert.c
-	$(CC) -o $@ gen_falcon1_dual_keysig_cert.c $(CFLAGS) $(CPPFLAGS) $(LIBS) -DGEN_ROOT_CERT
+gen_ecdsa_falcon_dual_keysig_root_cert: gen_ecdsa_falcon_dual_keysig_cert.c
+	$(CC) -o $@ gen_ecdsa_falcon_dual_keysig_cert.c $(CFLAGS) $(CPPFLAGS) $(LIBS) -DGEN_ROOT_CERT
 
-gen_falcon1_dual_keysig_server_cert: gen_falcon1_dual_keysig_cert.c
-	$(CC) -o $@ gen_falcon1_dual_keysig_cert.c $(CFLAGS) $(CPPFLAGS) $(LIBS) -DGEN_SERVER_CERT
-
-gen_ecdsa_dilithium2_dual_keysig_root_cert: gen_ecdsa_dilithium2_dual_keysig_cert.c
-	$(CC) -o $@ gen_ecdsa_dilithium2_dual_keysig_cert.c $(CFLAGS) $(CPPFLAGS) $(LIBS) -DGEN_ROOT_CERT
-
-gen_ecdsa_dilithium2_dual_keysig_server_cert: gen_ecdsa_dilithium2_dual_keysig_cert.c
-	$(CC) -o $@ gen_ecdsa_dilithium2_dual_keysig_cert.c $(CFLAGS) $(CPPFLAGS) $(LIBS) -DGEN_SERVER_CERT
-
-gen_ecdsa_dilithium3_dual_keysig_root_cert: gen_ecdsa_dilithium3_dual_keysig_cert.c
-	$(CC) -o $@ gen_ecdsa_dilithium3_dual_keysig_cert.c $(CFLAGS) $(CPPFLAGS) $(LIBS) -DGEN_ROOT_CERT
-
-gen_ecdsa_dilithium3_dual_keysig_server_cert: gen_ecdsa_dilithium3_dual_keysig_cert.c
-	$(CC) -o $@ gen_ecdsa_dilithium3_dual_keysig_cert.c $(CFLAGS) $(CPPFLAGS) $(LIBS) -DGEN_SERVER_CERT
-
-gen_ecdsa_dilithium5_dual_keysig_root_cert: gen_ecdsa_dilithium5_dual_keysig_cert.c
-	$(CC) -o $@ gen_ecdsa_dilithium5_dual_keysig_cert.c $(CFLAGS) $(CPPFLAGS) $(LIBS) -DGEN_ROOT_CERT
-
-gen_ecdsa_dilithium5_dual_keysig_server_cert: gen_ecdsa_dilithium5_dual_keysig_cert.c
-	$(CC) -o $@ gen_ecdsa_dilithium5_dual_keysig_cert.c $(CFLAGS) $(CPPFLAGS) $(LIBS) -DGEN_SERVER_CERT
-
-gen_ecdsa_falcon1_dual_keysig_root_cert: gen_ecdsa_falcon1_dual_keysig_cert.c
-	$(CC) -o $@ gen_ecdsa_falcon1_dual_keysig_cert.c $(CFLAGS) $(CPPFLAGS) $(LIBS) -DGEN_ROOT_CERT
-
-gen_ecdsa_falcon1_dual_keysig_server_cert: gen_ecdsa_falcon1_dual_keysig_cert.c
-	$(CC) -o $@ gen_ecdsa_falcon1_dual_keysig_cert.c $(CFLAGS) $(CPPFLAGS) $(LIBS) -DGEN_SERVER_CERT
-
-gen_ecdsa_falcon5_dual_keysig_root_cert: gen_ecdsa_falcon5_dual_keysig_cert.c
-	$(CC) -o $@ gen_ecdsa_falcon5_dual_keysig_cert.c $(CFLAGS) $(CPPFLAGS) $(LIBS) -DGEN_ROOT_CERT
-
-gen_ecdsa_falcon5_dual_keysig_server_cert: gen_ecdsa_falcon5_dual_keysig_cert.c
-	$(CC) -o $@ gen_ecdsa_falcon5_dual_keysig_cert.c $(CFLAGS) $(CPPFLAGS) $(LIBS) -DGEN_SERVER_CERT
+gen_ecdsa_falcon_dual_keysig_server_cert: gen_ecdsa_falcon_dual_keysig_cert.c
+	$(CC) -o $@ gen_ecdsa_falcon_dual_keysig_cert.c $(CFLAGS) $(CPPFLAGS) $(LIBS) -DGEN_SERVER_CERT
 
 .PHONY: clean all
 

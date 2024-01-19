@@ -1,6 +1,6 @@
-/* custom_ext.c
+/* gen_dual_keysig_cert.c
  *
- * Copyright (C) 2006-2021 wolfSSL Inc.
+ * Copyright (C) 2006-2024 wolfSSL Inc.
  *
  * This file is part of wolfSSL.
  *
