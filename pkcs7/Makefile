@@ -4,6 +4,7 @@ LIB_PATH = /usr/local
 CFLAGS   = -Wall -I$(LIB_PATH)/include
 ZLIB     =
 #ZLIB    += -lz
+PSA_LIB  = -lmbedcrypto
 LIBS     = -L$(LIB_PATH)/lib -lm ${ZLIB}
 
 # option variables
@@ -18,6 +19,11 @@ OPTIMIZE        = -Os
 CFLAGS+=$(OPTIMIZE)
 #LIBS+=$(STATIC_LIB)
 LIBS+=$(DYN_LIB)
+
+ifneq ($(PSA),)
+LIBS+=$(PSA_LIB)
+CFLAGS+=-DUSE_PSA
+endif
 
 # build targets
 SRC=$(wildcard *.c)
