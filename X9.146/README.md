@@ -101,7 +101,7 @@ openssl x509  -in server-cert-pq.der -inform der -out server-P256-dilithium2-cer
 openssl pkey  -in server-key.der -inform der -out server-P256-key.pem -outform pem
 
 openssl pkey  -in ../certs/dilithium_level2_server_key.der -inform der -out server-dilithium2-key-pq.pem -outform pem
-i
+
 (last one must be done with OQS's openssl fork)
 ```
 Then in wolfssl's source directory:
@@ -179,7 +179,7 @@ openssl x509  -in server-cert-pq.der -inform der -out server-P521-dilithium5-cer
 openssl pkey  -in server-key.der -inform der -out server-P521-key.pem -outform pem
 
 openssl pkey  -in ../certs/dilithium_level5_server_key.der -inform der -out server-dilithium5-key-pq.pem -outform pem
-i
+
 (last one must be done with OQS's openssl fork)
 ```
 Then in wolfssl's source directory:
@@ -284,9 +284,9 @@ Generate the certificate chain:
 
 ```
 
-./gen_dilithium_dual_keysig_root_cert
+./gen_rsa_dilithium_dual_keysig_root_cert
 
-./gen_dilithium_dual_keysig_server_cert
+./gen_rsa_dilithium_dual_keysig_server_cert
 ```
 
 Convert the DER encoded resulting certificates and keys into PEM:
@@ -323,9 +323,9 @@ openssl genpkey -algorithm rsa  -pkeyopt rsa_keygen_bits:3072 -out server-key.de
 Generate the certificate chain:
 
 ```
-./gen_falcon_dual_keysig_root_cert
+./gen_rsa_falcon_dual_keysig_root_cert
 
-./gen_falcon_dual_keysig_server_cert
+./gen_rsa_falcon_dual_keysig_server_cert
 ```
 
 Convert the DER encoded resulting certificates and keys into PEM:

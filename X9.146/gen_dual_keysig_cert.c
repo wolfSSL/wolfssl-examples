@@ -29,7 +29,7 @@
 #include <wolfssl/wolfcrypt/error-crypt.h>
 #include <wolfssl/wolfcrypt/logging.h>
 
-#if defined(WOLFSSL_X9_146)
+#if defined(WOLFSSL_DUAL_ALG_CERTS)
 
 #define LARGE_TEMP_SZ 4096
 
@@ -288,7 +288,7 @@ static int do_certgen(int argc, char** argv)
 
     /* Generate the DER for a pre-TBS. */
     XMEMSET(preTbsBuf, 0, preTbsSz);
-    ret = GeneratePreTBS(&preTBS, preTbsBuf, preTbsSz);
+    ret = wc_GeneratePreTBS(&preTBS, preTbsBuf, preTbsSz);
     if (ret < 0) goto exit;
     printf("PreTBS is %d bytes.\n", ret);
     preTbsSz = ret;
@@ -367,8 +367,8 @@ int main(int argc, char** argv)
 
 int main(int argc, char** argv)
 {
-    printf("Please compile wolfSSL with --enable-x9-146 or "
-           "CFLAGS=\"-DWOLFSSL_X9_146\"");
+    printf("Please compile wolfSSL with --enable-dual-alg-certs "
+           "or CFLAGS=\"-DWOLFSSL_DUAL_ALG_CERTS\"");
     return 0;
 }
 

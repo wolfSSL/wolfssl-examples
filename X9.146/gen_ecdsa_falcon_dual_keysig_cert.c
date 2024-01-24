@@ -29,7 +29,7 @@
 #include <wolfssl/wolfcrypt/error-crypt.h>
 #include <wolfssl/wolfcrypt/logging.h>
 
-#if defined(WOLFSSL_X9_146) && defined(HAVE_LIBOQS)
+#if defined(WOLFSSL_DUAL_ALG_CERTS) && defined(HAVE_LIBOQS)
 
 #define LARGE_TEMP_SZ 9216
 
@@ -146,12 +146,12 @@ static int do_certgen(int argc, char** argv)
 #endif
 
     if (argc != 2)
-        usage();
+        usage(argv[0]);
 
-    switch (argv[1])
+    switch (argv[1][0])
     {
     case '1':
-        level = 2;
+        level = 1;
         sapkiFile = sapkiFile1;
         altPrivFile = altPrivFile1;
         break;
@@ -161,7 +161,7 @@ static int do_certgen(int argc, char** argv)
         altPrivFile = altPrivFile5;
         break;
     default:
-        usage();
+        usage(argv[0]);
         break;
     }
 
@@ -325,7 +325,7 @@ static int do_certgen(int argc, char** argv)
 
     /* Generate the DER for a pre-TBS. */
     XMEMSET(preTbsBuf, 0, preTbsSz);
-    ret = GeneratePreTBS(&preTBS, preTbsBuf, preTbsSz);
+    ret = wc_GeneratePreTBS(&preTBS, preTbsBuf, preTbsSz);
     if (ret < 0) goto exit;
     printf("PreTBS is %d bytes.\n", ret);
     preTbsSz = ret;
@@ -420,8 +420,8 @@ int main(int argc, char** argv)
 
 int main(int argc, char** argv)
 {
-    printf("Please compile wolfSSL with --enable-x9-146 --with-liboqs or "
-           "CFLAGS=\"-DWOLFSSL_X9_146 -DHAVE_LIBOQS\"");
+    printf("Please compile wolfSSL with --enable-dual-alg-certs --with-liboqs "
+           "or CFLAGS=\"-DWOLFSSL_DUAL_ALG_CERTS -DHAVE_LIBOQS\"");
     return 0;
 }
 
