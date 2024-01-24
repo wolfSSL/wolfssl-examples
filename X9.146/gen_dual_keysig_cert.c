@@ -212,7 +212,9 @@ static int do_certgen(int argc, char** argv)
     printf("Successfully read %d bytes from %s\n", altPrivSz, altPrivFile);
 
     printf("Decoding the CA alt private key\n");
-    wc_ecc_init(&altCaKey);
+    ret = wc_ecc_init(&altCaKey);
+    if (ret != 0) goto exit;
+
     idx = 0;
     ret = wc_EccPrivateKeyDecode(altPrivBuf, &idx, &altCaKey,
                                  (word32)altPrivSz);

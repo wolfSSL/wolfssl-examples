@@ -30,7 +30,7 @@ Tested with these wolfSSL build options:
 
 ```sh
 ./autogen.sh  # If cloned from GitHub
-./configure --enable-x9-146 --with-liboqs --enable-debug
+./configure --enable-dual-alg-certs --with-liboqs --enable-debug
 make
 sudo make install
 sudo ldconfig # required on some targets
@@ -355,7 +355,7 @@ Tested with these wolfSSL build options:
 
 ```sh
 ./autogen.sh  # If cloned from GitHub
-./configure --enable-x9-146 --enable-debug
+./configure --enable-dual-alg-certs --enable-debug
 make
 sudo make install
 sudo ldconfig # required on some targets
