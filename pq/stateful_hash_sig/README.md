@@ -8,7 +8,8 @@ This directory contains:
 
 - An example that uses wolfCrypt XMSS/XMSS^MT hooks to sign and verify a message
   with a configurable XMSS/XMSS^MT parameter string. Requires wolfssl with `--enable-xmss=yes`
-  and `--with-libxmss=<path to patched xmss-reference install>`.
+  and `--with-libxmss=<path to patched xmss-reference install>`, or wolfssl
+  with `--enable-xmss=wolfssl`.
 
 # Prerequisites
 
@@ -18,8 +19,9 @@ in the wolfSSL repo's INSTALL file.
 
 https://github.com/wolfSSL/wolfssl/blob/master/INSTALL
 
-The XMSS/XMSS^MT example requires that the xmss-reference repository has been
-cloned, patched, and built. Please see item 20 in the wolfSSL repo's INSTALL file.
+If building with `--with-libxmss=<path>`, the XMSS/XMSS^MT example requires
+that the xmss-reference repository has been cloned, patched, and built. Please
+see item 20 in the wolfSSL repo's INSTALL file.
 
 The patch to use is `0001-Patch-to-support-wolfSSL-xmss-reference-integration.patch` from this XMSS/XMSS^MT example.
 This patch includes an addendum readme, `patch_readme.md`, that lists all changes made and explains their rationale.
@@ -79,7 +81,8 @@ description:
 
 # Building the XMSS/XMSS^MT example
 
-Configure the Makefile to point to your xmss install:
+If building with `--with-libxmss=<path>`, configure the Makefile to point to
+your xmss install:
 
 ```
 XMSS_INC = <path to patched xmss install>
