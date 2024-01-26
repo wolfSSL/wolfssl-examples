@@ -22,11 +22,11 @@
 #define WOLFDEMO_H_
 
 
-//#define WOLFCRYPT_TEST
-//#define WOLF_BENCHMARK
+#define WOLFCRYPT_TEST
+/* #define WOLF_BENCHMARK */
 
-#define WOLFSSL_CLIENT_TEST
-//#define WOLFSSL_SERVER_TEST
+/* #define WOLFSSL_CLIENT_TEST */
+/* #define WOLFSSL_SERVER_TEST */
 
 #if defined(WOLFSSL_CLIENT_TEST) || \
 	defined(WOLFSSL_SERVER_TEST)

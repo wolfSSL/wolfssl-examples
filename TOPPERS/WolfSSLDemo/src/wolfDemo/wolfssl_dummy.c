@@ -29,8 +29,8 @@
 #include <wolfssl/wolfcrypt/error-crypt.h>
 #include <stdio.h>
 
-#define YEAR 2023
-#define MON  2
+#define YEAR 2024
+#define MON  1
 
 static int tick = 0;
 
@@ -43,17 +43,17 @@ time_t time(time_t *t)
 int strncasecmp2(const char *s1, const char * s2, unsigned int sz)
 {
     for ( ; sz>0; sz--, s1++, s2++){
-            if (toupper(*s1) < toupper(*s2)){
-                return -1;
-            }
-            if (toupper(*s1) > toupper(*s2)){
-                return 1;
-            } 
+        if (toupper(*s1) < toupper(*s2)){
+            return -1;
+        }
+        if (toupper(*s1) > toupper(*s2)){
+            return 1;
+        }
     }
-    return 0;	
+    return 0;
 }
 
-void abort(void) 
+void abort(void)
 {
     while(1);
 }
