@@ -79,7 +79,8 @@ static int write_file_buffer(const char* fileName, byte* in, word32 inSz)
 }
 
 static int envelopedData_encrypt(byte* cert, word32 certSz, byte* key,
-                                 word32 keySz, byte* out, word32 outSz)
+                                 word32 keySz, byte* out, word32 outSz,
+                                 byte useStreamMode)
 {
     int ret;
     PKCS7* pkcs7;
@@ -92,6 +93,10 @@ static int envelopedData_encrypt(byte* cert, word32 certSz, byte* key,
     pkcs7->contentSz      = sizeof(data);
     pkcs7->contentOID     = DATA;
     pkcs7->encryptOID     = AES256CBCb;
+
+    if (useStreamMode) {
+        wc_PKCS7_SetStreamMode(pkcs7, 1);
+    }
 
     /* add recipient using RSA certificate (KTRI type) */
     ret = wc_PKCS7_AddRecipient_KTRI(pkcs7, cert, certSz, 0);
@@ -109,8 +114,8 @@ static int envelopedData_encrypt(byte* cert, word32 certSz, byte* key,
         return -1;
 
     } else {
-        printf("Successfully encoded EnvelopedData bundle (%s)\n",
-                encodedFileKTRI);
+        printf("Successfully encoded EnvelopedData bundle (%s), stream mode"
+               " %d\n", encodedFileKTRI, useStreamMode);
 
         if (write_file_buffer(encodedFileKTRI, out, ret) != 0) {
             printf("ERROR: error writing encoded to output file\n");
@@ -177,7 +182,7 @@ int main(int argc, char** argv)
     byte key[2048];
     byte encrypted[1024];
     byte decrypted[1024];
-    
+
 #ifdef DEBUG_WOLFSSL
     wolfSSL_Debugging_ON();
 #endif
@@ -189,9 +194,17 @@ int main(int argc, char** argv)
         return -1;
 
     encryptedSz = envelopedData_encrypt(cert, certSz, key, keySz,
-                                        encrypted, sizeof(encrypted));
+                                        encrypted, sizeof(encrypted), 0);
     if (encryptedSz < 0)
         return -1;
+
+#ifdef ASN_BER_TO_DER
+    /* recreate the bundle with BER encoding */
+    encryptedSz = envelopedData_encrypt(cert, certSz, key, keySz,
+                                        encrypted, sizeof(encrypted), 1);
+    if (encryptedSz < 0)
+        return -1;
+#endif
 
 #ifdef DEBUG_WOLFSSL
     printf("EnvelopedData DER (%d byte):\n", encryptedSz);
