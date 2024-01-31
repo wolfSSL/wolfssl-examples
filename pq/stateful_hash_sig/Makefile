@@ -1,4 +1,8 @@
 # PQ Stateful Hash-Based Signature Examples Makefile
+#
+# XMSS_INC, XMSS_LIB, and WOLF_STATIC_LIB are only required if
+# building with --with-libxmss.
+#
 CC       = gcc
 LIB_PATH = /usr/local
 HSS_INC  =
@@ -35,7 +39,10 @@ lms_example: lms_example.c
 	$(CC) -o $@ $< $(CFLAGS) -I$(HSS_INC) $(LIBS) $(WOLF_STATIC_LIB) $(HSS_LIB)
 
 xmss_example: xmss_example.c
+# If building with  --enable-xmss=wolfssl:
 	$(CC) -o $@ $< $(CFLAGS) -I$(XMSS_INC) $(LIBS) $(WOLF_STATIC_LIB) $(XMSS_LIB)
+# If building with  --enable-xmss --with-libxmss=<path>:
+#	$(CC) -o $@ $< $(CFLAGS) $(LIBS) $(WOLF_DYN_LIB)
 
 xmss_example_verifyonly: xmss_example.c
 	$(CC) -o $@ $< $(CFLAGS) -I$(XMSS_INC) -DWOLFSSL_XMSS_VERIFY_ONLY $(LIBS) $(WOLF_STATIC_LIB) $(XMSS_LIB)

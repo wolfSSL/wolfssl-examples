@@ -24,12 +24,16 @@
 #include <wolfssl/options.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
 
-#ifdef HAVE_LIBXMSS
+#ifdef WOLFSSL_HAVE_XMSS
 
 #include <wolfssl/wolfcrypt/xmss.h>
-#include <wolfssl/wolfcrypt/ext_xmss.h>
+#ifdef HAVE_LIBXMSS
+    #include <wolfssl/wolfcrypt/ext_xmss.h>
+#else
+    #include <wolfssl/wolfcrypt/wc_xmss.h>
+#endif
 
-static void dump_hex(const char * what, const uint8_t * buf, size_t len);
+static void dump_hex(const char * what, const byte * buf, size_t len);
 static void print_usage(void);
 #if !defined WOLFSSL_XMSS_VERIFY_ONLY
 static int  do_xmss_example(const char * params, size_t sigs_to_do);
@@ -304,6 +308,13 @@ do_xmss_example(const char * params,
 
     printf("signing and verifying %zu signatures...\n", sigs_to_do);
     for (size_t i = 0; i < sigs_to_do; ++i) {
+        ret = wc_XmssKey_SigsLeft(&signingKey);
+
+        if (ret <= 0) {
+            fprintf(stderr, "info: %zu: wc_XmssKey_SigsLeft returned %d\n", i, ret);
+            break;
+        }
+
         ret = wc_XmssKey_Sign(&signingKey, sig, &sigSz,(byte *) msg,
                              strlen(msg));
         if (ret) {
@@ -524,9 +535,9 @@ read_file(byte *       data,
 #endif /* if !defined WOLFSSL_XMSS_VERIFY_ONLY */
 
 static void
-dump_hex(const char *    what,
-         const uint8_t * buf,
-         size_t          len)
+dump_hex(const char * what,
+         const byte * buf,
+         size_t       len)
 {
     printf("%s\n", what);
     for (size_t i = 0; i < len; ++i) {
@@ -547,7 +558,7 @@ dump_hex(const char *    what,
 #else
 
 int main(int argc, char** argv) {
-    printf("This requires the --with-libxmss flag.\n");
+    printf("This requires --enable-xmss.\n");
     return 0;
 }
 #endif /* WITH_LIBXMSS */
