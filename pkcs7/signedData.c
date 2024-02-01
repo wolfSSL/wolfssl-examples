@@ -136,8 +136,9 @@ static int signedData_sign_noattrs(byte* cert, word32 certSz, byte* key,
         return -1;
 
     } else {
-        printf("Successfully encoded SignedData bundle (%s) %s\n",
-               encodedFileNoAttrs, (noCerts)? "No Certs Added":"");
+        printf("Successfully encoded SignedData bundle (%s) %s %s\n",
+               encodedFileNoAttrs, (noCerts)? ", No Certs Added":"",
+               (streamMode)? ", Using Stream Mode": "");
 
 #ifdef DEBUG_WOLFSSL
         printf("Encoded DER (%d bytes):\n", ret);
