@@ -117,8 +117,10 @@ int main(int argc, char** argv)
     certSz = sizeof(cert);
     keySz  = sizeof(key);
     ret = load_certs(argv[1], cert, &certSz, argv[2], key, &keySz);
-    if (ret != 0)
+    if (ret != 0) {
+        printf("Error loading cert and key\n");
         return -1;
+    }
 
     /* read encrypted bundle */
     {
