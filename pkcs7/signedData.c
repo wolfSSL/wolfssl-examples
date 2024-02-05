@@ -79,7 +79,8 @@ static int write_file_buffer(const char* fileName, byte* in, word32 inSz)
 }
 
 static int signedData_sign_noattrs(byte* cert, word32 certSz, byte* key,
-                                   word32 keySz, byte* out, word32 outSz)
+                                   word32 keySz, byte* out, word32 outSz,
+                                   byte streamMode, byte noCerts)
 {
     int ret;
     PKCS7* pkcs7;
@@ -118,6 +119,14 @@ static int signedData_sign_noattrs(byte* cert, word32 certSz, byte* key,
     pkcs7->signedAttribs   = NULL;
     pkcs7->signedAttribsSz = 0;
 
+    if (streamMode) {
+        wc_PKCS7_SetStreamMode(pkcs7, 1);
+    }
+
+    if (noCerts) {
+        wc_PKCS7_SetNoCerts(pkcs7, 1);
+    }
+
     /* encode signedData, returns size */
     ret = wc_PKCS7_EncodeSignedData(pkcs7, out, outSz);
     if (ret <= 0) {
@@ -127,8 +136,9 @@ static int signedData_sign_noattrs(byte* cert, word32 certSz, byte* key,
         return -1;
 
     } else {
-        printf("Successfully encoded SignedData bundle (%s)\n",
-               encodedFileNoAttrs);
+        printf("Successfully encoded SignedData bundle (%s) %s %s\n",
+               encodedFileNoAttrs, (noCerts)? ", No Certs Added":"",
+               (streamMode)? ", Using Stream Mode": "");
 
 #ifdef DEBUG_WOLFSSL
         printf("Encoded DER (%d bytes):\n", ret);
@@ -244,10 +254,14 @@ static int signedData_verify(byte* in, word32 inSz, byte* cert,
 
     if (ret < 0 || (pkcs7->contentSz != sizeof(data)) ||
         (XMEMCMP(pkcs7->content, data, pkcs7->contentSz) != 0)) {
-        printf("ERROR: Failed to verify SignedData bundle, ret = %d\n", ret);
-        wc_PKCS7_Free(pkcs7);
-        return -1;
-
+        if (ret == PKCS7_SIGNEEDS_CHECK) {
+            printf("WARNING: Parsed through bundle but no certificates found to"
+                   " verify signature with\n");
+        }
+        else {
+            printf("ERROR: Failed to verify SignedData bundle, ret = %d\n",
+                ret);
+        }
     } else {
         printf("Successfully verified SignedData bundle.\n");
 
@@ -287,7 +301,7 @@ int main(int argc, char** argv)
 
     /* no attributes */
     encryptedSz = signedData_sign_noattrs(cert, certSz, key, keySz,
-                                          encrypted, sizeof(encrypted));
+                                          encrypted, sizeof(encrypted), 0, 0);
     if (encryptedSz < 0)
         return -1;
 
@@ -295,6 +309,19 @@ int main(int argc, char** argv)
                                     cert, certSz, key, keySz,
                                     decrypted, sizeof(decrypted));
     if (decryptedSz < 0)
+        return -1;
+
+    /* no attributes, stream mode, and no certs */
+    encryptedSz = signedData_sign_noattrs(cert, certSz, key, keySz,
+                                          encrypted, sizeof(encrypted), 1, 1);
+    if (encryptedSz < 0)
+        return -1;
+
+    decryptedSz = signedData_verify(encrypted, encryptedSz,
+                                    cert, certSz, key, keySz,
+                                    decrypted, sizeof(decrypted));
+    /* should be error to warn that the signature needs checked */
+    if (decryptedSz != PKCS7_SIGNEEDS_CHECK)
         return -1;
 
     /* default attributes + messageType attribute */

@@ -32,6 +32,7 @@ fileArray=(
 
     # CMS EnvelopedData example apps
     "envelopedData-kari"
+    "envelopedDataDecode"
     "envelopedData-kekri"
     "envelopedData-ktri"
     "envelopedData-ori"
@@ -53,7 +54,11 @@ echo ""
 for i in "${fileArray[@]}"
 do
     if [ -f $i ]; then
-        eval "./$i"
+        if [ "$i" == "envelopedDataDecode" ]; then
+            eval "./$i ../certs/client-cert.der ../certs/client-key.der envelopedDataKTRI.der"
+        else
+            eval "./$i"
+        fi
         if [ $? -ne 0 ]
         then
             echo "Test FAILED"
