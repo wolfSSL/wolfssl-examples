@@ -1,6 +1,7 @@
 
 #include <efi.h>
 #include <efilib.h>
+#include <wolfssl/wolfcrypt/settings.h>
 #include <wolfssl/wolfcrypt/logging.h>
 #include <wolfssl/wolfcrypt/test/test.h>
 
