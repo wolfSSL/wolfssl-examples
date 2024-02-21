@@ -372,6 +372,16 @@ details.
 
 <br />
 
+#### UEFI (wolfCrypt UEFI application Example)
+
+This directory contains an example UEFI application that runs wolfcrypt test.
+
+Please see the [uefi/README.md](uefi/README.md) for further usage and
+details.
+
+
+<br />
+
 ## Notes
 
 
