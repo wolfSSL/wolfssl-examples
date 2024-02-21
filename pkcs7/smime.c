@@ -67,6 +67,12 @@ static int Create(byte* smime, int* smimeSz, byte* key, int keySz,
         pkcs7->privateKeySz = keySz;
         pkcs7->contentOID   = DATA;  /* inner content default is DATA */
         pkcs7->hashOID      = SHA256h;  /* default to SHA-256 hash type */
+        pkcs7->signedAttribs = NULL;
+        pkcs7->signedAttribsSz = 0;
+    #ifndef NO_AES
+        pkcs7->keyWrapOID  = AES256_WRAP;
+        pkcs7->keyAgreeOID = dhSinglePass_stdDH_sha256kdf_scheme;
+    #endif
 
         /* type of SMIME */
         pkcs7Compat->type = SIGNED_DATA;
