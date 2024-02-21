@@ -193,6 +193,10 @@ int main(int argc, char** argv)
         return -1;
     }
 
+#ifdef DEBUG_WOLFSSL
+    wolfSSL_Debugging_ON();
+#endif
+
     if (wolfSSL_Init() != WOLFSSL_SUCCESS) {
         printf("Failure to initialize wolfSSL library\n");
         return -1;
@@ -218,7 +222,7 @@ int main(int argc, char** argv)
 
     /* create detached pkcs7 smime bundle */
     printf("\n");
-    smimeSz = 3072;
+    smimeSz = sizeof(smime);
     memset(smime, 0, smimeSz);
     if (ret == 0)
         ret = Create(smime, &smimeSz, key, keySz, cert, certSz,

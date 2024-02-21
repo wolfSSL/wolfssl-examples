@@ -618,6 +618,26 @@ Q31HIqX6H6JYdgtwHB1ZHaq+XS0lfLEGtsCqKKqTfNC9Q62RUBx7TfPk1w==
 -----END CERTIFICATE-----
 ```
 
+### Creating an SMIME bundle and verifying it
+
+In these example cases the content will be overridden by the content found in the
+SMIME bundle. The smime application creates both a detatched
+(detatched-smime-created.p7s) and a non detatched bundle (smime-created.p7s).
+
+Creating RSA signed bundles:
+
+```
+./smime ../certs/client-key.der ../certs/client-cert.der
+./smime-verify smime-created.p7s ../certs/client-cert.der content.txt
+```
+
+Creating ECC signed bundles:
+
+```
+./smime ../certs/ecc-client-key.der ../certs/client-ecc-cert.der
+./smime-verify detached-smime-created.p7s ../certs/client-ecc-cert.der content.txt
+```
+
 ## Support
 
 Please email wolfSSL support at support@wolfssl.com with any questions about
