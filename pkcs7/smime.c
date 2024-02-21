@@ -179,8 +179,8 @@ int main(int argc, char** argv)
     byte cert[2048];
     int certSz = 2048;
 
-    byte smime[3072];
-    int smimeSz = 3072;
+    byte smime[4096];
+    int smimeSz = 4096;
 
     byte content[] = "Test content to sign";
     int contentSz = sizeof(content);
