@@ -33,6 +33,7 @@ static int Verify(byte* smime, int smimeSz, byte* ca, int caSz, byte* contentIn,
 {
     WOLFSSL_PKCS7* pkcs7Compat = NULL;
     WOLFSSL_BIO *in, *content = NULL;
+    WOLFSSL_BIO *multi = NULL;
     WOLFSSL_X509* x509 = NULL;
     WOLFSSL_X509_STORE* store = NULL;
     int ret = 0;
@@ -43,7 +44,6 @@ static int Verify(byte* smime, int smimeSz, byte* ca, int caSz, byte* contentIn,
     }
 
     if (ret == 0) {
-        WOLFSSL_BIO *multi = NULL;
 
         wolfSSL_BIO_write(in, smime, smimeSz);
         pkcs7Compat = (WOLFSSL_PKCS7*)wolfSSL_SMIME_read_PKCS7(in, &multi);
@@ -61,7 +61,6 @@ static int Verify(byte* smime, int smimeSz, byte* ca, int caSz, byte* contentIn,
             for (i = 0; i < ptSz; i ++)
                 printf("%02X", pt[i]);
             printf("\n");
-            wolfSSL_BIO_free(multi);
         }
     }
 
@@ -98,7 +97,7 @@ static int Verify(byte* smime, int smimeSz, byte* ca, int caSz, byte* contentIn,
 
     if (ret == 0) {
         content = wolfSSL_BIO_new(wolfSSL_BIO_s_mem());
-        ret = wolfSSL_PKCS7_verify((PKCS7*)pkcs7Compat, NULL, store, NULL,
+        ret = wolfSSL_PKCS7_verify((PKCS7*)pkcs7Compat, NULL, store, multi,
             content, detached);
         if (ret == WOLFSSL_SUCCESS) {
             ret = 0;
@@ -131,6 +130,7 @@ static int Verify(byte* smime, int smimeSz, byte* ca, int caSz, byte* contentIn,
 
     wolfSSL_BIO_free(in);
     wolfSSL_BIO_free(content);
+    wolfSSL_BIO_free(multi);
     wolfSSL_PKCS7_free((PKCS7*)pkcs7Compat);
     wolfSSL_X509_free(x509);
     wolfSSL_X509_STORE_free(store);
@@ -229,6 +229,10 @@ int main(int argc, char** argv)
         printf("Use ./smime-verify <smime file> <der cert file> <content file>\n");
         return -1;
     }
+
+#ifdef DEBUG_WOLFSSL
+    wolfSSL_Debugging_ON();
+#endif
 
     if (wolfSSL_Init() != WOLFSSL_SUCCESS) {
         printf("Failure to initialize wolfSSL library\n");
