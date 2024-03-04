@@ -31,23 +31,42 @@
 #define encodedFile "signedData_stream.der"
 
 
-FILE *fileOut, *fileIn;
+typedef struct ExampleIO {
+    FILE *fileOut;
+    FILE *fileIn;
+} ExampleIO;
+static ExampleIO testIO;
+
 #define TEST_SIZE 256
 static byte* contentRead = NULL;
 
-static int GetContentCB(PKCS7* pkcs7, byte** content)
+static int GetContentCB(PKCS7* pkcs7, byte** content, void* ctx)
 {
     int ret;
+    ExampleIO* io = (ExampleIO*)ctx;
 
-    ret = fread(contentRead, 1, TEST_SIZE, fileIn);
+    if (io == NULL) {
+        printf("Issue getting user ctx in content CB\n");
+        return -1;
+    }
+
+    ret = fread(contentRead, 1, TEST_SIZE, io->fileIn);
     *content = contentRead;
 
     return ret;
 }
 
 
-static int StreamOutputCB(PKCS7* pkcs7, const byte* output, word32 outputSz)
+static int StreamOutputCB(PKCS7* pkcs7, const byte* output, word32 outputSz,
+    void* ctx)
 {
+    ExampleIO* io = (ExampleIO*)ctx;
+
+    if (io == NULL) {
+        printf("Issue getting user ctx in stream output CB\n");
+        return -1;
+    }
+
     if (outputSz > 0) {
     #if 0
         word32 z;
@@ -56,7 +75,7 @@ static int StreamOutputCB(PKCS7* pkcs7, const byte* output, word32 outputSz)
         printf("\n");
     #endif
 
-        if (fwrite(output, 1, outputSz, fileOut) != outputSz) {
+        if (fwrite(output, 1, outputSz, io->fileOut) != outputSz) {
             return -1;
         }
     }
@@ -141,7 +160,8 @@ static int signedData(byte* cert, word32 certSz, byte* key, word32 keySz,
     pkcs7->signedAttribsSz = sizeof(attribs)/sizeof(PKCS7Attrib);
 
     /* use streaming mode with IO callbacks */
-    wc_PKCS7_SetStreamMode(pkcs7, 1, GetContentCB, StreamOutputCB);
+    wc_PKCS7_SetStreamMode(pkcs7, 1, GetContentCB, StreamOutputCB,
+        (void*)&testIO);
 
     /* encode signedData, returns size */
     ret = wc_PKCS7_EncodeSignedData_ex(pkcs7, contentHash, WC_SHA256_DIGEST_SIZE, NULL, &outputSz, NULL, NULL);
@@ -154,11 +174,6 @@ static int signedData(byte* cert, word32 certSz, byte* key, word32 keySz,
     } else {
         printf("Successfully encoded SignedData bundle (%s)\n",
                encodedFile);
-
-#ifdef DEBUG_WOLFSSL
-        printf("Encoded DER (%d bytes):\n", ret);
-        //WOLFSSL_BUFFER(out, ret);
-#endif
     }
 
     wc_PKCS7_Free(pkcs7);
@@ -192,11 +207,6 @@ static int signedData_verify(byte* in, word32 inSz, byte* cert,
         }
     } else {
         printf("Successfully verified SignedData bundle.\n");
-
-#ifdef DEBUG_WOLFSSL
-        printf("Decoded content (%d bytes):\n", pkcs7->contentSz);
-        WOLFSSL_BUFFER(pkcs7->content, pkcs7->contentSz);
-#endif
     }
 
     wc_PKCS7_Free(pkcs7);
@@ -218,6 +228,12 @@ int main(int argc, char** argv)
     byte *encrypted = NULL;
     byte *decrypted = NULL;
 
+    if (argc != 2) {
+        printf("Expecting content file as input\n");
+        printf("%s <content file name>\n", argv[0]);
+        return -1;
+    }
+
 #ifdef DEBUG_WOLFSSL
     wolfSSL_Debugging_ON();
 #endif
@@ -228,8 +244,8 @@ int main(int argc, char** argv)
     }
 
     if (ret == 0) {
-        fileIn  = fopen(argv[1], "rb");
-        if (fileIn == NULL) {
+        testIO.fileIn  = fopen(argv[1], "rb");
+        if (testIO.fileIn == NULL) {
             printf("Issue opening file %s\n", argv[1]);
             XFREE(contentRead, NULL, DYNAMIC_TYPE_TMP_BUFFER);
             return -1;
@@ -237,10 +253,10 @@ int main(int argc, char** argv)
     }
 
     if (ret == 0) {
-        fileOut = fopen(encodedFile, "wb");
-        if (fileOut == NULL) {
+        testIO.fileOut = fopen(encodedFile, "wb");
+        if (testIO.fileOut == NULL) {
             printf("Issue opening file %s\n", encodedFile);
-            fclose(fileIn);
+            fclose(testIO.fileIn);
             XFREE(contentRead, NULL, DYNAMIC_TYPE_TMP_BUFFER);
             return -1;
         }
@@ -258,7 +274,7 @@ int main(int argc, char** argv)
 
         if (ret == 0) {
             do {
-                readSz = fread(contentRead, 1, TEST_SIZE, fileIn);
+                readSz = fread(contentRead, 1, TEST_SIZE, testIO.fileIn);
                 if (readSz > 0) {
                     ret = wc_Sha256Update(&sha256, contentRead, readSz);
                     if (ret != 0) {
@@ -278,8 +294,8 @@ int main(int argc, char** argv)
         wc_Sha256Free(&sha256);
     }
 
-    contentSz = ftell(fileIn);
-    fseek(fileIn, 0, SEEK_SET);
+    contentSz = ftell(testIO.fileIn);
+    fseek(testIO.fileIn, 0, SEEK_SET);
     printf("contentSz = %d\n", contentSz);
 
     if (ret == 0) {
@@ -294,8 +310,8 @@ int main(int argc, char** argv)
             contentHash);
     }
 
-    fclose(fileIn);
-    fclose(fileOut);
+    fclose(testIO.fileIn);
+    fclose(testIO.fileOut);
     if (encryptedSz < 0) {
         ret = encryptedSz;
         printf("Error %d with signing data\n", ret);

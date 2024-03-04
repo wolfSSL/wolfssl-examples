@@ -30,25 +30,44 @@
 
 #define encodedFileKTRI "envelopedDataKTRI-stream.der"
 
-FILE *fileOut, *fileIn;
+typedef struct ExampleIO {
+    FILE *fileOut;
+    FILE *fileIn;
+} ExampleIO;
+static ExampleIO testIO;
+
 #define TEST_SIZE 256
 static byte* contentRead = NULL;
 
-static int GetContentCB(PKCS7* pkcs7, byte** content)
+static int GetContentCB(PKCS7* pkcs7, byte** content, void* ctx)
 {
     int ret;
+    ExampleIO* io = (ExampleIO*)ctx;
 
-    ret = fread(contentRead, 1, TEST_SIZE, fileIn);
+    if (io == NULL) {
+        printf("Issue getting user ctx in content CB\n");
+        return -1;
+    }
+
+    ret = fread(contentRead, 1, TEST_SIZE, io->fileIn);
     *content = contentRead;
 
     return ret;
 }
 
 
-static int StreamOutputCB(PKCS7* pkcs7, const byte* output, word32 outputSz)
+static int StreamOutputCB(PKCS7* pkcs7, const byte* output, word32 outputSz,
+    void* ctx)
 {
+    ExampleIO* io = (ExampleIO*)ctx;
+
+    if (io == NULL) {
+        printf("Issue getting user ctx in stream output CB\n");
+        return -1;
+    }
+
     if (outputSz > 0) {
-        if (fwrite(output, 1, outputSz, fileOut) != outputSz) {
+        if (fwrite(output, 1, outputSz, io->fileOut) != outputSz) {
             return -1;
         }
     }
@@ -97,7 +116,8 @@ static int envelopedData_encrypt(byte* cert, word32 certSz, byte* key,
     pkcs7->encryptOID     = AES256CBCb;
 
     if (useStreamMode) {
-        wc_PKCS7_SetStreamMode(pkcs7, 1, GetContentCB, StreamOutputCB);
+        wc_PKCS7_SetStreamMode(pkcs7, 1, GetContentCB, StreamOutputCB,
+            (void*)&testIO);
     }
 
     /* add recipient using RSA certificate (KTRI type) */
@@ -187,7 +207,7 @@ int main(int argc, char** argv)
 #endif
 
     if (argc != 2) {
-        printf("USAGE: ./%s <content file name>\n", argv[0]);
+        printf("USAGE: %s <content file name>\n", argv[0]);
         return -1;
     }
 
@@ -196,16 +216,16 @@ int main(int argc, char** argv)
         return -1;
     }
 
-    fileIn  = fopen(argv[1], "rb");
-    if (fileIn == NULL) {
+    testIO.fileIn  = fopen(argv[1], "rb");
+    if (testIO.fileIn == NULL) {
         printf("Issue opening file %s\n", argv[1]);
         return -1;
     }
 
-    fileOut = fopen(encodedFileKTRI, "wb");
-    if (fileOut == NULL) {
+    testIO.fileOut = fopen(encodedFileKTRI, "wb");
+    if (testIO.fileOut == NULL) {
         printf("Issue opening file %s\n", encodedFileKTRI);
-        fclose(fileIn);
+        fclose(testIO.fileIn);
         return -1;
     }
 
@@ -216,14 +236,14 @@ int main(int argc, char** argv)
     }
 
     if (ret == 0) {
-        fseek(fileIn, 0, SEEK_END);
-        contentSz = ftell(fileIn);
-        fseek(fileIn, 0, SEEK_SET);
+        fseek(testIO.fileIn, 0, SEEK_END);
+        contentSz = ftell(testIO.fileIn);
+        fseek(testIO.fileIn, 0, SEEK_SET);
         printf("contentSz = %d\n", contentSz);
 
         certSz = sizeof(cert);
-        keySz = sizeof(key);
-        ret = load_certs(cert, &certSz, key, &keySz);
+        keySz  = sizeof(key);
+        ret    = load_certs(cert, &certSz, key, &keySz);
     }
 
     if (ret == 0) {
@@ -234,8 +254,8 @@ int main(int argc, char** argv)
             printf("Issue %d with encrypt\n", ret);
         }
     }
-    fclose(fileIn);
-    fclose(fileOut);
+    fclose(testIO.fileIn);
+    fclose(testIO.fileOut);
 
 
 #if 1
@@ -256,6 +276,7 @@ int main(int argc, char** argv)
             printf("error reading file %s\n", encodedFileKTRI);
             ret = -1;
         }
+        printf("Read %d bytes for encrypted file found\n", encryptedSz);
     }
 
     if (ret == 0) {
