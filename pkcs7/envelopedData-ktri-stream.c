@@ -192,6 +192,7 @@ static int envelopedData_decrypt(byte* in, word32 inSz, byte* cert,
 #if defined(HAVE_PKCS7) && defined(ASN_BER_TO_DER)
 
 #define EXTRA_ASN1_SIZE 1024
+#define DEFAULT_EXAMPLE_BUFFER_SIZE 2048
 
 int main(int argc, char** argv)
 {
@@ -199,8 +200,8 @@ int main(int argc, char** argv)
     int encryptedSz = 0, decryptedSz;
     word32 certSz, keySz, contentSz = 0;
 
-    byte cert[2048];
-    byte key[2048];
+    byte cert[DEFAULT_EXAMPLE_BUFFER_SIZE];
+    byte key[DEFAULT_EXAMPLE_BUFFER_SIZE];
     byte* encrypted = NULL;
     byte* decrypted = NULL;
 
