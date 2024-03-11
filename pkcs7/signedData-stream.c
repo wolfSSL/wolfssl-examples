@@ -1,6 +1,6 @@
 /* signedData-stream.c
  *
- * Copyright (C) 2006-2020 wolfSSL Inc.
+ * Copyright (C) 2006-2024 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -20,7 +20,9 @@
  */
 
 
-#include <wolfssl/options.h>
+#ifndef WOLFSSL_USER_SETTINGS
+    #include <wolfssl/options.h>
+#endif
 #include <wolfssl/wolfcrypt/settings.h>
 #include <wolfssl/wolfcrypt/pkcs7.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
@@ -115,10 +117,10 @@ static int signedData(byte* cert, word32 certSz, byte* key, word32 keySz,
     WC_RNG rng;
     word32 outputSz;
 
-    static byte messageTypeOid[] =
+    byte messageTypeOid[] =
                { 0x06, 0x0a, 0x60, 0x86, 0x48, 0x01, 0x86, 0xF8, 0x45, 0x01,
                  0x09, 0x02 };
-    static byte messageType[] = { 0x13, 2, '1', '9' };
+    byte messageType[] = { 0x13, 2, '1', '9' };
 
     PKCS7Attrib attribs[] =
     {
@@ -215,6 +217,7 @@ static int signedData_verify(byte* in, word32 inSz, byte* cert,
 }
 
 #ifdef HAVE_PKCS7
+#define DEFAULT_EXAMPLE_BUFFER_SIZE 2048
 
 int main(int argc, char** argv)
 {
@@ -223,8 +226,8 @@ int main(int argc, char** argv)
     word32 certSz, keySz;
 
     byte contentHash[WC_SHA256_DIGEST_SIZE];
-    byte cert[2048];
-    byte key[2048];
+    byte cert[DEFAULT_EXAMPLE_BUFFER_SIZE];
+    byte key[DEFAULT_EXAMPLE_BUFFER_SIZE];
     byte *encrypted = NULL;
     byte *decrypted = NULL;
 
