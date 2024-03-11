@@ -95,7 +95,7 @@ static int envelopedData_encrypt(byte* cert, word32 certSz, byte* key,
     pkcs7->encryptOID     = AES256CBCb;
 
     if (useStreamMode) {
-        wc_PKCS7_SetStreamMode(pkcs7, 1);
+        wc_PKCS7_SetStreamMode(pkcs7, 1, NULL, NULL, NULL);
     }
 
     /* add recipient using RSA certificate (KTRI type) */

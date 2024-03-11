@@ -177,10 +177,12 @@ pkcs7/compressedData
 pkcs7/*.der
 pkcs7/envelopedData-kari
 pkcs7/envelopedData-ktri
+pkcs7/envelopedData-ktri-stream
 pkcs7/envelopedData-kekri
 pkcs7/envelopedData-pwri
 pkcs7/envelopedData-ori
 pkcs7/signedData
+pkcs7/signedData-stream
 pkcs7/signedData-cryptodev
 pkcs7/signedData-FirmwarePkgData
 pkcs7/signedData-DetachedSignature

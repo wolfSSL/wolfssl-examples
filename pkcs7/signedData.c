@@ -120,7 +120,7 @@ static int signedData_sign_noattrs(byte* cert, word32 certSz, byte* key,
     pkcs7->signedAttribsSz = 0;
 
     if (streamMode) {
-        wc_PKCS7_SetStreamMode(pkcs7, 1);
+        wc_PKCS7_SetStreamMode(pkcs7, 1, NULL, NULL, NULL);
     }
 
     if (noCerts) {

@@ -1,6 +1,6 @@
 /* signedData-p7b.c
  *
- * Copyright (C) 2006-2020 wolfSSL Inc.
+ * Copyright (C) 2006-2024 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -28,7 +28,10 @@
  * This is only provided as an example and may need modification if integrated
  * into a production application.
  */
-#include <wolfssl/options.h>
+
+#ifndef WOLFSSL_USER_SETTINGS
+    #include <wolfssl/options.h>
+#endif
 #include <wolfssl/wolfcrypt/settings.h>
 #include <wolfssl/wolfcrypt/logging.h>
 #include <wolfssl/wolfcrypt/pkcs7.h>
@@ -114,8 +117,8 @@ int main(int argc, char** argv)
         singleCertPemSz = wc_DerToPem(singleCertDer, singleCertDerSz,
                                       singleCertPem, singleCertPemSz,
                                       CERT_TYPE);
-        if (singleCertPem < 0) {
-            printf("Error converting DER to PEM, ret = %d\n", ret);
+        if (singleCertPemSz < 0) {
+            printf("Error converting DER to PEM, ret = %d\n", singleCertPemSz);
             XFREE(singleCertPem, NULL, DYNAMIC_TYPE_TMP_BUFFER);
             break;
         }
