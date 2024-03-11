@@ -1,6 +1,6 @@
 /* signedData-verifyFile.c
  *
- * Copyright (C) 2006-2023 wolfSSL Inc.
+ * Copyright (C) 2006-2024 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -18,7 +18,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
-#include <wolfssl/options.h>
+
+#ifndef WOLFSSL_USER_SETTINGS
+    #include <wolfssl/options.h>
+#endif
 #include <wolfssl/wolfcrypt/settings.h>
 #include <wolfssl/wolfcrypt/pkcs7.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
@@ -115,8 +118,8 @@ static int VerifySignedData(byte* bundleBytes, word32 bundleSz,
         singleCertPemSz = wc_DerToPem(singleCertDer, singleCertDerSz,
                                       singleCertPem, singleCertPemSz,
                                       CERT_TYPE);
-        if (singleCertPem < 0) {
-            printf("Error converting DER to PEM, ret = %d\n", ret);
+        if (singleCertPemSz < 0) {
+            printf("Error converting DER to PEM, ret = %d\n", singleCertPemSz);
             XFREE(singleCertPem, NULL, DYNAMIC_TYPE_TMP_BUFFER);
             break;
         }

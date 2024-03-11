@@ -1,6 +1,6 @@
 /* envelopedData-ktri-stream.c
  *
- * Copyright (C) 2006-2020 wolfSSL Inc.
+ * Copyright (C) 2006-2024 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -19,7 +19,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
-#include <wolfssl/options.h>
+#ifndef WOLFSSL_USER_SETTINGS
+    #include <wolfssl/options.h>
+#endif
 #include <wolfssl/wolfcrypt/settings.h>
 #include <wolfssl/wolfcrypt/pkcs7.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
@@ -195,7 +197,7 @@ int main(int argc, char** argv)
 {
     int ret = 0;
     int encryptedSz = 0, decryptedSz;
-    word32 certSz, keySz, contentSz;
+    word32 certSz, keySz, contentSz = 0;
 
     byte cert[2048];
     byte key[2048];
