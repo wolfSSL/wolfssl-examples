@@ -1,20 +1,22 @@
 # Certificate Generation and Signing examples
 
 To test the certgen or csr_example example(s) configure wolfssl with
-`./configure --enable-certgen --enable-certreq` or add the defines:
+`./configure --enable-certgen --enable-certreq --enable-certext` or add the defines:
 
 ```
 #define WOLFSSL_CERT_REQ
 #define WOLFSSL_CERT_GEN
+#define WOLFSSL_CERT_EXT
 ```
 
 To test the csr_w_ed25519_example configure wolfssl with:
-`./configure --enable-certgen --enable-certreq --enable-ed25519 --enable-keygen`
+`./configure --enable-certgen --enable-certreq --enable-certext --enable-ed25519 --enable-keygen`
 or add the defines:
 
 ```
 #define WOLFSSL_CERT_REQ
 #define WOLFSSL_CERT_GEN
+#define WOLFSSL_CERT_EXT
 #define HAVE_ED25519
 #define WOLFSSL_KEY_GEN
 ```
