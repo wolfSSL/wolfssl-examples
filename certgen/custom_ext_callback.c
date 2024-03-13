@@ -143,7 +143,10 @@ static void check_ret(char* call, int ret)
 
 int main(void)
 {
-    printf("Not compiled in: Build wolfSSL using ./configure --enable-asn=template  --enable-certreq --enable-certgen CFLAGS=\"-DWOLFSSL_TEST_CERT -DHAVE_OID_DECODING -DWOLFSSL_CUSTOM_OID -DWOLFSSL_CERT_EXT\"\n");
+    printf("Not compiled in: Configure wolfSSL using ./configure"
+           "--enable-certreq --enable-certgen --enable-certext "
+           "CFLAGS=\"-DWOLFSSL_TEST_CERT -DHAVE_OID_DECODING "
+           "-DWOLFSSL_CUSTOM_OID \"\n");
     return 0;
 }
 
