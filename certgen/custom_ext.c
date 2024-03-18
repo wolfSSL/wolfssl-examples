@@ -250,9 +250,9 @@ int main(int argc, char** argv)
 
 int main(int argc, char** argv)
 {
-    printf("Please compile wolfSSL with --enable-asn=template --enable-certgen "
-           "--enable-keygen CFLAGS=\"-DWOLFSSL_CUSTOM_OID -DHAVE_OID_ENCODING "
-           "-DWOLFSSL_CERT_EXT\"");
+    printf("Please configure wolfSSL with --enable-certgen --enable-certext "
+           "--enable-keygen CFLAGS=\"-DWOLFSSL_CUSTOM_OID "
+           "-DHAVE_OID_ENCODING\"\n");
     return 0;
 }
 

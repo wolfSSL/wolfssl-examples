@@ -34,7 +34,7 @@
 #endif
 
 #if defined(WOLFSSL_CERT_REQ) && defined(WOLFSSL_CERT_GEN) && \
-    defined(HAVE_ECC)
+    defined(HAVE_ECC) && defined(WOLFSSL_CERT_EXT)
 
 #define HEAP_HINT NULL
 #define LARGE_TEMP_SZ 4096
@@ -358,9 +358,9 @@ exit:
 int main(int argc, char** argv)
 {
 #if !defined(WOLFSSL_CERT_REQ) || !defined(WOLFSSL_CERT_GEN) || \
-    !defined(HAVE_ECC)
+    !defined(HAVE_ECC) || !defined(WOLFSSL_CERT_EXT)
     printf("Please compile wolfSSL with --enable-certreq --enable-certgen "
-           "--enable-ecc CFLAGS=-DOPENSSL_EXTRA_X509_SMALL\n");
+           "--enable-ecc --enable-certext CFLAGS=-DOPENSSL_EXTRA_X509_SMALL\n");
     return 0;
 #else
     if (argc != 4) {

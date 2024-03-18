@@ -28,6 +28,9 @@
 #include <wolfssl/wolfcrypt/error-crypt.h>
 #include <wolfssl/wolfcrypt/wc_port.h>
 
+#if defined(WOLFSSL_CERT_REQ) && defined(WOLFSSL_CERT_GEN) && \
+    defined(WOLFSSL_KEY_GEN) && defined(HAVE_ECC)
+
 #ifdef WOLFSSL_CAAM
     #include <wolfssl/wolfcrypt/port/caam/wolfcaam.h>
     static int devId = WOLFSSL_CAAM_DEVID;
@@ -35,8 +38,6 @@
     static int devId = INVALID_DEVID;
 #endif
 
-#if defined(WOLFSSL_CERT_REQ) && defined(WOLFSSL_CERT_GEN) && \
-    defined(WOLFSSL_KEY_GEN) && defined(HAVE_ECC)
 
 #define HEAP_HINT NULL
 #define LARGE_TEMP_SZ 4096

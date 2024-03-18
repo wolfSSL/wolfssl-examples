@@ -1,11 +1,13 @@
 # Certificate Generation and Signing examples
 
 To test the certgen or csr_example example(s) configure wolfssl with
-`./configure --enable-certgen --enable-certreq` or add the defines:
+`./configure --enable-certgen --enable-certreq --enable-keygen`
+or add the defines:
 
 ```
 #define WOLFSSL_CERT_REQ
 #define WOLFSSL_CERT_GEN
+#define WOLFSSL_KEY_GEN
 ```
 
 To test the csr_w_ed25519_example configure wolfssl with:
@@ -155,6 +157,18 @@ Saved CSR PEM to "ed25519-csr.pem"
 ## CSR Signing with CA
 
 This example shows how to use a CSR to sign it using a CA cert and key to produce an X.509 certificate.
+
+To test the csr_sign example configure wolfssl with
+`./configure -enable-certreq --enable-certgen --enable-ecc --enable-certext CFLAGS=-DOPENSSL_EXTRA_X509_SMALL`
+or add the defines:
+
+```
+#define WOLFSSL_CERT_REQ
+#define WOLFSSL_CERT_GEN
+#define WOLFSSL_KEY_GEN
+#define WOLFSSL_CERT_EXT
+#define OPENSSL_EXTRA_X509_SMALL
+```
 
 ```
 % ./csr_sign ecc-csr.pem ca-ecc-cert.der ca-ecc-key.der
@@ -348,7 +362,7 @@ Tested with these wolfSSL build options:
 
 ```sh
 ./autogen.sh  # If cloned from GitHub
-./configure --enable-asn=template --enable-certreq --enable-keygen --enable-certgen --enable-certext CFLAGS="-DWOLFSSL_TEST_CERT -DHAVE_OID_DECODING -DHAVE_OID_ENCODING -DWOLFSSL_CUSTOM_OID -DWOLFSSL_CERT_EXT"
+./configure --enable-certreq --enable-certext --enable-keygen --enable-certgen --enable-certext CFLAGS="-DWOLFSSL_TEST_CERT -DHAVE_OID_DECODING -DHAVE_OID_ENCODING -DWOLFSSL_CUSTOM_OID"
 make
 make check
 sudo make install
