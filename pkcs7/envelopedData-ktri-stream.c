@@ -101,11 +101,11 @@ static int load_certs(byte* cert, word32* certSz, byte* key, word32* keySz)
 }
 
 
-static int envelopedData_encrypt(byte* cert, word32 certSz, byte* key,
+static size_t envelopedData_encrypt(byte* cert, word32 certSz, byte* key,
                                  word32 keySz, byte* out, word32 outSz,
                                  word32 contentSz, byte useStreamMode)
 {
-    int ret;
+    size_t ret;
     PKCS7* pkcs7;
 
     pkcs7 = wc_PKCS7_New(NULL, INVALID_DEVID);
@@ -125,7 +125,7 @@ static int envelopedData_encrypt(byte* cert, word32 certSz, byte* key,
     /* add recipient using RSA certificate (KTRI type) */
     ret = wc_PKCS7_AddRecipient_KTRI(pkcs7, cert, certSz, 0);
     if (ret < 0) {
-        printf("wc_PKCS7_AddRecipient_KTRI() failed, ret = %d\n", ret);
+        printf("wc_PKCS7_AddRecipient_KTRI() failed, ret = %zu\n", ret);
         wc_PKCS7_Free(pkcs7);
         return -1;
     }
@@ -133,7 +133,7 @@ static int envelopedData_encrypt(byte* cert, word32 certSz, byte* key,
     /* encode envelopedData, returns size */
     ret = wc_PKCS7_EncodeEnvelopedData(pkcs7, out, outSz);
     if (ret <= 0) {
-        printf("ERROR: wc_PKCS7_EncodeEnvelopedData() failed, ret = %d\n", ret);
+        printf("ERROR: wc_PKCS7_EncodeEnvelopedData() failed, ret = %zu\n", ret);
         wc_PKCS7_Free(pkcs7);
         return -1;
 
@@ -147,11 +147,11 @@ static int envelopedData_encrypt(byte* cert, word32 certSz, byte* key,
     return ret;
 }
 
-static int envelopedData_decrypt(byte* in, word32 inSz, byte* cert,
+static size_t envelopedData_decrypt(byte* in, word32 inSz, byte* cert,
                                 word32 certSz, byte* key, word32 keySz,
                                 byte* out, word32 outSz)
 {
-    int ret;
+    size_t ret;
     PKCS7* pkcs7;
 
     pkcs7 = wc_PKCS7_New(NULL, INVALID_DEVID);
@@ -175,7 +175,7 @@ static int envelopedData_decrypt(byte* in, word32 inSz, byte* cert,
     /* decode envelopedData, returns size */
     ret = wc_PKCS7_DecodeEnvelopedData(pkcs7, in, inSz, out, outSz);
     if (ret <= 0) {
-        printf("Failed to decode EnvelopedData bundle (%s), error %d\n",
+        printf("Failed to decode EnvelopedData bundle (%s), error %zu\n",
                 encodedFileKTRI, ret);
         wc_PKCS7_Free(pkcs7);
         return -1;
@@ -197,7 +197,7 @@ static int envelopedData_decrypt(byte* in, word32 inSz, byte* cert,
 int main(int argc, char** argv)
 {
     int ret = 0;
-    int encryptedSz = 0, decryptedSz;
+    size_t encryptedSz = 0, decryptedSz;
     word32 certSz, keySz, contentSz = 0;
 
     byte cert[DEFAULT_EXAMPLE_BUFFER_SIZE];
@@ -242,7 +242,7 @@ int main(int argc, char** argv)
         fseek(testIO.fileIn, 0, SEEK_END);
         contentSz = ftell(testIO.fileIn);
         fseek(testIO.fileIn, 0, SEEK_SET);
-        printf("contentSz = %d\n", contentSz);
+        printf("contentSz = %u\n", contentSz);
 
         certSz = sizeof(cert);
         keySz  = sizeof(key);
@@ -279,7 +279,7 @@ int main(int argc, char** argv)
             printf("error reading file %s\n", encodedFileKTRI);
             ret = -1;
         }
-        printf("Read %d bytes for encrypted file found\n", encryptedSz);
+        printf("Read %ld bytes for encrypted file found\n", encryptedSz);
     }
 
     if (ret == 0) {
