@@ -55,15 +55,14 @@ static int do_certgen(int argc, char** argv)
     int ret = 0;
 
     char caKeyFile[] = "./ca-key.der";
+    char altPrivFile[] = "./alt-ca-key.der";
 #ifdef GEN_ROOT_CERT
     char newCertOutput[] = "./ca-cert.der";
     char sapkiFile[] = "./alt-ca-pub-key.der";
-    char altPrivFile[] = "./alt-ca-key.der";
 #else
     char caCert[] = "./ca-cert.der";
     char newCertOutput[] = "./server-cert.der";
     char sapkiFile[] = "./alt-server-pub-key.der";
-    char altPrivFile[] = "./alt-server-key.der";
     char serverKeyFile[] = "./server-key.der";
 #endif
     FILE* file;
