@@ -174,7 +174,23 @@ main(int   argc,
                 continue;
             }
 
+            ret = recvfrom(listenfd, NULL, 0, MSG_PEEK,
+                           (struct sockaddr *)&cliaddr, &cliLen);
+            if (ret < 0)
+                continue;
+
+            printf("Received a packet from %s:%d\n",
+                   inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port));
+
             memset(&args[i], 0, sizeof(thread_args_t));
+            args[i].activefd = listenfd;
+            listenfd = new_udp_listen_socket();
+            /* avoid messages from other peers */
+            ret = connect(args[i].activefd, (const struct sockaddr *)&cliaddr, cliLen);
+            if (ret != 0) {
+                printf("error: connect returned: %d\n", ret);
+                break;
+            }
 
             args[i].ssl = wolfSSL_new(ctx);
             if (args[i].ssl == NULL) {
@@ -182,49 +198,19 @@ main(int   argc,
                 break;
             }
 
-            /* set the session ssl to client connection port */
-            ret = wolfSSL_set_fd(args[i].ssl, listenfd);
-            if (ret != SSL_SUCCESS) {
-                printf("error: wolfSSL_set_fd returned %d\n", ret);
-                break;
-            }
-
-            ret = wolfSSL_accept(args[i].ssl);
-            if (ret != SSL_SUCCESS) {
-                printf("error: wolfSSL_accept returned %d\n", ret);
-                break;
-            }
-
-            ret = wolfSSL_dtls_get_peer(args[i].ssl, &cliaddr, &cliLen);
-            if (ret != WOLFSSL_SUCCESS) {
-                printf("error: wolfSSL_dtls_get_peer failed\n");
-                break;
-            }
-
-            args[i].peer_port = ntohs(cliaddr.sin_port);
-
-            printf("info: new dtls session: %p, %d\n", (void*) args[i].ssl,
-                   args[i].peer_port);
-
-            /* Open new UDP socket. */
-            args[i].activefd = new_udp_listen_socket();
-            if (args[i].activefd <= 0 ) {
-                break;
-            }
-
-            ret = connect(args[i].activefd, (const struct sockaddr *)&cliaddr,
-                          cliLen);
-            if (ret != 0) {
-                printf("error: connect returned: %d\n", ret);
-                break;
-            }
-
-            ret = wolfSSL_set_dtls_fd_connected(args[i].ssl, args[i].activefd);
+            ret = wolfSSL_set_fd(args[i].ssl, args[i].activefd);
             if (ret != SSL_SUCCESS) {
                 printf("error: wolfSSL_set_dtls_fd_connected: %d\n", ret);
                 break;
             }
 
+            ret = wolfSSL_dtls_set_peer(args[i].ssl, &cliaddr, cliLen);
+            if (ret != WOLFSSL_SUCCESS) {
+                printf("error: wolfSSL_dtls_set_peer: %d\n", ret);
+                break;
+            }
+
+            args[i].peer_port = ntohs(cliaddr.sin_port);
             ret = pthread_create(&threads[i], NULL, server_work, &args[i]);
 
             if (ret == 0 ) {
@@ -319,6 +305,19 @@ server_work(void * args)
     int             n_bytes = 0;
     char            recv_msg[MSGLEN];
     char            send_msg[MSGLEN];
+    int ret;
+
+    ret = wolfSSL_accept(thread_args->ssl);
+    if (ret != SSL_SUCCESS)
+    {
+        printf("error: wolfSSL_accept returned %d\n", ret);
+        pthread_exit(NULL);
+        /* we should never reach here */
+        return NULL;
+    }
+
+    printf("info: new dtls session: %p, %d\n", (void *)thread_args->ssl,
+           thread_args->peer_port);
 
     for (size_t i = 0; i < 4; ++i) {
         if (stop_server) {
@@ -374,6 +373,8 @@ server_work(void * args)
 static void
 safer_shutdown(thread_args_t * args)
 {
+    int ret;
+
     if (args == NULL) {
         printf("error: safer_shutdown with null args\n");
         return;
@@ -381,7 +382,12 @@ safer_shutdown(thread_args_t * args)
 
     if (args->ssl != NULL) {
         printf("info: closed dtls session: %p\n", (void*) args->ssl);
-        wolfSSL_shutdown(args->ssl);
+        ret = wolfSSL_shutdown(args->ssl);
+
+        /* bidirectional shutdown */
+        if (ret != WOLFSSL_SUCCESS)
+            ret = wolfSSL_shutdown(args->ssl);
+
         wolfSSL_free(args->ssl);
         args->ssl = NULL;
     }
