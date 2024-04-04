@@ -30,7 +30,7 @@ Tested with these wolfSSL build options:
 
 ```sh
 ./autogen.sh  # If cloned from GitHub
-./configure --enable-dual-alg-certs --with-liboqs --enable-debug
+./configure --enable-experimental  --enable-dual-alg-certs --with-liboqs --enable-debug
 make
 sudo make install
 sudo ldconfig # required on some targets
@@ -350,16 +350,6 @@ examples/client/client -v 4 -A ../wolfssl-examples/X9.146/ca-rsa3072-falcon1-cer
 ```
 
 ## Generating a Certificate Chain and Adding Alternative keys and Signatures
-
-Tested with these wolfSSL build options:
-
-```sh
-./autogen.sh  # If cloned from GitHub
-./configure --enable-dual-alg-certs --enable-debug
-make
-sudo make install
-sudo ldconfig # required on some targets
-```
 
 In the directory where this README.md file is found, build the applications:
 
