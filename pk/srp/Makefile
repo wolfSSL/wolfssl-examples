@@ -1,8 +1,8 @@
 CC=gcc
-WOLFPATH=/usr/local/lib
-CFLAGS=-Wall -I$(WOLFPATH)/include -g
+WOLFSSL_INSTALL_DIR=/usr/local/lib
+CFLAGS=-Wall -I$(WOLFSSL_INSTALL_DIR)/include -g
 #LIBS= -lwolfssl -lm
-LIBS= -L$(WOLFPATH)/lib -lwolfssl -lm
+LIBS= -L$(WOLFSSL_INSTALL_DIR)/lib -lwolfssl -lm
 
 all: srp srp_gen
 

@@ -4,15 +4,15 @@
 # building with --with-libxmss.
 #
 CC       = gcc
-LIB_PATH = /usr/local
+WOLFSSL_INSTALL_DIR = /usr/local
 HSS_INC  =
 XMSS_INC =
-CFLAGS   = -Wall -I$(LIB_PATH)/include
-LIBS     = -L$(LIB_PATH)/lib -lm
+CFLAGS   = -Wall -I$(WOLFSSL_INSTALL_DIR)/include
+LIBS     = -L$(WOLFSSL_INSTALL_DIR)/lib -lm
 
 # option variables
 WOLF_DYN_LIB    = -lwolfssl
-WOLF_STATIC_LIB = $(LIB_PATH)/lib/libwolfssl.a
+WOLF_STATIC_LIB = $(WOLFSSL_INSTALL_DIR)/lib/libwolfssl.a
 HSS_LIB         =
 XMSS_LIB        =
 DEBUG_FLAGS     = -g -DDEBUG

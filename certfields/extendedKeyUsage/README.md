@@ -5,8 +5,8 @@ wolfSSL Library must be configured with --enable-opensslextra
 wolfSSL lib installed to /usr/local
 
 NOTE: If wolfSSL is installed to custom directory edit Makefile variable
-      WOLFSSL_DIR accordingly for example if you configured wolfSSL with
-      "--enable-prefix=/home/me/wolf-install-dir" then set WOLFSSL_DIR to
+      WOLFSSL_INSTALL_DIR accordingly for example if you configured wolfSSL with
+      "--enable-prefix=/home/me/wolf-install-dir" then set WOLFSSL_INSTALL_DIR to
       "/home/me/wolf-install-dir" before running "make"
 
 Building:

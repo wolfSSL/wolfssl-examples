@@ -1,7 +1,7 @@
 CC=gcc
-WOLF_INSTALL_DIR=/usr/local
-CFLAGS=-I$(WOLF_INSTALL_DIR)/include -Wall
-LIBS=-L$(WOLF_INSTALL_DIR)/lib -lwolfssl -lwolftpm
+WOLFSSL_INSTALL_DIR=/usr/local
+CFLAGS=-I$(WOLFSSL_INSTALL_DIR)/include -Wall
+LIBS=-L$(WOLFSSL_INSTALL_DIR)/lib -lwolfssl -lwolftpm
 
 all:evp_tpm
 

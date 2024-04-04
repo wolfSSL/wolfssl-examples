@@ -1,10 +1,10 @@
 # PicoTCP Example Makefile
 
 CC           = gcc
-LIB_PATH     = /usr/local
+WOLFSSL_INSTALL_DIR     = /usr/local
 PICOTCP_PATH = ../../picotcp
-CFLAGS       = -Wall -I$(LIB_PATH)/include -I$(PICOTCP_PATH)/build/include
-LIBS         = -L$(LIB_PATH)/lib -lm -pthread
+CFLAGS       = -Wall -I$(WOLFSSL_INSTALL_DIR)/include -I$(PICOTCP_PATH)/build/include
+LIBS         = -L$(WOLFSSL_INSTALL_DIR)/lib -lm -pthread
 
 # option variables
 DYN_LIB         = -lwolfssl

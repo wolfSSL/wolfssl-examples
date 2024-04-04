@@ -1,8 +1,8 @@
 CC=gcc
 
-WOLFPATH=/usr/local
-CFLAGS= -I$(WOLFPATH)/include -Wall
-LIBS= -L$(WOLFPATH)/lib -lwolfssl
+WOLFSSL_INSTALL_DIR=/usr/local
+CFLAGS= -I$(WOLFSSL_INSTALL_DIR)/include -Wall
+LIBS= -L$(WOLFSSL_INSTALL_DIR)/lib -lwolfssl
 
 app: main.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)

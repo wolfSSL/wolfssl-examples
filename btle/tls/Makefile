@@ -1,8 +1,8 @@
 # BTLE Examples Makefile
 CC       = gcc
-LIB_PATH = /usr/local
-CFLAGS   = -Wall -I ../common -I $(LIB_PATH)/include
-LIBS     = -L$(LIB_PATH)/lib
+WOLFSSL_INSTALL_DIR = /usr/local
+CFLAGS   = -Wall -I ../common -I $(WOLFSSL_INSTALL_DIR)/include
+LIBS     = -L$(WOLFSSL_INSTALL_DIR)/lib
 
 # Flags
 DYN_LIB         = -lwolfssl
@@ -15,7 +15,7 @@ OPTIMIZE        = -Os
 CFLAGS+=$(OPTIMIZE)
 
 # Static or Dynamic Library
-#STATIC_LIB+=$(LIB_PATH)/lib/libwolfssl.a
+#STATIC_LIB+=$(WOLFSSL_INSTALL_DIR)/lib/libwolfssl.a
 LIBS+=$(DYN_LIB) -lm
 
 

@@ -1,7 +1,7 @@
 CC=gcc
-LIB_PATH=/usr/local
-CFLAGS= -I$(LIB_PATH)/include -Wall
-LIBS= -L$(LIB_PATH)/lib -lwolfssl
+WOLFSSL_INSTALL_DIR=/usr/local
+CFLAGS= -I$(WOLFSSL_INSTALL_DIR)/include -Wall
+LIBS= -L$(WOLFSSL_INSTALL_DIR)/lib -lwolfssl
 
 curve25519_test: curve25519_test.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
