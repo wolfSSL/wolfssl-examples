@@ -116,7 +116,6 @@ main(int    argc,
             printf("error: pthread_create returned %d\n", ret);
             threads[i] = 0;
         }
-        sleep(1);
     }
 
     for (size_t i = 0; i < n_threads; ++i) {

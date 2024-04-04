@@ -21,7 +21,10 @@
  *=============================================================================
  *
  * A simple dtls server example with configurable threadpool, for
- * instructional/learning purposes. Utilizes DTLS 1.2.
+ * instructional/learning purposes. Utilizes DTLS 1.2.  Please note that if
+ * multiple client hellos arrive at the same time, the server might drop some of
+ * them. A production-ready server needs a more sophisticated mechanism to
+ * multiplex packets from different clients to the same port.
  */
 
 #include <wolfssl/options.h>
@@ -185,7 +188,11 @@ main(int   argc,
             memset(&args[i], 0, sizeof(thread_args_t));
             args[i].activefd = listenfd;
             listenfd = new_udp_listen_socket();
-            /* avoid messages from other peers */
+            /* Avoid future packets from other peers to be received over
+             * args[i].activefd. Please note that packets from other clients
+             * already received might be returned from future invocations of
+             * recvfrom()/read(). The args[i].ssl object will discard those packets
+             * that don't match the set DTLS peer. */
             ret = connect(args[i].activefd, (const struct sockaddr *)&cliaddr, cliLen);
             if (ret != 0) {
                 printf("error: connect returned: %d\n", ret);
@@ -200,7 +207,7 @@ main(int   argc,
 
             ret = wolfSSL_set_fd(args[i].ssl, args[i].activefd);
             if (ret != SSL_SUCCESS) {
-                printf("error: wolfSSL_set_dtls_fd_connected: %d\n", ret);
+                printf("error: wolfSSL_set_fd: %d\n", ret);
                 break;
             }
 
