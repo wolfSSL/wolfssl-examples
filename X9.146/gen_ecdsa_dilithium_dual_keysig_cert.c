@@ -79,25 +79,21 @@ static int do_certgen(int argc, char** argv)
     int ret = 0;
 
     char caKeyFile[] = "./ca-key.der";
+    char altPrivFile2[] = "../certs/dilithium_level2_ca_key.der";
+    char altPrivFile3[] = "../certs/dilithium_level3_ca_key.der";
+    char altPrivFile5[] = "../certs/dilithium_level5_ca_key.der";
 #ifdef GEN_ROOT_CERT
     char newCertOutput[] = "./ca-cert-pq.der";
     char sapkiFile2[] = "../certs/dilithium_level2_ca_pubkey.der";
-    char altPrivFile2[] = "../certs/dilithium_level2_ca_key.der";
     char sapkiFile3[] = "../certs/dilithium_level3_ca_pubkey.der";
-    char altPrivFile3[] = "../certs/dilithium_level3_ca_key.der";
     char sapkiFile5[] = "../certs/dilithium_level5_ca_pubkey.der";
-    char altPrivFile5[] = "../certs/dilithium_level5_ca_key.der";
 #else
     char caCert[] = "./ca-cert-pq.der";
     char newCertOutput[] = "./server-cert-pq.der";
     char serverKeyFile[] = "./server-key.der";
-
     char sapkiFile2[] = "../certs/dilithium_level2_server_pubkey.der";
-    char altPrivFile2[] = "../certs/dilithium_level2_server_key.der";
     char sapkiFile3[] = "../certs/dilithium_level3_server_pubkey.der";
-    char altPrivFile3[] = "../certs/dilithium_level3_server_key.der";
     char sapkiFile5[] = "../certs/dilithium_level5_server_pubkey.der";
-    char altPrivFile5[] = "../certs/dilithium_level5_server_key.der";
 #endif
     FILE* file;
     Cert newCert;

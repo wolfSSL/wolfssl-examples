@@ -30,7 +30,7 @@ Tested with these wolfSSL build options:
 
 ```sh
 ./autogen.sh  # If cloned from GitHub
-./configure --enable-dual-alg-certs --with-liboqs --enable-debug
+./configure --enable-experimental  --enable-dual-alg-certs --with-liboqs --enable-debug
 make
 sudo make install
 sudo ldconfig # required on some targets
@@ -107,7 +107,7 @@ openssl pkey  -in ../certs/dilithium_level2_server_key.der -inform der -out serv
 Then in wolfssl's source directory:
 
 ```
-examples/server/server -v 4 -c ../wolfssl-examples/X9.146/server-P256-dilithium2-cert.pem -k ../wolfssl-examples/X9.146/server-P256-key.pem --altPrivKey ../wolfssl-examples/X9.146/server-dilithium2-key-pq.pem
+examples/server/server -d -v 4 -c ../wolfssl-examples/X9.146/server-P256-dilithium2-cert.pem -k ../wolfssl-examples/X9.146/server-P256-key.pem --altPrivKey ../wolfssl-examples/X9.146/server-dilithium2-key-pq.pem
 
 examples/client/client -v 4 -A ../wolfssl-examples/X9.146/ca-P256-dilithium2-cert.pem
 ```
@@ -146,7 +146,7 @@ openssl pkey  -in ../certs/dilithium_level3_server_key.der -inform der -out serv
 Then in wolfssl's source directory:
 
 ```
-examples/server/server -v 4 -c ../wolfssl-examples/X9.146/server-P384-dilithium3-cert.pem -k ../wolfssl-examples/X9.146/server-P384-key.pem --altPrivKey ../wolfssl-examples/X9.146/server-dilithium3-key-pq.pem
+examples/server/server -d -v 4 -c ../wolfssl-examples/X9.146/server-P384-dilithium3-cert.pem -k ../wolfssl-examples/X9.146/server-P384-key.pem --altPrivKey ../wolfssl-examples/X9.146/server-dilithium3-key-pq.pem
 
 examples/client/client -v 4 -A ../wolfssl-examples/X9.146/ca-P384-dilithium3-cert.pem
 ```
@@ -185,7 +185,7 @@ openssl pkey  -in ../certs/dilithium_level5_server_key.der -inform der -out serv
 Then in wolfssl's source directory:
 
 ```
-examples/server/server -v 4 -c ../wolfssl-examples/X9.146/server-P521-dilithium5-cert.pem -k ../wolfssl-examples/X9.146/server-P521-key.pem --altPrivKey ../wolfssl-examples/X9.146/server-dilithium5-key-pq.pem
+examples/server/server -d -v 4 -c ../wolfssl-examples/X9.146/server-P521-dilithium5-cert.pem -k ../wolfssl-examples/X9.146/server-P521-key.pem --altPrivKey ../wolfssl-examples/X9.146/server-dilithium5-key-pq.pem
 
 examples/client/client -v 4 -A ../wolfssl-examples/X9.146/ca-P521-dilithium5-cert.pem
 ```
@@ -224,7 +224,7 @@ i
 Then in wolfssl's source directory:
 
 ```
-examples/server/server -v 4 -c ../wolfssl-examples/X9.146/server-P256-falcon1-cert.pem -k ../wolfssl-examples/X9.146/server-P256-key.pem --altPrivKey ../wolfssl-examples/X9.146/server-falcon1-key-pq.pem
+examples/server/server -d -v 4 -c ../wolfssl-examples/X9.146/server-P256-falcon1-cert.pem -k ../wolfssl-examples/X9.146/server-P256-key.pem --altPrivKey ../wolfssl-examples/X9.146/server-falcon1-key-pq.pem
 
 examples/client/client -v 4 -A ../wolfssl-examples/X9.146/ca-P256-falcon1-cert.pem
 ```
@@ -264,7 +264,7 @@ openssl pkey  -in ../certs/falcon_level5_server_key.der -inform der -out server-
 Then in wolfssl's source directory:
 
 ```
-examples/server/server -v 4 -c ../wolfssl-examples/X9.146/server-P521-falcon5-cert.pem -k ../wolfssl-examples/X9.146/server-P521-key.pem --altPrivKey ../wolfssl-examples/X9.146/server-falcon5-key-pq.pem
+examples/server/server -d -v 4 -c ../wolfssl-examples/X9.146/server-P521-falcon5-cert.pem -k ../wolfssl-examples/X9.146/server-P521-key.pem --altPrivKey ../wolfssl-examples/X9.146/server-falcon5-key-pq.pem
 
 examples/client/client -v 4 -A ../wolfssl-examples/X9.146/ca-P521-falcon5-cert.pem
 ```
@@ -305,7 +305,7 @@ openssl pkey  -in ../certs/dilithium_level2_server_key.der -inform der -out serv
 Then in wolfssl's source directory:
 
 ```
-examples/server/server -v 4 -c ../wolfssl-examples/X9.146/server-rsa3072-dilithium2-cert.pem -k ../wolfssl-examples/X9.146/server-rsa3072-key.pem --altPrivKey ../wolfssl-examples/X9.146/server-dilithium2-key-pq.pem
+examples/server/server -d -v 4 -c ../wolfssl-examples/X9.146/server-rsa3072-dilithium2-cert.pem -k ../wolfssl-examples/X9.146/server-rsa3072-key.pem --altPrivKey ../wolfssl-examples/X9.146/server-dilithium2-key-pq.pem
 
 examples/client/client -v 4 -A ../wolfssl-examples/X9.146/ca-rsa3072-dilithium2-cert.pem
 ```
@@ -344,22 +344,12 @@ openssl pkey  -in ../certs/falcon_level1_server_key.der -inform der -out server-
 Then in wolfssl's source directory:
 
 ```
-examples/server/server -v 4 -c ../wolfssl-examples/X9.146/server-rsa3072-falcon1-cert.pem -k ../wolfssl-examples/X9.146/server-rsa3072-key.pem --altPrivKey ../wolfssl-examples/X9.146/server-falcon1-key-pq.pem
+examples/server/server -d -v 4 -c ../wolfssl-examples/X9.146/server-rsa3072-falcon1-cert.pem -k ../wolfssl-examples/X9.146/server-rsa3072-key.pem --altPrivKey ../wolfssl-examples/X9.146/server-falcon1-key-pq.pem
 
 examples/client/client -v 4 -A ../wolfssl-examples/X9.146/ca-rsa3072-falcon1-cert.pem
 ```
 
 ## Generating a Certificate Chain and Adding Alternative keys and Signatures
-
-Tested with these wolfSSL build options:
-
-```sh
-./autogen.sh  # If cloned from GitHub
-./configure --enable-dual-alg-certs --enable-debug
-make
-sudo make install
-sudo ldconfig # required on some targets
-```
 
 In the directory where this README.md file is found, build the applications:
 
