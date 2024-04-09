@@ -60,6 +60,9 @@ if ("${WOLFSSL_PKG_TYPE}" MATCHES "normal")
         -DTFM_TIMING_RESISTANT -DECC_TIMING_RESISTANT
         -DHAVE_AESGCM -DSIZEOF_LONG=4 -DSIZEOF_LONG_LONG=8
 
+        # For gethostbyname()
+        -DHAVE_NETDB_H
+
         # Defines added for debugging. These can be removed if debug logging is not needed
         # and will increase performance and reduce library footprint size if removed.
         -DDEBUG_WOLFSSL -DWOLFSSL_ANDROID_DEBUG
@@ -158,6 +161,9 @@ elseif("${WOLFSSL_PKG_TYPE}" MATCHES "fipsready")
             -DKEEP_PEER_CERT -DSESSION_CERTS
             -DSIZEOF_LONG=4 -DSIZEOF_LONG_LONG=8
 
+            # For gethostbyname()
+            -DHAVE_NETDB_H
+
             # Enable below options for wolfSSL debug logging
             #-DDEBUG_WOLFSSL -DWOLFSSL_ANDROID_DEBUG
 
@@ -216,6 +222,7 @@ list(REMOVE_ITEM TLS_SOURCES ${wolfssl_DIR}/src/pk.c)
 list(REMOVE_ITEM TLS_SOURCES ${wolfssl_DIR}/src/ssl_bn.c)
 list(REMOVE_ITEM TLS_SOURCES ${wolfssl_DIR}/src/ssl_asn1.c)
 list(REMOVE_ITEM TLS_SOURCES ${wolfssl_DIR}/src/ssl_certman.c)
+list(REMOVE_ITEM TLS_SOURCES ${wolfssl_DIR}/src/ssl_crypto.c)
 list(REMOVE_ITEM TLS_SOURCES ${wolfssl_DIR}/src/ssl_misc.c)
 list(REMOVE_ITEM TLS_SOURCES ${wolfssl_DIR}/src/x509.c)
 list(REMOVE_ITEM TLS_SOURCES ${wolfssl_DIR}/src/x509_str.c)
@@ -278,15 +285,17 @@ add_library(wolfssl SHARED
 # wolfSSL JNI/JSSE library wil be compiled as SHARED library
 # wolfSSL JNI Java files are tied into build in Module build.gradle file
 add_library(wolfssljni SHARED
+            ${wolfssljni_DIR}/native/com_wolfssl_WolfSSL.c
+            ${wolfssljni_DIR}/native/com_wolfssl_WolfSSLCertManager.c
+            ${wolfssljni_DIR}/native/com_wolfssl_WolfSSLCertRequest.c
+            ${wolfssljni_DIR}/native/com_wolfssl_WolfSSLCertificate.c
+            ${wolfssljni_DIR}/native/com_wolfssl_WolfSSLContext.c
+            ${wolfssljni_DIR}/native/com_wolfssl_WolfSSLSession.c
+            ${wolfssljni_DIR}/native/com_wolfssl_WolfSSLX509Name.c
+            ${wolfssljni_DIR}/native/com_wolfssl_WolfSSLX509StoreCtx.c
             ${wolfssljni_DIR}/native/com_wolfssl_wolfcrypt_ECC.c
             ${wolfssljni_DIR}/native/com_wolfssl_wolfcrypt_EccKey.c
             ${wolfssljni_DIR}/native/com_wolfssl_wolfcrypt_RSA.c
-            ${wolfssljni_DIR}/native/com_wolfssl_WolfSSL.c
-            ${wolfssljni_DIR}/native/com_wolfssl_WolfSSLCertificate.c
-            ${wolfssljni_DIR}/native/com_wolfssl_WolfSSLCertManager.c
-            ${wolfssljni_DIR}/native/com_wolfssl_WolfSSLContext.c
-            ${wolfssljni_DIR}/native/com_wolfssl_WolfSSLSession.c
-            ${wolfssljni_DIR}/native/com_wolfssl_WolfSSLX509StoreCtx.c
            )
 
 # Native library to hold sources for wolfCrypt test application. These include the
