@@ -132,7 +132,11 @@ int Security(int sock)
     wolfSSL_Init();      /* initialize wolfSSL */
 
     /* create and initialize WOLFSSL_CTX structure */
+#ifdef USE_TLSV13
+    if ((ctx = wolfSSL_CTX_new(wolfTLSv1_3_client_method())) == NULL) {
+#else
     if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method())) == NULL) {
+#endif
         printf("SSL_CTX_new error.\n");
         ret = EXIT_FAILURE;
         goto exit;
