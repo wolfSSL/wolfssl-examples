@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # set this to point to the wolfSSL root directory for updating certs
-WOLFSSL_ROOT_DIR=~/clean-wolfssl
+WOLFSSL_ROOT_DIR=${WOLFSSL_ROOT_DIR:-"~/clean-wolfssl"}
 
 cp ${WOLFSSL_ROOT_DIR}/certs/client-cert.pem ./
 cp ${WOLFSSL_ROOT_DIR}/certs/client-key.pem ./
