@@ -73,7 +73,7 @@ int main (int argc, char** argv)
     wolfSSL_Debugging_ON();
 
     if ( (ctx = wolfSSL_CTX_new(
-#ifndef USE_DTLS12
+#ifdef WOLFSSL_DTLS13
             wolfDTLSv1_3_client_method()
 #else
             wolfDTLSv1_2_client_method()
