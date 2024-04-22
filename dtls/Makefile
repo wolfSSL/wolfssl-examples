@@ -34,9 +34,9 @@ debug: all
 %-shared: CFLAGS+=-pthread
 %-shared: LIBS+=-lpthread
 
-# try to build the libevent server. "|| true" ignores the error return.
+# try to build the libevent server
 server-dtls13-event: server-dtls13-event.c
-	$(CC) -o $@ $< $(CFLAGS) $(LIBS) -levent || true
+	$(CC) -o $@ $< $(CFLAGS) $(LIBS) -levent
 
 # build template
 %: %.c
