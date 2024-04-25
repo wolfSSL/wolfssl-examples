@@ -288,7 +288,7 @@ do_lms_example(int    levels,
     }
 
     ret = wc_LmsKey_GetPrivLen(&signingKey, &privSz);
-    if (ret || pubSz == 0) {
+    if (ret || privSz == 0) {
         fprintf(stderr, "error: wc_LmsKey_GetPrivLen returned: %d, %d\n",
                 ret, privSz);
         goto exit_lms_example;
