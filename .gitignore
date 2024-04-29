@@ -198,6 +198,10 @@ pkcs7/signedData-verifyFile
 certmanager/certloadverifybuffer
 certmanager/certverify
 
+certvfy/certvfy
+certvfy/certsigvfy
+certvfy/sigvfycert
+
 rsa/sign
 rsa/verify
 
