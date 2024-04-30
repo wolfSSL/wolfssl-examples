@@ -191,7 +191,7 @@ int main(int argc, char** argv)
 int main(int argc, char** argv)
 {
     printf("Must build wolfSSL using ./configure --enable-pkcs7\n");
-    return 0;
+    return -1;
 }
 
 #endif
