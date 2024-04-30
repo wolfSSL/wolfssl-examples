@@ -6,7 +6,8 @@ OPENSSL_DIR=/usr/local/opt
 OPENSSL_FLAGS=-I$(OPENSSL_DIR)/openssl/include
 WOLFSSL_FLAGS=
 OPENSSL_LIB=-L$(OPENSSL_DIR)/openssl/lib -lcrypto -lssl
-WOLFSSL_LIB=-lwolfssl
+WOLFSSL_INSTALL_DIR = /usr/local
+WOLFSSL_LIB= -L$(WOLFSSL_INSTALL_DIR)/lib -lwolfssl
 
 all:wolfsigtest opensigtest eccsiglentest
 
