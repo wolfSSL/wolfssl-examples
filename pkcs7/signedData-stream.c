@@ -200,7 +200,7 @@ static int signedData_verify(byte* in, word32 inSz, byte* cert,
 
     if (ret < 0) {
         if (ret == PKCS7_SIGNEEDS_CHECK) {
-            printf("WARNING: Parsed through bundle but no certificates found to"
+            printf("ATTENTION: Parsed through bundle but no certificates found to"
                    " verify signature with\n");
         }
         else {
