@@ -1,6 +1,7 @@
 CC=gcc
-CFLAGS=-Wall
-LIBS= -lwolfssl -lm
+WOLFSSL_INSTALL_DIR=/usr/local
+CFLAGS= -I$(WOLFSSL_INSTALL_DIR)/include -Wall
+LIBS= -L$(WOLFSSL_INSTALL_DIR)/lib -lwolfssl -lm
 
 all: dh-pg-ka
 

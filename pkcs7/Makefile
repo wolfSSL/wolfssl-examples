@@ -1,15 +1,15 @@
 # ECC Examples Makefile
 CC       = gcc
-LIB_PATH = /usr/local
-CFLAGS   = -Wall -I$(LIB_PATH)/include
+WOLFSSL_INSTALL_DIR = /usr/local
+CFLAGS   = -Wall -I$(WOLFSSL_INSTALL_DIR)/include
 ZLIB     =
 #ZLIB    += -lz
 PSA_LIB  = -lmbedcrypto
-LIBS     = -L$(LIB_PATH)/lib -lm ${ZLIB}
+LIBS     = -L$(WOLFSSL_INSTALL_DIR)/lib -lm ${ZLIB}
 
 # option variables
 DYN_LIB         = -lwolfssl
-STATIC_LIB      = $(LIB_PATH)/lib/libwolfssl.a
+STATIC_LIB      = $(WOLFSSL_INSTALL_DIR)/lib/libwolfssl.a
 DEBUG_FLAGS     = -g -DDEBUG
 DEBUG_INC_PATHS = -MD
 OPTIMIZE        = -Os

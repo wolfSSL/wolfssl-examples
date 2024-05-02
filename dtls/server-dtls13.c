@@ -72,7 +72,7 @@ int main(int argc, char** argv)
 
     /* Set ctx to DTLS 1.3 */
     if ((ctx = wolfSSL_CTX_new(
-#ifndef USE_DTLS12
+#ifdef WOLFSSL_DTLS13
             wolfDTLSv1_3_server_method()
 #else
             wolfDTLSv1_2_server_method()

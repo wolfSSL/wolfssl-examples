@@ -1,6 +1,7 @@
 CC=gcc
 CFLAGS=-Wall
-LIBS= -lwolfssl
+WOLFSSL_INSTALL_DIR=/usr/local
+LIBS=-L$(WOLFSSL_INSTALL_DIR)/lib -lwolfssl
 
 camellia-encrypt: camellia-encrypt.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS) 

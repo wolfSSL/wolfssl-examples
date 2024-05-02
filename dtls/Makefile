@@ -1,12 +1,12 @@
 # DTLS Examples Makefile
 CC       = gcc
-LIB_PATH = /usr/local
-CFLAGS   = -Wall -I$(LIB_PATH)/include
-LIBS     = -L$(LIB_PATH)/lib -lm
+WOLFSSL_INSTALL_DIR = /usr/local
+CFLAGS   = -Wall -I$(WOLFSSL_INSTALL_DIR)/include
+LIBS     = -L$(WOLFSSL_INSTALL_DIR)/lib -lm
 
 # option variables
 DYN_LIB         = -lwolfssl
-STATIC_LIB      = $(LIB_PATH)/lib/libwolfssl.a
+STATIC_LIB      = $(WOLFSSL_INSTALL_DIR)/lib/libwolfssl.a
 DEBUG_FLAGS     = -g3 -DDEBUG -O0
 DEBUG_INC_PATHS = -MD
 OPTIMIZE        = -Os
@@ -34,9 +34,9 @@ debug: all
 %-shared: CFLAGS+=-pthread
 %-shared: LIBS+=-lpthread
 
-# try to build the libevent server. "|| true" ignores the error return.
+# try to build the libevent server
 server-dtls13-event: server-dtls13-event.c
-	$(CC) -o $@ $< $(CFLAGS) $(LIBS) -levent || true
+	$(CC) -o $@ $< $(CFLAGS) $(LIBS) -levent
 
 # build template
 %: %.c

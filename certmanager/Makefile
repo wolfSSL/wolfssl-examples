@@ -1,6 +1,7 @@
 CC=gcc
+WOLFSSL_INSTALL_DIR=/usr/local
 CFLAGS=-Wall
-LIBS= -lwolfssl
+LIBS=-L$(WOLFSSL_INSTALL_DIR)/lib -lwolfssl
 
 all: certloadverifybuffer certverify
 

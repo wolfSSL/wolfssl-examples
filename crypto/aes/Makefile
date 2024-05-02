@@ -1,6 +1,7 @@
 CC=gcc
 CFLAGS=-Wall
-LIBS= -lwolfssl -lm
+WOLFSSL_INSTALL_DIR=/usr/local
+LIBS=-L$(WOLFSSL_INSTALL_DIR)/lib -lwolfssl -lm
 
 all: aes-file-encrypt aescfb-file-encrypt aesctr-file-encrypt aesgcm-file-encrypt
 

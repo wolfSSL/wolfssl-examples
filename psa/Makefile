@@ -1,15 +1,15 @@
 CC       = gcc
-LIB_PATH = /usr/local
+WOLFSSL_INSTALL_DIR = /usr/local
 CFLAGS   ?= -Wall -I$(INCLUDE_PATH)
-LIBS     ?= -L$(LIB_PATH)/lib -lm
+LIBS     ?= -L$(WOLFSSL_INSTALL_DIR)/lib -lm
 
 # PSA implementation
 PSA_INCLUDE ?=
-PSA_LIB_PATH ?=
+PSA_WOLFSSL_INSTALL_DIR ?=
 
 # option variables
 DYN_LIB         = -lwolfssl -lm
-STATIC_LIB      = $(LIB_PATH)/lib/libwolfssl.a
+STATIC_LIB      = $(WOLFSSL_INSTALL_DIR)/lib/libwolfssl.a
 DEBUG_FLAGS     = -g -DDEBUG
 DEBUG_INC_PATHS = -MD
 OPTIMIZE        = -Os
@@ -21,7 +21,7 @@ CFLAGS+=$(OPTIMIZE)
 LIBS+=$(DYN_LIB)
 
 CFLAGS += -I$(PSA_INCLUDE)
-LIBS += $(PSA_LIB_PATH)
+LIBS += $(PSA_WOLFSSL_INSTALL_DIR)
 
 TARGETS=client-tls13-ecc-psa server-tls13-ecc-psa
 

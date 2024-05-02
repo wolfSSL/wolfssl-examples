@@ -2,9 +2,9 @@ CC=gcc
 CFLAGS=-Wall
 LIBS=
 
-WOLFSSL_DIR := /usr/local
-WOLFSSL_FLAGS=-I$(WOLFSSL_DIR)/include
-WOLFSSL_LIB=-L$(WOLFSSL_DIR)/lib -lwolfssl
+WOLFSSL_INSTALL_DIR := /usr/local
+WOLFSSL_FLAGS=-I$(WOLFSSL_INSTALL_DIR)/include
+WOLFSSL_LIB=-L$(WOLFSSL_INSTALL_DIR)/lib -lwolfssl
 
 all:ecc_sign_verify
 

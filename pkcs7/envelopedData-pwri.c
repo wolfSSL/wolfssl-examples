@@ -186,7 +186,7 @@ int main(int argc, char** argv)
 {
     printf("Must build wolfSSL using ./configure --enable-pkcs7 "
            "--enable-pwdbased\n");
-    return 0;
+    return -1;
 }
 
 #endif /* HAVE_PKCS7 & !NO_PWDBASED */

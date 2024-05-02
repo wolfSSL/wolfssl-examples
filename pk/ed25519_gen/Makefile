@@ -1,7 +1,7 @@
 CC=gcc
-WOLF_PATH=/usr/local
-CFLAGS=-I$(WOLF_PATH)/include -Wall
-LIBS=-L$(WOLF_PATH)/lib -lwolfssl -lm
+WOLFSSL_INSTALL_DIR=/usr/local
+CFLAGS=-I$(WOLFSSL_INSTALL_DIR)/include -Wall
+LIBS=-L$(WOLFSSL_INSTALL_DIR)/lib -lwolfssl -lm
 
 SRC=$(wildcard *.c)
 TARGETS=$(patsubst %.c, %, $(SRC))

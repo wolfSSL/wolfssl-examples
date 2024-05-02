@@ -133,7 +133,12 @@ int main(int argc, char** argv)
     wolfSSL_Init();
 
     /* Create and initialize WOLFSSL_CTX */
-    if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method())) == NULL) {
+#ifdef USE_TLSV13
+    ctx = wolfSSL_CTX_new(wolfTLSv1_3_client_method());
+#else
+    ctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method());
+#endif
+    if (ctx == NULL) {
         fprintf(stderr, "ERROR: failed to create WOLFSSL_CTX\n");
         return -1;
     }

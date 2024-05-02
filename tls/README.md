@@ -164,7 +164,7 @@ export LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):/usr/local/lib
 ```
 
 If you have installed wolfSSL in another location, edit `Makefile` so that the
-`LIB_PATH` variable reflects this.
+`WOLFSSL_INSTALL_DIR` variable reflects this.
 
 If you have configured wolfSSL to use static linking, comment out the line
 

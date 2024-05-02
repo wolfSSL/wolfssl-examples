@@ -43,8 +43,10 @@
 
 #define DEFAULT_PORT 11111
 
+/* Uncomment to force TLS v1.3
 #define USE_ECDHE_ECDSA
 #define USE_TLSV13
+*/
 
 #ifdef USE_ECDHE_ECDSA
 #define CERT_FILE   "../certs/server-ecc.pem"

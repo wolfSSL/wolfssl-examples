@@ -2,23 +2,23 @@ CC=gcc
 #if you installed wolfssl to an alternate location use CFLAGS and LIBS to
 #control your build:
 
-#EXAMPLE: set WOLF_INSTALL_DIR to point to your install location like so:
+#EXAMPLE: set WOLFSSL_INSTALL_DIR to point to your install location like so:
 
-# WOLF_INSTALL_DIR=/Users/kalebhimes/work/testDir/wolf-install-dir-for-testing
+# WOLFSSL_INSTALL_DIR=/Users/kalebhimes/work/testDir/wolf-install-dir-for-testing
 
 #END EXAMPLE
 
-WOLF_INSTALL_DIR=/usr/local
+WOLFSSL_INSTALL_DIR=/usr/local
 
 # ECC Examples Makefile
 CC       = gcc
-LIB_PATH = /usr/local
-CFLAGS   = -Wall -I$(LIB_PATH)/include
-LIBS     = -L$(LIB_PATH)/lib -lm
+WOLFSSL_INSTALL_DIR = /usr/local
+CFLAGS   = -Wall -I$(WOLFSSL_INSTALL_DIR)/include
+LIBS     = -L$(WOLFSSL_INSTALL_DIR)/lib -lm
 
 # option variables
 DYN_LIB         = -lwolfssl
-STATIC_LIB      = $(LIB_PATH)/lib/libwolfssl.a
+STATIC_LIB      = $(WOLFSSL_INSTALL_DIR)/lib/libwolfssl.a
 DEBUG_FLAGS     = -g -DDEBUG
 DEBUG_INC_PATHS = -MD
 OPTIMIZE        = -Os
