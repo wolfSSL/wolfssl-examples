@@ -252,6 +252,12 @@ do_lms_example(int    levels,
         goto exit_lms_example;
     }
 
+    ret = wc_LmsKey_Init(&verifyKey, NULL, 0);
+    if (ret) {
+        fprintf(stderr, "error: wc_LmsKey_Init returned %d\n", ret);
+        goto exit_lms_example;
+    }
+
     ret = wc_LmsKey_SetParameters(&signingKey, levels, height, winternitz);
     if (ret) {
         fprintf(stderr, "error: wc_LmsKey_SetParameters(%d, %d, %d) returned %d\n",
