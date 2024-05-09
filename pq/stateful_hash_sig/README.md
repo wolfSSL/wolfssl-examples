@@ -15,9 +15,8 @@ By default these examples use the wolfCrypt LMS and XMSS implementations
 performant and configurable. Also, these implementations benefit significantly
 from `--enable-intelasm` and `--enable-armasm`.
 
-If you want to use the old external integrations LMS/XMSS implementations
-(`ext_lms.c`, `ext_xmss.c`), see the section "Building the External Integration
-examples".
+If you want to use the old external integrations (`ext_lms.c`, `ext_xmss.c`),
+see the section "Building the External Integration examples".
 
 ## Signing and Verifying a Message with LMS/HSS
 
@@ -224,7 +223,7 @@ Then build:
 $ make lms_example
 ```
 
-# Building the external XMSS/XMSS^MT example
+## Building the external XMSS/XMSS^MT example
 
 If building with `--with-libxmss=<path>`, configure the Makefile to point to
 your xmss install:
