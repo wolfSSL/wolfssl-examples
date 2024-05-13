@@ -24,17 +24,21 @@
 #include <wolfssl/options.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
 
-#ifdef HAVE_LIBLMS
+#ifdef WOLFSSL_HAVE_LMS
 
 #include <wolfssl/wolfcrypt/lms.h>
-#include <wolfssl/wolfcrypt/ext_lms.h>
+#ifdef HAVE_LIBLMS
+    #include <wolfssl/wolfcrypt/ext_lms.h>
+#else
+    #include <wolfssl/wolfcrypt/wc_lms.h>
+#endif
 
 static void print_usage(void);
 static int  write_key_file(const byte * priv, word32 privSz, void * context);
 static int  read_key_file(byte * priv, word32 privSz, void * context);
 static int  do_lms_example(int levels, int height, int winternitz,
                            size_t sigs_to_do);
-static void dump_hex(const char * what, const uint8_t * buf, size_t len);
+static void dump_hex(const char * what, const byte * buf, size_t len);
 
 static WC_RNG rng;
 
@@ -248,6 +252,12 @@ do_lms_example(int    levels,
         goto exit_lms_example;
     }
 
+    ret = wc_LmsKey_Init(&verifyKey, NULL, 0);
+    if (ret) {
+        fprintf(stderr, "error: wc_LmsKey_Init returned %d\n", ret);
+        goto exit_lms_example;
+    }
+
     ret = wc_LmsKey_SetParameters(&signingKey, levels, height, winternitz);
     if (ret) {
         fprintf(stderr, "error: wc_LmsKey_SetParameters(%d, %d, %d) returned %d\n",
@@ -374,9 +384,9 @@ exit_lms_example:
 }
 
 static void
-dump_hex(const char *    what,
-         const uint8_t * buf,
-         size_t          len)
+dump_hex(const char * what,
+         const byte * buf,
+         size_t       len)
 {
     printf("%s\n", what);
     for (size_t i = 0; i < len; ++i) {
@@ -400,5 +410,5 @@ int main(int argc, char** argv) {
     printf("This requires the --with-liblms flag.\n");
     return 0;
 }
-#endif /* WITH_LILMS */
+#endif /* WOLFSSL_HAVE_LMS */
 

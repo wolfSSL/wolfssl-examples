@@ -38,7 +38,7 @@ static void print_usage(void);
 #if !defined WOLFSSL_XMSS_VERIFY_ONLY
 static int  do_xmss_example(const char * params, size_t sigs_to_do);
 static enum wc_XmssRc write_key_file(const byte * priv, word32 privSz,
-    void * context);
+                                     void * context);
 static enum wc_XmssRc read_key_file(byte * priv, word32 privSz, void * context);
 
 
@@ -385,14 +385,14 @@ static void
 print_usage(void)
 {
     fprintf(stderr, "usage:\n");
-    fprintf(stderr, "  ./xmss_example_verifyonly <param string> <pub file> <sig file> <msg file>\n");
+    fprintf(stderr, "  ./xmss_example <param string> <pub file> <sig file> <msg file>\n");
     fprintf(stderr, "\n");
     fprintf(stderr, "For simplicity message is assumed to be 32 bytes in size.\n");
     fprintf(stderr, "\n");
     fprintf(stderr, "examples:\n");
-    fprintf(stderr, "  ./xmss_example_verifyonly XMSSMT-SHA2_20/4_256 xmss_pub.key xmss_sig.bin msg.bin\n");
-    fprintf(stderr, "  ./xmss_example_verifyonly XMSSMT-SHA2_60/6_256 xmss_pub.key xmss_sig.bin msg.bin\n");
-    fprintf(stderr, "  ./xmss_example_verifyonly XMSS-SHA2_10_256 xmss_pub.key xmss_sig.bin msg.bin\n");
+    fprintf(stderr, "  ./xmss_example XMSSMT-SHA2_20/4_256 xmss_pub.key xmss_sig.bin msg.bin\n");
+    fprintf(stderr, "  ./xmss_example XMSSMT-SHA2_60/6_256 xmss_pub.key xmss_sig.bin msg.bin\n");
+    fprintf(stderr, "  ./xmss_example XMSS-SHA2_10_256 xmss_pub.key xmss_sig.bin msg.bin\n");
 
     exit(EXIT_FAILURE);
 }
@@ -561,5 +561,5 @@ int main(int argc, char** argv) {
     printf("This requires --enable-xmss.\n");
     return 0;
 }
-#endif /* WITH_LIBXMSS */
+#endif /* WOLFSSL_HAVE_XMSS */
 
