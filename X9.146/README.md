@@ -100,9 +100,7 @@ openssl x509  -in server-cert-pq.der -inform der -out server-P256-dilithium2-cer
 
 openssl pkey  -in server-key.der -inform der -out server-P256-key.pem -outform pem
 
-openssl pkey  -in ../certs/dilithium_level2_server_key.der -inform der -out server-dilithium2-key-pq.pem -outform pem
-
-(last one must be done with OQS's openssl fork)
+cp ../certs/dilithium_level2_server_key.pem server-dilithium2-key-pq.pem
 ```
 Then in wolfssl's source directory:
 
@@ -138,9 +136,7 @@ openssl x509  -in server-cert-pq.der -inform der -out server-P384-dilithium3-cer
 
 openssl pkey  -in server-key.der -inform der -out server-P384-key.pem -outform pem
 
-openssl pkey  -in ../certs/dilithium_level3_server_key.der -inform der -out server-dilithium3-key-pq.pem -outform pem
-
-(last one must be done with OQS's openssl fork)
+cp ../certs/dilithium_level3_server_key.pem server-dilithium3-key-pq.pem
 ```
 
 Then in wolfssl's source directory:
@@ -178,10 +174,9 @@ openssl x509  -in server-cert-pq.der -inform der -out server-P521-dilithium5-cer
 
 openssl pkey  -in server-key.der -inform der -out server-P521-key.pem -outform pem
 
-openssl pkey  -in ../certs/dilithium_level5_server_key.der -inform der -out server-dilithium5-key-pq.pem -outform pem
-
-(last one must be done with OQS's openssl fork)
+cp ../certs/dilithium_level5_server_key.pem server-dilithium5-key-pq.pem
 ```
+
 Then in wolfssl's source directory:
 
 ```
@@ -217,9 +212,7 @@ openssl x509  -in server-cert-pq.der -inform der -out server-P256-falcon1-cert.p
 
 openssl pkey  -in server-key.der -inform der -out server-P256-key.pem -outform pem
 
-openssl pkey  -in ../certs/falcon_level1_server_key.der -inform der -out server-falcon1-key-pq.pem -outform pem
-i
-(last one must be done with OQS's openssl fork)
+cp ../certs/falcon_level1_server_key.pem server-falcon1-key-pq.pem
 ```
 Then in wolfssl's source directory:
 
@@ -257,9 +250,7 @@ openssl x509  -in server-cert-pq.der -inform der -out server-P521-falcon5-cert.p
 
 openssl pkey  -in server-key.der -inform der -out server-P521-key.pem -outform pem
 
-openssl pkey  -in ../certs/falcon_level5_server_key.der -inform der -out server-falcon5-key-pq.pem -outform pem
-
-(last one must be done with OQS's openssl fork)
+cp ../certs/falcon_level5_server_key.pem server-falcon5-key-pq.pem
 ```
 Then in wolfssl's source directory:
 
@@ -298,9 +289,7 @@ openssl x509  -in server-cert-pq.der -inform der -out server-rsa3072-dilithium2-
 
 openssl pkey  -in server-key.der -inform der -out server-rsa3072-key.pem -outform pem
 
-openssl pkey  -in ../certs/dilithium_level2_server_key.der -inform der -out server-dilithium2-key-pq.pem -outform pem
-
-(last one must be done with OQS's openssl fork)
+cp ../certs/dilithium_level2_server_key.pem server-dilithium2-key-pq.pem
 ```
 Then in wolfssl's source directory:
 
@@ -337,9 +326,7 @@ openssl x509  -in server-cert-pq.der -inform der -out server-rsa3072-falcon1-cer
 
 openssl pkey  -in server-key.der -inform der -out server-rsa3072-key.pem -outform pem
 
-openssl pkey  -in ../certs/falcon_level1_server_key.der -inform der -out server-falcon1-key-pq.pem -outform pem
-
-(last one must be done with OQS's openssl fork)
+cp ../certs/falcon_level1_server_key.pem server-falcon1-key-pq.pem
 ```
 Then in wolfssl's source directory:
 
