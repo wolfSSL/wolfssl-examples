@@ -1,0 +1,9 @@
+sample:
+  description: A hello server that uses the ethernet avaliable for the FRDM-MCXN947
+  name: TLS 1.3 Hello Server
+tests:
+  sample.basic.wolfssl:
+    tags:
+      - Ethernet
+      - Networking
+      - TLS 1.3
