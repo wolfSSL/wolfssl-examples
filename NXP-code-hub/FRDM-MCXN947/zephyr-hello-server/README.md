@@ -18,9 +18,11 @@ Creating a simple server using the Zephyr RTOS and wolfSSL to utilize the networ
 1. [Software](#step1)
 2. [Hardware](#step2)
 3. [Setup](#step3)
-4. [FAQs](#step4) 
-5. [Support](#step5)
-6. [Release Notes](#step6)
+4. [Verification](#step4)
+5. [Project Options](#step5)
+6. [FAQs](#step6) 
+7. [Support](#step7)
+8. [Release Notes](#step8)
 
 ## 1. Software<a name="step1"></a>
 - [MCUXpresso for VScode 1.5.61 or newer](https://www.nxp.com/products/processors-and-microcontrollers/arm-microcontrollers/general-purpose-mcus/lpc800-arm-cortex-m0-plus-/mcuxpresso-for-visual-studio-code:MCUXPRESSO-VSC?cid=wechat_iot_303216)
@@ -96,12 +98,99 @@ This should produce the following results:
 
     [<img src="Images/Setup3-6.png" width="300"/>](Images/Setup3-6.png)
 
+## 4. Verification (optional)<a name="step4"></a>
+### 4.1 Download and Install the Wireshark Application
+- [Wireshark](https://www.wireshark.org/download.html)
+
+### 4.2 Setting up the Wireshark Application
+1. Launch the Wireshark application and select the network device you are using for the example.
+
+    [<img src="Images/Verification4-2-1.png" width="500"/>](Images/Verification4-2-1.png)
+
+2. Now setup and apply a filter using the noted ip in step: [3.4.3](#step3)
+
+    [<img src="Images/Verification4-2-2.png" width="500"/>](Images/Verification4-2-2.png)
+
+### 4.3 Verifing the Connection Type
+
+1. Run the client hello from step: [3.4.4](#step3) via 
+
+    `./examples/client/client -h <noted ip address> -v 4`
 
 
-## 4. FAQs<a name="step4"></a>
+    [<img src="Images/Setup3-6.png" width="300"/>](Images/Setup3-6.png)
+
+2. Check the Wireshark Results, and see if the correct version of TLS is being used.
+It should look similar to this example.
+
+    [<img src="Images/Verification4-3-2.png" width="600"/>](Images/Verification4-3-2.png)
+
+## 5. Project Options<a name="step5"></a>
+### 5.1 Setting up a static IPv4 on Zephyr
+By default the project is setup to use a DHCP Server, this section will show how to setup a static IP. Please make sure you chose an IP for the device that will not cause a IP confilct on your network.
+
+1. In [src/main.c](src/main.c), look for the following section.
+
+    [<img src="Images/ProjectOptions5-1-1.png" width="600"/>](Images/ProjectOptions5-1-1.png)
+
+2. Set DHCP off for the project by changing
+
+    `#define DHCP_ON 1` 
+    
+    to
+
+    `#define DHCP_ON 0`
+
+3. Set the `STATIC_IPV4_ADDR` macro to your desired IP, by default it is set to `192.168.1.70`. Make sure the IP you choose does not cause a conflict on your network.
+
+4. Set the `STATIC_IPV4_GATEWAY` macro to your network's gateway. Usally this is `192.168.1.1` on home networks, however this could not always be the case. This is usally the IP of your primary network router.
+
+5. Set the `STATIC_IPV4_NETMASK` macro to your needs. Generally `255.255.255.0` for most use cases.
+
+6. Rebuild the project and flash the device. The IP the device reports back should be the `STATIC_IPV4_ADDR` value you set.
+
+### 5.2 Changing the project to TLSv2
+If you want to change the version of TLS to v2 for the project. This can useful for debugging and education to see how a TLS handshake is preformed between devices.
+
+1. In [src/main.c](src/main.c) look for the following section
+
+    [<img src="Images/ProjectOptions5-2-1.png" width="600"/>](Images/ProjectOptions5-2-1.png)
+
+2. Set the `TLS_VERSION` macro from `3` to `2`.
+
+3. Rebuild the project and flash the device.
+
+4. When running the client application use `./examples/client/client -h <noted ip address> -v 3`, this should produce the following results.
+
+    Server App:
+
+    [<img src="Images/ProjectOptions5-2-4_ServerLog.png" width="400"/>](Images/ProjectOptions5-2-4_ServerLog.png)
+
+    Client App:
+
+    [<img src="Images/ProjectOptions5-2-4_ClientLog.png" width="400"/>](Images/ProjectOptions5-2-4_ClientLog.png)
+
+5. If you preform [Verification](#step4) via Wireshark it should produce the following logs:
+
+    [<img src="Images/ProjectOptions5-2-5.png" width="600"/>](Images/ProjectOptions5-2-5.png)
+
+### 5.3 Changing the Server's Port
+If you want to change the port from the default `11111`
+
+1. In [src/main.c](src/main.c) locate `#define DEFAULT_PORT 11111`, and change `11111` to the desired port you want to device to use.
+
+2. Rebuild and flash the device.
+
+3. When using `./examples/client/client -h <noted ip address> -v 4` add the option `-p <Desired Port>` so that it is `./examples/client/client -h <noted ip address> -v 4 -p <Desired Port>`
+
+4. To verify the correct port is being is via Wireshark, look in the Info section of the network capture. For this example I changed the device to use port `11110`.
+
+    [<img src="Images/ProjectOptions5-3-4.png" width="600"/>](Images/ProjectOptions5-3-4.png)
+
+## 6. FAQs<a name="step6"></a>
 No FAQs have been identified for this project.
 
-## 5. Support<a name="step5"></a>
+## 7. Support<a name="step7"></a>
 
 #### Project Metadata
 <!----- Boards ----->
@@ -122,7 +211,7 @@ Questions regarding the content/correctness of this example can be entered as Is
 
 
 
-## 6. Release Notes<a name="step6"></a>
+## 8. Release Notes<a name="step6"></a>
 | Version | Description / Update                           | Date                        |
 |:-------:|------------------------------------------------|----------------------------:|
-| 1.0     | Initial release on Application Code Hub        | TBDw|
+| 1.0     | Initial release on Application Code Hub        | TBD|
