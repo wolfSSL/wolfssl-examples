@@ -27,12 +27,15 @@
 #ifndef WOLFSSL_USER_SETTINGS_H
 #define WOLFSSL_USER_SETTINGS_H
 
+#define WOLFSSL_AUTOSAR
+
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
 #include <stdio.h>
+#include <time.h>
 #define TARGET_EMBEDDED
 
 extern time_t myTime(time_t *);
