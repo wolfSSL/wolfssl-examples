@@ -279,9 +279,6 @@ static int do_certgen(int argc, char** argv)
     if (ret != 0) goto exit;
 #endif
 
-    ret = wc_SetCustomExtension(&newCert, 0, "1.2.3.4.5",
-              (const byte *)"This is NOT a critical extension", 32);
-    if (ret < 0) goto exit;
     ret = wc_SetCustomExtension(&newCert, 0, "2.5.29.72", sapkiBuf, sapkiSz);
     if (ret < 0) goto exit;
     ret = wc_SetCustomExtension(&newCert, 0, "2.5.29.73", altSigAlgBuf,
