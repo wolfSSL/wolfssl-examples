@@ -43,8 +43,8 @@ gcc -lwolfssl -o ecc_sign ecc_sign.c
 
 /* message = "sample":  */
 static const char kMsg[] = "sample";
-#define DIGEST_SZ WC_SHA256_DIGEST_SIZE
-#define HASH_FUNC crypto_sha256
+#define DIGEST_SZ WC_SHA384_DIGEST_SIZE
+#define HASH_FUNC crypto_sha384
 
 #if 0
 
