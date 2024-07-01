@@ -43,8 +43,8 @@ gcc -lwolfssl -o ecc_sign ecc_sign.c
 
 /* message = "sample":  */
 static const char kMsg[] = "sample";
-#define DIGEST_SZ WC_SHA384_DIGEST_SIZE
-#define HASH_FUNC crypto_sha384
+#define DIGEST_SZ WC_SHA256_DIGEST_SIZE
+#define HASH_FUNC crypto_sha256
 
 #if 0
 
@@ -73,7 +73,7 @@ static const char kMsg[] = "sample";
         0x77, 0xA3, 0xC2, 0x94, 0xD4, 0x46, 0x22, 0x99
     };
 
-#elif 1
+#elif 0
 
     /* SECP384R1 */
     #define ECC_KEY_CURVE ECC_SECP384R1
@@ -106,7 +106,7 @@ static const char kMsg[] = "sample";
         0x73, 0x44, 0xFD, 0x25, 0x33, 0x26, 0x47, 0x20
     };
 
-#elif 0
+#elif 1
 
     /* SECP521R1 */
     #define ECC_KEY_CURVE ECC_SECP521R1
@@ -453,7 +453,10 @@ int main()
     wolfSSL_Debugging_ON();
 #endif
 
-    printf("Running NIST P-%d,SHA-%d Deterministic Sign Test\n", ECC_KEY_SIZE*8, DIGEST_SZ*8);
+if (ECC_KEY_SIZE == 66)
+    printf("Running NIST P-%d,SHA-%d Deterministic Sign Test\n", (ECC_KEY_SIZE*8)-7, DIGEST_SZ*8);
+else
+    printf("Running NIST P-%d,SHA-%d Deterministic Sign Test\n", (ECC_KEY_SIZE*8), DIGEST_SZ*8);
 
     memset(sig, 0, sizeof(sig));
 
