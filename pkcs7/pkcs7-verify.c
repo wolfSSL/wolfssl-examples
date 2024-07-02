@@ -26,11 +26,16 @@
 
 #ifdef HAVE_PKCS7
 
+static const char* pkcs7SignedDer = "signed.p7b"; /* DER */
+static const char* pkcs7SignedPem = "signed.p7s"; /* PEM */
+
 int main(int argc, char** argv)
 {
     int rc = 0;
     PKCS7 pkcs7;
     XFILE derFile;
+    byte* fileBuf = NULL;
+    word32 fileSz = 0;
     byte* derBuf = NULL;
     word32 derSz = 0;
 
@@ -41,35 +46,50 @@ int main(int argc, char** argv)
     wolfSSL_Debugging_ON();
 #endif
 
-    /* load DER PKCS7 */
-    derFile = fopen("signed.p7s", "rb");
+    /* load PKCS7 */
+    derFile = fopen(pkcs7SignedPem, "rb");
     if (derFile) {
         fseek(derFile, 0, SEEK_END);
-        derSz = (int)ftell(derFile);
+        fileSz = (int)ftell(derFile);
         rewind(derFile);
 
-        derBuf = (byte*)XMALLOC(derSz, NULL, DYNAMIC_TYPE_TMP_BUFFER);
-        if (derBuf == NULL) {
+        fileBuf = (byte*)XMALLOC(fileSz, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+        derBuf = (byte*)XMALLOC(fileSz, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+        if (fileBuf == NULL || derBuf == NULL) {
             rc = MEMORY_E; goto exit;
         }
+        derSz = fileSz;
 
-        rc = (int)fread(derBuf, 1, derSz, derFile);
+        rc = (int)fread(fileBuf, 1, fileSz, derFile);
         fclose(derFile);
 
-        if (rc != derSz) {
+        if (rc != fileSz) {
             printf("Failed to read der file!\n");
             return -1;
         }
     }
 
-    printf("Der %d\n", derSz);
-    WOLFSSL_BUFFER(derBuf, derSz);
+    /* PKCS_Init captures/saves this, so make sure
+     * isDynamic = 0 since it is on the stack */
+    pkcs7.isDynamic = 0;
 
     /* Test verify */
     rc = wc_PKCS7_Init(&pkcs7, NULL, INVALID_DEVID);
     if (rc != 0) goto exit;
     rc = wc_PKCS7_InitWithCert(&pkcs7, NULL, 0);
     if (rc != 0) goto exit;
+
+    /* convert PEM to DER */
+    rc = wc_CertPemToDer(fileBuf, fileSz, derBuf, derSz, PKCS7_TYPE);
+    if (rc < 0) {
+        goto exit;
+    }
+    derSz = rc;
+    rc = 0;
+
+    printf("Der %d\n", derSz);
+    WOLFSSL_BUFFER(derBuf, derSz);
+
     rc = wc_PKCS7_VerifySignedData(&pkcs7, derBuf, derSz);
     if (rc != 0) goto exit;
 
@@ -82,6 +102,7 @@ exit:
 
     wc_PKCS7_Free(&pkcs7);
     XFREE(derBuf, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+    XFREE(fileBuf, NULL, DYNAMIC_TYPE_TMP_BUFFER);
 
     return rc;
 }
