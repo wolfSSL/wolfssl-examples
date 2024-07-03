@@ -466,14 +466,14 @@ int main()
     uint8_t sig[ECC_KEY_SIZE*2];
     uint32_t sigSz = 0;
 
-#ifdef DEBUG_WOLFSSL
-    wolfSSL_Debugging_ON();
-#endif
+    #ifdef DEBUG_WOLFSSL
+        wolfSSL_Debugging_ON();
+    #endif
 
-if (ECC_KEY_SIZE == 66)
-    printf("Running NIST P-%d,SHA-%d Deterministic Sign Test\n", (ECC_KEY_SIZE*8)-7, DIGEST_SZ*8);
-else
-    printf("Running NIST P-%d,SHA-%d Deterministic Sign Test\n", (ECC_KEY_SIZE*8), DIGEST_SZ*8);
+    if (ECC_KEY_SIZE == 66)
+        printf("Running NIST P-%d,SHA-%d Deterministic Sign Test\n", (ECC_KEY_SIZE*8)-7, DIGEST_SZ*8);
+    else
+        printf("Running NIST P-%d,SHA-%d Deterministic Sign Test\n", (ECC_KEY_SIZE*8), DIGEST_SZ*8);
 
     memset(sig, 0, sizeof(sig));
 
@@ -487,9 +487,6 @@ else
         print_hex(hash, sizeof(hash));
 
         /* Sign hash using private key */
-        /* Note: result of an ECC sign varies for each call even with same
-            private key and hash. This is because a new random public key is
-            used for each operation. */
         sigSz = sizeof(sig);
         ret = crypto_ecc_sign(
             kPrivKey, sizeof(kPrivKey), /* private key */
