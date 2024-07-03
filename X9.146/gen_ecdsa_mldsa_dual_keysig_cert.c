@@ -1,4 +1,4 @@
-/* gen_ecdsa_dilithium_dual_keysig_cert.c
+/* gen_ecdsa_mldsa_dual_keysig_cert.c
  *
  * Copyright (C) 2006-2024 wolfSSL Inc.
  *
@@ -29,7 +29,7 @@
 #include <wolfssl/wolfcrypt/error-crypt.h>
 #include <wolfssl/wolfcrypt/logging.h>
 
-#if defined(WOLFSSL_DUAL_ALG_CERTS) && defined(HAVE_LIBOQS)
+#if defined(WOLFSSL_DUAL_ALG_CERTS) && defined(HAVE_DILITHIUM)
 
 #define LARGE_TEMP_SZ 9216
 
@@ -79,21 +79,21 @@ static int do_certgen(int argc, char** argv)
     int ret = 0;
 
     char caKeyFile[] = "./ca-key.der";
-    char altPrivFile2[] = "../certs/dilithium_level2_ca_key.der";
-    char altPrivFile3[] = "../certs/dilithium_level3_ca_key.der";
-    char altPrivFile5[] = "../certs/dilithium_level5_ca_key.der";
+    char altPrivFile2[] = "../certs/mldsa44_ca_key.der";
+    char altPrivFile3[] = "../certs/mldsa65_ca_key.der";
+    char altPrivFile5[] = "../certs/mldsa87_ca_key.der";
 #ifdef GEN_ROOT_CERT
     char newCertOutput[] = "./ca-cert-pq.der";
-    char sapkiFile2[] = "../certs/dilithium_level2_ca_pubkey.der";
-    char sapkiFile3[] = "../certs/dilithium_level3_ca_pubkey.der";
-    char sapkiFile5[] = "../certs/dilithium_level5_ca_pubkey.der";
+    char sapkiFile2[] = "../certs/mldsa44_ca_pubkey.der";
+    char sapkiFile3[] = "../certs/mldsa65_ca_pubkey.der";
+    char sapkiFile5[] = "../certs/mldsa87_ca_pubkey.der";
 #else
     char caCert[] = "./ca-cert-pq.der";
     char newCertOutput[] = "./server-cert-pq.der";
     char serverKeyFile[] = "./server-key.der";
-    char sapkiFile2[] = "../certs/dilithium_level2_server_pubkey.der";
-    char sapkiFile3[] = "../certs/dilithium_level3_server_pubkey.der";
-    char sapkiFile5[] = "../certs/dilithium_level5_server_pubkey.der";
+    char sapkiFile2[] = "../certs/mldsa44_server_pubkey.der";
+    char sapkiFile3[] = "../certs/mldsa65_server_pubkey.der";
+    char sapkiFile5[] = "../certs/mldsa87_server_pubkey.der";
 #endif
     FILE* file;
     Cert newCert;
