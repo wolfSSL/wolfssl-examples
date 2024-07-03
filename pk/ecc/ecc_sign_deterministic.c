@@ -58,7 +58,7 @@ static const char kMsg[] = "sample";
 #endif
 
 /* Choose Test Key Curve */
-#if 0
+#if 1
 
     /* SECP256R1 */
     #define ECC_KEY_CURVE ECC_SECP256R1
@@ -118,7 +118,7 @@ static const char kMsg[] = "sample";
         0x73, 0x44, 0xFD, 0x25, 0x33, 0x26, 0x47, 0x20
     };
 
-#elif 1
+#elif 0
 
     /* The test for SECP521R1 does not work in this example yet */
     /* SECP521R1 */
