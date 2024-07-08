@@ -18,7 +18,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
+#ifndef WOLFSSL_USER_SETTINGS
 #include <wolfssl/options.h>
+#endif
 #include <wolfssl/wolfcrypt/settings.h>
 #include <wolfssl/wolfcrypt/pkcs7.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
@@ -65,8 +67,10 @@ int main(int argc, char** argv)
 
         if (rc != fileSz) {
             printf("Failed to read der file!\n");
-            return -1;
+            rc = -1;
+            goto exit;
         }
+        rc = 0;
     }
 
     /* PKCS_Init captures/saves this, so make sure
@@ -94,6 +98,43 @@ int main(int argc, char** argv)
     if (rc != 0) goto exit;
 
     printf("PKCS7 Verify Success\n");
+
+    #ifdef WOLFSSL_DER_TO_PEM
+        memset(fileBuf, 0, fileSz);
+        rc = wc_DerToPem(derBuf, derSz, fileBuf, fileSz, PKCS7_TYPE);
+        if (rc <= 0) {
+            printf("DER to PEM failed: %d\n", rc);
+            goto exit;
+        }
+        printf("%s", fileBuf);
+    #endif
+
+    /* load PKCS7 */
+    derFile = fopen(pkcs7SignedDer, "rb");
+    if (derFile) {
+        fseek(derFile, 0, SEEK_END);
+        fileSz = (int)ftell(derFile);
+        rewind(derFile);
+
+        rc = (int)fread(fileBuf, 1, fileSz, derFile);
+        fclose(derFile);
+
+        if (rc != fileSz) {
+            printf("Failed to read der file!\n");
+            rc = -1;
+            goto exit;
+        }
+        rc = 0;
+    }
+
+    /* Verify DER output matches expected output */
+    if (fileSz != derSz || memcmp(fileBuf, derBuf, derSz) != 0) {
+        fprintf(stderr, "DER output didn't match expected\n");
+        rc = -1;
+    }
+    else {
+        printf("DER output matches the original PEM\n");
+    }
 
 exit:
 
