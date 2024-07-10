@@ -86,9 +86,20 @@ int do_ecc(void)
     ret = wc_ecc_make_key(&rng, ECC_256_BIT_FIELD, &AliceKey);
     if (ret != 0)
         goto all_three;
+#ifdef ECC_TIMING_RESISTANT
+    ret = wc_ecc_set_rng(&AliceKey, &rng);
+    if (ret != 0)
+        goto all_three;
+#endif
+
     ret = wc_ecc_make_key(&rng, ECC_256_BIT_FIELD, &BobKey);
     if (ret != 0)
         goto all_three;
+#ifdef ECC_TIMING_RESISTANT
+    ret = wc_ecc_set_rng(&BobKey, &rng);
+    if (ret != 0)
+        goto all_three;
+#endif
 
     secretLen = ECC_256_BIT_FIELD; /* explicit set */
     ret = wc_ecc_shared_secret(&AliceKey, &BobKey, AliceSecret, &secretLen);
