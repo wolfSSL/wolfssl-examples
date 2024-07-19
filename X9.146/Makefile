@@ -27,7 +27,7 @@ CFLAGS+=$(DEBUG_FLAGS)
 #LIBS+=$(STATIC_LIB)
 LIBS+=$(DYN_LIB)
 
-all: gen_dual_keysig_root_cert gen_dual_keysig_server_cert gen_rsa_dilithium_dual_keysig_root_cert gen_rsa_dilithium_dual_keysig_server_cert gen_rsa_falcon_dual_keysig_root_cert gen_rsa_falcon_dual_keysig_server_cert gen_ecdsa_dilithium_dual_keysig_root_cert gen_ecdsa_dilithium_dual_keysig_server_cert gen_ecdsa_falcon_dual_keysig_root_cert gen_ecdsa_falcon_dual_keysig_server_cert
+all: gen_dual_keysig_root_cert gen_dual_keysig_server_cert gen_rsa_mldsa_dual_keysig_root_cert gen_rsa_mldsa_dual_keysig_server_cert gen_rsa_falcon_dual_keysig_root_cert gen_rsa_falcon_dual_keysig_server_cert gen_ecdsa_mldsa_dual_keysig_root_cert gen_ecdsa_mldsa_dual_keysig_server_cert gen_ecdsa_falcon_dual_keysig_root_cert gen_ecdsa_falcon_dual_keysig_server_cert
 
 
 gen_dual_keysig_root_cert: gen_dual_keysig_cert.c
@@ -36,11 +36,11 @@ gen_dual_keysig_root_cert: gen_dual_keysig_cert.c
 gen_dual_keysig_server_cert: gen_dual_keysig_cert.c
 	$(CC) -o $@ gen_dual_keysig_cert.c $(CFLAGS) $(CPPFLAGS) $(LIBS) -DGEN_SERVER_CERT
 
-gen_rsa_dilithium_dual_keysig_root_cert: gen_rsa_dilithium_dual_keysig_cert.c
-	$(CC) -o $@ gen_rsa_dilithium_dual_keysig_cert.c $(CFLAGS) $(CPPFLAGS) $(LIBS) -DGEN_ROOT_CERT
+gen_rsa_mldsa_dual_keysig_root_cert: gen_rsa_mldsa_dual_keysig_cert.c
+	$(CC) -o $@ gen_rsa_mldsa_dual_keysig_cert.c $(CFLAGS) $(CPPFLAGS) $(LIBS) -DGEN_ROOT_CERT
 
-gen_rsa_dilithium_dual_keysig_server_cert: gen_rsa_dilithium_dual_keysig_cert.c
-	$(CC) -o $@ gen_rsa_dilithium_dual_keysig_cert.c $(CFLAGS) $(CPPFLAGS) $(LIBS) -DGEN_SERVER_CERT
+gen_rsa_mldsa_dual_keysig_server_cert: gen_rsa_mldsa_dual_keysig_cert.c
+	$(CC) -o $@ gen_rsa_mldsa_dual_keysig_cert.c $(CFLAGS) $(CPPFLAGS) $(LIBS) -DGEN_SERVER_CERT
 
 gen_rsa_falcon_dual_keysig_root_cert: gen_rsa_falcon_dual_keysig_cert.c
 	$(CC) -o $@ gen_rsa_falcon_dual_keysig_cert.c $(CFLAGS) $(CPPFLAGS) $(LIBS) -DGEN_ROOT_CERT
@@ -48,11 +48,11 @@ gen_rsa_falcon_dual_keysig_root_cert: gen_rsa_falcon_dual_keysig_cert.c
 gen_rsa_falcon_dual_keysig_server_cert: gen_rsa_falcon_dual_keysig_cert.c
 	$(CC) -o $@ gen_rsa_falcon_dual_keysig_cert.c $(CFLAGS) $(CPPFLAGS) $(LIBS) -DGEN_SERVER_CERT
 
-gen_ecdsa_dilithium_dual_keysig_root_cert: gen_ecdsa_dilithium_dual_keysig_cert.c
-	$(CC) -o $@ gen_ecdsa_dilithium_dual_keysig_cert.c $(CFLAGS) $(CPPFLAGS) $(LIBS) -DGEN_ROOT_CERT
+gen_ecdsa_mldsa_dual_keysig_root_cert: gen_ecdsa_mldsa_dual_keysig_cert.c
+	$(CC) -o $@ gen_ecdsa_mldsa_dual_keysig_cert.c $(CFLAGS) $(CPPFLAGS) $(LIBS) -DGEN_ROOT_CERT
 
-gen_ecdsa_dilithium_dual_keysig_server_cert: gen_ecdsa_dilithium_dual_keysig_cert.c
-	$(CC) -o $@ gen_ecdsa_dilithium_dual_keysig_cert.c $(CFLAGS) $(CPPFLAGS) $(LIBS) -DGEN_SERVER_CERT
+gen_ecdsa_mldsa_dual_keysig_server_cert: gen_ecdsa_mldsa_dual_keysig_cert.c
+	$(CC) -o $@ gen_ecdsa_mldsa_dual_keysig_cert.c $(CFLAGS) $(CPPFLAGS) $(LIBS) -DGEN_SERVER_CERT
 
 gen_ecdsa_falcon_dual_keysig_root_cert: gen_ecdsa_falcon_dual_keysig_cert.c
 	$(CC) -o $@ gen_ecdsa_falcon_dual_keysig_cert.c $(CFLAGS) $(CPPFLAGS) $(LIBS) -DGEN_ROOT_CERT

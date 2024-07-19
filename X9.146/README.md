@@ -26,7 +26,18 @@ is going to specify what is sent in the CertificateVerify message. BOTH is simpl
 
 ## Post-Quantum
 
-Tested with these wolfSSL build options:
+Tested with these wolfSSL build options for MLDSA certificates:
+
+```sh
+./autogen.sh  # If cloned from GitHub
+./configure --enable-experimental  --enable-dual-alg-certs --enable-dilithium --enable-debug
+make
+sudo make install
+sudo ldconfig # required on some targets
+```
+NOTE: This DOES NOT require installation of liboqs.
+
+Tested with these wolfSSL build options for Falcon certificates:
 
 ```sh
 ./autogen.sh  # If cloned from GitHub
@@ -35,6 +46,9 @@ make
 sudo make install
 sudo ldconfig # required on some targets
 ```
+NOTE: This REQUIRES installation of liboqs for its Falcon implementation.
+
+
 
 In the directory where this README.md file is found, clean up previous build
 products and certificates and then build the applications.
@@ -74,7 +88,7 @@ wolfSSL Leaving DoTls13CertificateVerify, return 0
 
 ### ECDSA Demos
 
-#### P-256 and Dilithium Level 2 Demo
+#### P-256 and MLDSA44 Demo
 Generate the various conventional keys; the post-quantum key are pre-generated:
 
 ```sh
@@ -86,31 +100,31 @@ openssl genpkey -algorithm ec -pkeyopt ec_paramgen_curve:P-256 -out server-key.d
 Generate the certificate chain:
 
 ```
-./gen_ecdsa_dilithium_dual_keysig_root_cert 2
+./gen_ecdsa_mldsa_dual_keysig_root_cert 2
 
-./gen_ecdsa_dilithium_dual_keysig_server_cert 2
+./gen_ecdsa_mldsa_dual_keysig_server_cert 2
 ```
 
 Convert the DER encoded resulting certificates and keys into PEM:
 
 ```
-openssl x509  -in ca-cert-pq.der -inform der -out ca-P256-dilithium2-cert.pem -outform pem
+openssl x509  -in ca-cert-pq.der -inform der -out ca-P256-mldsa44-cert.pem -outform pem
 
-openssl x509  -in server-cert-pq.der -inform der -out server-P256-dilithium2-cert.pem -outform pem
+openssl x509  -in server-cert-pq.der -inform der -out server-P256-mldsa44-cert.pem -outform pem
 
 openssl pkey  -in server-key.der -inform der -out server-P256-key.pem -outform pem
 
-cp ../certs/dilithium_level2_server_key.pem server-dilithium2-key-pq.pem
+cp ../certs/mldsa44_server_key.pem server-mldsa44-key-pq.pem
 ```
 Then in wolfssl's source directory:
 
 ```
-examples/server/server -d -v 4 -c ../wolfssl-examples/X9.146/server-P256-dilithium2-cert.pem -k ../wolfssl-examples/X9.146/server-P256-key.pem --altPrivKey ../wolfssl-examples/X9.146/server-dilithium2-key-pq.pem
+examples/server/server -d -v 4 -c ../wolfssl-examples/X9.146/server-P256-mldsa44-cert.pem -k ../wolfssl-examples/X9.146/server-P256-key.pem --altPrivKey ../wolfssl-examples/X9.146/server-mldsa44-key-pq.pem
 
-examples/client/client -v 4 -A ../wolfssl-examples/X9.146/ca-P256-dilithium2-cert.pem
+examples/client/client -v 4 -A ../wolfssl-examples/X9.146/ca-P256-mldsa44-cert.pem
 ```
 
-#### P-384 and Dilithium Level 3 Demo
+#### P-384 and MLDSA65 Demo
 Generate the various conventional keys; the post-quantum key are pre-generated:
 
 ```sh
@@ -122,32 +136,32 @@ openssl genpkey -algorithm ec -pkeyopt ec_paramgen_curve:P-384 -out server-key.d
 Generate the certificate chain:
 
 ```
-./gen_ecdsa_dilithium_dual_keysig_root_cert 3
+./gen_ecdsa_mldsa_dual_keysig_root_cert 3
 
-./gen_ecdsa_dilithium_dual_keysig_server_cert 3
+./gen_ecdsa_mldsa_dual_keysig_server_cert 3
 ```
 
 Convert the DER encoded resulting certificates and keys into PEM:
 
 ```
-openssl x509  -in ca-cert-pq.der -inform der -out ca-P384-dilithium3-cert.pem -outform pem
+openssl x509  -in ca-cert-pq.der -inform der -out ca-P384-mldsa65-cert.pem -outform pem
 
-openssl x509  -in server-cert-pq.der -inform der -out server-P384-dilithium3-cert.pem -outform pem
+openssl x509  -in server-cert-pq.der -inform der -out server-P384-mldsa65-cert.pem -outform pem
 
 openssl pkey  -in server-key.der -inform der -out server-P384-key.pem -outform pem
 
-cp ../certs/dilithium_level3_server_key.pem server-dilithium3-key-pq.pem
+cp ../certs/mldsa65_server_key.pem server-mldsa65-key-pq.pem
 ```
 
 Then in wolfssl's source directory:
 
 ```
-examples/server/server -d -v 4 -c ../wolfssl-examples/X9.146/server-P384-dilithium3-cert.pem -k ../wolfssl-examples/X9.146/server-P384-key.pem --altPrivKey ../wolfssl-examples/X9.146/server-dilithium3-key-pq.pem
+examples/server/server -d -v 4 -c ../wolfssl-examples/X9.146/server-P384-mldsa65-cert.pem -k ../wolfssl-examples/X9.146/server-P384-key.pem --altPrivKey ../wolfssl-examples/X9.146/server-mldsa65-key-pq.pem
 
-examples/client/client -v 4 -A ../wolfssl-examples/X9.146/ca-P384-dilithium3-cert.pem
+examples/client/client -v 4 -A ../wolfssl-examples/X9.146/ca-P384-mldsa65-cert.pem
 ```
 
-#### P-521 and Dilithium Level 5 Demo
+#### P-521 and MLDSA87 Demo
 Generate the various conventional keys; the post-quantum key are pre-generated:
 
 ```sh
@@ -160,29 +174,29 @@ Generate the certificate chain:
 
 ```
 
-./gen_ecdsa_dilithium_dual_keysig_root_cert 5
+./gen_ecdsa_mldsa_dual_keysig_root_cert 5
 
-./gen_ecdsa_dilithium_dual_keysig_server_cert 5
+./gen_ecdsa_mldsa_dual_keysig_server_cert 5
 ```
 
 Convert the DER encoded resulting certificates and keys into PEM:
 
 ```
-openssl x509  -in ca-cert-pq.der -inform der -out ca-P521-dilithium5-cert.pem -outform pem
+openssl x509  -in ca-cert-pq.der -inform der -out ca-P521-mldsa87-cert.pem -outform pem
 
-openssl x509  -in server-cert-pq.der -inform der -out server-P521-dilithium5-cert.pem -outform pem
+openssl x509  -in server-cert-pq.der -inform der -out server-P521-mldsa87-cert.pem -outform pem
 
 openssl pkey  -in server-key.der -inform der -out server-P521-key.pem -outform pem
 
-cp ../certs/dilithium_level5_server_key.pem server-dilithium5-key-pq.pem
+cp ../certs/mldsa87_server_key.pem server-mldsa87-key-pq.pem
 ```
 
 Then in wolfssl's source directory:
 
 ```
-examples/server/server -d -v 4 -c ../wolfssl-examples/X9.146/server-P521-dilithium5-cert.pem -k ../wolfssl-examples/X9.146/server-P521-key.pem --altPrivKey ../wolfssl-examples/X9.146/server-dilithium5-key-pq.pem
+examples/server/server -d -v 4 -c ../wolfssl-examples/X9.146/server-P521-mldsa87-cert.pem -k ../wolfssl-examples/X9.146/server-P521-key.pem --altPrivKey ../wolfssl-examples/X9.146/server-mldsa87-key-pq.pem
 
-examples/client/client -v 4 -A ../wolfssl-examples/X9.146/ca-P521-dilithium5-cert.pem
+examples/client/client -v 4 -A ../wolfssl-examples/X9.146/ca-P521-mldsa87-cert.pem
 ```
 
 #### P-256 and Falcon Level 1 Demo
@@ -262,7 +276,7 @@ examples/client/client -v 4 -A ../wolfssl-examples/X9.146/ca-P521-falcon5-cert.p
 
 ### RSA Demos
 
-#### RSA-3072 and Dilithium Level 2 Demo
+#### RSA-3072 and MLDSA44 Demo
 Generate the various conventional keys; the post-quantum key are pre-generated:
 
 ```sh
@@ -275,28 +289,28 @@ Generate the certificate chain:
 
 ```
 
-./gen_rsa_dilithium_dual_keysig_root_cert
+./gen_rsa_mldsa_dual_keysig_root_cert
 
-./gen_rsa_dilithium_dual_keysig_server_cert
+./gen_rsa_mldsa_dual_keysig_server_cert
 ```
 
 Convert the DER encoded resulting certificates and keys into PEM:
 
 ```
-openssl x509  -in ca-cert-pq.der -inform der -out ca-rsa3072-dilithium2-cert.pem -outform pem
+openssl x509  -in ca-cert-pq.der -inform der -out ca-rsa3072-mldsa44-cert.pem -outform pem
 
-openssl x509  -in server-cert-pq.der -inform der -out server-rsa3072-dilithium2-cert.pem -outform pem
+openssl x509  -in server-cert-pq.der -inform der -out server-rsa3072-mldsa44-cert.pem -outform pem
 
 openssl pkey  -in server-key.der -inform der -out server-rsa3072-key.pem -outform pem
 
-cp ../certs/dilithium_level2_server_key.pem server-dilithium2-key-pq.pem
+cp ../certs/mldsa44_server_key.pem server-mldsa44-key-pq.pem
 ```
 Then in wolfssl's source directory:
 
 ```
-examples/server/server -d -v 4 -c ../wolfssl-examples/X9.146/server-rsa3072-dilithium2-cert.pem -k ../wolfssl-examples/X9.146/server-rsa3072-key.pem --altPrivKey ../wolfssl-examples/X9.146/server-dilithium2-key-pq.pem
+examples/server/server -d -v 4 -c ../wolfssl-examples/X9.146/server-rsa3072-mldsa44-cert.pem -k ../wolfssl-examples/X9.146/server-rsa3072-key.pem --altPrivKey ../wolfssl-examples/X9.146/server-mldsa44-key-pq.pem
 
-examples/client/client -v 4 -A ../wolfssl-examples/X9.146/ca-rsa3072-dilithium2-cert.pem
+examples/client/client -v 4 -A ../wolfssl-examples/X9.146/ca-rsa3072-mldsa44-cert.pem
 ```
 
 #### RSA-3072 and Falcon Level 1 Demo
