@@ -224,6 +224,7 @@ pk/rsa-pss/sign.txt
 pk/rsa/rsa-nb
 pk/ecc/ecc_verify
 pk/ecc/ecc_sign
+pk/ecc/ecc_sign_determinisitc
 pk/ecc/ecc_pub
 pk/ecc/ecc_keys
 
