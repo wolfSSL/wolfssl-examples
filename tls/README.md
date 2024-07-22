@@ -1382,11 +1382,7 @@ kex=P-256
 
 See `client-tls-posthsauth.c` and `server-tls-posthsauth.c`. These server and client applications show how to do a handshake without the server authenticating the client. Then after the handshake is complete, the server requests authentication and the client authenticates itself to the server. This is mutual authentication with a faster handshake because the client authentication is done later.  This can lead to a better user experience if there are conditions where the client need not be authenticated.
 
-To get a better understanding of what is going on, it is best to view a diff between the normal TLS 1.3 examples and the post-handshake authentication examples:
-
-`diff -u server-tls13.c server-tls-posthsauth.c`
-
-`diff -u client-tls13.c client-tls-posthsauth.c`
+To get a better understanding of what is going on, see the comments that start with "POSTHSAUTH:".
 
 Of course, to use this example, you must enable post-handshake authentication. For the purposes of verifying that post-handshake authentication is actually happening, you can enable debugging messages.
 
