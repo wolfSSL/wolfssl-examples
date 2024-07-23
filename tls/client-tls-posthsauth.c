@@ -39,7 +39,7 @@
 #include <wolfssl/wolfio.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
 
-#ifdef WOLFSSL_POST_HANDSHAKE_AUTH
+#if defined(WOLFSSL_POST_HANDSHAKE_AUTH) && defined(WOLFSSL_TLS13)
 #define DEFAULT_PORT 11111
 
 #define CERT_FILE "../certs/client-cert.pem"
@@ -49,7 +49,6 @@
 int main(int argc, char** argv)
 {
     int ret = 0;
-#ifdef WOLFSSL_TLS13
     int                sockfd = SOCKET_INVALID;
     struct sockaddr_in servAddr;
     char               buff[256];
@@ -210,18 +209,13 @@ exit:
     if (ctx)
         wolfSSL_CTX_free(ctx);  /* Free the wolfSSL context object          */
     wolfSSL_Cleanup();          /* Cleanup the wolfSSL environment          */
-#else
-    printf("Example requires TLS v1.3\n");
-#endif
-    (void)argc;
-    (void)argv;
-
     return ret;
 }
 #else
 int main() {
     fprintf(stderr, "Please configure with --enable-postauth or compile with "
-                    "WOLFSSL_POST_HANDSHAKE_AUTH defined.\n");
+                    "WOLFSSL_POST_HANDSHAKE_AUTH defined. Do not disable "
+                    "TLS 1.3.\n");
     return 0;
 }
-#endif /* WOLFSSL_POST_HANDSHAKE_AUTH */
+#endif /* WOLFSSL_POST_HANDSHAKE_AUTH && WOLFSSL_TLS13 */
