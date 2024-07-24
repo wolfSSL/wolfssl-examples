@@ -1,6 +1,6 @@
-/* client-tls13.c
+/* client-tls-postauth.c
  *
- * Copyright (C) 2006-2020 wolfSSL Inc.
+ * Copyright (C) 2006-2024 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -38,85 +38,16 @@
 #include <wolfssl/wolfio.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
 
+#if defined(WOLFSSL_POST_HANDSHAKE_AUTH) && defined(WOLFSSL_TLS13)
 #define DEFAULT_PORT 11111
 
 #define CERT_FILE "../certs/client-cert.pem"
 #define KEY_FILE  "../certs/client-key.pem"
 #define CA_FILE   "../certs/ca-cert.pem"
 
-#if defined(WOLFSSL_TLS13) && defined(HAVE_SECRET_CALLBACK)
-
-#ifndef WOLFSSL_SSLKEYLOGFILE_OUTPUT
-    #define WOLFSSL_SSLKEYLOGFILE_OUTPUT "sslkeylog.log"
-#endif
-
-/* Callback function for TLS v1.3 secrets for use with Wireshark */
-static int Tls13SecretCallback(WOLFSSL* ssl, int id, const unsigned char* secret,
-    int secretSz, void* ctx)
-{
-    int i;
-    const char* str = NULL;
-    unsigned char clientRandom[32];
-    int clientRandomSz;
-    XFILE fp = stderr;
-    if (ctx) {
-        fp = XFOPEN((const char*)ctx, "ab");
-        if (fp == XBADFILE) {
-            return BAD_FUNC_ARG;
-        }
-    }
-
-    clientRandomSz = (int)wolfSSL_get_client_random(ssl, clientRandom,
-        sizeof(clientRandom));
-
-    if (clientRandomSz <= 0) {
-        printf("Error getting client random %d\n", clientRandomSz);
-    }
-
-#if 0
-    printf("TLS Client Secret CB: Rand %d, Secret %d\n",
-        clientRandomSz, secretSz);
-#endif
-
-    switch (id) {
-        case CLIENT_EARLY_TRAFFIC_SECRET:
-            str = "CLIENT_EARLY_TRAFFIC_SECRET"; break;
-        case EARLY_EXPORTER_SECRET:
-            str = "EARLY_EXPORTER_SECRET"; break;
-        case CLIENT_HANDSHAKE_TRAFFIC_SECRET:
-            str = "CLIENT_HANDSHAKE_TRAFFIC_SECRET"; break;
-        case SERVER_HANDSHAKE_TRAFFIC_SECRET:
-            str = "SERVER_HANDSHAKE_TRAFFIC_SECRET"; break;
-        case CLIENT_TRAFFIC_SECRET:
-            str = "CLIENT_TRAFFIC_SECRET_0"; break;
-        case SERVER_TRAFFIC_SECRET:
-            str = "SERVER_TRAFFIC_SECRET_0"; break;
-        case EXPORTER_SECRET:
-            str = "EXPORTER_SECRET"; break;
-    }
-
-    fprintf(fp, "%s ", str);
-    for (i = 0; i < clientRandomSz; i++) {
-        fprintf(fp, "%02x", clientRandom[i]);
-    }
-    fprintf(fp, " ");
-    for (i = 0; i < secretSz; i++) {
-        fprintf(fp, "%02x", secret[i]);
-    }
-    fprintf(fp, "\n");
-
-    if (fp != stderr) {
-        XFCLOSE(fp);
-    }
-
-    return 0;
-}
-#endif /* WOLFSSL_TLS13 && HAVE_SECRET_CALLBACK */
-
 int main(int argc, char** argv)
 {
     int ret = 0;
-#ifdef WOLFSSL_TLS13
     int                sockfd = SOCKET_INVALID;
     struct sockaddr_in servAddr;
     char               buff[256];
@@ -203,6 +134,12 @@ int main(int argc, char** argv)
         goto exit;
     }
 
+    /* POSTHSAUTH: Prepare for post-handshake authentication. */
+    if ((ret = wolfSSL_CTX_allow_post_handshake_auth(ctx)) != 0) {
+        fprintf(stderr, "ERROR: failed to allow post hand-shake auth.\n");
+        goto exit;
+    }
+
     /* Create a WOLFSSL object */
     if ((ssl = wolfSSL_new(ctx)) == NULL) {
         fprintf(stderr, "ERROR: failed to create WOLFSSL object\n");
@@ -215,24 +152,11 @@ int main(int argc, char** argv)
         goto exit;
     }
 
-#ifdef HAVE_SECRET_CALLBACK
-    /* required for getting random used */
-    wolfSSL_KeepArrays(ssl);
-
-    /* optional logging for wireshark */
-    wolfSSL_set_tls13_secret_cb(ssl, Tls13SecretCallback,
-        (void*)WOLFSSL_SSLKEYLOGFILE_OUTPUT);
-#endif
-
     /* Connect to wolfSSL on the server side */
     if ((ret = wolfSSL_connect(ssl)) != WOLFSSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to connect to wolfSSL\n");
         goto exit;
     }
-
-#ifdef HAVE_SECRET_CALLBACK
-    wolfSSL_FreeArrays(ssl);
-#endif
 
     /* Get a message for the server from stdin */
     printf("Message for server: ");
@@ -260,6 +184,18 @@ int main(int argc, char** argv)
     /* Print to stdout any data the server sends */
     printf("Server: %s\n", buff);
 
+    /* POSTHSAUTH: Send the second message to the server. This message is now
+     *             authenticated. */
+    memset(buff, 0, sizeof(buff));
+    memcpy(buff, "Hello again from the client\n", 28);
+    len = strnlen(buff, sizeof(buff));
+
+    if ((ret = wolfSSL_write(ssl, buff, len)) != len) {
+        fprintf(stderr, "ERROR: failed to write entire message\n");
+        fprintf(stderr, "%d bytes of %d bytes were sent", ret, (int) len);
+        goto exit;
+    }
+
     /* Return reporting a success */
     ret = 0;
 
@@ -272,11 +208,13 @@ exit:
     if (ctx)
         wolfSSL_CTX_free(ctx);  /* Free the wolfSSL context object          */
     wolfSSL_Cleanup();          /* Cleanup the wolfSSL environment          */
-#else
-    printf("Example requires TLS v1.3\n");
-#endif
-    (void)argc;
-    (void)argv;
-
     return ret;
 }
+#else
+int main() {
+    fprintf(stderr, "Please configure with --enable-postauth or compile with "
+                    "WOLFSSL_POST_HANDSHAKE_AUTH defined. Do not disable "
+                    "TLS 1.3.\n");
+    return 0;
+}
+#endif /* WOLFSSL_POST_HANDSHAKE_AUTH && WOLFSSL_TLS13 */

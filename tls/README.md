@@ -1378,6 +1378,41 @@ kex=P-256
 0
 ```
 
+## TLS Example with Post-Handshake Authentication
+
+See `client-tls-posthsauth.c` and `server-tls-posthsauth.c`. These server and client applications show how to do a handshake without the server authenticating the client. Then after the handshake is complete, the server requests authentication and the client authenticates itself to the server. This is mutual authentication with a faster handshake because the client authentication is done later.  This can lead to a better user experience if there are conditions where the client need not be authenticated.
+
+To get a better understanding of what is going on, see the comments that start with "POSTHSAUTH:".
+
+Of course, to use this example, you must enable post-handshake authentication. For the purposes of verifying that post-handshake authentication is actually happening, you can enable debugging messages.
+
+Build and install wolfSSL like so:
+
+```
+$ ./autogen.sh
+$ ./configure --enable-debug --enable-postauth
+$ make all
+$ sudo make install
+```
+
+Modify `client-tls-posthsauth.c` and `server-tls-posthsauth.c` so that they call `wolfSSL_Debugging_ON()`.
+
+Build them like so:
+
+```
+make client-tls-posthsauth server-tls-posthsaut
+```
+
+Execute them like so:
+
+```
+./server-tls-posthsauth
+```
+
+```
+./server-tls-posthsauth 127.0.0.1
+```
+
 ## Support
 
 Please contact wolfSSL at support@wolfssl.com with any questions, bug fixes,
