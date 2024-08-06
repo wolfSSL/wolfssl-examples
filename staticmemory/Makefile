@@ -19,11 +19,6 @@ CFLAGS+=$(OPTIMIZE)
 #LIBS+=$(STATIC_LIB)
 LIBS+=$(DYN_LIB)
 
-ifneq ($(PSA),)
-LIBS+=$(PSA_LIB)
-CFLAGS+=-DUSE_PSA
-endif
-
 # build targets
 SRC=$(wildcard *.c)
 TARGETS=$(patsubst %.c, %, $(SRC))
