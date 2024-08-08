@@ -118,6 +118,8 @@ crypto/3des/3des-file-encrypt
 crypto/aes/aes-file-encrypt
 crypto/aes/aescfb-file-encrypt
 crypto/aes/aesctr-file-encrypt
+crypto/aes/aesgcm-file-encrypt
+crypto/aes/aesgcm-oneshot
 crypto/camellia/camellia-encrypt
 crypto/pkcs12/pkcs12-create-example
 crypto/pkcs12/pkcs12-example
