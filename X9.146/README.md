@@ -65,7 +65,7 @@ the call to `DoTls13Certificate()`, please search for the following messages to
 confirm that the alternative signature was verified:
 
 ```
-Alternative signature has been verified!
+Alt signature has been verified!
 Verified Peer's cert
 ```
 
