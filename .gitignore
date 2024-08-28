@@ -53,12 +53,15 @@ android/wolfssljni-ndk-sample/proguard-project.txt
 /dtls/client-dtls-resume
 /dtls/client-dtls-shared
 /dtls/client-dtls
+/dtls/client-dtls13
 /dtls/client-udp
 /dtls/server-dtls-callback
 /dtls/server-dtls-ipv6
 /dtls/server-dtls-nonblocking
 /dtls/server-dtls-threaded
 /dtls/server-dtls
+/dtls/server-dtls13
+/dtls/server-dtls13-event
 /dtls/server-udp
 
 /psk/client-psk-bio-custom

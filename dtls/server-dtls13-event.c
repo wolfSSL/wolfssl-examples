@@ -58,7 +58,7 @@ typedef struct conn_ctx {
     WOLFSSL* ssl;
     struct event* readEv;
     struct event* writeEv;
-    char waitingOnData:1;
+    unsigned char waitingOnData:1;
 } conn_ctx;
 
 WOLFSSL_CTX*  ctx = NULL;
@@ -109,7 +109,7 @@ int main(int argc, char** argv)
         goto cleanup;
     }
     /* Load server certificates */
-    if (wolfSSL_CTX_use_certificate_file(ctx, servCertLoc, SSL_FILETYPE_PEM) != 
+    if (wolfSSL_CTX_use_certificate_file(ctx, servCertLoc, SSL_FILETYPE_PEM) !=
                                                                  SSL_SUCCESS) {
         fprintf(stderr, "Error loading %s, please check the file.\n", servCertLoc);
         goto cleanup;
@@ -286,7 +286,7 @@ static void newConn(evutil_socket_t fd, short events, void* arg)
 static void setHsTimeout(WOLFSSL* ssl, struct timeval *tv)
 {
     int timeout = wolfSSL_dtls_get_current_timeout(ssl);
-#ifndef USE_DTLS12
+#ifdef WOLFSSL_DTLS13
     if (wolfSSL_dtls13_use_quick_timeout(ssl)) {
         if (timeout >= QUICK_MULT)
             tv->tv_sec = timeout / QUICK_MULT;
