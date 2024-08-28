@@ -65,7 +65,7 @@ int main (int argc, char** argv)
 
     /* Initialize wolfSSL before assigning ctx */
     if (wolfSSL_Init() != WOLFSSL_SUCCESS) {
-        fprintf(stderr, "wolfSSL_CTX_new error.\n");
+        fprintf(stderr, "wolfSSL_Init error.\n");
         return exitVal;
     }
   
