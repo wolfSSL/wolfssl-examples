@@ -269,6 +269,12 @@ embedded/tls-sock-server-ca
 embedded/tls-sock-threaded
 embedded/tls-threaded
 
+# X509 Attribute Certificate (acert) example.
+x509_acert/acert_new.pem
+x509_acert/pkey_new.pem
+x509_acert/openssl_acert
+x509_acert/wolfssl_acert
+
 hash/sha256-hash
 
 ocsp/ocsp_nonblock/ocsp_nonblock
