@@ -17,9 +17,9 @@ Based on this example:
 Building wolfSSL: Build wolfSSL with
 
 ```sh
-$ ./configure --enable-acert --enable-opensslextra  --enable-rsapss
-$ make
-$ make install
+./configure --enable-acert --enable-opensslextra  --enable-rsapss
+make
+make install
 ```
 
 Building OpenSSL: At the time of writing this README, attribute cert support
@@ -50,7 +50,7 @@ make wolfssl_acert
 Note: you may need to use this script to set your environment
 
 ```sh
-source set_env
+$ source set_env
 info: using env: /usr/local/lib64/:/usr/local/lib/
 ```
 ## Examples
