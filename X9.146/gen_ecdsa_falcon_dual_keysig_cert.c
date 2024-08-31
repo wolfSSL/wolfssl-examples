@@ -74,6 +74,22 @@ int readFileIntoBuffer(char *fname, byte *buf, int *sz)
     return ret;
 }
 
+#ifdef HAVE_FIPS
+    #include <wolfssl/wolfcrypt/fips_test.h>
+
+    static void myFipsCb(int ok, int err, const char* hash)
+    {
+        printf("in my Fips callback, ok = %d, err = %d\n", ok, err);
+        printf("message = %s\n", wc_GetErrorString(err));
+        printf("hash = %s\n", hash);
+
+        if (err == IN_CORE_FIPS_E) {
+            printf("In core integrity hash check failure, copy above hash\n");
+            printf("into verifyCore[] in fips_test.c and rebuild\n");
+        }
+    }
+#endif
+
 static int do_certgen(int argc, char** argv)
 {
     int ret = 0;
@@ -139,6 +155,18 @@ static int do_certgen(int argc, char** argv)
 
 #if 0
     wolfSSL_Debugging_ON();
+#endif
+
+#ifdef WC_RNG_SEED_CB
+ wc_SetSeed_Cb(wc_GenerateSeed);
+#endif
+
+#if defined(HAVE_FIPS)
+    wolfCrypt_SetCb_fips(myFipsCb);
+    #if FIPS_VERSION3_GE(6,0,0)
+        printf("FIPS module version in use: %s\n",
+               wolfCrypt_GetVersion_fips());
+    #endif
 #endif
 
     if (argc != 2)
