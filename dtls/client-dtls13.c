@@ -1,7 +1,7 @@
 /*
  * client-dtls13.c
  *
- * Copyright (C) 2006-2022 wolfSSL Inc.
+ * Copyright (C) 2006-2024 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -29,7 +29,9 @@
  * Define USE_DTLS12 to use DTLS 1.2 instead of DTLS 1.3
  */
 
+#ifndef WOLFSSL_USER_SETTINGS
 #include <wolfssl/options.h>
+#endif
 #include <unistd.h>
 #include <wolfssl/ssl.h>
 #include <netdb.h>
@@ -45,7 +47,7 @@
 
 int main (int argc, char** argv)
 {
-    /* standard variables used in a dtls client*/
+    /* standard variables used in a dtls client */
     int             n = 0;
     int             sockfd = INVALID_SOCKET;
     int             err;
@@ -65,14 +67,14 @@ int main (int argc, char** argv)
 
     /* Initialize wolfSSL before assigning ctx */
     if (wolfSSL_Init() != WOLFSSL_SUCCESS) {
-        fprintf(stderr, "wolfSSL_CTX_new error.\n");
+        fprintf(stderr, "wolfSSL_Init error.\n");
         return exitVal;
     }
-  
+
     /* No-op when debugging is not compiled in */
     wolfSSL_Debugging_ON();
 
-    if ( (ctx = wolfSSL_CTX_new(
+    if ((ctx = wolfSSL_CTX_new(
 #ifdef WOLFSSL_DTLS13
             wolfDTLSv1_3_client_method()
 #else
@@ -84,8 +86,8 @@ int main (int argc, char** argv)
     }
 
     /* Load certificates into ctx variable */
-    if (wolfSSL_CTX_load_verify_locations(ctx, caCertLoc, 0)
-	    != SSL_SUCCESS) {
+    if (wolfSSL_CTX_load_verify_locations(ctx, caCertLoc, NULL)
+	    != WOLFSSL_SUCCESS) {
         fprintf(stderr, "Error loading %s, please check the file.\n", caCertLoc);
         goto cleanup;
     }
@@ -112,7 +114,7 @@ int main (int argc, char** argv)
         goto cleanup;
     }
 
-    if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) == -1) {
+    if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) == -1) {
        perror("socket()");
        goto cleanup;
     }
@@ -124,7 +126,7 @@ int main (int argc, char** argv)
     }
 
     /* Perform SSL connection */
-    if (wolfSSL_connect(ssl) != SSL_SUCCESS) {
+    if (wolfSSL_connect(ssl) != WOLFSSL_SUCCESS) {
         err = wolfSSL_get_error(ssl, 0);
         fprintf(stderr, "err = %d, %s\n", err, wolfSSL_ERR_reason_error_string(err));
         fprintf(stderr, "wolfSSL_connect failed\n");
@@ -145,7 +147,8 @@ int main (int argc, char** argv)
         /* Send sendLine to the server */
         if (wolfSSL_write(ssl, sendLine, strlen(sendLine)) != strlen(sendLine)) {
             err = wolfSSL_get_error(ssl, 0);
-            fprintf(stderr, "err = %d, %s\n", err, wolfSSL_ERR_reason_error_string(err));
+            fprintf(stderr, "err = %d, %s\n", err,
+                wolfSSL_ERR_reason_error_string(err));
             fprintf(stderr, "wolfSSL_write failed\n");
             goto cleanup;
         }
@@ -160,7 +163,8 @@ int main (int argc, char** argv)
         }
         else {
             err = wolfSSL_get_error(ssl, 0);
-            fprintf(stderr, "err = %d, %s\n", err, wolfSSL_ERR_reason_error_string(err));
+            fprintf(stderr, "err = %d, %s\n", err,
+                wolfSSL_ERR_reason_error_string(err));
             fprintf(stderr, "wolfSSL_read failed\n");
             goto cleanup;
         }
@@ -177,7 +181,8 @@ cleanup:
             ret = wolfSSL_shutdown(ssl);
         if (ret != WOLFSSL_SUCCESS) {
             err = wolfSSL_get_error(ssl, 0);
-            fprintf(stderr, "err = %d, %s\n", err, wolfSSL_ERR_reason_error_string(err));
+            fprintf(stderr, "err = %d, %s\n", err,
+                wolfSSL_ERR_reason_error_string(err));
             fprintf(stderr, "wolfSSL_shutdown failed\n");
         }
         wolfSSL_free(ssl);

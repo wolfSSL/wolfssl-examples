@@ -1,6 +1,6 @@
 /* server-dtls13.c
  *
- * Copyright (C) 2006-2022 wolfSSL Inc.
+ * Copyright (C) 2006-2024 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -26,7 +26,9 @@
  * Define USE_DTLS12 to use DTLS 1.2 instead of DTLS 1.3
  */
 
+#ifndef WOLFSSL_USER_SETTINGS
 #include <wolfssl/options.h>
+#endif
 #include <stdio.h>                  /* standard in/out procedures */
 #include <stdlib.h>                 /* defines system calls */
 #include <string.h>                 /* necessary for memset */
@@ -83,19 +85,19 @@ int main(int argc, char** argv)
     }
     /* Load CA certificates */
     if (wolfSSL_CTX_load_verify_locations(ctx,caCertLoc,0) !=
-            SSL_SUCCESS) {
+            WOLFSSL_SUCCESS) {
         fprintf(stderr, "Error loading %s, please check the file.\n", caCertLoc);
         goto cleanup;
     }
     /* Load server certificates */
-    if (wolfSSL_CTX_use_certificate_file(ctx, servCertLoc, SSL_FILETYPE_PEM) != 
-                                                                 SSL_SUCCESS) {
+    if (wolfSSL_CTX_use_certificate_file(ctx, servCertLoc,
+            WOLFSSL_FILETYPE_PEM) != WOLFSSL_SUCCESS) {
         fprintf(stderr, "Error loading %s, please check the file.\n", servCertLoc);
         goto cleanup;
     }
     /* Load server Keys */
     if (wolfSSL_CTX_use_PrivateKey_file(ctx, servKeyLoc,
-                SSL_FILETYPE_PEM) != SSL_SUCCESS) {
+            WOLFSSL_FILETYPE_PEM) != WOLFSSL_SUCCESS) {
         fprintf(stderr, "Error loading %s, please check the file.\n", servKeyLoc);
         goto cleanup;
     }
@@ -153,9 +155,10 @@ int main(int argc, char** argv)
             break;
         }
 
-        if (wolfSSL_accept(ssl) != SSL_SUCCESS) {
+        if (wolfSSL_accept(ssl) != WOLFSSL_SUCCESS) {
             err = wolfSSL_get_error(ssl, 0);
-            fprintf(stderr, "error = %d, %s\n", err, wolfSSL_ERR_reason_error_string(err));
+            fprintf(stderr, "error = %d, %s\n", err,
+                wolfSSL_ERR_reason_error_string(err));
             fprintf(stderr, "SSL_accept failed.\n");
             goto cleanup;
         }
@@ -171,14 +174,16 @@ int main(int argc, char** argv)
                 err = wolfSSL_get_error(ssl, 0);
                 if (err == WOLFSSL_ERROR_ZERO_RETURN) /* Received shutdown */
                     break;
-                fprintf(stderr, "error = %d, %s\n", err, wolfSSL_ERR_reason_error_string(err));
+                fprintf(stderr, "error = %d, %s\n", err,
+                    wolfSSL_ERR_reason_error_string(err));
                 fprintf(stderr, "SSL_read failed.\n");
                 goto cleanup;
             }
             printf("Sending reply.\n");
             if (wolfSSL_write(ssl, ack, sizeof(ack)) < 0) {
                 err = wolfSSL_get_error(ssl, 0);
-                fprintf(stderr, "error = %d, %s\n", err, wolfSSL_ERR_reason_error_string(err));
+                fprintf(stderr, "error = %d, %s\n", err,
+                    wolfSSL_ERR_reason_error_string(err));
                 fprintf(stderr, "wolfSSL_write failed.\n");
                 goto cleanup;
             }
@@ -192,7 +197,8 @@ int main(int argc, char** argv)
             ret = wolfSSL_shutdown(ssl);
         if (ret != WOLFSSL_SUCCESS) {
             err = wolfSSL_get_error(ssl, 0);
-            fprintf(stderr, "err = %d, %s\n", err, wolfSSL_ERR_reason_error_string(err));
+            fprintf(stderr, "err = %d, %s\n", err,
+                wolfSSL_ERR_reason_error_string(err));
             fprintf(stderr, "wolfSSL_shutdown failed\n");
         }
         wolfSSL_free(ssl);
@@ -200,7 +206,7 @@ int main(int argc, char** argv)
 
         printf("Awaiting new connection\n");
     }
-    
+
     exitVal = 0;
 cleanup:
     free_resources();
