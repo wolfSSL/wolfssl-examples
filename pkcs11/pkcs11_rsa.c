@@ -187,6 +187,7 @@ static const unsigned char client_keypub_der_2048[] =
         0x03, 0x01, 0x00, 0x01
 };
 static const int sizeof_client_keypub_der_2048 = sizeof(client_keypub_der_2048);
+WC_RNG rng;
 
 static int decode_private_key(RsaKey* key, int devId)
 {
@@ -245,7 +246,7 @@ static int rsa_sign_verify(int devId)
     if (ret == 0) {
         fprintf(stderr, "Signing\n");
         sigSz = ret = wc_RsaSSL_Sign(hash, hashSz, sig, (int)sigSz, &priv,
-                                     NULL);
+                                     &rng);
         if (ret < 0)
             fprintf(stderr, "Failed to sign: %d\n", ret);
         else
@@ -282,17 +283,11 @@ static int rsa_sign_verify_pss(int devId)
     word32 hashSz, ptSz, sigSz;
     RsaKey priv;
     RsaKey pub;
-    WC_RNG rng;
 
     memset(hash, 9, sizeof(hash));
     hashSz = sizeof(hash);
     sigSz = sizeof(sig);
     ptSz = sizeof(pt);
-
-    ret = wc_InitRng(&rng);
-    if (ret != 0) {
-        fprintf(stderr, "Failed to initialize RNG: %d\n", ret);
-    }
 
     ret = decode_private_key(&priv, devId);
     if (ret == 0) {
@@ -376,6 +371,12 @@ int main(int argc, char* argv[])
                 ret = 2;
             }
             if (ret == 0) {
+                ret = wc_InitRng(&rng);
+                if (ret != 0) {
+                    fprintf(stderr, "Failed to initialize RNG: %d\n", ret);
+                }
+            }
+            if (ret == 0) {
             #ifndef NO_RSA
                 ret = rsa_sign_verify(devId);
                 if (ret != 0)
@@ -394,6 +395,7 @@ int main(int argc, char* argv[])
         wc_Pkcs11_Finalize(&dev);
     }
 
+    wc_FreeRng(&rng);
     wolfCrypt_Cleanup();
 
     if (ret == 0)
