@@ -263,7 +263,7 @@ static int rsa_sign_verify(int devId)
             if (ret < 0)
                 fprintf(stderr, "Failed to verify: %d\n", ret);
 
-            if(XMEMCMP(hash, pt, ret) != 0) {
+            if (XMEMCMP(hash, pt, ret) != 0) {
                 fprintf(stderr, "Failed to verify\n");
             }
 
