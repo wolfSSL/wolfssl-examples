@@ -23,65 +23,79 @@
 #include "pico/stdlib.h"
 #include "pico/cyw43_arch.h"
 
+#include "FreeRTOS.h"
+#include "task.h"
+
+#include "lwip/init.h"
+#include "lwip/sockets.h"
+
 #include "wolfssl/wolfcrypt/settings.h"
 #include "wolfssl/ssl.h"
 
-#include "wolf/common.h"
-#include "wolf/tcp.h"
 #include "wolf/wifi.h"
 #include "wolf/blink.h"
-#include "lwip/tcp.h"
-
-#include "wolfssl/wolfcrypt/settings.h"
-#include "wolfssl/ssl.h"
+#include "wolf/tcp.h"
+#include "wolf/tls.h"
+#include "wolf/time.h"
 
 #define USE_CERT_BUFFERS_256
 #define USE_CERT_BUFFERS_2048
 #include <wolfssl/certs_test.h>
 
-#define TCP_PORT 1111
+#define TCP_PORT 11111
+#define WIFI_TASK_PRIORITY (tskIDLE_PRIORITY + 2UL)
 
-int wolf_cb_TCPwrite(WOLFSSL *ssl, const unsigned char *buff, long unsigned int len, void *ctx)
+void tlsClient_test(void *arg)
 {
-    (void)ssl;
-    unsigned long ret;
-    SOCKET_T sock = (SOCKET_T)ctx;
-    ret = send(sock, buff, len);
-    return ret;
-}
-
-int wolf_cb_TCPread(WOLFSSL *ssl, unsigned char *buff, long unsigned int len, void *ctx)
-{
-    (void)ssl;
-    SOCKET_T sock = (SOCKET_T)ctx;
-    int ret;
-
-    ret = recv(sock, buff, len);
-    return ret;
-}
-
-void tlsClient_test(void)
-{
+    (void)arg;
     int i;
     int ret;
     #define BUFF_SIZE 2048
     static char buffer[BUFF_SIZE];
     char msg[] = "Hello Server";
 
-    SOCKET_T sock;
+    int sock;
     struct sockaddr_in servAddr;
 
     WOLFSSL_CTX *ctx    = NULL;
     WOLFSSL     *ssl    = NULL;
 
+    cyw43_arch_init();
+
+    printf("Connecting to Wi-Fi...\n");
+    if (wolf_wifiConnect(WIFI_SSID, WIFI_PASSWORD, 
+                        CYW43_AUTH_WPA2_AES_PSK, 5000)) {
+        printf("failed to connect.\n");
+        return;
+    }
+    else {
+        printf("Wifi connected.\n");
+    }
+
+    lwip_init();
+    tcp_initThread();
+
     /* Initialize wolfSSL */
     wolfSSL_Init();
     wolfSSL_Debugging_ON();
+
+    printf("\nStarting tlsClient_test\n");
+
+    if(time_init() < 0) {
+        printf("ERROR:time_init()\n");
+        return;
+    }
 
     if ((ctx = wolfSSL_CTX_new((wolfTLSv1_2_client_method()))) == NULL) {
         printf("ERROR:wolfSSL_CTX_new()\n");
         return;
     }
+
+    printf("wolfSSL_CTX_new\n");
+    /* Register callbacks */
+    wolfSSL_CTX_SetIORecv(ctx, my_IORecv);
+    wolfSSL_CTX_SetIOSend(ctx, my_IOSend);
+
     /* Load client certificates into WOLFSSL_CTX */
     if ((ret = wolfSSL_CTX_load_verify_buffer(ctx, ca_cert_der_2048,
             sizeof_ca_cert_der_2048, SSL_FILETYPE_ASN1)) != WOLFSSL_SUCCESS) {
@@ -89,107 +103,102 @@ void tlsClient_test(void)
         goto exit;
     }
 
-    wolfSSL_SetIORecv(ctx, (CallbackIORecv)wolf_cb_TCPread);
-    wolfSSL_SetIOSend(ctx, (CallbackIOSend)wolf_cb_TCPwrite);
+    printf("wolfSSL_CTX_load_verify_buffer\n");
 
-    sock = socket();
-    if (!sock)
-    {
-        printf("ERROR:wolf_TCPsocke()\n");
-        return;
+    for(i=0; i<10; i++) {
+
+        sock = socket(AF_INET, SOCK_STREAM, 0);
+        if (sock < 0) {
+            printf("ERROR:wolf_TCPsocke()\n");
+            return;
+        }
+
+        printf("Retured from socket\n");
+
+        memset(&servAddr, 0, sizeof(servAddr));
+        servAddr.sin_family = AF_INET;       /* using IPv4      */
+        servAddr.sin_port = htons(TCP_PORT); /* on DEFAULT_PORT */
+
+        printf("Connecting to the server(%s)\n", TCP_SERVER);
+        if (inet_pton(AF_INET, TCP_SERVER, &servAddr.sin_addr) != 1) {
+            fprintf(stderr, "ERROR: invalid address\n");
+            goto exit;
+        }
+
+        if ((ret = connect(sock, (struct sockaddr *)&servAddr, 
+                                sizeof(servAddr))) != EXIT_SUCCESS) {
+            printf("ERROR:connect(%d)\n", ret);
+            goto exit;
+        }
+
+        printf("TCP connected\n");
+
+        if ((ssl = wolfSSL_new(ctx)) == NULL) {
+            fprintf(stderr, "ERROR: failed to create WOLFSSL object\n");
+            ret = -1; 
+            goto exit;
+        }
+
+        if ((ret = wolfSSL_set_fd(ssl, sock)) != WOLFSSL_SUCCESS) {
+            fprintf(stderr, "ERROR: Failed to set the file descriptor\n");
+            goto exit;
+        }
+
+        printf("TLS Connecting\n");
+        if ((ret = wolfSSL_connect(ssl)) != WOLFSSL_SUCCESS) {
+            fprintf(stderr, "ERROR: failed to connect to wolfSSL(%d)\n",
+                wolfSSL_get_error(ssl, ret));
+            goto exit;
+        }
+
+        printf("Writing to server: %s\n", msg);
+        ret = wolfSSL_write(ssl, msg, strlen(msg));
+        if (ret < 0) {
+            printf("Failed to write data. err=%d\n", ret);
+            goto exit;
+        }
+
+        ret = wolfSSL_read(ssl, buffer, BUFF_SIZE);
+        if (ret < 0) {
+            printf("Failed to read data. err=%d\n", ret);
+            goto exit;
+        }
+        printf("Message: %s\n", buffer);
+
+        wolfSSL_free(ssl);
+        close(sock);
     }
-
-    memset(&servAddr, 0, sizeof(servAddr));
-    servAddr.sin_family = AF_INET;           /* using IPv4      */
-    servAddr.sin_port = htons(TCP_PORT); /* on DEFAULT_PORT */
-
-    if (inet_pton(AF_INET, TEST_TCP_SERVER_IP, &servAddr.sin_addr) != 1) {
-        fprintf(stderr, "ERROR: invalid address\n");
-        goto exit;
-    }
-
-    if (connect(sock,(struct sockaddr*) &servAddr, sizeof(servAddr)) != WOLF_SUCCESS) {
-        printf("ERROR:wolf_TCPconnect()\n");
-        goto exit;
-    }
-
-
-    if ((ssl = wolfSSL_new(ctx)) == NULL) {
-        fprintf(stderr, "ERROR: failed to create WOLFSSL object\n");
-        ret = -1; 
-        goto exit;
-    }
-
-    wolfSSL_SetIOReadCtx(ssl, sock);
-    wolfSSL_SetIOWriteCtx(ssl, sock);
-
-    printf("TLS Connecting\n");
-    if ((ret = wolfSSL_connect(ssl)) != WOLFSSL_SUCCESS) {
-        fprintf(stderr, "ERROR: failed to connect to wolfSSL(%d)\n",
-            wolfSSL_get_error(ssl, ret));
-        goto exit;
-    }
-
-    printf("Writing to server: %s\n", msg);
-    ret = wolfSSL_write(ssl, msg, strlen(msg));
-    if (ret < 0) {
-        DEBUG_printf("Failed to write data. err=%d\n", ret);
-        goto exit;
-    }
-
-    ret = wolfSSL_read(ssl, buffer, BUFF_SIZE);
-    if (ret < 0) {
-        DEBUG_printf("Failed to read data. err=%d\n", ret);
-        goto exit;
-    }
-    printf("Message: %s\n", buffer);
-
+    printf("End of TLS Client\n");
 
 exit:
     if (ssl)
-        wolfSSL_free(ssl);      /* Free the wolfSSL object              */
-    if (sock)
-        free(sock);              /* Close the connection to the server   */
+        wolfSSL_free(ssl);
+    if (sock >= 0)
+        close(sock);
     if (ctx)
-        wolfSSL_CTX_free(ctx);  /* Free the wolfSSL context object          */
-    wolfSSL_Cleanup();          /* Cleanup the wolfSSL environment          */
+        wolfSSL_CTX_free(ctx);
+    wolfSSL_Cleanup();
 
+    while(1)
+        vTaskDelay(1000);
 }
 
 void main(void)
 {
-    blink(20, 1);
+    TaskHandle_t task_tlsClient;
+#define STACK_SIZE (1024 * 16)
 
-    cyw43_arch_enable_sta_mode();
-    printf("Connecting to Wi-Fi...\n");
-    printf("WIFI_SSID=%s, WIFI_PASSWORD=%s\n", WIFI_SSID, WIFI_PASSWORD);
-    if (wolf_wifiConnect(WIFI_SSID, WIFI_PASSWORD, CYW43_AUTH_WPA2_AES_PSK, 30000)) {
-        printf("failed to connect.\n");
-        return;
-    } else {
-        printf("Wifi connected.\n");
+    int i;
+
+    stdio_init_all();
+    for (i = 0; i < 10; i++)
+    {
+        printf("Starting in %dSec.\n", 10 - i);
+        sleep_ms(1000);
     }
-    cyw43_arch_lwip_begin();
 
-    printf("Starting TLS client\n");
-    tlsClient_test();
-    printf("End of TLS client\n");
-
-    cyw43_arch_lwip_end();
-    cyw43_arch_deinit();
-
-    printf("Wifi disconnected\n");
-}
-
-void lwip_example_app_platform_assert(const char *msg, int line, const char *file)
-{
-    printf("Assertion \"%s\" failed at line %d in %s\n", msg, line, file);
-    fflush(NULL);
-}
-
-#include <time.h>
-time_t myTime(time_t *t)
-{
-    *t = (((2023 - 1970) * 365 + (8 * 30)) * 24 * 60 * 60);
-    return *t;
+    printf("Creating tlsClient task, stack = %d\n", STACK_SIZE);
+    xTaskCreate(tlsClient_test, "TLS_MainThread", STACK_SIZE, NULL, 
+                                CYW43_TASK_PRIORITY + 1, &task_tlsClient);
+    vTaskStartScheduler();
 }

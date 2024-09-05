@@ -29,9 +29,9 @@ int wolf_wifiConnect(const char *ssid, const char *pw, uint32_t auth, uint32_t t
 {
     int retry;
     #define MAX_RETRY 5
-    printf("Initializing Wi-Fi...\n");
+    printf("Initializing Wi-Fi... %s, %s, %d\n", ssid, pw, auth);
     cyw43_arch_enable_sta_mode();
-
+    printf("Connecting to Wifi\n");
     for(retry = 0; retry < MAX_RETRY; retry++) {
         if (cyw43_arch_wifi_connect_timeout_ms(ssid, pw, auth, timeout)) {
             fprintf(stderr, "failed to connect. Retrying\n");

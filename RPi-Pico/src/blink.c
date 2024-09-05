@@ -22,6 +22,14 @@
 #include "pico/stdlib.h"
 #include "pico/cyw43_arch.h"
 
+#ifdef PICO_CYW43_ARCH_FREERTOS
+#include "FreeRTOS.h"
+#include "task.h"
+#define SLEEP_MS vTaskDelay
+#else
+#define SLEEP_MS sleep_ms
+#endif
+
 void blink(int n, int init)
 {
     int i;
@@ -34,17 +42,17 @@ void blink(int n, int init)
             while (1)
             {
                 cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
-                sleep_ms(25);
+                 SLEEP_MS(25);
                 cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0);
-                sleep_ms(25);
+                 SLEEP_MS(25);
             }
         }
     }
     for (i = 0; i < n; i++)
     {
         cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
-        sleep_ms(250);
+         SLEEP_MS(250);
         cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0);
-        sleep_ms(250);
+         SLEEP_MS(250);
     }
 }

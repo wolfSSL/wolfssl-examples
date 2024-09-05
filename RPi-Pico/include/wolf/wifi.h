@@ -19,5 +19,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
  */
 
+#ifndef WIFI_H
+#define WIFI_H
+
 int wolf_wifiConnect(const char *ssid, const char *pw, uint32_t auth, uint32_t timeout);
 int wolf_wifiDisconnect(void);
+
+#endif
