@@ -429,6 +429,10 @@ int rsaenc_test(RsaKey* key)
     outSz = sizeof(out);
     decSz = sizeof(dec);
 
+#ifdef WC_RSA_BLINDING
+    ret = wc_RsaSetRNG(key, &rng);
+#endif
+
     if (ret == 0) {
         outSz = ret = wc_RsaPublicEncrypt_ex(plain, plainSz, out, (int)outSz,
             key, &rng, WC_RSA_PKCSV15_PAD, WC_HASH_TYPE_NONE, WC_MGF1NONE, NULL,
@@ -460,27 +464,39 @@ int rsaenc_test(RsaKey* key)
 int rsasig_test(RsaKey* key)
 {
     int    ret = 0;
-    byte   plain[128], out[2048/8];
-    word32 plainSz, outSz;
+    byte   plain[128], sig[2048/8], pt[2048/8];
+    word32 plainSz, sigSz, ptSz;
 
     memset(plain, 9, sizeof(plain));
     plainSz = sizeof(plain);
-    outSz = sizeof(out);
+    sigSz = sizeof(sig);
+    ptSz = sizeof(pt);
 
     if (ret == 0) {
-        outSz = ret = wc_RsaSSL_Sign(plain, plainSz, out, (int)outSz, key,
-            NULL);
+        sigSz = ret = wc_RsaSSL_Sign(plain, plainSz, sig, (int)sigSz, key,
+            &rng);
         if (ret < 0)
             fprintf(stderr, "Failed to sign: %d\n", ret);
         else
             ret = 0;
     }
     if (ret == 0) {
-        ret = wc_RsaSSL_Verify(out, outSz, plain, (int)plainSz, key);
+        ret = wc_RsaSSL_Verify(sig, sigSz, pt, (int)ptSz, key);
         if (ret < 0)
             fprintf(stderr, "Failed to verify: %d\n", ret);
-        else
-            ret = 0;
+
+        if (ret != plainSz) {
+            fprintf(stderr, "Failed to verify: %d\n", ret);
+            ret = -1;
+        }
+        if (ret > 0) {
+            if (XMEMCMP(plain, pt, ret) != 0) {
+                ret = -1;
+            }
+            else {
+                ret = 0;
+            }
+        }
     }
 
     return ret;
