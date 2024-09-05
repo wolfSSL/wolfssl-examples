@@ -1,9 +1,8 @@
 add_executable(tcp_Client
-    ../src/blink.c
     ../src/wifi.c
     ../src/tcp.c
     ../src/tcpClient_main.c
-    ../src/idleMemory.c
+    ../src/freertos_cb.c
 )
 
 target_compile_definitions(tcp_Client PRIVATE

@@ -1,9 +1,8 @@
 add_executable(tcp_Server
-    ../src/blink.c
     ../src/wifi.c
     ../src/tcp.c
     ../src/tcpServer_main.c
-    ../src/idleMemory.c
+    ../src/freertos_cb.c
     )
 
 target_compile_definitions(tcp_Server PRIVATE

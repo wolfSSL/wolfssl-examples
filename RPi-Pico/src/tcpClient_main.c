@@ -1,6 +1,6 @@
 /* tcpClient_main.c
  *
- * Copyright (C) 2006-2023 wolfSSL Inc.
+ * Copyright (C) 2006-2024 wolfSSL Inc.
  *
  * This file is part of wolfSSL.
  *
@@ -30,7 +30,6 @@
 #include "lwip/sockets.h"
 
 #include "wolf/wifi.h"
-#include "wolf/blink.h"
 #include "wolf/tcp.h"
 
 #define TCP_PORT 11111

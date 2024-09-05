@@ -1,6 +1,6 @@
 /* tcpClient_main.c
  *
- * Copyright (C) 2006-2023 wolfSSL Inc.
+ * Copyright (C) 2006-2024 wolfSSL Inc.
  *
  * This file is part of wolfSSL.
  *
@@ -33,7 +33,6 @@
 #include "wolfssl/ssl.h"
 
 #include "wolf/wifi.h"
-#include "wolf/blink.h"
 #include "wolf/tcp.h"
 #include "wolf/tls.h"
 #include "wolf/time.h"

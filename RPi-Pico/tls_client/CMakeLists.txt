@@ -1,10 +1,9 @@
 add_executable(tls_Client
-    ../src/blink.c
     ../src/wifi.c
     ../src/tcp.c
     ../src/tls.c
     ../src/time.c
-    ../src/idleMemory.c
+    ../src/freertos_cb.c
     ../src/tlsClient_main.c
 )
 

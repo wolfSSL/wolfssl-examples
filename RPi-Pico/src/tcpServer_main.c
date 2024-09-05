@@ -1,6 +1,6 @@
 /* server-tcp.c
  *
- * Copyright (C) 2006-2020 wolfSSL Inc.
+ * Copyright (C) 2006-2024 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -30,7 +30,6 @@
 #include "lwip/sockets.h"
 
 #include "wolf/wifi.h"
-#include "wolf/blink.h"
 #include "wolf/tcp.h"
 
 #define DEFAULT_PORT 11111
