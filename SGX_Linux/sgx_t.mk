@@ -66,7 +66,7 @@ ifeq ($(HAVE_WOLFSSL_SP), 1)
                              -DWOLFSSL_HAVE_SP_ECC
 endif
 
-Flags_Just_For_C := -Wno-implicit-function-declaration -std=c11
+Flags_Just_For_C := -Wno-implicit-function-declaration -std=c99
 Common_C_Cpp_Flags := $(SGX_COMMON_CFLAGS) -nostdinc -fvisibility=hidden -fpie -fstack-protector $(Wolfssl_Enclave_Include_Paths)-fno-builtin -fno-builtin-printf -I.
 Wolfssl_Enclave_C_Flags := $(Flags_Just_For_C) $(Common_C_Cpp_Flags) $(Wolfssl_C_Extra_Flags)
 
