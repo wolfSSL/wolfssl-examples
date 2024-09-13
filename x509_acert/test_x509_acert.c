@@ -35,11 +35,11 @@ static EVP_PKEY *   acert_read_pubkey(const char * file);
 static int          acert_print(X509_ACERT * x509);
 static EVP_PKEY *   acert_read_x509_pubkey(const char * cert);
 static int          acert_test_api_misc(X509_ACERT * x509);
-#if defined(USE_WOLFSSL) && defined(PUBLIC_ASN)
+#if defined(USE_WOLFSSL)
 static int          acert_parse_attr(const X509_ACERT * x509);
 static void         acert_dump_hex(const char * what, const byte * data,
                                    size_t len);
-#endif /* if USE_WOLFSSL && PUBLIC_ASN*/
+#endif /* if USE_WOLFSSL */
 
 static int          dump = 0;
 static int          parse = 0;
@@ -233,7 +233,7 @@ acert_do_test(const char * file,
     goto end_acert_do_test;
   }
 
-  #if defined(USE_WOLFSSL) && defined(PUBLIC_ASN)
+  #if defined(USE_WOLFSSL)
   rc = acert_parse_attr(x509);
 
   if (rc) {
@@ -241,7 +241,7 @@ acert_do_test(const char * file,
     fail = 1;
     goto end_acert_do_test;
   }
-  #endif /* if USE_WOLFSSL && PUBLIC_ASN*/
+  #endif /* if USE_WOLFSSL */
 
   if (cert) {
     pkey = acert_read_x509_pubkey(cert);
@@ -433,9 +433,9 @@ acert_test_api_misc(X509_ACERT * x509)
   return rc;
 }
 
-#if defined(USE_WOLFSSL) && defined(PUBLIC_ASN)
-/* Given an x509, retrieves the raw attributes buffer and
- * length, and then parses it.
+#if defined(USE_WOLFSSL)
+/* Given an x509 acert, retrieve the raw attributes buffer and
+ * length, and then parses it a little.
  *
  * Returns   0  on success.
  * Returns < 0  on error.
@@ -447,12 +447,13 @@ acert_parse_attr(const X509_ACERT * x509)
   word32       attr_len = 0;
   word32       idx = 0;
   word32       max_idx = 0;
-  int          seq_len = 0;
+  byte         tag;
   int          rc = 0;
+  int          len = 0;
 
   rc = wolfSSL_X509_ACERT_get_attr_buf(x509, &attr, &attr_len);
 
-  if (rc != 0) {
+  if (rc != SSL_SUCCESS) {
     printf("error: wolfSSL_X509_ACERT_get_attr_buf returned: %d\n", rc);
     return -1;
   }
@@ -472,17 +473,27 @@ acert_parse_attr(const X509_ACERT * x509)
 
   max_idx = attr_len;
 
-  seq_len = GetSequence(attr + idx, &idx, &seq_len, max_idx);
+  rc = GetASNTag(attr + idx, &idx, &tag, max_idx);
 
-  if (seq_len <= 0) {
-    printf("error: GetSequence(%p, %d, %d, %d) returned: %d\n", attr,
-           idx, seq_len, max_idx, seq_len);
+  if (rc < 0) {
+    printf("error: GetASNTag(%p, %d, %d, %d) returned: %d\n", attr + idx,
+           idx, tag, max_idx, tag);
     return -1;
   }
-  else {
-    printf("info: GetSequence(%p, %d, %d, %d) returned: %d\n", attr,
-           idx, seq_len, max_idx, seq_len);
+
+  printf("info: GetASNTag(%p, %d, %d, %d): found tag: 0x%0x\n", attr + idx,
+         idx, tag, max_idx, tag);
+
+  len = GetLength(attr + idx, &idx, &len, max_idx);
+
+  if (len <= 0) {
+    printf("error: GetLength(%p, %d, %d, %d) returned: %d\n", attr + idx,
+           idx, len, max_idx, len);
+    return -1;
   }
+
+  printf("info: GetLength(%p, %d, %d, %d) returned: %d\n", attr + idx,
+         idx, len, max_idx, len);
 
   return rc;
 }
@@ -493,6 +504,21 @@ acert_parse_attr(const X509_ACERT * x509)
 #define BOLDBLUE   "\033[1m\033[34m"
 #define BOLDYELLOW "\033[1m\033[33m"
 #define RESET      "\033[0m"
+
+static void
+acert_print_data(const byte * data,
+                 size_t       i,
+                 size_t       j)
+{
+  if (isprint(data[i + 2 + j])) {
+    printf("%c", data[i + 2 + j]);
+  }
+  else {
+    printf(".");
+  }
+
+  return;
+}
 
 /* Dump data as hex, with some pretty color coding.
  * Kind of a silly work in progress, for debugging use.
@@ -571,13 +597,7 @@ acert_dump_hex(const char * what,
       printf(BOLDGREEN "0x%02x " RESET, data[i + 1]);
 
       for (size_t j = 0; j < seq_len; ++j) {
-        if (isalnum(data[i + 2 + j])) {
-          printf("%c", data[i + 2 + j]);
-        }
-        else {
-          //printf("%d", data[i + 2 + j]);
-          printf(".");
-        }
+        acert_print_data(data, i, j);
       }
       printf("\n");
     }
@@ -597,6 +617,7 @@ acert_dump_hex(const char * what,
 
       for (size_t j = 0; j < str_len; ++j) {
         printf("%c", data[i + 2 + j]);
+        acert_print_data(data, i, j);
       }
 
       printf("\n");
@@ -607,7 +628,7 @@ acert_dump_hex(const char * what,
 
   return;
 }
-#endif /* if USE_WOLFSSL && PUBLIC_ASN*/
+#endif /* if USE_WOLFSSL */
 
 /* Reads and print pubkey certificate.
  * */
