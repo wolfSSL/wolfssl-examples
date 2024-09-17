@@ -194,12 +194,12 @@ int main(int argc, char** argv)
                 int readErr = wolfSSL_get_error(ssl, 0);
                 if(readErr != SSL_ERROR_WANT_READ) {
                     printf("SSL_read failed.\n");
-                    goto error;
+                    break;
                 }
             }
             if (wolfSSL_write(ssl, ack, sizeof(ack)) < 0) {
                 printf("wolfSSL_write fail.\n");
-                goto error;
+                break;
             }
             else {
                 printf("Sending reply.\n");
@@ -217,7 +217,6 @@ int main(int argc, char** argv)
         printf("Client left cont to idle state\n");
     }
     
-error:
     if (cleanup == 1) {
         wolfSSL_set_fd(ssl, 0);
         wolfSSL_shutdown(ssl);

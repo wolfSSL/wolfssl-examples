@@ -39,10 +39,12 @@
 #define MAXLINE   4096
 #define SERV_PORT 11111
 
-static int    new_udp_client_socket(WOLFSSL * ssl, const char * host);
-static int    talk_to_server(WOLFSSL * ssl, const char * msg);
+static int new_udp_client_socket(WOLFSSL * ssl, const char * host);
+static int talk_to_server(WOLFSSL * ssl, const char * msg);
 
-int main (int argc, char** argv)
+int
+main(int    argc,
+     char * argv[])
 {
     /* standard variables used in a dtls client*/
     int               sockfd = 0;
@@ -52,7 +54,6 @@ int main (int argc, char** argv)
     WOLFSSL *         ssl_res = NULL; /* The ssl for resuming connection. */
     WOLFSSL_CTX *     ctx = NULL;
     WOLFSSL_SESSION * session = NULL;
-    //const char *      msg = "client testing session resume";
     char              cert_array[] = "../certs/ca-cert.pem";
     char              buffer[80];
     char *            certs = cert_array;
@@ -258,7 +259,7 @@ talk_to_server(WOLFSSL *    ssl,
     }
 
     recv_msg[recv_len] = '\0';
-    fputs(recv_msg, stdout);
+    printf("info: server response: %s", recv_msg);
 
     return 0;
 }
