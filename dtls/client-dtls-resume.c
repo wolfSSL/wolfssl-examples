@@ -40,7 +40,7 @@
 #define SERV_PORT 11111
 
 static int    new_udp_client_socket(WOLFSSL * ssl, const char * host);
-static int    talk_to_server(WOLFSSL * ssl);
+static int    talk_to_server(WOLFSSL * ssl, const char * msg);
 
 int main (int argc, char** argv)
 {
@@ -103,7 +103,14 @@ int main (int argc, char** argv)
     /* Save the session */
     session = wolfSSL_get1_session(ssl);
 
-    ret = talk_to_server(ssl);
+    if (session == NULL) {
+        printf("error: get session failed\n");
+        return EXIT_FAILURE;
+    }
+
+    printf("info: saved session: %p\n", session);
+
+    ret = talk_to_server(ssl, "first client message");
 
     if (ret) {
         return EXIT_FAILURE;
@@ -148,7 +155,7 @@ int main (int argc, char** argv)
         printf("info: session ID not reused\n");
     }
 
-    ret = talk_to_server(ssl_res);
+    ret = talk_to_server(ssl_res, "client message after resume");
 
     if (ret) {
         return EXIT_FAILURE;
@@ -157,19 +164,21 @@ int main (int argc, char** argv)
     /* Cleanup memory used for storing the session information */
     wolfSSL_shutdown(ssl_res);
     wolfSSL_free(ssl_res);
+    wolfSSL_SESSION_free(session);
 
     close(sockfd);
     wolfSSL_CTX_free(ctx);
     wolfSSL_Cleanup();
 
     ssl_res = NULL;
+    session = NULL;
     sockfd = 0;
 
     return 0;
 }
 
 /* Given an ssl structure and host, open a new udp
- * client socket and bind it and the server address
+ * client socket and set it and the server address
  * to the ssl.
  **/
 static int
@@ -218,45 +227,38 @@ new_udp_client_socket(WOLFSSL *    ssl,
     return sockfd;
 }
 
-/* Exchange user input messages with the server.
+/* Send a message to the server.
  **/
 static int
-talk_to_server(WOLFSSL * ssl)
+talk_to_server(WOLFSSL *    ssl,
+               const char * send_msg)
 {
-    int     recv_len;
-    char    send_msg[MAXLINE];
     char    recv_msg[MAXLINE];
+    int     recv_len;
 
-    /* Loop while the user gives input or until user types "stop" */
-    while( fgets(send_msg, MAXLINE, stdin) != NULL ) {
+    memset(recv_msg, 0, sizeof(recv_msg));
 
-        if (memcmp(send_msg, "stop", strlen("stop")) == 0) {
-            printf("info: interrupting\n");
-            break;
-        }
-
-        /* Attempt to send send_msg to the server */
-        if ( ( wolfSSL_write(ssl, send_msg, strlen(send_msg))) !=
-                strlen(send_msg) ) {
-            printf("Error: wolfSSL_write failed.\n");
-            return -1;
-        }
-
-        /* Attempt to read a message from server and store it in recv_msg */
-        recv_len = wolfSSL_read(ssl, recv_msg, sizeof(recv_msg) - 1);
-
-        /* Error checking wolfSSL_read */
-        if (recv_len < 0) {
-            int readErr = wolfSSL_get_error(ssl, 0);
-            if (readErr != SSL_ERROR_WANT_READ) {
-                printf("Error: wolfSSL_read failed.\n");
-            }
-            return -1;
-        }
-
-        recv_msg[recv_len] = '\0';
-        fputs(recv_msg, stdout);
+    /* Attempt to send send_msg to the server */
+    if ( ( wolfSSL_write(ssl, send_msg, strlen(send_msg))) !=
+            strlen(send_msg) ) {
+        printf("Error: wolfSSL_write failed.\n");
+        return -1;
     }
+
+    /* Attempt to read a message from server and store it in recv_msg */
+    recv_len = wolfSSL_read(ssl, recv_msg, sizeof(recv_msg) - 1);
+
+    /* Error checking wolfSSL_read */
+    if (recv_len < 0) {
+        int readErr = wolfSSL_get_error(ssl, 0);
+        if (readErr != SSL_ERROR_WANT_READ) {
+            printf("Error: wolfSSL_read failed.\n");
+        }
+        return -1;
+    }
+
+    recv_msg[recv_len] = '\0';
+    fputs(recv_msg, stdout);
 
     return 0;
 }
