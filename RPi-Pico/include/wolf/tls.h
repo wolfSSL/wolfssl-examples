@@ -22,6 +22,8 @@
 #ifndef TLS_H
 #define TLS_H
 
+#define SOCKET_INVALID -1
+
 int my_IORecv(WOLFSSL *ssl, char *buff, int sz, void *ctx);
 int my_IOSend(WOLFSSL *ssl, char *buff, int sz, void *ctx);
 
