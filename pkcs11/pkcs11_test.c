@@ -1067,20 +1067,20 @@ int hmac_test(int devId, Pkcs11Token* token)
     unsigned char key[WC_MAX_DIGEST_SIZE];
     unsigned char data[57];
 #if !defined(NO_MD5)
-    unsigned char exp_md5[MD5_DIGEST_SIZE] = {
+    unsigned char exp_md5[WC_MD5_DIGEST_SIZE] = {
         0x58, 0x8e, 0xd2, 0x4e, 0x04, 0x1f, 0xf4, 0xc6,
         0x98, 0x7c, 0x8e, 0xdc, 0xe5, 0xb1, 0xbc, 0x4b
     };
 #endif
 #if !defined(NO_SHA)
-    unsigned char exp_sha[SHA_DIGEST_SIZE] = {
+    unsigned char exp_sha[WC_SHA_DIGEST_SIZE] = {
         0x2f, 0x69, 0xc1, 0xf9, 0xe1, 0x97, 0x04, 0xe4,
         0x75, 0x9f, 0x1c, 0x2a, 0x85, 0x87, 0x7e, 0x6b,
         0xa7, 0x9f, 0xe1, 0x13
     };
 #endif
 #if defined(WOLFSSL_SHA224)
-    unsigned char exp_sha224[SHA224_DIGEST_SIZE] = {
+    unsigned char exp_sha224[WC_SHA224_DIGEST_SIZE] = {
         0x86, 0xa8, 0xfc, 0xfd, 0xd5, 0x95, 0xf2, 0xa6,
         0x45, 0x89, 0x3b, 0x8b, 0x4c, 0x0d, 0xd1, 0x81,
         0x20, 0x6b, 0x71, 0x2d, 0x7c, 0x88, 0x31, 0xa8,
@@ -1088,7 +1088,7 @@ int hmac_test(int devId, Pkcs11Token* token)
     };
 #endif
 #if !defined(NO_SHA256)
-    unsigned char exp_sha256[SHA256_DIGEST_SIZE] = {
+    unsigned char exp_sha256[WC_SHA256_DIGEST_SIZE] = {
         0x04, 0x9e, 0x43, 0x3c, 0x48, 0x7c, 0x31, 0x11,
         0x54, 0x90, 0x43, 0xf6, 0x2f, 0x97, 0x42, 0x80,
         0x3d, 0x22, 0x47, 0x1d, 0x4f, 0xc9, 0xb8, 0xa0,
@@ -1096,7 +1096,7 @@ int hmac_test(int devId, Pkcs11Token* token)
     };
 #endif
 #if defined(WOLFSSL_SHA384)
-    unsigned char exp_sha384[SHA384_DIGEST_SIZE] = {
+    unsigned char exp_sha384[WC_SHA384_DIGEST_SIZE] = {
         0x0b, 0x4c, 0x32, 0x58, 0x7b, 0x00, 0xb7, 0xfa,
         0x82, 0x9f, 0xf0, 0x1d, 0x10, 0x85, 0xbc, 0x2e,
         0xe0, 0x4a, 0x71, 0x91, 0xd6, 0x9a, 0x93, 0xc2,
@@ -1106,7 +1106,7 @@ int hmac_test(int devId, Pkcs11Token* token)
     };
 #endif
 #if defined(WOLFSSL_SHA512)
-    unsigned char exp_sha512[SHA512_DIGEST_SIZE] = {
+    unsigned char exp_sha512[WC_SHA512_DIGEST_SIZE] = {
         0x94, 0x7b, 0x97, 0x0f, 0x48, 0x68, 0xd1, 0x88,
         0x08, 0x09, 0xcf, 0xea, 0xae, 0x3e, 0xba, 0xa2,
         0x3f, 0xf4, 0x9d, 0x73, 0x78, 0x15, 0x34, 0x44,
@@ -1124,42 +1124,42 @@ int hmac_test(int devId, Pkcs11Token* token)
 #ifndef NO_MD5
     if (ret == 0) {
         fprintf(stderr, "HMAC-MD5\n");
-        ret = hmac_op(key, MD5_DIGEST_SIZE, WC_MD5, data, sizeof(data), exp_md5,
-            sizeof(exp_md5), devId, token);
+        ret = hmac_op(key, WC_MD5_DIGEST_SIZE, WC_MD5, data, sizeof(data),
+            exp_md5, sizeof(exp_md5), devId, token);
     }
 #endif
 #ifndef NO_SHA
     if (ret == 0) {
         fprintf(stderr, "HMAC-SHA\n");
-        ret = hmac_op(key, SHA_DIGEST_SIZE, WC_SHA, data, sizeof(data), exp_sha,
-            sizeof(exp_sha), devId, token);
+        ret = hmac_op(key, WC_SHA_DIGEST_SIZE, WC_SHA, data, sizeof(data),
+            exp_sha, sizeof(exp_sha), devId, token);
     }
 #endif
 #ifdef WOLFSSL_SHA224
     if (ret == 0) {
         fprintf(stderr, "HMAC-SHA224\n");
-        ret = hmac_op(key, SHA224_DIGEST_SIZE, WC_SHA224, data, sizeof(data),
+        ret = hmac_op(key, WC_SHA224_DIGEST_SIZE, WC_SHA224, data, sizeof(data),
             exp_sha224, sizeof(exp_sha224), devId, token);
     }
 #endif
 #ifndef NO_SHA256
     if (ret == 0) {
         fprintf(stderr, "HMAC-SHA256\n");
-        ret = hmac_op(key, SHA256_DIGEST_SIZE, WC_SHA256, data, sizeof(data),
+        ret = hmac_op(key, WC_SHA256_DIGEST_SIZE, WC_SHA256, data, sizeof(data),
             exp_sha256, sizeof(exp_sha256), devId, token);
     }
 #endif
 #ifdef WOLFSSL_SHA384
     if (ret == 0) {
         fprintf(stderr, "HMAC-SHA384\n");
-        ret = hmac_op(key, SHA384_DIGEST_SIZE, WC_SHA384, data, sizeof(data),
+        ret = hmac_op(key, WC_SHA384_DIGEST_SIZE, WC_SHA384, data, sizeof(data),
             exp_sha384, sizeof(exp_sha384), devId, token);
     }
 #endif
 #ifdef WOLFSSL_SHA512
     if (ret == 0) {
         fprintf(stderr, "HMAC-SHA512\n");
-        ret = hmac_op(key, SHA512_DIGEST_SIZE, WC_SHA512, data, sizeof(data),
+        ret = hmac_op(key, WC_SHA512_DIGEST_SIZE, WC_SHA512, data, sizeof(data),
             exp_sha512, sizeof(exp_sha512), devId, token);
     }
 #endif

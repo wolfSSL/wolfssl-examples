@@ -31,22 +31,20 @@
 #include <unistd.h>
 
 /* wolfSSL */
+#ifndef WOLFSSL_USER_SETTINGS
 #include <wolfssl/options.h>
+#endif
 #include <wolfssl/ssl.h>
 #include <wolfssl/wolfcrypt/wc_pkcs11.h>
 
 #define DEFAULT_PORT 11111
 
-#define CA_FILE     "../certs/ca-cert.pem"
-
-int client_tls(int devId, Pkcs11Token* token)
+int client_tls(const char *cacert, int devId, Pkcs11Token* token)
 {
     int                sockfd;
     struct sockaddr_in servAddr;
-    socklen_t          size = sizeof(servAddr);
     char               buff[256];
     size_t             len;
-    int                shutdown = 0;
     int                ret;
 
     /* declare wolfSSL objects */
@@ -103,7 +101,7 @@ int client_tls(int devId, Pkcs11Token* token)
     }
 
     /* Load CA certificate into WOLFSSL_CTX for validating peer */
-    if ((ret = wolfSSL_CTX_load_verify_locations(ctx, CA_FILE, NULL))
+    if ((ret = wolfSSL_CTX_load_verify_locations(ctx, cacert, NULL))
          != WOLFSSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
                 CA_FILE);
@@ -187,21 +185,23 @@ int main(int argc, char* argv[])
     const char* slot;
     const char* tokenName;
     const char* userPin;
+    const char* cacert;
     Pkcs11Dev dev;
     Pkcs11Token token;
     int slotId;
     int devId = 1;
 
-    if (argc != 4 && argc != 5) {
+    if (argc != 5 && argc != 6) {
         fprintf(stderr,
-           "Usage: server_tls_pkcs11 <libname> <slot> <tokenname> [userpin]\n");
+           "Usage: client_tls_pkcs11 <cacert> <libname> <slot> <tokenname> [userpin]\n");
         return 1;
     }
 
-    library = argv[1];
-    slot = argv[2];
-    tokenName = argv[3];
-    userPin = (argc == 4) ? NULL : argv[4];
+    cacert = argv[1]
+    library = argv[2];
+    slot = argv[3];
+    tokenName = argv[4];
+    userPin = (argc == 5) ? NULL : argv[5];
     slotId = atoi(slot);
 
 #if defined(DEBUG_WOLFSSL)
@@ -229,7 +229,7 @@ int main(int argc, char* argv[])
                 ret = 2;
             }
             if (ret == 0) {
-                ret = client_tls(devId, &token);
+                ret = client_tls(cacert, devId, &token);
                 if (ret != 0)
                     ret = 1;
             }

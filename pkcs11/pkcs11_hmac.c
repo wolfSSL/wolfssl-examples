@@ -31,10 +31,10 @@
 int hmac(int devId, Pkcs11Token* token)
 {
     Hmac          hmac;
-    unsigned char key[SHA256_DIGEST_SIZE];
+    unsigned char key[WC_SHA256_DIGEST_SIZE];
     int           ret = 0;
     unsigned char data[57];
-    unsigned char mac[SHA256_DIGEST_SIZE];
+    unsigned char mac[WC_SHA256_DIGEST_SIZE];
 
     memset(key, 9, sizeof(key));
     memset(data, 9, sizeof(data));
