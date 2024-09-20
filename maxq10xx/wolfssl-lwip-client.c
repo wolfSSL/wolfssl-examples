@@ -33,6 +33,10 @@
 /***** Includes *****/
 #include <stdio.h>
 
+/* wolfSSL */
+#ifndef WOLFSSL_USER_SETTINGS
+    #include <wolfssl/options.h>
+#endif
 #include <wolfssl/wolfcrypt/sha256.h>
 #include <wolfssl/wolfcrypt/cryptocb.h>
 #include <wolfssl/wolfcrypt/ecc.h>
@@ -116,7 +120,7 @@ static unsigned int my_psk_client_cs_cb(struct WOLFSSL* ssl, const char* hint,
 void mxc_wolfssl_create(int sockfd, WOLFSSL **ssl)
 {
     int ret;
-    int exit_clean = 0;
+    int exit_clean = 1;
 
     /* declare wolfSSL objects */
     WOLFSSL_CTX* ctx = NULL;
@@ -131,7 +135,6 @@ void mxc_wolfssl_create(int sockfd, WOLFSSL **ssl)
     /* Initialize wolfSSL */
     if ((ret = wolfSSL_Init()) != WOLFSSL_SUCCESS) {
         MXC_ERR_MSG("ERROR: Failed to initialize the library\n");
-        exit_clean = 1;
         goto exit;
     }
 
@@ -150,7 +153,6 @@ void mxc_wolfssl_create(int sockfd, WOLFSSL **ssl)
     if (ctx == NULL) {
         MXC_ERR_MSG("ERROR: failed to create WOLFSSL_CTX\n");
         ret = -1;
-        exit_clean = 1;
         goto exit;
     }
 
@@ -164,14 +166,13 @@ void mxc_wolfssl_create(int sockfd, WOLFSSL **ssl)
                             WOLFSSL_FILETYPE_PEM)) != WOLFSSL_SUCCESS) {
             MXC_ERR_MSG("ERROR: failed to load %s, please check the "
                     "file.\n", key_file);
-            exit_clean = 1;
             goto exit;
         }
     }
 #else
 
 #if defined (TEST_RSA)
-ret = wolfSSL_CTX_use_PrivateKey_buffer(ctx, rsa_key_der_2048,
+    ret = wolfSSL_CTX_use_PrivateKey_buffer(ctx, rsa_key_der_2048,
             sizeof(rsa_key_der_2048), WOLFSSL_FILETYPE_ASN1);
 #elif defined (HAVE_ECC)
     ret = wolfSSL_CTX_use_PrivateKey_buffer(ctx, ecc_key_der_256,
@@ -190,7 +191,6 @@ ret = wolfSSL_CTX_use_PrivateKey_buffer(ctx, rsa_key_der_2048,
     if (ciphersuite != NULL) {
         if (wolfSSL_CTX_set_cipher_list(ctx, ciphersuite) != WOLFSSL_SUCCESS) {
             MXC_ERR_MSG("Invalid cipher suite.\n");
-            exit_clean = 1;
             goto exit;
         }
     }
@@ -215,9 +215,10 @@ ret = wolfSSL_CTX_use_PrivateKey_buffer(ctx, rsa_key_der_2048,
     if ((*ssl = wolfSSL_new(ctx)) == NULL) {
         MXC_ERR_MSG("ERROR: failed to create WOLFSSL object\n");
         ret = -1;
-        exit_clean = 1;
         goto exit;
     }
+
+    exit_clean = 0;
 exit:
     /* Cleanup and return */
     if (ctx != NULL)
@@ -298,7 +299,6 @@ int mxc_wolfssl_read(WOLFSSL* ssl)
     /* Print to stdout any data the server sends */
     MXC_DEBUG_MSG("Server: %s\n", buff);
     return ret;
-    // ret = 0; /* success */
 }
 
 void mxc_wolfssl_close(int sockfd, WOLFSSL* ssl)
