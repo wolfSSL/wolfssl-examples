@@ -104,7 +104,7 @@ int client_tls(const char *cacert, int devId, Pkcs11Token* token)
     if ((ret = wolfSSL_CTX_load_verify_locations(ctx, cacert, NULL))
          != WOLFSSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
-                CA_FILE);
+                cacert);
         goto exit;
     }
 
@@ -197,7 +197,7 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    cacert = argv[1]
+    cacert = argv[1];
     library = argv[2];
     slot = argv[3];
     tokenName = argv[4];
