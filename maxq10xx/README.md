@@ -153,5 +153,6 @@ You will also find `wolfssl-lwip-client.c`.
 This example shows how to write a simple TLS client that uses the features
 of the Analog Devices MAXQ1065 and 1080 USS. Note that this is not a
 stand-alone application. This is part of an example that can be found in the
-SDK supplied by Analog Devices.
+SDK supplied by Analog Devices. Please contact Analog Devices and ask for
+CodeFusion Studio Trusted Edge Security Architecture Installer. 
 
