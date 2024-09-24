@@ -312,7 +312,7 @@ void mxc_wolfssl_close(int sockfd, WOLFSSL* ssl)
 
     if (sockfd >= 0)
         lwip_close(sockfd);
-    while(lwip_read(sockfd,lBuff, SOCKET_BUF_SIZE) > 0);
+    while(lwip_read(sockfd, lBuff, SOCKET_BUF_SIZE) > 0);
 }
 
 #endif /* !NO_SYS */
