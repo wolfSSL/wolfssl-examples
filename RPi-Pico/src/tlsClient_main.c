@@ -190,6 +190,11 @@ void lwip_example_app_platform_assert(const char *msg, int line, const char *fil
 #include <time.h>
 time_t myTime(time_t *t)
 {
-    *t = (((2023 - 1970) * 365 + (8 * 30)) * 24 * 60 * 60);
-    return *t;
+    time_t t_ret = (((2023 - 1970) * 365 + (8 * 30)) * 24 * 60 * 60);
+
+    if (t != NULL) {
+        *t = t_ret;
+    }
+
+    return t_ret;
 }
