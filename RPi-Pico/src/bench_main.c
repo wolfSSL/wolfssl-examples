@@ -1,6 +1,6 @@
 /* bench_main.c
  *
- * Copyright (C) 2006-2022 wolfSSL Inc.
+ * Copyright (C) 2006-2024 wolfSSL Inc.
  *
  * This file is part of wolfSSL.
  *
@@ -38,6 +38,9 @@ int main(int argc, char **argv)
     int ret;
 
     blink(10, WOLF_BLINK_INIT);
+    printf("\nHit any key to start\n");
+    getchar();
+
     printf("\nSystem clock = %dMHz\n\n", clock_get_hz(clk_sys)/1000000);
     ret = benchmark_test(NULL);
     printf("End: %d\n", ret);
