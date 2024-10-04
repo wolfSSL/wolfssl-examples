@@ -1,6 +1,6 @@
 /* verify.c
  *
- * Copyright (C) 2006-2023 wolfSSL Inc.
+ * Copyright (C) 2006-2024 wolfSSL Inc.
  *
  * This file is part of wolfSSL.
  *
@@ -150,13 +150,13 @@ int verify()
     /* Variables for non-blocking RSA */
 
     RsaNb nb_ctx;
-    double total_blk_time;          
+    double total_blk_time;
     double pre_returned_t;          /*  previous recent returned time */
-    double returned_t;              /* most recent returned time */ 
-    double max_t = -1.0;            /* Maximum blocking time */ 
-    double min_t = __DBL_MAX__;     /* Minimum blocking time */ 
+    double returned_t;              /* most recent returned time */
+    double max_t = -1.0;            /* Maximum blocking time */
+    double min_t = __DBL_MAX__;     /* Minimum blocking time */
     double blocking_t;              /* current blocking time */
-    int blk_count;                  
+    int blk_count;
 
 #ifdef DEBUG_MEMORY
     wolfCrypt_Init();
@@ -188,7 +188,7 @@ int verify()
     /* Verify the signature by decrypting the value with non-blocking mode. */
     if (ret == 0){
         ret = wc_RsaSetNonBlock(&rsaKey, &nb_ctx);
-        if (ret != 0) 
+        if (ret != 0)
             return ret;
 
         blk_count = 0;
@@ -196,10 +196,10 @@ int verify()
 
         pre_returned_t = current_time(1);
         do {
-            
+
             decSigLen = wc_RsaSSL_Verify(rsa_sig_2048, sizeof(rsa_sig_2048),
                                             decSig, sizeof(decSig), &rsaKey);
-            
+
             returned_t = current_time(0);
             blocking_t = returned_t - pre_returned_t;
             total_blk_time += blocking_t;
@@ -226,7 +226,7 @@ int verify()
 
 
     printf("Verified\n");
-    
+
     printf("Non-blocking:\n");
     printf("  Total time : %.2f micro sec,   Bloking count: %d  \n",1000*1000*total_blk_time, blk_count);
     printf("  Max: %2.2f micro sec,   Average: %.2f micro sec\n",\
@@ -243,7 +243,7 @@ int verify()
     ShowMemoryTracker();
     CleanupMemoryTracker();
     wolfCrypt_Cleanup();
-#endif 
+#endif
     return ret == 0 ? 0 : 1;
 }
 
@@ -251,7 +251,7 @@ int main(){
 
 #ifdef DEBUG_MEMORY
     return StackSizeCheck(NULL, (thread_func)verify);
-#else 
+#else
     return verify();
 #endif
 }

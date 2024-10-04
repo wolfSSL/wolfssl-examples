@@ -1,6 +1,6 @@
 /* rsa_sign_verify.c
  *
- * Copyright (C) 2006-2023 wolfSSL Inc.
+ * Copyright (C) 2006-2024 wolfSSL Inc.
  *
  * This file is part of wolfSSL.
  *
@@ -21,16 +21,16 @@
 
 /* This file is an example of signing and verifying an RSA signature.
  * The signature can be PKCS#1.5 formatted and PSS formatted.
- * 
+ *
  * - PKCS#1.5
  *  1. hash -> encSig
- *  2. encSig -> signature 
+ *  2. encSig -> signature
  *  3. signature -> decSig
- * 
+ *
  * - PSS
- *  1. hash -> signature 
+ *  1. hash -> signature
  *  2. signature -> decSig
- * 
+ *
  * PKCS#1.5 is used for the Signature by default.
  * To turning on PSS, define PSS_PADDING
  */
@@ -43,15 +43,15 @@
 #include <wolfssl/wolfcrypt/asn_public.h>
 #include<wolfssl/test.h>
 
+#if !defined(WOLFSSL_KEY_GEN)
+#include "../include/rsa_priv_2048.h"
+#include "../include/rsa_pub_2048.h"
+#endif
 /* Maximum bound on digest algorithm encoding around digest */
 #define MAX_ENC_ALG_SZ      32
 
 /* RSA Key size bits */
 #define RSA_KEY_SIZE 2048
-
-
-
-
 
 #define CHECK_RET(a, b, eLabel, msg) { \
                                         if (a != b) {                    \
@@ -83,6 +83,9 @@ int sign(){
 #endif
 
     int ret = 0;
+#if !defined(WOLFSSL_KEY_GEN)
+    word32 idx = 0;
+#endif
     wc_Sha256   sha256;
     wc_Sha256*  pSha256 = NULL;
     WC_RNG      rng;
@@ -98,7 +101,6 @@ int sign(){
     ret = wc_Sha256Final(&sha256, hash);
     CHECK_RET(ret, 0, finish, "wc_Sha256Final()");
 
-
     /* Initialize the RSA key. */
     ret = wc_InitRsaKey(&key, NULL);
     CHECK_RET(ret, 0, finish, "wc_InitRng()");
@@ -111,25 +113,32 @@ int sign(){
     ret = wc_RsaSetRNG(&key, &rng);
     CHECK_RET(ret, 0, finish, "wc_RsaSetRNG()");
 #endif
+
+#if defined(WOLFSSL_KEY_GEN)
     /* Generate 2048-bit RSA key*/
     ret = wc_MakeRsaKey(&key, RSA_KEY_SIZE, e, &rng);
     CHECK_RET(ret, 0, finish, "wc_MakeRsaKey()");
-
-    /* Encode digest with algorithm information as per PKCS#1.5 */
-    encSigLen = wc_EncodeSignature(encSig, hash, sizeof(hash), SHA256h);
-    if ((int)encSigLen < 0)
-        ret = (int)encSigLen;
-    CHECK_RET(ret, 0, finish, "wc_EncodeSignature()");
+#else
+    /* private key import */
+    ret = wc_RsaPrivateKeyDecode(private_key_2048, &idx, &key,
+                sizeof(private_key_2048));
+#endif
 
 #ifdef PSS_PADDING
-    sigLen = wc_RsaPSS_Sign(hash, sizeof(hash), signature, sizeof(signature)\
-                           , WC_HASH_TYPE_SHA256, WC_MGF1SHA256, &key, &rng);
+    sigLen = wc_RsaPSS_Sign(hash, sizeof(hash), signature, sizeof(signature),
+                            WC_HASH_TYPE_SHA256, WC_MGF1SHA256, &key, &rng);
     if ((int)sigLen < 0)
         ret = (int)sigLen;
     CHECK_RET(ret, 0, finish, "wc_RsaPSS_Sign()");
 
 #else /* PKCS#1.5 */
-    sigLen = wc_RsaSSL_Sign(encSig, encSigLen, signature, sizeof(signature),\
+        /* Encode digest with algorithm information as per PKCS#1.5 */
+    encSigLen = wc_EncodeSignature(encSig, hash, sizeof(hash), SHA256h);
+    if ((int)encSigLen < 0)
+        ret = (int)encSigLen;
+    CHECK_RET(ret, 0, finish, "wc_EncodeSignature()");
+
+    sigLen = wc_RsaSSL_Sign(encSig, encSigLen, signature, sigBuffLen,
                              &key, NULL);
     if ((int)sigLen < 0)
         ret = (int)sigLen;
@@ -182,7 +191,7 @@ int verify(){
         return -1;
     }
 
-#ifdef BENCHMARK 
+#ifdef BENCHMARK
     count = 0;
     printf("Running benchmark...\n");
     printf("Please Wait %.2f seconds\n", (double)BENCH_TIME_SEC);
@@ -191,15 +200,16 @@ int verify(){
 #endif
 
         /* Verify the signature by decrypting the value. */
-        
+
         #ifdef PSS_PADDING
             decSigLen = wc_RsaPSS_VerifyCheck(signature, sizeof(signature),
-                decSig, sizeof(decSig), hash, sizeof(hash), WC_HASH_TYPE_SHA256, WC_MGF1SHA256, &key);
-            
+                decSig, sizeof(decSig), hash, sizeof(hash),
+                                      WC_HASH_TYPE_SHA256, WC_MGF1SHA256, &key);
+
             if ((int)decSigLen < 0)
                 ret = (int)decSigLen;
             CHECK_RET(ret, 0, finish, "wc_RsaPSS_VerifyCheck()");
-        
+
         #else /* PKCS#1.5 */
             decSigLen = wc_RsaSSL_Verify(signature, sizeof(signature),
                                             decSig, sizeof(decSig), &key);
@@ -220,11 +230,11 @@ int verify(){
 
         #endif
 
-#ifdef BENCHMARK 
+#ifdef BENCHMARK
         count++;
     }
-   
-    printf("Takes %1.2f Sec for %d times,    %6.2f Cycles/sec\n", total_time, count, count/total_time);
+    printf("Takes %1.2f Sec for %d times,    %6.2f Cycles/sec\n",
+                                        total_time, count, count/total_time);
     printf("Finished Benchmark \n");
 #elif defined(DEBUG_MEMORY)
 
@@ -248,8 +258,6 @@ finish:
     return ret;
 }
 
-
-
 int main(){
     int ret = 0;
 #ifdef BENCHMARK
@@ -270,7 +278,7 @@ int main(){
 
 #ifdef DEBUG_MEMORY
     ret = StackSizeCheck(NULL, (thread_func)sign);
-#else 
+#else
     ret = sign();
 #endif
 
@@ -280,7 +288,7 @@ int main(){
 
 #ifdef DEBUG_MEMORY
     ret = StackSizeCheck(NULL, (thread_func)verify);
-#else 
+#else
     ret = verify();
 #endif
     return ret;

@@ -5,10 +5,9 @@ This directory includes the following examples under the sub-directories.Each ha
 |Scheme|Directory|Description|
 |---|---|---|
 |RSA|rsa_sign_verify|sign/verify signature inline  |
-||rsa_buffer|sign/verify signature|
 ||rsa_vfy_only |verify signature|
 ||rsa_vfy_only_nonblock|verify signature with non-blocking|
-|ECDSA|ecc_sign_verify/|sign msg and verify signature|
+|ECDSA|ecc_sign_verify|sign msg and verify signature|
 ||ecc_vfy_only|verify Signature|
 ||ecc_vfy_only_nonblock|verify signature with non-blocking|
 
@@ -26,7 +25,6 @@ $ make <Function> math=<Mathlib> arch=<MCU>
 |Default|Simple Execution|
 |mem|Memory Track on heap and stack usage|
 |bench|Performance benchmark|
-
 
 ## Math library
 |math|Description|

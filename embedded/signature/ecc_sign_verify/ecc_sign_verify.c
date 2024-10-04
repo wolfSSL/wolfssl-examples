@@ -1,6 +1,6 @@
 /* ecc_sign_verify.c
  *
- * Copyright (C) 2006-2023 wolfSSL Inc.
+ * Copyright (C) 2006-2024 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -123,7 +123,7 @@ double start_time, total_time;
 #ifndef BENCH_TIME_SEC
     #define BENCH_TIME_SEC 1
 #endif
-    int count;    
+    int count;
 
 
     /*
@@ -154,7 +154,7 @@ double start_time, total_time;
     }
 
 
-    
+
 
     ret = wc_InitRng(&rng);
     CHECK_RET(ret, 0, key_done, "wc_InitRng()");
@@ -164,7 +164,7 @@ double start_time, total_time;
     start_time = current_time(1);
 
     while( (double)BENCH_TIME_SEC > (total_time = current_time(0) - start_time ) ){
-#endif 
+#endif
         ret = wc_ecc_init(&key);
         CHECK_RET(ret, 0, sig_done, "wc_ecc_init()");
 
@@ -177,7 +177,7 @@ double start_time, total_time;
         hexdump(sig, maxSigSz, 16);
     #endif
 
-        ret = wc_ecc_verify_hash(sig, maxSigSz, hash, sizeof(hash), 
+        ret = wc_ecc_verify_hash(sig, maxSigSz, hash, sizeof(hash),
                                                             &verified, &key);
 
 
@@ -185,10 +185,10 @@ double start_time, total_time;
         CHECK_RET(verified, 1, rng_done, "verification check");
         verified = 0;
         maxSigSz = ECC_MAX_SIG_SIZE;
-#ifdef BENCHMARK        
+#ifdef BENCHMARK
         count++;
     }
-    
+
     printf("ECC Key Size %d     %9.2f Cycles/sec\n", eccKeySz, count/total_time);
 
 #else
@@ -243,7 +243,7 @@ int main(){
 
 #ifdef DEBUG_MEMORY
     return StackSizeCheck(NULL, (thread_func)ecc_sign_verify);
-#else 
+#else
     return ecc_sign_verify();
 #endif
 }
