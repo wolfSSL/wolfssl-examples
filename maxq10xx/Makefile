@@ -19,6 +19,10 @@ LIBS+=$(DYN_LIB)
 
 # build targets
 SRC=$(wildcard *.c)
+
+# Exclude wolfssl-lwip-client.c since it is not a stand-alone application, but
+# is needed for LWIP example
+SRC := $(filter-out wolfssl-lwip-client.c, $(SRC))
 TARGETS=$(patsubst %.c, %, $(SRC))
 
 .PHONY: clean all
