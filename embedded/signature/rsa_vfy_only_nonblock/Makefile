@@ -13,6 +13,7 @@ OBJ = \
 	$(WOLFROOT)/wolfcrypt/src/wc_port.o\
 	$(WOLFROOT)/wolfcrypt/src/coding.o\
 	$(WOLFROOT)/wolfcrypt/src/memory.o\
+	$(WOLFROOT)/wolfcrypt/src/wc_encrypt.o\
 
 OBJ_SP_C32 := \
 	$(WOLFROOT)/wolfcrypt/src/sp_int.o\

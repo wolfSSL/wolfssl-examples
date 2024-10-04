@@ -14,6 +14,7 @@ OBJ=\
 	$(WOLFROOT)/wolfcrypt/src/coding.o\
 	$(WOLFROOT)/wolfcrypt/src/memory.o\
 	$(WOLFROOT)/wolfcrypt/src/wolfmath.o\
+	$(WOLFROOT)/wolfcrypt/src/wc_encrypt.o\
 
 OBJ_SP_C32 := \
 	$(WOLFROOT)/wolfcrypt/src/sp_int.o\
@@ -38,7 +39,7 @@ OBJ_TFM := \
 
 .PHONY: all clean mem size bench
 
-ifeq ($(math) $(arch),sp x64) 
+ifeq ($(math) $(arch),sp x64)
 ASFLAGS+= -DSP_X86_64_FLAG
 CFLAGS += -DSP_X86_64_FLAG
 OBJ += $(OBJ_SP_X86_64)
@@ -54,7 +55,7 @@ OBJ += $(OBJ_SP_C32)
 else ifeq ($(math), tfm)
 CFLAGS += -DTFM_FLAG
 OBJ += $(OBJ_TFM)
-else 
+else
 CFLAGS += -DSP_C64_FLAG
 OBJ += $(OBJ_SP_C64)
 endif
@@ -62,7 +63,7 @@ endif
 all : ecc_sign_verify bench mem
 
 ecc_sign_verify: clean $(OBJ)
-	$(CC) $(CFLAGS) -o ecc_sign_verify ecc_sign_verify.c $(OBJ) 
+	$(CC) $(CFLAGS) -o ecc_sign_verify ecc_sign_verify.c $(OBJ)
 
 bench: clean $(OBJ)
 	$(CC) $(CFLAGS) -DBENCHMARK -o ecc_sign_verify_bench ecc_sign_verify.c $(OBJ) -lpthread

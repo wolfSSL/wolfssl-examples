@@ -11,7 +11,7 @@
 #define WOLFSSL_RSA_VERIFY_INLINE
 #define WC_NO_RSA_OAEP
 #define WC_NO_HARDEN
-#define WOLFSSL_KEY_GEN
+/* #define WOLFSSL_KEY_GEN */
 
 /* sp_int */
 #define NO_DH
@@ -22,7 +22,7 @@
 /* asn */
 #define NO_ASN_TIME
 #define IGNORE_NAME_CONSTRAINTS
-#define WOLFSSL_NO_ASN_STRICT 
+#define WOLFSSL_NO_ASN_STRICT
 
 
 #ifdef DEBUG_MEMORY
@@ -33,11 +33,11 @@
 #endif
 
 
-#ifdef SP_C32_FLAG 
+#ifdef SP_C32_FLAG
     #define WOLFSSL_HAVE_SP_RSA
     #define WOLFSSL_SP_MATH_ALL
     #undef USE_FAST_MATH
-#endif 
+#endif
 
 #ifdef SP_C64_FLAG
     #define WOLFSSL_HAVE_SP_RSA
@@ -76,7 +76,7 @@
     #undef DEBUG_MEMORY
 #endif
 
-// #define PSS_PADDING
+#define PSS_PADDING
 #ifdef PSS_PADDING
     #define WC_RSA_PSS
     #define WC_RSA_BLINDING
@@ -91,3 +91,4 @@
     #define WOLFSSL_SP_NO_MALLOC
     #undef BENCHMARK
 #endif /* NONBLOCK */
+

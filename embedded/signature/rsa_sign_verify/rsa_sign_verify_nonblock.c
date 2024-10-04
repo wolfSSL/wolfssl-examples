@@ -1,6 +1,6 @@
 /* rsa_sign_verify.c
  *
- * Copyright (C) 2006-2023 wolfSSL Inc.
+ * Copyright (C) 2006-2024 wolfSSL Inc.
  *
  * This file is part of wolfSSL.
  *
@@ -21,16 +21,16 @@
 
 /* This file is an example of signing and verifying an RSA signature.
  * The signature can be PKCS#1.5 formatted and PSS formatted.
- * 
+ *
  * - PKCS#1.5
  *  1. hash -> encSig
- *  2. encSig -> signature 
+ *  2. encSig -> signature
  *  3. signature -> decSig
- * 
+ *
  * - PSS
- *  1. hash -> signature 
+ *  1. hash -> signature
  *  2. signature -> decSig
- * 
+ *
  * PKCS#1.5 is used for the Signature by default.
  * To turning on PSS, define PSS_PADDING
  */
@@ -58,7 +58,7 @@
                                      }
 
 #ifndef NONBLOCK
-    #define NONBLOCK    
+    #define NONBLOCK
 #endif
 
 /* Variables to be used in both sign() and verify() */
@@ -77,11 +77,11 @@ RsaKey*     pKey = NULL;
 
 /* Variables for non-blocking RSA */
 RsaNb nb_ctx;
-double total_blk_time;          
+double total_blk_time;
 double pre_returned_t;          /*  previous recent returned time */
-double returned_t;              /* most recent returned time */ 
-double max_t = -1.0;            /* Maximum blocking time */ 
-double min_t = __DBL_MAX__;     /* Minimum blocking time */ 
+double returned_t;              /* most recent returned time */
+double max_t = -1.0;            /* Maximum blocking time */
+double min_t = __DBL_MAX__;     /* Minimum blocking time */
 double blocking_t;              /* current blocking time */
 int blk_count;
 
@@ -122,7 +122,7 @@ int sign(){
     CHECK_RET(ret, 0, finish, "wc_RsaSetRNG()");
 #endif
 
-    
+
     /* Generate 2048-bit RSA key*/
     ret = wc_MakeRsaKey(&key, 2048, e, &rng);
     CHECK_RET(ret, 0, finish, "wc_MakeRsaKey()");
@@ -178,7 +178,7 @@ int verify_nonblock(){
     /* Verify the signature by decrypting the value with non-blocking mode. */
     if (ret == 0){
         ret = wc_RsaSetNonBlock(&key, &nb_ctx);
-        if (ret != 0) 
+        if (ret != 0)
             return ret;
 
         blk_count = 0;
@@ -186,16 +186,16 @@ int verify_nonblock(){
 
         pre_returned_t = current_time(1);
         do {
-            
+
             #ifdef PSS_PADDING
                 decSigLen = wc_RsaPSS_Verify(signature, sizeof(signature),
                     decSig, sizeof(decSig),WC_HASH_TYPE_SHA256, WC_MGF1SHA256, &key);
-      
+
             #else /* PKCS#1.5 */
                 decSigLen = wc_RsaSSL_Verify(signature, sizeof(signature),
                                                 decSig, sizeof(decSig), &key);
             #endif
-            
+
             returned_t = current_time(0);
             blocking_t = returned_t - pre_returned_t;
             total_blk_time += blocking_t;
@@ -211,7 +211,7 @@ int verify_nonblock(){
             blk_count++;
         } while (decSigLen == FP_WOULDBLOCK);
     }
-        
+
     /* Verification check */
     #ifdef PSS_PADDING
         if ((int)decSigLen < 0)
@@ -221,7 +221,7 @@ int verify_nonblock(){
         ret = wc_RsaPSS_CheckPadding(hash, sizeof(hash), decSig, decSigLen, WC_HASH_TYPE_SHA256);
         CHECK_RET(ret, 0, finish, "Verification Check RSA-PSS");
 
-    #else 
+    #else
         if ((int)decSigLen < 0)
             ret = (int)decSigLen;
             CHECK_RET(ret, 0, finish, "wc_RsaSSL_Verify()");
@@ -249,7 +249,7 @@ finish:
     ShowMemoryTracker();
     CleanupMemoryTracker();
     wolfCrypt_Cleanup();
-#endif 
+#endif
 
     return ret;
 }
@@ -261,7 +261,7 @@ int main(){
 
 #ifdef DEBUG_MEMORY
     ret = StackSizeCheck(NULL, (thread_func)sign);
-#else 
+#else
     ret = sign();
 #endif
 
@@ -271,7 +271,7 @@ int main(){
 
 #ifdef DEBUG_MEMORY
     ret = StackSizeCheck(NULL, (thread_func)verify_nonblock);
-#else 
+#else
     ret = verify_nonblock();
 
 #endif

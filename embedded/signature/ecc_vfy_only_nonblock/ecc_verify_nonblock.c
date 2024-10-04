@@ -1,6 +1,6 @@
 /* ecc_verify_nonblock.c
  *
- * Copyright (C) 2006-2023 wolfSSL Inc.
+ * Copyright (C) 2006-2024 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -121,16 +121,16 @@ int do_sig_ver_test(int eccKeySz)
 
 #ifdef NONBLOCK
     ecc_nb_ctx_t nb_ctx;
-    double total_blk_time;          
+    double total_blk_time;
     double pre_returned_t;          /*  previous recent returned time */
-    double returned_t;              /* most recent returned time */ 
-    double max_t = -1.0;            /* Maximum blocking time */ 
-    double min_t = __DBL_MAX__;     /* Minimum blocking time */ 
+    double returned_t;              /* most recent returned time */
+    double max_t = -1.0;            /* Maximum blocking time */
+    double min_t = __DBL_MAX__;     /* Minimum blocking time */
     double blocking_t;              /* current blocking time */
-    int blk_count;                  
-    
+    int blk_count;
+
 #endif
-  
+
 
 
     /*
@@ -152,7 +152,7 @@ int do_sig_ver_test(int eccKeySz)
 
     printf("Key size is %d, byteField = %d\n", eccKeySz, byteField);
 
-    
+
 
     ret = wc_InitRng(&rng);
     CHECK_RET(ret, 0, key_done, "wc_InitRng()");
@@ -170,7 +170,7 @@ int do_sig_ver_test(int eccKeySz)
 
     ret = wc_ecc_import_x963(pKeybuff, key_size, &key);
     CHECK_RET(ret, 0, rng_done, "wc_ecc_import_x963()");
-    
+
 
 #ifdef NONBLOCK
         ret = wc_ecc_set_nonblock(&key, &nb_ctx);
@@ -180,8 +180,8 @@ int do_sig_ver_test(int eccKeySz)
         pre_returned_t = current_time(1);
 
         do {
-            
-            ret = wc_ecc_verify_hash(sig, sig_size, hash, sizeof(hash), 
+
+            ret = wc_ecc_verify_hash(sig, sig_size, hash, sizeof(hash),
                                                         &verified, &key);
             returned_t = current_time(0);
             blocking_t = returned_t - pre_returned_t;
@@ -198,8 +198,8 @@ int do_sig_ver_test(int eccKeySz)
             blk_count++;
         } while (ret == FP_WOULDBLOCK);
 
-#else 
-        ret = wc_ecc_verify_hash(sig, sig_size, hash, sizeof(hash), 
+#else
+        ret = wc_ecc_verify_hash(sig, sig_size, hash, sizeof(hash),
                                                             &verified, &key);
 #endif /* NONBLOCK */
 
@@ -237,7 +237,7 @@ int main(){
 
 #ifdef DEBUG_MEMORY
     return StackSizeCheck(NULL, (thread_func)ecc_verify);
-#else 
+#else
     return ecc_verify();
 #endif
 }
@@ -268,7 +268,7 @@ int idx_key(int keysize){
             return 10;
         default:
             return -1;
-    } 
+    }
 
-}    
+}
 
