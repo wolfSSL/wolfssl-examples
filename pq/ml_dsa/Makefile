@@ -2,7 +2,7 @@ CC = gcc
 
 WOLFSSL_INSTALL_DIR = /usr/local
 
-WOLFSSL_CFLAGS = -Wextra -Werror -Wall -I$(WOLFSSL_INSTALL_DIR)/include -DUSE_WOLFSSL
+WOLFSSL_CFLAGS = -Wextra -Werror -Wall -I$(WOLFSSL_INSTALL_DIR)/include
 WOLFSSL_LIBS   = -L$(WOLFSSL_INSTALL_DIR)/lib -lm -lwolfssl
 
 DEBUG_FLAGS    = -g -DDEBUG
