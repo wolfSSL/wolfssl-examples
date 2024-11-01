@@ -1,6 +1,6 @@
 # Description
 
-Simple example of wolfCrypt ML-DSA signing and verifying.
+Simple example of wolfCrypt ML-DSA keygen, signing, and verifying.
 
 Requires wolfSSL is built with:
 
@@ -32,8 +32,11 @@ parms:
   -?                         show this help
 ```
 
-Signing and verifying a test message with Category 5, and writing the keys,
-message, and signature to `*.key` and `*.bin` files:
+## Keygen, sign, and verify
+
+This will generate a keypair with security category 5, then
+sign and verify a test message, and write the keys, message,
+and signature to `*.key` and `*.bin` files:
 ```
 ./ml_dsa_test -c 5 -m "my test message" -w
 info: making key
@@ -43,7 +46,9 @@ info: verify message good
 info: done
 ```
 
-The supported ML-DSA parameters:
+## Print Supported ML-DSA Parameters
+
+To see the supported parameters:
 
 ```
 ./ml_dsa_test -p
