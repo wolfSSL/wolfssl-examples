@@ -265,6 +265,11 @@ pq/stateful_hash_sig/xmss_example.key
 pq/stateful_hash_sig/lms_example
 pq/stateful_hash_sig/lms_example.key
 
+# PQ ML-DSA
+pq/ml_dsa/ml_dsa_test
+pq/ml_dsa/*.bin
+pq/ml_dsa/*.key
+
 embedded/tls-client-server
 embedded/tls-server-size
 embedded/tls-sock-client
