@@ -33,7 +33,10 @@ extern "C"
 #endif
 
 #include <stdio.h>
+#include <time.h>
 #define TARGET_EMBEDDED
+
+#define WOLFSSL_RPIPICO
 
 extern time_t myTime(time_t *);
 #define XTIME(t) myTime(t)
@@ -85,11 +88,12 @@ extern time_t myTime(time_t *);
 /* SP Assembly Speedups - specific to chip type */
 #define WOLFSSL_SP_ASM
 #endif
+/* Handled in CMake */
     // #define WOLFSSL_SP_X86_64
     // #define WOLFSSL_SP_X86
     // #define WOLFSSL_SP_ARM32_ASM
     // #define WOLFSSL_SP_ARM64_ASM
-       #define WOLFSSL_SP_ARM_THUMB_ASM
+    // #define WOLFSSL_SP_ARM_THUMB_ASM
     // #define WOLFSSL_SP_ARM_CORTEX_M_ASM
 #elif 1
 /* Fast Math (tfm.c) (stack based and timing resistant) */
@@ -423,7 +427,7 @@ extern time_t myTime(time_t *);
 /* ------------------------------------------------------------------------- */
 
 /* Choose RNG method */
-#if 1
+#if 0
 /* Custom Seed Source */
         /* Size of returned HW RNG value */
 //#define CUSTOM_RAND_TYPE unsigned int
@@ -432,7 +436,7 @@ unsigned long get_rand_32(void);
 #define CUSTOM_RAND_GENERATE get_rand_32
 #endif
 
-#if 1
+#if 0
 /* Use built-in P-RNG (SHA256 based) with HW RNG */
 /* P-RNG + HW RNG (P-RNG is ~8K) */
 #undef HAVE_HASHDRBG
@@ -442,11 +446,12 @@ unsigned long get_rand_32(void);
 #define WC_NO_HASHDRBG
 #endif
 
-#if 0
+
+#if 1
 /* Bypass P-RNG and use only HW RNG */
-extern int my_rng_gen_block(unsigned char *output, unsigned int sz);
+//extern int my_rng_gen_block(unsigned char *output, unsigned int sz);
 #undef CUSTOM_RAND_GENERATE_BLOCK
-#define CUSTOM_RAND_GENERATE_BLOCK my_rng_gen_block
+#define CUSTOM_RAND_GENERATE_BLOCK wc_pico_rng_gen_block
 #endif
 
 
@@ -515,7 +520,7 @@ extern int my_rng_gen_block(unsigned char *output, unsigned int sz);
 // #define WOLFCRYPT_ONLY
 
 /* do not warm when file is included to be built and not required to be */
-#//define WOLFSSL_IGNORE_FILE_WARN
+#define WOLFSSL_IGNORE_FILE_WARN
 
     /* In-lining of misc.c functions */
     /* If defined, must include wolfcrypt/src/misc.c in build */
