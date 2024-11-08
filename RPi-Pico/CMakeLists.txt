@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.13)
 
 # Pull in Pico and FreeRTOS
-include(pico_sdk_import.cmake)
-include(pico_extras_import_optional.cmake)
+include($ENV{PICO_SDK_PATH}/external/pico_sdk_import.cmake)
+#include(pico_extras_import_optional.cmake)
 #include($ENV{FREERTOS_KERNEL_PATH}/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_import.cmake)
 
 
@@ -17,6 +17,15 @@ set(CMAKE_CXX_STANDARD 17)
 # Initialize the SDK
 pico_sdk_init()
 
+option(USE_UART "Output over UART instead of USB" OFF)
+option(USE_WIFI "Enable WiFi" OFF)
+option(WIFI_SSID "The WiFi SSID to connect to" "")
+option(WIFI_PASSWORD "The WiFi password" "")
+option(TEST_TCP_SERVER_IP "The TCP test server IP" "")
+
+if (USE_WIFI AND NOT PICO_CYW43_SUPPORTED)
+    message(FATAL_ERROR "You can only set USE_WIFI when a PICO_BOARD with wifi is used")
+endif()
 
 ### Global Include Path
     include_directories(config)
@@ -32,9 +41,10 @@ pico_sdk_init()
 
 
 ### wolfSSL/wolfCrypt library
-    file(GLOB_RECURSE WOLFSSL_SRC
+    file(GLOB WOLFSSL_SRC
         "${WOLFSSL_ROOT}/src/*.c"
         "${WOLFSSL_ROOT}/wolfcrypt/src/*.c"
+        "${WOLFSSL_ROOT}/wolfcrypt/src/port/rpi_pico/*"
     )
     list(REMOVE_ITEM WOLFSSL_SRC EXCLUDE REGEX
         "${WOLFSSL_ROOT}/src/bio.c"
@@ -56,25 +66,48 @@ pico_sdk_init()
     target_compile_definitions(wolfssl PUBLIC
         WOLFSSL_USER_SETTINGS
     )
+    if (${PICO_PLATFORM} STREQUAL "rp2350")
+        add_compile_definitions(wolfssl WOLFSSL_SP_ARM_CORTEX_M_ASM)
+    elseif (${PICO_PLATFORM} STREQUAL "rp2350-riscv")
+        add_compile_definitions(wolfSSL WOLFSSL_SP_RISCV32)
+    else()
+        add_compile_definitions(wolfssl WOLFSSL_SP_ARM_THUMB_ASM)
+    endif()
+
+    target_link_libraries(wolfssl
+        pico_stdlib
+        pico_rand
+    )
 ### End of wolfSSL/wolfCrypt library
 
 
 ### Test wolfCrypt algorithms
     add_executable(testwolfcrypt
         src/test_main.c
-        src/blink.c
         ${WOLFSSL_ROOT}/wolfcrypt/test/test.c
     )
 
     target_link_libraries(testwolfcrypt
         wolfssl
         pico_stdlib
-        pico_cyw43_arch_none
         pico_rand
     )
 
-    pico_enable_stdio_usb(testwolfcrypt 1)
-    pico_enable_stdio_uart(testwolfcrypt 0)
+    if (USE_UART)
+        pico_enable_stdio_usb(testwolfcrypt 0)
+        pico_enable_stdio_uart(testwolfcrypt 1)
+    else()
+        pico_enable_stdio_usb(testwolfcrypt 1)
+        pico_enable_stdio_uart(testwolfcrypt 0)
+    endif()
+
+    if (${PICO_PLATFORM} STREQUAL "rp2350")
+        add_compile_definitions(wolfssl WOLFSSL_SP_ARM_CORTEX_M_ASM)
+    elseif (${PICO_PLATFORM} STREQUAL "rp2350-riscv")
+        add_compile_definitions(wolfSSL WOLFSSL_SP_RISCV32)
+    else()
+        add_compile_definitions(wolfssl WOLFSSL_SP_ARM_THUMB_ASM)
+    endif()
 
     pico_add_extra_outputs(testwolfcrypt)
 ### End of Test wolfCrypt algorithms
@@ -83,29 +116,42 @@ pico_sdk_init()
 ### Benchmark wolfCrypt algorithms
     add_executable(benchmark
         src/bench_main.c
-        src/blink.c
         ${WOLFSSL_ROOT}/wolfcrypt/benchmark/benchmark.c
     )
 
     target_link_libraries(benchmark
         wolfssl
         pico_stdlib
-        pico_cyw43_arch_none
         pico_rand
     )
 
-    pico_enable_stdio_usb(benchmark 1)
-    pico_enable_stdio_uart(benchmark 0)
+    if (USE_UART)
+        pico_enable_stdio_usb(benchmark 0)
+        pico_enable_stdio_uart(benchmark 1)
+    else()
+        pico_enable_stdio_usb(benchmark 1)
+        pico_enable_stdio_uart(benchmark 0)
+    endif()
+
+
+    if (${PICO_PLATFORM} STREQUAL "rp2350")
+        add_compile_definitions(wolfssl WOLFSSL_SP_ARM_CORTEX_M_ASM)
+    elseif (${PICO_PLATFORM} STREQUAL "rp2350-riscv")
+        add_compile_definitions(wolfSSL WOLFSSL_SP_RISCV32)
+    else()
+        add_compile_definitions(wolfssl WOLFSSL_SP_ARM_THUMB_ASM)
+    endif()
 
     pico_add_extra_outputs(benchmark)
 ### End of Benchmark wolfCrypt algorithms
 
 
+if (USE_WIFI)
 ### Wifi connection
     add_executable(Wifi
         src/blink.c
         src/wifi.c
-        src/Wifi_main.c
+        src/wifi_main.c
     )
 
     target_compile_definitions(Wifi PRIVATE
@@ -124,14 +170,27 @@ pico_sdk_init()
         pico_async_context_poll
     )
 
+    if (USE_UART)
+        pico_enable_stdio_usb(Wifi 0)
+        pico_enable_stdio_uart(Wifi 1)
+    else()
+        pico_enable_stdio_usb(Wifi 1)
+        pico_enable_stdio_uart(Wifi 0)
+    endif()
 
-    pico_enable_stdio_usb(Wifi 1)
-    pico_enable_stdio_uart(Wifi 0)
+    if (${PICO_PLATFORM} STREQUAL "rp2350")
+        add_compile_definitions(wolfssl WOLFSSL_SP_ARM_CORTEX_M_ASM)
+    elseif (${PICO_PLATFORM} STREQUAL "rp2350-riscv")
+        add_compile_definitions(wolfSSL WOLFSSL_SP_RISCV32)
+    else()
+        add_compile_definitions(wolfssl WOLFSSL_SP_ARM_THUMB_ASM)
+    endif()
 
     pico_add_extra_outputs(Wifi)
 ### End of Wifi connection
+endif()
 
-
+if (USE_WIFI)
 ### TCP Client
     add_executable(tcp_Client
         src/blink.c
@@ -157,14 +216,27 @@ pico_sdk_init()
         pico_async_context_poll
     )
 
+    if (USE_UART)
+        pico_enable_stdio_usb(tcp_Client 0)
+        pico_enable_stdio_uart(tcp_Client 1)
+    else()
+        pico_enable_stdio_usb(tcp_Client 1)
+        pico_enable_stdio_uart(tcp_Client 0)
+    endif()
 
-    pico_enable_stdio_usb(tcp_Client 1)
-    pico_enable_stdio_uart(tcp_Client 0)
+    if (${PICO_PLATFORM} STREQUAL "rp2350")
+        add_compile_definitions(wolfssl WOLFSSL_SP_ARM_CORTEX_M_ASM)
+    elseif (${PICO_PLATFORM} STREQUAL "rp2350-riscv")
+        add_compile_definitions(wolfSSL WOLFSSL_SP_RISCV32)
+    else()
+        add_compile_definitions(wolfssl WOLFSSL_SP_ARM_THUMB_ASM)
+    endif()
 
     pico_add_extra_outputs(tcp_Client)
 ### End of TCP Client
+endif()
 
-
+if (USE_WIFI)
 ### TLS Client
     add_executable(tls_Client
         src/blink.c
@@ -191,8 +263,22 @@ pico_sdk_init()
         wolfssl
     )
 
-    pico_enable_stdio_usb(tls_Client 1)
-    pico_enable_stdio_uart(tls_Client 0)
+    if (USE_UART)
+        pico_enable_stdio_usb(tls_Client 0)
+        pico_enable_stdio_uart(tls_Client 1)
+    else()
+        pico_enable_stdio_usb(tls_Client 1)
+        pico_enable_stdio_uart(tls_Client 0)
+    endif()
+
+    if (${PICO_PLATFORM} STREQUAL "rp2350")
+        add_compile_definitions(wolfssl WOLFSSL_SP_ARM_CORTEX_M_ASM)
+    elseif (${PICO_PLATFORM} STREQUAL "rp2350-riscv")
+        add_compile_definitions(wolfSSL WOLFSSL_SP_RISCV32)
+    else()
+        add_compile_definitions(wolfssl WOLFSSL_SP_ARM_THUMB_ASM)
+    endif()
 
     pico_add_extra_outputs(tls_Client)
 ### End of TLS Client
+endif()
