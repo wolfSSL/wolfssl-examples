@@ -69,6 +69,9 @@ static int tcp_select(SOCKET_T socketfd, int to_sec, int rx)
     else
         sendfds = &fds;
 
+    timeout.tv_sec = to_sec;
+    timeout.tv_usec = 0;
+
     result = select(nfds, recvfds, sendfds, &errfds, &timeout);
 
     if (result == 0)
