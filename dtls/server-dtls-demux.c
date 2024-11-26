@@ -46,6 +46,12 @@
 #define CID_SIZE 8
 
 static int intCalled = 0;
+
+/**
+ * \brief Signal handler for teardown.
+ *
+ * \param signum Signal number.
+ */
 static void teardown(int signum)
 {
     intCalled = 1;
@@ -57,50 +63,158 @@ static void teardown(int signum)
                           * important to check because we want to limit the ability for malicious clients
                           * to stall and use up server resources. */
 
+/**
+ * \struct ConnList
+ * \brief Structure to hold connection information.
+ */
 struct ConnList {
-    WOLFSSL* ssl;
-    time_t t_started;
-    struct ConnList* next;
-};
-/* Timeout is multiplied by two on every timeout. The initial and maximum
- * timeouts can be set using:
- *  int wolfSSL_dtls_set_timeout_init(WOLFSSL* ssl, int timeout)
- *  int wolfSSL_dtls_set_timeout_max(WOLFSSL* ssl, int timeout) */
-struct DtlsTimeout {
-    struct timespec ts;
-    struct ConnList* conn;
-    struct DtlsTimeout* next;
+    WOLFSSL* ssl; /**< WOLFSSL object for the connection */
+    time_t t_started; /**< Time when the connection started */
+    int id; /**< ID number of the connection */
+    struct ConnList* next; /**< Pointer to the next connection in the list */
 };
 
-/* Our context factory */
+/**
+ * \struct DtlsTimeout
+ * \brief Structure to hold timeout information.
+ */
+struct DtlsTimeout {
+    struct timespec ts; /**< Time when the timeout should occur */
+    struct ConnList* conn; /**< Pointer to the connection associated with the timeout */
+    struct DtlsTimeout* next; /**< Pointer to the next timeout in the list */
+};
+
+/**
+ * \brief Create a new WOLFSSL_CTX object.
+ *
+ * \return Pointer to the new WOLFSSL_CTX object, or NULL on error.
+ */
 WOLFSSL_CTX* newCTX(void);
-/* Our ssl factory */
+
+/**
+ * \brief Create a new WOLFSSL object.
+ *
+ * \param ctx Pointer to the WOLFSSL_CTX object.
+ * \param fd File descriptor for the socket.
+ * \param rng Pointer to the random number generator.
+ * \param connList Pointer to the list of connections.
+ *
+ * \return Pointer to the new WOLFSSL object, or NULL on error.
+ */
 WOLFSSL* newSSL(WOLFSSL_CTX* ctx, int fd, WC_RNG* rng, struct ConnList* connList);
-/* Our socket factory */
+
+/**
+ * \brief Create a new socket.
+ *
+ * \return File descriptor for the new socket, or INVALID_SOCKET on error.
+ */
 int newFD(void);
 
-/* Create connection and add it to the connList */
+/**
+ * \brief Create a new connection and add it to the connection list.
+ *
+ * \param ssl Pointer to the WOLFSSL object.
+ * \param connList Pointer to the list of connections.
+ *
+ * \return Pointer to the new connection, or NULL on error.
+ */
 struct ConnList* newConn(WOLFSSL* ssl, struct ConnList** connList);
-/* Free connection. Remove it from connList and clear any timeouts in tList */
+
+/**
+ * \brief Free a connection and remove it from the connection list.
+ *
+ * \param connList Pointer to the list of connections.
+ * \param conn Pointer to the connection to be freed.
+ * \param tList Pointer to the list of timeouts.
+ */
 void freeConn(struct ConnList** connList, struct ConnList* conn, struct DtlsTimeout** tList);
-/* Try to find the matching connection in connList. We look based on the connection ID or the peer address. */
+
+/**
+ * \brief Find a connection in the connection list based on the connection ID or peer address
+ *
+ * \param connList Pointer to the list of connections.
+ * \param msg Pointer to the message.
+ * \param sz Size of the message.
+ * \param peerAddr Pointer to the peer address.
+ * \param peerAddrLen Length of the peer address.
+ *
+ * \return Pointer to the matching connection, or NULL if not found.
+ */
 struct ConnList* findConn(struct ConnList* connList, byte* msg, ssize_t sz, struct sockaddr* peerAddr, socklen_t peerAddrLen);
-/* Handle existing connection */
-int dispatchExistingConnection(struct ConnList* conn, byte* msg, ssize_t msgSz, struct sockaddr* peerAddr,
-                               socklen_t peerAddrLen);
-/* Handle new connection */
+
+/**
+ * \brief Handle an existing connection.
+ *
+ * \param conn Pointer to the connection.
+ * \param msg Pointer to the message.
+ * \param msgSz Size of the message.
+ * \param peerAddr Pointer to the peer address.
+ * \param peerAddrLen Length of the peer address.
+ *
+ * \return 1 on success, 0 on error.
+ */
+int dispatchExistingConnection(struct ConnList* conn, byte* msg, ssize_t msgSz, struct sockaddr* peerAddr, socklen_t peerAddrLen);
+
+/**
+ * \brief Handle a new connection.
+ *
+ * \param ssl Pointer to the WOLFSSL object.
+ * \param msg Pointer to the message.
+ * \param msgSz Size of the message.
+ * \param peerAddr Pointer to the peer address.
+ * \param peerAddrLen Length of the peer address.
+ *
+ * \return WOLFSSL_SUCCESS on success, WOLFSSL_FATAL_ERROR on error.
+ */
 int dispatchNewConnection(WOLFSSL* ssl, byte* msg, ssize_t msgSz, struct sockaddr* peerAddr, socklen_t peerAddrLen);
 
-/* Return the next timeout in milliseconds. Returns -1 if no timeout set. */
+/**
+ * \brief Return the next timeout in milliseconds.
+ *
+ * \param t Pointer to the list of timeouts.
+ *
+ * \return Next timeout in milliseconds, or -1 if no timeout set.
+ */
 int getNextTimeout(struct DtlsTimeout* t);
-/* Register the next timeout for conn in the list out */
+
+/**
+ * \brief Register the next timeout for a connection.
+ *
+ * \param out Pointer to the list of timeouts.
+ * \param conn Pointer to the connection.
+ *
+ * \return 1 on success, 0 on error.
+ */
 int registerTimeout(struct DtlsTimeout** out, struct ConnList* conn);
-/* Free any timeouts associated with conn in out */
+
+/**
+ * \brief Free any timeouts associated with a connection.
+ *
+ * \param out Pointer to the list of timeouts.
+ * \param conn Pointer to the connection.
+ */
 void freeTimeouts(struct DtlsTimeout** out, struct ConnList* conn);
-/* Handle timeout that occured for conn */
+
+/**
+ * \brief Handle a timeout that occurred for a connection.
+ *
+ * \param conn Pointer to the connection.
+ *
+ * \return WOLFSSL_SUCCESS on success, -1 on error.
+ */
 int handleTimeout(struct ConnList* conn);
 
-static int handleApplicationData(WOLFSSL* ssl, byte* appData, int appDataSz)
+/**
+ * \brief Handle application data received from a peer.
+ *
+ * \param ssl Pointer to the WOLFSSL object.
+ * \param appData Pointer to the application data.
+ * \param appDataSz Size of the application data.
+ * \param id ID number of the connection.
+ *
+ * \return Number of bytes written, or a negative value on error.
+ */
+static int handleApplicationData(WOLFSSL* ssl, byte* appData, int appDataSz, int id)
 {
     /* Process app data from peer. For this example just echo it */
     const void* peer = NULL;
@@ -111,11 +225,15 @@ static int handleApplicationData(WOLFSSL* ssl, byte* appData, int appDataSz)
         peerName = inet_ntoa(((struct sockaddr_in *)peer)->sin_addr);
         peerPort = ntohs(((struct sockaddr_in *)peer)->sin_port);
     }
-    printf("%s:%d wrote: %.*s\n", peerName, peerPort, appDataSz, appData);
+    printf("(#%d) from %s:%d wrote: %.*s\n", id, peerName, peerPort, appDataSz, appData);
     return wolfSSL_write(ssl, appData, appDataSz);
-
 }
 
+/**
+ * \brief Main function for the DTLS server.
+ *
+ * \return 0 on success, non-zero on error.
+ */
 int main(void)
 {
     int exitVal = 1;
@@ -137,7 +255,7 @@ int main(void)
     listenfd.events = POLLIN;
 
     /* Uncomment if you want debugging. */
-//    wolfSSL_Debugging_ON();
+    // wolfSSL_Debugging_ON();
 
     if ((rng = wc_rng_new(NULL, 0, NULL)) == NULL) {
         fprintf(stderr, "wc_rng_new error.\n");
@@ -403,11 +521,13 @@ int newFD(void)
 struct ConnList* newConn(WOLFSSL* ssl, struct ConnList** connList)
 {
     struct ConnList* conn = (struct ConnList*)malloc(sizeof(struct ConnList));
+    static int id = 0;
     if (conn == NULL)
         return NULL;
     conn->ssl = ssl;
     conn->t_started = time(NULL);
     conn->next = *connList;
+    conn->id = id++;
     *connList = conn;
     return conn;
 }
@@ -484,7 +604,7 @@ int dispatchExistingConnection(struct ConnList* conn, byte* msg, ssize_t msgSz, 
         /* re-use msg buffer since output will always be smaller than input */
         int readSz = ret = wolfSSL_read(conn->ssl, msg, msgSz);
         if (ret > 0) {
-            ret = handleApplicationData(conn->ssl, msg, readSz);
+            ret = handleApplicationData(conn->ssl, msg, readSz, conn->id);
             if (ret <= 0)
                 return 0;
         }
