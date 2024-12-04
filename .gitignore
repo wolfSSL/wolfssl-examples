@@ -356,6 +356,9 @@ tpm/evp_tpm
 # the solution files are not needed (Visual Studio will generated them)
 /ESP32/**/*.sln
 
+# STM32MP13 wolfSSL not needed, user should copy it.
+/STM32/STM32MP13/wolfssl
+
 # auto-created CMake backups
 **/CMakeLists.txt.old
 

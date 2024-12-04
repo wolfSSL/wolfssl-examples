@@ -16,3 +16,6 @@
 [submodule "android/wolfcryptjni-ndk-gradle/wolfcrypt-jni"]
 	path = android/wolfcryptjni-ndk-gradle/wolfcrypt-jni
 	url = https://github.com/wolfssl/wolfcrypt-jni
+[submodule "STM32/STM32CubeMP13"]
+	path = STM32/STM32MP13/STM32CubeMP13
+	url = git@github.com:STMicroelectronics/STM32CubeMP13
