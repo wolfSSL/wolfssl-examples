@@ -108,57 +108,79 @@ elseif("${WOLFSSL_PKG_TYPE}" MATCHES "fipsready")
 
     if("${ANDROID_ABI}" MATCHES "arm64-v8a")
         # https://developer.android.com/ndk/guides/abis#arm64-v8a
-        add_definitions(-DWOLFCRYPT_FIPS_CORE_HASH_VALUE=6F0F3E0BDA9AF973D2B7243444DE8279DF9F98A533E60D1E076DE4B6B9416F11)
+        add_definitions(-DWOLFCRYPT_FIPS_CORE_HASH_VALUE=6F4F71F467B6394FBA2BDD8B4CB136DC75DF33D0B7C02E4BC9798ECC1D317BC7)
     elseif("${ANDROID_ABI}" MATCHES "armeabi-v7a")
         # https://developer.android.com/ndk/guides/abis#v7a
-        add_definitions(-DWOLFCRYPT_FIPS_CORE_HASH_VALUE=6F0F3E0BDA9AF973D2B7243444DE8279DF9F98A533E60D1E076DE4B6B9416F11)
+        add_definitions(-DWOLFCRYPT_FIPS_CORE_HASH_VALUE=6F4F71F467B6394FBA2BDD8B4CB136DC75DF33D0B7C02E4BC9798ECC1D317BC7)
     elseif("${ANDROID_ABI}" MATCHES "x86_64")
         # https://developer.android.com/ndk/guides/abis#86-64
-        add_definitions(-DWOLFCRYPT_FIPS_CORE_HASH_VALUE=6F0F3E0BDA9AF973D2B7243444DE8279DF9F98A533E60D1E076DE4B6B9416F11)
+        add_definitions(-DWOLFCRYPT_FIPS_CORE_HASH_VALUE=6F4F71F467B6394FBA2BDD8B4CB136DC75DF33D0B7C02E4BC9798ECC1D317BC7)
     elseif("${ANDROID_ABI}" MATCHES "x86")
         # https://developer.android.com/ndk/guides/abis#x86
-        add_definitions(-DWOLFCRYPT_FIPS_CORE_HASH_VALUE=6F0F3E0BDA9AF973D2B7243444DE8279DF9F98A533E60D1E076DE4B6B9416F11)
+        add_definitions(-DWOLFCRYPT_FIPS_CORE_HASH_VALUE=6F4F71F467B6394FBA2BDD8B4CB136DC75DF33D0B7C02E4BC9798ECC1D317BC7)
     endif()
 
     # Add preprocessor defines to CFLAGS, these match those placed into
-    # wolfssl/options.h by configure if using: "./configure" on a Unix/Linux
-    # platform. The options below have been chosen to match a FIPS Ready build,
-    # and are based on the example user_settings.h file located here:
+    # wolfssl/options.h by configure if using the following configure on a Unix/Linux
+    # platform with a wolfSSL FIPS Ready GPLv3 bundle:
+    #
+    # ./configure --enable-fips=ready --enable-jni
+    #
+    # The following FIPS Ready build example user_settings.h can also be a helpful reference
+    # for preprocessor defines used for a wolfSSL FIPS Ready build:
     # https://github.com/wolfSSL/wolfssl/blob/master/examples/configs/user_settings_fipsv5.h
     # This list may be configurable depending on use case and desired
     # optimizations, being careful not to break FIPS compatibility if targeting
     # FIPS proper in the future.
-    add_definitions(-DHAVE_FIPS -DHAVE_FIPS_VERSION=5 -DHAVE_FIPS_VERSION_MINOR=3
-            -DHAVE_HASHDRBG -DHAVE_THREAD_LS -DHAVE_REPRODUCIBLE_BUILD
-            -DFP_MAX_BITS=16384 -DSP_INT_BITS=8192 -DWOLFSSL_PUBLIC_MP
-            -DTFM_TIMING_RESISTANT -DECC_TIMING_RESISTANT -DWC_RSA_BLINDING
-            -DWC_RNG_SEED_CB -DWOLFSSL_VALIDATE_ECC_IMPORT -DWOLFSSL_VALIDATE_ECC_KEYGEN
-            -DWOLFSSL_VALIDATE_FFC_IMPORT
-            -DWOLFSSL_TLS13 -DHAVE_TLS_EXTENSIONS -DHAVE_ENCRYPT_THEN_MAC
-            -DHAVE_SUPPORTED_CURVES -DHAVE_EXTENDED_MASTER -DHAVE_ONE_TIME_AUTH
-            -DHAVE_SECURE_RENEGOTIATION -DHAVE_SERVER_RENEGOTIATION_INFO -DHAVE_SESSION_TICKET
-            -DWOLFSSL_USE_ALIGN -DWOLFSSL_BASE64_ENCODE -DHAVE_CRL
-            -DHAVE_EXT_CACHE -DWOLFSSL_VERIFY_CB_ALL_CERTS -DWOLFSSL_ALWAYS_VERIFY_CB
-            -DWOLFSSL_DH_EXTRA -DWOLFSSL_WOLFSSH -DOPENSSL_EXTRA -DOPENSSL_ALL
-            -DHAVE_FFDHE_Q -DHAVE_FFDHE_2048 -DHAVE_FFDHE_3072 -DHAVE_FFDHE_4096
-            -DHAVE_FFDHE_6144 -DHAVE_FFDHE_8192 -DHAVE_DH_DEFAULT_PARAMS  -DHAVE_PUBLIC_FFDHE
-            -DHAVE_ECC -DTFM_ECC256 -DECC_SHAMIR -DHAVE_ECC_CDH -DECC_USER_CURVES
-            -DHAVE_ECC256 -DHAVE_ECC384 -DHAVE_ECC521 -DWOLFSSL_ECDSA_SET_K
-            -DWC_RSA_PSS -DWOLFSSL_KEY_GEN -DWC_RSA_NO_PADDING
-            -DWOLFSSL_AES_COUNTER -DHAVE_AESCCM -DHAVE_AES_ECB -DWOLFSSL_AES_DIRECT
-            -DWOLFSSL_AES_OFB -DHAVE_AESGCM -DGCM_TABLE_4BIT -DWOLFSSL_CMAC
-            -DWOLFSSL_SHA224 -DWOLFSSL_SHA512 -DWOLFSSL_SHA384 -DWOLFSSL_NO_SHAKE256
-            -DWOLFSSL_NOSHA512_224 -DWOLFSSL_NOSHA512_256 -DWOLFSSL_SHA3 -DHAVE_HKDF
-            -DNO_OLD_TLS -DNO_PSK -DNO_DO178
-            -DNO_RC4 -DNO_MD4 -DNO_MD5 -DNO_DES3 -DNO_DSA -DNO_RABBIT
+    add_definitions(
+            -DWOLFSSL_FIPS_READY -DHAVE_FIPS -DHAVE_FIPS_VERSION=7
+            -DHAVE_FIPS_VERSION_MAJOR=7 -DHAVE_FIPS_VERSION_MINOR=0
+            -DHAVE_FIPS_VERSION_PATCH=0 -DWC_RNG_SEED_CB -DHAVE_THREAD_LS
 
-            -DWOLFSSL_JNI -DHAVE_EX_DATA -DHAVE_OCSP -DHAVE_CRL_MONITOR
-            -DWOLFSSL_CERT_EXT -DWOLFSSL_CERT_GEN -DHAVE_SNI -DHAVE_ALPN
-            -DWOLFSSL_ENCRYPTED_KEYS -DNO_ERROR_QUEUE -DWOLFSSL_EITHER_SIDE
-            -DWOLFSSL_PSS_LONG_SALT -DWOLFSSL_TICKET_HAVE_ID
-            -DWOLFSSL_ERROR_CODE_OPENSSL -DWOLFSSL_EXTRA_ALERTS
-            -DWOLFSSL_FORCE_CACHE_ON_TICKET -DWOLFSSL_AKID_NAME -DHAVE_CTS
-            -DKEEP_PEER_CERT -DSESSION_CERTS
+            -DWOLFSSL_WOLFSSH -DNO_DO178 -DHAVE_REPRODUCIBLE_BUILD -DWC_NO_ASYNC_THREADING
+            -DNO_OLD_TLS -DWOLFSSL_TLS13 -DHAVE_TLS_EXTENSIONS -DHAVE_SNI
+            -DHAVE_KEYING_MATERIAL -DHAVE_TLS_EXTENSIONS -DHAVE_SUPPORTED_CURVES
+            -DHAVE_EXTENDED_MASTER -DHAVE_ENCRYPT_THEN_MAC -DWOLFSSL_JNI -DHAVE_EX_DATA
+            -DKEEP_PEER_CERT -DWOLFSSL_ALWAYS_VERIFY_CB -DWOLFSSL_DTLS -DOPENSSL_EXTRA
+            -DOPENSSL_ALL -DWOLFSSL_ERROR_CODE_OPENSSL -DHAVE_CRL -DHAVE_CRL_MONITOR
+            -DHAVE_OCSP -DPERSIST_SESSION_CACHE -DPERSIST_CERT_CACHE -DATOMIC_USER
+            -DWOLFSSL_CERT_EXT -DWOLFSSL_CERT_GEN -DWOLFSSL_CERT_REQ -DWOLFSSL_KEY_GEN
+            -DHAVE_ALPN -DWOLFSSL_ALT_CERT_CHAINS -DSESSION_CERTS -DWOLFSSL_ENCRYPTED_KEYS
+            -DWOLFSSL_SYS_CA_CERTS -DWOLFSSL_ALT_NAMES -DWOLFSSL_EITHER_SIDE
+            -DWOLFSSL_TICKET_HAVE_ID -DWOLFSSL_CERT_NAME_ALL
+            -DHAVE_SERVER_RENEGOTIATION_INFO -DWOLFSSL_ASN_TEMPLATE -DWOLFSSL_ASN_PRINT
+            -DWOLFSSL_BASE64_ENCODE -DERROR_QUEUE_PER_THREAD -DNO_ERROR_QUEUE
+            -DTFM_TIMING_RESISTANT -DECC_TIMING_RESISTANT -DWOLFSSL_USE_ALIGN
+            -DWOLFSSL_PUBLIC_MP
+
+            -DWC_RSA_BLINDING -DWC_RSA_PSS -DWOLFSSL_PSS_LONG_SALT -DWC_RSA_NO_PADDING
+
+            -DHAVE_ECC -DTFM_ECC256 -DECC_SHAMIR -DECC_MIN_KEY_SZ=192 -DHAVE_ECC_CDH
+            -DECC_USER_CURVES -DHAVE_ECC192 -DHAVE_ECC224 -DHAVE_ECC256 -DHAVE_ECC384
+            -DHAVE_ECC521 -DWOLFSSL_ECDSA_SET_K -DWOLFSSL_VALIDATE_ECC_IMPORT
+            -DWOLFSSL_VALIDATE_ECC_KEYGEN
+
+            -DWOLFSSL_VALIDATE_FFC_IMPORT -DHAVE_FFDHE_Q -DHAVE_FFDHE_2048
+            -DHAVE_FFDHE_3072 -DHAVE_FFDHE_4096 -DHAVE_FFDHE_6144 -DHAVE_FFDHE_8192
+            -DHAVE_DH_DEFAULT_PARAMS
+
+            -DHAVE_HKDF -DHAVE_PBKDF2 -DHAVE_HASHDRBG -DWC_SRTP_KDF -DWOLFSSL_SRTP
+
+            -DHAVE_AESGCM -DGCM_TABLE_4BIT -DWOLFSSL_AESGCM_STREAM -DHAVE_AESCCM
+            -DWOLFSSL_AES_COUNTER -DWOLFSSL_CMAC -DWOLFSSL_AES_OFB -DWOLFSSL_AES_CFB
+            -DWOLFSSL_AES_XTS -DWOLFSSL_AESXTS_STREAM -DWOLFSSL_AES_DIRECT
+            -DHAVE_AES_ECB -DHAVE_AES_KEYWRAP -DWOLFSSL_AES_XTS -DHAVE_AES_KEYWRAP
+
+            -DHAVE_ED25519 -DHAVE_ED25519_KEY_IMPORT -DHAVE_ED448 -DHAVE_ED448_KEY_IMPORT
+            -DWOLFSSL_ED448_STREAMING_VERIFY
+
+            -DHAVE_CURVE25519 -DHAVE_CURVE448
+
+            -DWOLFSSL_SHA224 -DWOLFSSL_SHA384 -DWOLFSSL_SHA512 -DWOLFSSL_NOSHA512_224
+            -DWOLFSSL_NOSHA512_256 -DWOLFSSL_SHA3 -DWOLFSSL_SHAKE128 -DWOLFSSL_SHAKE256
+
+            -DNO_DSA -DNO_RC4 -DNO_MD4 -DNO_DES3 -DNO_DES3_TLS_SUITES
+
             -DSIZEOF_LONG=4 -DSIZEOF_LONG_LONG=8
 
             # For gethostbyname()
@@ -174,7 +196,7 @@ elseif("${WOLFSSL_PKG_TYPE}" MATCHES "fipsready")
             # for wolfJSSE use.
             -DUSE_CERT_BUFFERS_2048 -DUSE_CERT_BUFFERS_256
             -DNO_WRITE_TEMP_FILES -DNO_MAIN_DRIVER
-        )
+    )
 endif()
 
 if ("$WOLFSSL_MATH_LIB" MATCHES "fastmath")
@@ -187,7 +209,8 @@ elseif("${WOLFSSL_MATH_LIB}" MATCHES "spmath")
             -DWOLFSSL_HAVE_SP_RSA -DWOLFSSL_SP_4096
             -DWOLFSSL_HAVE_SP_DH
             -DWOLFSSL_HAVE_SP_ECC -DWOLFSSL_SP_384 -DWOLFSSL_SP_521
-            -DWOLFSSL_SP_LARGE_CODE)
+            -DWOLFSSL_SP_LARGE_CODE
+            -DFP_MAX_BITS=16384 -DSP_INT_BITS=8192)
 
     # SP Math architecture-specific settings (ex: assembly optimizations)
     if("${ANDROID_ABI}" MATCHES "arm64-v8a")
@@ -223,7 +246,10 @@ list(REMOVE_ITEM TLS_SOURCES ${wolfssl_DIR}/src/ssl_bn.c)
 list(REMOVE_ITEM TLS_SOURCES ${wolfssl_DIR}/src/ssl_asn1.c)
 list(REMOVE_ITEM TLS_SOURCES ${wolfssl_DIR}/src/ssl_certman.c)
 list(REMOVE_ITEM TLS_SOURCES ${wolfssl_DIR}/src/ssl_crypto.c)
+list(REMOVE_ITEM TLS_SOURCES ${wolfssl_DIR}/src/ssl_load.c)
 list(REMOVE_ITEM TLS_SOURCES ${wolfssl_DIR}/src/ssl_misc.c)
+list(REMOVE_ITEM TLS_SOURCES ${wolfssl_DIR}/src/ssl_p7p12.c)
+list(REMOVE_ITEM TLS_SOURCES ${wolfssl_DIR}/src/ssl_sess.c)
 list(REMOVE_ITEM TLS_SOURCES ${wolfssl_DIR}/src/x509.c)
 list(REMOVE_ITEM TLS_SOURCES ${wolfssl_DIR}/src/x509_str.c)
 
@@ -238,16 +264,21 @@ elseif("${WOLFSSL_PKG_TYPE}" MATCHES "fipsready")
     list(APPEND CRYPTO_SOURCES ${wolfssl_DIR}/wolfcrypt/src/wolfcrypt_first.c)
     list(APPEND CRYPTO_SOURCES ${wolfssl_DIR}/wolfcrypt/src/hmac.c)
     list(APPEND CRYPTO_SOURCES ${wolfssl_DIR}/wolfcrypt/src/random.c)
-    list(APPEND CRYPTO_SOURCES ${wolfssl_DIR}/wolfcrypt/src/sha256.c)
     list(APPEND CRYPTO_SOURCES ${wolfssl_DIR}/wolfcrypt/src/kdf.c)
     list(APPEND CRYPTO_SOURCES ${wolfssl_DIR}/wolfcrypt/src/rsa.c)
     list(APPEND CRYPTO_SOURCES ${wolfssl_DIR}/wolfcrypt/src/ecc.c)
     list(APPEND CRYPTO_SOURCES ${wolfssl_DIR}/wolfcrypt/src/aes.c)
+    list(APPEND CRYPTO_SOURCES ${wolfssl_DIR}/wolfcrypt/src/sha256.c)
     list(APPEND CRYPTO_SOURCES ${wolfssl_DIR}/wolfcrypt/src/sha.c)
     list(APPEND CRYPTO_SOURCES ${wolfssl_DIR}/wolfcrypt/src/sha512.c)
     list(APPEND CRYPTO_SOURCES ${wolfssl_DIR}/wolfcrypt/src/sha3.c)
     list(APPEND CRYPTO_SOURCES ${wolfssl_DIR}/wolfcrypt/src/dh.c)
     list(APPEND CRYPTO_SOURCES ${wolfssl_DIR}/wolfcrypt/src/cmac.c)
+    list(APPEND CRYPTO_SOURCES ${wolfssl_DIR}/wolfcrypt/src/curve448.c)
+    list(APPEND CRYPTO_SOURCES ${wolfssl_DIR}/wolfcrypt/src/ed448.c)
+    list(APPEND CRYPTO_SOURCES ${wolfssl_DIR}/wolfcrypt/src/curve25519.c)
+    list(APPEND CRYPTO_SOURCES ${wolfssl_DIR}/wolfcrypt/src/ed25519.c)
+    list(APPEND CRYPTO_SOURCES ${wolfssl_DIR}/wolfcrypt/src/pwdbased.c)
     list(APPEND CRYPTO_SOURCES ${wolfssl_DIR}/wolfcrypt/src/fips.c)
     list(APPEND CRYPTO_SOURCES ${wolfssl_DIR}/wolfcrypt/src/fips_test.c)
     list(APPEND CRYPTO_SOURCES ${wolfssl_DIR}/wolfcrypt/src/wolfcrypt_last.c)
@@ -271,9 +302,18 @@ elseif("${WOLFSSL_PKG_TYPE}" MATCHES "fipsready")
     list(APPEND CRYPTO_SOURCES ${wolfssl_DIR}/wolfcrypt/src/memory.c)
     list(APPEND CRYPTO_SOURCES ${wolfssl_DIR}/wolfcrypt/src/asn.c)
     list(APPEND CRYPTO_SOURCES ${wolfssl_DIR}/wolfcrypt/src/coding.c)
+    list(APPEND CRYPTO_SOURCES ${wolfssl_DIR}/wolfcrypt/src/md5.c)
     list(APPEND CRYPTO_SOURCES ${wolfssl_DIR}/wolfcrypt/src/pwdbased.c)
     list(APPEND CRYPTO_SOURCES ${wolfssl_DIR}/wolfcrypt/src/pkcs12.c)
     list(APPEND CRYPTO_SOURCES ${wolfssl_DIR}/wolfcrypt/src/tfm.c)
+    list(APPEND CRYPTO_SOURCES ${wolfssl_DIR}/wolfcrypt/src/wc_lms.c)
+    list(APPEND CRYPTO_SOURCES ${wolfssl_DIR}/wolfcrypt/src/wc_lms_impl.c)
+    list(APPEND CRYPTO_SOURCES ${wolfssl_DIR}/wolfcrypt/src/wc_xmss.c)
+    list(APPEND CRYPTO_SOURCES ${wolfssl_DIR}/wolfcrypt/src/wc_xmss_impl.c)
+    list(APPEND CRYPTO_SOURCES ${wolfssl_DIR}/wolfcrypt/src/fe_operations.c)
+    list(APPEND CRYPTO_SOURCES ${wolfssl_DIR}/wolfcrypt/src/ge_operations.c)
+    list(APPEND CRYPTO_SOURCES ${wolfssl_DIR}/wolfcrypt/src/fe_448.c)
+    list(APPEND CRYPTO_SOURCES ${wolfssl_DIR}/wolfcrypt/src/ge_448.c)
 endif()
 
 # wolfSSL will be compiled as a SHARED library
