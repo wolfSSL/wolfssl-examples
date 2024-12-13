@@ -145,7 +145,7 @@ See [PKCS11.md](./PKCS11.md) in this folder.
     ./configure
     make && sudo make install
     ./examples/init_token
-    export WOLFPKCS11_DIR=.
+    export WOLFPKCS11_DIR=$(pwd)
     ```
 
 2. Change to wolfssl directory
@@ -156,7 +156,7 @@ See [PKCS11.md](./PKCS11.md) in this folder.
     make
     sudo make install
     ```
-    It should be noted WOLFSSL_PKCS11_RW_TOKENS is only needed for adding the keys and certs to the store. Once already in the store this is not longer needed.
+    It should be noted WOLFSSL_PKCS11_RW_TOKENS is only needed for adding the keys and certs to the store. Once already in the store this is no longer needed.
 
 
 ## TLS Server Example with SoftHSM (RSA)
@@ -217,9 +217,11 @@ The example `server-tls-pkcs11` is a server that uses a private key and optional
     ```
 
 2. Run server and client
+
     `WOLFPKCS11_TOKEN_PATH=$WOLFPKCS11_DIR ./server-tls-pkcs11 -lib $WOLFPKCS11_DIR/src/.libs/libwolfpkcs11.so -tokenName wolfpkcs11 -userPin wolfpkcs11-test -privKeyId server-rsa2048 -certId server-rsa2048-id`
 
     From wolfssl root:
+
     `./examples/client/client`
 
 
