@@ -26,6 +26,12 @@
  * is not thread safe as access to global objects is not protected.
  *
  * Define USE_DTLS12 to use DTLS 1.2 instead of DTLS 1.3
+ *
+ * NOTE: we no longer recommend using `connect` on sockets on the server side.
+ * The Linux kernel only filters `connect`ed sockets on message ingress. This
+ * results in lost packets between when the messages are received and when
+ * `connect` is called. We recommend using one socket and de-multiplexing. See
+ * the server-dtls-demux.c example for how to do this.
  */
 
 #include <wolfssl/options.h>
