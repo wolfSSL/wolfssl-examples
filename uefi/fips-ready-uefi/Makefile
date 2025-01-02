@@ -1,0 +1,76 @@
+BUILD_DIR=./build
+CRYPTO_SRC=./wolfssl/wolfcrypt/src
+CFLAGS=-fpie -ffreestanding -fno-stack-protector -fno-stack-check -fshort-wchar -mno-red-zone -maccumulate-outgoing-args -static-libgcc -nostdlib
+CFLAGS+=-DWOLFSSL_USER_SETTINGS
+CFLAGS+=-I./wolfssl/ -I. -I/usr/include/efi -I/usr/include/efi/x86_64
+CFLAGS+=-ggdb
+CC=gcc
+LD=ld
+LDFLAGS_START=-static -pie --no-dynamic-linker -Bsymbolic -L/usr/lib -L/usr/lib/gcc/x86_64-linux-gnu/10/ -Lgnu-efi-dir/x86_64/gnuefi -T/usr/lib/elf_x86_64_efi.lds /usr/lib/crt0-efi-x86_64.o $(LDFLAGS)
+LDFLAGS_END=-lgnuefi -lefi -lgcc
+
+# New VPATH and IPATH system
+VPATH = .
+VPATH += src
+VPATH += wolfssl/src
+VPATH += wolfssl/wolfcrypt/src
+VPATH += wolfssl/wolfcrypt/test
+VPATH += wolfssl/wolfcrypt/benchmark
+
+VPATH := $(VPATH)
+
+IPATH = .
+IPATH += include
+IPATH += wolfssl
+IPATH := $(IPATH)
+
+CFLAGS += $(addprefix -I, $(IPATH))
+
+# Auto-detect sources
+AUTOSEARCH ?= 1
+ifeq ($(AUTOSEARCH), 1)
+SRCS += $(wildcard $(addsuffix /*.c, $(VPATH)))
+SRCS += $(wildcard $(addsuffix /*.cpp, $(VPATH)))
+endif
+
+# Object files
+_OBJS=$(SRCS:.c=.o)
+OBJS=$(addprefix $(BUILD_DIR)/,$(notdir $(_OBJS)))
+
+$(shell mkdir -p $(BUILD_DIR))
+
+all: check_wolfssl wolfcrypt.efi
+
+.PHONY: check_wolfssl
+check_wolfssl:
+	@if [ ! -d "wolfssl" ]; then \
+	    echo "Error: 'wolfssl' directory does not exist."; \
+	    exit 1; \
+	fi
+
+.PHONY: wolfssl-dir
+wolfssl-dir:
+	@read -p "Please provide the path to the wolfSSL directory: " dir_path; \
+	dir_path=$$(eval echo $$dir_path); \
+	if [ -d "$$dir_path" ]; then \
+	    ln -sf $$dir_path wolfssl; \
+	    echo "Symlink created: 'wolfssl' -> $$dir_path"; \
+	else \
+	    echo "Error: Provided path '$$dir_path' is not a valid directory."; \
+	    exit 1; \
+	fi
+
+create_build_dir:
+	@if [ ! -d $(BUILD_DIR) ]; then mkdir -p $(BUILD_DIR); fi
+
+$(BUILD_DIR)/wolfcrypt.elf: $(OBJS)
+	$(LD) $(LDFLAGS_START) $(OBJS) -o $(BUILD_DIR)/wolfcrypt.elf $(LDFLAGS_END)
+
+wolfcrypt.efi: $(BUILD_DIR)/wolfcrypt.elf
+	objcopy -j .text -j .sdata -j .data -j .dynamic -j .dynsym  -j .rel -j .rela -j .rel.* -j .rela.* -j .reloc --target efi-app-x86_64 --subsystem=10 $(BUILD_DIR)/wolfcrypt.elf wolfcrypt.efi
+
+$(BUILD_DIR)/%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+clean:
+	rm -rf $(BUILD_DIR) wolfcrypt.efi
