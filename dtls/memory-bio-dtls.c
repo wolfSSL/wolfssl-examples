@@ -1,6 +1,6 @@
 /* memory-bio-dtls.c
  *
- * Copyright (C) 2006-2020 wolfSSL Inc.
+ * Copyright (C) 2006-2025 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -22,11 +22,18 @@
 
 /* in memory TLS connection with I/O callbacks, no sockets
  *
- gcc -Wall memory-tls.c  -l wolfssl -lpthread
+./configure --enable-opensslall --enable-dtls --enable-dtls13 --enable-debug
+make
+sudo make install
 
+gcc -o memory-bio-dtls -Wall memory-bio-dtls.c  -lwolfssl -lpthread
 */
 
+
+#ifndef WOLFSSL_USER_SETTINGS
 #include <wolfssl/options.h>
+#endif
+
 #include <wolfssl/ssl.h>
 
 #include <stdio.h>
@@ -43,10 +50,16 @@ static void err_sys(const char* msg)
     exit(1);
 }
 
+#ifndef NO_RSA
+#define CERT_FILE   "../certs/server-cert.pem"
+#define KEY_FILE    "../certs/server-key.pem"
+#define CA_FILE     "../certs/ca-cert.pem"
+#else
+#define CERT_FILE   "../certs/server-ecc.pem"
+#define KEY_FILE    "../certs/ecc-key.pem"
+#define CA_FILE     "../certs/ca-ecc-cert.pem"
+#endif
 
-#define key "../certs/server-key.pem"
-#define cert "../certs/server-cert.pem"
-#define cacert "../certs/ca-cert.pem"
 
 typedef struct IO_HANDLES {
     WOLFSSL_BIO* rbio;
@@ -64,16 +77,16 @@ static void* client_thread(void* args)
     /* set up client */
     cli_ctx = wolfSSL_CTX_new(
 #ifdef WOLFSSL_DTLS13
-            wolfDTLSv1_3_client_method()
+        wolfDTLSv1_3_client_method()
 #else
-            wolfDTLSv1_2_client_method()
+        wolfDTLSv1_2_client_method()
 #endif
     );
     if (cli_ctx == NULL) {
         err_sys("bad client ctx new");
     }
 
-    ret = wolfSSL_CTX_load_verify_locations(cli_ctx, cacert, NULL);
+    ret = wolfSSL_CTX_load_verify_locations(cli_ctx, CA_FILE, NULL);
     if (ret != WOLFSSL_SUCCESS) {
         err_sys("bad ca load");
     }
@@ -84,23 +97,26 @@ static void* client_thread(void* args)
     }
 
     wolfSSL_set_bio(cli_ssl, io->wbio, io->rbio);
+
+#if 1
     err = 0;
     do {
         sem_wait(&io->bioSem);
         ret = wolfSSL_connect(cli_ssl);
         sem_post(&io->bioSem);
-        err =  wolfSSL_get_error(cli_ssl, ret);
-    } while (ret != WOLFSSL_SUCCESS && 
+        err = wolfSSL_get_error(cli_ssl, ret);
+    } while (ret != WOLFSSL_SUCCESS &&
       ((err ==  WOLFSSL_ERROR_WANT_READ) || (err == WOLFSSL_ERROR_WANT_WRITE)));
     if (ret != WOLFSSL_SUCCESS) err_sys("bad client tls connect");
     printf("wolfSSL client success!\n");
+#endif
 
     do {
         sem_wait(&io->bioSem);
         ret = wolfSSL_write(cli_ssl, "hello memory wolfSSL!", 21);
         sem_post(&io->bioSem);
-        err =  wolfSSL_get_error(cli_ssl, ret);
-    } while (ret <= 0 && 
+        err = wolfSSL_get_error(cli_ssl, ret);
+    } while (ret <= 0 &&
       ((err ==  WOLFSSL_ERROR_WANT_READ) || (err == WOLFSSL_ERROR_WANT_WRITE)));
 
     /* clean up, wolfSSL_free would also free the WOLFSSL_BIO's so set as NULL
@@ -120,7 +136,14 @@ int main()
     int ret, err;
     WOLFSSL_CTX* srv_ctx = NULL;
     WOLFSSL* srv_ssl     = NULL;
+    WOLFSSL_CIPHER* cipher;
+    const char *name;
     pthread_t tid;
+
+#if 0
+    wolfSSL_Debugging_ON();
+#endif
+    wolfSSL_Init();
 
     io.rbio = wolfSSL_BIO_new(wolfSSL_BIO_s_mem());
     io.wbio = wolfSSL_BIO_new(wolfSSL_BIO_s_mem());
@@ -136,12 +159,12 @@ int main()
     );
     if (srv_ctx == NULL) err_sys("bad server ctx new");
 
-    ret = wolfSSL_CTX_use_PrivateKey_file(srv_ctx, key, WOLFSSL_FILETYPE_PEM);
+    ret = wolfSSL_CTX_use_PrivateKey_file(srv_ctx, KEY_FILE, WOLFSSL_FILETYPE_PEM);
     if (ret != WOLFSSL_SUCCESS) {
         err_sys("bad server key file load");
     }
 
-    ret = wolfSSL_CTX_use_certificate_file(srv_ctx, cert, WOLFSSL_FILETYPE_PEM);
+    ret = wolfSSL_CTX_use_certificate_file(srv_ctx, CERT_FILE, WOLFSSL_FILETYPE_PEM);
     if (ret != WOLFSSL_SUCCESS) {
         err_sys("bad server cert file load");
     }
@@ -157,17 +180,25 @@ int main()
     /* start client thread */
     pthread_create(&tid, 0, client_thread, (void*)&io);
 
+#if 1
     /* accept tls connection without tcp sockets */
     err = 0;
     do {
         sem_wait(&io.bioSem);
         ret = wolfSSL_accept(srv_ssl);
         sem_post(&io.bioSem);
-        err =  wolfSSL_get_error(srv_ssl, ret);
-    } while (ret != WOLFSSL_SUCCESS && 
+        err = wolfSSL_get_error(srv_ssl, ret);
+    } while (ret != WOLFSSL_SUCCESS &&
       ((err ==  WOLFSSL_ERROR_WANT_READ) || (err == WOLFSSL_ERROR_WANT_WRITE)));
     if (ret != WOLFSSL_SUCCESS) err_sys("bad server tls accept");
     printf("wolfSSL accept success!\n");
+
+    printf("Version: %s\n", wolfSSL_get_version(srv_ssl));
+    cipher = wolfSSL_get_current_cipher(srv_ssl);
+    printf("Cipher Suite: %s\n", wolfSSL_CIPHER_get_name(cipher));
+    if ((name = wolfSSL_get_curve_name(srv_ssl)) != NULL)
+        printf("Curve: %s\n", name);
+#endif
 
     /* read msg post handshake from client */
     memset(buf, 0, sizeof(buf));
@@ -175,8 +206,8 @@ int main()
         sem_wait(&io.bioSem);
         ret = wolfSSL_read(srv_ssl, buf, sizeof(buf)-1);
         sem_post(&io.bioSem);
-        err =  wolfSSL_get_error(srv_ssl, ret);
-    } while (ret != 0 && 
+        err = wolfSSL_get_error(srv_ssl, ret);
+    } while (ret != 0 &&
       ((err ==  WOLFSSL_ERROR_WANT_READ) || (err == WOLFSSL_ERROR_WANT_WRITE)));
     if (ret >= 0) {
         printf("client msg = %s\n", buf);
@@ -189,6 +220,7 @@ int main()
     wolfSSL_free(srv_ssl); /* This also does free on rbio and wbio */
     wolfSSL_CTX_free(srv_ctx);
 
+    wolfSSL_Cleanup();
+
     return 0;
 }
-
