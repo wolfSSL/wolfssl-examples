@@ -1276,7 +1276,7 @@ Example Output:
 250-CHUNKING
 250 SMTPUTF8
 
-334 VXNlcm5hbWU6
+334 .....
 
 Mail Address
 
@@ -1296,7 +1296,7 @@ Mail Address
 
 220 2.0.0 Ready to start TLS
 
-334 VXNlcm5hbWU6
+334 .....
 
 Mail Address:
 

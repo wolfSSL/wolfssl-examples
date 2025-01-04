@@ -1,6 +1,6 @@
 /* client-tls-smtp-starttls.c
  *
- * Copyright (C) 2006-2023 wolfSSL Inc.
+ * Copyright (C) 2006-2025 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -65,7 +65,7 @@ const char* starttlsCmd[21] = {
 int main(int argc, char** argv)
 {
     int                sockfd;
-    struct addrinfo hints,*res;
+    struct addrinfo hints, *res;
     char               buff[512], plain[512];
     size_t             len;
     int                ret;
@@ -90,7 +90,7 @@ int main(int argc, char** argv)
     char *service = "587";         /* use port 587 as a default */
 
     /* Get a Domain IP address */
-    if(getaddrinfo(argv[1], service, &hints, &res) != 0){
+    if (getaddrinfo(argv[1], service, &hints, &res) != 0) {
         fprintf(stderr, "ERROR: failed to get the server ip\n");
         ret = -1;
         goto end;
@@ -114,7 +114,7 @@ int main(int argc, char** argv)
 
     /* S: 220 <host> SMTP service ready */
     memset(buff, 0, sizeof(buff));
-    if (recv(sockfd, buff, sizeof(buff)-1, 0) < 0){
+    if (recv(sockfd, buff, sizeof(buff)-1, 0) < 0) {
         fprintf(stderr, "failed to read STARTTLS command\n");
         goto end;
     }
@@ -129,14 +129,14 @@ int main(int argc, char** argv)
 
     /* C: EHLO mail.example.com */
     if (send(sockfd, starttlsCmd[1], (int)strlen(starttlsCmd[1]), 0) !=
-              (int)strlen(starttlsCmd[1])){
+              (int)strlen(starttlsCmd[1])) {
         fprintf(stderr, "failed to send STARTTLS EHLO command\n");
         goto end;
     }
 
     /* S: 250 <host> offers a warm hug of welcome */
     memset(buff, 0, sizeof(buff));
-    if (recv(sockfd, buff, sizeof(buff)-1, 0) < 0){
+    if (recv(sockfd, buff, sizeof(buff)-1, 0) < 0) {
         fprintf(stderr, "failed to read STARTTLS command\n");
         goto end;
     }
@@ -158,7 +158,7 @@ int main(int argc, char** argv)
 
     /* S: 220 Go ahead */
     memset(buff, 0, sizeof(buff));
-    if (recv(sockfd, buff, sizeof(buff)-1, 0) < 0){
+    if (recv(sockfd, buff, sizeof(buff)-1, 0) < 0) {
         fprintf(stderr, "failed to read STARTTLS command\n");
         goto end;
     }
@@ -247,14 +247,14 @@ int main(int argc, char** argv)
         goto cleanup;
     }
     /* Get the right mail address length */
-    for(len=0; len<sizeof(plain); len++){
-        if(plain[len] == '\n') break;
+    for (len=0; len<sizeof(plain); len++) {
+        if (plain[len] == '\n') break;
     }
 
     /* Encode the mail to Base64 */
     outLen = sizeof(buff);
     memset(buff, 0, sizeof(buff));
-    if(Base64_Encode((unsigned char*) plain, len, (unsigned char*) buff, &outLen) !=0){
+    if (Base64_Encode((unsigned char*) plain, len, (unsigned char*) buff, &outLen) !=0) {
         fprintf(stderr, "ERROR: failed to encode the mail address.\n");
         ret = -1;
         goto cleanup;
@@ -296,14 +296,14 @@ int main(int argc, char** argv)
         goto cleanup;
     }
     /* Get the right password length */
-    for(len=0; len<sizeof(plain); len++){
-        if(plain[len] == '\n') break;
+    for (len=0; len<sizeof(plain); len++) {
+        if (plain[len] == '\n') break;
     }
 
     /* Encode the password to Base64 */
     outLen = sizeof(buff);
     memset(buff, 0, sizeof(buff));
-    if(Base64_Encode((unsigned char*) plain, len, (unsigned char*) buff, &outLen) !=0){
+    if (Base64_Encode((unsigned char*) plain, len, (unsigned char*) buff, &outLen) !=0) {
         fprintf(stderr, "ERROR: failed to encode the mail address.\n");
         ret = -1;
         goto cleanup;
