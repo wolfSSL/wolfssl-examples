@@ -12,6 +12,7 @@ typedef enum {
     READ,
     WRITE,
     READWRITE,
+    OPENDIR,
     NONE,
     NULL_ARG,
 } FILE_OPS;
@@ -29,6 +30,11 @@ int uefi_random_gen(char* output, unsigned int sz);
 
 
 /* Memory Allocation Functions */
+
+void *uefi_malloc_wolfssl(size_t n);
+void *uefi_realloc_wolfssl(void* ptr, size_t n);
+void uefi_free_wolfssl(void* ptr);
+
 void *XMALLOC(size_t n, void* heap, int type);
 void *XREALLOC(void *p, size_t n, void* heap, int type);
 void XFREE(void *p, void* heap, int type);
@@ -78,12 +84,7 @@ int stat(const char* path, struct stat* buf);
 int uefi_fprintf(FILE* stream, const char* format, ...);
 void uefi_strerr(const char* message);
 int uefi_vsnprintf(char* buffer, size_t size, const char* format, va_list args);
-
-
-
-
-
-
-
+int uefi_snprintf_wolfssl(char* buffer, size_t n,
+                          const char* format, ...);
 
 #endif

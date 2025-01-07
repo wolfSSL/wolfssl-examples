@@ -17,7 +17,8 @@
 #define NO_PWDBASED
 #define WOLFSSL_DH_CONST /* No pow or log function avaliable */
 #define NO_ERROR_STRINGS
-#define XSNPRINTF(_buf_, _size_, _fmt_, ...) SPrint((_buf_), (_size_), L##_fmt_, ##__VA_ARGS__)
+extern int uefi_snprintf_wolfssl(char* restrict buffer, int n, const char* restrict format, ...);
+#define XSNPRINTF(_buf_, _size_, _fmt_, ...) uefi_snprintf_wolfssl((_buf_), (_size_), L##_fmt_, ##__VA_ARGS__)
 extern int uefi_printf_wolfssl(const char*, ...);
 #define XPRINTF uefi_printf_wolfssl
 #if 1
@@ -77,7 +78,7 @@ extern void fipsEntry(void);
     #define WC_RNG_SEED_CB
 
     #undef WOLFCRYPT_FIPS_CORE_HASH_VALUE
-    #define WOLFCRYPT_FIPS_CORE_HASH_VALUE A7A081C13719C5B6960A60CC4E2FCB231E60453430CBB92D546899FC9666C65B
+    #define WOLFCRYPT_FIPS_CORE_HASH_VALUE A6A081C13719C5B6960A60CC4E2FCB231E60453430CBB92D546899FC9666C65B
 
 #endif
 
@@ -499,7 +500,7 @@ extern void fipsEntry(void);
 
 
 /* Section for FIPS validation testing only, disable for production */
-#if 1
+#if 0
     //#define NO_CAVP_TDES
     //#define USE_NORMAL_PRINTF
     //#define USE_NORMAL_SCAN

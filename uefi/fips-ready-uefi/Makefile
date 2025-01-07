@@ -6,7 +6,7 @@ CFLAGS+=-I./wolfssl/ -I. -I/usr/include/efi -I/usr/include/efi/x86_64
 CFLAGS+=-ggdb
 CC=gcc
 LD=ld
-LDFLAGS_START=-static -pie --no-dynamic-linker -Bsymbolic -L/usr/lib -L/usr/lib/gcc/x86_64-linux-gnu/10/ -Lgnu-efi-dir/x86_64/gnuefi -T/usr/lib/elf_x86_64_efi.lds /usr/lib/crt0-efi-x86_64.o $(LDFLAGS)
+LDFLAGS_START=-static -pie --no-dynamic-linker -Bsymbolic -L/usr/lib -L/usr/lib/gcc/x86_64-linux-gnu/12/ -Lgnu-efi-dir/x86_64/gnuefi -T/usr/lib/elf_x86_64_efi.lds /usr/lib/crt0-efi-x86_64.o $(LDFLAGS)
 LDFLAGS_END=-lgnuefi -lefi -lgcc
 
 # New VPATH and IPATH system

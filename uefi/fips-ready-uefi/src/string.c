@@ -67,11 +67,7 @@ int strcmp(const char *s1, const char *s2)
 {
     int diff = 0;
 
-    while (!diff && *s1) {
-        diff = (int)*s1 - (int)*s2;
-        s1++;
-        s2++;
-    }
+    diff = strcmpa(s1, s2);
 
     return diff;
 }
@@ -112,21 +108,21 @@ int strncasecmp(const char *s1, const char *s2, size_t n)
     return diff;
 }
 
-char *strncat(char *dest, const char *src, size_t n)
-{
-    size_t i = 0;
-    size_t j = strlen(dest);
+char *strncat(char *dest, const char *src, size_t n) {
+    size_t dest_len = strlen(dest);
+    size_t i;
 
-    for (i = 0; i < strlen(src); i++) {
-        if (j >= (n - 1)) {
-            break;
-        }
-        dest[j++] = src[i];
+    /* Copy at most n characters from src */
+    for (i = 0; i < n && src[i] != '\0'; i++) {
+        dest[dest_len + i] = src[i];
     }
-    dest[j] = '\0';
+
+    /* Null-terminate the resulting string */
+    dest[dest_len + i] = '\0';
 
     return dest;
 }
+
 
 int strncmp(const char *s1, const char *s2, size_t n)
 {
@@ -201,12 +197,21 @@ void* memchr(void const *s, int c_in, size_t n)
 
 size_t strlen(const char *s)
 {
-    size_t i = 0;
+    return strlena(s);
+}
 
-    while (s[i] != 0)
-        i++;
 
-    return i;
+size_t strnlen(const char *s, size_t maxlen)
+{
+
+    size_t len = 0;
+
+    while (len < maxlen && s[len] != '\0') {
+        len++;
+    }
+
+    return len;
+
 }
 
 void *memmove(void *dst, const void *src, size_t n)
@@ -224,4 +229,92 @@ void *memmove(void *dst, const void *src, size_t n)
     } else {
         return memcpy(dst, src, n);
     }
+}
+
+
+char* strchr(const char *str, int c)
+{
+    while (*str != '\0') {
+        if (*str == (char)c) {
+            return (char *)str;  /* Return pointer to the character */
+        }
+        str++;
+    }
+
+    /* Check for the null terminator if c is '\0' */
+    if (c == '\0') {
+        return (char *)str;
+    }
+
+    return NULL;  /* Character not found */
+}
+
+double strtod(const char *str, char **endptr) {
+    double result = 0.0;
+    int sign = 1;
+    double fraction = 0.0;
+    int fractional_divisor = 1;
+    int has_fraction = 0;
+
+    /* Skip leading whitespace */
+    while (*str == ' ' || *str == '\t' || *str == '\n') {
+        str++;
+    }
+
+    /* Handle sign */
+    if (*str == '-') {
+        sign = -1;
+        str++;
+    } else if (*str == '+') {
+        str++;
+    }
+
+    /* Convert integer part */
+    while (*str >= '0' && *str <= '9') {
+        result = result * 10.0 + (*str - '0');
+        str++;
+    }
+
+    /* Check for fractional part */
+    if (*str == '.') {
+        str++;
+        has_fraction = 1;
+
+        /* Convert fractional part */
+        while (*str >= '0' && *str <= '9') {
+            fraction = fraction * 10.0 + (*str - '0');
+            fractional_divisor *= 10;
+            str++;
+        }
+
+        result += fraction / fractional_divisor;
+    }
+
+    /* Check for scientific notation */
+    if (*str == 'e' || *str == 'E') {
+        str++;
+        int exp_sign = 1;
+        int exponent = 0;
+
+        if (*str == '-') {
+            exp_sign = -1;
+            str++;
+        } else if (*str == '+') {
+            str++;
+        }
+
+        while (*str >= '0' && *str <= '9') {
+            exponent = exponent * 10 + (*str - '0');
+            str++;
+        }
+
+        result *= pow(10, exp_sign * exponent);
+    }
+
+    /* Set endptr if provided */
+    if (endptr) {
+        *endptr = (char *)str;
+    }
+
+    return sign * result;
 }

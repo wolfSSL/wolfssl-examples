@@ -8,6 +8,9 @@
 #include <utility_wolf.h>
 
 
+#ifndef WOLFSSL_USER_SETTINGS
+    #error "USER SETTINGS not set"
+#endif
 
 #ifndef WAIT_FOR_GDB
 #define WAIT_FOR_GDB 0
@@ -18,7 +21,6 @@
 
 
 EFI_LOADED_IMAGE *loaded_image;
-
 
 
 EFI_STATUS
