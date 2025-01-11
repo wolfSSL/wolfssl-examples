@@ -82,7 +82,7 @@ int main(int argc, char** argv)
         ret = -1;
         goto end;
     }
- 
+
     /* Connect to the server */
     if ((ret = connect(sockfd, (struct sockaddr*) &servAddr, sizeof(servAddr)))
          == -1) {
