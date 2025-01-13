@@ -102,7 +102,6 @@ int uefi_vsnprintf_wolfssl(char* buffer, size_t size, const char* format,
     char* tempFormat = NULL;
     va_list argsCpy;
     va_copy(argsCpy, args);
-    /* Use MSG_BUFFER_TMP since we cannot predict size of arguments given */
     unsigned int fmtSize = strlena(format);
 #ifdef UEFI_VECTOR_TEST
     int check = 1;
@@ -123,29 +122,34 @@ int uefi_vsnprintf_wolfssl(char* buffer, size_t size, const char* format,
     /* Need to replace certain charaters */
     parseAndReplace(format, tempFormat, "%s", "%a");
 
+/* Needed to run benchmark utility */
 #ifdef UEFI_BENCHMARK
-    parseAndReplace(tempFormat, tempFormat, "%8s", "%a");
-    parseAndReplace(tempFormat, tempFormat, "%15s", "%-a");
-    parseAndReplace(tempFormat, tempFormat, "%-2s", "%-a");
-    parseAndReplace(tempFormat, tempFormat, "%-5s", "%-a");
-    parseAndReplace(tempFormat, tempFormat, "%-6s", "%-a");
-    parseAndReplace(tempFormat, tempFormat, "%-9s", "%-a");
-    parseAndReplace(tempFormat, tempFormat, "%-16s", "%-a");
-    parseAndReplace(tempFormat, tempFormat, "%-24s", "%-a");
+    parseAndReplace(tempFormat, tempFormat, "%8s", "%8a");
+    parseAndReplace(tempFormat, tempFormat, "%15s", "%15a");
+    parseAndReplace(tempFormat, tempFormat, "%-2s", "%-2a");
+    parseAndReplace(tempFormat, tempFormat, "%-5s", "%-5a");
+    parseAndReplace(tempFormat, tempFormat, "%-6s", "%-6a");
+    parseAndReplace(tempFormat, tempFormat, "%-9s", "%-9a");
+    parseAndReplace(tempFormat, tempFormat, "%-16s", "%-16a");
+    parseAndReplace(tempFormat, tempFormat, "%-24s", "%-24a");
 #endif
 
-
+/* Needed for Internal vector tests */
 #ifdef UEFI_VECTOR_TEST
     check = parseAndReplace(tempFormat, tempFormat, "%1.15g", "%1.0f");
     check = parseAndReplace(tempFormat, tempFormat, "%1.17g", "%1.0f");
 #endif
+
     /* Pass the variadic arguments to AsciiVSPrintf */
     result = (int)AsciiVSPrint(buffer, size, tempFormat, args);
+
+    /* Needed for internal vector tests */
 #ifdef UEFI_VECTOR_TEST
     if (check == 0) {
         parseAndReplace(buffer, buffer, ".0", " \b");
     }
 #endif
+
     va_end(argsCpy);
     XFREE(tempFormat, NULL, DYNAMIC_TYPE_TMP_BUFFER);
     return result;
@@ -155,7 +159,6 @@ int uefi_snprintf_wolfssl(char* buffer, size_t n, const char* format, ...)
 {
     int result;
     char* tempFormat = NULL;
-    /* Use MSG_BUFFER_TMP since we cannot predict size of arguments given */
     va_list args;
     if (buffer == NULL || format == NULL) {
         AsciiPrint("Null Buffer given to snprintf");
@@ -165,7 +168,9 @@ int uefi_snprintf_wolfssl(char* buffer, size_t n, const char* format, ...)
     /* Initialize args to store all values after 'format' */
     va_start(args, format);
 
+    /* Just pass to vsnprintf */
     result = uefi_vsnprintf_wolfssl(buffer, n, format, args);
+
     /* Clean up the va_list */
     va_end(args);
 
@@ -179,7 +184,7 @@ int uefi_printf_wolfssl(const char* msg, ...)
     va_list args, argsCpy;
     char* temp = NULL;
     size_t size;
-    /* Use MSG_BUFFER_TMP since we cannot predict size of arguments given */
+
     if (msg == NULL) {
         AsciiPrint("NULL sent to uefi_printf_wolfssl");
         return -1;
@@ -189,6 +194,7 @@ int uefi_printf_wolfssl(const char* msg, ...)
     va_start(args, msg);
     va_copy(argsCpy, args);
 
+    /* Estimate needed buffer and add a temp size for args */
     size = ((strlen(msg) + calculateBufferSize(msg, argsCpy) + MSG_BUFFER_TMP));
 
     temp = (char*)XMALLOC(size*sizeof(char), NULL, DYNAMIC_TYPE_TMP_BUFFER);
@@ -197,6 +203,7 @@ int uefi_printf_wolfssl(const char* msg, ...)
         return -1;
     }
 
+    /* Pass to vsnprintf */
     uefi_vsnprintf_wolfssl(temp, size, msg, args);
 
     /* Use AsciiPrint to print the formatted message */
@@ -216,7 +223,7 @@ int uefi_vprintf_wolfssl(const char* msg, va_list args)
     int size = 0;
     char* temp = NULL;
     va_list argsCpy;
-    /* Use MSG_BUFFER_TMP since we cannot predict size of arguments given */
+
     if (msg == NULL) {
         AsciiPrint("NULL sent to uefi_vprintf_wolfssl");
         return -1;
@@ -225,6 +232,7 @@ int uefi_vprintf_wolfssl(const char* msg, va_list args)
     /* Initialize variadic argument list */
     va_copy(argsCpy, args);
 
+    /* Estimate needed buffer and add a temp size for args */
     size = ((strlen(msg)+calculateBufferSize(msg, argsCpy)+MSG_BUFFER_TMP));
 
     temp = (char*)XMALLOC(size*sizeof(char), NULL, DYNAMIC_TYPE_TMP_BUFFER);
@@ -253,7 +261,7 @@ int uefi_fprintf_wolfssl(FILE* stream, const char* format, ...)
         return -1;
     }
 
-    AsciiPrint("Inside custom fprintf\n");
+    AsciiPrint("fPrintf() Not Implemented\n");
 
     va_list args;
     va_start(args, format);
@@ -265,7 +273,7 @@ int uefi_fprintf_wolfssl(FILE* stream, const char* format, ...)
 
 /* Helper function to write an integer to the stream */
 static int write_integer(FILE* stream, int value) {
-    char buffer[12]; /* Enough to store a 32-bit int as a string */
+    char buffer[12];
     int len = 0;
 
     if (value < 0) {
@@ -319,6 +327,7 @@ void char8_to_char16_ex(const char* str8, char16_t* str16, int n)
     return;
 }
 
+/* Returns the filesize of given handle */
 uint64_t fileSize(EFI_FILE_HANDLE FileHandle)
 {
     uint64_t ret;
@@ -1235,7 +1244,6 @@ unsigned long convertToEpochUefi(EFI_TIME ts)
 int uefi_timeStruct_wolfssl(EFI_TIME* timeStruct)
 {
     EFI_STATUS status;
-    //EFI_RUNTIME_SERVICES timeService;
 
     status = uefi_call_wrapper(RT->GetTime, 2, timeStruct, NULL);
     if (EFI_ERROR(status)) {
@@ -1316,35 +1324,6 @@ double current_time(int reset)
     return seconds;
 }
 
-
-
-
-
-
-
-
-double pow(double base, int exp) {
-    double result = 1.0;
-
-    /* Handle negative exponents */
-    if (exp < 0) {
-        base = 1.0 / base;
-        exp = -exp;
-    }
-
-    /* Iterative exponentiation */
-    while (exp) {
-        if (exp % 2 == 1) {  /* If the exponent is odd */
-            result *= base;
-        }
-        base *= base;  /* Square the base */
-        exp /= 2;      /* Reduce the exponent by half */
-    }
-
-    return result;
-}
-
-
 /* Need to convert to wide char buffer before we can send it to atoi for uefi */
 int atoi(const char *str)
 {
@@ -1383,9 +1362,8 @@ int uefi_strncmp_wolfssl(const char *s1, const char *s2, size_t n)
     int ret = -1;
     char16_t* s1_temp;
     char16_t* s2_temp;
-
-    int s1_len = n*sizeof(char16_t);
-    int s2_len = n*sizeof(char16_t);
+    int s1_len;
+    int s2_len;
 
     if (s1 == NULL || s2 == NULL) {
         uefi_printf_wolfssl("Null Args to strncmp\n");

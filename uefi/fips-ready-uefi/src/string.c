@@ -246,6 +246,29 @@ char* strchr(const char *str, int c)
     return NULL;  /* Character not found */
 }
 
+
+/* Only needed in string.c */
+double pow(double base, int exp) {
+    double result = 1.0;
+
+    /* Handle negative exponents */
+    if (exp < 0) {
+        base = 1.0 / base;
+        exp = -exp;
+    }
+
+    /* Iterative exponentiation */
+    while (exp) {
+        if (exp % 2 == 1) {  /* If the exponent is odd */
+            result *= base;
+        }
+        base *= base;  /* Square the base */
+        exp /= 2;      /* Reduce the exponent by half */
+    }
+
+    return result;
+}
+
 double strtod(const char *str, char **endptr) {
     double result = 0.0;
     int sign = 1;

@@ -61,9 +61,7 @@ efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
 #endif
 
     fipsEntry();
-    //ret = wolfcrypt_test(NULL);
-    ret = benchmark_test(NULL);
-
+    ret = wolfcrypt_test(NULL);
 
     Print(L"ret: %d\n", ret);
 
