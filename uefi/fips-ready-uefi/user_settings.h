@@ -1,6 +1,8 @@
 #ifndef USER_H
 #define USER_H
 
+/* Need for size_t type */
+#include <stddef.h>
 
 #define WOLFCRYPT_ONLY
 //#define HAVE_ENTROPY_MEMUSE
@@ -12,22 +14,68 @@
 #define XMALLOC_USER
 #define NO_ASN_TIME
 //#define NO_FILESYSTEM
-#define NO_INLINE
+//#define NO_INLINE
+#define WOLFSSL_USE_ALIGN
 #define NO_SIG_WRAPPER
 #define NO_PWDBASED
 #define WOLFSSL_DH_CONST /* No pow or log function avaliable */
 #define NO_ERROR_STRINGS
-extern int uefi_snprintf_wolfssl(char* restrict buffer, int n, const char* restrict format, ...);
-#define XSNPRINTF(_buf_, _size_, _fmt_, ...) uefi_snprintf_wolfssl((_buf_), (_size_), L##_fmt_, ##__VA_ARGS__)
+#define WOLFSSL_TLS13
+#if 0
+    #define WOLFSSL_AESNI
+    #define WOLFSSL_X86_64_BUILD
+#endif
+/* only in example code not wolfssl proper */
+#define WOLFSSL_NEED_DYNAMIC_TYPE_FIX_UEFI
+extern int uefi_snprintf_wolfssl(char* buffer, size_t n, const char* format, ...);
+#define XSNPRINTF uefi_snprintf_wolfssl
 extern int uefi_printf_wolfssl(const char*, ...);
 #define XPRINTF uefi_printf_wolfssl
+extern void* uefi_memcpy_wolfssl(void* dest, const void* src, size_t len);
+#define XMEMCPY uefi_memcpy_wolfssl
+extern void* uefi_memset_wolfssl(void* str, int c, size_t n);
+#define XMEMSET uefi_memset_wolfssl
+extern int uefi_strncmp_wolfssl(const char* s1, const char* s2, size_t n);
+#define XSTRNCMP uefi_strncmp_wolfssl
+#define XFFLUSH uefi_wolfssl_fflush
+
+#define XMALLOC XMALLOC
+#define XFREE XFREE
+#define XREALLOC XREALLOC
+
 #if 1
     #define printf uefi_printf_wolfssl
-    #define fprintf uefi_fprintf
+    #define fprintf uefi_fprintf_wolfssl
     #define strerr uefi_strerr
-    #define vsnprintf uefi_vsnprintf
+    #define vsnprintf uefi_vsnprintf_wolfssl
+    #define vprintf uefi_vprintf_wolfssl
+    #define snprintf uefi_snprintf_wolfssl
+    #define malloc uefi_malloc_wolfssl
+    #define free uefi_free_wolfssl
+    #define realloc uefi_realloc_wolfssl
+    #define memcpy uefi_memcpy_wolfssl
+    #define memset uefi_memset_wolfssl
+    #define strncmp uefi_strncmp_wolfssl
+    #define fflush uefi_wolfssl_fflush
 #endif
-#define NO_CRYPT_BENCHMARK
+
+#if 0
+    #define NO_CRYPT_BENCHMARK
+#else
+    extern double current_time(int reset);
+    /* Allows custom "custom_time()" function to be used for benchmark */
+    #define WOLFSSL_USER_CURRTIME
+    #define WOLFSSL_GMTIME
+    #define USER_TICKS
+    extern unsigned long uefi_time_wolfssl(unsigned long* timer);
+    #define XTIME uefi_time_wolfssl
+    #define WOLFSSL_NO_FLOAT_FMT
+    //#define CONFIG_LOG_MODE_IMMEDIATE
+    //#define NO_STDIO_FILESYSTEM
+    //#define WOLFSSL_NEED_DYNAMIC_PATH_FIX_UEFI
+    #define UEFI_BENCHMARK
+#endif
+
 #define NO_MAIN_DRIVER
 #define WOLFSSL_IGNORE_FILE_WARN
 extern void fipsEntry(void);
@@ -52,7 +100,7 @@ extern void fipsEntry(void);
 #endif
 
 /* Essentially need  */
-#if 1
+#if 0
     #undef WOLFSSL_NEED_DYNAMIC_TYPE_FIX_UEFI
     #define WOLFSSL_NEED_DYNAMIC_TYPE_FIX_UEFI
 #endif
@@ -253,7 +301,7 @@ extern void fipsEntry(void);
 
 /* DH */
 #undef  NO_DH
-#if 1
+#if 0
     #define HAVE_DH
     /* Use table for DH instead of -lm (math) lib dependency */
     #if 1

@@ -2,6 +2,8 @@
 #include <efilib.h>
 #include <stdarg.h>
 #include <string.h>
+#include <uchar.h>
+
 #include <wolfssl/wolfcrypt/settings.h>
 #include <wolfssl/wolfcrypt/logging.h>
 #include <wolfssl/wolfcrypt/test/test.h>
@@ -10,26 +12,24 @@
 #define STR_SIZE 512
 #define MSG_BUFFER_TMP 1024
 
-#define uefi_printf(_f_, ...) Print(L##_f_, ##__VA_ARGS__) /* Native Print */
-#define uefi_snprintf(_buf_, _size_, _fmt_, ...) SPrint((_buf_), (_size_), L##_fmt_, ##__VA_ARGS__)
+#define uefi_printf AsciiPrint /* Native Print */
 
 /* Used to debug verbosely to see where code fails, or gets hung */
 #ifdef WOLFSSL_UEFI_VERBOSE_DEBUG
-    #define uefi_printf_debug uefi_printf
+    #define uefi_printf_debug uefi_printf_wolfssl
 #else
     #define uefi_printf_debug(...) ((void)0)
 #endif
 
 /* Needed from main */
 extern EFI_LOADED_IMAGE *loaded_image;
-FILE* stderr = NULL;
-
 
 /* Function to parse and replace a search string with a replacement string */
 /* used to find options such %s and replace with %a, but is setup to parse */
 /* any needed string */
 
-void parseAndReplace(const char* msg, char* temp, const char* search, const char* replace)
+int parseAndReplace(const char* msg, char* temp, const char* search,
+                        const char* replace)
 {
     size_t searchLen = strlen(search);
     size_t replaceLen = strlen(replace);
@@ -58,124 +58,210 @@ void parseAndReplace(const char* msg, char* temp, const char* search, const char
 
     /* Null-terminate the output */
     temp[tempIndex] = '\0';
+    return 0;
 }
 
-/* Utility to add a prefix to a string buffer */
-/* Will need to know if the str buffer passed is on the heap or stack */
-void addPrefix(char** str, const char* prefix, int isStack)
+unsigned int calculateBufferSize(const char* msg, va_list args)
 {
-    size_t prefixLen = strlen(prefix);
-    size_t strLen = strlen(*str);
+    va_list args_copy;
+    unsigned int size = 0;
+    const char* p = msg;
 
-    if (isStack) {
-        /* Ensure the stack buffer has enough space */
-        if (prefixLen + strLen + 1 > sizeof(*str)) {
-            uefi_printf("Error: Not enough space in stack buffer\n");
-            return;
-        }
-
-        /* Shift the original string to the right to make room for the prefix */
-        for (size_t i = strLen; i != (size_t)-1; i--) {
-            (*str)[i + prefixLen] = (*str)[i];
-        }
-
-        /* Copy the prefix to the start of the string */
-        for (size_t i = 0; i < prefixLen; i++) {
-            (*str)[i] = prefix[i];
-        }
+    if (msg == NULL) {
+        return 0;
     }
-    else {
-        /* Allocate new memory for the combined string */
-        char* newStr = (char*)XMALLOC((prefixLen + strLen + 1)*sizeof(char),
-                                        NULL, DYNAMIC_TYPE_TMP_BUFFER);
-        if (newStr == NULL) {
-            uefi_printf("Error: Memory allocation failed\n");
-            return;
+
+    va_copy(args_copy, args);
+    size = strlen(msg) + 1;
+
+    while (*p) {
+        if (*p == '%' && *(p + 1)) {
+            p++; // Move past '%'
+            if (*p == 's' || *p == 'a') { // Handle strings
+                char* str = va_arg(args_copy, char*);
+                if (str) {
+                    size += strlen(str); // Add the length of the string
+                }
+            } else if (*p == 'd' || *p == 'u' || *p == 'x') {
+                va_arg(args_copy, int); // Skip integers
+            } else if (*p == 'f') {
+                va_arg(args_copy, double); // Skip doubles
+            }
         }
-
-        /* Copy the prefix to the new string */
-        strcpy(newStr, prefix);
-
-        /* Append the original string */
-        strcat(newStr, *str);
-
-        /* Free the original string if it was allocated on the heap */
-        XFREE(*str, NULL, DYNAMIC_TYPE_TMP_BUFFER);
-
-        /* Update the pointer to point to the new string */
-        *str = newStr;
+        p++;
     }
+
+    va_end(args_copy);
+    return size;
+}
+
+int uefi_vsnprintf_wolfssl(char* buffer, size_t size, const char* format,
+                                va_list args)
+{
+    int result;
+    char* tempFormat = NULL;
+    va_list argsCpy;
+    va_copy(argsCpy, args);
+    /* Use MSG_BUFFER_TMP since we cannot predict size of arguments given */
+    unsigned int fmtSize = strlena(format);
+#ifdef UEFI_VECTOR_TEST
+    int check = 1;
+#endif
+    if (buffer == NULL || format == NULL) {
+        AsciiPrint("Null Buffer given to snprintf");
+        return -1;
+    }
+
+    tempFormat = (char*)XMALLOC(fmtSize*sizeof(char), NULL,
+                                    DYNAMIC_TYPE_TMP_BUFFER);
+    if (tempFormat == NULL) {
+        AsciiPrint("Failed to allocate temp buffer");
+        return -1;
+    }
+
+
+    /* Need to replace certain charaters */
+    parseAndReplace(format, tempFormat, "%s", "%a");
+
+#ifdef UEFI_BENCHMARK
+    parseAndReplace(tempFormat, tempFormat, "%8s", "%a");
+    parseAndReplace(tempFormat, tempFormat, "%15s", "%-a");
+    parseAndReplace(tempFormat, tempFormat, "%-2s", "%-a");
+    parseAndReplace(tempFormat, tempFormat, "%-5s", "%-a");
+    parseAndReplace(tempFormat, tempFormat, "%-6s", "%-a");
+    parseAndReplace(tempFormat, tempFormat, "%-9s", "%-a");
+    parseAndReplace(tempFormat, tempFormat, "%-16s", "%-a");
+    parseAndReplace(tempFormat, tempFormat, "%-24s", "%-a");
+#endif
+
+
+#ifdef UEFI_VECTOR_TEST
+    check = parseAndReplace(tempFormat, tempFormat, "%1.15g", "%1.0f");
+    check = parseAndReplace(tempFormat, tempFormat, "%1.17g", "%1.0f");
+#endif
+    /* Pass the variadic arguments to AsciiVSPrintf */
+    result = (int)AsciiVSPrint(buffer, size, tempFormat, args);
+#ifdef UEFI_VECTOR_TEST
+    if (check == 0) {
+        parseAndReplace(buffer, buffer, ".0", " \b");
+    }
+#endif
+    va_end(argsCpy);
+    XFREE(tempFormat, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+    return result;
 }
 
 int uefi_snprintf_wolfssl(char* buffer, size_t n, const char* format, ...)
 {
-    va_list args; /* Declare a va_list to handle variadic arguments */
     int result;
+    char* tempFormat = NULL;
+    /* Use MSG_BUFFER_TMP since we cannot predict size of arguments given */
+    va_list args;
+    if (buffer == NULL || format == NULL) {
+        AsciiPrint("Null Buffer given to snprintf");
+        return -1;
+    }
 
     /* Initialize args to store all values after 'format' */
     va_start(args, format);
 
-    /* Pass the variadic arguments to SPrintf */
-    result = SPrint(buffer, n, format, args);
-
+    result = uefi_vsnprintf_wolfssl(buffer, n, format, args);
     /* Clean up the va_list */
     va_end(args);
 
     return result;
 }
 
-
-/* Main Print Function */
-/* This will be used to wrap wolfSSL current printf outputs */
-/* UEFI is a little funny so we need to replace the standard %s option to %a */
-/* UEFI will treat %s as unicode arguments whilst %a will be treated as ascii */
-/* Then we need to convert the final output to wide char's for UEFI */
-/* This then gets sent to UEFI's VPrint instead of it's Print */
-/* VPrint accepts va_list since we need to pass args through */
+/* Wrap because AsciiPrint returns unsigned int, printf return a int normally */
 int uefi_printf_wolfssl(const char* msg, ...)
 {
     int ret = 0;
-    char* temp; /* Temporary buffer pointer */
-    wchar_t* tempWide; /* Wide buffer pointer */
-
-    if (!msg) {
-        uefi_printf("Bad args to printf handler\n");
-        return -1; /* Handle null input gracefully */
-    }
-
-    temp = (char*)XMALLOC(strlen(msg)*sizeof(char),
-                            NULL, DYNAMIC_TYPE_TMP_BUFFER);
-    if (temp == NULL) {
-        uefi_printf("UEFI wolfSSL Print Failed: char buffer allocation\n");
+    va_list args, argsCpy;
+    char* temp = NULL;
+    size_t size;
+    /* Use MSG_BUFFER_TMP since we cannot predict size of arguments given */
+    if (msg == NULL) {
+        AsciiPrint("NULL sent to uefi_printf_wolfssl");
         return -1;
     }
 
-    tempWide = (wchar_t*)XMALLOC(strlen(msg)*sizeof(wchar_t),
-                                    NULL, DYNAMIC_TYPE_TMP_BUFFER);
-    if (tempWide == NULL) {
-        uefi_printf("UEFI wolfSSL Print Failed: wide char buffer allocation");
-        return -1;
-    }
-
-
-    /* Parse for %s and replace with %a */
-    parseAndReplace(msg, temp, "%s", "%a");
-
-    /* Convert to wide string */
-    char8_to_char16(temp, tempWide);
-
-    /* Handle variable arguments */
-    va_list args;
+    /* Initialize variadic argument list */
     va_start(args, msg);
-    ret = (int)VPrint(tempWide, args);
-    va_end(args);
+    va_copy(argsCpy, args);
 
+    size = ((strlen(msg) + calculateBufferSize(msg, argsCpy) + MSG_BUFFER_TMP));
+
+    temp = (char*)XMALLOC(size*sizeof(char), NULL, DYNAMIC_TYPE_TMP_BUFFER);
+    if (temp == NULL) {
+        AsciiPrint("Failed to allocate temp buffer\n");
+        return -1;
+    }
+
+    uefi_vsnprintf_wolfssl(temp, size, msg, args);
+
+    /* Use AsciiPrint to print the formatted message */
+    ret = (int)AsciiPrint("%a", temp);
+
+    /* Clean up */
+    va_end(argsCpy);
+    va_end(args);
     XFREE(temp, NULL, DYNAMIC_TYPE_TMP_BUFFER);
-    XFREE(tempWide, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+
     return ret;
 }
 
+int uefi_vprintf_wolfssl(const char* msg, va_list args)
+{
+    int ret = 0;
+    int size = 0;
+    char* temp = NULL;
+    va_list argsCpy;
+    /* Use MSG_BUFFER_TMP since we cannot predict size of arguments given */
+    if (msg == NULL) {
+        AsciiPrint("NULL sent to uefi_vprintf_wolfssl");
+        return -1;
+    }
 
+    /* Initialize variadic argument list */
+    va_copy(argsCpy, args);
+
+    size = ((strlen(msg)+calculateBufferSize(msg, argsCpy)+MSG_BUFFER_TMP));
+
+    temp = (char*)XMALLOC(size*sizeof(char), NULL, DYNAMIC_TYPE_TMP_BUFFER);
+    if (temp == NULL) {
+        AsciiPrint("Failed to allocate temp buffer\n");
+        return -1;
+    }
+
+    uefi_vsnprintf_wolfssl(temp, size, msg, args);
+
+    /* Use AsciiPrint to print the formatted message */
+    ret = (int)AsciiPrint("%a", temp);
+
+    /* Clean up */
+    va_end(argsCpy);
+    XFREE(temp, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+
+    return ret;
+}
+
+int uefi_fprintf_wolfssl(FILE* stream, const char* format, ...)
+{
+    unsigned int ret = 0;
+
+    if (stream == NULL || format == NULL) {
+        return -1;
+    }
+
+    AsciiPrint("Inside custom fprintf\n");
+
+    va_list args;
+    va_start(args, format);
+
+
+    va_end(args);
+    return ret;
+}
 
 /* Helper function to write an integer to the stream */
 static int write_integer(FILE* stream, int value) {
@@ -215,90 +301,22 @@ static int write_string(FILE* stream, const char* str) {
     return (written == len) ? len : -1;
 }
 
-int uefi_fprintf(FILE* stream, const char* format, ...)
-{
-    if (stream == NULL || format == NULL) {
-        return -1;
-    }
-
-    uefi_printf("Inside custom fprintf\n");
-
-    va_list args;
-    va_start(args, format);
-
-    int total_written = 0;
-
-    while (*format) {
-        if (*format == '%') {
-            format++; /* Skip '%' */
-
-            int written = 0;
-            switch (*format) {
-                case 'd': { /* Integer */
-                    int value = va_arg(args, int);
-                    written = write_integer(stream, value);
-                    break;
-                }
-                case 's': { /* String */
-                    const char* str = va_arg(args, const char*);
-                    written = write_string(stream, str);
-                    break;
-                }
-                case '%': { /* Literal '%' */
-                    char percent = '%';
-                    written = fwrite(&percent, sizeof(char), 1, stream);
-                    break;
-                }
-                default:
-                    /* Unsupported format specifier */
-                    written = -1;
-                    break;
-            }
-
-            if (written < 0) {
-                va_end(args);
-                return -1;
-            }
-
-            total_written += written;
-        } else {
-            /* Write literal characters */
-            size_t written = fwrite(format, sizeof(char), 1, stream);
-            if (written != 1) {
-                va_end(args);
-                return -1;
-            }
-            total_written++;
-        }
-        format++;
-    }
-
-    va_end(args);
-    return total_written;
-}
-
-
-void removeLeadingDot(char* str)
-{
-    /* Check if the first character is '.' */
-    if (str[0] == '.') {
-        /* Shift all characters to the left, including the null terminator */
-        size_t len = strlen(str);
-        for (size_t i = 0; i < len; i++) {
-            str[i] = str[i + 1];
-        }
-    }
-}
-
 /* Convert standard 8 bit char to 16 bit wide char */
-void char8_to_char16(const char* str8, wchar_t* str16)
+void char8_to_char16(const char* str8, char16_t* str16)
+{
+    char8_to_char16_ex(str8, str16, strlen(str8));
+    return;
+}
+
+/* Convert standard 8 bit char to 16 bit wide char only copy based on n */
+void char8_to_char16_ex(const char* str8, char16_t* str16, int n)
 {
     size_t i;
-    size_t size_str8 = strlen(str8);
-    for (i = 0; i < size_str8; ++i) {
-        str16[i] = (wchar_t)str8[i];
+    for (i = 0; i < n; ++i) {
+        str16[i] = (char16_t)str8[i];
     }
-    str16[i] = '\0';
+    str16[i] = L'\0';
+    return;
 }
 
 uint64_t fileSize(EFI_FILE_HANDLE FileHandle)
@@ -313,14 +331,20 @@ uint64_t fileSize(EFI_FILE_HANDLE FileHandle)
 }
 
 
-int fflush(FILE* stream)
+int uefi_wolfssl_fflush(FILE* stream)
 {
     size_t ret = 0; /* Number of items successfully read */
     EFI_FILE_HANDLE* fPtr = NULL;
     uefi_printf_debug("Inside custom fflush\n");
     if (stream == NULL) {
-        uefi_printf("Bad File Pointer Argument\n");
+        uefi_printf_wolfssl("NULL given to FFLUSH\n");
         return -1;
+    }
+    if (stream == stdout) {
+        SIMPLE_TEXT_OUTPUT_INTERFACE* uefi_stdout = NULL;
+        uefi_stdout = (SIMPLE_TEXT_OUTPUT_INTERFACE*)stream;
+        uefi_call_wrapper(uefi_stdout->OutputString, 1, uefi_stdout, L"\n");
+        return 0;
     }
     fPtr = (EFI_FILE_HANDLE*)stream;
 
@@ -341,21 +365,56 @@ void exit(int n)
 
 void logging_cb(const int logLevel, const char *const logMessage)
 {
-	wchar_t str16[STR_SIZE];
+	char16_t str16[STR_SIZE];
 	char8_to_char16(logMessage, str16);
-    uefi_printf("%s", str16);
+    uefi_printf_wolfssl("%s", str16);
 }
 
 void *XMALLOC(size_t n, void* heap, int type)
 {
-	return AllocateZeroPool(n);
+    void* newBuffer = AllocateZeroPool(n);
+    if (newBuffer == NULL) {
+        AsciiPrint("Malloc Failed: return NULL\n");
+        return NULL;
+    }
+    return newBuffer;
 }
 
+/* Dirty Memcopy.... For proper we have to pass the old buffer size to UEFI */
+/* To use ReallocatePool function..... */
 void *XREALLOC(void *p, size_t n, void* heap, int type)
 {
+    void* newBuffer = NULL;
+    (void)heap;
+    (void)type;
+    //uefi_printf_wolfssl("%s\n", p);
+
+    if (n == 0) {
+        uefi_printf_wolfssl("Size 0 given returning NULL...\n");
+        FreePool(p);
+        p = NULL;
+        return NULL;
+    }
+
+    /* Allocate new Buffer */
+
+    newBuffer = AllocateZeroPool(n);
+    if (newBuffer == NULL) {
+        AsciiPrint("Realloc Failed: return NULL\n");
+        FreePool(p);
+        return NULL;
+    }
+
+    if (p == NULL) {
+        return newBuffer;
+    }
+    /* preform memcpy on old buffer using n.... */
+    CopyMem(newBuffer, p, n);
+
+    /* Free Old Buffer */
     FreePool(p);
     p = NULL;
-    return AllocateZeroPool(n);
+    return newBuffer;
 }
 
 void XFREE(void *p, void* heap, int type)
@@ -388,14 +447,14 @@ double fabs(double x) {
 
 ssize_t read(int fd, void *buf, size_t cnt)
 {
-    uefi_printf("Inside Read Open\n");
+    uefi_printf_wolfssl("Inside Read Open\n");
     return -1;
 }
 
 
 ssize_t write(int fd, const void* buf, size_t cnt)
 {
-    uefi_printf("Inside Write Close\n");
+    uefi_printf_wolfssl("Inside Write Close\n");
     return -1;
 }
 
@@ -405,11 +464,7 @@ ssize_t write(int fd, const void* buf, size_t cnt)
 /* however fopen is specified as taking in a const char buffer */
 /* so custom fopen will assume this is the case, but then convert */
 /* the buffer to wchar */
-#ifndef WOLFSSL_NEED_DYNAMIC_TYPE_FIX_UEFI
-FILE* fopen(const wchar_t* filename, const char* mode)
-#else
 FILE* fopen(const char* filename, const char* mode)
-#endif
 {
     EFI_FILE_HANDLE* fPtr = NULL;
     FILE_OPS option = NONE;
@@ -419,50 +474,46 @@ FILE* fopen(const char* filename, const char* mode)
     /* Temporary buffer pointer */
     char* temp;
     /* Since fopen is */
-    wchar_t* filename_w;
+    char16_t* filename_w;
 
     uefi_printf_debug("Inside custom fopen\n");
 
     fPtr = (EFI_FILE_HANDLE*)XMALLOC(sizeof(EFI_FILE_HANDLE),
                                         NULL, DYNAMIC_TYPE_TMP_BUFFER);
     if (fPtr == NULL) {
-        uefi_printf("Malloc failed: fPtr\n");
+        uefi_printf_wolfssl("Malloc failed: fPtr\n");
         return NULL;
     }
 
 /* need if for some reason we need to replace "/" with "\" dos style paths */
 #ifdef WOLFSSL_NEED_DYNAMIC_PATH_FIX_UEFI
+    uefi_printf_wolfssl("Filename: %s\n", filename);
     /* Malloc out temp buffer to needed size */
     temp = (char*)XMALLOC(strlen(filename)*sizeof(char),
                             NULL, DYNAMIC_TYPE_TMP_BUFFER);
     if (temp == NULL) {
-        uefi_printf("Malloc failed: temp filename\n");
+        uefi_printf_wolfssl("Malloc failed: temp filename\n");
         return NULL;
     }
 
-    parseAndReplace(filename, temp, "/", "/");
-    removeLeadingDot(temp);
+    parseAndReplace(filename, temp, "/", "\\");
+    uefi_printf_wolfssl("Filename After: %s\n", filename);
+    //parseAndReplace(filename, temp, "./", "\\");
 #else
     temp = (char*)filename;
 #endif
 
 #ifdef WOLFSSL_NEED_DYNAMIC_TYPE_FIX_UEFI
-    filename_w = (wchar_t*)XMALLOC(strlen(temp) * sizeof(wchar_t),
+    filename_w = (char16_t*)XMALLOC(strlen(temp) * sizeof(char16_t),
                                     NULL, DYNAMIC_TYPE_TMP_BUFFER);
     if (filename_w == NULL) {
-        uefi_printf("Malloc failed: temp filename wide\n");
+        uefi_printf_wolfssl("Malloc failed: temp filename wide\n");
         return NULL;
     }
     char8_to_char16(temp, filename_w);
 
     if (filename == NULL) {
         uefi_printf_wolfssl("Bad Argument given to fopen for filename\n");
-        return NULL;
-    }
-
-    option = getFileOperation(mode);
-    if (option == NULL_ARG) {
-        uefi_printf_wolfssl("Bad Argument given to to fopen for mode\n");
         return NULL;
     }
 #else
@@ -477,6 +528,12 @@ FILE* fopen(const char* filename, const char* mode)
     /* filename_w is proper conversion so use */
     uefi_printf_debug("The wide file being open is: %s\n", filename_w);
 
+    option = getFileOperation(mode);
+    if (option == NULL_ARG) {
+        uefi_printf_wolfssl("Bad Argument given to to fopen for mode\n");
+        return NULL;
+    }
+
     volume = getVolume();
 
     switch (option) {
@@ -489,7 +546,7 @@ FILE* fopen(const char* filename, const char* mode)
                                 EFI_FILE_HIDDEN | EFI_FILE_SYSTEM);
             uefi_printf_debug("After UEFI Wrapper\n");
             if (fPtr == NULL) {
-                uefi_printf("File Pointer is NULL after Open Call\n");
+                uefi_printf_wolfssl("File Pointer is NULL after Open Call\n");
                 return NULL;
             }
             break;
@@ -502,7 +559,7 @@ FILE* fopen(const char* filename, const char* mode)
                                 EFI_FILE_MODE_CREATE, 0);
             uefi_printf_debug("After UEFI Wrapper\n");
             if (fPtr == NULL) {
-                uefi_printf("File Pointer is NULL after Open Call\n");
+                uefi_printf_wolfssl("File Pointer is NULL after Open Call\n");
                 return NULL;
             }
             break;
@@ -520,19 +577,19 @@ FILE* fopen(const char* filename, const char* mode)
                                 filename_w, EFI_FILE_MODE_READ, EFI_FILE_DIRECTORY);
             uefi_printf_debug("After UEFI Wrapper\n");
             if (fPtr == NULL || status != 0) {
-                uefi_printf("File Pointer is NULL after Open Call\n");
+                uefi_printf_wolfssl("File Pointer is NULL after Open Call\n");
                 return NULL;
             }
             break;
 
         default:
             /* Mode not mapped or support yet for custom I/O */
-            uefi_printf_wolfssl("Mode: %s is not supported\n", mode);
+            uefi_printf_wolfssl("Fopen Mode: %s is not supported\n", mode);
             return NULL;
     }
 
     if (EFI_ERROR(status)) {
-        uefi_printf("Error Opening File: %r\n", status);
+        uefi_printf_wolfssl("Error Opening File: %r\n", status);
         return 0; /* Return 0 to indicate failure */
     }
 
@@ -551,7 +608,7 @@ int fclose(FILE* stream)
 
     uefi_printf_debug("Inside custom fclose\n");
     if (stream == NULL) {
-        uefi_printf("NULL pointer given");
+        uefi_printf_wolfssl("NULL pointer given");
         return -1;
     }
     fPtr = (EFI_FILE_HANDLE*)stream;
@@ -561,7 +618,7 @@ int fclose(FILE* stream)
     uefi_printf_debug("After Wrapper\n");
 
 
-    XFREE(stream, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+    XFREE(fPtr, NULL, DYNAMIC_TYPE_TMP_BUFFER);
     stream = NULL;
     uefi_printf_debug("Leaving custom fclose\n");
 
@@ -579,11 +636,10 @@ int fseek(FILE* stream, long offset, int whence) {
     EFI_STATUS status;
 
     /* Debug message */
-    uefi_printf("Inside fseek\n");
 
     /* Validate the file stream */
     if (stream == NULL) {
-        uefi_printf("Bad File Pointer Argument\n");
+        uefi_printf_wolfssl("Bad File Pointer Argument\n");
         return -1;
     }
 
@@ -599,7 +655,7 @@ int fseek(FILE* stream, long offset, int whence) {
             /* Get the current position */
             status = uefi_call_wrapper((*fPtr)->GetPosition, 2, *fPtr, &currentPosition);
             if (EFI_ERROR(status)) {
-                uefi_printf("Failed to get current position: %r\n", status);
+                uefi_printf_wolfssl("Failed to get current position: %r\n", status);
                 return -1;
             }
             newPosition = currentPosition + offset;
@@ -609,32 +665,31 @@ int fseek(FILE* stream, long offset, int whence) {
             /* Get the file size by seeking to the end */
             status = uefi_call_wrapper((*fPtr)->SetPosition, 2, *fPtr, 0xFFFFFFFFFFFFFFFF);
             if (EFI_ERROR(status)) {
-                uefi_printf("Failed to get file size: %r\n", status);
+                uefi_printf_wolfssl("Failed to get file size: %r\n", status);
                 return -1;
             }
             status = uefi_call_wrapper((*fPtr)->GetPosition, 2, *fPtr, &currentPosition);
             if (EFI_ERROR(status)) {
-                uefi_printf("Failed to get end position: %r\n", status);
+                uefi_printf_wolfssl("Failed to get end position: %r\n", status);
                 return -1;
             }
             newPosition = currentPosition + offset;
             break;
 
         default:
-            uefi_printf("Invalid 'whence' value\n");
+            uefi_printf_wolfssl("Invalid 'whence' value\n");
             return -1;
     }
 
     /* Set the new file position */
     status = uefi_call_wrapper((*fPtr)->SetPosition, 2, *fPtr, newPosition);
     if (EFI_ERROR(status)) {
-        uefi_printf("Failed to set position: %r\n", status);
+        uefi_printf_wolfssl("Failed to set position: %r\n", status);
         return -1;
     }
 
     /* Success */
     ret = 0;
-    uefi_printf("Successfully moved file pointer to position: %llu\n", newPosition);
 
     return ret;
 }
@@ -647,19 +702,17 @@ long ftell(FILE* stream)
     EFI_FILE_HANDLE* fPtr = NULL;
     uint64_t fSize = 0;
 
-    uefi_printf("ftell\n");
     if (stream == NULL) {
-        uefi_printf("Bad File Pointer Argument\n");
+        uefi_printf_wolfssl("Bad File Pointer Argument\n");
         return 0;
     }
     fPtr = (EFI_FILE_HANDLE*)stream;
 
     fSize = fileSize(*(fPtr));
     if (fileSize == 0) {
-        uefi_printf("File is of size 0\n");
+        uefi_printf_wolfssl("File is of size 0\n");
         return 0;
     }
-
 
     return fSize;
 }
@@ -675,35 +728,69 @@ size_t fread(void* ptr, size_t size, size_t count, FILE* stream)
     if (count > 0) {
         size = size*count;
     }
-    uefi_printf_debug("Inside custom fread\n");
     if (stream == NULL) {
-        uefi_printf("Bad File Pointer Argument\n");
+        uefi_printf_wolfssl("Bad File Pointer Argument\n");
         return 0;
     }
     fPtr = (EFI_FILE_HANDLE*)stream;
 
     fSize = fileSize(*(fPtr));
     if (fileSize == 0) {
-        uefi_printf("File is of size 0\n");
+        uefi_printf_wolfssl("File is of size 0\n");
         return 0;
     }
     if (ptr == NULL) {
         uefi_printf_debug("ptr is NULL\n");
     }
     /* Attempt to read from the file */
-    uefi_printf_debug("Before Wrapper\n");
-    uefi_printf_debug("Size is %d\n", fSize);
     uefi_call_wrapper((*fPtr)->Read, 3, *fPtr, &size, ptr);
-    uefi_printf_debug("After Wrapper\n");
-
-    uefi_printf_debug("Leaving custom fread\n");
     return size;
 }
 
-char *fgets(char *str, int n, FILE *stream)
+char *fgets(char* str, int n, FILE* stream)
 {
     char* rPtr = NULL;
-    uefi_printf("Inside FGETS\n");
+    char* tempRead = NULL;
+    int ret = 0;
+    int i = 0;
+
+    if (str == NULL || stream == NULL) {
+        uefi_printf_wolfssl("NULL Arg given to fgets\n");
+        return NULL;
+    }
+
+    tempRead = (char*)XMALLOC((n+1*sizeof(char)), NULL,
+                                    DYNAMIC_TYPE_TMP_BUFFER);
+    if (tempRead == NULL) {
+        uefi_printf_wolfssl("Malloc Failed in FGETS\n");
+        return NULL;
+    }
+
+    /* read in 1 char at a time */
+    for (i = 0; i < n; i++) {
+        ret = ReadSimpleReadFile(stream, i, 1, tempRead[i]);
+        if (ret == 0) {
+            /* Break out if nothing was read in */
+            break;
+        }
+        if (tempRead[i] == '\n') {
+            break;
+        }
+    }
+
+    /* Nothing at all was read return NULL */
+    if (i == 0) {
+        rPtr = NULL;
+    }
+    else {
+        if (tempRead[i] != '\0') {
+            tempRead[i+1] = '\0';
+        }
+        rPtr = str;
+    }
+
+    XFREE(tempRead, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+
     return rPtr;
 }
 
@@ -805,8 +892,99 @@ int sscanf(const char *str, const char *format, ...)
                     assigned++;
                     break;
                 }
+                case 'l': { /* Handle 'l' length modifier */
+                    f++; /* Move past 'l' */
+                    if (*f == 'd') { /* Parse long integer */
+                        long *longArg = va_arg(args, long *);
+                        long value = 0;
+                        int negative = 0;
+
+                        /* Skip leading whitespace */
+                        while (*s == ' ' || *s == '\t') {
+                            s++;
+                        }
+
+                        /* Handle sign */
+                        if (*s == '-') {
+                            negative = 1;
+                            s++;
+                        } else if (*s == '+') {
+                            s++;
+                        }
+
+                        /* Parse digits */
+                        while (*s >= '0' && *s <= '9') {
+                            value = value * 10 + (*s - '0');
+                            s++;
+                        }
+
+                        *longArg = negative ? -value : value;
+                        assigned++;
+                    } else if (*f == 'u') { /* Parse unsigned long integer */
+                        unsigned long *ulongArg = va_arg(args, unsigned long *);
+                        unsigned long value = 0;
+
+                        /* Skip leading whitespace */
+                        while (*s == ' ' || *s == '\t') {
+                            s++;
+                        }
+
+                        /* Parse digits */
+                        while (*s >= '0' && *s <= '9') {
+                            value = value * 10 + (*s - '0');
+                            s++;
+                        }
+
+                        *ulongArg = value;
+                        assigned++;
+                    } else if (*f == 'f') { /* Parse double */
+                        double *doubleArg = va_arg(args, double *);
+                        double value = 0.0;
+                        double fraction = 0.0;
+                        double divisor = 10.0;
+                        int negative = 0;
+
+                        /* Skip leading whitespace */
+                        while (*s == ' ' || *s == '\t') {
+                            s++;
+                        }
+
+                        /* Handle sign */
+                        if (*s == '-') {
+                            negative = 1;
+                            s++;
+                        } else if (*s == '+') {
+                            s++;
+                        }
+
+                        /* Parse integer part */
+                        while (*s >= '0' && *s <= '9') {
+                            value = value * 10.0 + (*s - '0');
+                            s++;
+                        }
+
+                        /* Parse fractional part */
+                        if (*s == '.') {
+                            s++;
+                            while (*s >= '0' && *s <= '9') {
+                                fraction += (*s - '0') / divisor;
+                                divisor *= 10.0;
+                                s++;
+                            }
+                        }
+
+                        *doubleArg = (value + fraction) * (negative ? -1.0 : 1.0);
+                        assigned++;
+                    } else {
+                        /* Unsupported 'l' format */
+                        va_end(args);
+                        return -1;
+                    }
+                    break;
+                }
                 default:
                     /* Unsupported format specifier */
+                    uefi_printf_wolfssl("SSCANF Case Not Supported: %c\n", *f);
                     va_end(args);
                     return -1;
             }
@@ -827,21 +1005,16 @@ int sscanf(const char *str, const char *format, ...)
 int mkdir(const char *pathname, mode_t mode)
 {
     int ret = -1;
-    uefi_printf("Inside MKDIR\n");
+    uefi_printf_wolfssl("MKDIR not Implemented\n");
     return ret;
 }
 
 DIR *opendir(const char *name)
 {
     DIR* ptr = NULL;
-    uefi_printf("INSIDE OPENDIR\n");
-    ptr = (DIR*)fopen(name, "od");
+    uefi_printf_wolfssl("OPENDIR not Implemented\n");
     return ptr;
 }
-
-
-#include <efi.h>
-#include <efilib.h>
 
 size_t fwrite(const void* ptr, size_t size, size_t count, FILE* stream)
 {
@@ -849,13 +1022,11 @@ size_t fwrite(const void* ptr, size_t size, size_t count, FILE* stream)
     EFI_FILE_HANDLE* fPtr = NULL;
     //UINTN totalBytes = count * size * 8; /* Total bytes to write */
     EFI_STATUS status;
-    uefi_printf("Size: %d\n", size);
-    uefi_printf("Count: %d\n", count);
     uefi_printf_debug("Inside custom fwrite\n");
 
     /* Check for a valid stream */
     if (stream == NULL) {
-        uefi_printf("Bad File Pointer Argument\n");
+        uefi_printf_wolfssl("Bad File Pointer Argument\n");
         return 0;
     }
 
@@ -865,19 +1036,16 @@ size_t fwrite(const void* ptr, size_t size, size_t count, FILE* stream)
 
     fPtr = (EFI_FILE_HANDLE*)stream;
 
-    uefi_printf_debug("Before Wrapper\n");
-
     /* Call EFI Write */
     status = uefi_call_wrapper((*fPtr)->Write, 3, *fPtr, &size, ptr);
 
     if (EFI_ERROR(status)) {
         /* Handle error */
-        uefi_printf("EFI_FILE_PROTOCOL Write failed with status: %r\n", status);
+        uefi_printf_wolfssl("EFI_FILE_PROTOCOL Write failed with status: %r\n", status);
         return 0;
     }
 
     uefi_printf_debug("Write succeeded\n");
-
     uefi_printf_debug("Leaving custom fwrite\n");
     return size;
 }
@@ -892,101 +1060,55 @@ struct dirent* readdir(DIR* stream)
     EFI_STATUS status;
     size_t ret = 0; /* Number of items successfully read */
     struct dirent* dirPtr;
-    wchar_t tempWide[8192];
+    char16_t tempWide[8192];
     unsigned int size = 8192;
     EFI_FILE_HANDLE* fPtr = NULL;
     uint64_t fSize = 0;
-    uefi_printf("INSIDE READDIR\n");
     if (stream == NULL) {
-        uefi_printf("Bad File Pointer Argument\n");
+        uefi_printf_wolfssl("Bad File Pointer Argument\n");
         return 0;
     }
+
+#ifdef UEFI_READDIR /* work in progress */
     fPtr = (EFI_FILE_HANDLE*)stream;
 
     dirPtr = (struct dirent*)XMALLOC(sizeof(struct dirent), NULL,
                                             DYNAMIC_TYPE_TMP_BUFFER);
     if (dirPtr == NULL) {
-        uefi_printf("Failed to malloc dirPtr");
+        uefi_printf_wolfssl("Failed to malloc dirPtr");
         return NULL;
     }
 
     fSize = fileSize(*(fPtr));
     if (fileSize == 0) {
-        uefi_printf("File is of size 0\n");
+        uefi_printf_wolfssl("File is of size 0\n");
         return 0;
     }
 
-
-    uefi_printf_debug("Size is %d\n", fSize);
+    uefi_printf_debug("Size of file being read: %d\n", fSize);
     status = uefi_call_wrapper((*fPtr)->Read, 3, *fPtr, &fSize, tempWide);
     if (EFI_ERROR(status)) {
         uefi_printf_wolfssl("Returned %d\n\n", status);
         if (EFI_ERROR(status) == EFI_NO_MEDIA) {
-            /* The device has no medium */
             uefi_printf_wolfssl("Error: No medium found on the device.\n");
         } else if (EFI_ERROR(status) == EFI_DEVICE_ERROR) {
-            /* Multiple possible causes for EFI_DEVICE_ERROR */
             uefi_printf_wolfssl("Error: Device reported an error.\n");
             uefi_printf_wolfssl("  - This could be due to an attempt to read a deleted file.\n");
             uefi_printf_wolfssl("  - Or the current file position is beyond the end of the file.\n");
         } else if (EFI_ERROR(status) == EFI_VOLUME_CORRUPTED) {
-            /* The file system structures are corrupted */
             uefi_printf_wolfssl("Error: File system is corrupted.\n");
         } else if (EFI_ERROR(status) == EFI_BUFFER_TOO_SMALL) {
             /* The buffer provided is too small */
             uefi_printf_wolfssl("Error: Buffer size is too small for the requested operation.\n");
         } else {
-            /* Unhandled error code */
             uefi_printf_wolfssl("Error: Unknown EFI status: %r\n", status);
         }
         return NULL;
     }
-    Print("%s\n", tempWide);
-    
-
-
-
-
-
-    status = uefi_call_wrapper((*fPtr)->Read, 3, *fPtr, &fSize, tempWide);
-    if (EFI_ERROR(status)) {
-        uefi_printf_wolfssl("Returned %d\n\n", status);
-        if (EFI_ERROR(status) == EFI_NO_MEDIA) {
-            /* The device has no medium */
-            uefi_printf_wolfssl("Error: No medium found on the device.\n");
-        } else if (EFI_ERROR(status) == EFI_DEVICE_ERROR) {
-            /* Multiple possible causes for EFI_DEVICE_ERROR */
-            uefi_printf_wolfssl("Error: Device reported an error.\n");
-            uefi_printf_wolfssl("  - This could be due to an attempt to read a deleted file.\n");
-            uefi_printf_wolfssl("  - Or the current file position is beyond the end of the file.\n");
-        } else if (EFI_ERROR(status) == EFI_VOLUME_CORRUPTED) {
-            /* The file system structures are corrupted */
-            uefi_printf_wolfssl("Error: File system is corrupted.\n");
-        } else if (EFI_ERROR(status) == EFI_BUFFER_TOO_SMALL) {
-            /* The buffer provided is too small */
-            uefi_printf_wolfssl("Error: Buffer size is too small for the requested operation.\n");
-        } else {
-            /* Unhandled error code */
-            uefi_printf_wolfssl("Error: Unknown EFI status: %r\n", status);
-        }
-        return NULL;
-    }
-    Print("%s\n", tempWide);
-
-
-
-
-
-
-
-
-
-
-
-    uefi_printf_debug("After Wrapper\n");
-
     uefi_printf_debug("Leaving custom readdir\n");
-    uefi_printf("readdir\n");
+#else
+    uefi_printf_wolfssl("READDIR not implemented\n");
+#endif
     return NULL;
 }
 
@@ -994,7 +1116,7 @@ struct dirent* readdir(DIR* stream)
 /* returns 0 on success or -1 on failure */
 int closedir(DIR* dirp)
 {
-    uefi_printf("closedir\n");
+    uefi_printf_wolfssl("CLOSEDIR not implemented\n");
     return -1;
 }
 
@@ -1002,15 +1124,10 @@ int closedir(DIR* dirp)
 /* returns 0 on success or -1 on failure */
 int stat(const char* path, struct stat* buf)
 {
-    uefi_printf("stat\n");
+    uefi_printf_wolfssl("STAT not implemented\n");
     return -1;
 }
 
-int uefi_vsnprintf(char* buffer, size_t size, const char* format, va_list args)
-{
-
-    return 0;
-}
 
 /* Function to map modes to FILE_OPS enum*/
 FILE_OPS getFileOperation(const char* mode)
@@ -1047,7 +1164,7 @@ EFI_FILE_HANDLE getVolume(void)
 
 
 /* RNG SECTION */
-
+/* Use to seed the HASH DRGB */
 int uefi_random_gen(char* output, unsigned int sz)
 {
     EFI_STATUS status;
@@ -1059,7 +1176,7 @@ int uefi_random_gen(char* output, unsigned int sz)
     uefi_printf_debug("Before RNG Locate Call");
     status = LibLocateProtocol(&gEfiRngProtocolGuid, (void**)&rngInterface);
     if (EFI_ERROR(status)) {
-        uefi_printf("Locate Protocol Failed\n");
+        uefi_printf_wolfssl("Locate Protocol Failed\n");
         return -1; /* Fallback to 0 on error */
     }
     uefi_printf_debug("After RNG Locate Call");
@@ -1070,13 +1187,141 @@ int uefi_random_gen(char* output, unsigned int sz)
                                     &rngAlgo, sz,
                                     output);
     if (EFI_ERROR(status)) {
-        uefi_printf("RNG Failed\n");
+        uefi_printf_wolfssl("RNG Failed\n");
         return -1; /* Fallback to 0 on error */
     }
     uefi_printf_debug("After Uefi Wrapper Call");
 
     return 0;
 }
+
+/* Time function */
+
+unsigned long convertToEpochUefi(EFI_TIME ts)
+{
+    /* Calculate the total days since the Unix epoch (1970-01-01) */
+    unsigned long days_since_epoch = 
+        (ts.Year - 1970) * 365 +
+        (ts.Year - 1969) / 4 -  /* Leap years */
+        (ts.Year - 1901) / 100 +
+        (ts.Year - 1601) / 400 +
+        (367 * ts.Month - 362) / 12 +
+        ts.Day - 1;
+
+    /* Adjust for months after February for leap years */
+    if (ts.Month <= 2) {
+        days_since_epoch -= 1; /* Remove 1 day for pre-March months */
+        if ((ts.Year % 4 == 0 && (ts.Year % 100 != 0 || ts.Year % 400 == 0))) {
+            days_since_epoch += 1; /* Add back 1 day if it's a leap year */
+        }
+    }
+
+    /* Calculate total seconds since epoch */
+    unsigned long total_seconds = 
+        days_since_epoch * 86400 + /* Convert days to seconds */
+        ts.Hour * 3600 + 
+        ts.Minute * 60 + 
+        ts.Second;
+
+    /* Adjust for timezone if specified */
+    if (ts.TimeZone != 2047) {
+        total_seconds -= ts.TimeZone * 60; /* TimeZone is in minutes */
+    }
+
+    return total_seconds;
+}
+
+
+int uefi_timeStruct_wolfssl(EFI_TIME* timeStruct)
+{
+    EFI_STATUS status;
+    //EFI_RUNTIME_SERVICES timeService;
+
+    status = uefi_call_wrapper(RT->GetTime, 2, timeStruct, NULL);
+    if (EFI_ERROR(status)) {
+        uefi_printf_wolfssl("Failed to get time\n");
+        return -1; /* Fallback to 0 on error */
+    }
+
+    return 0;
+}
+
+unsigned long uefi_time_wolfssl(unsigned long* timer)
+{
+    EFI_TIME time_uefi;
+    unsigned long epoch = 0;
+
+    if (uefi_timeStruct_wolfssl(&time_uefi)) {
+        uefi_printf_wolfssl("Failed to get time\n");
+        return 0;
+    }
+    epoch = convertToEpochUefi(time_uefi);
+    if (timer != NULL) {
+        *timer = epoch;
+    }
+    else {
+        uefi_printf_wolfssl("Bad timer argumnet\n");
+    }
+
+    return epoch;
+}
+
+double current_time(int reset)
+{
+    (void)reset;
+    double seconds = 0;
+    EFI_TIME time_uefi;
+
+    if (uefi_timeStruct_wolfssl(&time_uefi)) {
+        uefi_printf_wolfssl("Failed to get time\n");
+        return 0;
+    }
+
+    /* Calculate days since epoch directly using the struct fields */
+    long days_since_epoch = 
+        (time_uefi.Year - 1970) * 365 +
+        (time_uefi.Year - 1969) / 4 - /* Leap years */
+        (time_uefi.Year - 1901) / 100 +
+        (time_uefi.Year - 1601) / 400 +
+        (367 * time_uefi.Month - 362) / 12 +
+        time_uefi.Day - 1;
+
+    /* Adjust for months after February */
+    if (time_uefi.Month <= 2) {
+        days_since_epoch -= 1;
+        if ((time_uefi.Year % 4 == 0 && (time_uefi.Year % 100 != 0 || time_uefi.Year % 400 == 0))) {
+            days_since_epoch += 1;
+        }
+    }
+
+    /* Convert to total seconds */
+    long total_seconds = 
+        days_since_epoch * 86400 +
+        time_uefi.Hour * 3600 +
+        time_uefi.Minute * 60 +
+        time_uefi.Second;
+
+    /* Adjust for timezone if specified */
+    if (time_uefi.TimeZone != 2047) {
+        total_seconds -= time_uefi.TimeZone * 60;
+    }
+
+    /* Calculate seconds as a double */
+#ifdef BENCH_MICROSECOND
+    seconds = (double)total_seconds * 1000000 + (double)time_uefi.Nanosecond / 1000;
+#else
+    seconds = (double)total_seconds + (double)time_uefi.Nanosecond / 1000000000;
+#endif
+
+    return seconds;
+}
+
+
+
+
+
+
+
 
 double pow(double base, int exp) {
     double result = 1.0;
@@ -1104,17 +1349,74 @@ double pow(double base, int exp) {
 int atoi(const char *str)
 {
     int ret;
-    wchar_t* tempWide;
+    char16_t* tempWide;
 
-    tempWide = (wchar_t*)XMALLOC(strlen(str)*sizeof(wchar_t),
+    tempWide = (char16_t*)XMALLOC(strlen(str)*sizeof(char16_t),
                                     NULL, DYNAMIC_TYPE_TMP_BUFFER);
     if (tempWide == NULL) {
-        uefi_printf("UEFI wolfSSL Print Failed: wide char buffer allocation");
+        uefi_printf_wolfssl("UEFI wolfSSL Print Failed: wide char buffer allocation");
         return -1;
     }
 
     char8_to_char16(str, tempWide);
     ret = Atoi(tempWide);
     XFREE(tempWide, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+    return ret;
+}
+
+void* uefi_memcpy_wolfssl(void* dest, const void* src, size_t len)
+{
+    CopyMem(dest, src, len);
+    return dest;
+}
+
+void* uefi_memset_wolfssl(void *str, int c, size_t n)
+{
+    SetMem(str, n, (uint8_t)c);
+    return str;
+}
+
+
+/* do all allocation based on n */
+int uefi_strncmp_wolfssl(const char *s1, const char *s2, size_t n)
+{
+    int ret = -1;
+    char16_t* s1_temp;
+    char16_t* s2_temp;
+
+    int s1_len = n*sizeof(char16_t);
+    int s2_len = n*sizeof(char16_t);
+
+    if (s1 == NULL || s2 == NULL) {
+        uefi_printf_wolfssl("Null Args to strncmp\n");
+    }
+
+    s1_len = n*sizeof(char16_t);
+    s2_len = n*sizeof(char16_t);
+
+    /* Nothing to compare */
+    if ((s1_len == 0 && s2_len == 0) || n == 0) {
+        return 0;
+    }
+
+    s1_temp = (char16_t*)XMALLOC(s1_len, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+    if (s1_temp == NULL) {
+        uefi_printf_wolfssl("Failed to malloc s1 in strncmp\n");
+        return -1;
+    }
+    char8_to_char16_ex(s1, s1_temp, n);
+
+    s2_temp = (char16_t*)XMALLOC(s2_len, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+    if (s2_temp == NULL) {
+        uefi_printf_wolfssl("Failed to malloc s2 in strncmp\n");
+        XFREE(s1_temp, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+        return -1;
+    }
+    char8_to_char16_ex(s2, s2_temp, n);
+
+    ret = StrnCmp(s1_temp, s2_temp, n);
+
+    XFREE(s1_temp, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+    XFREE(s2_temp, NULL, DYNAMIC_TYPE_TMP_BUFFER);
     return ret;
 }

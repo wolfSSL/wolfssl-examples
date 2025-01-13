@@ -16,12 +16,14 @@
 #define WAIT_FOR_GDB 0
 #endif
 
-#define uefi_printf(_f_, ...) Print(L##_f_, ##__VA_ARGS__) /* Native Print */
+#define uefi_printf uefi_printf_wolfssl
 #define uefi_snprintf(_buf_, _size_, _fmt_, ...) SPrint((_buf_), (_size_), L##_fmt_, ##__VA_ARGS__)
+FILE* stdout = NULL;
+FILE* stderr = NULL;
 
 
-EFI_LOADED_IMAGE *loaded_image;
-
+EFI_LOADED_IMAGE* loaded_image;
+//EFI_SYSTEM_TABLE* stdout_uefi;
 
 EFI_STATUS
 EFIAPI
@@ -33,6 +35,7 @@ efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
     int ret;
 
     InitializeLib(ImageHandle, SystemTable);
+    stdout = (FILE*)(SystemTable->ConOut);
     wolfSSL_Debugging_ON();
     wolfSSL_SetLoggingCb(logging_cb);
 
@@ -58,7 +61,10 @@ efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
 #endif
 
     fipsEntry();
-    ret = wolfcrypt_test(NULL);
+    //ret = wolfcrypt_test(NULL);
+    ret = benchmark_test(NULL);
+
+
     Print(L"ret: %d\n", ret);
 
     return EFI_SUCCESS;

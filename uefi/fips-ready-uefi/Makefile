@@ -1,6 +1,6 @@
 BUILD_DIR=./build
 CRYPTO_SRC=./wolfssl/wolfcrypt/src
-CFLAGS=-fpie -ffreestanding -fno-stack-protector -fno-stack-check -fshort-wchar -mno-red-zone -maccumulate-outgoing-args -static-libgcc -nostdlib
+CFLAGS=-maes -msse4 -mpclmul -fpie -ffreestanding -fno-stack-protector -fno-stack-check -fshort-wchar -mno-red-zone -maccumulate-outgoing-args -static-libgcc -nostdlib
 CFLAGS+=-DWOLFSSL_USER_SETTINGS
 CFLAGS+=-I./wolfssl/ -I. -I/usr/include/efi -I/usr/include/efi/x86_64
 CFLAGS+=-ggdb

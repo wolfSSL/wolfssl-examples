@@ -78,7 +78,7 @@ run_qemu() {
         -display none \
         -serial stdio \
         -net none \
-        -m 256M \
+        -m 512M \
         -drive file="$EFI_DISK",index=0,media=disk,format=raw \
         -object rng-random,filename=/dev/urandom,id=rng0 \
         -device virtio-rng-pci,rng=rng0

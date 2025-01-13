@@ -24,6 +24,8 @@
 
 #include <stddef.h>
 #include <string.h>
+#include <uchar.h>
+
 
 int islower(int c)
 {
@@ -37,12 +39,20 @@ int isupper(int c)
 
 int tolower(int c)
 {
-    return isupper(c) ? c - 'A' + 'a' : c;
+    char16_t wideChar[2] = { (char16_t)c, L'\0' };
+
+    StrLwr(wideChar);
+
+    return (int)wideChar[0];
 }
 
 int toupper(int c)
 {
-    return islower(c) ? c - 'a' + 'A' : c;
+    char16_t wideChar[2] = { (char16_t)c, L'\0' };
+
+    StrUpr(wideChar);
+
+    return (int)wideChar[0];
 }
 
 int isalpha(int c)
@@ -66,9 +76,7 @@ char *strcat(char *dest, const char *src)
 int strcmp(const char *s1, const char *s2)
 {
     int diff = 0;
-
     diff = strcmpa(s1, s2);
-
     return diff;
 }
 
@@ -169,18 +177,7 @@ char *strcpy(char *dst, const char *src)
 
 int memcmp(const void *_s1, const void *_s2, size_t n)
 {
-    int diff = 0;
-    const unsigned char *s1 = (const unsigned char *)_s1;
-    const unsigned char *s2 = (const unsigned char *)_s2;
-
-    while (!diff && n) {
-        diff = (int)*s1 - (int)*s2;
-        s1++;
-        s2++;
-        n--;
-    }
-
-    return diff;
+    return CompareMem(_s1, _s2, n);
 }
 
 void* memchr(void const *s, int c_in, size_t n)
