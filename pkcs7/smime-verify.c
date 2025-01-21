@@ -128,6 +128,37 @@ static int Verify(byte* smime, int smimeSz, byte* ca, int caSz, byte* contentIn,
         printf("\n");
     }
 
+    /* print out the signing time attribute if found */
+    if (ret == 0) {
+        word32 outSz;
+        byte* out;
+        int err;
+        const byte signingTimeOid[] = {
+            0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x09, 0x05
+        };
+
+        err = wc_PKCS7_GetAttributeValue(&pkcs7Compat->pkcs7, signingTimeOid,
+            sizeof(signingTimeOid), NULL, &outSz);
+        if (err == LENGTH_ONLY_E) {
+            out = (byte*)XMALLOC(outSz + 1, NULL, DYNAMIC_TYPE_PKCS7);
+            if (out != NULL) {
+                err = wc_PKCS7_GetAttributeValue(&pkcs7Compat->pkcs7,
+                    signingTimeOid, sizeof(signingTimeOid), out, &outSz);
+                if (err > 0) {
+                    word32 i;
+                    printf("Signing time attribute is :\n\t");
+                    for (i = 0; i < outSz; i++)
+                        printf("%02X", out[i]);
+                    printf("\n");
+                }
+            }
+            XFREE(out, NULL, DYNAMIC_TYPE_PKCS7);
+        }
+        else {
+            printf("No signing time attribute found\n");
+        }
+    }
+
     wolfSSL_BIO_free(in);
     wolfSSL_BIO_free(content);
     wolfSSL_BIO_free(multi);
@@ -145,6 +176,7 @@ static int ReadSmimeAndCert(char* smimeFile, char* certFile, char* contentFile,
 {
     int ret;
     XFILE f;
+    *contentSz = 0;
 
     f = XFOPEN(smimeFile, "rb");
     if (f == NULL) {
@@ -188,23 +220,25 @@ static int ReadSmimeAndCert(char* smimeFile, char* certFile, char* contentFile,
         }
     }
 
-    f = XFOPEN(contentFile, "rb");
-    if (f == NULL) {
-        printf("Error opening file %s\n", contentFile);
-        return -1;
-    }
-    else {
-        ret = XFREAD(content, 1, *contentSz, f);
-        if (ret >= 0) {
-            if (ret == *contentSz) {
-                printf("Cert read in was larger than buffer\n");
-                XFCLOSE(f);
-                return -1;
-            }
-            else {
-                *contentSz = ret;
-                ret = 0;
-                XFCLOSE(f);
+    if (contentFile != NULL) {
+        f = XFOPEN(contentFile, "rb");
+        if (f == NULL) {
+            printf("Error opening file %s\n", contentFile);
+            return -1;
+        }
+        else {
+            ret = XFREAD(content, 1, *contentSz, f);
+            if (ret >= 0) {
+                if (ret == *contentSz) {
+                    printf("Cert read in was larger than buffer\n");
+                    XFCLOSE(f);
+                    return -1;
+                }
+                else {
+                    *contentSz = ret;
+                    ret = 0;
+                    XFCLOSE(f);
+                }
             }
         }
     }
@@ -225,8 +259,9 @@ int main(int argc, char** argv)
 
     int ret;
 
-    if (argc != 4) {
-        printf("Use ./smime-verify <smime file> <der cert file> <content file>\n");
+    if (argc < 3) {
+        printf("Use ./smime-verify <smime file> <der cert file> "
+               "<optional content file>\n");
         return -1;
     }
 
@@ -239,8 +274,14 @@ int main(int argc, char** argv)
         return -1;
     }
 
-    ret = ReadSmimeAndCert(argv[1], argv[2], argv[3], smime, &smimeSz, cert,
-        &certSz, content, &contentSz);
+    if (argc > 3) {
+        ret = ReadSmimeAndCert(argv[1], argv[2], argv[3], smime, &smimeSz, cert,
+            &certSz, content, &contentSz);
+    }
+    else {
+        ret = ReadSmimeAndCert(argv[1], argv[2], NULL, smime, &smimeSz, cert,
+            &certSz, content, &contentSz);
+    }
     if (ret == 0) {
         ret = Verify(smime, smimeSz, cert, certSz, content, contentSz, 0);
         if (ret == 0) {
