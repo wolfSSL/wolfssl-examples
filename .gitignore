@@ -56,6 +56,7 @@ android/wolfssljni-ndk-sample/proguard-project.txt
 /dtls/client-dtls
 /dtls/client-dtls13
 /dtls/client-udp
+/dtls/memory-bio-dtls
 /dtls/server-dtls-callback
 /dtls/server-dtls-ipv6
 /dtls/server-dtls-nonblocking
