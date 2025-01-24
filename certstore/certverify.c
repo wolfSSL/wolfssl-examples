@@ -28,7 +28,7 @@
 int main(int argc, char** argv)
 {
     FILE* file;
-    int ret;
+    int ret = 0;
     X509_STORE* store = NULL;
     X509_STORE_CTX* ctx = NULL;
     X509 *ca = NULL, *cert = NULL;
