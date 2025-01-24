@@ -4,7 +4,7 @@ This README file explains how to setup various demos for showing our X9.146
 features in action. X9.146 is a specification of a certificate format that
 allows for dual public keys and signatures in a single certificate.
 
-Traditionally, there are only public key, signature algoirthm specifier and
+Traditionally, there are only public key, signature algorithm specifier and
 signature value. These are known as the native elements. The X9.146 scheme also
 allows for additional alternative public key, signature algorithm specifier and
 signature value as optional X.509 certificate extensions.

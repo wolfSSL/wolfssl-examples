@@ -271,19 +271,22 @@ static int do_certgen(int argc, char** argv)
     switch (level)
     {
     case 2:
-        altSigAlgSz = SetAlgoID(CTC_DILITHIUM_LEVEL2, altSigAlgBuf, oidSigType,
+        altSigAlgSz = SetAlgoID(CTC_ML_DSA_LEVEL2, altSigAlgBuf, oidSigType,
                                 0);
         break;
     case 3:
-        altSigAlgSz = SetAlgoID(CTC_DILITHIUM_LEVEL3, altSigAlgBuf, oidSigType,
+        altSigAlgSz = SetAlgoID(CTC_ML_DSA_LEVEL3, altSigAlgBuf, oidSigType,
                                 0);
         break;
     case 5:
-        altSigAlgSz = SetAlgoID(CTC_DILITHIUM_LEVEL5, altSigAlgBuf, oidSigType,
+        altSigAlgSz = SetAlgoID(CTC_ML_DSA_LEVEL5, altSigAlgBuf, oidSigType,
                                 0);
         break;
     }
-    if (altSigAlgSz <= 0) goto exit;
+    if (altSigAlgSz <= 0) {
+        printf("error: SetAlgoID(%d) returned: %d\n", level, altSigAlgSz);
+        goto exit;
+    }
     printf("Successfully generated alternative signature algorithm;");
     printf(" %d bytes.\n\n", altSigAlgSz);
 
@@ -374,22 +377,25 @@ static int do_certgen(int argc, char** argv)
     {
     case 2:
         ret = wc_MakeSigWithBitStr(altSigValBuf, altSigValSz,
-                                   CTC_DILITHIUM_LEVEL2, preTbsBuf, preTbsSz,
-                                   DILITHIUM_LEVEL2_TYPE, &altCaKey, &rng);
+                                   CTC_ML_DSA_LEVEL2, preTbsBuf, preTbsSz,
+                                   ML_DSA_LEVEL2_TYPE, &altCaKey, &rng);
         break;
     case 3:
         ret = wc_MakeSigWithBitStr(altSigValBuf, altSigValSz,
-                                   CTC_DILITHIUM_LEVEL3, preTbsBuf, preTbsSz,
-                                   DILITHIUM_LEVEL3_TYPE, &altCaKey, &rng);
+                                   CTC_ML_DSA_LEVEL3, preTbsBuf, preTbsSz,
+                                   ML_DSA_LEVEL3_TYPE, &altCaKey, &rng);
         break;
     case 5:
         ret = wc_MakeSigWithBitStr(altSigValBuf, altSigValSz,
-                                   CTC_DILITHIUM_LEVEL5, preTbsBuf, preTbsSz,
-                                   DILITHIUM_LEVEL5_TYPE, &altCaKey, &rng);
+                                   CTC_ML_DSA_LEVEL5, preTbsBuf, preTbsSz,
+                                   ML_DSA_LEVEL5_TYPE, &altCaKey, &rng);
         break;
     }
 
-    if (ret < 0) goto exit;
+    if (ret < 0) {
+        printf("error: wc_MakeSigWithBitStr returned: %d\n", ret);
+        goto exit;
+    }
     altSigValSz = ret;
     printf("altSigVal is %d bytes.\n", altSigValSz);
 
