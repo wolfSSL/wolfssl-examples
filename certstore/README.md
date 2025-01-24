@@ -9,9 +9,10 @@ A simple example of using the X509_STORE compatibility layer API with wolfSSL.
 ```
 $ cd wolfssl
 $ ./autogen.sh                # If downloaded from github
-$ ./configure --enable-opensslall--enable-crl    # CRL is optional.
+$ ./configure --enable-opensslall
 $ make
 $ sudo make install
+$ sudo ldconfig # if wanting to update links and cache of recent shared library
 ```
 
 ```
