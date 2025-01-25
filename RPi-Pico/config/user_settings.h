@@ -1,6 +1,6 @@
 /* user_settings.h
  *
- * Copyright (C) 2006-2023 wolfSSL Inc.
+ * Copyright (C) 2006-2025 wolfSSL Inc.
  *
  * This file is part of wolfSSL.
  *
@@ -41,28 +41,38 @@ extern "C"
 extern time_t myTime(time_t *);
 #define XTIME(t) myTime(t)
 
-#define WOLFSSL_DEBUG
-
 /* ------------------------------------------------------------------------- */
 /* Platform */
 /* ------------------------------------------------------------------------- */
 #define WOLFSSL_GENERAL_ALIGNMENT 4
 #define SIZEOF_LONG_LONG 8
+#if 0
+#define NO_64BIT /* disable use of 64-bit variables */
+#endif
+
+#ifdef TARGET_EMBEDDED
+/* disable mutex locking */
+#define SINGLE_THREADED
+
+/* reduce stack use. For variables over 100 bytes allocate from heap */
+#define WOLFSSL_SMALL_STACK
 
 /* Disable the built-in socket support and use the IO callbacks.
  * Set IO callbacks with wolfSSL_CTX_SetIORecv/wolfSSL_CTX_SetIOSend
  */
 #define WOLFSSL_USER_IO
-#define SINGLE_THREADED
+#endif
+
 /* ------------------------------------------------------------------------- */
 /* Math Configuration */
 /* ------------------------------------------------------------------------- */
 /* Wolf Single Precision Math */
+#if 1
 #define WOLFSSL_HAVE_SP_RSA
 #define WOLFSSL_HAVE_SP_DH
 #define WOLFSSL_HAVE_SP_ECC
-#define WOLFSSL_SP_4096 /* Enable RSA/RH 4096-bit support */
-#define WOLFSSL_SP_384 /* Enable ECC 384-bit SECP384R1 support */
+// #define WOLFSSL_SP_4096 /* Enable RSA/RH 4096-bit support */
+// #define WOLFSSL_SP_384 /* Enable ECC 384-bit SECP384R1 support */
 
 // #define WOLFSSL_SP_CACHE_RESISTANT
 #define WOLFSSL_SP_MATH     /* only SP math - disables integer.c/tfm.c */
@@ -71,6 +81,10 @@ extern time_t myTime(time_t *);
     // #define WOLFSSL_SP_NO_MALLOC
     // #define WOLFSSL_SP_DIV_32 /* do not use 64-bit divides */
 
+#ifdef TARGET_EMBEDDED
+/* use smaller version of code */
+//#define WOLFSSL_SP_SMALL
+#else
 /* SP Assembly Speedups - specific to chip type */
 #define WOLFSSL_SP_ASM
 #endif
@@ -81,11 +95,25 @@ extern time_t myTime(time_t *);
     // #define WOLFSSL_SP_ARM64_ASM
     // #define WOLFSSL_SP_ARM_THUMB_ASM
     // #define WOLFSSL_SP_ARM_CORTEX_M_ASM
-
-#if 0
+#elif 1
 /* Fast Math (tfm.c) (stack based and timing resistant) */
 #define USE_FAST_MATH
 #define TFM_TIMING_RESISTANT
+#else
+/* Normal (integer.c) (heap based, not timing resistant) - not recommended*/
+#define USE_INTEGER_HEAP_MATH
+#endif
+
+/* ------------------------------------------------------------------------- */
+/* Crypto */
+/* ------------------------------------------------------------------------- */
+/* RSA */
+#undef NO_RSA
+#if 0
+#ifdef USE_FAST_MATH
+/* Maximum math bits (Max RSA key bits * 2) */
+#define FP_MAX_BITS 4096
+#endif
 #endif
 
 #if 1
@@ -126,11 +154,11 @@ extern time_t myTime(time_t *);
 
 #ifdef ECC_USER_CURVES
 /* Manual Curve Selection */
-    #define HAVE_ECC192
-    #define HAVE_ECC224
-    #undef NO_ECC256
-    #define HAVE_ECC384
-    #define HAVE_ECC521
+// #define HAVE_ECC192
+// #define HAVE_ECC224
+#undef NO_ECC256
+    // #define HAVE_ECC384
+    // #define HAVE_ECC521
 #endif
 
 /* Fixed point cache (speeds repeated operations against same private key) */
@@ -150,6 +178,26 @@ extern time_t myTime(time_t *);
 
 /* Compressed ECC Key Support */
 // #define HAVE_COMP_KEY
+
+/* Use alternate ECC size for ECC math */
+#ifdef USE_FAST_MATH
+/* MAX ECC BITS = ROUND8(MAX ECC) * 2 */
+#if defined(NO_RSA) && defined(NO_DH)
+/* Custom fastmath size if not using RSA/DH */
+#define FP_MAX_BITS (256 * 2)
+#else
+/* use heap allocation for ECC points */
+#define ALT_ECC_SIZE
+
+    /* wolfSSL will compute the FP_MAX_BITS_ECC, but it can be overridden */
+    // #define FP_MAX_BITS_ECC (256 * 2)
+#endif
+
+/* Speedups specific to curve */
+#ifndef NO_ECC256
+#define TFM_ECC256
+#endif
+#endif
 #endif
 
 /* AES */
@@ -165,10 +213,10 @@ extern time_t myTime(time_t *);
 #define GCM_TABLE_4BIT
 #endif
 
-    #define WOLFSSL_AES_DIRECT
+    // #define WOLFSSL_AES_DIRECT
     // #define HAVE_AES_ECB
-    #define WOLFSSL_AES_COUNTER
-    #define HAVE_AESCCM
+    // #define WOLFSSL_AES_COUNTER
+    // #define HAVE_AESCCM
 #else
 #define NO_AES
 #endif
@@ -298,9 +346,9 @@ extern time_t myTime(time_t *);
 #define USE_CERT_BUFFERS_2048
 #endif
 
-/* ------------------------------------------------------------------------- */
-/* Debugging */
-/* ------------------------------------------------------------------------- */
+    /* ------------------------------------------------------------------------- */
+    /* Debugging */
+    /* ------------------------------------------------------------------------- */
 
 #undef DEBUG_WOLFSSL
 #undef NO_ERROR_STRINGS
@@ -441,9 +489,9 @@ unsigned long get_rand_32(void);
 #define XSNPRINTF snprintf
 #endif
 
-/* ------------------------------------------------------------------------- */
-/* Enable Features */
-/* ------------------------------------------------------------------------- */
+    /* ------------------------------------------------------------------------- */
+    /* Enable Features */
+    /* ------------------------------------------------------------------------- */
 
 #define WOLFSSL_TLS13
 #define WOLFSSL_OLD_PRIME_CHECK /* Use faster DH prime checking */
@@ -503,4 +551,3 @@ unsigned long get_rand_32(void);
 #endif
 
 #endif /* WOLFSSL_USER_SETTINGS_H */
-

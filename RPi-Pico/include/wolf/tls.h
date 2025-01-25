@@ -1,6 +1,6 @@
 /* tls.h
  *
- * Copyright (C) 2006-2023 wolfSSL Inc.
+ * Copyright (C) 2006-2025 wolfSSL Inc.
  *
  * This file is part of wolfSSL.
  *
@@ -21,8 +21,6 @@
 
 #ifndef TLS_H
 #define TLS_H
-
-#define SOCKET_INVALID -1
 
 int my_IORecv(WOLFSSL *ssl, char *buff, int sz, void *ctx);
 int my_IOSend(WOLFSSL *ssl, char *buff, int sz, void *ctx);

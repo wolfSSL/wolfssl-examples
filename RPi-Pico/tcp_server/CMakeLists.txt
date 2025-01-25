@@ -1,8 +1,9 @@
 add_executable(tcp_Server
+    ../src/blink.c
     ../src/wifi.c
     ../src/tcp.c
     ../src/tcpServer_main.c
-    ../src/freertos_cb.c
+    ../src/idleMemory.c
     )
 
 target_compile_definitions(tcp_Server PRIVATE
@@ -21,7 +22,20 @@ target_link_libraries(tcp_Server
     FreeRTOS-Kernel-Heap4
 )
 
-pico_enable_stdio_usb(tcp_Server 1)
+if (USE_UART)
+pico_enable_stdio_utsb(tcp_Server 0)
 pico_enable_stdio_uart(tcp_Server 1)
+else()
+pico_enable_stdio_usb(tcp_Server 1)
+pico_enable_stdio_uart(tcp_Server 0)
+endif()
+
+if (${PICO_PLATFORM} STREQUAL "rp2350")
+add_compile_definitions(wolfssl WOLFSSL_SP_ARM_CORTEX_M_ASM)
+elseif (${PICO_PLATFORM} STREQUAL "rp2350-riscv")
+add_compile_definitions(wolfSSL WOLFSSL_SP_RISCV32)
+else()
+add_compile_definitions(wolfssl WOLFSSL_SP_ARM_THUMB_ASM)
+endif()
 
 pico_add_extra_outputs(tcp_Server)

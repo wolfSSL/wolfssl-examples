@@ -1,6 +1,18 @@
 #ifndef FREERTOS_CONFIG_H
 #define FREERTOS_CONFIG_H
 
+/*-----------------------------------------------------------
+ * Application specific definitions.
+ *
+ * These definitions should be adjusted for your particular hardware and
+ * application requirements.
+ *
+ * THESE PARAMETERS ARE DESCRIBED WITHIN THE 'CONFIGURATION' SECTION OF THE
+ * FreeRTOS API DOCUMENTATION AVAILABLE ON THE FreeRTOS.org WEB SITE.
+ *
+ * See http://www.freertos.org/a00110.html
+ *----------------------------------------------------------*/
+
 /* Scheduler Related */
 #define configUSE_PREEMPTION 1
 #define configUSE_TICKLESS_IDLE 0
@@ -41,6 +53,15 @@
 #define configUSE_MALLOC_FAILED_HOOK 0
 #define configUSE_DAEMON_TASK_STARTUP_HOOK 0
 
+/* Run time and task stats gathering related definitions. */
+#define configGENERATE_RUN_TIME_STATS 0
+#define configUSE_TRACE_FACILITY 1
+#define configUSE_STATS_FORMATTING_FUNCTIONS 0
+
+/* Co-routine related definitions. */
+#define configUSE_CO_ROUTINES 0
+#define configMAX_CO_ROUTINE_PRIORITIES 1
+
 /* Software timer related definitions. */
 #define configUSE_TIMERS 1
 #define configTIMER_TASK_PRIORITY (configMAX_PRIORITIES - 1)
@@ -54,6 +75,10 @@
 #define configRUN_MULTIPLE_PRIORITIES 1
 #define configUSE_CORE_AFFINITY 1
 #endif
+
+/* RP2040 specific */
+#define configSUPPORT_PICO_SYNC_INTEROP 1
+#define configSUPPORT_PICO_TIME_INTEROP 1
 
 #include <assert.h>
 /* Define to trap errors during development. */
@@ -78,5 +103,6 @@ to exclude the API function. */
 #define INCLUDE_xTaskResumeFromISR 1
 #define INCLUDE_xQueueGetMutexHolder 1
 
+/* A header file that defines trace macro can be included here. */
 
 #endif /* FREERTOS_CONFIG_H */

@@ -1,16 +1,17 @@
 add_executable(tls_Client
+    ../src/blink.c
     ../src/wifi.c
     ../src/tcp.c
     ../src/tls.c
     ../src/time.c
-    ../src/freertos_cb.c
+    ../src/idleMemory.c
     ../src/tlsClient_main.c
 )
 
 target_compile_definitions(tls_Client PRIVATE
     WIFI_SSID=\"${WIFI_SSID}\"
     WIFI_PASSWORD=\"${WIFI_PASSWORD}\"
-    TCP_SERVER=\"${TCP_SERVER}\"
+    TEST_TCP_SERVER_IP=\"${TEST_TCP_SERVER_IP}\"
     NO_SYS=0
     LWIP_SOCKET=1
     LWIP_COMPAT_SOCKETS=1
@@ -27,7 +28,20 @@ target_link_libraries(tls_Client
     wolfssl
 )
 
-pico_enable_stdio_usb(tls_Client 1)
+if (USE_UART)
+pico_enable_stdio_usb(tls_Client 0)
 pico_enable_stdio_uart(tls_Client 1)
+else()
+pico_enable_stdio_usb(tls_Client 1)
+pico_enable_stdio_uart(tls_Client 0)
+endif()
+
+if (${PICO_PLATFORM} STREQUAL "rp2350")
+add_compile_definitions(wolfssl WOLFSSL_SP_ARM_CORTEX_M_ASM)
+elseif (${PICO_PLATFORM} STREQUAL "rp2350-riscv")
+add_compile_definitions(wolfSSL WOLFSSL_SP_RISCV32)
+else()
+add_compile_definitions(wolfssl WOLFSSL_SP_ARM_THUMB_ASM)
+endif()
 
 pico_add_extra_outputs(tls_Client)

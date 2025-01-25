@@ -1,6 +1,6 @@
 /* tcpClient_main.c
  *
- * Copyright (C) 2006-2024 wolfSSL Inc.
+ * Copyright (C) 2006-2025 wolfSSL Inc.
  *
  * This file is part of wolfSSL.
  *
@@ -30,6 +30,7 @@
 #include "lwip/sockets.h"
 
 #include "wolf/wifi.h"
+#include "wolf/blink.h"
 #include "wolf/tcp.h"
 
 #define TCP_PORT 11111
@@ -74,8 +75,8 @@ void tcpClient_test(void *arg)
         servAddr.sin_family = AF_INET;       /* using IPv4      */
         servAddr.sin_port = htons(TCP_PORT); /* on DEFAULT_PORT */
 
-        printf("Connecting to the server(%s)\n", TCP_SERVER);
-        if (inet_pton(AF_INET, TCP_SERVER, &servAddr.sin_addr) != 1) {
+        printf("Connecting to the server(%s)\n", TEST_TCP_SERVER_IP);
+        if (inet_pton(AF_INET, TEST_TCP_SERVER_IP, &servAddr.sin_addr) != 1) {
             fprintf(stderr, "ERROR: invalid address\n");
             goto exit;
         }
