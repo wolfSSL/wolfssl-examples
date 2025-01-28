@@ -21,9 +21,8 @@
 #define WOLFSSL_DH_CONST /* No pow or log function avaliable */
 #define NO_ERROR_STRINGS
 #define WOLFSSL_TLS13
-#if 0
+#if 1
     #define WOLFSSL_AESNI
-    #define WOLFSSL_X86_64_BUILD
 #endif
 /* only in example code not wolfssl proper */
 #define WOLFSSL_NEED_DYNAMIC_TYPE_FIX_UEFI

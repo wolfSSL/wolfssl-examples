@@ -21,9 +21,14 @@
     #define uefi_printf_debug(...) ((void)0)
 #endif
 
+#ifdef UEFI_LOG_PRINTF
+
+extern FILE* printfLog;
+
+#endif
+
 /* Needed from main */
 extern EFI_LOADED_IMAGE *loaded_image;
-
 /* Function to parse and replace a search string with a replacement string */
 /* used to find options such %s and replace with %a, but is setup to parse */
 /* any needed string */
@@ -140,6 +145,15 @@ int uefi_vsnprintf_wolfssl(char* buffer, size_t size, const char* format,
     check = parseAndReplace(tempFormat, tempFormat, "%1.17g", "%1.0f");
 #endif
 
+#ifdef NO_MAIN_OPTEST_DRIVER
+    parseAndReplace(tempFormat, tempFormat, "%25s", "%25a");
+    parseAndReplace(tempFormat, tempFormat, "%10s", "%10a");
+#ifdef OPTEST_INVALID_LOGGING_ENABLED
+    parseAndReplace(tempFormat, tempFormat, "%*s", "%*a");
+#endif
+#endif
+
+
     /* Pass the variadic arguments to AsciiVSPrintf */
     result = (int)AsciiVSPrint(buffer, size, tempFormat, args);
 
@@ -208,7 +222,14 @@ int uefi_printf_wolfssl(const char* msg, ...)
 
     /* Use AsciiPrint to print the formatted message */
     ret = (int)AsciiPrint("%a", temp);
-
+#ifdef UEFI_LOG_PRINTF
+    if (printfLog != NULL) {
+        fwrite(temp, strlena(temp), 1, printfLog);
+    }
+    else {
+        Print(L"Logging file in NULL prt\n");
+    }
+#endif
     /* Clean up */
     va_end(argsCpy);
     va_end(args);
@@ -396,27 +417,25 @@ void *XREALLOC(void *p, size_t n, void* heap, int type)
     void* newBuffer = NULL;
     (void)heap;
     (void)type;
-    //uefi_printf_wolfssl("%s\n", p);
 
     if (n == 0) {
-        uefi_printf_wolfssl("Size 0 given returning NULL...\n");
+        AsciiPrint("Size 0 given returning NULL...\n");
         FreePool(p);
         p = NULL;
         return NULL;
     }
 
     /* Allocate new Buffer */
-
     newBuffer = AllocateZeroPool(n);
     if (newBuffer == NULL) {
         AsciiPrint("Realloc Failed: return NULL\n");
         FreePool(p);
         return NULL;
     }
-
     if (p == NULL) {
         return newBuffer;
     }
+
     /* preform memcpy on old buffer using n.... */
     CopyMem(newBuffer, p, n);
 
@@ -428,9 +447,10 @@ void *XREALLOC(void *p, size_t n, void* heap, int type)
 
 void XFREE(void *p, void* heap, int type)
 {
-    return FreePool(p);
+    FreePool(p);
+    p = NULL;
+    return;
 }
-
 
 void *uefi_malloc_wolfssl(size_t n)
 {
@@ -1170,10 +1190,24 @@ EFI_FILE_HANDLE getVolume(void)
     return LibOpenRoot(image->DeviceHandle);
 }
 
-
-
 /* RNG SECTION */
 /* Use to seed the HASH DRGB */
+
+
+/* Functions just incase EFI_RNG Protocal Does not exist */
+static unsigned int seed;
+
+void set_seed(double new_seed) {
+    seed = (unsigned int)new_seed;
+}
+
+static unsigned int pseudo_rng() {
+    seed = (seed * 1103515245 + 12345) & 0x7FFFFFFF;
+    return seed;
+}
+
+
+
 int uefi_random_gen(char* output, unsigned int sz)
 {
     EFI_STATUS status;
@@ -1185,8 +1219,13 @@ int uefi_random_gen(char* output, unsigned int sz)
     uefi_printf_debug("Before RNG Locate Call");
     status = LibLocateProtocol(&gEfiRngProtocolGuid, (void**)&rngInterface);
     if (EFI_ERROR(status)) {
-        uefi_printf_wolfssl("Locate Protocol Failed\n");
-        return -1; /* Fallback to 0 on error */
+        /* Use fake rng seeded by time if functions are not avaliable */
+        uefi_printf_debug("No RNG Avaliable using Alternate\n");
+        set_seed(current_time(0));
+        for (int i = 0; i < sz; i++) {
+            output[i] = (char)(pseudo_rng() & 0xFF);
+        }
+        return 0; /* Fallback to time */
     }
     uefi_printf_debug("After RNG Locate Call");
 
@@ -1397,4 +1436,12 @@ int uefi_strncmp_wolfssl(const char *s1, const char *s2, size_t n)
     XFREE(s1_temp, NULL, DYNAMIC_TYPE_TMP_BUFFER);
     XFREE(s2_temp, NULL, DYNAMIC_TYPE_TMP_BUFFER);
     return ret;
+}
+
+unsigned int sleep(unsigned int seconds)
+{
+    unsigned int i = 0;
+    for (i = 0; i < (1000000 * seconds); i++) {
+    }
+    return seconds;
 }

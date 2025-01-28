@@ -20,7 +20,6 @@ typedef enum {
 } FILE_OPS;
 
 /* Done */
-
 /* UEFI RNG */
 int uefi_random_gen(char* output, unsigned int sz);
 
@@ -96,5 +95,6 @@ int stat(const char* path, struct stat* buf);
 void uefi_strerr(const char* message);
 static int write_integer(FILE* stream, int value);
 static int write_string(FILE* stream, const char* str);
+double current_time(int reset);
 
 #endif
