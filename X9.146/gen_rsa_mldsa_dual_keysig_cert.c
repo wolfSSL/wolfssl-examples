@@ -228,8 +228,12 @@ static int do_certgen(int argc, char** argv)
 
     XMEMSET(altSigAlgBuf, 0, altSigAlgSz);
 
-    altSigAlgSz = SetAlgoID(CTC_DILITHIUM_LEVEL2, altSigAlgBuf, oidSigType, 0);
-    if (altSigAlgSz <= 0) goto exit;
+    altSigAlgSz = SetAlgoID(CTC_ML_DSA_LEVEL2, altSigAlgBuf, oidSigType, 0);
+    if (altSigAlgSz <= 0) {
+        printf("error: SetAlgoID(%d) returned: %d\n", CTC_ML_DSA_LEVEL2,
+               altSigAlgSz);
+        goto exit;
+    }
     printf("Successfully generated alternative signature algorithm;");
     printf(" %d bytes.\n\n", altSigAlgSz);
 
@@ -300,10 +304,14 @@ static int do_certgen(int argc, char** argv)
 
     /* Generate the contents of the altSigVal extension and inject into cert. */
     XMEMSET(altSigValBuf, 0, altSigValSz);
-    ret = wc_MakeSigWithBitStr(altSigValBuf, altSigValSz, CTC_DILITHIUM_LEVEL2,
-                               preTbsBuf, preTbsSz, DILITHIUM_LEVEL2_TYPE,
+    ret = wc_MakeSigWithBitStr(altSigValBuf, altSigValSz, CTC_ML_DSA_LEVEL2,
+                               preTbsBuf, preTbsSz, ML_DSA_LEVEL2_TYPE,
                                &altCaKey, &rng);
-    if (ret < 0) goto exit;
+    if (ret < 0) {
+        printf("error: wc_MakeSigWithBitStr returned: %d\n", ret);
+        goto exit;
+    }
+
     altSigValSz = ret;
     printf("altSigVal is %d bytes.\n", altSigValSz);
 
