@@ -17,9 +17,9 @@ is new and has not made it into a release as of the time of the writing of this
 document.  Support will start as of release 5.3.0.
 
 Please see README.md in the parent of this directory for insructions on how to
-build and install liboqs and wolfSSL on your linux machine. They will be
-required to build the applications on the linux side that will talk to the
-STM32 board over UART.
+build and install wolfSSL on your linux machine with ML-DSA (Dilithium) support.
+It will be required to build the applications on the linux side that will talk
+to the STM32 board over UART.
 
 ## Building the Applications for the Linux Side
 

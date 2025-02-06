@@ -35,20 +35,6 @@ make
 sudo make install
 sudo ldconfig # required on some targets
 ```
-NOTE: This DOES NOT require installation of liboqs.
-
-Tested with these wolfSSL build options for Falcon certificates:
-
-```sh
-./autogen.sh  # If cloned from GitHub
-./configure --enable-experimental  --enable-dual-alg-certs --with-liboqs --enable-debug
-make
-sudo make install
-sudo ldconfig # required on some targets
-```
-NOTE: This REQUIRES installation of liboqs for its Falcon implementation.
-
-
 
 In the directory where this README.md file is found, clean up previous build
 products and certificates and then build the applications.
@@ -76,13 +62,13 @@ verification was also successful.
 On the client side, during the call to `DoTls13CertificateVerify()` look for
 messages that indicate both conventional and post-quantum verification:
 
-For example, if you are doing ECDSA with Falcon, you will see the following:
+For example, if you are doing ECDSA with MLDSA, you will see the following:
 
 ```
 Doing ECC peer cert verify
 wolfSSL Entering EccVerify
 wolfSSL Leaving EccVerify, return 0
-Doing Falcon peer cert verify
+Doing MLDSA peer cert verify
 wolfSSL Leaving DoTls13CertificateVerify, return 0
 ```
 
@@ -199,81 +185,6 @@ examples/server/server -d -v 4 -c ../wolfssl-examples/X9.146/server-P521-mldsa87
 examples/client/client -v 4 -A ../wolfssl-examples/X9.146/ca-P521-mldsa87-cert.pem
 ```
 
-#### P-256 and Falcon Level 1 Demo
-
-Generate the various conventional keys; the post-quantum key are pre-generated:
-
-```sh
-openssl genpkey -algorithm ec -pkeyopt ec_paramgen_curve:P-256 -out ca-key.der -outform der
-
-openssl genpkey -algorithm ec -pkeyopt ec_paramgen_curve:P-256 -out server-key.der -outform der
-```
-
-Generate the certificate chain:
-
-```
-./gen_ecdsa_falcon_dual_keysig_root_cert 1
-
-./gen_ecdsa_falcon_dual_keysig_server_cert 1
-```
-
-Convert the DER encoded resulting certificates and keys into PEM:
-
-```
-openssl x509  -in ca-cert-pq.der -inform der -out ca-P256-falcon1-cert.pem -outform pem
-
-openssl x509  -in server-cert-pq.der -inform der -out server-P256-falcon1-cert.pem -outform pem
-
-openssl pkey  -in server-key.der -inform der -out server-P256-key.pem -outform pem
-
-cp ../certs/falcon_level1_server_key.pem server-falcon1-key-pq.pem
-```
-Then in wolfssl's source directory:
-
-```
-examples/server/server -d -v 4 -c ../wolfssl-examples/X9.146/server-P256-falcon1-cert.pem -k ../wolfssl-examples/X9.146/server-P256-key.pem --altPrivKey ../wolfssl-examples/X9.146/server-falcon1-key-pq.pem
-
-examples/client/client -v 4 -A ../wolfssl-examples/X9.146/ca-P256-falcon1-cert.pem
-```
-
-#### P-521 and Falcon Level 5 Demo
-
-Generate the various conventional keys; the post-quantum key are pre-generated:
-
-```sh
-openssl genpkey -algorithm ec -pkeyopt ec_paramgen_curve:P-521 -out ca-key.der -outform der
-
-openssl genpkey -algorithm ec -pkeyopt ec_paramgen_curve:P-521 -out server-key.der -outform der
-```
-
-Generate the certificate chain:
-
-```
-
-./gen_ecdsa_falcon_dual_keysig_root_cert 5
-
-./gen_ecdsa_falcon_dual_keysig_server_cert 5
-```
-
-Convert the DER encoded resulting certificates and keys into PEM:
-
-```
-openssl x509  -in ca-cert-pq.der -inform der -out ca-P521-falcon5-cert.pem -outform pem
-
-openssl x509  -in server-cert-pq.der -inform der -out server-P521-falcon5-cert.pem -outform pem
-
-openssl pkey  -in server-key.der -inform der -out server-P521-key.pem -outform pem
-
-cp ../certs/falcon_level5_server_key.pem server-falcon5-key-pq.pem
-```
-Then in wolfssl's source directory:
-
-```
-examples/server/server -d -v 4 -c ../wolfssl-examples/X9.146/server-P521-falcon5-cert.pem -k ../wolfssl-examples/X9.146/server-P521-key.pem --altPrivKey ../wolfssl-examples/X9.146/server-falcon5-key-pq.pem
-
-examples/client/client -v 4 -A ../wolfssl-examples/X9.146/ca-P521-falcon5-cert.pem
-```
-
 ### RSA Demos
 
 #### RSA-3072 and MLDSA44 Demo
@@ -311,43 +222,6 @@ Then in wolfssl's source directory:
 examples/server/server -d -v 4 -c ../wolfssl-examples/X9.146/server-rsa3072-mldsa44-cert.pem -k ../wolfssl-examples/X9.146/server-rsa3072-key.pem --altPrivKey ../wolfssl-examples/X9.146/server-mldsa44-key-pq.pem
 
 examples/client/client -v 4 -A ../wolfssl-examples/X9.146/ca-rsa3072-mldsa44-cert.pem
-```
-
-#### RSA-3072 and Falcon Level 1 Demo
-
-Generate the various conventional keys; the post-quantum key are pre-generated:
-
-```sh
-openssl genpkey -algorithm rsa  -pkeyopt rsa_keygen_bits:3072 -out ca-key.der -outform der
-
-openssl genpkey -algorithm rsa  -pkeyopt rsa_keygen_bits:3072 -out server-key.der -outform der
-```
-
-Generate the certificate chain:
-
-```
-./gen_rsa_falcon_dual_keysig_root_cert
-
-./gen_rsa_falcon_dual_keysig_server_cert
-```
-
-Convert the DER encoded resulting certificates and keys into PEM:
-
-```
-openssl x509  -in ca-cert-pq.der -inform der -out ca-rsa3072-falcon1-cert.pem -outform pem
-
-openssl x509  -in server-cert-pq.der -inform der -out server-rsa3072-falcon1-cert.pem -outform pem
-
-openssl pkey  -in server-key.der -inform der -out server-rsa3072-key.pem -outform pem
-
-cp ../certs/falcon_level1_server_key.pem server-falcon1-key-pq.pem
-```
-Then in wolfssl's source directory:
-
-```
-examples/server/server -d -v 4 -c ../wolfssl-examples/X9.146/server-rsa3072-falcon1-cert.pem -k ../wolfssl-examples/X9.146/server-rsa3072-key.pem --altPrivKey ../wolfssl-examples/X9.146/server-falcon1-key-pq.pem
-
-examples/client/client -v 4 -A ../wolfssl-examples/X9.146/ca-rsa3072-falcon1-cert.pem
 ```
 
 ## Generating a Certificate Chain and Adding Alternative keys and Signatures

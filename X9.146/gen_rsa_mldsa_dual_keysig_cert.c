@@ -381,8 +381,8 @@ int main(int argc, char** argv)
 
 int main(int argc, char** argv)
 {
-    printf("Please compile wolfSSL with --enable-dual-alg-certs --with-liboqs "
-           "or CFLAGS=\"-DWOLFSSL_DUAL_ALG_CERTS -DHAVE_LIBOQS\"");
+    printf("Please compile wolfSSL with --enable-dual-alg-certs "
+           "--enable-dilithium");
     return 0;
 }
 
