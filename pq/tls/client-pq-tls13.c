@@ -36,12 +36,14 @@
 #include <wolfssl/wolfio.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
 
+#if defined(WOLFSSL_TLS13) && defined(WOLFSSL_HAVE_KYBER) && \
+    defined(HAVE_DILITHIUM)
+
 #define DEFAULT_PORT 11111
 
-#define CERT_FILE "../certs/falcon_level5_root_cert.pem"
+#define CERT_FILE "../../certs/mldsa87_root_cert.pem"
 
-#if defined(HAVE_SECRET_CALLBACK) && defined(WOLFSSL_TLS13) && \
-    defined(HAVE_LIBOQS)
+#ifdef HAVE_SECRET_CALLBACK
 
 #ifndef WOLFSSL_SSLKEYLOGFILE_OUTPUT
     #define WOLFSSL_SSLKEYLOGFILE_OUTPUT "sslkeylog.log"
@@ -108,12 +110,14 @@ static int Tls13SecretCallback(WOLFSSL* ssl, int id, const unsigned char* secret
 
     return 0;
 }
-#endif /* WOLFSSL_TLS13 && HAVE_SECRET_CALLBACK */
+#endif /* HAVE_SECRET_CALLBACK */
+#endif /* WOLFSSL_TLS13 && WOLFSSL_HAVE_KYBER && HAVE_DILITHIUM */
 
 int main(int argc, char** argv)
 {
     int ret = 0;
-#if defined(WOLFSSL_TLS13) && defined(HAVE_LIBOQS)
+#if defined(WOLFSSL_TLS13) && defined(WOLFSSL_HAVE_KYBER) && \
+    defined(HAVE_DILITHIUM)
     int                sockfd = SOCKET_INVALID;
     struct sockaddr_in servAddr;
     char               buff[256];
@@ -192,10 +196,10 @@ int main(int argc, char** argv)
         ret = -1; goto exit;
     }
 
-    ret = wolfSSL_UseKeyShare(ssl, WOLFSSL_P521_KYBER_LEVEL5);
+    ret = wolfSSL_UseKeyShare(ssl, WOLFSSL_P521_ML_KEM_1024);
     if (ret < 0) {
         fprintf(stderr, "ERROR: failed to set the requested group to "
-                        "P521_KYBER_LEVEL5.\n");
+                        "WOLFSSL_P521_ML_KEM_1024.\n");
         ret = -1; goto exit;
     }
 
@@ -263,9 +267,10 @@ exit:
         wolfSSL_CTX_free(ctx);  /* Free the wolfSSL context object          */
     wolfSSL_Cleanup();          /* Cleanup the wolfSSL environment          */
 #else
-    printf("Example requires TLS v1.3 and liboqs.\n");
-    printf("Configure wolfssl like this: ./configure --with-liboqs\n");
-#endif
+    printf("This requires TLS 1.3, ML-DSA (Dilithium) and ML-KEM (Kyber).\n");
+    printf("Configure wolfssl like this:\n");
+    printf("    ./configure --enable-dilithium --enable-kyber\n");
+#endif /* WOLFSSL_TLS13 && WOLFSSL_HAVE_KYBER && HAVE_DILITHIUM */
     (void)argc;
     (void)argv;
 
