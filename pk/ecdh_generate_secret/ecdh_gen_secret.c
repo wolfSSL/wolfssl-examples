@@ -102,11 +102,13 @@ int do_ecc(void)
 #endif
 
     secretLen = ECC_256_BIT_FIELD; /* explicit set */
+    wc_ecc_set_rng(&AliceKey, &rng);
     ret = wc_ecc_shared_secret(&AliceKey, &BobKey, AliceSecret, &secretLen);
     if (ret != 0)
         goto all_three;
 
     secretLen = ECC_256_BIT_FIELD; /* explicit reset for best practice */
+    wc_ecc_set_rng(&BobKey, &rng);
     ret = wc_ecc_shared_secret(&BobKey, &AliceKey, BobSecret, &secretLen);
     if (ret == 0) {
         if (XMEMCMP(AliceSecret, BobSecret, secretLen))
