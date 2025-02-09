@@ -26,5 +26,6 @@ echo "# Random Number Generation example"
 echo
 echo "# PKCS #11 test"
 ./pkcs11_test /usr/local/lib/opencryptoki/libopencryptoki.so 3 SoftToken cryptoki
-
-
+echo
+echo "# PKCS11 CSR example"
+./pkcs11_csr /usr/local/lib/opencryptoki/libopencryptoki.so 3 SoftToken cryptoki
