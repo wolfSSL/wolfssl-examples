@@ -66,7 +66,10 @@ int main(int argc, char** argv)
 
 
     /* Initialize wolfSSL */
-    wolfSSL_Init();
+    if ((ret = wolfSSL_Init()) != WOLFSSL_SUCCESS) {
+        fprintf(stderr, "ERROR: Failed to initialize the library\n");
+        goto exit;
+    }
 
 
 
@@ -79,6 +82,19 @@ int main(int argc, char** argv)
         goto exit;
     }
 
+    /* Initialize the server address struct with zeros */
+    memset(&servAddr, 0, sizeof(servAddr));
+
+    /* Fill in the server address */
+    servAddr.sin_family = AF_INET;             /* using IPv4      */
+    servAddr.sin_port   = htons(DEFAULT_PORT); /* on DEFAULT_PORT */
+
+    /* Get the server IPv4 address from the command line call */
+    if (inet_pton(AF_INET, argv[1], &servAddr.sin_addr) != 1) {
+        fprintf(stderr, "ERROR: invalid address\n");
+        ret = -1;
+        goto exit;
+    }
 
 
     /* Create and initialize WOLFSSL_CTX */
@@ -98,27 +114,10 @@ int main(int argc, char** argv)
 
 
 
-    /* Initialize the server address struct with zeros */
-    memset(&servAddr, 0, sizeof(servAddr));
-
-    /* Fill in the server address */
-    servAddr.sin_family = AF_INET;             /* using IPv4      */
-    servAddr.sin_port   = htons(DEFAULT_PORT); /* on DEFAULT_PORT */
-
-    /* Get the server IPv4 address from the command line call */
-    if (inet_pton(AF_INET, argv[1], &servAddr.sin_addr) != 1) {
-        fprintf(stderr, "ERROR: invalid address\n");
-        ret = -1;
-        goto exit;
-    }
-
-
-
     /* Connect to the server */
-    if (connect(sockfd, (struct sockaddr*) &servAddr, sizeof(servAddr))
-        == -1) {
+    if ((ret = connect(sockfd, (struct sockaddr*) &servAddr, sizeof(servAddr)))
+         == -1) {
         fprintf(stderr, "ERROR: failed to connect\n");
-        ret = -1; 
         goto exit;
     }
 
@@ -132,7 +131,10 @@ int main(int argc, char** argv)
     }
 
     /* Attach wolfSSL to the socket */
-    wolfSSL_set_fd(ssl, sockfd);
+    if ((ret = wolfSSL_set_fd(ssl, sockfd)) != WOLFSSL_SUCCESS) {
+        fprintf(stderr, "ERROR: Failed to set the file descriptor\n");
+        goto exit;
+    }
 
     /* Connect to wolfSSL on the server side */
     if ((ret = wolfSSL_connect(ssl)) != WOLFSSL_SUCCESS) {
@@ -146,8 +148,8 @@ int main(int argc, char** argv)
     printf("Message for server: ");
     memset(buff, 0, sizeof(buff));
     if (fgets(buff, sizeof(buff), stdin) == NULL) {
-        fprintf(stderr, "ERROR: failed to to get message for server\n");
-        ret = -1; 
+        fprintf(stderr, "ERROR: failed to get message for server\n");
+        ret = -1;
         goto exit;
     }
     len = strnlen(buff, sizeof(buff));
@@ -174,11 +176,15 @@ int main(int argc, char** argv)
 
 
     /* Save the session */
-    session = wolfSSL_get_session(ssl);
+    if ((session = wolfSSL_get_session(ssl)) == NULL) {
+        fprintf(stderr, "ERROR: failed to get session\n");
+        ret = -1;
+        goto exit;
+    }
 
     /* Close the socket */
-    wolfSSL_free(ssl);
-    close(sockfd);
+    wolfSSL_free(ssl); ssl = NULL;
+    close(sockfd); sockfd = SOCKET_INVALID;
 
 
 
@@ -197,8 +203,9 @@ int main(int argc, char** argv)
 
     /* Set up to resume the session */
     if ((ret = wolfSSL_set_session(sslRes, session)) != WOLFSSL_SUCCESS) {
-        fprintf(stderr, "ERROR: failed to set session\n");
-        goto exit;
+        fprintf(stderr, "Failed to set session, make sure session tickets "
+                        "(--enable-session-ticket) is enabled\n");
+        /*goto exit;*/ /* not fatal */
     }
 
 
@@ -221,7 +228,10 @@ int main(int argc, char** argv)
     }
 
     /* Attach wolfSSL to the socket */
-    wolfSSL_set_fd(sslRes, sockfd);
+    if ((ret = wolfSSL_set_fd(sslRes, sockfd)) != WOLFSSL_SUCCESS) {
+        fprintf(stderr, "ERROR: Failed to set the file descriptor\n");
+        goto exit;
+    }
 
     /* Reconnect to wolfSSL */
     if ((ret = wolfSSL_connect(sslRes)) != WOLFSSL_SUCCESS) {
@@ -233,10 +243,10 @@ int main(int argc, char** argv)
 
     /* Test if the resume was successful */
     if (wolfSSL_session_reused(sslRes)) {
-        printf("Session ID reused; Successful resume.\n");
+        printf("Session ID reused; Successful resume\n");
     }
     else {
-        printf("Session ID not reused; Successful resume.\n");
+        printf("Session not resumed, full handshake done instead\n");
     }
 
 
@@ -274,17 +284,19 @@ int main(int argc, char** argv)
 exit:
     /* Cleanup and return */
     if (ssl)
-        wolfSSL_free(ssl);      /* Free the wolfSSL object              */
+        wolfSSL_free(ssl);      /* Free the wolfSSL object */
+    if (sslRes)
+        wolfSSL_free(sslRes);   /* Free the wolfSSL resume object */
 #ifdef OPENSSL_EXTRA   
     if (session)
         wolfSSL_SESSION_free(session);
 #endif    
     if (sockfd != SOCKET_INVALID)
-        close(sockfd);          /* Close the socket   */
+        close(sockfd);          /* Close the socket */
     if (ctx)
-        wolfSSL_CTX_free(ctx);  /* Free the wolfSSL context object          */
-    wolfSSL_Cleanup();          /* Cleanup the wolfSSL environment          */
+        wolfSSL_CTX_free(ctx);  /* Free the wolfSSL context object */
+    wolfSSL_Cleanup();          /* Cleanup the wolfSSL environment */
 
-    return ret;                 /* Return reporting a success               */
+    return ret;
 
 }
