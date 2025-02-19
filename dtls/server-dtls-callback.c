@@ -69,6 +69,7 @@ int my_IORecv(WOLFSSL* ssl, char* buff, int sz, void* ctx)
     int recvd;
     struct sockaddr addr;
     socklen_t addrSz = sizeof(addr);
+    int dtls_timeout;
 
     printf("Server Recv fd %d, buf %d\n", shared->sd, sz);
 
@@ -81,10 +82,32 @@ int my_IORecv(WOLFSSL* ssl, char* buff, int sz, void* ctx)
         shared->rxSz -= recvd;
         memcpy(shared->rxBuf, &shared->rxBuf[recvd], shared->rxSz);
     }
-    else {
-        /* Receive datagram */
-        recvd = recvfrom(shared->sd, buff, sz, 0, &addr, &addrSz);
+
+    dtls_timeout = wolfSSL_dtls_get_current_timeout(ssl);
+
+    /* If we are performing the DTLS handshake, and we are in blocking mode, we
+     * set a socket timeout at OS level. */
+    if (!wolfSSL_is_init_finished(ssl)) {
+            /* Still in handshake: set the OS timeout */
+            if (dtls_timeout > 0) {
+                    struct timeval tv;
+                    tv.tv_sec = dtls_timeout;
+                    tv.tv_usec = 0;
+                    if (setsockopt(shared->sd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) < 0) {
+                            fprintf(stderr, "setsockopt failed\n");
+                            return WOLFSSL_CBIO_ERR_GENERAL;
+                    }
+            }
+    } else {
+            struct timeval tv = {0, 0};
+            if (setsockopt(shared->sd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) < 0) {
+                    fprintf(stderr, "setsockopt failed\n");
+                    return WOLFSSL_CBIO_ERR_GENERAL;
+            }
     }
+
+    /* Receive datagram */
+    recvd = recvfrom(shared->sd, buff, sz, 0, &addr, &addrSz);
 
     if (recvd == -1) {
         /* error encountered. Be responsible and report it in wolfSSL terms */
