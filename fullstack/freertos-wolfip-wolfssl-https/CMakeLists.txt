@@ -27,3 +27,13 @@ set(FREERTOS_SOURCES
     ${FREERTOS_PORT_DIR}/port.c
     ${FREERTOS_HEAP_DIR}/heap_3.c
 )
+
+# Add the main application
+add_executable(freertos_sim
+    ${FREERTOS_SOURCES}
+    src/main.c
+)
+
+target_link_libraries(freertos_sim
+    pthread
+)
