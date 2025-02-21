@@ -14,6 +14,8 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/freertos/FreeRTOS-Kernel/include
     ${FREERTOS_PORT_DIR}
+    /home/ubuntu/repos/wolfip/src
+    /home/ubuntu/repos/wolfip
 )
 
 # FreeRTOS source files
@@ -29,12 +31,19 @@ set(FREERTOS_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/freertos/utils/utils.c
 )
 
+# Add wolfIP library
+add_library(wolfip STATIC
+    /home/ubuntu/repos/wolfip/src/wolfip.c
+)
+
 # Add the main application
 add_executable(freertos_sim
     ${FREERTOS_SOURCES}
     src/main.c
+    src/wolfip_freertos.c
 )
 
 target_link_libraries(freertos_sim
     pthread
+    wolfip
 )
