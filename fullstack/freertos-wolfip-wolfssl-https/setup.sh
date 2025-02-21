@@ -5,8 +5,6 @@ set -e
 
 FREERTOS_REPO="https://github.com/FreeRTOS/FreeRTOS.git"
 FREERTOS_KERNEL_REPO="https://github.com/FreeRTOS/FreeRTOS-Kernel.git"
-FREERTOS_POSIX_REPO="https://github.com/FreeRTOS/FreeRTOS-Plus-POSIX.git"
-
 echo "Setting up FreeRTOS simulation environment..."
 
 # Create directories if they don't exist
@@ -20,10 +18,6 @@ fi
 
 if [ ! -d "FreeRTOS-Kernel" ]; then
     git clone $FREERTOS_KERNEL_REPO
-fi
-
-if [ ! -d "FreeRTOS-Plus-POSIX" ]; then
-    git clone $FREERTOS_POSIX_REPO
 fi
 
 echo "FreeRTOS repositories cloned successfully"
