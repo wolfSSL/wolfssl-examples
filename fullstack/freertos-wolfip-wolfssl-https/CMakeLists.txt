@@ -26,6 +26,7 @@ set(FREERTOS_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/freertos/FreeRTOS-Kernel/stream_buffer.c
     ${FREERTOS_PORT_DIR}/port.c
     ${FREERTOS_HEAP_DIR}/heap_3.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/freertos/utils/utils.c
 )
 
 # Add the main application
