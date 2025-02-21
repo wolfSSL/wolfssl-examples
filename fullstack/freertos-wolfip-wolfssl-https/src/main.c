@@ -20,8 +20,15 @@ static void testTask(void* pvParameters) {
         printf("Failed to start wolfIP network task\n");
         return;
     }
+
+    printf("Starting UDP echo server...\n");
+    ret = wolfIP_Start_UDP_Echo();
+    if (ret != 0) {
+        printf("Failed to start UDP echo server\n");
+        return;
+    }
     
-    printf("Network stack running...\n");
+    printf("Network stack and UDP echo server running...\n");
     for(;;) {
         vTaskDelay(xDelay);
     }

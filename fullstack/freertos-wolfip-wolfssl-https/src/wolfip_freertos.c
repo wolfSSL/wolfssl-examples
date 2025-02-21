@@ -11,6 +11,7 @@
 #include <poll.h>
 #include <sys/socket.h>
 #include <sys/random.h>
+#include <errno.h>
 
 /* Implementation of wolfIP's required random number generator */
 uint32_t wolfIP_getrandom(void) {
@@ -75,6 +76,24 @@ static int tap_init(struct ll *dev, const char *ifname) {
         return -1;
     }
 
+    /* Configure IP address */
+    struct sockaddr_in *addr = (struct sockaddr_in *)&ifr.ifr_addr;
+    addr->sin_family = AF_INET;
+    addr->sin_addr.s_addr = inet_addr("192.168.1.10");
+    if (ioctl(sock_fd, SIOCSIFADDR, &ifr) < 0) {
+        perror("ioctl SIOCSIFADDR");
+        close(sock_fd);
+        return -1;
+    }
+
+    /* Configure netmask */
+    addr->sin_addr.s_addr = inet_addr("255.255.255.0");
+    if (ioctl(sock_fd, SIOCSIFNETMASK, &ifr) < 0) {
+        perror("ioctl SIOCSIFNETMASK");
+        close(sock_fd);
+        return -1;
+    }
+
     close(sock_fd);
     return 0;
 }
@@ -85,7 +104,10 @@ static int tap_poll(struct ll *ll, void *buf, uint32_t len) {
 
     pfd.fd = tap_fd;
     pfd.events = POLLIN;
-    ret = poll(&pfd, 1, 1); /* Short timeout */
+
+    do {
+        ret = poll(&pfd, 1, 1); /* Short timeout */
+    } while (ret < 0 && errno == EINTR);
 
     if (ret < 0) {
         perror("poll");
@@ -95,7 +117,11 @@ static int tap_poll(struct ll *ll, void *buf, uint32_t len) {
         return 0;
     }
 
-    return read(tap_fd, buf, len);
+    do {
+        ret = read(tap_fd, buf, len);
+    } while (ret < 0 && errno == EINTR);
+
+    return ret;
 }
 
 static int tap_send(struct ll *ll, void *buf, uint32_t len) {
@@ -151,6 +177,65 @@ int wolfIP_FreeRTOS_Init(void) {
         atoip4("192.168.1.1"));     /* Gateway */
         
     return 0;
+}
+
+static void UDP_Echo_Task(void* pvParameters) {
+    int sockfd;
+    uint8_t buf[1024];
+    int ret;
+    struct wolfIP_sockaddr_in addr;
+    struct wolfIP_sockaddr_in client_addr;
+    socklen_t client_len;
+
+    sockfd = wolfIP_sock_socket(g_wolfip, AF_INET, SOCK_DGRAM, 0);
+    if (sockfd < 0) {
+        printf("Failed to create UDP socket\n");
+        return;
+    }
+
+    memset(&addr, 0, sizeof(addr));
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(UDP_TEST_PORT);
+    addr.sin_addr.s_addr = htonl(INADDR_ANY);
+
+    if (wolfIP_sock_bind(g_wolfip, sockfd, (struct wolfIP_sockaddr*)&addr, sizeof(addr)) < 0) {
+        printf("Failed to bind UDP socket\n");
+        wolfIP_sock_close(g_wolfip, sockfd);
+        return;
+    }
+
+    printf("UDP Echo Server running on port %d\n", UDP_TEST_PORT);
+
+    while (1) {
+        client_len = sizeof(client_addr);
+        ret = wolfIP_sock_recvfrom(g_wolfip, sockfd, buf, sizeof(buf), 0,
+                                (struct wolfIP_sockaddr*)&client_addr, &client_len);
+        if (ret > 0) {
+            uint32_t ip = ntohl(client_addr.sin_addr.s_addr);
+            printf("Received %d bytes from %d.%d.%d.%d:%d\n", ret,
+                   (ip >> 24) & 0xFF,
+                   (ip >> 16) & 0xFF,
+                   (ip >> 8) & 0xFF,
+                   ip & 0xFF,
+                   ntohs(client_addr.sin_port));
+            wolfIP_sock_sendto(g_wolfip, sockfd, buf, ret, 0,
+                           (struct wolfIP_sockaddr*)&client_addr, client_len);
+        }
+        vTaskDelay(pdMS_TO_TICKS(10));
+    }
+}
+
+int wolfIP_Start_UDP_Echo(void) {
+    BaseType_t ret;
+    
+    ret = xTaskCreate(UDP_Echo_Task,
+                     "UDP_Echo",
+                     WOLFIP_TASK_STACK_SIZE,
+                     NULL,
+                     tskIDLE_PRIORITY + 1,
+                     NULL);
+                     
+    return (ret == pdPASS) ? 0 : -1;
 }
 
 int wolfIP_FreeRTOS_Start(void) {
