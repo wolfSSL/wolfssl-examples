@@ -59,7 +59,6 @@ typedef struct SharedDtls {
     struct sockaddr_in cliAddr;       /* server sockaddr */
     socklen_t          cliSz;         /* length of servAddr */
     byte               rxBuf[DTLS_MTU];
-    word32             rxSz;
 } SharedDtls;
 
 
@@ -67,24 +66,35 @@ int my_IORecv(WOLFSSL* ssl, char* buff, int sz, void* ctx)
 {
     SharedDtls* shared = (SharedDtls*)ctx;
     int recvd;
-    struct sockaddr addr;
-    socklen_t addrSz = sizeof(addr);
+    int dtls_timeout;
 
     printf("Server Recv fd %d, buf %d\n", shared->sd, sz);
 
-    /* handle "peek" rx data */
-    if (shared->rxSz > 0) {
-        recvd = shared->rxSz;
-        if (recvd > sz)
-            recvd = sz;
-        memcpy(buff, shared->rxBuf, recvd);
-        shared->rxSz -= recvd;
-        memcpy(shared->rxBuf, &shared->rxBuf[recvd], shared->rxSz);
+    dtls_timeout = wolfSSL_dtls_get_current_timeout(ssl);
+
+    /* If we are performing the DTLS handshake, and we are in blocking mode, we
+     * set a socket timeout at OS level. */
+    if (!wolfSSL_is_init_finished(ssl)) {
+            /* Still in handshake: set the OS timeout */
+            if (dtls_timeout > 0) {
+                    struct timeval tv;
+                    tv.tv_sec = dtls_timeout;
+                    tv.tv_usec = 0;
+                    if (setsockopt(shared->sd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) < 0) {
+                            fprintf(stderr, "setsockopt failed\n");
+                            return WOLFSSL_CBIO_ERR_GENERAL;
+                    }
+            }
+    } else {
+            struct timeval tv = {0, 0};
+            if (setsockopt(shared->sd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) < 0) {
+                    fprintf(stderr, "setsockopt failed\n");
+                    return WOLFSSL_CBIO_ERR_GENERAL;
+            }
     }
-    else {
-        /* Receive datagram */
-        recvd = recvfrom(shared->sd, buff, sz, 0, &addr, &addrSz);
-    }
+
+    /* Receive datagram and store client's address */
+    recvd = recvfrom(shared->sd, buff, sz, 0, (struct sockaddr*)&shared->cliAddr, &shared->cliSz);
 
     if (recvd == -1) {
         /* error encountered. Be responsible and report it in wolfSSL terms */
@@ -284,20 +294,21 @@ int main(int argc, char** argv)
         shared.sd = listenfd;
         shared.cliSz = sizeof(shared.cliAddr);
 
-        ret = (int)recvfrom(listenfd, (char*)shared.rxBuf, sizeof(shared.rxBuf), 0,
-                (struct sockaddr*)&shared.cliAddr, &shared.cliSz);
-        if (ret < 0) {
-            printf("No clients in queue, enter idle state\n");
-            continue;
-        }
-        else if (ret > 0) {
-            shared.rxSz = ret;
-            ret = 0;
-            printf("Connected!\n");
-        }
-        else {
-            printf("Recvfrom failed %d.\n", errno);
-            break;
+        /*
+         * Wait until the socket is readable
+         * and wait until we actually have data waiting to be read.
+         * */
+        {
+                fd_set readfds;
+                FD_ZERO(&readfds);
+                FD_SET(listenfd, &readfds);
+
+                /* No timeout, so wait indefinitely */
+                int sel_ret = select(listenfd + 1, &readfds, NULL, NULL, NULL);
+                if (sel_ret < 0) {
+                        perror("select");
+                        goto exit;
+                }
         }
 
         /* Create the WOLFSSL Object */
