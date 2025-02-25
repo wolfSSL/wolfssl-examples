@@ -5,6 +5,9 @@ project(freertos_wolfssl_demo C)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
+# wolfSSL configuration
+add_definitions(-DWOLFSSL_USER_SETTINGS)
+
 # FreeRTOS Kernel source files for POSIX port
 set(FREERTOS_PORT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/freertos/FreeRTOS-Kernel/portable/ThirdParty/GCC/Posix)
 set(FREERTOS_HEAP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/freertos/FreeRTOS-Kernel/portable/MemMang)
@@ -14,8 +17,12 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/freertos/FreeRTOS-Kernel/include
     ${FREERTOS_PORT_DIR}
-    /home/ubuntu/repos/wolfip/src
-    /home/ubuntu/repos/wolfip
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../../wolfip/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../../wolfip
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../../wolfip/src/http
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../../wolfip/src/port
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../../wolfssl
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../../wolfssl/include
 )
 
 # FreeRTOS source files
@@ -33,7 +40,9 @@ set(FREERTOS_SOURCES
 
 # Add wolfIP library
 add_library(wolfip STATIC
-    /home/ubuntu/repos/wolfip/src/wolfip.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../../wolfip/src/wolfip.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../../wolfip/src/http/httpd.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../../wolfip/src/port/wolfssl_io.c
 )
 
 # Add the main application
@@ -41,9 +50,11 @@ add_executable(freertos_sim
     ${FREERTOS_SOURCES}
     src/main.c
     src/wolfip_freertos.c
+    src/https_server.c
 )
 
 target_link_libraries(freertos_sim
     pthread
     wolfip
+    wolfssl
 )

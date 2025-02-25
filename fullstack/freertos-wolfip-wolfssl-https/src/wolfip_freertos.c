@@ -1,3 +1,24 @@
+/* wolfip_freertos.c
+ *
+ * Copyright (C) 2006-2024 wolfSSL Inc.
+ *
+ * This file is part of wolfSSL.
+ *
+ * wolfSSL is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * wolfSSL is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+ */
+
 #include "wolfip_freertos.h"
 #include <stdio.h>
 #include <string.h>
@@ -20,7 +41,7 @@ uint32_t wolfIP_getrandom(void) {
     return ret;
 }
 
-static struct wolfIP *g_wolfip = NULL;
+struct wolfIP *g_wolfip = NULL;
 static TaskHandle_t g_network_task = NULL;
 static int tap_fd = -1;
 
@@ -72,24 +93,6 @@ static int tap_init(struct ll *dev, const char *ifname) {
     ifr.ifr_flags |= IFF_UP | IFF_RUNNING;
     if (ioctl(sock_fd, SIOCSIFFLAGS, &ifr) < 0) {
         perror("ioctl SIOCSIFFLAGS");
-        close(sock_fd);
-        return -1;
-    }
-
-    /* Configure IP address */
-    struct sockaddr_in *addr = (struct sockaddr_in *)&ifr.ifr_addr;
-    addr->sin_family = AF_INET;
-    addr->sin_addr.s_addr = inet_addr("192.168.1.10");
-    if (ioctl(sock_fd, SIOCSIFADDR, &ifr) < 0) {
-        perror("ioctl SIOCSIFADDR");
-        close(sock_fd);
-        return -1;
-    }
-
-    /* Configure netmask */
-    addr->sin_addr.s_addr = inet_addr("255.255.255.0");
-    if (ioctl(sock_fd, SIOCSIFNETMASK, &ifr) < 0) {
-        perror("ioctl SIOCSIFNETMASK");
         close(sock_fd);
         return -1;
     }
@@ -172,9 +175,9 @@ int wolfIP_FreeRTOS_Init(void) {
     
     /* Configure IP settings */
     wolfIP_ipconfig_set(g_wolfip, 
-        atoip4("192.168.1.10"),     /* IP */
+        atoip4("10.10.0.10"),     /* IP */
         atoip4("255.255.255.0"),    /* Netmask */
-        atoip4("192.168.1.1"));     /* Gateway */
+        atoip4("10.10.0.1"));     /* Gateway */
         
     return 0;
 }

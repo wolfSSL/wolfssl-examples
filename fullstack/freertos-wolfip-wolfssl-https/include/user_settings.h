@@ -1,4 +1,4 @@
-/* wolfip_freertos.h
+/* user_settings.h
  *
  * Copyright (C) 2006-2024 wolfSSL Inc.
  *
@@ -19,29 +19,30 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
-#ifndef WOLFIP_FREERTOS_H
-#define WOLFIP_FREERTOS_H
+/* wolfSSL configuration */
+#ifndef USER_SETTINGS_H
+#define USER_SETTINGS_H
 
-#include "FreeRTOS.h"
-#include "task.h"
-#include "wolfip.h"
+#define WOLFSSL_TLS13
+#define HAVE_TLS_EXTENSIONS
+#define HAVE_SUPPORTED_CURVES
+#define HAVE_FFDHE_2048
+#define HAVE_HKDF
+#define HAVE_AEAD
+#define HAVE_CHACHA
+#define HAVE_POLY1305
+#define WOLFSSL_AES_COUNTER
+#define WOLFSSL_AES_DIRECT
+#define HAVE_AES_ECB
+#define HAVE_AES_CBC
+#define HAVE_AES_GCM
+#define HAVE_AESGCM
+#define HAVE_CURVE25519
+#define HAVE_ED25519
+#define WOLFSSL_SHA384
+#define WOLFSSL_SHA512
+#define WOLFSSL_SHA224
+#define WOLFSSL_SHA3
+#define WOLFSSL_SHAKE256
 
-/* Global wolfIP instance */
-extern struct wolfIP *g_wolfip;
-
-/* Network task configuration */
-#define WOLFIP_TASK_PRIORITY (tskIDLE_PRIORITY + 2)
-#define WOLFIP_TASK_STACK_SIZE (8 * 1024)
-#define WOLFIP_POLL_INTERVAL_MS 10
-#define UDP_TEST_PORT 7777
-
-/* Initialize wolfIP with FreeRTOS */
-int wolfIP_FreeRTOS_Init(void);
-
-/* Start wolfIP network task */
-int wolfIP_FreeRTOS_Start(void);
-
-/* Start UDP echo server task */
-int wolfIP_Start_UDP_Echo(void);
-
-#endif /* WOLFIP_FREERTOS_H */
+#endif /* USER_SETTINGS_H */

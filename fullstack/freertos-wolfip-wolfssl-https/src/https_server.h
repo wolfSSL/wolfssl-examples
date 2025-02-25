@@ -1,4 +1,4 @@
-/* wolfip_freertos.h
+/* https_server.h
  *
  * Copyright (C) 2006-2024 wolfSSL Inc.
  *
@@ -19,29 +19,29 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
-#ifndef WOLFIP_FREERTOS_H
-#define WOLFIP_FREERTOS_H
+#ifndef HTTPS_SERVER_H
+#define HTTPS_SERVER_H
 
 #include "FreeRTOS.h"
 #include "task.h"
 #include "wolfip.h"
+#include "httpd.h"
+#include <wolfssl/ssl.h>
 
-/* Global wolfIP instance */
-extern struct wolfIP *g_wolfip;
+/* HTTPS server configuration */
+#define HTTPS_PORT 443
+#define HTTPS_TASK_STACK_SIZE (16 * 1024)
+#define HTTPS_TASK_PRIORITY (tskIDLE_PRIORITY + 2)
 
-/* Network task configuration */
-#define WOLFIP_TASK_PRIORITY (tskIDLE_PRIORITY + 2)
-#define WOLFIP_TASK_STACK_SIZE (8 * 1024)
-#define WOLFIP_POLL_INTERVAL_MS 10
-#define UDP_TEST_PORT 7777
+/* Certificate paths */
+#define CERT_FILE "./certs/server-cert.pem"
+#define KEY_FILE  "./certs/server-key.pem"
+#define CA_FILE   "./certs/ca-cert.pem"
 
-/* Initialize wolfIP with FreeRTOS */
-int wolfIP_FreeRTOS_Init(void);
+/* Initialize HTTPS server with wolfSSL and wolfIP */
+int https_server_init(struct wolfIP *ipstack);
 
-/* Start wolfIP network task */
-int wolfIP_FreeRTOS_Start(void);
+/* Start HTTPS server task */
+int https_server_start(void);
 
-/* Start UDP echo server task */
-int wolfIP_Start_UDP_Echo(void);
-
-#endif /* WOLFIP_FREERTOS_H */
+#endif /* HTTPS_SERVER_H */

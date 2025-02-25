@@ -2,6 +2,9 @@
 freertos/FreeRTOS/
 freertos/FreeRTOS-Kernel/
 
+# Certificate files
+certs/
+
 
 # Build directory
 build/
