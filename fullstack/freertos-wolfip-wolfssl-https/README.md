@@ -32,7 +32,7 @@ sudo ./setup_network.sh
 
 3. Build the example:
 ```bash
-make -p build && cd build && cmake .. && make
+mkdir -p build && cd build && cmake .. && make
 ```
 
 4. Run the example (requires root):
