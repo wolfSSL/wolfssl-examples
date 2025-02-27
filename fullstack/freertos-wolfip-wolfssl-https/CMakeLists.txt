@@ -7,6 +7,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 
 # wolfSSL configuration
 add_definitions(-DWOLFSSL_USER_SETTINGS)
+add_definitions(-DWOLFSSL_WOLFIP)
 
 # FreeRTOS Kernel source files for POSIX port
 set(FREERTOS_PORT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/freertos/FreeRTOS-Kernel/portable/ThirdParty/GCC/Posix)

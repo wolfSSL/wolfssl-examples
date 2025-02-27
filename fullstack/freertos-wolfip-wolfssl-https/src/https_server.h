@@ -34,9 +34,9 @@
 #define HTTPS_TASK_PRIORITY (tskIDLE_PRIORITY + 2)
 
 /* Certificate paths */
-#define CERT_FILE "./certs/server-cert.pem"
-#define KEY_FILE  "./certs/server-key.pem"
-#define CA_FILE   "./certs/ca-cert.pem"
+#define CERT_FILE "../../../../wolfssl/certs/server-cert.pem"
+#define KEY_FILE  "../../../../wolfssl/certs/server-key.pem"
+#define CA_FILE   "../../../../wolfssl/certs/ca-cert.pem"
 
 /* Initialize HTTPS server with wolfSSL and wolfIP */
 int https_server_init(struct wolfIP *ipstack);
