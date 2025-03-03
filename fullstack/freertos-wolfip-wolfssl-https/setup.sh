@@ -17,21 +17,18 @@ if [ ! -d "FreeRTOS" ]; then
 fi
 
 # Clone wolfSSL and wolfIP if they don't exist
-cd ../../../
+cd ../../../../
 if [ ! -d "wolfssl" ]; then
     git clone --depth=1 https://github.com/wolfSSL/wolfssl.git
     cd wolfssl
-    ./autogen.sh
-    ./configure
     make
+    sudo make install
     cd ..
 fi
 
 if [ ! -d "wolfip" ]; then
     git clone --depth=1 https://github.com/wolfSSL/wolfip.git
     cd wolfip
-    ./autogen.sh
-    ./configure
     make
     cd ..
 fi
