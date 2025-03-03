@@ -1,0 +1,33 @@
+# FreeRTOS directories managed by setup script
+freertos/FreeRTOS/
+freertos/FreeRTOS-Kernel/
+
+# Certificate files
+certs/
+
+
+# Build directory
+build/
+
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# Debug files
+*.dSYM/
