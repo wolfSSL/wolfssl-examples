@@ -16,6 +16,32 @@ This example demonstrates a full-stack embedded MQTT client using FreeRTOS, wolf
 - Mosquitto broker (for testing)
 - wolfSSL libraries
 
+## Building Dependencies
+
+### wolfSSL
+```bash
+cd ~/repos/wolfssl
+./autogen.sh
+./configure --enable-tls13 --enable-aead --enable-hkdf \
+    --enable-certgen --enable-certreq --enable-certext \
+    --enable-tlsx --enable-snl --enable-ocsp \
+    --enable-cryptocb --enable-des3 --enable-curve25519 \
+    --enable-ed25519 --enable-keygen --enable-rsapss \
+    --enable-sha224 --enable-sha384 --enable-sha512 \
+    --enable-dh --enable-opensslextra
+make
+sudo make install
+```
+
+### wolfMQTT
+```bash
+cd ~/repos/wolfMQTT
+./autogen.sh
+./configure --enable-tls --enable-nonblock
+make
+sudo make install
+```
+
 ## Building and Running
 
 ### Setup

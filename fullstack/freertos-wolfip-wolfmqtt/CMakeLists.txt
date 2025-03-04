@@ -5,8 +5,14 @@ project(freertos_wolfssl_demo C)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
-# wolfSSL configuration
-add_definitions(-DWOLFSSL_USER_SETTINGS)
+# Configure certificate paths
+set(WOLFSSL_CERTS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../wolfssl/certs")
+add_definitions(
+    -DWOLFSSL_USER_SETTINGS
+    -DMQTT_TLS_CA_CERT="${WOLFSSL_CERTS_DIR}/ca-cert.pem"
+    -DMQTT_TLS_CLIENT_CERT="${WOLFSSL_CERTS_DIR}/client-cert.pem"
+    -DMQTT_TLS_CLIENT_KEY="${WOLFSSL_CERTS_DIR}/client-key.pem"
+)
 
 # FreeRTOS Kernel source files for POSIX port
 set(FREERTOS_PORT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/freertos/FreeRTOS-Kernel/portable/ThirdParty/GCC/Posix)

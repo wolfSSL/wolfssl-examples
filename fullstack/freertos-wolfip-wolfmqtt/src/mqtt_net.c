@@ -39,14 +39,19 @@ static int mqtt_tls_init(void) {
         return -1;
     }
 
+    printf("Loading CA certificate from: %s\n", MQTT_TLS_CA_CERT);
     if (wolfSSL_CTX_load_verify_locations(mqtt_tls_ctx, MQTT_TLS_CA_CERT, NULL) != SSL_SUCCESS) {
         printf("Failed to load CA certificate\n");
         return -1;
     }
+
+    printf("Loading client certificate from: %s\n", MQTT_TLS_CLIENT_CERT);
     if (wolfSSL_CTX_use_certificate_file(mqtt_tls_ctx, MQTT_TLS_CLIENT_CERT, SSL_FILETYPE_PEM) != SSL_SUCCESS) {
         printf("Failed to load client certificate\n");
         return -1;
     }
+
+    printf("Loading client key from: %s\n", MQTT_TLS_CLIENT_KEY);
     if (wolfSSL_CTX_use_PrivateKey_file(mqtt_tls_ctx, MQTT_TLS_CLIENT_KEY, SSL_FILETYPE_PEM) != SSL_SUCCESS) {
         printf("Failed to load client key\n");
         return -1;
