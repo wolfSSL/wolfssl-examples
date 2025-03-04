@@ -68,7 +68,7 @@ for test_name in "${!TESTS[@]}"; do
     
     # Run the example client
     ./examples/client/client -h "$host" -d -p "$port" $extra_args -g > \
-        "$SCRIPT_DIR/$RESULTS_DIR/${test_name}_log.txt" 2>&1
+        "$RESULTS_DIR/${test_name}_log.txt" 2>&1
     
     # Extract memory allocation logs
     cd "$SCRIPT_DIR" || exit 1
@@ -76,8 +76,8 @@ for test_name in "${!TESTS[@]}"; do
     
     # Run the memory bucket optimizer
     cd "$SCRIPT_DIR/src" || exit 1
-    ./memory_bucket_optimizer "../$RESULTS_DIR/${test_name}_memory.txt" > \
-        "../$RESULTS_DIR/${test_name}_buckets.txt"
+    ./memory_bucket_optimizer "$RESULTS_DIR/${test_name}_memory.txt" > \
+        "$RESULTS_DIR/${test_name}_buckets.txt"
     
     # Return to wolfSSL directory for next test
     cd "$WOLFSSL_DIR" || exit 1

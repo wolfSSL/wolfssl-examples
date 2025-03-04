@@ -103,46 +103,31 @@ cat > "$NO_MALLOC_DIR/${TEST_NAME}_test.c" << EOC
 #include <wolfssl/wolfcrypt/memory.h>
 #include <wolfssl/ssl.h>
 
-/* We'll use arrays for bucket sizes and distribution instead of macros
- * to avoid redefinition warnings with the ones in memory.h */
-
 /* Buffer size for static memory */
 #define STATIC_MEM_SIZE (1024*1024) /* 1MB */
 
 /* Static memory buffer */
 static byte gStaticMemory[STATIC_MEM_SIZE];
 
+/* Define the bucket sizes and distribution */
+#define WOLFMEM_BUCKETS $BUCKETS
+#define WOLFMEM_DIST $DIST
+
 int main() {
     int ret = 0;
     WOLFSSL_CTX* ctx = NULL;
     WOLFSSL* ssl = NULL;
     WOLFSSL_METHOD* method = NULL;
-    WOLFSSL_HEAP_HINT* heapHint = NULL;
     
     printf("Testing with WOLFSSL_NO_MALLOC and optimized bucket configuration\\n");
     
     /* Initialize wolfSSL */
     wolfSSL_Init();
     
-    /* Initialize static memory with optimized bucket configuration */
-    if (wc_LoadStaticMemory(&heapHint, gStaticMemory, STATIC_MEM_SIZE, 
-                           WOLFMEM_GENERAL, 10) != 0) {
-        printf("Error: Failed to load static memory\\n");
-        ret = -1;
-        goto cleanup;
-    }
-    
     /* Create and initialize WOLFSSL_CTX */
     method = wolfTLSv1_2_client_method();
     if ((ctx = wolfSSL_CTX_new(method)) == NULL) {
         printf("Error: Failed to create WOLFSSL_CTX\\n");
-        ret = -1;
-        goto cleanup;
-    }
-    
-    /* Set heap hint for the context */
-    if (wolfSSL_CTX_SetHeap(ctx, heapHint, NULL) != WOLFSSL_SUCCESS) {
-        printf("Error: Failed to set heap hint for WOLFSSL_CTX\\n");
         ret = -1;
         goto cleanup;
     }
@@ -161,7 +146,6 @@ cleanup:
     /* Cleanup */
     if (ssl) wolfSSL_free(ssl);
     if (ctx) wolfSSL_CTX_free(ctx);
-    wc_UnloadStaticMemory(heapHint);
     wolfSSL_Cleanup();
     
     return ret;

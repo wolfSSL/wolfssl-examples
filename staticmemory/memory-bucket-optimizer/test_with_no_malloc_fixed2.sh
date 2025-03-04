@@ -103,14 +103,15 @@ cat > "$NO_MALLOC_DIR/${TEST_NAME}_test.c" << EOC
 #include <wolfssl/wolfcrypt/memory.h>
 #include <wolfssl/ssl.h>
 
-/* We'll use arrays for bucket sizes and distribution instead of macros
- * to avoid redefinition warnings with the ones in memory.h */
-
 /* Buffer size for static memory */
 #define STATIC_MEM_SIZE (1024*1024) /* 1MB */
 
 /* Static memory buffer */
 static byte gStaticMemory[STATIC_MEM_SIZE];
+
+/* Define the bucket sizes and distribution as arrays */
+static const word32 gBucketSizes[] = {$BUCKETS};
+static const word32 gBucketDist[] = {$DIST};
 
 int main() {
     int ret = 0;
@@ -124,10 +125,34 @@ int main() {
     /* Initialize wolfSSL */
     wolfSSL_Init();
     
+    /* Calculate the required buffer size */
+    int bufferSz = wolfSSL_StaticBufferSz_ex(sizeof(gBucketSizes)/sizeof(word32), 
+                                           gBucketSizes, gBucketDist, 
+                                           gStaticMemory, STATIC_MEM_SIZE, 
+                                           WOLFMEM_GENERAL);
+    if (bufferSz <= 0) {
+        printf("Error: Failed to calculate static buffer size: %d\\n", bufferSz);
+        ret = -1;
+        goto cleanup;
+    }
+    
+    printf("Static buffer size needed: %d bytes (available: %d bytes)\\n", 
+           bufferSz, STATIC_MEM_SIZE);
+    
+    if (bufferSz > STATIC_MEM_SIZE) {
+        printf("Error: Static buffer size needed (%d) exceeds available size (%d)\\n", 
+               bufferSz, STATIC_MEM_SIZE);
+        ret = -1;
+        goto cleanup;
+    }
+    
     /* Initialize static memory with optimized bucket configuration */
-    if (wc_LoadStaticMemory(&heapHint, gStaticMemory, STATIC_MEM_SIZE, 
-                           WOLFMEM_GENERAL, 10) != 0) {
-        printf("Error: Failed to load static memory\\n");
+    ret = wc_LoadStaticMemory_ex(&heapHint, sizeof(gBucketSizes)/sizeof(word32), 
+                               gBucketSizes, gBucketDist,
+                               gStaticMemory, STATIC_MEM_SIZE, 
+                               WOLFMEM_GENERAL, 10);
+    if (ret != 0) {
+        printf("Error: Failed to load static memory: %d\\n", ret);
         ret = -1;
         goto cleanup;
     }
@@ -136,13 +161,6 @@ int main() {
     method = wolfTLSv1_2_client_method();
     if ((ctx = wolfSSL_CTX_new(method)) == NULL) {
         printf("Error: Failed to create WOLFSSL_CTX\\n");
-        ret = -1;
-        goto cleanup;
-    }
-    
-    /* Set heap hint for the context */
-    if (wolfSSL_CTX_SetHeap(ctx, heapHint, NULL) != WOLFSSL_SUCCESS) {
-        printf("Error: Failed to set heap hint for WOLFSSL_CTX\\n");
         ret = -1;
         goto cleanup;
     }
@@ -161,7 +179,7 @@ cleanup:
     /* Cleanup */
     if (ssl) wolfSSL_free(ssl);
     if (ctx) wolfSSL_CTX_free(ctx);
-    wc_UnloadStaticMemory(heapHint);
+    if (heapHint) wc_UnloadStaticMemory(heapHint);
     wolfSSL_Cleanup();
     
     return ret;
