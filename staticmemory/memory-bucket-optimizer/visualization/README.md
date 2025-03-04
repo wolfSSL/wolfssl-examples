@@ -1,39 +1,46 @@
 # Memory Bucket Optimizer Visualization
 
-This directory contains gnuplot scripts to visualize the memory allocation patterns and optimization results from the Memory Bucket Optimizer tool.
+This directory contains scripts for visualizing memory allocation patterns and bucket optimization results.
 
-## Scripts
+## Visualization Scripts
 
-- `allocation_histogram.gp`: Visualizes allocation sizes and frequencies
-- `bucket_optimization.gp`: Visualizes bucket sizes and waste
-- `tls_comparison.gp`: Compares memory usage for different TLS operations
-- `memory_usage_over_time.gp`: Visualizes memory usage over time for different bucket configurations
-- `memory_heatmap.gp`: Creates a heatmap of memory usage by bucket size and operation
-- `generate_data.sh`: Generates data files for gnuplot
+1. `allocation_histogram.gp`: Generates a histogram of allocation sizes and frequencies
+2. `bucket_optimization.gp`: Visualizes bucket sizes and waste
+3. `tls_comparison.gp`: Compares memory usage across different TLS operations
+4. `memory_usage_over_time.gp`: Tracks memory usage over time
+5. `memory_heatmap.gp`: Visualizes memory usage patterns
 
 ## Usage
 
-To generate the visualization plots:
-
 ```bash
-cd visualization
+# Generate all visualization plots
 ./generate_data.sh
+
+# Generate a specific plot
+gnuplot allocation_histogram.gp
 ```
 
-This will generate the following plots:
+## Output Files
 
-- `allocation_histogram.png`: Histogram of allocation sizes and frequencies
-- `bucket_optimization.png`: Visualization of bucket sizes and waste
-- `tls_comparison.png`: Comparison of memory usage for different TLS operations
-- `memory_usage_over_time.png`: Memory usage over time for different bucket configurations
-- `memory_heatmap.png`: Heatmap of memory usage by bucket size and operation
+The scripts generate PNG image files:
+
+- `allocation_histogram.png`: Histogram of allocation sizes
+- `bucket_optimization.png`: Bucket sizes and waste
+- `tls_comparison.png`: Comparison of TLS operations
+- `memory_usage_over_time.png`: Memory usage over time
+- `memory_heatmap.png`: Memory usage heatmap
 
 ## Data Files
 
-The scripts generate the following data files:
+The scripts use data files generated from the memory bucket optimizer results:
 
-- `allocation_data.txt`: Allocation sizes and frequencies
-- `bucket_data.txt`: Bucket sizes, counts, waste, and distribution
-- `tls_comparison.txt`: Memory usage comparison for different TLS operations
-- `memory_usage_over_time.txt`: Memory usage over time for different bucket configurations
-- `memory_heatmap.txt`: Memory usage by bucket size and operation
+- `allocation_sizes.txt`: Allocation sizes and frequencies
+- `bucket_sizes.txt`: Bucket sizes and waste
+- `tls_comparison.txt`: Memory usage for different TLS operations
+- `memory_usage.txt`: Memory usage over time
+- `memory_heatmap.txt`: Memory usage patterns
+
+## Requirements
+
+- gnuplot 5.2 or later
+- bash 5.0 or later
