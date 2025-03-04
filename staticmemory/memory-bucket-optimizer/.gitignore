@@ -1,0 +1,15 @@
+# Build artifacts
+*.o
+*.a
+*.so
+*.exe
+*.out
+
+# Generated files
+*.png
+*.txt
+results/
+verification_results/
+
+# External dependencies
+wolfssl/
