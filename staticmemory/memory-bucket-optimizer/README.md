@@ -113,6 +113,22 @@ This script:
 
 This testing is critical for embedded systems where dynamic memory allocation is not available or not desired.
 
+## IDE Parsing Issues
+
+When working with the memory bucket optimizer and wolfSSL's static memory feature, you may encounter IDE parsing errors in wolfSSL header files. These errors are **not** related to our tool and do not affect the functionality of the memory bucket optimizer. They are due to the complex conditional compilation structure of the wolfSSL codebase, which includes:
+
+- Complex preprocessor directives (`#ifdef`, `#ifndef`, `#else`, `#endif`)
+- Function overloading with different signatures based on compile-time options
+- Macro definitions and redefinitions (like `WOLFMEM_BUCKETS` and `WOLFMEM_DIST`)
+- Complex data structures with conditional members
+
+Common files where these parsing errors may appear include:
+- `wolfssl/wolfcrypt/memory.h`
+- `wolfssl/ssl.h`
+- `wolfcrypt/src/memory.c`
+
+Despite these IDE parsing errors, the code compiles and runs correctly. All tests pass successfully, confirming that the memory bucket optimizer works as intended. No modifications to the wolfSSL codebase are necessary to address these IDE parsing issues.
+
 ## Algorithm
 
 The memory bucket optimizer uses the following algorithm:
