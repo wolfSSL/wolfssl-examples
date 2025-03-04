@@ -37,7 +37,8 @@ set logscale y
 plot "$data_file" using 2:1 with boxes title "Allocation Sizes"
 EOL
     
-    gnuplot "$SCRIPT_DIR/allocation_histogram.gp"
+    # Run gnuplot from the script directory to use relative paths
+    (cd "$SCRIPT_DIR" && gnuplot "allocation_histogram.gp")
 }
 
 # Function to generate gnuplot script for bucket optimization
@@ -61,10 +62,11 @@ set style fill solid 0.5
 set boxwidth 0.8
 set key outside
 plot "$data_file" using 2:1 with boxes title "Allocation Sizes", \\
-     "$SCRIPT_DIR/data/bucket_sizes.txt" using 1:(0.5) with impulses lw 2 title "Bucket Sizes"
+     "data/bucket_sizes.txt" using 1:(0.5) with impulses lw 2 title "Bucket Sizes"
 EOL
     
-    gnuplot "$SCRIPT_DIR/bucket_optimization.gp"
+    # Run gnuplot from the script directory to use relative paths
+    (cd "$SCRIPT_DIR" && gnuplot "bucket_optimization.gp")
 }
 
 # Function to generate gnuplot script for TLS operation comparison
@@ -86,13 +88,14 @@ set boxwidth 0.9
 set xtics rotate by -45
 set grid
 set key outside
-plot "$SCRIPT_DIR/data/tls_comparison.txt" using 2:xtic(1) title "Total Allocs", \\
+plot "data/tls_comparison.txt" using 2:xtic(1) title "Total Allocs", \\
      "" using 3 title "Unique Sizes", \\
      "" using 4 title "Largest Bucket", \\
      "" using 5 title "Total Waste"
 EOL
     
-    gnuplot "$SCRIPT_DIR/tls_comparison.gp"
+    # Run gnuplot from the script directory to use relative paths
+    (cd "$SCRIPT_DIR" && gnuplot "tls_comparison.gp")
 }
 
 # Process each TLS operation
@@ -106,20 +109,20 @@ for test_name in tls12_google tls13_google tls12_cloudflare tls13_cloudflare; do
         
         # Generate allocation histogram
         generate_allocation_histogram "$SCRIPT_DIR/data/${test_name}_alloc_data.txt" \
-            "$SCRIPT_DIR/${test_name}_allocation_histogram.png" \
+            "${test_name}_allocation_histogram.png" \
             "Allocation Size Distribution for ${test_name}"
         
         # Generate bucket optimization plot
         if [ -s "$buckets_file" ]; then
             generate_bucket_optimization "$SCRIPT_DIR/data/${test_name}_alloc_data.txt" \
                 "$buckets_file" \
-                "$SCRIPT_DIR/${test_name}_bucket_optimization.png" \
+                "${test_name}_bucket_optimization.png" \
                 "Bucket Optimization for ${test_name}"
         fi
     fi
 done
 
 # Generate TLS operation comparison
-generate_tls_comparison "$SCRIPT_DIR/tls_comparison.png"
+generate_tls_comparison "tls_comparison.png"
 
 echo "Visualization completed. Results saved in $SCRIPT_DIR/"
