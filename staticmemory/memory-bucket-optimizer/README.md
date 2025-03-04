@@ -97,6 +97,22 @@ cd visualization
 
 The `examples` directory contains example applications that demonstrate how to use the optimized bucket configurations in your wolfSSL applications.
 
+## Testing with WOLFSSL_NO_MALLOC
+
+To ensure that the optimized bucket configurations work correctly without falling back to system malloc, you can use the `test_with_no_malloc.sh` script:
+
+```bash
+./test_with_no_malloc.sh ~/repos/wolfssl tls13_google
+```
+
+This script:
+- Builds wolfSSL with `CPPFLAGS=-DWOLFSSL_NO_MALLOC` and `--enable-staticmemory`
+- Creates a test application with the optimized bucket configuration
+- Runs the test application to verify that it works correctly without system malloc
+- Confirms that the memory bucket optimization is effective for embedded systems
+
+This testing is critical for embedded systems where dynamic memory allocation is not available or not desired.
+
 ## Algorithm
 
 The memory bucket optimizer uses the following algorithm:
