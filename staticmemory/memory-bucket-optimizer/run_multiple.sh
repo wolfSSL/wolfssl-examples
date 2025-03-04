@@ -1,5 +1,6 @@
 #!/bin/bash
 # run_multiple.sh
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 #
 # Copyright (C) 2006-2025 wolfSSL Inc.
 #
@@ -58,15 +59,15 @@ for test_name in "${!TESTS[@]}"; do
     
     # Run the memory bucket optimizer
     cd src || exit 1
-    ./memory_bucket_optimizer "../../$RESULTS_DIR/${test_name}_memory.txt" > \
-        "../../$RESULTS_DIR/${test_name}_buckets.txt"
+    ./memory_bucket_optimizer "../$RESULTS_DIR/${test_name}_memory.txt" > \
+        "../$RESULTS_DIR/${test_name}_buckets.txt"
     
     # Return to wolfSSL directory for next test
     cd "$WOLFSSL_DIR" || exit 1
 done
 
 # Generate visualization plots
-cd "../wolfssl-examples/staticmemory/memory-bucket-optimizer/visualization" || exit 1
+cd "$SCRIPT_DIR/visualization" || exit 1
 ./generate_data.sh
 
 echo "All tests completed. Results saved in $RESULTS_DIR/"

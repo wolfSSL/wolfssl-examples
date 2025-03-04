@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script to test the memory bucket optimizer with different TLS operations
+# Script to generate test memory logs and run the optimizer
 
 # Set up directories
 WOLFSSL_DIR=~/repos/wolfssl
@@ -30,8 +30,16 @@ run_test() {
     # Extract memory allocation logs
     grep "^Alloc:" "$RESULTS_DIR/${test_name}_output.txt" > "$RESULTS_DIR/${test_name}_memory.txt"
     
+    # Check if memory log file has content
+    if [ ! -s "$RESULTS_DIR/${test_name}_memory.txt" ]; then
+        echo "Warning: No memory allocations found in log file for $test_name"
+        return 1
+    fi
+    
     # Run the memory bucket optimizer
     $SCRIPT_DIR/src/memory_bucket_optimizer "$RESULTS_DIR/${test_name}_memory.txt" > "$RESULTS_DIR/${test_name}_buckets.txt"
+    
+    return 0
 }
 
 # Run tests for different TLS operations
@@ -48,12 +56,16 @@ for result_file in "$RESULTS_DIR"/*_buckets.txt; do
     test_name=$(basename "$result_file" _buckets.txt)
     alloc_file="$RESULTS_DIR/${test_name}_memory.txt"
     
-    total_allocs=$(grep -c "^Alloc:" "$alloc_file" || echo "0")
-    unique_sizes=$(grep "Found .* unique allocation sizes" "$result_file" | awk '{print $2}' || echo "0")
-    largest_bucket=$(grep -A 3 "Optimized Bucket Sizes" "$result_file" | tail -n 1 | awk '{print $1}' || echo "0")
-    total_waste=$(grep -A 3 "Optimized Bucket Sizes" "$result_file" | tail -n 1 | awk '{print $3}' || echo "0")
-    
-    echo "$test_name,$total_allocs,$unique_sizes,$largest_bucket,$total_waste" >> "$RESULTS_DIR/summary.csv"
+    if [ -s "$alloc_file" ]; then
+        total_allocs=$(grep -c "^Alloc:" "$alloc_file" || echo "0")
+        unique_sizes=$(grep "Found .* unique allocation sizes" "$result_file" | awk '{print $2}' || echo "0")
+        largest_bucket=$(grep -A 3 "Optimized Bucket Sizes" "$result_file" | tail -n 1 | awk '{print $1}' || echo "0")
+        total_waste=$(grep -A 3 "Optimized Bucket Sizes" "$result_file" | tail -n 1 | awk '{print $3}' || echo "0")
+        
+        echo "$test_name,$total_allocs,$unique_sizes,$largest_bucket,$total_waste" >> "$RESULTS_DIR/summary.csv"
+    else
+        echo "$test_name,0,0,0,0" >> "$RESULTS_DIR/summary.csv"
+    fi
 done
 
 echo "All tests completed. Results saved in $RESULTS_DIR/"

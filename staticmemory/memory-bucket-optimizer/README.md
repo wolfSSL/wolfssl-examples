@@ -1,31 +1,43 @@
-# Memory Bucket Optimizer for wolfSSL Static Memory
+# Memory Bucket Optimizer for wolfSSL
 
-This tool analyzes memory allocation patterns from wolfSSL operations and recommends optimal static memory bucket configurations to minimize wasted memory.
+This tool analyzes memory allocation patterns in wolfSSL and recommends optimal static memory bucket configurations to minimize wasted memory.
 
 ## Overview
 
-wolfSSL can be built with the `--enable-staticmemory` option, which uses a buffer divided into chunks of memory (buckets) that can be checked out dynamically. The size of these memory buckets are configurable, and the overhead of each bucket is wasted memory. This tool helps find a set of memory buckets with the least amount of wasted overhead.
+When wolfSSL is built with the `--enable-staticmemory` option, it uses a static memory management system with memory buckets. The size and distribution of these buckets can significantly impact memory usage efficiency. This tool helps optimize these bucket configurations for specific TLS operations.
 
-## Stack Components
+## Software Bill of Materials (SBOM)
 
-| Component | Version | Description | License |
-|-----------|---------|-------------|---------|
-| wolfSSL | 5.6.3+ | TLS/SSL and crypto library | GPLv2 |
-| Memory Bucket Optimizer | 1.0.0 | Memory optimization tool | GPLv2 |
-| gnuplot (optional) | 5.2+ | Plotting utility | GPLv2 |
-| gcc | 9.0+ | C compiler | GPLv3 |
-| bash | 5.0+ | Shell scripting | GPLv3 |
+| Component | Description | License |
+|-----------|-------------|---------|
+| Memory Bucket Optimizer | Core optimization tool | GPLv2 |
+| wolfSSL | TLS/SSL library | GPLv2 |
+| gnuplot | Plotting utility | GPLv2 |
+| Bash Scripts | Automation scripts | GPLv2 |
+| Example Applications | Demo applications | GPLv2 |
+
+## Directory Structure
+
+```
+memory-bucket-optimizer/
+├── src/                    # Source code for the optimizer
+├── results/                # Results of optimization runs
+├── examples/               # Example applications using optimized buckets
+├── visualization/          # Visualization scripts and plots
+├── run_multiple.sh         # Script to run tests for multiple TLS operations
+├── compare_memory.sh       # Script to compare memory usage
+└── README.md               # This file
+```
+
+## Prerequisites
+
+- wolfSSL (built with `--enable-memorylog` and `--enable-staticmemory`)
+- GCC compiler
+- gnuplot (for visualization)
 
 ## Building
 
 ```bash
-# Build wolfSSL with memory logging enabled
-cd ../wolfssl
-./configure --enable-memorylog --enable-staticmemory
-make
-
-# Build the memory bucket optimizer
-cd ../wolfssl-examples/staticmemory/memory-bucket-optimizer
 make
 ```
 
@@ -33,106 +45,68 @@ make
 
 ### Basic Usage
 
-```bash
-# Run the optimizer with default settings
-./run_optimizer.sh
+1. Build wolfSSL with memory logging enabled:
 
-# Run the optimizer with custom host and port
-./run_optimizer.sh -h example.com -p 443
+```bash
+cd ~/repos/wolfssl
+./configure --enable-memorylog --enable-staticmemory && make
 ```
 
-### Testing Multiple TLS Operations
+2. Run the optimizer:
 
 ```bash
-# Run tests for different TLS operations
 ./run_multiple.sh
 ```
 
-### Visualizing Results
+This will:
+- Run the example client with different TLS operations
+- Collect memory allocation logs
+- Generate optimized bucket configurations for each operation
+- Create visualization plots
+
+### Advanced Usage
+
+To optimize for a specific TLS operation:
 
 ```bash
-# Generate visualization plots
+./src/memory_bucket_optimizer results/tls13_google_memory.txt > results/tls13_google_buckets.txt
+```
+
+To compare memory usage between default and optimized configurations:
+
+```bash
+./compare_memory.sh
+```
+
+## Visualization
+
+The `visualization` directory contains scripts to generate plots:
+
+- Allocation size histograms
+- Bucket optimization plots
+- TLS operation comparisons
+
+To generate plots:
+
+```bash
 cd visualization
 ./generate_data.sh
 ```
 
-## Example Output
+## Example Applications
 
-```
-Found 78 unique allocation sizes
-
-Allocation Sizes and Frequencies:
-Size    Count
-----    -----
-4       4
-5       2
-...
-8368    2
-
-Optimized Bucket Sizes and Distribution:
-Size    Count   Wasted  Dist
-----    -----   ------  ----
-16      2       4.00    2
-22      3       10.00   3
-...
-8368    8       818.00  8
-
-WOLFMEM_BUCKETS and WOLFMEM_DIST Macros:
-#define WOLFMEM_BUCKETS 16,22,30,40,86,133,184,256,344,512,864,1248,1812,3128,5518,8368
-#define WOLFMEM_DIST 2,3,7,7,7,7,7,7,7,7,7,7,8,8,8,8
-```
-
-## Directory Structure
-
-```
-memory-bucket-optimizer/
-├── Makefile                  # Main Makefile
-├── README.md                 # This file
-├── examples/                 # Example applications
-│   ├── Makefile              # Examples Makefile
-│   ├── example_application.c # Basic example
-│   └── tls_example.c         # TLS example
-├── run_multiple.sh           # Script to run multiple tests
-├── run_optimizer.sh          # Main script to run the optimizer
-├── src/                      # Source code
-│   ├── Makefile              # Source Makefile
-│   └── memory_bucket_optimizer.c # Main optimizer code
-├── test_operations.sh        # Script to test different TLS operations
-└── visualization/            # Visualization scripts
-    ├── allocation_histogram.gp    # Allocation histogram plot
-    ├── bucket_optimization.gp     # Bucket optimization plot
-    ├── generate_data.sh           # Data generation script
-    ├── memory_heatmap.gp          # Memory usage heatmap
-    ├── memory_usage_over_time.gp  # Memory usage over time plot
-    └── tls_comparison.gp          # TLS comparison plot
-```
-
-## Software Bill of Materials (SBOM)
-
-| Component | Version | Source | License | Purpose |
-|-----------|---------|--------|---------|---------|
-| wolfSSL | 5.6.3+ | https://github.com/wolfSSL/wolfssl | GPLv2 | TLS/SSL and crypto library |
-| Memory Bucket Optimizer | 1.0.0 | This repository | GPLv2 | Memory optimization tool |
-| gnuplot | 5.2+ | http://www.gnuplot.info/ | GPLv2 | Visualization of memory usage |
-| gcc | 9.0+ | https://gcc.gnu.org/ | GPLv3 | Compilation of C code |
-| bash | 5.0+ | https://www.gnu.org/software/bash/ | GPLv3 | Shell scripting |
-| make | 4.0+ | https://www.gnu.org/software/make/ | GPLv3 | Build automation |
+The `examples` directory contains example applications that demonstrate how to use the optimized bucket configurations in your wolfSSL applications.
 
 ## Algorithm
 
 The memory bucket optimizer uses the following algorithm:
 
-1. Parse memory allocation logs from wolfSSL operations
-2. Identify unique allocation sizes and their frequencies
-3. Sort allocation sizes from smallest to largest
-4. Calculate optimal bucket sizes to minimize waste
-5. Generate `WOLFMEM_BUCKETS` and `WOLFMEM_DIST` macros
+1. Parse memory allocation logs to identify allocation sizes and frequencies
+2. Sort allocation sizes from smallest to largest
+3. Select the most frequent allocation sizes as bucket sizes
+4. Assign distribution values based on allocation frequency
+5. Calculate memory waste and optimize for minimal overhead
 
 ## License
 
-This project is licensed under the GPL v2 License - see the LICENSE file for details.
-
-## References
-
-- [wolfSSL Static Memory Documentation](https://www.wolfssl.com/documentation/manuals/wolfssl/chapter02.html#static-memory)
-- [wolfSSL Memory Logging](https://www.wolfssl.com/documentation/manuals/wolfssl/chapter02.html#memory-use)
+This project is licensed under the GPL v2.0 License - see the LICENSE file for details.

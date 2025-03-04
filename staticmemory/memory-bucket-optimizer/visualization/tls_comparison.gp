@@ -1,22 +1,14 @@
-# Gnuplot script to compare different TLS operations
-
-# Set the output file format
 set terminal png size 800,600
-set output "tls_comparison.png"
-
-# Set the title and labels
-set title "Memory Usage Comparison for Different TLS Operations"
-set xlabel "TLS Operation"
-set ylabel "Memory Usage"
-set grid
-
-# Set the style
+set output "/home/ubuntu/repos/wolfssl-examples/staticmemory/memory-bucket-optimizer/visualization/tls_comparison.png"
+set title "TLS Operation Comparison"
 set style data histogram
 set style histogram cluster gap 1
 set style fill solid 0.5 border -1
 set boxwidth 0.9
-
-# Plot the data
-plot "tls_comparison.txt" using 2:xtic(1) title "Total Allocations", \
+set xtics rotate by -45
+set grid
+set key outside
+plot "/home/ubuntu/repos/wolfssl-examples/staticmemory/memory-bucket-optimizer/visualization/data/tls_comparison.txt" using 2:xtic(1) title "Total Allocs", \
      "" using 3 title "Unique Sizes", \
+     "" using 4 title "Largest Bucket", \
      "" using 5 title "Total Waste"

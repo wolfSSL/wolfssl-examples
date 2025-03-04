@@ -31,7 +31,11 @@ run_test() {
     grep "^Alloc:" "$RESULTS_DIR/${test_name}_output.txt" > "$RESULTS_DIR/${test_name}_memory.txt"
     
     # Run the memory bucket optimizer
-    $SCRIPT_DIR/src/memory_bucket_optimizer "$RESULTS_DIR/${test_name}_memory.txt" > "$RESULTS_DIR/${test_name}_buckets.txt"
+    cd $SCRIPT_DIR/src || exit 1
+    ./memory_bucket_optimizer "$RESULTS_DIR/${test_name}_memory.txt" > "$SCRIPT_DIR/$RESULTS_DIR/${test_name}_buckets.txt"
+    
+    # Return to script directory
+    cd $SCRIPT_DIR || exit 1
 }
 
 # Run tests for different TLS operations
