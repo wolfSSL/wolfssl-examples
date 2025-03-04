@@ -22,6 +22,7 @@
 #ifndef MQTT_NET_H
 #define MQTT_NET_H
 
+#include "../include/user_settings.h"
 #include "wolfip.h"
 #include <wolfssl/ssl.h>
 #include <wolfmqtt/mqtt_client.h>

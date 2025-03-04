@@ -38,11 +38,6 @@ word16 mqtt_get_packetid(void);
 #define MQTT_CLIENT_ID "FreeRTOS_Client"
 #define MQTT_TEST_TOPIC "test/topic"
 
-/* TLS Configuration */
-#define MQTT_TLS_CA_CERT     "../../../wolfssl/certs/ca-cert.pem"
-#define MQTT_TLS_CLIENT_CERT "../../../wolfssl/certs/client-cert.pem"
-#define MQTT_TLS_CLIENT_KEY  "../../../wolfssl/certs/client-key.pem"
-
 /* Task Configuration */
 #define MQTT_TASK_STACK_SIZE (16 * 1024)
 #define MQTT_TASK_PRIORITY (tskIDLE_PRIORITY + 2)

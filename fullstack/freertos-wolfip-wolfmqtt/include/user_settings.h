@@ -26,6 +26,16 @@
 #define _GNU_SOURCE
 #endif
 
+/* Security hardening */
+#define WC_RSA_BLINDING
+#define ECC_TIMING_RESISTANT
+#define WC_TIMING_RESISTANT
+
+/* TLS Certificate Paths */
+#define MQTT_TLS_CA_CERT     "../../../wolfssl/certs/ca-cert.pem"
+#define MQTT_TLS_CLIENT_CERT "../../../wolfssl/certs/client-cert.pem"
+#define MQTT_TLS_CLIENT_KEY  "../../../wolfssl/certs/client-key.pem"
+
 /* wolfSSL TLS configuration */
 #define WOLFSSL_TLS13
 #define WOLFSSL_TLS13_NO_OLD_TLS
