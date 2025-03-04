@@ -103,15 +103,43 @@ void optimize_buckets(AllocSize* alloc_sizes, int num_sizes, int* buckets, int* 
     /* Sort by frequency (descending) */
     qsort(alloc_sizes_by_freq, num_sizes, sizeof(AllocSize), compare_alloc_counts);
     
-    /* Select the most frequent allocation sizes as buckets (up to MAX_BUCKETS) */
-    *num_buckets = (num_sizes < MAX_BUCKETS) ? num_sizes : MAX_BUCKETS;
+    /* Find the largest allocation size */
+    int largest_size = 0;
+    for (int i = 0; i < num_sizes; i++) {
+        if (alloc_sizes[i].size > largest_size) {
+            largest_size = alloc_sizes[i].size;
+        }
+    }
     
-    /* Copy the selected bucket sizes */
-    for (int i = 0; i < *num_buckets; i++) {
-        buckets[i] = alloc_sizes_by_freq[i].size;
+    /* Determine how many buckets we can have (max MAX_BUCKETS) */
+    int max_buckets = (num_sizes < MAX_BUCKETS) ? num_sizes : MAX_BUCKETS;
+    
+    /* Initialize bucket count */
+    *num_buckets = 0;
+    
+    /* Always include the largest allocation size */
+    int largest_included = 0;
+    
+    /* First, add the most frequent allocation sizes */
+    for (int i = 0; i < max_buckets - 1 && *num_buckets < max_buckets - 1; i++) {
+        /* Skip if this is the largest size (we'll add it later) */
+        if (alloc_sizes_by_freq[i].size == largest_size) {
+            largest_included = 1;
+            continue;
+        }
+        
+        buckets[*num_buckets] = alloc_sizes_by_freq[i].size;
         /* Distribution is based on frequency */
-        dist[i] = (alloc_sizes_by_freq[i].count > 10) ? 8 : 
-                 (alloc_sizes_by_freq[i].count > 5) ? 4 : 2;
+        dist[*num_buckets] = (alloc_sizes_by_freq[i].count > 10) ? 8 : 
+                           (alloc_sizes_by_freq[i].count > 5) ? 4 : 2;
+        (*num_buckets)++;
+    }
+    
+    /* Add the largest allocation size if not already included */
+    if (!largest_included) {
+        buckets[*num_buckets] = largest_size;
+        dist[*num_buckets] = 2; /* Use a small distribution for the largest size */
+        (*num_buckets)++;
     }
     
     /* Sort buckets by size (ascending) */

@@ -21,16 +21,33 @@
 
 # Script to test the memory bucket optimizer with different TLS operations
 
+# Get the directory of this script
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Check if wolfSSL directory is provided
+if [ -z "$1" ]; then
+    echo "Usage: $0 <wolfssl_dir>"
+    echo "Example: $0 ~/repos/wolfssl"
+    exit 1
+else
+    WOLFSSL_DIR="$1"
+fi
+
 # Set up directories
-WOLFSSL_DIR=~/repos/wolfssl
-RESULTS_DIR=./results
-SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+RESULTS_DIR="$SCRIPT_DIR/results"
+
+# Check if wolfSSL directory exists
+if [ ! -d "$WOLFSSL_DIR" ]; then
+    echo "Error: wolfSSL directory not found at $WOLFSSL_DIR"
+    echo "Please provide a valid wolfSSL directory."
+    exit 1
+fi
 
 # Create results directory
-mkdir -p $RESULTS_DIR
+mkdir -p "$RESULTS_DIR"
 
 # Build wolfSSL with memory logging enabled
-cd $WOLFSSL_DIR || exit 1
+cd "$WOLFSSL_DIR" || exit 1
 ./autogen.sh && ./configure --enable-memorylog --enable-staticmemory && make
 
 # Function to run a test and collect memory usage data

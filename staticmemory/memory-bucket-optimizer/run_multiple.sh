@@ -1,8 +1,7 @@
 #!/bin/bash
 # run_multiple.sh
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 #
-# Copyright (C) 2006-2025 wolfSSL Inc.
+# Copyright (C) 2025 wolfSSL Inc.
 #
 # This file is part of wolfSSL.
 #
@@ -20,9 +19,27 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
 
-# Default values
-WOLFSSL_DIR="../../../wolfssl"
-RESULTS_DIR="results"
+# Get the directory of this script
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Check if wolfSSL directory is provided
+if [ -z "$1" ]; then
+    echo "Usage: $0 <wolfssl_dir>"
+    echo "Example: $0 ~/repos/wolfssl"
+    exit 1
+else
+    WOLFSSL_DIR="$1"
+fi
+
+# Check if wolfSSL directory exists
+if [ ! -d "$WOLFSSL_DIR" ]; then
+    echo "Error: wolfSSL directory not found at $WOLFSSL_DIR"
+    echo "Please provide a valid wolfSSL directory."
+    exit 1
+fi
+
+# Set up directories
+RESULTS_DIR="$SCRIPT_DIR/results"
 
 # Test configurations
 declare -A TESTS=(
@@ -51,14 +68,14 @@ for test_name in "${!TESTS[@]}"; do
     
     # Run the example client
     ./examples/client/client -h "$host" -d -p "$port" $extra_args -g > \
-        "../wolfssl-examples/staticmemory/memory-bucket-optimizer/$RESULTS_DIR/${test_name}_log.txt" 2>&1
+        "$SCRIPT_DIR/$RESULTS_DIR/${test_name}_log.txt" 2>&1
     
     # Extract memory allocation logs
-    cd "../wolfssl-examples/staticmemory/memory-bucket-optimizer" || exit 1
+    cd "$SCRIPT_DIR" || exit 1
     grep "^Alloc:" "$RESULTS_DIR/${test_name}_log.txt" > "$RESULTS_DIR/${test_name}_memory.txt"
     
     # Run the memory bucket optimizer
-    cd src || exit 1
+    cd "$SCRIPT_DIR/src" || exit 1
     ./memory_bucket_optimizer "../$RESULTS_DIR/${test_name}_memory.txt" > \
         "../$RESULTS_DIR/${test_name}_buckets.txt"
     
@@ -68,7 +85,7 @@ done
 
 # Generate visualization plots
 cd "$SCRIPT_DIR/visualization" || exit 1
-./generate_data.sh
+./generate_data.sh "$WOLFSSL_DIR"
 
 echo "All tests completed. Results saved in $RESULTS_DIR/"
 echo "Visualization plots can be found in visualization/*.png"

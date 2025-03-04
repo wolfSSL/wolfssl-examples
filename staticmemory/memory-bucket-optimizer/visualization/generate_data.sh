@@ -21,9 +21,15 @@
 
 # Script to generate data files and plots for memory bucket optimization
 
-# Set up directories
-SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+# Get the directory of this script
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RESULTS_DIR="$SCRIPT_DIR/../results"
+
+# Check if wolfSSL directory is provided
+if [ -n "$1" ]; then
+    WOLFSSL_DIR="$1"
+    echo "Using wolfSSL directory: $WOLFSSL_DIR"
+fi
 
 # Create data directory
 mkdir -p "$SCRIPT_DIR/data"

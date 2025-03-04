@@ -1,7 +1,7 @@
 #!/bin/bash
 # run_optimizer.sh
 #
-# Copyright (C) 2006-2025 wolfSSL Inc.
+# Copyright (C) 2025 wolfSSL Inc.
 #
 # This file is part of wolfSSL.
 #
@@ -19,11 +19,14 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
 
+# Get the directory of this script
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 # Default values
-WOLFSSL_DIR="../../../wolfssl"
+WOLFSSL_DIR="$(dirname "$(dirname "$(dirname "$SCRIPT_DIR")")")/wolfssl"
 HOST="google.com"
 PORT="443"
-RESULTS_DIR="results"
+RESULTS_DIR="$SCRIPT_DIR/results"
 
 # Print usage
 usage() {
@@ -35,7 +38,7 @@ usage() {
     echo "  --help                   Show this help message"
     echo
     echo "Example:"
-    echo "  $0 -h google.com -p 443"
+    echo "  $0 -w ~/repos/wolfssl -h google.com -p 443"
     exit 1
 }
 
@@ -64,6 +67,13 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+# Check if wolfSSL directory exists
+if [ ! -d "$WOLFSSL_DIR" ]; then
+    echo "Error: wolfSSL directory not found at $WOLFSSL_DIR"
+    echo "Please provide a valid wolfSSL directory using the -w or --wolfssl-dir option."
+    exit 1
+fi
+
 # Create results directory
 mkdir -p "$RESULTS_DIR"
 
@@ -76,22 +86,22 @@ make
 
 # Run the example client and collect memory logs
 echo "Running example client..."
-./examples/client/client -h "$HOST" -d -p "$PORT" -g > "../wolfssl-examples/staticmemory/memory-bucket-optimizer/$RESULTS_DIR/client_log.txt" 2>&1
+./examples/client/client -h "$HOST" -d -p "$PORT" -g > "$RESULTS_DIR/client_log.txt" 2>&1
 
 # Extract memory allocation logs
-cd "../wolfssl-examples/staticmemory/memory-bucket-optimizer" || exit 1
+cd "$SCRIPT_DIR" || exit 1
 grep "^Alloc:" "$RESULTS_DIR/client_log.txt" > "$RESULTS_DIR/memory_log.txt"
 
 # Run the memory bucket optimizer
 echo "Running memory bucket optimizer..."
-cd src || exit 1
+cd "$SCRIPT_DIR/src" || exit 1
 make
-./memory_bucket_optimizer "../../$RESULTS_DIR/memory_log.txt" > "../../$RESULTS_DIR/optimized_buckets.txt"
+./memory_bucket_optimizer "../$RESULTS_DIR/memory_log.txt" > "../$RESULTS_DIR/optimized_buckets.txt"
 
 # Generate visualization plots
 echo "Generating visualization plots..."
-cd ../../visualization || exit 1
-./generate_data.sh
+cd "$SCRIPT_DIR/visualization" || exit 1
+./generate_data.sh "$WOLFSSL_DIR"
 
 echo "Optimization complete. Results saved in $RESULTS_DIR/"
 echo "Optimized bucket configuration can be found in $RESULTS_DIR/optimized_buckets.txt"

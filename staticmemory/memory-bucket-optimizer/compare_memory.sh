@@ -1,7 +1,7 @@
 #!/bin/bash
 # compare_memory.sh
 #
-# Copyright (C) 2006-2025 wolfSSL Inc.
+# Copyright (C) 2025 wolfSSL Inc.
 #
 # This file is part of wolfSSL.
 #
@@ -19,9 +19,27 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
 
-# Default values
-WOLFSSL_DIR="../../../wolfssl"
-RESULTS_DIR="comparison_results"
+# Get the directory of this script
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Check if wolfSSL directory is provided
+if [ -z "$1" ]; then
+    echo "Usage: $0 <wolfssl_dir>"
+    echo "Example: $0 ~/repos/wolfssl"
+    exit 1
+else
+    WOLFSSL_DIR="$1"
+fi
+
+# Check if wolfSSL directory exists
+if [ ! -d "$WOLFSSL_DIR" ]; then
+    echo "Error: wolfSSL directory not found at $WOLFSSL_DIR"
+    echo "Please provide a valid wolfSSL directory."
+    exit 1
+fi
+
+# Set up directories
+RESULTS_DIR="$SCRIPT_DIR/comparison_results"
 
 # Create results directory
 mkdir -p "$RESULTS_DIR"
