@@ -23,6 +23,7 @@
 #define MQTT_NET_H
 
 #include "wolfip.h"
+#include <wolfssl/ssl.h>
 #include <wolfmqtt/mqtt_client.h>
 
 /* Network context for wolfIP */
