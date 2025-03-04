@@ -66,6 +66,27 @@ sudo ./freertos_sim
 ```
 
 ### Testing
+
+#### Configure Mosquitto Broker
+1. Create a mosquitto configuration file:
+```bash
+sudo tee /etc/mosquitto/conf.d/tls.conf << EOF
+listener 8883 10.10.0.1
+cafile ../../../wolfssl/certs/ca-cert.pem
+certfile ../../../wolfssl/certs/server-cert.pem
+keyfile ../../../wolfssl/certs/server-key.pem
+tls_version tlsv1.3
+require_certificate true
+use_identity_as_username true
+EOF
+```
+
+2. Start mosquitto on the TAP interface:
+```bash
+sudo mosquitto -c /etc/mosquitto/conf.d/tls.conf
+```
+
+#### Test MQTT Client
 Test the MQTT client using the provided script:
 ```bash
 sudo ./test_mqtt.sh
