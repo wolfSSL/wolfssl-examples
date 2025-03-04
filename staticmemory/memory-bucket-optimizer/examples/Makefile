@@ -22,13 +22,16 @@ CC = gcc
 CFLAGS = -Wall -Wextra -I../../../wolfssl
 LDFLAGS = -L../../../wolfssl -lwolfssl
 
-EXAMPLES = example_application
+EXAMPLES = example_application tls_example
 
 .PHONY: all clean
 
 all: $(EXAMPLES)
 
 example_application: example_application.c
+	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
+
+tls_example: tls_example.c
 	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
 
 clean:
