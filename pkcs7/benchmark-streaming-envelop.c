@@ -31,8 +31,9 @@
 #include <stdio.h>
 #include <sys/time.h>
 
-#define CONTENT_FILE_NAME "conent-benchmark.bin"
+#define CONTENT_FILE_NAME "benchmark-content.bin"
 #define ENCODED_FILE_NAME "test-stream-dec.p7b"
+#define DECODED_FILE_NAME "benchmark-decrypted.bin"
 #define TEST_STREAM_CHUNK_SIZE 1000
 
 struct timeval startTime;
@@ -216,6 +217,15 @@ static int EncodePKCS7Bundle(double contentSz, WC_RNG* rng)
         per = GetMBs(ret);
         printf("%.2f MB/s", per);
     }
+
+    if (io.out != NULL) {
+        fclose(io.out);
+    }
+
+    if (io.in != NULL) {
+        fclose(io.in);
+    }
+
     printf(" : ret = %d\n", ret);
     return 0;
 }
@@ -253,7 +263,6 @@ static int DecodePKCS7Bundle(void)
     printf("Decoding PKCS7 bundle ... ");
     TimeLogStart();
 
-
     pkcs7 = wc_PKCS7_New(NULL, 0);
     if (pkcs7 == NULL) {
         ret = MEMORY_E;
@@ -270,7 +279,7 @@ static int DecodePKCS7Bundle(void)
     }
 
     if (ret == 0) {
-        out = fopen("benchmark-decrypted.bin", "wb");
+        out = fopen(DECODED_FILE_NAME, "wb");
         if (out == NULL) {
             printf("Unable to open decrypted data out file\n");
             ret = -1;
