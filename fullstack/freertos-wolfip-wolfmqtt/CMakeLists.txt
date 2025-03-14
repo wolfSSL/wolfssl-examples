@@ -135,7 +135,7 @@ set(APP_SRC
     src/wolfip_freertos.c
     src/wolfip_utils.c
     src/tap_interface.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/freertos/utils/posix_utils.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/freertos/utils/utils.c
 )
 
 # Include directories
