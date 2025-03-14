@@ -25,6 +25,7 @@
 #include <wolfmqtt/mqtt_client.h>
 #include <wolfmqtt/mqtt_socket.h>
 #include <wolfmqtt/mqtt_types.h>
+#include <wolfssl/ssl.h>
 #include "../../../wolfip/wolfip.h"
 
 /* Custom MqttNet context */

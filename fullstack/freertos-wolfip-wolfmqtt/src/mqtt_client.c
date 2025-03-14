@@ -62,9 +62,13 @@ static void mqtt_client_task(void* pvParameters)
     
     /* Initialize MQTT client */
     word16 port = MQTT_PORT;
-    word32 buf_len = sizeof(buf);
+    word32 tx_buf_len = sizeof(buf);
+    word32 rx_buf_len = sizeof(buf);
+    byte *tx_buf = buf;
+    byte *rx_buf = buf;
+    
     rc = MqttClient_Init(&g_mqtt_client, &g_mqtt_net, mqtt_message_cb,
-        buf, buf_len, buf, buf_len, MQTT_DEFAULT_CMD_TIMEOUT_MS);
+        tx_buf, tx_buf_len, rx_buf, rx_buf_len, MQTT_DEFAULT_CMD_TIMEOUT_MS);
     if (rc != MQTT_CODE_SUCCESS) {
         printf("MQTT client init failed: %d\n", rc);
         return;

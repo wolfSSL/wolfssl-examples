@@ -39,6 +39,7 @@ add_definitions(
     -DHAVE_ECC
     -DHAVE_CURVE25519
     -DHAVE_ED25519
+    -DENABLE_MQTT_TLS
 )
 
 # wolfIP definitions

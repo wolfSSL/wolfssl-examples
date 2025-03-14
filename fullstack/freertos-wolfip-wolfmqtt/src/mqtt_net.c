@@ -55,7 +55,11 @@ static int mqtt_net_connect_cb(void* context, const char* host, word16 port,
     addr.sin_family = WOLFIP_AF_INET;
     addr.sin_port = wolfIP_htons(port);
     addr.sin_addr.s_addr = wolfIP_inet_addr(host);
-
+    
+    printf("Connecting to %s:%d\n", host, port);
+    printf("IP address: %08x\n", addr.sin_addr.s_addr);
+    printf("Attempting to connect to %s:%d (IP: %08x)\n", host, port, addr.sin_addr.s_addr);
+    
     /* Connect socket */
     rc = wolfIP_sock_connect(net->ipstack, net->sockfd,
                            (struct wolfIP_sockaddr*)&addr, sizeof(addr));
@@ -80,6 +84,7 @@ static int mqtt_net_connect_cb(void* context, const char* host, word16 port,
         }
 
         /* Load CA certificate */
+        printf("Loading CA certificate from: %s\n", MQTT_TLS_CA_CERT);
         if (wolfSSL_CTX_load_verify_locations(mqtt_ctx, MQTT_TLS_CA_CERT, NULL)
             != WOLFSSL_SUCCESS) {
             printf("Failed to load CA certificate\n");
@@ -90,6 +95,7 @@ static int mqtt_net_connect_cb(void* context, const char* host, word16 port,
         }
 
         /* Load client certificate and key */
+        printf("Loading client certificate from: %s\n", MQTT_TLS_CLIENT_CERT);
         if (wolfSSL_CTX_use_certificate_file(mqtt_ctx, MQTT_TLS_CLIENT_CERT,
                                            WOLFSSL_FILETYPE_PEM)
             != WOLFSSL_SUCCESS) {
@@ -100,6 +106,7 @@ static int mqtt_net_connect_cb(void* context, const char* host, word16 port,
             return MQTT_CODE_ERROR_NETWORK;
         }
 
+        printf("Loading client key from: %s\n", MQTT_TLS_CLIENT_KEY);
         if (wolfSSL_CTX_use_PrivateKey_file(mqtt_ctx, MQTT_TLS_CLIENT_KEY,
                                           WOLFSSL_FILETYPE_PEM)
             != WOLFSSL_SUCCESS) {
@@ -145,15 +152,16 @@ static int mqtt_net_read_cb(void* context, byte* buf, int buf_len,
     int rc;
     MqttNet* net = (MqttNet*)context;
 
-    #ifdef ENABLE_MQTT_TLS
+#ifdef ENABLE_MQTT_TLS
     if (mqtt_ssl) {
         rc = wolfSSL_read(mqtt_ssl, buf, buf_len);
     }
-    else
-    #endif
-    {
+    else {
+#endif
         rc = wolfIP_sock_recv(net->ipstack, net->sockfd, buf, buf_len, 0);
+#ifdef ENABLE_MQTT_TLS
     }
+#endif
 
     if (rc < 0) {
         return MQTT_CODE_ERROR_NETWORK;
@@ -168,15 +176,16 @@ static int mqtt_net_write_cb(void* context, const byte* buf, int buf_len,
     int rc;
     MqttNet* net = (MqttNet*)context;
 
-    #ifdef ENABLE_MQTT_TLS
+#ifdef ENABLE_MQTT_TLS
     if (mqtt_ssl) {
         rc = wolfSSL_write(mqtt_ssl, buf, buf_len);
     }
-    else
-    #endif
-    {
+    else {
+#endif
         rc = wolfIP_sock_send(net->ipstack, net->sockfd, buf, buf_len, 0);
+#ifdef ENABLE_MQTT_TLS
     }
+#endif
 
     if (rc < 0) {
         return MQTT_CODE_ERROR_NETWORK;
