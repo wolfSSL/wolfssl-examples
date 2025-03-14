@@ -34,7 +34,14 @@
 #define MQTT_HOST "10.10.0.1"
 #define MQTT_PORT 8883
 #define MQTT_TOPIC "test/topic"
-#define MQTT_QOS 0
+#define MQTT_QOS 1
 #define MQTT_CLIENT_ID "wolfMQTT-client"
+#define MQTT_KEEP_ALIVE_SEC 60
+#define MQTT_USERNAME NULL
+#define MQTT_PASSWORD NULL
+
+/* MQTT Timeouts */
+#define MQTT_CON_TIMEOUT_MS 5000
+#define MQTT_CMD_TIMEOUT_MS 5000
 
 #endif /* MQTT_CONFIG_H */

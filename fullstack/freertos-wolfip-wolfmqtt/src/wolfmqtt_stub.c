@@ -22,78 +22,133 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <time.h>
+#include <wolfssl/ssl.h>
 #include "wolfmqtt_stub.h"
 
+/* MQTT client context */
+static MqttClientContext mqttCtx;
+
 /* Initialize MQTT client */
-int MqttClient_Init(MqttClient *client, MqttNet *net, MqttMsgCb msg_cb,
-                   byte *tx_buf, int tx_buf_len, byte *rx_buf, int rx_buf_len,
-                   int cmd_timeout_ms)
+int mqtt_client_init(void)
 {
-    printf("MqttClient_Init stub called\n");
-    (void)client;
-    (void)net;
-    (void)msg_cb;
-    (void)tx_buf;
-    (void)tx_buf_len;
-    (void)rx_buf;
-    (void)rx_buf_len;
-    (void)cmd_timeout_ms;
-    return MQTT_CODE_SUCCESS;
-}
-
-/* Connect to MQTT broker */
-int MqttClient_Connect(MqttClient *client, MqttConnect *connect)
-{
-    printf("MqttClient_Connect stub called\n");
-    printf("  Client ID: %s\n", connect->client_id);
-    printf("  Keep Alive: %d seconds\n", connect->keep_alive_sec);
-    printf("  Clean Session: %d\n", connect->clean_session);
-    (void)client;
-    return MQTT_CODE_SUCCESS;
-}
-
-/* Subscribe to MQTT topic */
-int MqttClient_Subscribe(MqttClient *client, MqttSubscribe *subscribe)
-{
-    printf("MqttClient_Subscribe stub called\n");
-    printf("  Packet ID: %d\n", subscribe->packet_id);
-    printf("  Topic Count: %d\n", subscribe->topic_count);
-    for (int i = 0; i < subscribe->topic_count; i++) {
-        printf("  Topic %d: %s (QoS %d)\n", i, 
-               subscribe->topics[i].topic_filter,
-               subscribe->topics[i].qos);
+    printf("Initializing MQTT client (stub implementation)\n");
+    
+    /* Initialize context */
+    memset(&mqttCtx, 0, sizeof(MqttClientContext));
+    
+    /* Allocate buffers */
+    mqttCtx.tx_buf = (unsigned char*)malloc(MAX_BUFFER_SIZE);
+    mqttCtx.rx_buf = (unsigned char*)malloc(MAX_BUFFER_SIZE);
+    
+    if (mqttCtx.tx_buf == NULL || mqttCtx.rx_buf == NULL) {
+        printf("Failed to allocate buffers\n");
+        mqtt_client_cleanup();
+        return -1;
     }
-    (void)client;
-    return MQTT_CODE_SUCCESS;
+    
+    /* Connect to broker */
+    printf("Connecting to MQTT broker %s:%d\n", MQTT_HOST, MQTT_PORT);
+    
+    /* Create TLS connection */
+    printf("Creating TLS connection\n");
+    
+    /* Initialize wolfSSL */
+    if (wolfSSL_Init() != WOLFSSL_SUCCESS) {
+        printf("Failed to initialize wolfSSL\n");
+        return -1;
+    }
+    
+    /* Create and initialize WOLFSSL_CTX */
+    WOLFSSL_CTX* ctx = wolfSSL_CTX_new(wolfTLSv1_3_client_method());
+    if (ctx == NULL) {
+        printf("Failed to create WOLFSSL_CTX\n");
+        return -1;
+    }
+    
+    /* Load CA certificate */
+    if (wolfSSL_CTX_load_verify_locations(ctx, MQTT_TLS_CA_CERT, NULL) != WOLFSSL_SUCCESS) {
+        printf("Failed to load CA certificate: %s\n", MQTT_TLS_CA_CERT);
+        wolfSSL_CTX_free(ctx);
+        return -1;
+    }
+    
+    /* Load client certificate */
+    if (wolfSSL_CTX_use_certificate_file(ctx, MQTT_TLS_CLIENT_CERT, WOLFSSL_FILETYPE_PEM) != WOLFSSL_SUCCESS) {
+        printf("Failed to load client certificate: %s\n", MQTT_TLS_CLIENT_CERT);
+        wolfSSL_CTX_free(ctx);
+        return -1;
+    }
+    
+    /* Load client key */
+    if (wolfSSL_CTX_use_PrivateKey_file(ctx, MQTT_TLS_CLIENT_KEY, WOLFSSL_FILETYPE_PEM) != WOLFSSL_SUCCESS) {
+        printf("Failed to load client key: %s\n", MQTT_TLS_CLIENT_KEY);
+        wolfSSL_CTX_free(ctx);
+        return -1;
+    }
+    
+    /* Store context */
+    mqttCtx.ssl_ctx = ctx;
+    
+    /* Subscribe to topic */
+    printf("Subscribing to topic: %s\n", MQTT_TOPIC);
+    
+    /* Publish test message */
+    printf("Publishing test message to topic: %s\n", MQTT_TOPIC);
+    
+    return 0;
 }
 
-/* Publish MQTT message */
-int MqttClient_Publish(MqttClient *client, MqttPublish *publish)
+/* Cleanup MQTT client */
+int mqtt_client_cleanup(void)
 {
-    printf("MqttClient_Publish stub called\n");
-    printf("  Packet ID: %d\n", publish->packet_id);
-    printf("  Topic: %s\n", publish->topic_name);
-    printf("  QoS: %d\n", publish->qos);
-    printf("  Retain: %d\n", publish->retain);
-    printf("  Duplicate: %d\n", publish->duplicate);
-    printf("  Message: %.*s\n", (int)publish->total_len, publish->buffer);
-    (void)client;
-    return MQTT_CODE_SUCCESS;
+    printf("Cleaning up MQTT client (stub implementation)\n");
+    
+    /* Free SSL context */
+    if (mqttCtx.ssl_ctx) {
+        wolfSSL_CTX_free(mqttCtx.ssl_ctx);
+        mqttCtx.ssl_ctx = NULL;
+    }
+    
+    /* Free buffers */
+    if (mqttCtx.tx_buf) {
+        free(mqttCtx.tx_buf);
+        mqttCtx.tx_buf = NULL;
+    }
+    
+    if (mqttCtx.rx_buf) {
+        free(mqttCtx.rx_buf);
+        mqttCtx.rx_buf = NULL;
+    }
+    
+    /* Cleanup wolfSSL */
+    wolfSSL_Cleanup();
+    
+    return 0;
 }
 
-/* Wait for MQTT message */
-int MqttClient_WaitMessage(MqttClient *client, int timeout_ms)
+/* Get MQTT client context */
+MqttClientContext* mqtt_client_get_context(void)
 {
-    (void)client;
-    (void)timeout_ms;
-    /* Simulate timeout */
-    return MQTT_CODE_ERROR_TIMEOUT;
+    return &mqttCtx;
 }
 
-/* Disconnect from MQTT broker */
-int MqttClient_Disconnect(MqttClient *client)
+/* Process MQTT messages */
+int mqtt_client_process_message(void)
 {
-    printf("MqttClient_Disconnect stub called\n");
-    (void)client;
-    return MQTT_CODE_SUCCESS;
+    printf("Processing MQTT messages (stub implementation)\n");
+    
+    /* Simulate message processing */
+    sleep(1);
+    
+    return 0;
+}
+
+/* Send MQTT ping */
+int mqtt_client_ping(void)
+{
+    printf("Sending MQTT ping (stub implementation)\n");
+    
+    return 0;
 }

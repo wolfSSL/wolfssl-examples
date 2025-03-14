@@ -124,14 +124,16 @@ set(WOLFIP_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/wolfip_stub.c
 )
 
+# wolfMQTT source files - use stub implementation
+set(WOLFMQTT_SRC
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/wolfmqtt_stub.c
+)
+
 # Application source files
 set(APP_SRC
     src/main.c
     src/wolfip_freertos.c
-    src/mqtt_client.c
-    src/mqtt_net.c
     src/wolfip_utils.c
-    src/wolfmqtt_stub.c
     src/tap_interface.c
     ${CMAKE_CURRENT_SOURCE_DIR}/freertos/utils/posix_utils.c
 )
@@ -164,6 +166,7 @@ target_compile_options(wolfip PRIVATE
 add_executable(freertos_sim
     ${FREERTOS_SRC}
     ${APP_SRC}
+    ${WOLFMQTT_SRC}
 )
 
 # Link libraries

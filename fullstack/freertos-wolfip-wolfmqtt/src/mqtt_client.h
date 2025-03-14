@@ -22,6 +22,13 @@
 #ifndef MQTT_CLIENT_H
 #define MQTT_CLIENT_H
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <wolfmqtt/mqtt_client.h>
+#include "mqtt_net.h"
+#include "../include/mqtt_config.h"
+
 /* MQTT broker settings */
 #define MQTT_HOST "10.10.0.1"
 #define MQTT_PORT 8883
@@ -31,7 +38,20 @@
 #define MQTT_KEEP_ALIVE_SEC 60
 #define MQTT_DEFAULT_CMD_TIMEOUT_MS 30000
 
-/* Initialize MQTT client */
+/* MQTT Client context */
+typedef struct MqttClientContext {
+    MqttClient client;
+    MqttNet net;
+    byte *tx_buf;
+    byte *rx_buf;
+    int socket_fd;
+} MqttClientContext;
+
+/* Function prototypes */
 int mqtt_client_init(void);
+int mqtt_client_cleanup(void);
+
+/* External access to MQTT client context */
+MqttClientContext* mqtt_client_get_context(void);
 
 #endif /* MQTT_CLIENT_H */

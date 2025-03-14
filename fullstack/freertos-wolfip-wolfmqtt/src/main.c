@@ -39,7 +39,7 @@
 
 /* Application includes */
 #include "wolfip_freertos.h"
-#include "mqtt_client.h"
+#include "wolfmqtt_stub.h"
 
 /* Task priorities */
 #define WOLFIP_TASK_PRIORITY (tskIDLE_PRIORITY + 2)
@@ -80,6 +80,9 @@ static void wolfip_task(void *pvParameters)
 /* MQTT client task */
 static void mqtt_task(void *pvParameters)
 {
+    int rc;
+    MqttClientContext *mqttCtx;
+    
     (void)pvParameters;
 
     printf("MQTT task started\n");
@@ -87,9 +90,41 @@ static void mqtt_task(void *pvParameters)
     /* Wait for wolfIP to initialize */
     vTaskDelay(pdMS_TO_TICKS(1000));
 
-    /* Initialize and start MQTT client */
-    mqtt_client_init();
-
+    /* Initialize MQTT client */
+    rc = mqtt_client_init();
+    if (rc != MQTT_CODE_SUCCESS) {
+        printf("Failed to initialize MQTT client: %d\n", rc);
+        vTaskDelete(NULL);
+        return;
+    }
+    
+    /* Get MQTT client context */
+    mqttCtx = mqtt_client_get_context();
+    
+    /* Process messages */
+    printf("Waiting for MQTT messages...\n");
+    while (1) {
+        /* Process messages */
+        rc = mqtt_client_process_message();
+        if (rc != MQTT_CODE_SUCCESS) {
+            printf("MQTT message processing error: %d\n", rc);
+            break;
+        }
+        
+        /* Send ping to keep connection alive */
+        rc = mqtt_client_ping();
+        if (rc != MQTT_CODE_SUCCESS) {
+            printf("MQTT ping failed: %d\n", rc);
+            break;
+        }
+        
+        /* Sleep to prevent CPU hogging */
+        vTaskDelay(pdMS_TO_TICKS(100));
+    }
+    
+    /* Cleanup MQTT client */
+    mqtt_client_cleanup();
+    
     /* Task complete */
     vTaskDelete(NULL);
 }
