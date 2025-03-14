@@ -76,7 +76,6 @@ set(FREERTOS_SRC
     ${FREERTOS_KERNEL_DIR}/stream_buffer.c
     ${FREERTOS_KERNEL_DIR}/portable/ThirdParty/GCC/Posix/port.c
     ${FREERTOS_KERNEL_DIR}/portable/MemMang/heap_3.c
-    ${FREERTOS_DIR}/utils/posix_utils.c
 )
 
 # Create utils.c if it doesn't exist
@@ -134,6 +133,7 @@ set(APP_SRC
     src/wolfip_utils.c
     src/wolfmqtt_stub.c
     src/tap_interface.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/freertos/utils/posix_utils.c
 )
 
 # Include directories
