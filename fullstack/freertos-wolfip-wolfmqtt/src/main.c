@@ -20,64 +20,99 @@
  */
 
 #include <stdio.h>
-#include "FreeRTOS.h"
-#include "task.h"
-#include "wolfip_freertos.h"
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <FreeRTOS.h>
+#include <task.h>
 #include "mqtt_client.h"
+#include "wolfip_freertos.h"
 
-static void testTask(void* pvParameters) {
-    const TickType_t xDelay = 1000 / portTICK_PERIOD_MS;
-    int ret;
-    
-    printf("Initializing wolfIP...\n");
-    ret = wolfIP_FreeRTOS_Init();
-    if (ret != 0) {
-        printf("Failed to initialize wolfIP\n");
-        return;
-    }
-    
-    printf("Starting wolfIP network task...\n");
-    ret = wolfIP_FreeRTOS_Start();
-    if (ret != 0) {
-        printf("Failed to start wolfIP network task\n");
+/* FreeRTOS task priorities */
+#define MQTT_TASK_PRIORITY (tskIDLE_PRIORITY + 2)
+#define UDP_TASK_PRIORITY  (tskIDLE_PRIORITY + 1)
+
+/* UDP echo server port */
+#define UDP_PORT 7
+
+/* UDP echo server task */
+static void udp_echo_task(void* pvParameters)
+{
+    struct wolfIP *ipstack = wolfip_get_stack();
+    int sockfd;
+    struct wolfIP_sockaddr_in addr;
+    char buffer[1024];
+    socklen_t addrlen = sizeof(addr);
+
+    /* Create UDP socket */
+    sockfd = wolfIP_sock_socket(ipstack, AF_INET, SOCK_DGRAM, 0);
+    if (sockfd < 0) {
+        printf("Failed to create UDP socket\n");
         return;
     }
 
-    printf("Starting UDP echo server...\n");
-    ret = wolfIP_Start_UDP_Echo();
-    if (ret != 0) {
-        printf("Failed to start UDP echo server\n");
+    /* Bind socket */
+    memset(&addr, 0, sizeof(addr));
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(UDP_PORT);
+    addr.sin_addr.s_addr = INADDR_ANY;
+
+    if (wolfIP_sock_bind(ipstack, sockfd, (struct wolfIP_sockaddr*)&addr, sizeof(addr)) < 0) {
+        printf("Failed to bind UDP socket\n");
+        wolfIP_sock_close(ipstack, sockfd);
         return;
     }
 
-    printf("Starting MQTT client...\n");
-    ret = mqtt_client_init(g_wolfip);
-    if (ret != 0) {
-        printf("Failed to initialize MQTT client\n");
-        return;
-    }
-    ret = mqtt_client_start();
-    if (ret != 0) {
-        printf("Failed to start MQTT client\n");
-        return;
-    }
-    
-    printf("Network stack, UDP echo server, and MQTT client running...\n");
-    for(;;) {
-        vTaskDelay(xDelay);
+    printf("UDP echo server started on port %d\n", UDP_PORT);
+
+    while (1) {
+        int len = wolfIP_sock_recvfrom(ipstack, sockfd, buffer, sizeof(buffer), 0,
+                                     (struct wolfIP_sockaddr*)&addr, &addrlen);
+        if (len > 0) {
+            wolfIP_sock_sendto(ipstack, sockfd, buffer, len, 0,
+                             (struct wolfIP_sockaddr*)&addr, addrlen);
+        }
     }
 }
 
-int main(void) {
+int main(void)
+{
+    int ret;
+
     printf("Starting FreeRTOS with wolfIP...\n");
-    
-    /* Create the test task */
-    xTaskCreate(testTask, "TestTask", configMINIMAL_STACK_SIZE, 
-                NULL, tskIDLE_PRIORITY + 1, NULL);
-    
-    /* Start the scheduler */
+
+    /* Initialize wolfIP */
+    ret = wolfip_init();
+    if (ret < 0) {
+        printf("Failed to initialize wolfIP\n");
+        return -1;
+    }
+
+    /* Start UDP echo server */
+    printf("Starting UDP echo server...\n");
+    xTaskCreate(udp_echo_task, "UDP_Echo", configMINIMAL_STACK_SIZE * 4,
+                NULL, UDP_TASK_PRIORITY, NULL);
+
+    /* Start MQTT client */
+    printf("Starting MQTT client...\n");
+    ret = mqtt_client_init(wolfip_get_stack());
+    if (ret < 0) {
+        printf("Failed to initialize MQTT client\n");
+        return -1;
+    }
+
+    ret = mqtt_client_start();
+    if (ret < 0) {
+        printf("Failed to start MQTT client\n");
+        return -1;
+    }
+
+    /* Start FreeRTOS scheduler */
     vTaskStartScheduler();
-    
+
     /* Should never reach here */
     return 0;
 }

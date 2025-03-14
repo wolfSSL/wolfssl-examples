@@ -1,3 +1,4 @@
+#include "mqtt_config.h"
 /* mqtt_client.h
  *
  * Copyright (C) 2006-2024 wolfSSL Inc.

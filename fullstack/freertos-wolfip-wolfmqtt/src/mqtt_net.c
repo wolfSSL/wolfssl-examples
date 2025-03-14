@@ -19,126 +19,142 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
+#include <stdio.h>
+#include <string.h>
 #include "mqtt_net.h"
-#include <wolfip.h>
+#include "wolfip/socket.h"
 #include <wolfssl/ssl.h>
+#include <wolfssl/wolfcrypt/error-crypt.h>
 
-/* Static TLS context */
-static WOLFSSL_CTX* mqtt_tls_ctx;
-static WOLFSSL* mqtt_tls;
+/* TLS Configuration */
+#define MQTT_TLS_TIMEOUT_MS 10000
+#define MQTT_TLS_VERIFY_PEER 1
 
-/* Static packet ID counter */
-static word16 packet_id = 0;
+/* Global TLS context */
+static WOLFSSL_CTX* mqtt_ctx;
+static WOLFSSL* mqtt_ssl;
 
-/* Initialize TLS */
-static int mqtt_tls_init(void) {
-    wolfSSL_Init();
-    mqtt_tls_ctx = wolfSSL_CTX_new(wolfTLSv1_3_client_method());
-    if (!mqtt_tls_ctx) {
-        printf("Failed to create WOLFSSL_CTX\n");
-        return -1;
-    }
-
-    printf("Loading CA certificate from: %s\n", MQTT_TLS_CA_CERT);
-    if (wolfSSL_CTX_load_verify_locations(mqtt_tls_ctx, MQTT_TLS_CA_CERT, NULL) != SSL_SUCCESS) {
-        printf("Failed to load CA certificate\n");
-        return -1;
-    }
-
-    printf("Loading client certificate from: %s\n", MQTT_TLS_CLIENT_CERT);
-    if (wolfSSL_CTX_use_certificate_file(mqtt_tls_ctx, MQTT_TLS_CLIENT_CERT, SSL_FILETYPE_PEM) != SSL_SUCCESS) {
-        printf("Failed to load client certificate\n");
-        return -1;
-    }
-
-    printf("Loading client key from: %s\n", MQTT_TLS_CLIENT_KEY);
-    if (wolfSSL_CTX_use_PrivateKey_file(mqtt_tls_ctx, MQTT_TLS_CLIENT_KEY, SSL_FILETYPE_PEM) != SSL_SUCCESS) {
-        printf("Failed to load client key\n");
-        return -1;
-    }
-
-    printf("TLS initialization successful\n");
-    return 0;
-}
-
-/* Get next packet ID */
-word16 mqtt_get_packetid(void) {
-    return ++packet_id;
-}
-
-/* Network Callbacks */
-static int mqtt_net_connect(void *context, const char* host, word16 port,
+/* Network callbacks */
+static int mqtt_net_connect_cb(void* context, const char* host, word16 port,
     int timeout_ms)
 {
-    MqttNetContext *net = (MqttNetContext*)context;
     int rc;
+    struct wolfIP_sockaddr_in addr;
+    MqttNet* net = (MqttNet*)context;
 
-    /* Create TCP socket */
-    printf("Creating TCP socket...\n");
-    net->sockfd = wolfIP_sock_socket(net->ipstack, WOLFIP_AF_INET, WOLFIP_SOCK_STREAM, 0);
+    /* Create socket */
+    net->sockfd = wolfIP_sock_socket(net->ipstack, WOLFIP_AF_INET,
+                                   WOLFIP_SOCK_STREAM, 0);
     if (net->sockfd < 0) {
         printf("Failed to create socket\n");
         return MQTT_CODE_ERROR_NETWORK;
     }
-    printf("Socket created successfully\n");
 
-    /* Connect to host */
-    struct wolfIP_sockaddr_in addr;
+    /* Setup address */
     memset(&addr, 0, sizeof(addr));
     addr.sin_family = WOLFIP_AF_INET;
-    addr.sin_port = port;
-    printf("Connecting to %s:%d\n", host, port);
-    addr.sin_addr.s_addr = atoip4(host);
-    printf("IP address: %08x\n", addr.sin_addr.s_addr);
-    printf("Attempting to connect to %s:%d (IP: %08x)\n", host, port, addr.sin_addr.s_addr);
-    rc = wolfIP_sock_connect(net->ipstack, net->sockfd, (struct wolfIP_sockaddr*)&addr, sizeof(addr));
-    if (rc != 0) {
-        printf("Socket connect failed: %d\n", rc);
+    addr.sin_port = wolfIP_htons(port);
+    addr.sin_addr.s_addr = wolfIP_inet_addr(host);
+
+    /* Connect socket */
+    rc = wolfIP_sock_connect(net->ipstack, net->sockfd,
+                           (struct wolfIP_sockaddr*)&addr, sizeof(addr));
+    if (rc < 0) {
+        printf("Failed to connect to %s:%d\n", host, port);
         wolfIP_sock_close(net->ipstack, net->sockfd);
         return MQTT_CODE_ERROR_NETWORK;
     }
-    printf("Socket connected successfully\n");
 
-    /* Initialize TLS */
-    net->ssl = wolfSSL_new(mqtt_tls_ctx);
-    if (!net->ssl) {
+    /* Setup TLS if enabled */
+    #ifdef ENABLE_MQTT_TLS
+    if (mqtt_ctx == NULL) {
+        /* Initialize wolfSSL */
+        wolfSSL_Init();
+        
+        /* Create and initialize WOLFSSL_CTX */
+        mqtt_ctx = wolfSSL_CTX_new(wolfTLSv1_3_client_method());
+        if (mqtt_ctx == NULL) {
+            printf("Failed to create WOLFSSL_CTX\n");
+            wolfIP_sock_close(net->ipstack, net->sockfd);
+            return MQTT_CODE_ERROR_NETWORK;
+        }
+
+        /* Load CA certificate */
+        if (wolfSSL_CTX_load_verify_locations(mqtt_ctx, MQTT_TLS_CA_CERT, NULL)
+            != WOLFSSL_SUCCESS) {
+            printf("Failed to load CA certificate\n");
+            wolfSSL_CTX_free(mqtt_ctx);
+            mqtt_ctx = NULL;
+            wolfIP_sock_close(net->ipstack, net->sockfd);
+            return MQTT_CODE_ERROR_NETWORK;
+        }
+
+        /* Load client certificate and key */
+        if (wolfSSL_CTX_use_certificate_file(mqtt_ctx, MQTT_TLS_CLIENT_CERT,
+                                           WOLFSSL_FILETYPE_PEM)
+            != WOLFSSL_SUCCESS) {
+            printf("Failed to load client certificate\n");
+            wolfSSL_CTX_free(mqtt_ctx);
+            mqtt_ctx = NULL;
+            wolfIP_sock_close(net->ipstack, net->sockfd);
+            return MQTT_CODE_ERROR_NETWORK;
+        }
+
+        if (wolfSSL_CTX_use_PrivateKey_file(mqtt_ctx, MQTT_TLS_CLIENT_KEY,
+                                          WOLFSSL_FILETYPE_PEM)
+            != WOLFSSL_SUCCESS) {
+            printf("Failed to load client key\n");
+            wolfSSL_CTX_free(mqtt_ctx);
+            mqtt_ctx = NULL;
+            wolfIP_sock_close(net->ipstack, net->sockfd);
+            return MQTT_CODE_ERROR_NETWORK;
+        }
+    }
+
+    /* Create new WOLFSSL object */
+    mqtt_ssl = wolfSSL_new(mqtt_ctx);
+    if (mqtt_ssl == NULL) {
         printf("Failed to create WOLFSSL object\n");
         wolfIP_sock_close(net->ipstack, net->sockfd);
         return MQTT_CODE_ERROR_NETWORK;
     }
 
-    /* Set the socket file descriptor */
-    wolfSSL_set_fd(net->ssl, net->sockfd);
+    /* Associate the socket with WOLFSSL */
+    wolfSSL_set_fd(mqtt_ssl, net->sockfd);
 
     /* Connect TLS */
-    printf("Starting TLS handshake...\n");
-    if (wolfSSL_connect(net->ssl) != SSL_SUCCESS) {
-        printf("TLS handshake failed\n");
-        wolfSSL_free(net->ssl);
-        net->ssl = NULL;
+    rc = wolfSSL_connect(mqtt_ssl);
+    if (rc != WOLFSSL_SUCCESS) {
+        printf("TLS connect failed, error: %d\n",
+               wolfSSL_get_error(mqtt_ssl, rc));
+        wolfSSL_free(mqtt_ssl);
+        mqtt_ssl = NULL;
         wolfIP_sock_close(net->ipstack, net->sockfd);
         return MQTT_CODE_ERROR_NETWORK;
     }
+
     printf("TLS connection established\n");
+    #endif
 
     return MQTT_CODE_SUCCESS;
 }
 
-static int mqtt_net_read(void *context, byte* buf, int buf_len,
+static int mqtt_net_read_cb(void* context, byte* buf, int buf_len,
     int timeout_ms)
 {
-    MqttNetContext *net = (MqttNetContext*)context;
     int rc;
+    MqttNet* net = (MqttNet*)context;
 
-    if (context == NULL || buf == NULL || buf_len <= 0) {
-        return MQTT_CODE_ERROR_BAD_ARG;
+    #ifdef ENABLE_MQTT_TLS
+    if (mqtt_ssl) {
+        rc = wolfSSL_read(mqtt_ssl, buf, buf_len);
     }
-
-    if (net->ssl) {
-        rc = wolfSSL_read(net->ssl, buf, buf_len);
-    } else {
+    else
+    #endif
+    {
         rc = wolfIP_sock_recv(net->ipstack, net->sockfd, buf, buf_len, 0);
     }
+
     if (rc < 0) {
         return MQTT_CODE_ERROR_NETWORK;
     }
@@ -146,21 +162,22 @@ static int mqtt_net_read(void *context, byte* buf, int buf_len,
     return rc;
 }
 
-static int mqtt_net_write(void *context, const byte* buf, int buf_len,
+static int mqtt_net_write_cb(void* context, const byte* buf, int buf_len,
     int timeout_ms)
 {
-    MqttNetContext *net = (MqttNetContext*)context;
     int rc;
+    MqttNet* net = (MqttNet*)context;
 
-    if (context == NULL || buf == NULL || buf_len <= 0) {
-        return MQTT_CODE_ERROR_BAD_ARG;
+    #ifdef ENABLE_MQTT_TLS
+    if (mqtt_ssl) {
+        rc = wolfSSL_write(mqtt_ssl, buf, buf_len);
     }
-
-    if (net->ssl) {
-        rc = wolfSSL_write(net->ssl, buf, buf_len);
-    } else {
+    else
+    #endif
+    {
         rc = wolfIP_sock_send(net->ipstack, net->sockfd, buf, buf_len, 0);
     }
+
     if (rc < 0) {
         return MQTT_CODE_ERROR_NETWORK;
     }
@@ -168,15 +185,18 @@ static int mqtt_net_write(void *context, const byte* buf, int buf_len,
     return rc;
 }
 
-static int mqtt_net_disconnect(void *context)
+static int mqtt_net_disconnect_cb(void* context)
 {
-    MqttNetContext *net = (MqttNetContext*)context;
+    MqttNet* net = (MqttNet*)context;
 
-    if (net) {
-        if (net->ssl) {
-            wolfSSL_free(net->ssl);
-            net->ssl = NULL;
-        }
+    #ifdef ENABLE_MQTT_TLS
+    if (mqtt_ssl) {
+        wolfSSL_free(mqtt_ssl);
+        mqtt_ssl = NULL;
+    }
+    #endif
+
+    if (net->sockfd >= 0) {
         wolfIP_sock_close(net->ipstack, net->sockfd);
         net->sockfd = -1;
     }
@@ -186,54 +206,35 @@ static int mqtt_net_disconnect(void *context)
 
 int MqttNet_Init(MqttNet* net, struct wolfIP* ipstack)
 {
-    int rc;
-    
     if (net == NULL || ipstack == NULL) {
         return MQTT_CODE_ERROR_BAD_ARG;
     }
 
-    /* Initialize TLS */
-    rc = mqtt_tls_init();
-    if (rc != 0) {
-        printf("TLS initialization failed\n");
-        return MQTT_CODE_ERROR_NETWORK;
-    }
+    memset(net, 0, sizeof(MqttNet));
 
-    XMEMSET(net, 0, sizeof(MqttNet));
+    net->ipstack = ipstack;
+    net->sockfd = -1;
+    net->connect = mqtt_net_connect_cb;
+    net->read = mqtt_net_read_cb;
+    net->write = mqtt_net_write_cb;
+    net->disconnect = mqtt_net_disconnect_cb;
 
-    net->connect = mqtt_net_connect;
-    net->read = mqtt_net_read;
-    net->write = mqtt_net_write;
-    net->disconnect = mqtt_net_disconnect;
-
-    /* Setup network context */
-    net->context = (MqttNetContext*)WOLFMQTT_MALLOC(sizeof(MqttNetContext));
-    if (net->context == NULL) {
-        wolfSSL_CTX_free(mqtt_tls_ctx);
-        return MQTT_CODE_ERROR_MEMORY;
-    }
-
-    ((MqttNetContext*)net->context)->ipstack = ipstack;
-    ((MqttNetContext*)net->context)->sockfd = -1;
-    ((MqttNetContext*)net->context)->ssl = NULL;
-
-    printf("MQTT network initialized successfully\n");
     return MQTT_CODE_SUCCESS;
 }
 
 int MqttNet_DeInit(MqttNet* net)
 {
     if (net) {
-        if (net->context) {
-            mqtt_net_disconnect(net->context);
-            WOLFMQTT_FREE(net->context);
-        }
-        if (mqtt_tls_ctx) {
-            wolfSSL_CTX_free(mqtt_tls_ctx);
-            mqtt_tls_ctx = NULL;
-        }
-        wolfSSL_Cleanup();
-        XMEMSET(net, 0, sizeof(MqttNet));
+        mqtt_net_disconnect_cb(net);
     }
+
+    #ifdef ENABLE_MQTT_TLS
+    if (mqtt_ctx) {
+        wolfSSL_CTX_free(mqtt_ctx);
+        mqtt_ctx = NULL;
+        wolfSSL_Cleanup();
+    }
+    #endif
+
     return MQTT_CODE_SUCCESS;
 }

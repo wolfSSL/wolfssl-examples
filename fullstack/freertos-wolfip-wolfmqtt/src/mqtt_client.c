@@ -74,13 +74,29 @@ static void mqtt_client_task(void* pvParameters)
     
     /* Enable non-blocking mode */
     printf("Connecting to MQTT broker at %s:%d...\n", MQTT_HOST, MQTT_PORT);
-    rc = MqttClient_NetConnect(&g_mqtt_client, MQTT_HOST, MQTT_PORT,
-        MQTT_DEFAULT_CMD_TIMEOUT_MS, 0, NULL);
-    if (rc != MQTT_CODE_SUCCESS) {
-        printf("MQTT client connection failed: %d\n", rc);
+    /* Non-blocking connect attempt */
+    int retries = 5;
+    while (retries--) {
+        rc = MqttClient_NetConnect(&g_mqtt_client, MQTT_HOST, MQTT_PORT,
+            MQTT_DEFAULT_CMD_TIMEOUT_MS, 0, NULL);
+        if (rc == MQTT_CODE_SUCCESS) {
+            printf("MQTT client connected successfully\n");
+            break;
+        }
+        else if (rc == MQTT_CODE_CONTINUE) {
+            printf("MQTT connect in progress, waiting...\n");
+            vTaskDelay(pdMS_TO_TICKS(1000));
+            continue;
+        }
+        else {
+            printf("MQTT client connection failed: %d\n", rc);
+            return;
+        }
+    }
+    if (retries < 0) {
+        printf("MQTT connect timeout after retries\n");
         return;
     }
-    printf("MQTT client connected successfully\n");
 
     /* Connect to broker */
     memset(&connect, 0, sizeof(connect));

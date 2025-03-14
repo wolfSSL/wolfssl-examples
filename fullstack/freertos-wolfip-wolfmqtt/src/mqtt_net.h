@@ -22,22 +22,23 @@
 #ifndef MQTT_NET_H
 #define MQTT_NET_H
 
-#include "../include/user_settings.h"
-#include "wolfip.h"
-#include <wolfssl/ssl.h>
 #include <wolfmqtt/mqtt_client.h>
+#include <wolfmqtt/mqtt_socket.h>
+#include <wolfmqtt/mqtt_types.h>
+#include "../../../wolfip/wolfip.h"
 
-/* Network context for wolfIP */
-typedef struct _MqttNetContext {
-    struct wolfIP *ipstack;
+/* Custom MqttNet context */
+typedef struct _MqttNet {
+    struct wolfIP* ipstack;
     int sockfd;
-    WOLFSSL* ssl;
-} MqttNetContext;
+    MqttNetConnectCb connect;
+    MqttNetReadCb read;
+    MqttNetWriteCb write;
+    MqttNetDisconnectCb disconnect;
+} MqttNet;
 
-/* Initialize MQTT network callbacks with wolfIP */
+/* Network functions */
 int MqttNet_Init(MqttNet* net, struct wolfIP* ipstack);
-
-/* Cleanup MQTT network */
 int MqttNet_DeInit(MqttNet* net);
 
 #endif /* MQTT_NET_H */
