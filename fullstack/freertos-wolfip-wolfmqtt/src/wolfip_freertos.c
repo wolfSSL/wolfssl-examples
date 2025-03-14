@@ -23,25 +23,21 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include "wolfip_freertos.h"
-#include "wolfip_compat.h"
+#include "../../../../../../wolfip/wolfip.h"
 
 /* External functions */
 extern int tap_init(const char *ifname, const char *ipaddr, const char *netmask);
 
-static struct wolfIP *g_ipstack = NULL;
+/* Static wolfIP instance pointer */
+static struct wolfIP *g_ipstack;
 
 int wolfip_init(void)
 {
-    struct wolfIP *ipstack;
-    struct wolfIP_ipconfig cfg;
     int ret;
+    uint32_t ip, mask, gw;
 
     /* Initialize wolfIP */
-    ipstack = wolfIP_init();
-    if (!ipstack) {
-        printf("Failed to initialize wolfIP\n");
-        return -1;
-    }
+    wolfIP_init_static(&g_ipstack);
 
     /* Initialize TAP device */
     ret = tap_init("tap0", "10.10.0.10", "255.255.255.0");
@@ -51,13 +47,12 @@ int wolfip_init(void)
     }
 
     /* Configure IP settings */
-    memset(&cfg, 0, sizeof(cfg));
-    cfg.addr = inet_addr("10.10.0.10");
-    cfg.netmask = inet_addr("255.255.255.0");
-    cfg.gateway = inet_addr("10.10.0.1");
+    ip = inet_addr("10.10.0.10");
+    mask = inet_addr("255.255.255.0");
+    gw = inet_addr("10.10.0.1");
 
     /* Set IP configuration */
-    wolfIP_ipconfig_set(ipstack, &cfg);
+    wolfIP_ipconfig_set(g_ipstack, ip, mask, gw);
 
     /* Print IP configuration */
     printf("IP Configuration:\n");
@@ -65,7 +60,6 @@ int wolfip_init(void)
     printf("Netmask: 255.255.255.0\n");
     printf("Gateway: 10.10.0.1\n");
 
-    g_ipstack = ipstack;
     return 0;
 }
 

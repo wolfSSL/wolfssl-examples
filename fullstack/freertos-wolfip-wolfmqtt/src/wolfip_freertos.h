@@ -22,7 +22,7 @@
 #ifndef WOLFIP_FREERTOS_H
 #define WOLFIP_FREERTOS_H
 
-#include "wolfip_compat.h"
+#include "../../../../../../wolfip/wolfip.h"
 
 /* Initialize wolfIP */
 int wolfip_init(void);

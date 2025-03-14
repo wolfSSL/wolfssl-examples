@@ -116,8 +116,11 @@ void utils_init(void)
 ")
 endif()
 
-# Add utils.c to FreeRTOS sources
-list(APPEND FREERTOS_SRC ${FREERTOS_DIR}/utils/utils.c)
+# Add utils.c and events.c to FreeRTOS sources
+list(APPEND FREERTOS_SRC 
+    ${FREERTOS_DIR}/utils/utils.c
+    ${FREERTOS_DIR}/utils/events.c
+)
 
 # wolfIP source files - use stub implementation
 set(WOLFIP_SRC

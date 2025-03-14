@@ -68,22 +68,22 @@ int mqtt_client_init(void)
     }
     
     /* Load CA certificate */
-    if (wolfSSL_CTX_load_verify_locations(ctx, MQTT_TLS_CA_CERT, NULL) != WOLFSSL_SUCCESS) {
-        printf("Failed to load CA certificate: %s\n", MQTT_TLS_CA_CERT);
+    if (wolfSSL_CTX_load_verify_locations(ctx, "/home/ubuntu/repos/wolfssl/certs/ca-cert.pem", NULL) != WOLFSSL_SUCCESS) {
+        printf("Failed to load CA certificate: %s\n", "/home/ubuntu/repos/wolfssl/certs/ca-cert.pem");
         wolfSSL_CTX_free(ctx);
         return -1;
     }
     
     /* Load client certificate */
-    if (wolfSSL_CTX_use_certificate_file(ctx, MQTT_TLS_CLIENT_CERT, WOLFSSL_FILETYPE_PEM) != WOLFSSL_SUCCESS) {
-        printf("Failed to load client certificate: %s\n", MQTT_TLS_CLIENT_CERT);
+    if (wolfSSL_CTX_use_certificate_file(ctx, "/home/ubuntu/repos/wolfssl/certs/client-cert.pem", WOLFSSL_FILETYPE_PEM) != WOLFSSL_SUCCESS) {
+        printf("Failed to load client certificate: %s\n", "/home/ubuntu/repos/wolfssl/certs/client-cert.pem");
         wolfSSL_CTX_free(ctx);
         return -1;
     }
     
     /* Load client key */
-    if (wolfSSL_CTX_use_PrivateKey_file(ctx, MQTT_TLS_CLIENT_KEY, WOLFSSL_FILETYPE_PEM) != WOLFSSL_SUCCESS) {
-        printf("Failed to load client key: %s\n", MQTT_TLS_CLIENT_KEY);
+    if (wolfSSL_CTX_use_PrivateKey_file(ctx, "/home/ubuntu/repos/wolfssl/certs/client-key.pem", WOLFSSL_FILETYPE_PEM) != WOLFSSL_SUCCESS) {
+        printf("Failed to load client key: %s\n", "/home/ubuntu/repos/wolfssl/certs/client-key.pem");
         wolfSSL_CTX_free(ctx);
         return -1;
     }

@@ -26,7 +26,7 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include "mqtt_net.h"
-#include "wolfip_compat.h"
+#include "../../../../../../wolfip/wolfip.h"
 #include "wolfip_freertos.h"
 #include "../include/mqtt_config.h"
 

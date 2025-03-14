@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "wolfip_compat.h"
+#include "../../../../../../wolfip/wolfip.h"
 
 /* Utility functions for wolfIP integration */
 

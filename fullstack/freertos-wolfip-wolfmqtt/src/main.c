@@ -35,7 +35,7 @@
 #include <wolfssl/ssl.h>
 
 /* wolfIP includes */
-#include "wolfip_compat.h"
+#include "../../../../../../wolfip/wolfip.h"
 
 /* Application includes */
 #include "wolfip_freertos.h"
