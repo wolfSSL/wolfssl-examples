@@ -10,12 +10,10 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 # Certificate paths (relative to wolfssl-examples repo)
-CA_CERT="../../../wolfssl/certs/ca-cert.pem"
-CLIENT_CERT="../../../wolfssl/certs/client-cert.pem"
-CLIENT_KEY="../../../wolfssl/certs/client-key.pem"
+CERT_PATH=$(realpath ../../../wolfssl/certs)
 
 # Verify certificate files exist
-for cert in "$CA_CERT" "$CLIENT_CERT" "$CLIENT_KEY"; do
+for cert in "$CERT_PATH/ca-cert.pem" "$CERT_PATH/client-cert.pem" "$CERT_PATH/client-key.pem"; do
     if [ ! -f "$cert" ]; then
         echo "Error: Certificate file not found: $cert"
         exit 1
@@ -25,9 +23,9 @@ done
 # Start mosquitto subscriber for testing with TLS
 echo "Starting MQTT subscriber on test/topic with TLS..."
 mosquitto_sub -h 10.10.0.1 -p 8883 \
-    --cafile "$CA_CERT" \
-    --cert "$CLIENT_CERT" \
-    --key "$CLIENT_KEY" \
+    --cafile "$CERT_PATH/ca-cert.pem" \
+    --cert "$CERT_PATH/client-cert.pem" \
+    --key "$CERT_PATH/client-key.pem" \
     --tls-version tlsv1.3 \
     -t "test/topic" -v &
 SUB_PID=$!
