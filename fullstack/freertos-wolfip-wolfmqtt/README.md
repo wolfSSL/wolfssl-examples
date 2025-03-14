@@ -78,12 +78,25 @@ keyfile ../../../wolfssl/certs/server-key.pem
 tls_version tlsv1.3
 require_certificate true
 use_identity_as_username true
+allow_anonymous true
 EOF
 ```
 
-2. Start mosquitto on the TAP interface:
+2. Ensure the TAP interface is properly configured:
 ```bash
-sudo mosquitto -c /etc/mosquitto/conf.d/tls.conf
+sudo ip addr show tap0
+# Should show 10.10.0.1/24 as the IP address
+```
+
+3. Start mosquitto on the TAP interface:
+```bash
+sudo mosquitto -c /etc/mosquitto/conf.d/tls.conf -v
+```
+
+4. Verify mosquitto is listening on the correct interface:
+```bash
+sudo netstat -tuln | grep 8883
+# Should show mosquitto listening on 10.10.0.1:8883
 ```
 
 #### Test MQTT Client
