@@ -29,7 +29,7 @@ This example demonstrates a full-stack embedded MQTT client using FreeRTOS, wolf
 
    This script will:
    - Clone FreeRTOS kernel
-   - Clone FreeRTOS-Plus-TCP
+   - Clone FreeRTOS repository
    - Create necessary directories
    - Configure the build environment
 
