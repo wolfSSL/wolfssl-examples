@@ -228,7 +228,7 @@ pkcs11/softhsm2
 
 pk/rsa-pss/rsa-pss
 pk/rsa-pss/rsa-public.der
-pk/rsa-pss/sign.txt
+pk/rsa-pss/sign.bin
 pk/rsa/rsa-nb
 pk/ecc/ecc_verify
 pk/ecc/ecc_sign
