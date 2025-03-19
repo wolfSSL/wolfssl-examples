@@ -299,9 +299,20 @@ static int DecodePKCS7Bundle(void)
     }
 
     if (ret == 0) {
+        rewind(f); /* start from the beginning of the file */
         do {
             testStreamBufferSz = (int)XFREAD(testStreamBuffer, 1,
                 sizeof(testStreamBuffer), f);
+            if (testStreamBufferSz == 0) {
+                printf("Read 0 bytes from file...");
+                if (feof(f)) {
+                    printf("at end of file\n");
+                }
+                if (ferror(f)) {
+                    printf("encountered error with file read\n");
+                }
+                break;
+            }
 
             ret = wc_PKCS7_DecodeEnvelopedData(pkcs7, testStreamBuffer,
                 testStreamBufferSz, NULL, 0);
@@ -328,6 +339,7 @@ static int DecodePKCS7Bundle(void)
         printf("%.2f MB/s", per);
     }
     printf(" : ret = %d\n", ret);
+    printf("Processed %.0f bytes\n", totalSz);
     return ret;
 }
 
