@@ -211,22 +211,25 @@ static int EncodePKCS7Bundle(double contentSz, WC_RNG* rng)
             printf("Failed to encode enveloped data\n");
         }
     }
-    wc_PKCS7_Free(pkcs7);
 
     if (ret > 0) {
         per = GetMBs(ret);
         printf("%.2f MB/s", per);
     }
+    printf(" : ret = %d\n", ret);
 
     if (io.out != NULL) {
+        fseek(io.out, 0, SEEK_END);
+        printf("Created file [%s] with size of %ld bytes\n", ENCODED_FILE_NAME,
+            ftell(io.out));
         fclose(io.out);
     }
 
     if (io.in != NULL) {
         fclose(io.in);
     }
+    wc_PKCS7_Free(pkcs7);
 
-    printf(" : ret = %d\n", ret);
     return 0;
 }
 
@@ -260,7 +263,19 @@ static int DecodePKCS7Bundle(void)
     byte testStreamBuffer[TEST_STREAM_CHUNK_SIZE];
     int testStreamBufferSz = 0;
 
-    printf("Decoding PKCS7 bundle ... ");
+    if (ret == 0) {
+        f = fopen(ENCODED_FILE_NAME, "rb");
+        if (f == NULL) {
+            printf("Unable to open encoded file\n");
+            ret = -1;
+        }
+        else {
+            fseek(f, 0, SEEK_END);
+        }
+    }
+
+    printf("\nDecoding bundle [%s], size of %ld bytes ... ",
+        ENCODED_FILE_NAME, ftell(f));
     TimeLogStart();
 
     pkcs7 = wc_PKCS7_New(NULL, 0);
@@ -288,14 +303,6 @@ static int DecodePKCS7Bundle(void)
 
     if (ret == 0) {
         ret = wc_PKCS7_SetStreamMode(pkcs7, 1, NULL, DecryptCB, (void*)out);
-    }
-
-    if (ret == 0) {
-        f = fopen(ENCODED_FILE_NAME, "rb");
-        if (f == NULL) {
-            printf("Unable to open encoded file\n");
-            ret = -1;
-        }
     }
 
     if (ret == 0) {
@@ -365,6 +372,12 @@ int main(int argc, char** argv)
     }
 
     if (ret == 0) {
+        printf("Benchmarking with content size of %.0f bytes\n", contentSz);
+        printf("Reading and writing files in chuncks of %d bytes\n",
+            TEST_STREAM_CHUNK_SIZE);
+        printf("Using AES-256 CBC encryption\n");
+        printf("Using RSA-2048 key\n\n");
+
         ret = CreateContentFile(contentSz);
     }
 
