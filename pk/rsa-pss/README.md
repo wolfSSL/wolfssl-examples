@@ -17,7 +17,7 @@ sudo make install
 ## Usage
 
 Creates a key-pair, exports public key to `rsa-public.der` and signs message in variable `szMessage`. 
-`./rsa-pss -s sign.txt`
+`./rsa-pss -s sign.bin`
 
 Uses public key at `rsa-public.der` to verify signed data.
-`./rsa-pss -v sign.txt`
+`./rsa-pss -v sign.bin`
