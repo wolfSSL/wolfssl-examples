@@ -1,5 +1,5 @@
 # Hash Examples Makefile
-CC       = gcc -fsanitize=address
+CC       = gcc
 WOLFSSL_INSTALL_DIR = /usr/local
 CFLAGS   = -Wall -I$(WOLFSSL_INSTALL_DIR)/include
 LIBS     = -L$(WOLFSSL_INSTALL_DIR)/lib -lm
