@@ -320,19 +320,24 @@ static int rsa_sign_verify_pss(int devId)
     return ret;
 }
 #endif /* ifdef WC_RSA_PSS */
-#endif /* ifndef NO_RSA */
+
+/* Define maximum RSA key size in bits */
+#define MAX_RSA_KEY_BITS 2048
+
+#ifndef NO_RSA
 static int rsa_encrypt_decrypt(int devId)
 {
     int    ret = 0;
-    byte   plain[128], out[2048/8], dec[2048/8];
+    byte   plain[128], out[MAX_RSA_KEY_BITS/8], dec[MAX_RSA_KEY_BITS/8];
     word32 plainSz, outSz, decSz;
     RsaKey pub;
     RsaKey priv;
 
+    /* Initialize plain text buffer with 9's as sample data */
     memset(plain, 9, sizeof(plain));
-    plainSz = sizeof(plain);
-    outSz = sizeof(out);
-    decSz = sizeof(dec);
+    plainSz = (word32)sizeof(plain);
+    outSz = (word32)sizeof(out);
+    decSz = (word32)sizeof(dec);
 
     /* Encrypt with public key */
     ret = decode_public_key(&pub, devId);
@@ -397,7 +402,7 @@ static int rsa_encrypt_decrypt(int devId)
 
     return ret;
 }
-
+#endif /* ifndef NO_RSA */
 
 int main(int argc, char* argv[])
 {
