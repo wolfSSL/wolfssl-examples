@@ -324,7 +324,6 @@ static int rsa_sign_verify_pss(int devId)
 /* Define maximum RSA key size in bits */
 #define MAX_RSA_KEY_BITS 2048
 
-#ifndef NO_RSA
 static int rsa_encrypt_decrypt(int devId)
 {
     int    ret = 0;
