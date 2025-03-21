@@ -1,6 +1,6 @@
 /* pkcs11_rsa.c
  *
- * Copyright (C) 2006-2020 wolfSSL Inc.
+ * Copyright (C) 2006-2025 wolfSSL Inc.
  *
  * This file is part of wolfSSL.
  *
@@ -320,6 +320,87 @@ static int rsa_sign_verify_pss(int devId)
     return ret;
 }
 #endif /* ifdef WC_RSA_PSS */
+
+/* Define maximum RSA key size in bits */
+#define MAX_RSA_KEY_BITS 2048
+
+static int rsa_encrypt_decrypt(int devId)
+{
+    int    ret = 0;
+    byte   plain[128], out[MAX_RSA_KEY_BITS/8], dec[MAX_RSA_KEY_BITS/8];
+    word32 plainSz, outSz, decSz;
+    RsaKey pub;
+    RsaKey priv;
+
+    /* Initialize plain text buffer with 9's as sample data */
+    memset(plain, 9, sizeof(plain));
+    plainSz = (word32)sizeof(plain);
+    outSz = (word32)sizeof(out);
+    decSz = (word32)sizeof(dec);
+
+    /* Encrypt with public key */
+    ret = decode_public_key(&pub, devId);
+    if (ret == 0) {
+        fprintf(stderr, "RSA Public Encrypt\n");
+        
+#ifdef WC_RSA_BLINDING
+        ret = wc_RsaSetRNG(&pub, &rng);
+        if (ret != 0)
+            fprintf(stderr, "Failed to set RNG: %d\n", ret);
+#endif
+
+        if (ret == 0) {
+            outSz = ret = wc_RsaPublicEncrypt_ex(plain, plainSz, out, (int)outSz,
+                &pub, &rng, WC_RSA_PKCSV15_PAD, WC_HASH_TYPE_NONE, WC_MGF1NONE, 
+                NULL, 0);
+            if (ret < 0)
+                fprintf(stderr, "Failed to perform public encrypt: %d\n", ret);
+            else
+                ret = 0;
+        }
+        
+        wc_FreeRsaKey(&pub);
+    }
+
+    /* Decrypt with private key */
+    if (ret == 0) {
+        ret = decode_private_key(&priv, devId);
+        if (ret == 0) {
+            fprintf(stderr, "RSA Private Decrypt\n");
+            
+#ifdef WC_RSA_BLINDING
+            ret = wc_RsaSetRNG(&priv, &rng);
+            if (ret != 0)
+                fprintf(stderr, "Failed to set RNG: %d\n", ret);
+#endif
+
+            if (ret == 0) {
+                decSz = ret = wc_RsaPrivateDecrypt_ex(out, outSz, dec, (int)decSz, 
+                    &priv, WC_RSA_PKCSV15_PAD, WC_HASH_TYPE_NONE, WC_MGF1NONE, 
+                    NULL, 0);
+                if (ret < 0)
+                    fprintf(stderr, "Failed to perform private decrypt: %d\n", ret);
+                else
+                    ret = 0;
+            }
+
+            /* Verify the decrypted data matches the original */
+            if (ret == 0) {
+                if (decSz != plainSz || memcmp(plain, dec, decSz) != 0) {
+                    fprintf(stderr, "Decrypted data does not match plain text\n");
+                    ret = -1;
+                }
+                else {
+                    fprintf(stderr, "Decryption successful\n");
+                }
+            }
+            
+            wc_FreeRsaKey(&priv);
+        }
+    }
+
+    return ret;
+}
 #endif /* ifndef NO_RSA */
 
 int main(int argc, char* argv[])
@@ -388,6 +469,11 @@ int main(int argc, char* argv[])
                         ret = 1;
                 }
             #endif
+                if (ret == 0) {
+                    ret = rsa_encrypt_decrypt(devId);
+                    if (ret != 0)
+                        ret = 1;
+                }
             #endif
             }
             wc_Pkcs11Token_Final(&token);
