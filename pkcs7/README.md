@@ -685,6 +685,7 @@ Q31HIqX6H6JYdgtwHB1ZHaq+XS0lfLEGtsCqKKqTfNC9Q62RUBx7TfPk1w==
 -----END CERTIFICATE-----
 ```
 
+
 ### Creating an SMIME bundle and verifying it
 
 In these example cases the content will be overridden by the content found in the
@@ -704,6 +705,24 @@ Creating ECC signed bundles:
 ./smime ../certs/ecc-client-key.der ../certs/client-ecc-cert.der
 ./smime-verify detached-smime-created.p7s ../certs/client-ecc-cert.der content.txt
 ```
+
+
+## PKCS7 Benchmarking
+
+```
+./benchmark-streaming-envelop
+Benchmarking with content size of 10000 bytes
+Reading and writing files in chuncks of 1000 bytes
+Using AES-256 CBC encryption
+Using RSA-2048 key
+
+Creating an encoded bundle ... 27.33 MB/s : ret = 10576
+Created file [test-stream-dec.p7b] with size of 10576 bytes
+
+Decoding bundle [test-stream-dec.p7b], size of 10576 bytes ... 9.14 MB/s : ret = 0
+Processed 10576 bytes
+```
+
 
 ## Support
 
