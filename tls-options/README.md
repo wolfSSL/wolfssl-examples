@@ -123,6 +123,20 @@ Example:
     -a <Peer auth mode> -m <Verify mode>
 ```
 
+#### Use SMTP client
+
+You can use smtp OVERSSL/STARTTLS client.
+
+Example:
+
+```sh
+./client-tls-smtp-starttls <SERVER_NAME> <CERT_FILE>
+```
+
+```sh
+./client-tls-smtp-overssl <SERVER_NAME> <CERT_FILE>
+```
+
 ## Cleaning Up
 
 You can remove executable files by doing:
