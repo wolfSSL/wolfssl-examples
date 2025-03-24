@@ -40,7 +40,7 @@ struct timeval startTime;
 
 static void TimeLogStart(void)
 {
-	gettimeofday(&startTime, NULL);
+    gettimeofday(&startTime, NULL);
 }
 
 
@@ -108,6 +108,12 @@ typedef struct BENCHMARK_IO {
 } BENCHMARK_IO;
 
 
+/* Callback function to allow wolfSSL to read from a stream of input when
+ * working with the PKCS7 content. The byte pointer content is handled by the
+ * code managing the callback, meaning that malloc'ing/free'ing any memory
+ * should be done here, wolfSSL will not try to free the pointer given.
+ *
+ * Expected to return the number of bytes that the buffer pointed to contains */
 static int GetContentCB(PKCS7* pkcs7, byte** content, void* ctx)
 {
     int ret = 0;
@@ -125,6 +131,12 @@ static int GetContentCB(PKCS7* pkcs7, byte** content, void* ctx)
 }
 
 
+/* Callback function to output the PKCS7 bundle as it is created. The buffer
+ * 'output' contains the current data to be written out and 'outputSz' is the
+ * number of bytes in the 'output' buffer.
+ *
+ * Expected to return 0 on success.
+ */
 static int StreamOutputCB(PKCS7* pkcs7, const byte* output, word32 outputSz,
     void* ctx)
 {
@@ -234,6 +246,12 @@ static int EncodePKCS7Bundle(double contentSz, WC_RNG* rng)
 }
 
 
+/* Decryption callback function that is passed the decrypted data in buffer
+ * 'output' from wolfSSL. The 'outputSz' argument is the number of decrypted
+ * bytes being passed in and 'ctx' is a user set context.
+ *
+ * This callback is expected to return 0 on success.
+ */
 static int DecryptCB(wc_PKCS7* pkcs7,
     const byte* output, word32 outputSz, void* ctx) {
      FILE* out = (FILE*)ctx;
@@ -242,15 +260,12 @@ static int DecryptCB(wc_PKCS7* pkcs7,
         return -1;
     }
 
-    /* printf("Decoded in %d bytes\n", outputSz);
-     * for (word32 z = 0; z < outputSz; z++) printf("%02X", output[z]);
-     * printf("\n");
-    */
-    fwrite(output, 1, outputSz, out);
+    (void)fwrite(output, 1, outputSz, out);
 
     (void)pkcs7;
     return 0;
 }
+
 
 static int DecodePKCS7Bundle(void)
 {
