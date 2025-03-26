@@ -30,4 +30,6 @@ echo "# Random Number Generation example"
 echo
 echo "# PKCS#11 test"
 ./pkcs11_test /usr/local/lib/softhsm/libsofthsm2.so $SOFTHSM2_SLOTID SoftToken cryptoki
-
+echo
+echo "# PKCS11 CSR example"
+./pkcs11_csr /usr/local/lib/softhsm/libsofthsm2.so $SOFTHSM2_SLOTID SoftToken cryptoki
