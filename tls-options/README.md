@@ -125,17 +125,22 @@ Example:
 
 #### Use SMTP client
 
-You can use smtp OVERSSL/STARTTLS client.
+You can use SMTP OVER TLS or STARTTLS client.
+
+- SMTP OVER TLS - [RFC 8314](https://datatracker.ietf.org/doc/html/rfc8314)
+
+- STARTTLS - [RFC 3207](https://datatracker.ietf.org/doc/html/rfc3207)
 
 Example:
-
 ```sh
-./client-tls-smtp-starttls <SERVER_NAME> <CERT_FILE>
+./client-smtp-starttls <SERVER_NAME> <CERT_FILE_PATH>
 ```
 
 ```sh
-./client-tls-smtp-overssl <SERVER_NAME> <CERT_FILE>
+./client-smtp-over-tls <SERVER_NAME> <CERT_FILE_PATH>
 ```
+
+When using Gmail SMTP server (```smtp.gmail.com```), you need to configure an app password in your Google account settings.
 
 ## Cleaning Up
 
