@@ -34,7 +34,7 @@
 #define CONTENT_FILE_NAME "benchmark-content.bin"
 #define ENCODED_FILE_NAME "test-stream-dec.p7b"
 #define DECODED_FILE_NAME "benchmark-decrypted.bin"
-#define TEST_STREAM_CHUNK_SIZE 1000
+static int chunkSz = 1000;
 
 struct timeval startTime;
 
@@ -104,7 +104,7 @@ int CreateContentFile(double contentSz)
 typedef struct BENCHMARK_IO {
     FILE* in;
     FILE* out;
-    byte  buf[TEST_STREAM_CHUNK_SIZE];
+    byte* buf;
 } BENCHMARK_IO;
 
 
@@ -120,7 +120,7 @@ static int GetContentCB(PKCS7* pkcs7, byte** content, void* ctx)
     BENCHMARK_IO* io = (BENCHMARK_IO*)ctx;
 
     if (io != NULL) {
-        ret = fread(io->buf, 1, TEST_STREAM_CHUNK_SIZE, io->in);
+        ret = fread(io->buf, 1, chunkSz, io->in);
         if (ret > 0) {
             *content = io->buf;
         }
@@ -203,7 +203,8 @@ static int EncodePKCS7Bundle(double contentSz, WC_RNG* rng)
     if (ret == 0) {
         io.in  = fopen(CONTENT_FILE_NAME, "rb");
         io.out = fopen(ENCODED_FILE_NAME, "wb");
-        if (io.in == NULL || io.out == NULL) {
+        io.buf = (byte*)malloc(chunkSz);
+        if (io.in == NULL || io.out == NULL || io.buf == NULL) {
             printf("Failed to open the IO files\n");
             ret = -1;
         }
@@ -240,6 +241,9 @@ static int EncodePKCS7Bundle(double contentSz, WC_RNG* rng)
     if (io.in != NULL) {
         fclose(io.in);
     }
+    if (io.buf != NULL) {
+        free(io.buf);
+    }
     wc_PKCS7_Free(pkcs7);
 
     return 0;
@@ -275,8 +279,14 @@ static int DecodePKCS7Bundle(void)
     FILE* f = NULL;
     FILE* out = NULL;
     double totalSz = 0;
-    byte testStreamBuffer[TEST_STREAM_CHUNK_SIZE];
+    byte *testStreamBuffer;
     int testStreamBufferSz = 0;
+
+    testStreamBuffer = (byte*)malloc(chunkSz);
+    if (testStreamBuffer == NULL) {
+        printf("Failed to malloc temporary buffer to hold data to process\n");
+        ret = -1;
+    }
 
     if (ret == 0) {
         f = fopen(ENCODED_FILE_NAME, "rb");
@@ -323,8 +333,7 @@ static int DecodePKCS7Bundle(void)
     if (ret == 0) {
         rewind(f); /* start from the beginning of the file */
         do {
-            testStreamBufferSz = (int)XFREAD(testStreamBuffer, 1,
-                sizeof(testStreamBuffer), f);
+            testStreamBufferSz = (int)XFREAD(testStreamBuffer, 1, chunkSz, f);
             if (testStreamBufferSz == 0) {
                 printf("Read 0 bytes from file...");
                 if (feof(f)) {
@@ -354,6 +363,10 @@ static int DecodePKCS7Bundle(void)
         fclose(out);
     }
 
+    if (testStreamBuffer != NULL) {
+        free(testStreamBuffer);
+    }
+
     wc_PKCS7_Free(pkcs7);
 
     if (ret == 0) {
@@ -373,7 +386,16 @@ int main(int argc, char** argv)
     int ret;
 
     if (argc > 1) {
+        if (strcmp(argv[1], "-h") == 0) {
+            printf("USAGE: %s <content data size> <chunk to read at once>\n",
+                argv[0]);
+            return 1;
+        }
         contentSz = atof(argv[1]);
+
+        if (argc > 2) {
+            chunkSz = atoi(argv[2]);
+        }
     }
 
     ret = wolfCrypt_Init();
@@ -388,8 +410,7 @@ int main(int argc, char** argv)
 
     if (ret == 0) {
         printf("Benchmarking with content size of %.0f bytes\n", contentSz);
-        printf("Reading and writing files in chuncks of %d bytes\n",
-            TEST_STREAM_CHUNK_SIZE);
+        printf("Reading and writing files in chunks of %d bytes\n", chunkSz);
         printf("Using AES-256 CBC encryption\n");
         printf("Using RSA-2048 key\n\n");
 
