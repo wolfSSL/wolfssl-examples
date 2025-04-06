@@ -1,0 +1,170 @@
+name: Arduino CI Build
+
+# See https://github.com/wolfSSL/Arduino-wolfSSL
+
+# TODO remove '*' om push/ branches, and uncomment github.repository_owner == 'wolfssl'
+
+# START OF COMMON SECTION
+on:
+  push:
+    branches: [ '*', 'master', 'main', 'release/**' ]
+  pull_request:
+    branches: [ '*' ]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+# END OF COMMON SECTION
+
+jobs:
+  build:
+    # if: github.repository_owner == 'wolfssl'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Arduino CLI
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | sh
+          echo "$(pwd)/bin" >> $GITHUB_PATH
+
+      - name: Setup Arduino CLI
+        run: |
+          arduino-cli config init
+          arduino-cli core update-index
+          arduino-cli config add board_manager.additional_urls https://www.pjrc.com/teensy/package_teensy_index.json
+          arduino-cli core update-index
+          arduino-cli config add board_manager.additional_urls https://arduino.esp8266.com/stable/package_esp8266com_index.json
+          arduino-cli core update-index
+          arduino-cli core install esp32:esp32      # ESP32
+          arduino-cli core install arduino:avr      # Arduino Uno, Mega, Nano
+          arduino-cli core install arduino:sam      # Arduino Due
+          arduino-cli core install arduino:samd     # Arduino Zero
+          arduino-cli core install teensy:avr       # PJRC Teensy
+          arduino-cli core install esp8266:esp8266  # ESP8266
+          arduino-cli lib install "ArduinoJson"     # Example dependency
+          arduino-cli lib install "WiFiNINA"        # ARDUINO_SAMD_NANO_33_IOT
+          arduino-cli lib install "Ethernet"        # Install Ethernet library
+
+          # arduino-cli lib install "wolfSSL"  # Install wolfSSL library from Arduino
+
+          # Install current wolfSSL as an Arduino library:
+      - name: Shallow clone wolfssl
+        run: |
+          git clone --depth 1 https://github.com/wolfSSL/wolfssl.git
+          echo "Checking Arduino library directories..."
+
+      - name: Install wolfSSL Arduino library
+        run: |
+          pushd wolfssl/IDE/ARDUINO
+
+          # Set default ARDUINO_ROOT. TODO: once script is updated, this should be removed.
+          export ARDUINO_ROOT="$HOME/Arduino/libraries"
+
+          bash wolfssl-arduino.sh INSTALL  # Install wolfSSL library
+          popd
+
+      # This will fail with Arduino published wolfSSL v5.7.6 and older
+      # See https://github.com/wolfSSL/wolfssl/pull/8514
+      # Pending: "arduino:sam:arduino_due_x"
+      - name: Compile Arduino Sketches for various boards
+        run: |
+          set +e
+          SUCCESS=true
+          for BOARD in "arduino:avr:uno" "esp32:esp32:esp32"  "arduino:avr:mega" "arduino:avr:nano" "arduino:samd:arduino_zero_native" "esp8266:esp8266:generic" "teensy:avr:teensy40"; do
+            echo "Compiling for $BOARD"
+            for EXAMPLE in $(find Arduino/sketches -mindepth 1 -maxdepth 1 -type d); do
+
+              # skip known no-wifi SAMD boards
+              if [[ "$BOARD" =~ "arduino:samd:arduino_zero_native" && ( "$EXAMPLE" =~ "wolfssl_server" || "$EXAMPLE" =~ "wolfssl_client" || "$EXAMPLE" =~ "test" ) ]]; then
+                echo "Skipping $EXAMPLE for $BOARD (No WiFi support)"
+                continue
+              fi
+
+              # skip known no-wifi AVR boards
+              if [[ "$BOARD" =~ ^arduino:avr:(uno|mega|nano)$ ]] && \
+               ( [[ "$EXAMPLE" =~ "wolfssl_server" ]] || \
+                 [[ "$EXAMPLE" =~ "wolfssl_client" ]] || \
+                 [[ "$EXAMPLE" =~ "test" ]] ); then
+                echo "Skipping $EXAMPLE for $BOARD (No WiFi support)"
+                continue
+              fi
+
+              # skip known no-wifi teensy AVR boards
+              if [[ "$BOARD" =~ ^teensy:avr:(teensy40)$ ]] && \
+               ( [[ "$EXAMPLE" =~ "wolfssl_server" ]] || \
+                 [[ "$EXAMPLE" =~ "wolfssl_client" ]] || \
+                 [[ "$EXAMPLE" =~ "test" ]] ); then
+                echo "Skipping $EXAMPLE for $BOARD (needs ethernet update)"
+                continue
+              fi
+
+              # skip examples other than template and version for known tiny memory boards
+              if  [[ "$BOARD" =~ ( "arduino:avr:uno"|"arduino:avr:nano" ) && ( "$EXAMPLE" != "template" ) && ( "$EXAMPLE" != "wolfssl_version" ) ]]; then
+                echo "Skipping $EXAMPLE for $BOARD (memory limited)"
+                continue
+              fi
+
+              # TODO: new template known to fail. Fixed in https://github.com/wolfSSL/wolfssl/pull/8514
+              if [[ "$EXAMPLE" =~ "Arduino/sketches/template" ]]; then
+                echo "Skipping $EXAMPLE for $BOARD (needs code update. see wolfssl/pull/8514)"
+                continue
+              fi
+
+              # TODO: new wolfssl_AES_CTR known to fail. Fixed in https://github.com/wolfSSL/wolfssl/pull/8514
+              if [[ "$EXAMPLE" =~ "Arduino/sketches/wolfssl_AES_CTR" ]]; then
+                echo "Skipping $EXAMPLE for $BOARD (needs updated user_settings.h - see wolfssl/pull/8514)"
+                continue
+              fi
+
+              # TODO skip Compiling Arduino/sketches/wolfssl_version for arduino:avr:mega
+              if [[ "$BOARD" =~ "arduino:avr:mega" && "$EXAMPLE" =~ "Arduino/sketches/wolfssl_version" ]]; then
+                echo "Skipping $EXAMPLE for $BOARD (needs updated code - see wolfssl/pull/8514)"
+                continue
+              fi
+
+              # TODO skip Compiling Arduino/sketches/wolfssl_version for arduino:avr:uno
+              if [[ "$BOARD" =~ ^arduino:avr:(uno|mega|nano)$ ]] && \
+               ( [[ "$EXAMPLE" =~ "wolfssl_version" ]] ); then
+                echo "Skipping $EXAMPLE for $BOARD (fixed in see wolfssl/pull/8514)"
+                continue
+              fi
+
+              if [[ "$BOARD" =~ "arduino:avr:uno" && "$EXAMPLE" =~ "Arduino/sketches/wolfssl_version" ]]; then
+                echo "Skipping $EXAMPLE for $BOARD (needs updated code - see wolfssl/pull/8514)"
+                continue
+              fi
+
+              # TODO skip ESP8266
+              if [[ "$BOARD" =~ "esp8266:esp8266:generic" ]]; then
+                echo "Skipping $EXAMPLE for $BOARD (needs testing)"
+                continue
+              fi
+
+              # If otherwise not excluded, compile this $EXAMPLE for this $BOARD
+              echo "Compiling $EXAMPLE for $BOARD"
+              arduino-cli compile --fqbn $BOARD "$EXAMPLE"
+              EXIT_CODE=$?
+              if [ "$EXIT_CODE" -ne 0 ]; then
+                echo "❌ Compilation failed for $EXAMPLE on $BOARD (Exit code: $EXIT_CODE)"
+                SUCCESS=false
+              else
+                echo "✅ Compilation succeeded for $EXAMPLE on $BOARD"
+              fi
+            done
+          done
+
+          if [ "$SUCCESS" = true ]; then
+            echo "✅ All sketches compiled successfully!"
+          else
+            echo "❌ One or more sketches failed to compile."
+            exit 1
+          fi
+
+      - name: Upload Compilation Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: compiled-sketch
+          path: Arduino/sketches/template/build/*
