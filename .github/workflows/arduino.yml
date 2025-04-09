@@ -2,12 +2,10 @@ name: Arduino CI Build
 
 # See https://github.com/wolfSSL/Arduino-wolfSSL
 
-# TODO remove '*' om push/ branches, and uncomment github.repository_owner == 'wolfssl'
-
 # START OF COMMON SECTION
 on:
   push:
-    branches: [ '*', 'master', 'main', 'release/**' ]
+    branches: [ 'master', 'main', 'release/**' ]
   pull_request:
     branches: [ '*' ]
   workflow_dispatch:
@@ -19,7 +17,7 @@ concurrency:
 
 jobs:
   build:
-    # if: github.repository_owner == 'wolfssl'
+    if: github.repository_owner == 'wolfssl'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
