@@ -166,6 +166,8 @@ Tested with:
 #elif defined(OTHER_BOARD)
 */
 #else
+    /* assume all other boards using WiFi library. Edit as needed: */
+    #include <WiFi.h>
     #define USING_WIFI
     WiFiClient client;
     WiFiServer server(WOLFSSL_PORT);
