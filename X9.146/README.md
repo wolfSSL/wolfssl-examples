@@ -36,6 +36,16 @@ sudo make install
 sudo ldconfig # required on some targets
 ```
 
+And need to setup wolfCLU:
+
+```sh
+./autogen.sh  # Cloned from GitHub
+./configure
+make
+sudo make install
+sudo ldconfig # required on some targets
+```
+
 In the directory where this README.md file is found, clean up previous build
 products and certificates and then build the applications.
 
@@ -78,14 +88,26 @@ wolfSSL Leaving DoTls13CertificateVerify, return 0
 Generate the various conventional keys; the post-quantum key are pre-generated:
 
 ```sh
-openssl genpkey -algorithm ec -pkeyopt ec_paramgen_curve:P-256 -out ca-key.der -outform der
+# CA
+wolfssl genkey ecc -name secp256r1 -out ca-key -outform pem -output keypair
 
-openssl genpkey -algorithm ec -pkeyopt ec_paramgen_curve:P-256 -out server-key.der -outform der
+wolfssl pkey -in ca-key.priv -inform pem -out ca-key.der -outform der
+
+wolfssl pkey -pubin -in ca-key.pub -inform pem -pubout -out ca-pubkey.der -outform der
+
+mv ca-key.priv ca-key.pem
+
+# Server
+wolfssl genkey ecc -name secp256r1 -out server-key -outform pem -output keypair
+
+wolfssl pkey -in server-key.priv -inform pem -out server-key.der -outform der
+
+wolfssl pkey -in server-key.priv -inform pem -pubout -out server-pubkey.der -outform der
 ```
 
 Generate the certificate chain:
 
-```
+```sh
 ./gen_ecdsa_mldsa_dual_keysig_root_cert 2
 
 ./gen_ecdsa_mldsa_dual_keysig_server_cert 2
@@ -93,18 +115,18 @@ Generate the certificate chain:
 
 Convert the DER encoded resulting certificates and keys into PEM:
 
-```
-openssl x509  -in ca-cert-pq.der -inform der -out ca-P256-mldsa44-cert.pem -outform pem
+```sh
+wolfssl x509 -in ca-cert-pq.der -inform der -out ca-P256-mldsa44-cert.pem -outform pem
 
-openssl x509  -in server-cert-pq.der -inform der -out server-P256-mldsa44-cert.pem -outform pem
+wolfssl x509 -in server-cert-pq.der -inform der -out server-P256-mldsa44-cert.pem -outform pem
 
-openssl pkey  -in server-key.der -inform der -out server-P256-key.pem -outform pem
+mv server-key.priv server-P256-key.pem
 
 cp ../certs/mldsa44_server_key.pem server-mldsa44-key-pq.pem
 ```
 Then in wolfssl's source directory:
 
-```
+```sh
 examples/server/server -d -v 4 -c ../wolfssl-examples/X9.146/server-P256-mldsa44-cert.pem -k ../wolfssl-examples/X9.146/server-P256-key.pem --altPrivKey ../wolfssl-examples/X9.146/server-mldsa44-key-pq.pem
 
 examples/client/client -v 4 -A ../wolfssl-examples/X9.146/ca-P256-mldsa44-cert.pem
@@ -114,14 +136,26 @@ examples/client/client -v 4 -A ../wolfssl-examples/X9.146/ca-P256-mldsa44-cert.p
 Generate the various conventional keys; the post-quantum key are pre-generated:
 
 ```sh
-openssl genpkey -algorithm ec -pkeyopt ec_paramgen_curve:P-384 -out ca-key.der -outform der
+# CA
+wolfssl genkey ecc -name secp384r1 -out ca-key -outform pem -output keypair
 
-openssl genpkey -algorithm ec -pkeyopt ec_paramgen_curve:P-384 -out server-key.der -outform der
+wolfssl pkey -in ca-key.priv -inform pem -out ca-key.der -outform der
+
+wolfssl pkey -pubin -in ca-key.pub -inform pem -pubout -out ca-pubkey.der -outform der
+
+mv ca-key.priv ca-key.pem
+
+# Server
+wolfssl genkey ecc -name secp384r1 -out server-key -outform pem -output keypair
+
+wolfssl pkey -in server-key.priv -inform pem -out server-key.der -outform der
+
+wolfssl pkey -in server-key.priv -inform pem -pubout -out server-pubkey.der -outform der
 ```
 
 Generate the certificate chain:
 
-```
+```sh
 ./gen_ecdsa_mldsa_dual_keysig_root_cert 3
 
 ./gen_ecdsa_mldsa_dual_keysig_server_cert 3
@@ -129,19 +163,19 @@ Generate the certificate chain:
 
 Convert the DER encoded resulting certificates and keys into PEM:
 
-```
-openssl x509  -in ca-cert-pq.der -inform der -out ca-P384-mldsa65-cert.pem -outform pem
+```sh
+wolfssl x509 -in ca-cert-pq.der -inform der -out ca-P384-mldsa65-cert.pem -outform pem
 
-openssl x509  -in server-cert-pq.der -inform der -out server-P384-mldsa65-cert.pem -outform pem
+wolfssl x509  -in server-cert-pq.der -inform der -out server-P384-mldsa65-cert.pem -outform pem
 
-openssl pkey  -in server-key.der -inform der -out server-P384-key.pem -outform pem
+mv server-key.priv server-P384-key.pem
 
 cp ../certs/mldsa65_server_key.pem server-mldsa65-key-pq.pem
 ```
 
 Then in wolfssl's source directory:
 
-```
+```sh
 examples/server/server -d -v 4 -c ../wolfssl-examples/X9.146/server-P384-mldsa65-cert.pem -k ../wolfssl-examples/X9.146/server-P384-key.pem --altPrivKey ../wolfssl-examples/X9.146/server-mldsa65-key-pq.pem
 
 examples/client/client -v 4 -A ../wolfssl-examples/X9.146/ca-P384-mldsa65-cert.pem
@@ -151,15 +185,26 @@ examples/client/client -v 4 -A ../wolfssl-examples/X9.146/ca-P384-mldsa65-cert.p
 Generate the various conventional keys; the post-quantum key are pre-generated:
 
 ```sh
-openssl genpkey -algorithm ec -pkeyopt ec_paramgen_curve:P-521 -out ca-key.der -outform der
+# CA
+wolfssl genkey ecc -name secp521r1 -out ca-key -outform pem -output priv
 
-openssl genpkey -algorithm ec -pkeyopt ec_paramgen_curve:P-521 -out server-key.der -outform der
+wolfssl pkey -in ca-key.priv -inform pem -out ca-key.der -outform der
+
+wolfssl pkey -in ca-key.priv -inform pem -pubout -out ca-pubkey.der -outform der
+
+mv ca-key.priv ca-key.pem
+
+# Server
+wolfssl genkey ecc -name secp521r1 -out server-key -outform pem -output priv
+
+wolfssl pkey -in server-key.priv -inform pem -out server-key.der -outform der
+
+wolfssl pkey -in server-key.priv -inform pem -pubout -out server-pubkey.der -outform der
 ```
 
 Generate the certificate chain:
 
-```
-
+```sh
 ./gen_ecdsa_mldsa_dual_keysig_root_cert 5
 
 ./gen_ecdsa_mldsa_dual_keysig_server_cert 5
@@ -167,19 +212,19 @@ Generate the certificate chain:
 
 Convert the DER encoded resulting certificates and keys into PEM:
 
-```
-openssl x509  -in ca-cert-pq.der -inform der -out ca-P521-mldsa87-cert.pem -outform pem
+```sh
+wolfssl x509 -in ca-cert-pq.der -inform der -out ca-P521-mldsa87-cert.pem -outform pem
 
-openssl x509  -in server-cert-pq.der -inform der -out server-P521-mldsa87-cert.pem -outform pem
+wolfssl x509  -in server-cert-pq.der -inform der -out server-P521-mldsa87-cert.pem -outform pem
 
-openssl pkey  -in server-key.der -inform der -out server-P521-key.pem -outform pem
+mv server-key.priv server-P521-key.pem
 
 cp ../certs/mldsa87_server_key.pem server-mldsa87-key-pq.pem
 ```
 
 Then in wolfssl's source directory:
 
-```
+```sh
 examples/server/server -d -v 4 -c ../wolfssl-examples/X9.146/server-P521-mldsa87-cert.pem -k ../wolfssl-examples/X9.146/server-P521-key.pem --altPrivKey ../wolfssl-examples/X9.146/server-mldsa87-key-pq.pem
 
 examples/client/client -v 4 -A ../wolfssl-examples/X9.146/ca-P521-mldsa87-cert.pem
@@ -191,15 +236,20 @@ examples/client/client -v 4 -A ../wolfssl-examples/X9.146/ca-P521-mldsa87-cert.p
 Generate the various conventional keys; the post-quantum key are pre-generated:
 
 ```sh
-openssl genpkey -algorithm rsa  -pkeyopt rsa_keygen_bits:3072 -out ca-key.der -outform der
+# CA
+wolfssl -genkey rsa -size 3072 -out ca-key -outform der -output priv
 
-openssl genpkey -algorithm rsa  -pkeyopt rsa_keygen_bits:3072 -out server-key.der -outform der
+mv ca-key.priv ca-key.der
+
+# Server
+wolfssl -genkey rsa -size 3072 -out server-key -outform der -output priv
+
+mv server-key.priv server-key.der
 ```
 
 Generate the certificate chain:
 
-```
-
+```sh
 ./gen_rsa_mldsa_dual_keysig_root_cert
 
 ./gen_rsa_mldsa_dual_keysig_server_cert
@@ -207,18 +257,18 @@ Generate the certificate chain:
 
 Convert the DER encoded resulting certificates and keys into PEM:
 
-```
-openssl x509  -in ca-cert-pq.der -inform der -out ca-rsa3072-mldsa44-cert.pem -outform pem
+```sh
+wolfssl x509 -in ca-cert-pq.der -inform der -out ca-rsa3072-mldsa44-cert.pem -outform pem
 
-openssl x509  -in server-cert-pq.der -inform der -out server-rsa3072-mldsa44-cert.pem -outform pem
+wolfssl x509  -in server-cert-pq.der -inform der -out server-rsa3072-mldsa44-cert.pem -outform pem
 
-openssl pkey  -in server-key.der -inform der -out server-rsa3072-key.pem -outform pem
+wolfssl pkey  -in server-key.der -inform der -out server-rsa3072-key.pem -outform pem
 
 cp ../certs/mldsa44_server_key.pem server-mldsa44-key-pq.pem
 ```
 Then in wolfssl's source directory:
 
-```
+```sh
 examples/server/server -d -v 4 -c ../wolfssl-examples/X9.146/server-rsa3072-mldsa44-cert.pem -k ../wolfssl-examples/X9.146/server-rsa3072-key.pem --altPrivKey ../wolfssl-examples/X9.146/server-mldsa44-key-pq.pem
 
 examples/client/client -v 4 -A ../wolfssl-examples/X9.146/ca-rsa3072-mldsa44-cert.pem
@@ -249,7 +299,7 @@ openssl pkey -in alt-server-key.der -inform der -pubout -out alt-server-pub-key.
 
 Generate the certificate chain:
 
-```
+```sh
 ./gen_dual_keysig_root_cert
 
 ./gen_dual_keysig_server_cert
@@ -257,7 +307,7 @@ Generate the certificate chain:
 
 Convert the DER encoded resulting certificates and keys into PEM:
 
-```
+```sh
 openssl x509  -in ./ca-cert.der -inform der -out ca-cert.pem -outform pem
 
 openssl x509  -in ./server-cert.der -inform der -out server-cert.pem -outform pem
