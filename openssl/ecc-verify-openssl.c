@@ -267,7 +267,8 @@ int verify_ecc_signature(void)
         goto cleanup;
     }
     
-    /* Verify the signature */
+    /* Verify the signature using the pre-computed hash directly */
+    printf("\nVerifying signature using EVP_PKEY_verify with pre-computed hash...\n");
     ret = EVP_PKEY_verify(vctx, fixed_signature, sig_len, fixed_data, data_len);
     if (ret == 1) {
         printf("Signature verification successful!\n");
