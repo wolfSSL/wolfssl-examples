@@ -52,7 +52,7 @@ int main(int argc, char** argv)
     int ret = 0;
 
     #if defined(OPENSSL_EXTRA) && !defined(NO_PWDBASED) && !defined(NO_ASN) \
-        && !defined(NO_DES3)
+        && !defined(NO_DES3) && defined(WOLFSSL_KEY_GEN)
     int                sockfd;
     struct sockaddr_in servAddr;
     char               buff[256];
@@ -291,6 +291,10 @@ client_example_end:
 
       #ifdef NO_DES3
         printf("wolfSSL not configured with --enable-des3\n");
+      #endif
+
+      #ifndef WOLFSSL_KEY_GEN
+        printf("wolfSSL not configured with --enable-keygen\n");
       #endif
 
         printf("Please re-configure and re-install wolfSSL before using\n"
