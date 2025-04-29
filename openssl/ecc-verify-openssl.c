@@ -22,12 +22,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <openssl/ec.h>
-#include <openssl/ecdsa.h>
-#include <openssl/obj_mac.h>
-#include <openssl/err.h>
 #include <openssl/evp.h>
-#include <openssl/sha.h>
+#include <openssl/ec.h>
+#include <openssl/err.h>
+#include <openssl/pem.h>
+#include <openssl/obj_mac.h>
 
 /* Fixed test data in hex format */
 static const unsigned char fixed_data[] = {
@@ -64,100 +63,231 @@ static const unsigned char fixed_signature[] = {
     0x6c, 0xde, 0x6c, 0x2c, 0x6c, 0xb4, 0x57, 0xbc
 };
 
+/* Helper function to print OpenSSL errors */
+static void print_openssl_errors(void)
+{
+    unsigned long err;
+    while ((err = ERR_get_error()) != 0) {
+        char *err_str = ERR_error_string(err, NULL);
+        fprintf(stderr, "OpenSSL error: %s\n", err_str);
+    }
+}
+
+/* Convert raw signature (R|S format) to DER format for EVP API */
+static int convert_rs_to_der(const unsigned char *rs_sig, size_t rs_len, 
+                            unsigned char **der_sig, size_t *der_len)
+{
+    int ret = 0;
+    ECDSA_SIG *sig = NULL;
+    BIGNUM *r = NULL, *s = NULL;
+    
+    /* Create ECDSA_SIG structure */
+    sig = ECDSA_SIG_new();
+    if (sig == NULL) {
+        fprintf(stderr, "Error: Failed to create ECDSA_SIG\n");
+        print_openssl_errors();
+        ret = -1;
+        goto cleanup;
+    }
+    
+    /* Convert R and S components to BIGNUMs */
+    r = BN_bin2bn(rs_sig, rs_len/2, NULL);
+    s = BN_bin2bn(rs_sig + rs_len/2, rs_len/2, NULL);
+    if (r == NULL || s == NULL) {
+        fprintf(stderr, "Error: Failed to convert signature to BIGNUMs\n");
+        print_openssl_errors();
+        ret = -1;
+        goto cleanup;
+    }
+    
+    /* Set R and S in the ECDSA_SIG structure */
+    if (ECDSA_SIG_set0(sig, r, s) != 1) {
+        fprintf(stderr, "Error: Failed to set R and S components\n");
+        print_openssl_errors();
+        BN_free(r);
+        BN_free(s);
+        ret = -1;
+        goto cleanup;
+    }
+    
+    /* r and s are now owned by sig, don't free them separately */
+    r = s = NULL;
+    
+    /* Convert to DER format */
+    *der_len = i2d_ECDSA_SIG(sig, der_sig);
+    if (*der_len <= 0) {
+        fprintf(stderr, "Error: Failed to convert signature to DER format\n");
+        print_openssl_errors();
+        ret = -1;
+        goto cleanup;
+    }
+    
+    ret = 0;
+    
+cleanup:
+    if (sig) ECDSA_SIG_free(sig);
+    if (r) BN_free(r);
+    if (s) BN_free(s);
+    
+    return ret;
+}
+
 int verify_ecc_signature(void)
 {
     int ret = 0;
-    EC_KEY *eckey = NULL;
-    EC_GROUP *group = NULL;
-    EC_POINT *point = NULL;
-    ECDSA_SIG *signature = NULL;
-    BIGNUM *sig_r = NULL, *sig_s = NULL;
-    unsigned char digest[SHA256_DIGEST_LENGTH];
+    EVP_PKEY_CTX *ctx = NULL;
+    EVP_PKEY *pkey = NULL;
+    EVP_MD_CTX *md_ctx = NULL;
+    unsigned char *der_sig = NULL;
+    size_t der_sig_len = 0;
     
     /* Initialize OpenSSL */
     OpenSSL_add_all_algorithms();
     ERR_load_crypto_strings();
     
-    /* Create EC_KEY with the P-256 curve */
-    eckey = EC_KEY_new_by_curve_name(NID_X9_62_prime256v1);
-    if (eckey == NULL) {
-        printf("Error: Failed to create EC_KEY\n");
-        ERR_print_errors_fp(stderr);
+    /* Create a public key from the raw bytes */
+    pkey = EVP_PKEY_new_raw_public_key(EVP_PKEY_EC, NULL, 
+                                      fixed_pubkey, sizeof(fixed_pubkey));
+    if (pkey == NULL) {
+        /* If direct raw key import fails, try creating it from parameters */
+        EVP_PKEY_CTX *param_ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_EC, NULL);
+        if (param_ctx == NULL) {
+            printf("Error: Failed to create parameter context\n");
+            print_openssl_errors();
+            ret = -1;
+            goto cleanup;
+        }
+        
+        if (EVP_PKEY_paramgen_init(param_ctx) <= 0) {
+            printf("Error: Failed to initialize parameter generation\n");
+            print_openssl_errors();
+            EVP_PKEY_CTX_free(param_ctx);
+            ret = -1;
+            goto cleanup;
+        }
+        
+        if (EVP_PKEY_CTX_set_ec_paramgen_curve_nid(param_ctx, NID_X9_62_prime256v1) <= 0) {
+            printf("Error: Failed to set curve parameters\n");
+            print_openssl_errors();
+            EVP_PKEY_CTX_free(param_ctx);
+            ret = -1;
+            goto cleanup;
+        }
+        
+        EVP_PKEY *params = NULL;
+        if (EVP_PKEY_paramgen(param_ctx, &params) <= 0) {
+            printf("Error: Failed to generate parameters\n");
+            print_openssl_errors();
+            EVP_PKEY_CTX_free(param_ctx);
+            ret = -1;
+            goto cleanup;
+        }
+        
+        EVP_PKEY_CTX_free(param_ctx);
+        
+        /* Create key context using the parameters */
+        ctx = EVP_PKEY_CTX_new(params, NULL);
+        if (ctx == NULL) {
+            printf("Error: Failed to create key context\n");
+            print_openssl_errors();
+            EVP_PKEY_free(params);
+            ret = -1;
+            goto cleanup;
+        }
+        
+        /* Import the public key using the EC point */
+        EC_KEY *ec_key = EC_KEY_new_by_curve_name(NID_X9_62_prime256v1);
+        if (ec_key == NULL) {
+            printf("Error: Failed to create EC_KEY\n");
+            print_openssl_errors();
+            EVP_PKEY_free(params);
+            ret = -1;
+            goto cleanup;
+        }
+        
+        const EC_GROUP *group = EC_KEY_get0_group(ec_key);
+        EC_POINT *point = EC_POINT_new(group);
+        if (point == NULL) {
+            printf("Error: Failed to create EC_POINT\n");
+            print_openssl_errors();
+            EC_KEY_free(ec_key);
+            EVP_PKEY_free(params);
+            ret = -1;
+            goto cleanup;
+        }
+        
+        if (EC_POINT_oct2point(group, point, fixed_pubkey, sizeof(fixed_pubkey), NULL) != 1) {
+            printf("Error: Failed to decode public key point\n");
+            print_openssl_errors();
+            EC_POINT_free(point);
+            EC_KEY_free(ec_key);
+            EVP_PKEY_free(params);
+            ret = -1;
+            goto cleanup;
+        }
+        
+        if (EC_KEY_set_public_key(ec_key, point) != 1) {
+            printf("Error: Failed to set public key\n");
+            print_openssl_errors();
+            EC_POINT_free(point);
+            EC_KEY_free(ec_key);
+            EVP_PKEY_free(params);
+            ret = -1;
+            goto cleanup;
+        }
+        
+        pkey = EVP_PKEY_new();
+        if (pkey == NULL || EVP_PKEY_set1_EC_KEY(pkey, ec_key) != 1) {
+            printf("Error: Failed to create EVP_PKEY from EC_KEY\n");
+            print_openssl_errors();
+            if (pkey) EVP_PKEY_free(pkey);
+            EC_POINT_free(point);
+            EC_KEY_free(ec_key);
+            EVP_PKEY_free(params);
+            ret = -1;
+            goto cleanup;
+        }
+        
+        EC_POINT_free(point);
+        EC_KEY_free(ec_key);
+        EVP_PKEY_free(params);
+    }
+    
+    /* Convert the R|S signature format to DER format for EVP API */
+    if (convert_rs_to_der(fixed_signature, sizeof(fixed_signature), 
+                          &der_sig, &der_sig_len) != 0) {
+        printf("Error: Failed to convert signature format\n");
         ret = -1;
         goto cleanup;
     }
     
-    /* Get the group from the key */
-    group = (EC_GROUP*)EC_KEY_get0_group(eckey);
-    if (group == NULL) {
-        printf("Error: Failed to get group\n");
-        ERR_print_errors_fp(stderr);
+    /* Create message digest context */
+    md_ctx = EVP_MD_CTX_new();
+    if (md_ctx == NULL) {
+        printf("Error: Failed to create message digest context\n");
+        print_openssl_errors();
         ret = -1;
         goto cleanup;
     }
     
-    /* Create a new point */
-    point = EC_POINT_new(group);
-    if (point == NULL) {
-        printf("Error: Failed to create EC_POINT\n");
-        ERR_print_errors_fp(stderr);
+    /* Initialize verification operation */
+    if (EVP_DigestVerifyInit(md_ctx, NULL, EVP_sha256(), NULL, pkey) != 1) {
+        printf("Error: Failed to initialize verification\n");
+        print_openssl_errors();
         ret = -1;
         goto cleanup;
     }
     
-    /* Set the point from the encoded public key */
-    if (EC_POINT_oct2point(group, point, fixed_pubkey, sizeof(fixed_pubkey), NULL) != 1) {
-        printf("Error: Failed to decode public key point\n");
-        ERR_print_errors_fp(stderr);
+    /* Update with the message data */
+    if (EVP_DigestVerifyUpdate(md_ctx, fixed_data, sizeof(fixed_data)) != 1) {
+        printf("Error: Failed to update verification\n");
+        print_openssl_errors();
         ret = -1;
         goto cleanup;
     }
-    
-    /* Set the public key */
-    if (EC_KEY_set_public_key(eckey, point) != 1) {
-        printf("Error: Failed to set public key\n");
-        ERR_print_errors_fp(stderr);
-        ret = -1;
-        goto cleanup;
-    }
-    
-    /* Create SHA-256 hash of the message */
-    SHA256(fixed_data, sizeof(fixed_data), digest);
-    
-    /* Create signature object */
-    signature = ECDSA_SIG_new();
-    if (signature == NULL) {
-        printf("Error: Failed to create ECDSA_SIG\n");
-        ERR_print_errors_fp(stderr);
-        ret = -1;
-        goto cleanup;
-    }
-    
-    /* Convert signature components from binary */
-    sig_r = BN_bin2bn(fixed_signature, 32, NULL);
-    sig_s = BN_bin2bn(fixed_signature + 32, 32, NULL);
-    if (sig_r == NULL || sig_s == NULL) {
-        printf("Error: Failed to convert signature binary to BIGNUM\n");
-        ERR_print_errors_fp(stderr);
-        ret = -1;
-        goto cleanup;
-    }
-    
-    /* Set signature components */
-    if (ECDSA_SIG_set0(signature, sig_r, sig_s) != 1) {
-        printf("Error: Failed to set signature components\n");
-        ERR_print_errors_fp(stderr);
-        BN_free(sig_r);
-        BN_free(sig_s);
-        ret = -1;
-        goto cleanup;
-    }
-    
-    /* sig_r and sig_s are now owned by signature, don't free them separately */
-    sig_r = sig_s = NULL;
     
     /* Verify the signature */
-    ret = ECDSA_do_verify(digest, SHA256_DIGEST_LENGTH, signature, eckey);
+    ret = EVP_DigestVerifyFinal(md_ctx, der_sig, der_sig_len);
     if (ret == 1) {
         printf("Signature verification successful!\n");
         ret = 0; /* Success */
@@ -166,15 +296,16 @@ int verify_ecc_signature(void)
         ret = -1;
     } else {
         printf("Signature verification error\n");
-        ERR_print_errors_fp(stderr);
+        print_openssl_errors();
         ret = -1;
     }
     
 cleanup:
     /* Clean up */
-    if (signature) ECDSA_SIG_free(signature);
-    if (point) EC_POINT_free(point);
-    if (eckey) EC_KEY_free(eckey);
+    if (der_sig) OPENSSL_free(der_sig);
+    if (md_ctx) EVP_MD_CTX_free(md_ctx);
+    if (ctx) EVP_PKEY_CTX_free(ctx);
+    if (pkey) EVP_PKEY_free(pkey);
     
     /* Cleanup OpenSSL */
     EVP_cleanup();
