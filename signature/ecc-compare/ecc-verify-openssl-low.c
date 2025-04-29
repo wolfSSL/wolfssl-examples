@@ -27,6 +27,7 @@
 #include <openssl/err.h>
 #include <openssl/bn.h>
 #include <openssl/ecdsa.h>
+#include <openssl/evp.h>
 
 /* Helper function to convert hex string to binary */
 static int hex2bin(const char *hex, unsigned char *bin, int bin_size)
@@ -158,7 +159,6 @@ int verify_ecc_signature(void)
     print_hex("Signature (DER format)", fixed_signature, sig_len);
     
     /* Initialize OpenSSL */
-    OpenSSL_add_all_algorithms();
     ERR_load_crypto_strings();
     
     /* Create a new EC_KEY for the prime256v1 curve */
@@ -229,7 +229,6 @@ cleanup:
     if (ec_key) EC_KEY_free(ec_key);
     
     /* Cleanup OpenSSL */
-    EVP_cleanup();
     CRYPTO_cleanup_all_ex_data();
     ERR_free_strings();
     

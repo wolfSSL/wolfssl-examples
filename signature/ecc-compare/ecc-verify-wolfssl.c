@@ -25,8 +25,9 @@
 #include <wolfssl/options.h>
 #include <wolfssl/wolfcrypt/settings.h>
 #include <wolfssl/wolfcrypt/ecc.h>
-#include <wolfssl/wolfcrypt/asn_public.h>
+#include <wolfssl/wolfcrypt/asn.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
+#include <wolfssl/wolfcrypt/coding.h>
 
 /* Helper function to convert hex string to binary */
 static int hex2bin(const char *hex, unsigned char *bin, int bin_size)
@@ -120,10 +121,6 @@ int verify_ecc_signature(void)
     int data_len, pubkey_len, sig_len;
     ecc_key eccKey;
     int verify_status = 0;
-    mp_int r, s;
-    byte r_bin[128], s_bin[128];
-    word32 r_len = sizeof(r_bin);
-    word32 s_len = sizeof(s_bin);
     word32 idx = 0;
     
     /* Convert hex strings to binary */
@@ -155,7 +152,7 @@ int verify_ecc_signature(void)
     print_hex("Signature (DER format)", fixed_signature, sig_len);
     
     /* Initialize wolfSSL */
-    ret = wc_InitEccKey(&eccKey);
+    ret = wc_ecc_init(&eccKey);
     if (ret != 0) {
         printf("Error: Failed to initialize ECC key\n");
         print_wolfssl_error(ret);
@@ -170,59 +167,26 @@ int verify_ecc_signature(void)
         goto cleanup;
     }
     
-    /* Extract r and s components from DER signature */
+    /* Extract r and s components from DER signature for display purposes */
     printf("\nExtracting r and s components from DER signature...\n");
     
-    ret = mp_init(&r);
-    if (ret != 0) {
-        printf("Error: Failed to initialize r\n");
-        print_wolfssl_error(ret);
-        goto cleanup;
-    }
+    /* Create temporary buffer for r and s components */
+    byte r_buf[MAX_ECC_BYTES];
+    byte s_buf[MAX_ECC_BYTES];
+    word32 r_size = sizeof(r_buf);
+    word32 s_size = sizeof(s_buf);
     
-    ret = mp_init(&s);
-    if (ret != 0) {
-        printf("Error: Failed to initialize s\n");
-        print_wolfssl_error(ret);
-        mp_clear(&r);
-        goto cleanup;
-    }
-    
-    ret = wc_EccSignatureDecode(fixed_signature, &idx, &r, &s, sig_len);
+    /* Decode the DER signature to extract r and s components */
+    ret = wc_ecc_sig_to_rs(fixed_signature, sig_len, r_buf, &r_size, s_buf, &s_size);
     if (ret != 0) {
         printf("Error: Failed to decode signature\n");
         print_wolfssl_error(ret);
-        mp_clear(&r);
-        mp_clear(&s);
         goto cleanup;
     }
     
-    /* Convert r and s to binary for display */
-    ret = mp_to_unsigned_bin(&r, r_bin);
-    if (ret != 0) {
-        printf("Error: Failed to convert r to binary\n");
-        print_wolfssl_error(ret);
-        mp_clear(&r);
-        mp_clear(&s);
-        goto cleanup;
-    }
-    r_len = mp_unsigned_bin_size(&r);
-    
-    ret = mp_to_unsigned_bin(&s, s_bin);
-    if (ret != 0) {
-        printf("Error: Failed to convert s to binary\n");
-        print_wolfssl_error(ret);
-        mp_clear(&r);
-        mp_clear(&s);
-        goto cleanup;
-    }
-    s_len = mp_unsigned_bin_size(&s);
-    
-    print_hex("Signature r component", r_bin, r_len);
-    print_hex("Signature s component", s_bin, s_len);
-    
-    mp_clear(&r);
-    mp_clear(&s);
+    /* Display the r and s components */
+    print_hex("Signature r component", r_buf, r_size);
+    print_hex("Signature s component", s_buf, s_size);
     
     /* Verify the signature using wc_ecc_verify_hash */
     printf("\nVerifying signature using wc_ecc_verify_hash...\n");
@@ -244,7 +208,7 @@ int verify_ecc_signature(void)
     
 cleanup:
     /* Clean up */
-    wc_FreeEccKey(&eccKey);
+    wc_ecc_free(&eccKey);
     
     return ret;
 }
