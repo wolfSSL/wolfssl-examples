@@ -133,6 +133,14 @@ int verify_ecc_signature(void)
     unsigned char fixed_signature[128];
     int data_len, pubkey_len, sig_len;
     
+    /* For ECDSA_SIG handling */
+    ECDSA_SIG *ecdsa_sig = NULL;
+    BIGNUM *r = NULL;
+    BIGNUM *s = NULL;
+    unsigned char *der = NULL;
+    int der_len = 0;
+    const unsigned char *p;
+    
     /* Convert hex strings to binary */
     data_len = hex2bin(fixed_data_hex, fixed_data, sizeof(fixed_data));
     if (data_len < 0) {
@@ -242,6 +250,88 @@ int verify_ecc_signature(void)
         }
     }
     
+    /* Parse the DER signature to extract r and s components */
+    printf("\nExtracting r and s components from DER signature...\n");
+    p = fixed_signature;
+    ecdsa_sig = d2i_ECDSA_SIG(NULL, &p, sig_len);
+    if (ecdsa_sig == NULL) {
+        printf("Error: Failed to parse DER signature\n");
+        print_openssl_errors();
+        ret = -1;
+        goto cleanup;
+    }
+    
+    /* Get r and s values */
+    ECDSA_SIG_get0(ecdsa_sig, (const BIGNUM **)&r, (const BIGNUM **)&s);
+    if (r == NULL || s == NULL) {
+        printf("Error: Failed to get r and s values\n");
+        print_openssl_errors();
+        ret = -1;
+        goto cleanup;
+    }
+    
+    /* Print r and s values */
+    unsigned char r_bin[128], s_bin[128];
+    int r_len = BN_bn2bin(r, r_bin);
+    int s_len = BN_bn2bin(s, s_bin);
+    
+    print_hex("Signature r component", r_bin, r_len);
+    print_hex("Signature s component", s_bin, s_len);
+    
+    /* Create a new ECDSA_SIG structure with the extracted r and s */
+    ECDSA_SIG_free(ecdsa_sig);
+    ecdsa_sig = ECDSA_SIG_new();
+    if (ecdsa_sig == NULL) {
+        printf("Error: Failed to create new ECDSA_SIG\n");
+        print_openssl_errors();
+        ret = -1;
+        goto cleanup;
+    }
+    
+    /* Create new BIGNUMs for r and s */
+    BIGNUM *pr = BN_new();
+    BIGNUM *ps = BN_new();
+    if (pr == NULL || ps == NULL) {
+        printf("Error: Failed to create BIGNUMs\n");
+        print_openssl_errors();
+        if (pr) BN_free(pr);
+        if (ps) BN_free(ps);
+        ret = -1;
+        goto cleanup;
+    }
+    
+    /* Convert binary r and s to BIGNUMs */
+    if (BN_bin2bn(r_bin, r_len, pr) == NULL || 
+        BN_bin2bn(s_bin, s_len, ps) == NULL) {
+        printf("Error: Failed to convert r and s to BIGNUMs\n");
+        print_openssl_errors();
+        BN_free(pr);
+        BN_free(ps);
+        ret = -1;
+        goto cleanup;
+    }
+    
+    /* Set r and s in the ECDSA_SIG structure */
+    if (ECDSA_SIG_set0(ecdsa_sig, pr, ps) != 1) {
+        printf("Error: Failed to set r and s in ECDSA_SIG\n");
+        print_openssl_errors();
+        BN_free(pr);
+        BN_free(ps);
+        ret = -1;
+        goto cleanup;
+    }
+    
+    /* Convert ECDSA_SIG back to DER format */
+    der_len = i2d_ECDSA_SIG(ecdsa_sig, &der);
+    if (der_len <= 0) {
+        printf("Error: Failed to convert ECDSA_SIG to DER\n");
+        print_openssl_errors();
+        ret = -1;
+        goto cleanup;
+    }
+    
+    print_hex("Reconstructed DER signature", der, der_len);
+    
     /* Create a verification context */
     vctx = EVP_PKEY_CTX_new(pkey, NULL);
     if (vctx == NULL) {
@@ -267,9 +357,9 @@ int verify_ecc_signature(void)
         goto cleanup;
     }
     
-    /* Verify the signature using the pre-computed hash directly */
-    printf("\nVerifying signature using EVP_PKEY_verify with pre-computed hash...\n");
-    ret = EVP_PKEY_verify(vctx, fixed_signature, sig_len, fixed_data, data_len);
+    /* Verify the signature using the pre-computed hash and reconstructed DER signature */
+    printf("\nVerifying signature using EVP_PKEY_verify with reconstructed DER signature...\n");
+    ret = EVP_PKEY_verify(vctx, der, der_len, fixed_data, data_len);
     if (ret == 1) {
         printf("Signature verification successful!\n");
         ret = 0; /* Success */
@@ -285,6 +375,8 @@ int verify_ecc_signature(void)
     
 cleanup:
     /* Clean up */
+    if (der) OPENSSL_free(der);
+    if (ecdsa_sig) ECDSA_SIG_free(ecdsa_sig);
     if (vctx) EVP_PKEY_CTX_free(vctx);
     if (ctx) EVP_PKEY_CTX_free(ctx);
     if (pkey) EVP_PKEY_free(pkey);
