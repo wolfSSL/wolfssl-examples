@@ -56,12 +56,13 @@ endif
 ifeq ($(HAVE_WOLFSSL_ASSEMBLY), 1)
     Wolfssl_C_Extra_Flags += -DWOLFSSL_X86_64_BUILD\
 			     -DWOLFSSL_AESNI\
-			     -maes -masm=intel
-#ifeq ($(HAVE_WOLFSSL_SP), 1)
-#    Wolfssl_C_Extra_Flags += -DWOLFSSL_SP_X86_64_ASM\
-#			     -DWOLFSSL_SP_X86_64\
-#			     -DWOLFSSL_SP_ASM
-#endif
+                 -maes -mavx -mavx2 -msse4.2
+
+ifeq ($(HAVE_WOLFSSL_SP), 1)
+    Wolfssl_C_Extra_Flags += -DWOLFSSL_SP_X86_64_ASM\
+			     -DWOLFSSL_SP_X86_64\
+			     -DWOLFSSL_SP_ASM
+endif
 endif
 
 ifeq ($(HAVE_WOLFSSL_SP), 1)
