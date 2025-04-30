@@ -152,7 +152,7 @@ int main(int argc, char** argv)
         return APP_ERR;
     }
 
-    wolfSSL_d2i_PKCS12_bio(bio, &pkcs12);
+    pkcs12 = wolfSSL_d2i_PKCS12_bio(bio, NULL);
     if (!pkcs12) {
         printf("Failed the d2i_PKCS12_bio call\n");
         wolfSSL_CTX_free(ctx);
