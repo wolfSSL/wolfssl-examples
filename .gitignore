@@ -369,3 +369,9 @@ tpm/evp_tpm
 
 # MacOS
 .DS_Store
+
+# Arduino exclusions
+/Arduino/**/*.bak
+/Arduino/**/Output/*
+/Arduino/**/TraceReports/*
+/Arduino/**/.visualgdb/*
