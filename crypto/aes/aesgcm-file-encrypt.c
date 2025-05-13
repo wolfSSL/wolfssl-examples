@@ -340,8 +340,7 @@ int decrypt_file_AesGCM(const char *in_file, const char *out_file,
     byte iv[AES_IV_SIZE];
     byte wolf_magic[strlen(WOLFCRYPT_MAGIC)];
     byte key[AES_KEY_SIZE];
-    byte tag_dec[AESGCM_TAG_SIZE];
-    byte tag_enc[AESGCM_TAG_SIZE];
+    byte tag[AESGCM_TAG_SIZE];
     Aes gcm;
 
     if (!in_file || !out_file || !key_str) {
@@ -396,8 +395,7 @@ int decrypt_file_AesGCM(const char *in_file, const char *out_file,
     memset(&gcm, 0, sizeof(Aes));
     memset(iv, 0, AES_IV_SIZE);
     memset(key, 0, AES_KEY_SIZE);
-    memset(tag_dec, 0, AESGCM_TAG_SIZE);
-    memset(tag_enc, 0, AESGCM_TAG_SIZE);
+    memset(tag, 0, AESGCM_TAG_SIZE);
     strncpy((char *)key, key_str, AES_KEY_SIZE);
 
     /* Extract a WOLFCRYPT MAGIC | TAG | IV  from the cipher file */
@@ -412,12 +410,13 @@ int decrypt_file_AesGCM(const char *in_file, const char *out_file,
         ret = AES_GCM_AUTH_E;
         goto exit;
     }
-    read_size = read(in_fd, tag_enc, AESGCM_TAG_SIZE);
+    read_size = read(in_fd, tag, AESGCM_TAG_SIZE);
     if (read_size != AESGCM_TAG_SIZE) {
         perror("read");
         ret = -1;
         goto exit;
     }
+
     read_size = read(in_fd, iv, AES_IV_SIZE);
     if (read_size != AES_IV_SIZE) {
         perror("read");
@@ -443,12 +442,9 @@ int decrypt_file_AesGCM(const char *in_file, const char *out_file,
      }
 
     if (ret == 0) {
-        ret = wc_AesGcmEncryptFinal(&gcm, tag_dec, AESGCM_TAG_SIZE);
-        if (ret == 0 && (memcmp(tag_enc, tag_dec, AESGCM_TAG_SIZE) != 0)) {
-            perror("TAG didn't match\n");
-            ret = AES_GCM_AUTH_E;
-            goto exit;
-        }
+        /* The tag param is used to compare to the 
+           calculated tag during decryption */
+        ret = wc_AesGcmDecryptFinal(&gcm, tag, AESGCM_TAG_SIZE);
     }
 exit:
     free(in_buf);
