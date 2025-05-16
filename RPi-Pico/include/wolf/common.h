@@ -1,6 +1,6 @@
-/* wolf_common.h
+/* common.h
  *
- * Copyright (C) 2006-2023 wolfSSL Inc.
+ * Copyright (C) 2006-2025 wolfSSL Inc.
  *
  * This file is part of wolfSSL.
  *
@@ -19,5 +19,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
  */
 
+#ifndef COMMON_H
+#define COMMON_H
+
 #define WOLF_SUCCESS 0
 #define WOLF_FAIL    -1
+
+#endif
