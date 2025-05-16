@@ -31,6 +31,16 @@
 #include <stdio.h>
 #include <sys/time.h>
 
+#ifndef ASN_BER_TO_DER
+
+int main(int argc, char** argv)
+{
+    printf("Recompile wolfSSL with --enable-indef\n");
+    return 1;
+}
+
+#else
+
 #define CONTENT_FILE_NAME "benchmark-content.bin"
 #define ENCODED_FILE_NAME "test-stream-dec.p7b"
 #define DECODED_FILE_NAME "benchmark-decrypted.bin"
@@ -430,4 +440,4 @@ int main(int argc, char** argv)
     wolfCrypt_Cleanup();
     return 0;
 }
-
+#endif /* ASN_BER_TO_DER */
