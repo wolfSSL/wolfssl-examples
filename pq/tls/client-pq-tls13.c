@@ -36,7 +36,7 @@
 #include <wolfssl/wolfio.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
 
-#if defined(WOLFSSL_TLS13) && defined(WOLFSSL_HAVE_KYBER) && \
+#if defined(WOLFSSL_TLS13) && defined(WOLFSSL_HAVE_MLKEM) && \
     defined(HAVE_DILITHIUM)
 
 #define DEFAULT_PORT 11111
