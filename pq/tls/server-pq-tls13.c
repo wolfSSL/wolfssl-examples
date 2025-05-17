@@ -41,7 +41,7 @@
 #include <wolfssl/wolfio.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
 
-#if defined(WOLFSSL_TLS13) && defined(WOLFSSL_HAVE_KYBER) && \
+#if defined(WOLFSSL_TLS13) && defined(WOLFSSL_HAVE_MLKEM) && \
     defined(HAVE_DILITHIUM)
 
 #define DEFAULT_PORT 11111
@@ -245,13 +245,6 @@ int main(int argc, char** argv)
         /* Create a WOLFSSL object */
         if ((ssl = wolfSSL_new(ctx)) == NULL) {
             fprintf(stderr, "ERROR: failed to create WOLFSSL object\n");
-            ret = -1; goto exit;
-        }
-
-        ret = wolfSSL_UseKeyShare(ssl, WOLFSSL_P521_ML_KEM_1024);
-        if (ret < 0) {
-            fprintf(stderr, "ERROR: failed to set the requested group to "
-                            "WOLFSSL_P521_ML_KEM_1024.\n");
             ret = -1; goto exit;
         }
 
