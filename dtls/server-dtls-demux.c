@@ -558,7 +558,7 @@ void freeConn(struct ConnList** connList, struct ConnList* conn, struct DtlsTime
 struct ConnList* findConn(struct ConnList* connList, byte* msg, ssize_t sz, struct sockaddr* peerAddr, socklen_t peerAddrLen)
 {
     const unsigned char* msgCid = NULL;
-    wolfSSL_dtls_cid_parse(msg, sz, &msgCid, CID_SIZE);
+    msgCid = wolfSSL_dtls_cid_parse(msg, sz, CID_SIZE);
     for (; connList != NULL; connList = connList->next) {
         const void* peer = NULL;
         unsigned int peerSz = 0;
