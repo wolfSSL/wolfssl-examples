@@ -57,7 +57,7 @@ int main(int argc, char** argv)
     /* Variables for awaiting datagram */
     int           on = 1;
     int           res = 1;
-    int           connfd = 0;
+    int           bytesReceived = 0;
     int           recvLen = 0;    /* length of message */
     int           listenfd = 0;   /* Initialize our socket */
     WOLFSSL*      ssl = NULL;
@@ -140,15 +140,15 @@ int main(int argc, char** argv)
         printf("Awaiting client connection on port %d\n", SERV_PORT);
 
         cliLen = sizeof(cliaddr);
-        connfd = (int)recvfrom(listenfd, (char *)&b, sizeof(b), MSG_PEEK,
+        bytesReceived = (int)recvfrom(listenfd, (char *)&b, sizeof(b), MSG_PEEK,
                 (struct sockaddr*)&cliaddr, &cliLen);
 
-        if (connfd < 0) {
+        if (bytesReceived < 0) {
             printf("No clients in que, enter idle state\n");
             close(listenfd);
             continue;
         }
-        else if (connfd > 0) {
+        else if (bytesReceived > 0) {
             if (connect(listenfd, (const struct sockaddr *)&cliaddr,
                         sizeof(cliaddr)) != 0) {
                 printf("Udp connect failed.\n");

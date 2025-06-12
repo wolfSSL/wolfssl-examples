@@ -394,7 +394,7 @@ With this change we will also rename `addrlen` to `clilen` to remind us that thi
 ```c
 int                  on = 1;
 int                 res = 1;
-int              connfd = 0;
+int              bytesReceived = 0;
 int             recvlen = 0;    /* length of message */
 int            listenfd = 0;    /* Initialize our socket */
 WOLFSSL* ssl =          NULL;
@@ -556,16 +556,16 @@ Here is where we will now set `clilen = sizeof(cliaddr);` as well. We will decla
 /* set clilen to |cliaddr| */
 clilen =    sizeof(cliaddr); /* will be moved to the variable section later */
 unsigned char       b[1500]; /* will be moved to the variable section later */
-int              connfd = 0; /* will be moved to the variable section later */
+int              bytesReceived = 0; /* will be moved to the variable section later */
 
-connfd = (int)recvfrom(listenfd, (char *)&b, sizeof(b), MSG_PEEK,
+bytesReceived = (int)recvfrom(listenfd, (char *)&b, sizeof(b), MSG_PEEK,
                                   (struct sockaddr*)&cliaddr, &clilen);
-if (connfd < 0){
+if (bytesReceived < 0){
     printf("No clients in que, enter idle state\n");
     continue;
 }
 
-else if (connfd > 0) {
+else if (bytesReceived > 0) {
     if (connect(listenfd, (const struct sockaddr *)&cliaddr,
         sizeof(cliaddr)) != 0) {
         printf("Udp connect failed.\n");
