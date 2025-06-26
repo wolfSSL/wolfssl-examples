@@ -40,7 +40,8 @@ endif
 Crypto_Library_Name := sgx_tcrypto
 
 
-Wolfssl_C_Extra_Flags := -DWOLFSSL_SGX
+Wolfssl_C_Extra_Flags := -DWOLFSSL_SGX\
+			 -DWOLFSSL_CUSTOM_CONFIG
 Wolfssl_Include_Paths := -I$(WOLFSSL_ROOT)/ \
 						 -I$(WOLFSSL_ROOT)/wolfcrypt/
 
@@ -58,6 +59,18 @@ endif
 ifeq ($(HAVE_WOLFSSL_BENCHMARK), 1)
 	Wolfssl_Include_Paths += -I$(WOLFSSL_ROOT)/wolfcrypt/benchmark/
 	Wolfssl_C_Extra_Flags += -DHAVE_WOLFSSL_BENCHMARK
+endif
+
+ifeq ($(HAVE_WOLFSSL_ASSEMBLY), 1)
+    Wolfssl_C_Extra_Flags += -DWOLFSSL_X86_64_BUILD\
+			     -DWOLFSSL_AESNI\
+                 -maes -mavx -mavx2 -msse4.2
+
+#ifeq ($(HAVE_WOLFSSL_SP), 1)
+    Wolfssl_C_Extra_Flags += -DWOLFSSL_SP_X86_64_ASM\
+			     -DWOLFSSL_SP_X86_64\
+			     -DWOLFSSL_SP_ASM
+#endif
 endif
 
 ifeq ($(HAVE_WOLFSSL_SP), 1)
