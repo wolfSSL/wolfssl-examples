@@ -47,8 +47,8 @@
 int main(int argc, char* argv[])
 {
     int            ret = 0;
-    Sha256         sha256;
-    Sha256*        pSha256 = NULL;
+    wc_Sha256      sha256;
+    wc_Sha256*     pSha256 = NULL;
     RsaKey         rsaKey;
     RsaKey*        pRsaKey = NULL;
     word32         idx;
