@@ -33,7 +33,7 @@
 /*
  * Makes a cryptographically secure key by stretching a user entered key
  */
-int GenerateKey(RNG* rng, byte* key, int size, byte* salt, int pad)
+int GenerateKey(WC_RNG* rng, byte* key, int size, byte* salt, int pad)
 {
     int ret;
 
@@ -46,7 +46,7 @@ int GenerateKey(RNG* rng, byte* key, int size, byte* salt, int pad)
 
     /* stretches key */
     ret = wc_PBKDF2(key, key, strlen((const char*)key), salt, SALT_SIZE, 4096,
-        size, SHA256);
+        size, WC_SHA256);
     if (ret != 0)
         return -1030;
 
@@ -59,7 +59,7 @@ int GenerateKey(RNG* rng, byte* key, int size, byte* salt, int pad)
 int CamelliaEncrypt(Camellia* cam, byte* key, int size, FILE* inFile,
     FILE* outFile)
 {
-    RNG     rng;
+    WC_RNG  rng;
     byte    iv[CAMELLIA_BLOCK_SIZE];
     byte*   input;
     byte*   output;
@@ -144,7 +144,7 @@ int CamelliaEncrypt(Camellia* cam, byte* key, int size, FILE* inFile,
 int CamelliaDecrypt(Camellia* cam, byte* key, int size, FILE* inFile,
     FILE* outFile)
 {
-    RNG     rng;
+    WC_RNG  rng;
     byte    iv[CAMELLIA_BLOCK_SIZE];
     byte*   input;
     byte*   output;
@@ -182,7 +182,7 @@ int CamelliaDecrypt(Camellia* cam, byte* key, int size, FILE* inFile,
 
     /* replicates old key if keys match */
     ret = wc_PBKDF2(key, key, strlen((const char*)key), salt, SALT_SIZE, 4096,
-        size, SHA256);
+        size, WC_SHA256);
     if (ret != 0)
         return -1050;
 
