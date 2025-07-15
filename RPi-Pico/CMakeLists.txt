@@ -66,7 +66,7 @@ endif()
     target_compile_definitions(wolfssl PUBLIC
         WOLFSSL_USER_SETTINGS
     )
-    if (${PICO_PLATFORM} STREQUAL "rp2350")
+    if (${PICO_PLATFORM} STREQUAL "rp2350-arm-s")
         add_compile_definitions(wolfssl WOLFSSL_SP_ARM_CORTEX_M_ASM)
     elseif (${PICO_PLATFORM} STREQUAL "rp2350-riscv")
         add_compile_definitions(wolfSSL WOLFSSL_SP_RISCV32)
