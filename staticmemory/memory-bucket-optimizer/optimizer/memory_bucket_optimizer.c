@@ -31,7 +31,14 @@
 #define MAX_ALLOC_SIZES 1000
 #define MAX_LINE_LENGTH 1024
 #define MAX_BUCKETS 16
+#define MAX_UNIQUE_BUCKETS 9  /* Maximum number of unique bucket sizes to create */
 #define MAX_ALLOCATIONS 10000
+
+/* Configuration notes:
+ * - MAX_UNIQUE_BUCKETS: Limits the total number of unique bucket sizes
+ *   This helps control memory overhead and bucket management complexity
+ *   Default: 9 buckets (can be adjusted based on memory constraints)
+ */
 
 /* Memory overhead constants - these should match wolfSSL's actual values */
 #define WOLFSSL_HEAP_SIZE 64      /* Approximate size of WOLFSSL_HEAP structure */
@@ -75,7 +82,7 @@ int calculate_total_overhead(int num_buckets) {
 }
 
 /* Function to parse memory allocation logs with concurrent usage tracking */
-int parse_memory_logs(const char* filename, AllocSize* alloc_sizes, int* num_sizes) {
+int parse_memory_logs(const char* filename, AllocSize* alloc_sizes, int* num_sizes, int* peak_heap_usage) {
     FILE* file = fopen(filename, "r");
     if (!file) {
         printf("Error: Could not open file %s\n", filename);
@@ -87,6 +94,7 @@ int parse_memory_logs(const char* filename, AllocSize* alloc_sizes, int* num_siz
     AllocationEvent events[MAX_ALLOCATIONS];
     int num_events = 0;
     int timestamp = 0;
+    *peak_heap_usage = 0; /* Initialize peak heap usage */
     
     while (fgets(line, sizeof(line), file) && num_events < MAX_ALLOCATIONS) {
         /* Look for lines containing "Alloc:" or "Free:" */
@@ -184,6 +192,32 @@ int parse_memory_logs(const char* filename, AllocSize* alloc_sizes, int* num_siz
         }
     }
     
+    /* Calculate peak heap usage by simulating the allocation timeline */
+    /* This tracks the maximum total memory that was allocated concurrently */
+    int current_heap_usage = 0;
+    int max_heap_usage = 0;
+    
+    /* Create a timeline of heap usage changes */
+    for (int i = 0; i < num_events; i++) {
+        if (events[i].active) {
+            /* Allocation - add to current heap usage */
+            current_heap_usage += events[i].size;
+        } else {
+            /* Free - subtract from current heap usage */
+            current_heap_usage -= events[i].size;
+            if (current_heap_usage < 0) {
+                current_heap_usage = 0; /* Handle mismatched free/alloc */
+            }
+        }
+        
+        /* Track peak usage */
+        if (current_heap_usage > max_heap_usage) {
+            max_heap_usage = current_heap_usage;
+        }
+    }
+    
+    *peak_heap_usage = max_heap_usage;
+    
     return 0;
 }
 
@@ -198,6 +232,14 @@ int compare_alloc_counts(const void* a, const void* b) {
 }
 
 /* Function to optimize bucket sizes */
+/* 
+ * Optimization heuristic:
+ * - Always include the largest allocation size
+ * - For other sizes, only create a new bucket if the waste from using
+ *   existing buckets is >= padding size per bucket
+ * - This reduces bucket management overhead when waste is minimal
+ * - Limited to MAX_UNIQUE_BUCKETS total unique bucket sizes
+ */
 void optimize_buckets(AllocSize* alloc_sizes, int num_sizes, int* buckets,
     int* dist, int* num_buckets)
 {
@@ -260,8 +302,8 @@ void optimize_buckets(AllocSize* alloc_sizes, int num_sizes, int* buckets,
     dist[*num_buckets] = (largest_concurrent > 0) ? largest_concurrent : 1;
     (*num_buckets)++;
     
-    /* Add significant allocation sizes, avoiding duplicates */
-    for (i = 0; i < num_significant && *num_buckets < MAX_BUCKETS; i++) {
+    /* Add significant allocation sizes, considering padding overhead */
+    for (i = 0; i < num_significant && *num_buckets < MAX_UNIQUE_BUCKETS; i++) {
         int size = significant_sizes[i];
         
         /* Skip if this size is already included (like the largest size) */
@@ -276,6 +318,32 @@ void optimize_buckets(AllocSize* alloc_sizes, int num_sizes, int* buckets,
         }
         
         if (!already_included) {
+            /* Check if this size can be efficiently handled by existing buckets */
+            int best_existing_bucket = -1;
+            int min_waste = INT_MAX;
+            int padding_size = calculate_padding_size();
+            
+            /* Find the best existing bucket for this size */
+            for (j = 0; j < *num_buckets; j++) {
+                int bucket_data_size = buckets[j] - padding_size;
+                if (bucket_data_size >= size) {
+                    int waste = bucket_data_size - size;
+                    if (waste < min_waste) {
+                        min_waste = waste;
+                        best_existing_bucket = j;
+                    }
+                }
+            }
+            
+            /* Only create a new bucket if the waste from existing buckets is significant */
+            /* If waste is less than padding size, it's better to use existing bucket */
+            if (best_existing_bucket >= 0 && min_waste < padding_size) {
+                /* Use existing bucket - don't create a new one */
+                /* This size will be handled by the existing bucket */
+                continue;
+            }
+            
+            /* Create new bucket for this size */
             buckets[*num_buckets] = calculate_bucket_size_with_padding(size);
             
             /* Calculate distribution based on concurrent usage and frequency */
@@ -313,8 +381,8 @@ void optimize_buckets(AllocSize* alloc_sizes, int num_sizes, int* buckets,
     }
     
     /* If we still have space, add some medium-frequency sizes */
-    if (*num_buckets < MAX_BUCKETS) {
-        for (i = 0; i < num_sizes && *num_buckets < MAX_BUCKETS; i++) {
+    if (*num_buckets < MAX_UNIQUE_BUCKETS) {
+        for (i = 0; i < num_sizes && *num_buckets < MAX_UNIQUE_BUCKETS; i++) {
             int size = alloc_sizes_by_freq[i].size;
             
             /* Skip if already included */
@@ -329,6 +397,32 @@ void optimize_buckets(AllocSize* alloc_sizes, int num_sizes, int* buckets,
             }
             
             if (!already_included && alloc_sizes_by_freq[i].count >= 3) {
+                /* Check if this size can be efficiently handled by existing buckets */
+                int best_existing_bucket = -1;
+                int min_waste = INT_MAX;
+                int padding_size = calculate_padding_size();
+                
+                /* Find the best existing bucket for this size */
+                for (j = 0; j < *num_buckets; j++) {
+                    int bucket_data_size = buckets[j] - padding_size;
+                    if (bucket_data_size >= size) {
+                        int waste = bucket_data_size - size;
+                        if (waste < min_waste) {
+                            min_waste = waste;
+                            best_existing_bucket = j;
+                        }
+                    }
+                }
+                
+                /* Only create a new bucket if the waste from existing buckets is significant */
+                /* If waste is less than padding size, it's better to use existing bucket */
+                if (best_existing_bucket >= 0 && min_waste < padding_size) {
+                    /* Use existing bucket - don't create a new one */
+                    /* This size will be handled by the existing bucket */
+                    continue;
+                }
+                
+                /* Create new bucket for this size */
                 buckets[*num_buckets] = calculate_bucket_size_with_padding(size);
                 dist[*num_buckets] = 2; /* Default to 2 buckets for medium frequency */
                 (*num_buckets)++;
@@ -354,6 +448,17 @@ void optimize_buckets(AllocSize* alloc_sizes, int num_sizes, int* buckets,
     }
     
     free(alloc_sizes_by_freq);
+    
+    /* Print optimization summary */
+    printf("Optimization Summary:\n");
+    printf("Padding size per bucket: %d bytes\n", calculate_padding_size());
+    printf("Maximum unique buckets allowed: %d\n", MAX_UNIQUE_BUCKETS);
+    printf("Total buckets created: %d\n", *num_buckets);
+    if (*num_buckets >= MAX_UNIQUE_BUCKETS) {
+        printf("Note: Reached maximum bucket limit (%d). Some allocations may use larger buckets.\n", MAX_UNIQUE_BUCKETS);
+    }
+    printf("Note: Allocations with waste < padding size use existing buckets to reduce overhead\n");
+    printf("Note: Bucket limit helps balance memory efficiency vs. management overhead\n\n");
 }
 
 /* Function to calculate memory efficiency metrics */
@@ -364,8 +469,10 @@ void calculate_memory_efficiency(AllocSize* alloc_sizes, int num_sizes,
     float total_waste = 0.0;
     int total_allocations = 0;
     int allocations_handled = 0;
+    int padding_size = calculate_padding_size();
     
     printf("Memory Efficiency Analysis:\n");
+    printf("Note: Allocations with waste < %d bytes (padding size) use existing buckets\n", padding_size);
     printf("Size    Count   Concurrent Bucket   Waste   Coverage\n");
     printf("----    -----   ---------- ------   -----   --------\n");
     
@@ -479,13 +586,15 @@ int main(int argc, char** argv)
     
     AllocSize alloc_sizes[MAX_ALLOC_SIZES];
     int num_sizes = 0;
+    int peak_heap_usage = 0;
     
     /* Parse memory allocation logs */
-    if (parse_memory_logs(argv[1], alloc_sizes, &num_sizes) != 0) {
+    if (parse_memory_logs(argv[1], alloc_sizes, &num_sizes, &peak_heap_usage) != 0) {
         return 1;
     }
     
-    printf("Found %d unique allocation sizes\n\n", num_sizes);
+    printf("Found %d unique allocation sizes\n", num_sizes);
+    printf("Peak heap usage: %d bytes (maximum concurrent memory usage)\n\n", peak_heap_usage);
     
     /* Sort allocation sizes */
     qsort(alloc_sizes, num_sizes, sizeof(AllocSize), compare_alloc_sizes);
