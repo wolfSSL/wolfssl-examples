@@ -82,7 +82,9 @@ int calculate_total_overhead(int num_buckets) {
 }
 
 /* Function to parse memory allocation logs with concurrent usage tracking */
-int parse_memory_logs(const char* filename, AllocSize* alloc_sizes, int* num_sizes, int* peak_heap_usage) {
+int parse_memory_logs(const char* filename, AllocSize* alloc_sizes,
+    int* num_sizes, int* peak_heap_usage)
+{
     FILE* file = fopen(filename, "r");
     if (!file) {
         printf("Error: Could not open file %s\n", filename);
@@ -298,8 +300,7 @@ void optimize_buckets(AllocSize* alloc_sizes, int num_sizes, int* buckets,
         }
     }
     
-    /* Use actual concurrent usage, but minimum of 1 */
-    dist[*num_buckets] = (largest_concurrent > 0) ? largest_concurrent : 1;
+    dist[*num_buckets] = largest_concurrent;
     (*num_buckets)++;
     
     /* Add significant allocation sizes, considering padding overhead */
@@ -357,24 +358,10 @@ void optimize_buckets(AllocSize* alloc_sizes, int num_sizes, int* buckets,
                 }
             }
             
-            /* Use concurrent usage as base, but scale based on frequency */
-            int base_dist = (concurrent > 0) ? concurrent : 1;
+            dist[*num_buckets] = concurrent;
             
-            /* Scale distribution based on frequency */
-            if (count > total_allocations / 10) {        /* >10% of allocations */
-                dist[*num_buckets] = base_dist * 2; /* Double for high frequency */
-            } else if (count > total_allocations / 20) { /* >5% of allocations */
-                dist[*num_buckets] = base_dist + 2; /* Add 2 for medium frequency */
-            } else if (count > total_allocations / 50) { /* >2% of allocations */
-                dist[*num_buckets] = base_dist + 1; /* Add 1 for low frequency */
-            } else {
-                dist[*num_buckets] = base_dist; /* Use concurrent usage as is */
-            }
-            
-            /* Cap distribution at reasonable maximum */
-            if (dist[*num_buckets] > 16) {
-                dist[*num_buckets] = 16;
-            }
+            /* Ensure we have enough buckets for maximum concurrent usage */
+            /* Don't cap arbitrarily - let the buffer size calculation handle memory constraints */
             
             (*num_buckets)++;
         }
@@ -518,12 +505,14 @@ void calculate_memory_efficiency(AllocSize* alloc_sizes, int num_sizes,
     
     /* Calculate total memory needed for buckets */
     int total_bucket_memory = 0;
+    int total_num_buckets = 0;
     for (i = 0; i < num_buckets; i++) {
         total_bucket_memory += buckets[i] * dist[i];
+        total_num_buckets += dist[i];
     }
     
     /* Calculate total overhead */
-    int total_overhead = calculate_total_overhead(num_buckets);
+    int total_overhead = calculate_total_overhead(total_num_buckets);
     int total_memory_needed = total_bucket_memory + total_overhead;
     
     printf("Total bucket memory: %d bytes\n", total_bucket_memory);
