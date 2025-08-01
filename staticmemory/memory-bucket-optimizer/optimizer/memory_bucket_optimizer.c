@@ -37,10 +37,6 @@
  *   Default: 9 buckets (can be adjusted based on memory constraints)
  */
 
-/* Memory overhead constants - these should match wolfSSL's actual values */
-#define WOLFSSL_HEAP_SIZE 64      /* Approximate size of WOLFSSL_HEAP structure */
-#define WOLFSSL_HEAP_HINT_SIZE 32 /* Approximate size of WOLFSSL_HEAP_HINT structure */
-
 /* Linked list node for allocation events */
 typedef struct AllocationEventNode {
     int size;
@@ -178,11 +174,6 @@ int calculate_padding_size() {
     return wolfSSL_MemoryPaddingSz();
 }
 
-/* Function to calculate bucket size including padding */
-int calculate_bucket_size_with_padding(int allocation_size) {
-    return allocation_size + calculate_padding_size();
-}
-
 /* Function to calculate total memory overhead */
 int calculate_total_overhead(int num_buckets) {
     /* Total overhead includes:
@@ -191,8 +182,8 @@ int calculate_total_overhead(int num_buckets) {
      * - Alignment padding
      * Note: Padding is already included in bucket sizes
      */
-    int total_overhead = WOLFSSL_HEAP_SIZE + 
-                        WOLFSSL_HEAP_HINT_SIZE + 
+    int total_overhead = sizeof(WOLFSSL_HEAP) +
+                        sizeof(WOLFSSL_HEAP_HINT) +
                         (WOLFSSL_STATIC_ALIGN - 1);
     total_overhead += num_buckets * wolfSSL_MemoryPaddingSz();
     return total_overhead;
@@ -372,6 +363,18 @@ static void sort_alloc_by_frequency(AllocSizeNode* alloc_sizes,
     } while (max != NULL);
 }
 
+/* returns what the bucket size would be */
+static int get_bucket_size(int size)
+{
+    int padding;
+
+    padding = size % WOLFSSL_STATIC_ALIGN;
+    if (padding > 0) {
+        padding = WOLFSSL_STATIC_ALIGN - padding;
+    }
+    return size + padding + wolfSSL_MemoryPaddingSz();
+}
+
 /* Function to optimize bucket sizes */
 /* 
  * Optimization heuristic:
@@ -415,7 +418,7 @@ void optimize_buckets(AllocSizeNode* alloc_sizes, AllocSizeNode* alloc_sizes_by_
     /* Always include the largest allocation sizes (with padding) */
     current = alloc_sizes;
     for (i = 0; i < MAX_UNIQUE_BUCKETS/2 && current != NULL; i++) {
-        buckets[*num_buckets] = calculate_bucket_size_with_padding(current->size);
+        buckets[*num_buckets] = get_bucket_size(current->size);
         dist[*num_buckets] = current->max_concurrent;
         (*num_buckets)++;
         current = current->next;
@@ -433,8 +436,7 @@ void optimize_buckets(AllocSizeNode* alloc_sizes, AllocSizeNode* alloc_sizes_by_
                 int already_included = 0;
                 for (j = 0; j < *num_buckets; j++) {
                     /* Compare original allocation sizes, not bucket sizes with padding */
-                    int bucket_data_size = buckets[j] - calculate_padding_size();
-                    if (bucket_data_size == current->size) {
+                    if (buckets[j] == get_bucket_size(current->size)) {
                         already_included = 1;
                         break;
                     }
@@ -447,7 +449,7 @@ void optimize_buckets(AllocSizeNode* alloc_sizes, AllocSizeNode* alloc_sizes_by_
             current = current->next;
         }
         if (max != NULL) {
-            buckets[*num_buckets] = calculate_bucket_size_with_padding(max->size);
+            buckets[*num_buckets] = get_bucket_size(max->size);
             dist[*num_buckets] = max->max_concurrent;
             *num_buckets += 1;
         }
@@ -558,9 +560,10 @@ void calculate_memory_efficiency(AllocSizeNode* alloc_sizes, int num_sizes,
     
     printf("Total bucket memory: %d bytes\n", total_bucket_memory);
     printf("Memory overhead: %d bytes\n", total_overhead);
-    printf("  - Padding per bucket: %d bytes (included in bucket sizes)\n", calculate_padding_size());
-    printf("  - Total padding: %d bytes (included in bucket sizes)\n", calculate_padding_size() * num_buckets);
-    printf("  - Heap structures: %d bytes\n", WOLFSSL_HEAP_SIZE + WOLFSSL_HEAP_HINT_SIZE);
+    printf("  - Padding per bucket: %d bytes (included in bucket sizes)\n",
+        calculate_padding_size());
+    printf("  - Heap structures: %ld bytes\n", sizeof(WOLFSSL_HEAP) +
+        sizeof(WOLFSSL_HEAP_HINT));
     printf("  - Alignment: %d bytes\n", WOLFSSL_STATIC_ALIGN - 1);
     printf("Total memory needed: %d bytes\n", total_memory_needed);
     
