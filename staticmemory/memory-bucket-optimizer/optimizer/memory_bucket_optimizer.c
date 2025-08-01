@@ -446,7 +446,6 @@ void optimize_buckets(AllocSizeNode* alloc_sizes, AllocSizeNode* alloc_sizes_by_
             }
             current = current->next;
         }
-        printf("num_buckets = %d max = %p\n", *num_buckets, max);
         if (max != NULL) {
             buckets[*num_buckets] = calculate_bucket_size_with_padding(max->size);
             dist[*num_buckets] = max->max_concurrent;
