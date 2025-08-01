@@ -585,7 +585,8 @@ void print_buffer_recommendations(int* buckets, int* dist, int num_buckets)
         total_overhead += dist[i] * wolfSSL_MemoryPaddingSz();
     }
 
-    total_overhead += WOLFSSL_HEAP_SIZE + WOLFSSL_HEAP_HINT_SIZE;
+    total_overhead += sizeof(WOLFSSL_HEAP_HINT) + sizeof(WOLFSSL_HEAP) +
+        WOLFSSL_STATIC_ALIGN;
     total_memory_needed = total_bucket_memory + total_overhead;
 
     printf("\nBuffer Size Recommendations:\n");
