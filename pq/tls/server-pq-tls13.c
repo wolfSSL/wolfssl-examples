@@ -248,10 +248,10 @@ int main(int argc, char** argv)
             ret = -1; goto exit;
         }
 
-        ret = wolfSSL_UseKeyShare(ssl, WOLFSSL_P521_ML_KEM_1024);
+        ret = wolfSSL_UseKeyShare(ssl, WOLFSSL_SECP521R1MLKEM1024);
         if (ret < 0) {
             fprintf(stderr, "ERROR: failed to set the requested group to "
-                            "WOLFSSL_P521_ML_KEM_1024.\n");
+                            "WOLFSSL_SECP521R1MLKEM1024.\n");
             ret = -1; goto exit;
         }
 
