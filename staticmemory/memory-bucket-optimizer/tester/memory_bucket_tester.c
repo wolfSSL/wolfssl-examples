@@ -159,17 +159,11 @@ int parse_memory_logs(const char* filename, AllocationEvent* events, int* num_ev
 
 /* Function to replay allocation sequence */
 int replay_allocation_sequence(AllocationEvent* events, int num_events, 
-                              BucketConfig* buckets, int num_buckets, WOLFSSL_HEAP_HINT* heap_hint ) {
+    WOLFSSL_HEAP_HINT* heap_hint )
+{
     int i;
     int success_count = 0;
     int failure_count = 0;
-    
-    printf("Replaying %d allocation events...\n", num_events);
-    printf("Using %d buckets:\n", num_buckets);
-    for (i = 0; i < num_buckets; i++) {
-        printf("  Bucket %d: size=%d, count=%d\n", i, buckets[i].size, buckets[i].count);
-    }
-    printf("\n");
     
     for (i = 0; i < num_events; i++) {
         if (events[i].is_alloc) {
@@ -280,7 +274,8 @@ int main(int argc, char** argv) {
     }
     
     if (total_buffer_size <= 0) {
-        printf("Error: Invalid buffer size (%d). Must be greater than 0.\n", total_buffer_size);
+        printf("Error: Invalid buffer size (%d). Must be greater than 0.\n",
+            total_buffer_size);
         print_usage(argv[0]);
         return 1;
     }
@@ -326,12 +321,38 @@ int main(int argc, char** argv) {
         return 1;
     }
     
-    /* For now, we'll simulate the static memory behavior */
-    /* In a real implementation, this would use wc_LoadStaticMemory_ex */
-    printf("Note: This is a simulation - in production, use wc_LoadStaticMemory_ex\n\n");
+    /* Display heap hint information if available */
+    if (heap_hint != NULL) {
+        printf("Heap hint initialized successfully\n");
+        printf("Heap hint address: %p\n", (void*)heap_hint);
+        
+        /* Try to access the heap structure if available */
+        if (heap_hint->memory != NULL) {
+            WOLFSSL_MEM_STATS mem_stats;
+            /* Extract bucket information from heap structure */
+            WOLFSSL_HEAP* heap = (WOLFSSL_HEAP*)heap_hint->memory;
+            
+            wolfSSL_GetMemStats(heap, &mem_stats);
+
+            /* Print actual buckets created in the heap */
+            printf("Actual buckets created in heap:\n");
+            for (i = 0; i < WOLFMEM_MAX_BUCKETS; i++) {
+                printf("  Bucket %d: size=%d, count=%d\n", i,
+                    mem_stats.blockSz[i], mem_stats.avaBlock[i]);
+            }
+        } else {
+            printf("Heap structure not accessible\n");
+        }
+        
+        printf("Static memory system ready for allocation testing\n");
+    } else {
+        printf("Warning: Heap hint is NULL\n");
+    }
+    printf("=====================================\n\n");
+    fflush(stdout);
     
     /* Replay allocation sequence */
-    ret = replay_allocation_sequence(events, num_events, buckets, num_buckets, heap_hint);
+    ret = replay_allocation_sequence(events, num_events, heap_hint);
     
     /* Cleanup */
     free(static_buffer);

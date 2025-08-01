@@ -4,17 +4,14 @@
 The staticmemory feature ends up using a bit more memory and is a simple sectioning up of a static buffer used dynamically instead of malloc/free. wolfSSL has the option for users to define custom XMALLOC/XFREE if wanting to use a different allocater.
 
 
-This tool analyzes memory allocation patterns in wolfSSL and recommends optimal static memory bucket configurations to minimize wasted memory.
-
-## Overview
-
-When wolfSSL is built with the `--enable-staticmemory` option, it uses a static memory management system with memory buckets. The size and distribution of these buckets can significantly impact memory usage efficiency. This tool helps optimize these bucket configurations for specific TLS operations.
+The exact optimized configuration is a difficult problem (think traveling salesman problem), but this optimizer gives a good starting point. It uses a simple algorithm in that it fill the first half of bucket sizes with largest allocations and the second half based on max concurrent uses.
 
 ## Directory Structure
 
 ```
 memory-bucket-optimizer/
 ├── optimizer/ # Source code for the optimizer
+├── tester/ # Source code for testing configuration
 └── README.md               # This file
 ```
 
@@ -57,5 +54,15 @@ This will run the application with memory log output.
 cd optimizer
 make
 ./memory_bucket_optimizer testwolfcrypt.log
+```
+
+4. Build and run tester (optional)
+
+```
+cd ~/wolfssl
+./configure CPPFLAGS="-DWOLFSSL_NO_MALLOC -DWOLFSSL_DEBUG_MEMORY -DWOLFSSL_DEBUG_MEMORY_PRINT" --enable-staticmemory
+make && sudo make install
+cd tester && make
+./memory_bucket_tester ../testwolfcrypt.log --buckets "289,832,1056,1072,1152,1616,1632,3160,4240" --dist "2,1,2,1,1,1,1,19,1" --buffer-size 74298
 ```
 
