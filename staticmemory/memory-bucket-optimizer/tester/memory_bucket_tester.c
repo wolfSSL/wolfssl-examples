@@ -29,16 +29,13 @@
 
 /* Memory overhead constants - these should match wolfSSL's actual values */
 #ifndef WOLFSSL_STATIC_ALIGN
-#define WOLFSSL_STATIC_ALIGN 8
-#endif
-#ifndef WOLFSSL_HEAP_SIZE
-#define WOLFSSL_HEAP_SIZE 64      /* Approximate size of WOLFSSL_HEAP structure */
-#endif
-#ifndef WOLFSSL_HEAP_HINT_SIZE
-#define WOLFSSL_HEAP_HINT_SIZE 32 /* Approximate size of WOLFSSL_HEAP_HINT structure */
+    #define WOLFSSL_STATIC_ALIGN 8
 #endif
 
-#define MAX_ALLOCATIONS 10000
+#ifndef MAX_ALLOCATIONS
+    #define MAX_ALLOCATIONS 10000
+#endif
+
 #define MAX_LINE_LENGTH 1024
 #define MAX_BUCKETS 16
 
@@ -55,7 +52,11 @@ typedef struct {
 
 /* Function to parse bucket configuration from command line */
 int parse_bucket_config(int argc, char** argv, int start_idx, 
-                       BucketConfig* buckets, int* num_buckets, int* total_buffer_size) {
+                       BucketConfig* buckets, int* num_buckets,
+                       int* total_buffer_size)
+{
+    int i;
+
     if (start_idx >= argc) {
         printf("Error: No bucket configuration provided\n");
         return -1;
@@ -63,7 +64,7 @@ int parse_bucket_config(int argc, char** argv, int start_idx,
     
     *num_buckets = 0;
     *total_buffer_size = 0;
-    int i = start_idx;
+    i = start_idx;
     
     while (i < argc && *num_buckets < MAX_BUCKETS) {
         if (strcmp(argv[i], "--buckets") == 0) {
@@ -109,14 +110,18 @@ int parse_bucket_config(int argc, char** argv, int start_idx,
 }
 
 /* Function to parse memory allocation logs */
-int parse_memory_logs(const char* filename, AllocationEvent* events, int* num_events) {
-    FILE* file = fopen(filename, "r");
+int parse_memory_logs(const char* filename, AllocationEvent* events,
+    int* num_events)
+{
+    char line[MAX_LINE_LENGTH];
+    FILE* file;
+
+    file = fopen(filename, "r");
     if (!file) {
         printf("Error: Could not open file %s\n", filename);
         return -1;
     }
     
-    char line[MAX_LINE_LENGTH];
     *num_events = 0;
     
     while (fgets(line, sizeof(line), file) && *num_events < MAX_ALLOCATIONS) {
@@ -152,11 +157,18 @@ int parse_memory_logs(const char* filename, AllocationEvent* events, int* num_ev
             }
         }
     }
+
+    if (*num_events >= MAX_ALLOCATIONS) {
+        printf("Error: Too many allocation events (over %d)\n", MAX_ALLOCATIONS);
+        return -1;
+    }
     
     fclose(file);
     return 0;
 }
 
+
+#ifdef WOLFSSL_NO_MALLOC
 /* Function to replay allocation sequence */
 int replay_allocation_sequence(AllocationEvent* events, int num_events, 
     WOLFSSL_HEAP_HINT* heap_hint )
@@ -168,7 +180,8 @@ int replay_allocation_sequence(AllocationEvent* events, int num_events,
     for (i = 0; i < num_events; i++) {
         if (events[i].is_alloc) {
             /* Try to allocate memory */
-            void* ptr = XMALLOC(events[i].size, heap_hint, DYNAMIC_TYPE_TMP_BUFFER);
+            void* ptr = XMALLOC(events[i].size, heap_hint,
+                DYNAMIC_TYPE_TMP_BUFFER);
             if (ptr == NULL) {
                 printf("FAILURE: malloc failed for size %d at event %d\n", 
                        events[i].size, i);
@@ -177,7 +190,8 @@ int replay_allocation_sequence(AllocationEvent* events, int num_events,
             } else {
                 events[i].ptr = ptr;
                 success_count++;
-                printf("SUCCESS: Allocated %d bytes at event %d\n", events[i].size, i);
+                printf("SUCCESS: Allocated %d bytes at event %d\n",
+                    events[i].size, i);
             }
         } else {
             /* Find the corresponding allocation to free */
@@ -189,13 +203,14 @@ int replay_allocation_sequence(AllocationEvent* events, int num_events,
                     events[j].ptr = NULL;
                     events[i].ptr = NULL;
                     found = 1;
-                    printf("SUCCESS: Freed %d bytes at event %d\n", events[i].size, i);
+                    printf("SUCCESS: Freed %d bytes at event %d\n",
+                        events[i].size, i);
                     break;
                 }
             }
             if (!found) {
-                printf("WARNING: No matching allocation found for free of size %d at event %d\n", 
-                       events[i].size, i);
+                printf("WARNING: No matching allocation found for free of size"
+                    " %d at event %d\n", events[i].size, i);
             }
         }
     }
@@ -213,9 +228,11 @@ int replay_allocation_sequence(AllocationEvent* events, int num_events,
         return 0;
     }
 }
+#endif
 
 /* Function to calculate required buffer size */
-int calculate_required_buffer_size(BucketConfig* buckets, int num_buckets) {
+int calculate_required_buffer_size(BucketConfig* buckets, int num_buckets)
+{
     int total_size = 0;
     int i;
     
@@ -229,7 +246,8 @@ int calculate_required_buffer_size(BucketConfig* buckets, int num_buckets) {
     return total_size;
 }
 
-void print_usage(const char* program_name) {
+void print_usage(const char* program_name)
+{
     printf("Usage: %s <log_file> --buckets \"<size1>,<size2>,...\" --dist \"<dist1>,<dist2>,...\" --buffer-size <total_size>\n", program_name);
     printf("\n");
     printf("Arguments:\n");
@@ -250,19 +268,27 @@ void print_usage(const char* program_name) {
     printf("  4. Fail if any XMALLOC fails\n");
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv)
+{
+    const char* log_file;
+    BucketConfig buckets[MAX_BUCKETS];
+    AllocationEvent events[MAX_ALLOCATIONS];
+    unsigned int bucket_sizes[MAX_BUCKETS];
+    unsigned int bucket_dist[MAX_BUCKETS];
+    int i, ret, buffer_size;
+    int num_buckets = 0, total_buffer_size = 0, num_events = 0;
+    byte* static_buffer;
+    WOLFSSL_HEAP_HINT* heap_hint = NULL;
+
     if (argc < 6) {
         print_usage(argv[0]);
         return 1;
     }
-    
-    const char* log_file = argv[1];
-    BucketConfig buckets[MAX_BUCKETS];
-    int num_buckets = 0;
-    int total_buffer_size = 0;
+    log_file = argv[1];
     
     /* Parse bucket configuration */
-    if (parse_bucket_config(argc, argv, 2, buckets, &num_buckets, &total_buffer_size) != 0) {
+    if (parse_bucket_config(argc, argv, 2, buckets, &num_buckets,
+        &total_buffer_size) != 0) {
         print_usage(argv[0]);
         return 1;
     }
@@ -280,10 +306,6 @@ int main(int argc, char** argv) {
         return 1;
     }
     
-    /* Parse allocation events */
-    AllocationEvent events[MAX_ALLOCATIONS];
-    int num_events = 0;
-    
     if (parse_memory_logs(log_file, events, &num_events) != 0) {
         return 1;
     }
@@ -291,30 +313,25 @@ int main(int argc, char** argv) {
     printf("Parsed %d allocation events from %s\n", num_events, log_file);
     
     /* Use provided buffer size */
-    int buffer_size = total_buffer_size;
+    buffer_size = total_buffer_size;
     printf("Using provided buffer size: %d bytes\n\n", buffer_size);
     
     /* Convert bucket config to wolfSSL format */
-    unsigned int bucket_sizes[MAX_BUCKETS];
-    unsigned int bucket_dist[MAX_BUCKETS];
-    int i;
-    
     for (i = 0; i < num_buckets; i++) {
         bucket_sizes[i] = (unsigned int)buckets[i].size;
         bucket_dist[i] = (unsigned int)buckets[i].count;
     }
     
     /* Allocate static buffer */
-    byte* static_buffer = (byte*)malloc(buffer_size);
+    static_buffer = (byte*)malloc(buffer_size);
     if (!static_buffer) {
         printf("Error: Failed to allocate static buffer\n");
         return 1;
     }
     
     /* Initialize static memory */
-    WOLFSSL_HEAP_HINT* heap_hint = NULL;
-    int ret = wc_LoadStaticMemory_ex(&heap_hint, num_buckets, bucket_sizes, 
-                                   bucket_dist, static_buffer, buffer_size, 0, 0);
+    ret = wc_LoadStaticMemory_ex(&heap_hint, num_buckets, bucket_sizes, 
+                                bucket_dist, static_buffer, buffer_size, 0, 0);
     if (ret != 0) {
         printf("Error: Failed to load static memory (ret=%d)\n", ret);
         free(static_buffer);
@@ -351,9 +368,14 @@ int main(int argc, char** argv) {
     printf("=====================================\n\n");
     fflush(stdout);
     
+#ifdef WOLFSSL_NO_MALLOC
     /* Replay allocation sequence */
     ret = replay_allocation_sequence(events, num_events, heap_hint);
-    
+#else
+    printf("ERROR: WOLFSSL_NO_MALLOC is not defined\n");
+    ret = -1;
+#endif
+
     /* Cleanup */
     free(static_buffer);
     

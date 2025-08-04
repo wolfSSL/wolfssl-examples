@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <limits.h> // Required for INT_MAX
+#include <limits.h> /* Required for INT_MAX */
 
 #include <wolfssl/options.h>
 #include <wolfssl/wolfcrypt/memory.h>
@@ -40,8 +40,8 @@
 /* Linked list node for allocation events */
 typedef struct AllocationEventNode {
     int size;
-    int timestamp;  // Simple counter for allocation order
-    int active;     // 1 if allocated, 0 if freed
+    int timestamp;  /* Simple counter for allocation order */
+    int active;     /* 1 if allocated, 0 if freed */
     struct AllocationEventNode* next;
 } AllocationEventNode;
 AllocationEventNode* event_head = NULL;
@@ -51,7 +51,7 @@ typedef struct AllocSizeNode {
     int size;
     int count;
     int concurrent;
-    int max_concurrent;  // Maximum number of concurrent allocations of this size
+    int max_concurrent;  /* Maximum number of concurrent allocations of this size */
     struct AllocSizeNode* next; /* next in list of sizes sorted by size */
     struct AllocSizeNode* nextFreq; /* sorted by count size descending */
 } AllocSizeNode;
@@ -70,8 +70,12 @@ typedef struct {
 } AllocSizeList;
 
 /* Helper functions for linked lists */
-AllocationEventNode* create_allocation_event_node(int size, int timestamp, int active) {
-    AllocationEventNode* node = (AllocationEventNode*)malloc(sizeof(AllocationEventNode));
+AllocationEventNode* create_allocation_event_node(int size, int timestamp,
+    int active)
+{
+    AllocationEventNode* node;
+    
+    node = (AllocationEventNode*)malloc(sizeof(AllocationEventNode));
     if (node) {
         node->size = size;
         node->timestamp = timestamp;
@@ -81,21 +85,28 @@ AllocationEventNode* create_allocation_event_node(int size, int timestamp, int a
     return node;
 }
 
-void add_allocation_event(AllocationEventNode** list, int size, int timestamp, int active) {
-    AllocationEventNode* node = create_allocation_event_node(size, timestamp, active);
+void add_allocation_event(AllocationEventNode** list, int size, int timestamp,
+    int active)
+{
+    AllocationEventNode* node;
+    
+    node = create_allocation_event_node(size, timestamp, active);
     if (node) {
         if (*list == NULL) {
             event_head = node;
             *list = node;
         } else {
             (*list)->next = node;
-            *list = node;  // Update the list pointer to point to the new node
+            *list = node;  /* Update the list pointer to point to the new node */
         }
     }
 }
 
-AllocSizeNode* create_alloc_size_node(int size) {
-    AllocSizeNode* node = (AllocSizeNode*)malloc(sizeof(AllocSizeNode));
+AllocSizeNode* create_alloc_size_node(int size)
+{
+    AllocSizeNode* node;
+    
+    node = (AllocSizeNode*)malloc(sizeof(AllocSizeNode));
     if (node) {
         node->size = size;
         node->count = 0;
@@ -107,9 +118,11 @@ AllocSizeNode* create_alloc_size_node(int size) {
     return node;
 }
 
-AllocSizeNode* find_or_create_alloc_size(AllocSizeNode** list, int size) {
+AllocSizeNode* find_or_create_alloc_size(AllocSizeNode** list, int size)
+{
     AllocSizeNode* current = *list;
     AllocSizeNode* previous = NULL;
+    AllocSizeNode* node = NULL;
     
     /* Look for existing size */
     while (current) {
@@ -120,7 +133,7 @@ AllocSizeNode* find_or_create_alloc_size(AllocSizeNode** list, int size) {
     }
     
     /* Create new size node */
-    AllocSizeNode* node = create_alloc_size_node(size);
+    node = create_alloc_size_node(size);
     if (node) {
         /* insert node into list ordered from largest size first to smallest */
         current  = *list;
@@ -151,7 +164,8 @@ AllocSizeNode* find_or_create_alloc_size(AllocSizeNode** list, int size) {
     return node;
 }
 
-void free_allocation_event_list(AllocationEventNode* list) {
+void free_allocation_event_list(AllocationEventNode* list)
+{
     AllocationEventNode* current = list;
     while (current) {
         AllocationEventNode* next = current->next;
@@ -160,7 +174,8 @@ void free_allocation_event_list(AllocationEventNode* list) {
     }
 }
 
-void free_alloc_size_list(AllocSizeNode* list) {
+void free_alloc_size_list(AllocSizeNode* list)
+{
     AllocSizeNode* current = list;
     while (current) {
         AllocSizeNode* next = current->next;
@@ -170,12 +185,14 @@ void free_alloc_size_list(AllocSizeNode* list) {
 }
 
 /* Function to calculate memory padding size per bucket */
-int calculate_padding_size() {
+int calculate_padding_size()
+{
     return wolfSSL_MemoryPaddingSz();
 }
 
 /* Function to calculate total memory overhead */
-int calculate_total_overhead(int num_buckets) {
+int calculate_total_overhead(int num_buckets)
+{
     /* Total overhead includes:
      * - WOLFSSL_HEAP structure
      * - WOLFSSL_HEAP_HINT structure  
@@ -194,23 +211,25 @@ int parse_memory_logs(const char* filename, AllocationEventNode** events,
     int* peak_heap_usage, int* buckets)
 {
     int current_heap_usage = 0;
-    FILE* file = fopen(filename, "r");
+    char line[MAX_LINE_LENGTH];
+    int timestamp = 0;
+    FILE* file;
+
+    file = fopen(filename, "r");
     if (!file) {
         printf("Error: Could not open file %s\n", filename);
         return -1;
     }
-    
-    char line[MAX_LINE_LENGTH];
-    int timestamp = 0;
+
     *peak_heap_usage = 0; /* Initialize peak heap usage */
     
     while (fgets(line, sizeof(line), file)) {
         /* Look for lines containing "Alloc:" or "Free:" */
         char* alloc_pos = strstr(line, "Alloc:");
         char* free_pos = strstr(line, "Free:");
+        int size;
         
         if (alloc_pos) {
-            int size;
             /* Handle multiple formats:
              * Format 1: Alloc: 0x55fde046b490 -> 4 (11) at wolfTLSv1_3_client_method_ex:src/tls.c:16714
              * Format 2: [HEAP 0x1010e2110] Alloc: 0x101108a40 -> 1024 at simple_mem_test:18561
@@ -232,8 +251,8 @@ int parse_memory_logs(const char* filename, AllocationEventNode** events,
                 }
                 add_allocation_event(events, size, timestamp++, 1);
             }
-        } else if (free_pos) {
-            int size;
+        }
+        else if (free_pos) {
             /* Handle multiple formats:
              * Format 1: Free: 0x55fde046b490 -> 4 at wolfTLSv1_3_client_method_ex:src/tls.c:16714
              * Format 2: [HEAP 0x1010e2110] Free: 0x101108a40 -> 1024 at simple_mem_test:18576
@@ -261,7 +280,8 @@ static void find_max_concurent_allocations(AllocSizeNode** alloc_sizes)
     AllocationEventNode* current = event_head;
     while (current != NULL) {
         if (current->active) {
-            AllocSizeNode* alloc_size = find_or_create_alloc_size(alloc_sizes, current->size);
+            AllocSizeNode* alloc_size =
+                find_or_create_alloc_size(alloc_sizes, current->size);
             alloc_size->concurrent++;
             alloc_size->count++;
             if (alloc_size->max_concurrent < alloc_size->concurrent) {
@@ -269,7 +289,8 @@ static void find_max_concurent_allocations(AllocSizeNode** alloc_sizes)
             }
         }
         else {
-            AllocSizeNode* alloc_size = find_or_create_alloc_size(alloc_sizes, current->size);
+            AllocSizeNode* alloc_size =
+                find_or_create_alloc_size(alloc_sizes, current->size);
             alloc_size->concurrent--;
         }
         current = current->next;
@@ -333,13 +354,14 @@ static void sort_alloc_by_frequency(AllocSizeNode* alloc_sizes,
     int current_count = 0;
     int current_upper_bound = INT_MAX;
 
-    *sorted = NULL;  // Initialize to NULL
+    *sorted = NULL;  /* Initialize to NULL */
     
     do {
         max = NULL;
-        current = alloc_sizes;  // Reset current to beginning of list
+        current = alloc_sizes;  /* Reset current to beginning of list */
         while (current != NULL) {
-            if (current->count > current_count && current->size < current_upper_bound) {
+            if (current->count > current_count &&
+                    current->size < current_upper_bound) {
                 current_count = current->count;
                 max = current;
             }
@@ -347,7 +369,7 @@ static void sort_alloc_by_frequency(AllocSizeNode* alloc_sizes,
         }
 
         if (max == NULL) {
-            break;  // No more nodes to process
+            break;  /* No more nodes to process */
         }
 
         current_upper_bound = max->size;
@@ -384,34 +406,13 @@ static int get_bucket_size(int size)
  * - This reduces bucket management overhead when waste is minimal
  * - Limited to MAX_UNIQUE_BUCKETS total unique bucket sizes
  */
-void optimize_buckets(AllocSizeNode* alloc_sizes, AllocSizeNode* alloc_sizes_by_freq,
-    int num_sizes, int* buckets, int* dist, int* num_buckets)
+void optimize_buckets(AllocSizeNode* alloc_sizes,
+    AllocSizeNode* alloc_sizes_by_freq, int num_sizes, int* buckets, int* dist,
+    int* num_buckets)
 {
     int i, j;
     AllocSizeNode* current;
     
-    /* Calculate total allocations and find significant sizes */
-    int total_allocations = 0;
-    current = alloc_sizes;
-    while (current != NULL) {
-        total_allocations += current->count;
-        current = current->next;
-    }
-    
-    /* Determine significant allocation sizes (those that represent >1% of total allocations) */
-    int significant_sizes[MAX_UNIQUE_BUCKETS];
-    int num_significant = 0;
-    int min_threshold = total_allocations / 100; /* 1% threshold */
-    
-    /* Populate significant sizes from alloc_sizes */
-    current = alloc_sizes;
-    while (current != NULL && num_significant < MAX_UNIQUE_BUCKETS) {
-        if (current->count >= min_threshold) {
-            significant_sizes[num_significant++] = current->size;
-        }
-        current = current->next;
-    }
-
     /* Initialize bucket count */
     *num_buckets = 0;
     
@@ -435,7 +436,6 @@ void optimize_buckets(AllocSizeNode* alloc_sizes, AllocSizeNode* alloc_sizes_by_
                 /* Skip if already included */
                 int already_included = 0;
                 for (j = 0; j < *num_buckets; j++) {
-                    /* Compare original allocation sizes, not bucket sizes with padding */
                     if (buckets[j] == get_bucket_size(current->size)) {
                         already_included = 1;
                         break;
@@ -474,7 +474,6 @@ void optimize_buckets(AllocSizeNode* alloc_sizes, AllocSizeNode* alloc_sizes_by_
             }
         }
     }
-    
     set_distributions(buckets, dist, *num_buckets);
     
     /* Print optimization summary */
@@ -530,7 +529,8 @@ void calculate_memory_efficiency(AllocSizeNode* alloc_sizes, int num_sizes,
             allocations_handled += count;
             total_waste += (float)min_waste * count;
             printf("%-7d %-7d %-10d %-7d %-7d %s\n", 
-                   size, count, current->max_concurrent, buckets[best_bucket], min_waste, "✓");
+                   size, count, current->max_concurrent, buckets[best_bucket],
+                   min_waste, "✓");
         } else {
             printf("%-7d %-7d %-10d %-7s %-7s %s\n", 
                    size, count, current->max_concurrent, "N/A", "N/A", "✗");
@@ -541,7 +541,8 @@ void calculate_memory_efficiency(AllocSizeNode* alloc_sizes, int num_sizes,
     printf("\nEfficiency Summary:\n");
     printf("Total allocations: %d\n", total_allocations);
     printf("Allocations handled: %d (%.1f%%)\n", 
-           allocations_handled, (float)allocations_handled * 100 / total_allocations);
+           allocations_handled,
+           (float)allocations_handled * 100 / total_allocations);
     printf("Total memory waste: %.2f bytes\n", total_waste);
     printf("Average waste per allocation: %.2f bytes\n", 
            total_waste / total_allocations);
@@ -601,7 +602,8 @@ void print_buffer_recommendations(int* buckets, int* dist, int num_buckets)
     printf("byte staticBuffer[%d];\n", total_memory_needed);
     printf("\n// Load static memory\n");
     printf("WOLFSSL_HEAP_HINT* heapHint = NULL;\n");
-    printf("if (wc_LoadStaticMemory_ex(&heapHint, %d, bucket_sizes, bucket_dist,\n", num_buckets);
+    printf("if (wc_LoadStaticMemory_ex(&heapHint, %d, bucket_sizes, bucket_dist,\n",
+        num_buckets);
     printf("    staticBuffer, %d, 0, 0) != 0) {\n", total_memory_needed);
     printf("    // Handle error\n");
     printf("}\n");
@@ -647,7 +649,8 @@ int main(int argc, char** argv)
     }
 
     printf("Found %d unique allocation sizes\n", num_sizes);
-    printf("Peak heap usage: %d bytes (maximum concurrent memory usage)\n\n", peak_heap_usage);
+    printf("Peak heap usage: %d bytes (maximum concurrent memory usage)\n\n",
+        peak_heap_usage);
 
     /* Print allocation sizes, frequencies, and concurrent usage */
     printf("Allocation Sizes, Frequencies, and Concurrent Usage:\n");
@@ -655,13 +658,15 @@ int main(int argc, char** argv)
     printf("----    -----   --------------\n");
     current = alloc_sizes;
     while (current != NULL) {
-        printf("%-7d %-7d %d\n", current->size, current->count, current->max_concurrent);
+        printf("%-7d %-7d %d\n", current->size, current->count,
+            current->max_concurrent);
         current = current->next;
     }
     printf("\n");
     
     /* Optimize bucket sizes */
-    optimize_buckets(alloc_sizes, alloc_sizes_by_freq, num_sizes, buckets, dist, &num_buckets);
+    optimize_buckets(alloc_sizes, alloc_sizes_by_freq, num_sizes, buckets, dist,
+        &num_buckets);
     
     /* Print optimized bucket sizes and distribution */
     printf("Optimized Bucket Sizes and Distribution:\n");
