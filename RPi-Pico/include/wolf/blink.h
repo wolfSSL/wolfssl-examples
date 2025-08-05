@@ -1,6 +1,6 @@
 /* blink.h
  *
- * Copyright (C) 2006-2023 wolfSSL Inc.
+ * Copyright (C) 2006-2025 wolfSSL Inc.
  *
  * This file is part of wolfSSL.
  *
@@ -19,6 +19,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
  */
 
+#ifndef BLINK_H
+#define BLINK_H
+
 void blink(int n, int init);
 
 #define WOLF_BLINK_INIT 1
+
+#endif
