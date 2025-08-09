@@ -255,7 +255,7 @@ Generated bundle file: `envelopedDataORI.der`
 
 This example creates a PKCS#7/CMS EnvelopedData bundle that includes a ORI
 RecipientInfo type. It uses AES256-CBC as the encryption algorithm, and
-specifies the enveloped content type as DATA. ORI is losely defined by the CMS
+specifies the enveloped content type as DATA. ORI is loosely defined by the CMS
 RFC and allows users to specify their own encoding/decoding algorithm for
 the RecipientInfo. This example uses a simple bitwise complement operation
 for the encryption operation. This is not recommended to be used in production
@@ -391,7 +391,7 @@ Example file: `signedData.c`
 Generated bundle files: `signedData_noattrs.der`, `signedData_attrs.der`
 
 This example creates two PKCS#7/CMS SignedData bundles, one with attributes and
-one without them. It uses RSA with SHA256 as the the signature algorithm, and
+one without them. It uses RSA with SHA256 as the signature algorithm, and
 specifies the signed content type as DATA. After creating the bundle, it
 decodes the bundle and verifies the operation was successful.
 
@@ -416,7 +416,7 @@ Generated bundle files: `signedFirmwarePkgData_noattrs.der`,
                         `signedFirmwarePkgData_attrs.der`
 
 This example creates two PKCS#7/CMS SignedData bundles, one with attributes and
-one without them. It uses RSA with SHA256 as the the signature algorithm,
+one without them. It uses RSA with SHA256 as the signature algorithm,
 and specifies the signed content type as FirmwarePkgData. After creating the
 bundle, it decodes the bundle and verifies the operation was successful.
 
@@ -441,7 +441,7 @@ Generated bundle files: `signedEncryptedFirmwarePkgData_noattrs.der`,
                         `signedEncryptedFirmwarePkgData_attrs.der`
 
 This example creates two PKCS#7/CMS SignedData bundles, one with attributes and
-one without them. It uses RSA with SHA256 as the the signature algorithm,
+one without them. It uses RSA with SHA256 as the signature algorithm,
 and specifies the signed content type as EncryptedData. The inner EncryptedData
 content type encapsulates a FirmwarePkgData type. After creating the
 bundles, the app decodes them and verifies the operation was successful.
@@ -467,7 +467,7 @@ Generated bundle files: `signedCompressedFirmwarePkgData_noattrs.der`,
                         `signedCompressedFirmwarePkgData_attrs.der`
 
 This example creates two PKCS#7/CMS SignedData bundles, one with attributes and
-one without them. It uses RSA with SHA256 as the the signature algorithm,
+one without them. It uses RSA with SHA256 as the signature algorithm,
 and specifies the signed content type as CompressedData. The inner
 CompressedData content type encapsulates a FirmwarePkgData type. After creating
 the bundles, the app decodes them and verifies the operation was successful.
@@ -573,7 +573,7 @@ Generated bundle files: `signedEncryptedCompressedFirmwarePkgData_noattrs.der`,
                         `signedEncryptedCompressedFirmwarePkgData_attrs.der`
 
 This example creates two PKCS#7/CMS SignedData bundles, one with attributes and
-one without them. It uses RSA with SHA256 as the the signature algorithm,
+one without them. It uses RSA with SHA256 as the signature algorithm,
 and specifies the signed content type as CompressedData. The inner
 CompressedData content type encapsulates an EncryptedData type, which in turn
 encapsulates a FirmwarePkgData type. After creating the bundles, the app
@@ -689,8 +689,8 @@ Q31HIqX6H6JYdgtwHB1ZHaq+XS0lfLEGtsCqKKqTfNC9Q62RUBx7TfPk1w==
 ### Creating an SMIME bundle and verifying it
 
 In these example cases the content will be overridden by the content found in the
-SMIME bundle. The smime application creates both a detatched
-(detatched-smime-created.p7s) and a non detatched bundle (smime-created.p7s).
+SMIME bundle. The smime application creates both a detached
+(detached-smime-created.p7s) and a non detached bundle (smime-created.p7s).
 
 Creating RSA signed bundles:
 
