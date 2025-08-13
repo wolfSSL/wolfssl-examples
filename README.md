@@ -86,6 +86,15 @@ Please see the [crypto/README.md](crypto/README.md) for further usage and detail
 
 <br />
 
+#### CSharp (C# Wrapper Examples)
+
+This directory contains examples that demonstrate using the C# wrapper.
+
+Please see the [CSharp/README.md](CSharp/README.md) for further usage and details.
+
+
+<br />
+
 #### custom-io-callbacks (wolfSSL Custom IO Callbacks)
 
 This directory contains examples that demonstrate how the custom IO callbacks
