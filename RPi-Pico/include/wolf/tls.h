@@ -1,4 +1,4 @@
-/* bench_main.c
+/* tls.h
  *
  * Copyright (C) 2006-2025 wolfSSL Inc.
  *
@@ -19,33 +19,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
  */
 
-#include <stdint.h>
+#ifndef TLS_H
+#define TLS_H
 
-#include "wolfssl/wolfcrypt/settings.h"
-#include "wolfssl/ssl.h"
-#include <wolfcrypt/benchmark/benchmark.h>
+int my_IORecv(WOLFSSL *ssl, char *buff, int sz, void *ctx);
+int my_IOSend(WOLFSSL *ssl, char *buff, int sz, void *ctx);
 
-#include <stdio.h>
-#include "pico/stdlib.h"
-#include "wolf/blink.h"
-
-#include "hardware/clocks.h"
-
-int main(int argc, char **argv)
-{
-    int i;
-    int ret;
-
-    stdio_init_all();
-    printf("\nSystem clock = %dMHz\n\n", clock_get_hz(clk_sys)/1000000);
-    ret = benchmark_test(NULL);
-    printf("End: %d\n", ret);
-    return ret;
-}
-
-#include <time.h>
-time_t myTime(time_t *t)
-{
-    *t = (((2023 - 1970) * 12 + 8) * 30 * 24 * 60 * 60);
-    return *t;
-}
+#endif
