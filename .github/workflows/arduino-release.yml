@@ -1,7 +1,13 @@
-name: Arduino CI Build (3 of 4) Latest wolfSSL for Local Examples
+name: Arduino CI Build (2 of 4) Release Arduino wolfSSL for Local Examples
+
+# TODO - implement this once future wolfSSL is released
+#
+#      Known to fail on current 5.8.2 wolfSSL Arduino Release
+#
+# See ardduino.yml - Arduino CI Build (3 of 4) Latest wolfSSL for Local Examples
 
 #
-# Test local Arduino examples with clone of LATEST github master branch wolfssl
+# Test local Arduino examples with published Arduino wolfssl
 #
 # These 4 workflows across 3 repos are interdependent for the current $REPO_OWNER:
 #
@@ -9,14 +15,14 @@ name: Arduino CI Build (3 of 4) Latest wolfSSL for Local Examples
 #   - Builds Arduino library from local clone of wolfssl master branch
 #   - Fetches examples from https://github.com/$REPO_OWNER/wolfssl-examples
 #
-# Arduino CI Build 2: https://github.com/$REPO_OWNER/wolfssl-examples      #  /.github/workflows/arduino-release.yml
+# THIS Arduino CI Build 2: https://github.com/$REPO_OWNER/wolfssl-examples #  /.github/workflows/arduino-release.yml
 #    - Tests examples based on latest published release of Arduino library, NOT latest on wolfssl github.
 #    - Should be identical to Arduino CI Build 3 in every way but wolfssl install.
 #    - Copies only compile script from wolfssl-examples
 #    - Builds local examples
 #    - No other repos used
 #
-# THIS Arduino CI Build 3: https://github.com/$REPO_OWNER/wolfssl-examples #  /.github/workflows/arduino.yml
+# Arduino CI Build 3: https://github.com/$REPO_OWNER/wolfssl-examples      #  /.github/workflows/arduino.yml
 #   - Fetches current wolfSSL from https://github.com/$REPO_OWNER/wolfssl
 #   - Creates an updated Arduino library
 #   - Compiles local examples
@@ -51,14 +57,14 @@ on:
     branches: [ '**', 'master', 'main', 'release/**' ]
     paths:
       - 'Arduino/**'
-      - '!Arduino/sketches/board_list_v5.8.2.txt' # Not triggered on arduino-release.yml file. TODO remove this line after next Arduino wolfssl release
-      - '.github/workflows/arduino.yml'
+      - '!Arduino/sketches/board_list.txt' # Not triggered on arduino.yml file. TODO remove this line after next Arduino wolfssl release
+      - '.github/workflows/arduino-release.yml'
   pull_request:
     branches: [ '**' ]
     paths:
       - 'Arduino/**'
-      - '!Arduino/sketches/board_list_v5.8.2.txt' # Not triggered on arduino-release.yml file. TODO remove this line after next Arduino wolfssl release
-      - '.github/workflows/arduino.yml'
+      - '!Arduino/sketches/board_list.txt' # Not triggered on arduino.yml file. TODO remove this line after next Arduino wolfssl release
+      - '.github/workflows/arduino-release.yml'
   workflow_dispatch:
 
 concurrency:
@@ -182,72 +188,22 @@ jobs:
 
           # end Show wolfssl-examples
 
-      - name: Shallow clone wolfssl
-        run: |
-          # Clone the wolfssl to use for example build
+          # - name: Shallow clone wolfssl
+          #
+          #         not used here, we'll install with arduino-cli in next step
 
-          # TODO remove after merge
-          REPO_OWNER=gojimmypi
-          # End TODO
-
-          git clone --depth 1 https://github.com/$REPO_OWNER/wolfssl.git
-
-          # Assign your PR branch for testing here:
-          THIS_PR_BRANCH=""
-
-          echo "REPO_OWNER=$REPO_OWNER"
-
-          # TODO remove after merge
-          # A user-specific branch assignment
-          if [[ "$REPO_OWNER" == "gojimmypi" ]]; then
-              THIS_PR_BRANCH="pr-arduino-testing"
-          else
-          	  echo "unexpected repo owner!"
-          fi
-          # END TODO
-
-          # If a branch is assigned for current repo user, checkout
-          if [ -z "$THIS_PR_BRANCH" ]; then
-            echo "Assign your PR branch name for testing"
-          else
-              # fetch open PR changes
-              pushd wolfssl
-              git remote add $REPO_OWNER https://github.com/$REPO_OWNER/wolfssl.git
-              git fetch --depth 1 "$REPO_OWNER" "$THIS_PR_BRANCH"
-            git checkout "$THIS_PR_BRANCH"
-            popd
-          fi
+          #
+          # These comments are mainly here to help align with arduino.yml source side-by-side sync
+          #
           # end wolfssl source
 
-      - name: Install wolfSSL Arduino library
+      - name: Install wolfSSL Published Arduino library
+
         run: |
-          # Install wolfssl via wolfssl-arduino.sh install script
+          # Install wolfssl via latest published version with arduino-cli lib install
 
-          # Even though the examples are in this library, we'll test as installed for library publishing.
-          # When WOLFSSL_EXAMPLES_ROOT is set, the examples will be copied from that path to the published library.
-          # WOLFSSL_EXAMPLES_ROOT is the repo root, not example directory location (./Arduino/sketches) within.
-          export WOLFSSL_EXAMPLES_ROOT=$(realpath "./")
 
-          # Confirm ARDUINO_ROOT to install the wolfSSL library, see above "Set job environment variables"
-          echo "PWD                   = $PWD"
-          echo "ARDUINO_ROOT          = $ARDUINO_ROOT"
-          echo "WOLFSSL_EXAMPLES_ROOT = $WOLFSSL_EXAMPLES_ROOT"
-          ls ./Arduino/sketches
-
-          if [ -z "$WOLFSSL_EXAMPLES_ROOT" ]; then
-            echo "$ICON_FAIL ERROR: Tests should be performed on in-place examples. WOLFSSL_EXAMPLES_ROOT is blank"
-          fi
-
-          # The install script is in the wolfssl repo, in /IDE/ARDUINO directory.
-          # Only explicit source code is copied to the Arduino library.
-          # Edit wolfssl-arduino.sh as needed for new examples.
-          pushd ./wolfssl/IDE/ARDUINO
-            chmod +x ./wolfssl-arduino.sh
-            bash     ./wolfssl-arduino.sh INSTALL  # Install wolfSSL as Arduino library in ARDUINO_ROOT
-          popd
-
-          echo "Examples installed in $ARDUINO_ROOT/wolfssl/examples"
-          ls "$ARDUINO_ROOT/wolfssl/examples" -al
+          arduino-cli lib install "wolfSSL"
 
           # End Install wolfSSL Arduino library
 
@@ -273,10 +229,13 @@ jobs:
             cp ./compile-all-examples.sh "$ARDUINO_ROOT/wolfssl/examples/compile-all-examples.sh"
             cp ./board_list.txt          "$ARDUINO_ROOT/wolfssl/examples/board_list.txt"
 
+            # TODO Use standard board_list.txt after next release of wolfSSL
+            cp ./board_list_v5.8.2.txt   "$ARDUINO_ROOT/wolfssl/examples/board_list_v5.8.2.txt"
+
             # Compile the Arduino library examples in-place
             pushd "$ARDUINO_ROOT/wolfssl/examples/"
               echo "PWD=$PWD"
-              ./compile-all-examples.sh ./board_list.txt
+              ./compile-all-examples.sh board_list_v5.8.2.txt
             popd
           popd
 
