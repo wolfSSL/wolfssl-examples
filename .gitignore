@@ -375,3 +375,6 @@ tpm/evp_tpm
 /Arduino/**/Output/*
 /Arduino/**/TraceReports/*
 /Arduino/**/.visualgdb/*
+/Arduino/sketches/output.log
+/**/*.bak
+

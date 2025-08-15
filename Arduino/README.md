@@ -14,6 +14,8 @@ Functional examples:
 - [sketches/wolfssl_AES_CTR](./sketches/wolfssl_AES_CTR/README.md) AES CTR Encrypt / decrypt.
 - [sketches/wolfssl_client](./sketches/wolfssl_client/README.md) TLS Client.
 - [sketches/wolfssl_server](./sketches/wolfssl_server/README.md) TLS Server.
+- [sketches/wolfssl_client_dtls](./sketches/wolfssl_client_dtls/README.md) DTLS Client.
+- [sketches/wolfssl_server_dtls](./sketches/wolfssl_server_dtls/README.md) DTLS Server.
 
 Both the `template` and `wolfssl_AES_CTR` examples include VisualGDB project files.
 
@@ -50,6 +52,34 @@ from [stm32duino/Arduino_Core_STM32](https://github.com/stm32duino/Arduino_Core_
 ```
 https://github.com/stm32duino/BoardManagerFiles/raw/main/package_stmicroelectronics_index.json
 ```
+
+or
+
+```
+https://raw.githubusercontent.com/stm32duino/BoardManagerFiles/main/package_stmicroelectronics_index.json
+```
+
+ESP8266 Support uses this:
+
+```
+http://arduino.esp8266.com/stable/package_esp8266com_index.json
+```
+
+STM32Duino:
+
+```
+http://dan.drown.org/stm32duino/package_STM32duino_index.json,
+```
+
+Teensy:
+```
+https://www.pjrc.com/teensy/package_teensy_index.json
+```
+
+There are Arduino-specific, compile-time (macros & includes) of interest for these files:
+
+- [settings.h]()
+- [settings.h]()
 
 ## Using wolfSSL from the Arduino IDE
 
@@ -226,3 +256,9 @@ Build and run `testwolfcrypt`.
 ./configure --enable-all
 make clean && make && ./wolfcrypt/test/testwolfcrypt
 ```
+
+### Testing
+
+See the enclose [board_list.txt](./board_list.txt) file: a list of fully qualified board names
+that is used by the [github/workflows/arduino.yml](/github/workflows/arduino.yml) action.
+

@@ -6,13 +6,31 @@ There are currently five example Arduino sketches:
 * [wolfssl_AES_CTR](./wolfssl_AES_CTR/README.md): Basic AES CTR Encryption / Decryption example.
 * [wolfssl_client](./wolfssl_client/README.md): Basic TLS listening client.
 * [wolfssl_server](./wolfssl_server/README.md): Basic TLS server.
+* [wolfssl_client_dtls](./wolfssl_client_dtls/README.md): Basic DTLS listening client.
+* [wolfssl_server_dtls](./wolfssl_server_dtls/README.md): Basic DTLS server.
 * [wolfssl_version](./wolfssl_version/README.md): Bare-bones wolfSSL example.
 
 Examples have been most recently confirmed operational on the
-[Arduino IDE](https://www.arduino.cc/en/software) 2.2.1.
+[Arduino IDE](https://www.arduino.cc/en/software) 2.3.6.
 
 For examples on other platforms, see the [IDE directory](https://github.com/wolfssl/wolfssl/tree/master/IDE).
 Additional wolfssl examples can be found at [wolfSSL/wolfssl-examples](https://github.com/wolfSSL/wolfssl-examples/).
+
+## Testing
+
+See GitHub workflow files:
+
+- [wolfssl/arduino.yml](https://github.com/wolfssl/wolfssl/blob/master/.github/workflows/arduino.yml) Arduino CI Build (1 of 4) wolfssl
+- [wolfssl-examples/arduino-release.yml](https://github.com/wolfssl/wolfssl-examples/blob/master/.github/workflows/arduino-release.yml) Arduino CI Build (2 of 4) Release Arduino wolfSSL for Local Examples
+- [wolfssl-examples/arduino.yml](https://github.com/wolfssl/wolfssl-examples/blob/master/.github/workflows/arduino.yml) Arduino CI Build (3 of 4) Latest wolfSSL for Local Examples
+- [Arduino-wolfSSL](https://github.com/wolfssl/Arduino-wolfSSL/blob/master/.github/workflows/arduino.yml) Arduino CI Build (4 of 4) Arduino-wolfSSL
+
+Note that the local files here are copied to other repositories as needed from the workflow jobs:
+
+- `arduino_install.sh` Local copy of https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh
+- `board_list.txt`  Comprehensive known tested boards, used by GitHub actions in wolfssl,  Arduino-wolfssl, and this repo.
+- `board_list_v5.8.2_.txt`  Release v5.8.2 known tested boards, used by GitHub actions in wolfssl,  Arduino-wolfssl, and this repo.
+- `compile-all-examples.sh`  Compile all examples for all sketches in current directory.
 
 ## Using wolfSSL
 
