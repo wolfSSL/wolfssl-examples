@@ -1,6 +1,6 @@
 /* verify.c
  *
- * Copyright (C) 2006-2023 wolfSSL Inc.
+ * Copyright (C) 2006-2025 wolfSSL Inc.
  *
  * This file is part of wolfSSL.
  *
@@ -20,11 +20,11 @@
  */
 
 #include <stdio.h>
-#include<wolfssl/wolfcrypt/settings.h>
+#include <wolfssl/wolfcrypt/settings.h>
 #include <wolfssl/wolfcrypt/rsa.h>
 #include <wolfssl/wolfcrypt/sha256.h>
-#include<wolfssl/ssl.h>
-#include<wolfssl/test.h>
+#include <wolfssl/ssl.h>
+#include <wolfssl/test.h>
 
 /* RSA public key to verify with. */
 static const unsigned char public_key_2048_n[] = {
@@ -179,13 +179,13 @@ int verify()
     }
     if (ret == 0)
         ret = mp_set_int(&rsaKey.e, public_key_2048_e);
-#ifdef BENCHMARK 
+#ifdef BENCHMARK
     count = 0;
     printf("Running benchmark...\n");
     printf("Please Wait %.2f seconds\n", (double)BENCH_TIME_SEC);
     start = current_time(0);// 1 0
     while( (double)BENCH_TIME_SEC > (total_time = current_time(0) - start ) ){
-    if (ret != 0 ) printf("Invalid signature in benchmark\n");    
+    if (ret != 0 ) printf("Invalid signature in benchmark\n");
 #endif
     /* Verify the signature by decrypting the value. */
     if (ret == 0) {
@@ -194,8 +194,6 @@ int verify()
         if ((int)decSigLen < 0)
             ret = (int)decSigLen;
     }
-
-    
 
     /* Check the decrypted result matches the encoded digest. */
     if (ret == 0 && decSigLen != sizeof(encSig))
@@ -206,10 +204,10 @@ int verify()
 #ifdef BENCHMARK
         count++;
     }
-   
+
     printf("Takes %1.2f Sec for %d times,    %6.2f Cycles/sec\n", total_time, count, count/total_time);
     printf("Finished Benchmark \n");
-#else 
+#else
     printf("Verified\n");
 #endif
 
@@ -223,11 +221,12 @@ int verify()
     ShowMemoryTracker();
     CleanupMemoryTracker();
     wolfCrypt_Cleanup();
-#endif 
+#endif
     return ret == 0 ? 0 : 1;
 }
 
-int main(){
+int main()
+{
 #ifdef BENCHMARK
     printf("---------------------------------------------------------------\n");
 #if defined(SP_C64_FLAG)
@@ -246,7 +245,7 @@ int main(){
 
 #ifdef DEBUG_MEMORY
     return StackSizeCheck(NULL, (thread_func)verify);
-#else 
+#else
 
     return verify();
 #endif

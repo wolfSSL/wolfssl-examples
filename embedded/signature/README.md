@@ -1,6 +1,6 @@
 # Signature Examples for Embedded Systems
 ​
-This directory includes the following examples under the sub-directories.Each has a Makefile and source files to build and execute the example and a README to show how to build and Example output.
+This directory includes the following examples. Each subdirectory has a Makefile, source files, and a README to show how to build the example, along with expected example output.
 ​
 |Scheme|Directory|Description|
 |---|---|---|
@@ -12,7 +12,8 @@ This directory includes the following examples under the sub-directories.Each ha
 ||ecc_vfy_only_nonblock|verify signature with non-blocking|
 
 
-You can specify a target function of Simple example, Benchemark or Memory track program.It also has options for optimized code for MCU architectures such as Intel x86, ARM64 or a generic code by default, as well as Math library of Single Precision or TFM.
+When building each example, you can specify arguments to control the build.  Specify a target function to run either a simple example, benchmark, or memory tracking example. Specify an "arch" option to build optimized code for MCU architectures such as Intel x86, ARM64 or a generic code by default.  And specify a "math" option to choose an underlying wolfCrypt math library to use, between Single Precision or TFM.
+
 
 ```
 $ make <Function> math=<Mathlib> arch=<MCU>
@@ -30,7 +31,7 @@ $ make <Function> math=<Mathlib> arch=<MCU>
 |math|Description|
 |---|---|
 |Default|Generic architecture by pure C language source code|
-|sp| SP for generic or specified  archtecture|
+|sp| SP for generic or specified  architecture|
 |tfm|TFM for generic architecture|
 ## MCU Architectures
 NOTE:  No architecture specification is required when using TFM.
@@ -43,10 +44,10 @@ NOTE:  No architecture specification is required when using TFM.
 |x64|SP for x86 64bit|
 
 
-The Makefile is self-contained without libwolfssl. Put your wolfSSL source filesin parallel with wolfssl-examples directory. It is defined by WOLFROOT in Makefile.It compiles only needed files for the target. OBJ and OBJ_xxx macro in Makefiledefine object files for the common and specific target.
+Each Makefile is self-contained to statically link wolfCrypt source files (without using a shared libwolfssl.so). Put your wolfSSL source files in parallel with the wolfssl-examples directory. The location of the primary wolfSSL source directory is defined by WOLFROOT in each Makefile. Each build compiles only the needed files for the target. OBJ and OBJ_xxx macros in each Makefile define object files for the common and specific target.
 ​
-Example programs are hard coded for a hash algorithm or signature scheme.Sha256 is for the hash by default. PKCS #1 v1.5 or ECDSA for the signature scheme.You can refer to the following API tables for modifying the examples for other algorithms or schemes.
-​
+Example programs are hard coded to use a specific hash algorithm or signature scheme. Sha256 is used for the hash by default. PKCS#1 v1.5 or ECDSA is used for the signature scheme. You can refer to the following API tables for modifying the examples for other algorithms or schemes.
+
 ## Table 1: Hash algorithms for PKCS#1 Signature
 |Algorithm|Src File|Macro SW<br>Enable|<br>Disable|Note|
 |---|---|---|---|---|

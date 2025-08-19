@@ -8,7 +8,6 @@
 #define NO_SHA
 
 /* rsa */
-#define WOLFSSL_RSA_VERIFY_INLINE
 #define WC_NO_RSA_OAEP
 #define WC_NO_HARDEN
 /* #define WOLFSSL_KEY_GEN */

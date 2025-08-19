@@ -1,6 +1,6 @@
 /* rsa_sign_verify.c
  *
- * Copyright (C) 2006-2024 wolfSSL Inc.
+ * Copyright (C) 2006-2025 wolfSSL Inc.
  *
  * This file is part of wolfSSL.
  *
@@ -41,7 +41,7 @@
 #include <wolfssl/wolfcrypt/sha256.h>
 #include <wolfssl/wolfcrypt/asn.h>
 #include <wolfssl/wolfcrypt/asn_public.h>
-#include<wolfssl/test.h>
+#include <wolfssl/test.h>
 
 /* Maximum bound on digest algorithm encoding around digest */
 #define MAX_ENC_ALG_SZ      32
@@ -70,24 +70,20 @@ byte        encSig[WC_SHA256_DIGEST_SIZE + MAX_ENC_ALG_SZ];
 word32      encSigLen = 0;
 byte        decSig[ RSA_KEY_SIZE / 8];
 word32      decSigLen;
-
 RsaKey      key;
 RsaKey*     pKey = NULL;
-
-
 /* Variables for non-blocking RSA */
 RsaNb nb_ctx;
 double total_blk_time;
-double pre_returned_t;          /*  previous recent returned time */
+double pre_returned_t;          /* previous recent returned time */
 double returned_t;              /* most recent returned time */
 double max_t = -1.0;            /* Maximum blocking time */
 double min_t = __DBL_MAX__;     /* Minimum blocking time */
 double blocking_t;              /* current blocking time */
 int blk_count;
 
-
-int sign(){
-
+int sign()
+{
 #ifdef DEBUG_MEMORY
     wolfCrypt_Init();
     InitMemoryTracker();
@@ -98,7 +94,6 @@ int sign(){
     WC_RNG      rng;
     WC_RNG*     pRng;
     long        e = 65537; /* standard value to use for exponent */
-
 
     /* Calculate SHA-256 digest of message */
     ret = wc_InitSha256(&sha256);
@@ -122,7 +117,6 @@ int sign(){
     CHECK_RET(ret, 0, finish, "wc_RsaSetRNG()");
 #endif
 
-
     /* Generate 2048-bit RSA key*/
     ret = wc_MakeRsaKey(&key, 2048, e, &rng);
     CHECK_RET(ret, 0, finish, "wc_MakeRsaKey()");
@@ -132,23 +126,19 @@ int sign(){
     if ((int)encSigLen < 0)
         ret = (int)encSigLen;
     CHECK_RET(ret, 0, finish, "wc_EncodeSignature()");
-
 #ifdef PSS_PADDING
     sigLen = wc_RsaPSS_Sign(hash, sizeof(hash), signature, sizeof(signature)\
                            , WC_HASH_TYPE_SHA256, WC_MGF1SHA256, &key, &rng);
     if ((int)sigLen < 0)
         ret = (int)sigLen;
     CHECK_RET(ret, 0, finish, "wc_RsaPSS_Sign()");
-
 #else /* PKCS#1.5 */
     sigLen = wc_RsaSSL_Sign(encSig, encSigLen, signature, sizeof(signature),\
                              &key, &rng);
     if ((int)sigLen < 0)
         ret = (int)sigLen;
     CHECK_RET(ret, 0, finish, "wc_RsaSSL_Sign()");
-
 #endif
-
 
 finish:
     if (pSha256 != NULL)
@@ -165,16 +155,13 @@ finish:
     return ret;
 }
 
-int verify_nonblock(){
-
+int verify_nonblock()
+{
 #ifdef DEBUG_MEMORY
     wolfCrypt_Init();
     InitMemoryTracker();
 #endif
     int ret = 0;
-
-
-
     /* Verify the signature by decrypting the value with non-blocking mode. */
     if (ret == 0){
         ret = wc_RsaSetNonBlock(&key, &nb_ctx);
@@ -189,7 +176,8 @@ int verify_nonblock(){
 
             #ifdef PSS_PADDING
                 decSigLen = wc_RsaPSS_Verify(signature, sizeof(signature),
-                    decSig, sizeof(decSig),WC_HASH_TYPE_SHA256, WC_MGF1SHA256, &key);
+                                decSig, sizeof(decSig),WC_HASH_TYPE_SHA256,
+                                WC_MGF1SHA256, &key);
 
             #else /* PKCS#1.5 */
                 decSigLen = wc_RsaSSL_Verify(signature, sizeof(signature),
@@ -218,9 +206,9 @@ int verify_nonblock(){
             ret = (int)decSigLen;
         CHECK_RET(ret, 0, finish, "wc_RsaPSS_Verify()");
 
-        ret = wc_RsaPSS_CheckPadding(hash, sizeof(hash), decSig, decSigLen, WC_HASH_TYPE_SHA256);
+        ret = wc_RsaPSS_CheckPadding(hash, sizeof(hash), decSig, decSigLen,
+                                                        WC_HASH_TYPE_SHA256);
         CHECK_RET(ret, 0, finish, "Verification Check RSA-PSS");
-
     #else
         if ((int)decSigLen < 0)
             ret = (int)decSigLen;
@@ -235,13 +223,10 @@ int verify_nonblock(){
             printf("Invalid Signature!\n");
             goto finish;
         }
-
     #endif
-
 finish:
     if (pKey != NULL)
         wc_FreeRsaKey(pKey);
-
 #ifdef DEBUG_MEMORY
     printf("\n");
     printf("Memory usage : verify_nonblock() \n");
@@ -254,11 +239,9 @@ finish:
     return ret;
 }
 
-
-
-int main(){
+int main()
+{
     int ret = 0;
-
 #ifdef DEBUG_MEMORY
     ret = StackSizeCheck(NULL, (thread_func)sign);
 #else
@@ -273,7 +256,6 @@ int main(){
     ret = StackSizeCheck(NULL, (thread_func)verify_nonblock);
 #else
     ret = verify_nonblock();
-
 #endif
     if (ret == 0){
         printf("\nNon-blocking:\n");

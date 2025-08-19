@@ -1,6 +1,6 @@
 /* rsa_sign_verify.c
  *
- * Copyright (C) 2006-2024 wolfSSL Inc.
+ * Copyright (C) 2006-2025 wolfSSL Inc.
  *
  * This file is part of wolfSSL.
  *
@@ -41,7 +41,7 @@
 #include <wolfssl/wolfcrypt/sha256.h>
 #include <wolfssl/wolfcrypt/asn.h>
 #include <wolfssl/wolfcrypt/asn_public.h>
-#include<wolfssl/test.h>
+#include <wolfssl/test.h>
 
 #if !defined(WOLFSSL_KEY_GEN)
 #include "../include/rsa_priv_2048.h"
@@ -70,18 +70,15 @@ byte        encSig[WC_SHA256_DIGEST_SIZE + MAX_ENC_ALG_SZ];
 word32      encSigLen = 0;
 byte        decSig[ RSA_KEY_SIZE / 8];
 word32      decSigLen;
-
 RsaKey      key;
 RsaKey*     pKey = NULL;
 
-
-int sign(){
-
+int sign()
+{
 #ifdef DEBUG_MEMORY
     wolfCrypt_Init();
     InitMemoryTracker();
 #endif
-
     int ret = 0;
 #if !defined(WOLFSSL_KEY_GEN)
     word32 idx = 0;
@@ -130,7 +127,6 @@ int sign(){
     if ((int)sigLen < 0)
         ret = (int)sigLen;
     CHECK_RET(ret, 0, finish, "wc_RsaPSS_Sign()");
-
 #else /* PKCS#1.5 */
         /* Encode digest with algorithm information as per PKCS#1.5 */
     encSigLen = wc_EncodeSignature(encSig, hash, sizeof(hash), SHA256h);
@@ -143,10 +139,7 @@ int sign(){
     if ((int)sigLen < 0)
         ret = (int)sigLen;
     CHECK_RET(ret, 0, finish, "wc_RsaSSL_Sign()");
-
 #endif
-
-
 /* Generated Rsakey must be released in verify()  */
 finish:
     if (pSha256 != NULL)
@@ -168,13 +161,12 @@ finish:
 /* Verifies the signature with the message and RSA public key.
  * Returns 0 on success and 1 otherwise.
  */
-int verify(){
-
+int verify()
+{
 #ifdef DEBUG_MEMORY
     wolfCrypt_Init();
     InitMemoryTracker();
 #endif
-
     int ret = 0;
 /* Variables for benchmark */
 #ifdef BENCHMARK
@@ -184,51 +176,45 @@ int verify(){
 #endif
     int count;
 #endif
-
-/* Check the RSA Key */
+    /* Check the RSA Key */
     if (pKey == NULL){
         printf("RSA Key is NULL in verify()\n");
         return -1;
     }
-
 #ifdef BENCHMARK
     count = 0;
     printf("Running benchmark...\n");
     printf("Please Wait %.2f seconds\n", (double)BENCH_TIME_SEC);
     start = current_time(0);
-    while( (double)BENCH_TIME_SEC > (total_time = current_time(0) - start ) ){
+    while ((double)BENCH_TIME_SEC > (total_time = current_time(0) - start )) {
 #endif
-
         /* Verify the signature by decrypting the value. */
+    #ifdef PSS_PADDING
+        decSigLen = wc_RsaPSS_VerifyCheck(signature, sizeof(signature),
+                        decSig, sizeof(decSig), hash, sizeof(hash),
+                        WC_HASH_TYPE_SHA256, WC_MGF1SHA256, &key);
+        if ((int)decSigLen < 0)
+            ret = (int)decSigLen;
+        CHECK_RET(ret, 0, finish, "wc_RsaPSS_VerifyCheck()");
 
-        #ifdef PSS_PADDING
-            decSigLen = wc_RsaPSS_VerifyCheck(signature, sizeof(signature),
-                decSig, sizeof(decSig), hash, sizeof(hash),
-                                      WC_HASH_TYPE_SHA256, WC_MGF1SHA256, &key);
-
-            if ((int)decSigLen < 0)
-                ret = (int)decSigLen;
-            CHECK_RET(ret, 0, finish, "wc_RsaPSS_VerifyCheck()");
-
-        #else /* PKCS#1.5 */
-            decSigLen = wc_RsaSSL_Verify(signature, sizeof(signature),
-                                            decSig, sizeof(decSig), &key);
-            if ((int)decSigLen < 0)
-                ret = (int)decSigLen;
-            CHECK_RET(ret, 0, finish, "wc_RsaSSL_Verify()");
+    #else /* PKCS#1.5 */
+        decSigLen = wc_RsaSSL_Verify(signature, sizeof(signature),
+                                        decSig, sizeof(decSig), &key);
+        if ((int)decSigLen < 0)
+            ret = (int)decSigLen;
+        CHECK_RET(ret, 0, finish, "wc_RsaSSL_Verify()");
 
         /* Check the decrypted result matches the encoded digest. */
         if (ret == 0 && encSigLen != decSigLen)
             ret = -1;
         if (ret == 0 && XMEMCMP(encSig, decSig, encSigLen) != 0)
             ret = -1;
-
         if(ret != 0){
             printf("Invalid Signature!\n");
             goto finish;
         }
 
-        #endif
+    #endif
 
 #ifdef BENCHMARK
         count++;
@@ -241,7 +227,6 @@ int verify(){
 #else
     printf("Verified!\n");
 #endif
-
 
 finish:
     if (pKey != NULL)
@@ -258,7 +243,8 @@ finish:
     return ret;
 }
 
-int main(){
+int main()
+{
     int ret = 0;
 #ifdef BENCHMARK
     printf("---------------------------------------------------------------\n");

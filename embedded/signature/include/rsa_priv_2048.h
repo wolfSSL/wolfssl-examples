@@ -1,6 +1,6 @@
 /* rsa_priv_2048.h
  *
- * Copyright (C) 2006-2023 wolfSSL Inc.
+ * Copyright (C) 2006-2025 wolfSSL Inc.
  *
  * This file is part of wolfSSL.
  *
@@ -148,4 +148,3 @@ static const unsigned char private_key_2048[] = {
     0x45, 0x5D, 0x13, 0x39, 0x65, 0x42, 0x46, 0xA1, 0x9F, 0xCD,
     0xF5, 0xBF
 };
-
