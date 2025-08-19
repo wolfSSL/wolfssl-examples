@@ -1,3 +1,23 @@
+/* ecc_pubkey.h
+ *
+ * Copyright (C) 2006-2025 wolfSSL Inc.
+ *
+ * This file is part of wolfSSL. (formerly known as CyaSSL)
+ *
+ * wolfSSL is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * wolfSSL is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+ */
 unsigned char ecc_PublicKey_112[] = {
     0x04, 0x67, 0xa6, 0xdc, 0x12, 0x25, 0xdb, 0x81,
     0x5c, 0x67, 0x7c, 0xbf, 0x55, 0x3b, 0xd9, 0x51,
@@ -9,7 +29,7 @@ unsigned char ecc_PublicKey_112[] = {
     0xad,
 };
 
-unsigned char ecc_PublicKey_128[] = {    
+unsigned char ecc_PublicKey_128[] = {
     0x04, 0x0f, 0x31, 0xea, 0x92, 0x1d, 0x84, 0xcf,
     0xce, 0xe1, 0xe5, 0x0b, 0x13, 0xda, 0xd3, 0xb2,
     0xb0, 0x57, 0x0c, 0x02, 0xdb, 0x50, 0xaa, 0xaa,

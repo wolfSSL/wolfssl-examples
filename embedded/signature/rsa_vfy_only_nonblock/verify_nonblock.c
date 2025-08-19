@@ -1,6 +1,6 @@
 /* verify.c
  *
- * Copyright (C) 2006-2024 wolfSSL Inc.
+ * Copyright (C) 2006-2025 wolfSSL Inc.
  *
  * This file is part of wolfSSL.
  *
@@ -20,11 +20,11 @@
  */
 
 #include <stdio.h>
-#include<wolfssl/wolfcrypt/settings.h>
+#include <wolfssl/wolfcrypt/settings.h>
 #include <wolfssl/wolfcrypt/rsa.h>
 #include <wolfssl/wolfcrypt/sha256.h>
-#include<wolfssl/ssl.h>
-#include<wolfssl/test.h>
+#include <wolfssl/ssl.h>
+#include <wolfssl/test.h>
 
 /* RSA public key to verify with. */
 static const unsigned char public_key_2048_n[] = {
@@ -151,7 +151,7 @@ int verify()
 
     RsaNb nb_ctx;
     double total_blk_time;
-    double pre_returned_t;          /*  previous recent returned time */
+    double pre_returned_t;          /* previous recent returned time */
     double returned_t;              /* most recent returned time */
     double max_t = -1.0;            /* Maximum blocking time */
     double min_t = __DBL_MAX__;     /* Minimum blocking time */
@@ -228,10 +228,10 @@ int verify()
     printf("Verified\n");
 
     printf("Non-blocking:\n");
-    printf("  Total time : %.2f micro sec,   Bloking count: %d  \n",1000*1000*total_blk_time, blk_count);
+    printf("  Total time : %.2f micro sec,   Bloking count: %d  \n",
+                                    1000 * 1000 * total_blk_time, blk_count);
     printf("  Max: %2.2f micro sec,   Average: %.2f micro sec\n",\
-                        max_t*1000*1000, 1000*1000*total_blk_time/blk_count );
-
+                max_t * 1000 * 1000, 1000 * 1000 * total_blk_time/blk_count );
 
     /* Free the data structures */
     if (pRsaKey != NULL)
@@ -247,8 +247,8 @@ int verify()
     return ret == 0 ? 0 : 1;
 }
 
-int main(){
-
+int main()
+{
 #ifdef DEBUG_MEMORY
     return StackSizeCheck(NULL, (thread_func)verify);
 #else

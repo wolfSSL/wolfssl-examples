@@ -1,6 +1,6 @@
 /* ecc_verify_nonblock.c
  *
- * Copyright (C) 2006-2024 wolfSSL Inc.
+ * Copyright (C) 2006-2025 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -27,9 +27,8 @@
 #include <wolfssl/wolfcrypt/hash.h>
 #include <wolfssl/wolfcrypt/logging.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
-#include<wolfssl/test.h>
+#include <wolfssl/test.h>
 #include "signature.h"
-
 
 #define HEAP_HINT NULL
 #define ECC_KEY_SIZE_112 112
@@ -45,9 +44,7 @@
 #define ECC_KEY_SIZE_521 521
 #define BYTE_SZ 8
 
-
 int idx_key(int keysize);
-
 
 #define CHECK_RET(a, b, eLabel, msg) { \
                                         if (a != b) {                    \
@@ -58,7 +55,6 @@ int idx_key(int keysize);
                                      }
 
 int do_sig_ver_test(int eccKeySz);
-
 
 int ecc_verify(void)
 {
@@ -89,7 +85,6 @@ int ecc_verify(void)
     CHECK_RET(ret, 0, finished, "512 test");
     ret = do_sig_ver_test(ECC_KEY_SIZE_521);
     CHECK_RET(ret, 0, finished, "521 test");
-
 
 finished:
 #ifdef DEBUG_MEMORY
@@ -122,7 +117,7 @@ int do_sig_ver_test(int eccKeySz)
 #ifdef NONBLOCK
     ecc_nb_ctx_t nb_ctx;
     double total_blk_time;
-    double pre_returned_t;          /*  previous recent returned time */
+    double pre_returned_t;          /* previous recent returned time */
     double returned_t;              /* most recent returned time */
     double max_t = -1.0;            /* Maximum blocking time */
     double min_t = __DBL_MAX__;     /* Minimum blocking time */
@@ -130,9 +125,6 @@ int do_sig_ver_test(int eccKeySz)
     int blk_count;
 
 #endif
-
-
-
     /*
      * for odd curve sizes account for mod EG:
      * Case 1) curve field of 256:
@@ -152,16 +144,10 @@ int do_sig_ver_test(int eccKeySz)
 
     printf("Key size is %d, byteField = %d\n", eccKeySz, byteField);
 
-
-
     ret = wc_InitRng(&rng);
     CHECK_RET(ret, 0, key_done, "wc_InitRng()");
-
-
     ret = wc_ecc_init(&key);
     CHECK_RET(ret, 0, sig_done, "wc_ecc_init()");
-
-
     /* Import signature and ecc_key */
     sig = sig_keys[idx_key(eccKeySz)].sig;
     sig_size = sig_keys[idx_key(eccKeySz)].sig_size;
@@ -170,8 +156,6 @@ int do_sig_ver_test(int eccKeySz)
 
     ret = wc_ecc_import_x963(pKeybuff, key_size, &key);
     CHECK_RET(ret, 0, rng_done, "wc_ecc_import_x963()");
-
-
 #ifdef NONBLOCK
         ret = wc_ecc_set_nonblock(&key, &nb_ctx);
         CHECK_RET(ret, 0, rng_done, "wc_ecc_set_nonblock()");
@@ -197,7 +181,6 @@ int do_sig_ver_test(int eccKeySz)
             pre_returned_t = returned_t;
             blk_count++;
         } while (ret == FP_WOULDBLOCK);
-
 #else
         ret = wc_ecc_verify_hash(sig, sig_size, hash, sizeof(hash),
                                                             &verified, &key);
@@ -206,9 +189,8 @@ int do_sig_ver_test(int eccKeySz)
         CHECK_RET(ret, 0, rng_done, "wc_ecc_verify_hash()");
         CHECK_RET(verified, 1, rng_done, "verification check");
         verified = 0;
-
-
-    printf("Successfully verified signature w/ ecc key size %d!\n", eccKeySz);
+        printf("Successfully verified signature w/ ecc key size %d!\n",
+                                                                    eccKeySz);
 
 #ifdef NONBLOCK
     if (eccKeySz >= ECC_KEY_SIZE_256){
@@ -217,10 +199,8 @@ int do_sig_ver_test(int eccKeySz)
                                         1000*1000*total_blk_time, blk_count);
         printf("  Max: %2.2f micro sec,   Average: %.2f micro sec\n",\
                         max_t*1000*1000, 1000*1000*total_blk_time/blk_count );
-
     }
 #endif /* NONBLOCK */
-
 
 rng_done:
     wc_FreeRng(&rng);
@@ -230,11 +210,8 @@ sig_done:
     return ret;
 }
 
-
-
-
-int main(){
-
+int main()
+{
 #ifdef DEBUG_MEMORY
     return StackSizeCheck(NULL, (thread_func)ecc_verify);
 #else
@@ -269,6 +246,4 @@ int idx_key(int keysize){
         default:
             return -1;
     }
-
 }
-

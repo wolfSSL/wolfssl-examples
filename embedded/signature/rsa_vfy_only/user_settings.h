@@ -8,7 +8,6 @@
 #define NO_SHA
 
 /* rsa */
-#define WOLFSSL_RSA_VERIFY_INLINE
 #define WC_NO_RSA_OAEP
 #define WC_NO_RSA_PSS
 #define WC_NO_HARDEN
@@ -22,7 +21,7 @@
 /* asn */
 #define NO_ASN_TIME
 #define IGNORE_NAME_CONSTRAINTS
-#define WOLFSSL_NO_ASN_STRICT 
+#define WOLFSSL_NO_ASN_STRICT
 
 
 #ifdef DEBUG_MEMORY
@@ -33,7 +32,7 @@
 #endif
 
 
-#ifdef SP_C32_FLAG 
+#ifdef SP_C32_FLAG
     #define WOLFSSL_HAVE_SP_RSA
     #define WOLFSSL_SP_MATH_ALL
     #define SP_WORD_SIZE 32

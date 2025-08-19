@@ -1,6 +1,6 @@
 /* ecc_sign_verify.c
  *
- * Copyright (C) 2006-2024 wolfSSL Inc.
+ * Copyright (C) 2006-2025 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -27,9 +27,7 @@
 #include <wolfssl/wolfcrypt/hash.h>
 #include <wolfssl/wolfcrypt/logging.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
-#include<wolfssl/test.h>
-
-
+#include <wolfssl/test.h>
 
 /* uncomment to show signatures */
 /* #define SHOW_SIGS_IN_EXAMPLE */
@@ -91,7 +89,6 @@ int ecc_sign_verify(void)
     ret = do_sig_ver_test(ECC_KEY_SIZE_521);
     CHECK_RET(ret, 0, finished, "521 test");
 
-
 finished:
 #ifdef DEBUG_MEMORY
     printf("\n");
@@ -117,15 +114,12 @@ int do_sig_ver_test(int eccKeySz)
     WC_RNG rng;
     int verified = 0;
 
-
 /* Variables for Benchmark */
 double start_time, total_time;
 #ifndef BENCH_TIME_SEC
     #define BENCH_TIME_SEC 1
 #endif
     int count;
-
-
     /*
      * for odd curve sizes account for mod EG:
      * Case 1) curve field of 256:
@@ -152,10 +146,6 @@ double start_time, total_time;
         printf("Failed to allocate sig buff\n");
         return -1001;
     }
-
-
-
-
     ret = wc_InitRng(&rng);
     CHECK_RET(ret, 0, key_done, "wc_InitRng()");
 
@@ -179,8 +169,6 @@ double start_time, total_time;
 
         ret = wc_ecc_verify_hash(sig, maxSigSz, hash, sizeof(hash),
                                                             &verified, &key);
-
-
         CHECK_RET(ret, 0, rng_done, "wc_ecc_verify_hash()");
         CHECK_RET(verified, 1, rng_done, "verification check");
         verified = 0;
@@ -188,13 +176,9 @@ double start_time, total_time;
 #ifdef BENCHMARK
         count++;
     }
-
     printf("ECC Key Size %d     %9.2f Cycles/sec\n", eccKeySz, count/total_time);
-
 #else
-
-printf("Successfully verified signature w/ ecc key size %d!\n", eccKeySz);
-
+    printf("Successfully verified signature w/ ecc key size %d!\n", eccKeySz);
 #endif
 
 rng_done:
@@ -222,8 +206,8 @@ static void hexdump(const void *buffer, word32 len, byte cols)
 }
 #endif
 
-
-int main(){
+int main()
+{
 #ifdef BENCHMARK
     printf("---------------------------------------------------------------\n");
 #if defined(SP_C64_FLAG)

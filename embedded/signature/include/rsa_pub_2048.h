@@ -1,6 +1,6 @@
 /* rsa_pub_2048.h
  *
- * Copyright (C) 2006-2023 wolfSSL Inc.
+ * Copyright (C) 2006-2025 wolfSSL Inc.
  *
  * This file is part of wolfSSL.
  *
@@ -65,4 +65,3 @@ static const unsigned char public_key_2048[] = {
     0xAE, 0xF5, 0xFC, 0x5B, 0xE5, 0xFB, 0xA1, 0xBA,
     0xD3, 0x02, 0x03, 0x01, 0x00, 0x01
 };
-
