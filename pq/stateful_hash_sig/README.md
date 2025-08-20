@@ -52,6 +52,83 @@ examples:
 description:
 ...
 ```
+
+## Generate an LMS private/public key pair
+
+This example generates an LMS public/private key pair and stores them to file.
+
+```sh
+$./lms-kg
+Levels: 1, Height: 10, Winternitz: 4
+  Writing to file: lms_key.bin
+  Writing to file: lms_pubkey.bin
+
+$./lms-kg --params 54
+Using parameters: LMS/HSS_SHA256/192_L1_H20_W4
+  Writing to file: lms_key.bin
+  Writing to file: lms_pubkey.bin
+```
+
+## Sign files with LMS private key
+
+This example uses an LMS private key to sign multiple files.
+
+```sh
+$./lms-sign Makefile README.md
+Levels: 1, Height: 10, Winternitz: 4
+  Reading from file: lms_key.bin
+    Read 56 bytes
+Ready to sign
+  Reading from file: Makefile
+    Read 2455 bytes
+  Writing to file: lms_key.bin
+  Writing to file: Makefile.sig
+  Reading from file: README.md
+    Read 7756 bytes
+  Writing to file: lms_key.bin
+  Writing to file: README.md.sig
+
+$./lms-sign --params 54 Makefile README.md
+Using parameters: LMS/HSS_SHA256/192_L1_H20_W4
+  Reading from file: lms_key.bin
+    Read 56 bytes
+Ready to sign
+  Reading from file: Makefile
+    Read 2455 bytes
+  Writing to file: lms_key.bin
+  Writing to file: Makefile.sig
+  Reading from file: README.md
+    Read 7756 bytes
+  Writing to file: lms_key.bin
+  Writing to file: README.md.sig
+```
+
+## Verify file with LMS public key
+
+This example uses an LMS public key to verify a file against its signature.
+
+```sh
+$./lms-verify README.md
+Levels: 1, Height: 10, Winternitz: 4
+  Reading from file: lms_pubkey.bin
+    Read 52 bytes
+  Reading from file: README.md
+    Read 7756 bytes
+  Reading from file: README.md.sig
+    Read 1744 bytes
+Verification succeeded
+
+$./lms-verify --params 54 README.md
+Using parameters: LMS/HSS_SHA256/192_L1_H20_W4
+  Reading from file: lms_pubkey.bin
+    Read 52 bytes
+  Reading from file: README.md
+    Read 7756 bytes
+  Reading from file: README.md.sig
+    Read 1744 bytes
+Verification succeeded
+```
+
 ## Signing and Verifying a Message with XMSS/XMSS^MT
 
 To see the help and usage, run the program without options:
