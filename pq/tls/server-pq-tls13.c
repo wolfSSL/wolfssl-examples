@@ -41,7 +41,7 @@
 #include <wolfssl/wolfio.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
 
-#if defined(WOLFSSL_TLS13) && defined(WOLFSSL_HAVE_KYBER) && \
+#if defined(WOLFSSL_TLS13) && defined(WOLFSSL_WC_MLKEM) && \
     defined(HAVE_DILITHIUM)
 
 #define DEFAULT_PORT 11111
@@ -145,7 +145,7 @@ int main(int argc, char** argv)
 {
     int ret = 0;
 
-#if defined(WOLFSSL_TLS13) && defined(WOLFSSL_HAVE_KYBER) && \
+#if defined(WOLFSSL_TLS13) && defined(WOLFSSL_WC_MLKEM) && \
     defined(HAVE_DILITHIUM)
 
     struct sockaddr_in servAddr;
