@@ -6,7 +6,7 @@
  *
  * wolfSSL is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
+ * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
  *
  * wolfSSL is distributed in the hope that it will be useful,
@@ -20,6 +20,13 @@
  */
 
 #include <Arduino.h>
+
+#if defined(ARDUINO_PORTENTA_X8)
+    /* The Portenta is a Linux device. See wolfSSL examples:
+     * https://github.com/wolfSSL/wolfssl/tree/master/examples
+     * By default Serial is disabled and mapped to ErrorSerial */
+    #include <SerialRPC.h>
+#endif
 
  /* wolfSSL user_settings.h must be included from settings.h
   * Make all configurations changes in user_settings.h

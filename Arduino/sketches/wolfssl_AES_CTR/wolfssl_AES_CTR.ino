@@ -6,7 +6,7 @@
  *
  * wolfSSL is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
+ * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
  *
  * wolfSSL is distributed in the hope that it will be useful,
@@ -18,6 +18,15 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
  */
+
+#include <Arduino.h>
+
+#if defined(ARDUINO_PORTENTA_X8)
+    /* The Portenta is a Linux device. See wolfSSL examples:
+     * https://github.com/wolfSSL/wolfssl/tree/master/examples
+     * By default Serial is disabled and mapped to ErrorSerial */
+    #include <SerialRPC.h>
+#endif
 
 /*
 The Advanced Encryption Standard (AES) is a specification for the encryption of electronic
@@ -50,7 +59,21 @@ Teensy 4.1 (ARM Cortex M7)
 */
 
 #define  WOLFSSL_AES_CTR_EXAMPLE
+/* wolfSSL user_settings.h must be included from settings.h
+ * Make all configurations changes in user_settings.h
+ * Do not edit wolfSSL `settings.h` or `config.h` files.
+ * Do not explicitly include user_settings.h in any source code.
+ * Each Arduino sketch that uses wolfSSL must have: #include "wolfssl.h"
+ * C/C++ source files can use: #include <wolfssl/wolfcrypt/settings.h>
+ * The wolfSSL "settings.h" must be included in each source file using wolfSSL.
+ * The wolfSSL "settings.h" must appear before any other wolfSSL include.
+ */
 #include <wolfssl.h>
+
+ /* settings.h is included from Arduino `wolfssl.h`, but a good practice to
+  * include before any other wolfssl headers. As a reminder here: */
+#include <wolfssl/wolfcrypt/settings.h>
+
 #include <wolfssl/wolfcrypt/aes.h>
 
 #if defined(NO_AES) or !defined(WOLFSSL_AES_COUNTER) or !defined(WOLFSSL_AES_128)

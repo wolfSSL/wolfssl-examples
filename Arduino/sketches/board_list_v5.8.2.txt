@@ -1,0 +1,123 @@
+# Edit with caution.
+#
+# TODO this is an interim board list file for current release of Arduino wolfSSL
+#
+# See ./board_list for more comprehensive list of boards.
+#
+# This is a list of Arduino fqbn (fully qualified board names).
+#
+# Syntax:
+#
+# fqbn # fully qualified Arduino board name in format x:y:z, with optional comment after "#"
+#   --no-[example] # to optionally exclude an example. This comment displayed as for reason
+#
+# Each line is the exact text used in the ./compile-all-examples.sh
+#
+# See also:
+#   [this repo wolfssl-examples]/.github/workflows/arduino.yml
+#   [this repo wolfssl-examples]/.github/workflows/arduino-release.yml
+#   [other repo wolfssl]/.github/workflows/arduino.yml
+#   [other repo Arduino-wolfssl]/.github/workflows/arduino.yml
+#
+# This exact boardlist.txt is also used by:
+#   [repo owner]/Arduino-wolfSSL/.github/workflows/arduino.yml
+#   [repo owner]/wolfssl/.github/workflows/arduino.yml
+#
+# There's only one reference `board_list.txt` (this file)
+#   - copied to other workflows as needed with curl.
+#
+# There's only one compiling script `compile-all-examples.sh` (in this directory)
+#   - copied to other workflows as needed with curl.
+#
+# To view available boards:
+#   arduino-cli board listall | grep '^esp32:esp32:'
+#
+
+arduino:avr:mega
+  --no-wolfssl_version     # Fixed in https://github.com/wolfSSL/wolfssl/pull/9075 Force old OID values: WOLFSSL_OLD_OID_SUM for WC_16BIT_CPU
+  --no-template            # Fixed in https://github.com/wolfSSL/wolfssl/pull/9075 Force old OID values: WOLFSSL_OLD_OID_SUM for WC_16BIT_CPU
+  --no-wolfssl_AES_CTR     # Fixed in https://github.com/wolfSSL/wolfssl/pull/9075 Force old OID values: WOLFSSL_OLD_OID_SUM for WC_16BIT_CPU
+  --no-wolfssl_client      # there's no wifi on mega for client examplex
+  --no-wolfssl_server      # there's no wifi on mega for server example
+  --no-wolfssl_client_dtls # there's no wolfssl_client_dtls example for the v5.8.2 release
+  --no-wolfssl_server_dtls # there's no wolfssl_server_dtls example for the v5.8.2 release
+
+arduino:avr:nano
+  --no-wolfssl_version     # Fixed in https://github.com/wolfSSL/wolfssl/pull/9075 Force old OID values: WOLFSSL_OLD_OID_SUM for WC_16BIT_CPU
+  --no-template            # Fixed in https://github.com/wolfSSL/wolfssl/pull/9075 Force old OID values: WOLFSSL_OLD_OID_SUM for WC_16BIT_CPU
+  --no-wolfssl_AES_CTR     # Fixed in https://github.com/wolfSSL/wolfssl/pull/9075 Force old OID values: WOLFSSL_OLD_OID_SUM for WC_16BIT_CPU
+  --no-wolfssl_AES_CTR     # Global variables use 5010 bytes (244%) of dynamic memory, leaving -2962 bytes for local variables. Maximum is 2048 bytes.
+  --no-wolfssl_client      # there's no wifi on nano for client example
+  --no-wolfssl_server      # there's no wifi on nano for server example
+  --no-wolfssl_client_dtls # there's no wolfssl_client_dtls example for the v5.8.2 release
+  --no-wolfssl_server_dtls # there's no wolfssl_server_dtls example for the v5.8.2 release
+
+arduino:avr:uno
+  --no-wolfssl_version     # Fixed in https://github.com/wolfSSL/wolfssl/pull/9075 Force old OID values: WOLFSSL_OLD_OID_SUM for WC_16BIT_CPU
+  --no-template            # Fixed in https://github.com/wolfSSL/wolfssl/pull/9075 Force old OID values: WOLFSSL_OLD_OID_SUM for WC_16BIT_CPU
+  --no-wolfssl_AES_CTR     # Fixed in https://github.com/wolfSSL/wolfssl/pull/9075 Force old OID values: WOLFSSL_OLD_OID_SUM for WC_16BIT_CPU
+  --no-wolfssl_AES_CTR     # Global variables use 5010 bytes (244%) of dynamic memory, leaving -2962 bytes for local variables. Maximum is 2048 bytes.
+  --no-wolfssl_client      # there's no wifi on uno for client example
+  --no-wolfssl_server      # there's no wifi on uno for server example
+  --no-wolfssl_client_dtls # there's no wolfssl_client_dtls example for the v5.8.2 release
+  --no-wolfssl_server_dtls # there's no wolfssl_server_dtls example for the v5.8.2 release
+
+# Although it may have network capability, flash is pretty small:
+arduino:avr:ethernet
+  --no-wolfssl_version     # Fixed in https://github.com/wolfSSL/wolfssl/pull/9075 Force old OID values: WOLFSSL_OLD_OID_SUM for WC_16BIT_CPU
+  --no-template            # Fixed in https://github.com/wolfSSL/wolfssl/pull/9075 Force old OID values: WOLFSSL_OLD_OID_SUM for WC_16BIT_CPU
+  --no-wolfssl_AES_CTR     # Global variables use 5010 bytes (244%) of dynamic memory, leaving -2962 bytes for local variables. Maximum is 2048 bytes.
+  --no-wolfssl_client      # Global variables use 5010 bytes (244%) of dynamic memory, leaving -2962 bytes for local variables. Maximum is 2048 bytes.
+  --no-wolfssl_server      # Global variables use 5010 bytes (244%) of dynamic memory, leaving -2962 bytes for local variables. Maximum is 2048 bytes.
+  --no-wolfssl_client_dtls # there's no wolfssl_client_dtls example for the v5.8.2 release
+  --no-wolfssl_server_dtls # there's no wolfssl_server_dtls example for the v5.8.2 release
+
+arduino:sam:arduino_due_x
+  --no-wolfssl_AES_CTR     # Fixed in https://github.com/wolfSSL/wolfssl/pull/9076 Disallow atomics during fence & WOLFSSL_NO_ATOMIC
+  --no-wolfssl_version     # Fixed in https://github.com/wolfSSL/wolfssl/pull/9076 Disallow atomics during fence & WOLFSSL_NO_ATOMIC
+  --no-template            # Fixed in https://github.com/wolfSSL/wolfssl/pull/9076 Disallow atomics during fence & WOLFSSL_NO_ATOMIC
+  --no-wolfssl_client      # Fixed in https://github.com/wolfSSL/wolfssl/pull/9076 Disallow atomics during fence & WOLFSSL_NO_ATOMIC
+  --no-wolfssl_server      # Fixed in https://github.com/wolfSSL/wolfssl/pull/9076 Disallow atomics during fence & WOLFSSL_NO_ATOMIC
+  --no-wolfssl_client_dtls # there's no wolfssl_client_dtls example for the v5.8.2 release
+  --no-wolfssl_server_dtls # there's no wolfssl_server_dtls example for the v5.8.2 release
+
+arduino:samd:arduino_zero_native
+  --no-wolfssl_client      # TODO error: 'NINA_GPIO0' was not declared in this scope
+  --no-wolfssl_server      # TODO error: 'NINA_GPIO0' was not declared in this scope
+  --no-wolfssl_client_dtls # there's no wolfssl_client_dtls example for the v5.8.2 release
+  --no-wolfssl_server_dtls # there's no wolfssl_server_dtls example for the v5.8.2 release
+
+
+# Pseudo network via bridge.h only. No connect / write / etc.
+arduino:samd:tian
+  --no-wolfssl_client      # HttpClient cannot be used for this example
+  --no-wolfssl_server      # HttpClient cannot be used for this example
+  --no-wolfssl_client_dtls # there's no wolfssl_client_dtls example for the v5.8.2 release
+  --no-wolfssl_server_dtls # there's no wolfssl_server_dtls example for the v5.8.2 release
+
+# All examples should work on (nearly all) ESP32 devices
+esp32:esp32:esp32
+esp32:esp32:esp32s2
+esp32:esp32:esp32s3
+esp32:esp32:esp32c3
+esp32:esp32:esp32c6
+esp32:esp32:esp32h2
+  --no-wolfssl_client      # there's no WiFi on esp32h2 for client example
+  --no-wolfssl_server      # there's no WiFi on esp32h2 for server example
+  --no-wolfssl_client_dtls # there's no wolfssl_client_dtls example for the v5.8.2 release
+  --no-wolfssl_server_dtls # there's no wolfssl_client_dtls example for the v5.8.2 release
+
+esp8266:esp8266:generic
+  --no-wolfssl_AES_CTR     # Fixed in upcoming PR
+  --no-wolfssl_version     # Fixed in upcoming PR
+  --no-template            # Fixed in upcoming PR
+  --no-wolfssl_client      # TODO there's not enough memory on ESP8266 at this time
+  --no-wolfssl_server      # TODO there's not enough memory on ESP8266 at this time
+  --no-wolfssl_client_dtls # there's no wolfssl_client_dtls example for the v5.8.2 release
+  --no-wolfssl_server_dtls # there's no wolfssl_server_dtls example for the v5.8.2 release
+
+teensy:avr:teensy40
+  --no-wolfssl_client      # Wrong network? WiFiNINA/src/utility/wifi_drv.h:300:12: error: 'PinStatus' does not name a type
+  --no-wolfssl_server      # Wrong network? WiFiNINA/src/utility/wifi_drv.h:300:12: error: 'PinStatus' does not name a type
+  --no-wolfssl_client_dtls # there's no wolfssl_client_dtls example for the v5.8.2 release
+  --no-wolfssl_server_dtls # there's no wolfssl_server_dtls example for the v5.8.2 release
