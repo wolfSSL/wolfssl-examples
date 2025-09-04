@@ -267,6 +267,12 @@ pq/stateful_hash_sig/xmss_example
 pq/stateful_hash_sig/xmss_example.key
 pq/stateful_hash_sig/lms_example
 pq/stateful_hash_sig/lms_example.key
+pq/stateful_hash_sig/lms-kg
+pq/stateful_hash_sig/lms-sign
+pq/stateful_hash_sig/lms-verify
+pq/stateful_hash_sig/lms_key.bin
+pq/stateful_hash_sig/lms_pubkey.bin
+pq/stateful_hash_sig/*.sig
 
 # PQ ML-DSA
 pq/ml_dsa/ml_dsa_test
