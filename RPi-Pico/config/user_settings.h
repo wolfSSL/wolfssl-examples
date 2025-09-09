@@ -37,6 +37,7 @@ extern "C"
 #define TARGET_EMBEDDED
 
 #define WOLFSSL_RPIPICO
+#define WOLFSSL_LWIP
 
 extern time_t myTime(time_t *);
 #define XTIME(t) myTime(t)
