@@ -186,25 +186,12 @@ jobs:
         run: |
           # Clone the wolfssl to use for example build
 
-          # TODO remove after merge
-          REPO_OWNER=gojimmypi
-          # End TODO
-
           git clone --depth 1 https://github.com/$REPO_OWNER/wolfssl.git
 
           # Assign your PR branch for testing here:
           THIS_PR_BRANCH=""
 
           echo "REPO_OWNER=$REPO_OWNER"
-
-          # TODO remove after merge
-          # A user-specific branch assignment
-          if [[ "$REPO_OWNER" == "gojimmypi" ]]; then
-              THIS_PR_BRANCH="pr-arduino-testing"
-          else
-          	  echo "unexpected repo owner!"
-          fi
-          # END TODO
 
           # If a branch is assigned for current repo user, checkout
           if [ -z "$THIS_PR_BRANCH" ]; then
