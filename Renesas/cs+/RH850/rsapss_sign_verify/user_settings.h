@@ -38,9 +38,14 @@
 #define WOLFSSL_GENSEED_FORTEST /* Wardning: define your own seed gen */
 #define SINGLE_THREADED         /* or define RTOS  option */
 
+
 #define HAVE_RSA
 #define WC_RSA_PSS
 #define XSTRCASECMP(s1,s2) strcmp((s1),(s2))
+
+#define WOLFSSL_SP_MATH
+#define WOLFSSL_SP_SMALL
+#define WOLFSSL_HAVE_SP_RSA
 
 #define WOLFSSL_GMTIME
 #define WOLFCRYPT_ONLY
