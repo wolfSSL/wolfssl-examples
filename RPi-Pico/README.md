@@ -59,11 +59,25 @@ To use the RP2350 in RISC-V mode, add `-DPICO_PLATFORM=rp2350-riscv`.
 
 ```
 $ cd RPi-Pico
-$ mkdir build
-$ cd build
 $ cmake -DPICO_BOARD=pico_w ..
 $ make
 ```
+
+The build produces the following UF2 images:
+
+- testwolfcrypt.uf2
+
+- benchmark.uf2
+
+- Wifi.uf2
+
+- tcp_Client.uf2
+
+- tls_Client.uf2
+
+- tcp_Server.uf2
+
+- tls_Server.uf2
 
 ### 5. Upload to the Pico
 
