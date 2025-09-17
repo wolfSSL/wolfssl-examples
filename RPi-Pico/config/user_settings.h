@@ -1,6 +1,6 @@
 /* user_settings.h
  *
- * Copyright (C) 2006-2025 wolfSSL Inc.
+ * Copyright (C) 2006-2023 wolfSSL Inc.
  *
  * This file is part of wolfSSL.
  *
@@ -45,6 +45,8 @@ extern time_t myTime(time_t *);
 /* ------------------------------------------------------------------------- */
 /* Platform */
 /* ------------------------------------------------------------------------- */
+#define WOLFSSL_GENERAL_ALIGNMENT 4
+#define SIZEOF_LONG_LONG 8
 #if 0
 #define NO_64BIT /* disable use of 64-bit variables */
 #endif
@@ -550,3 +552,4 @@ unsigned long get_rand_32(void);
 #endif
 
 #endif /* WOLFSSL_USER_SETTINGS_H */
+
