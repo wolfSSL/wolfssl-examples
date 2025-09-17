@@ -301,6 +301,8 @@ hash/sha3-256-hash-string
 hash/sha512-hash
 
 ocsp/ocsp_nonblock/ocsp_nonblock
+ocsp/stapling/ocsp-client
+ocsp/stapling/ocsp-server
 
 sslkeylog.log
 
@@ -380,4 +382,3 @@ tpm/evp_tpm
 /Arduino/**/.visualgdb/*
 /Arduino/sketches/output.log
 /**/*.bak
-
