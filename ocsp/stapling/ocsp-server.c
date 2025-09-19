@@ -345,6 +345,11 @@ int main()
         perror("socket");
         goto cleanup;
     }
+    int optval = 1;
+    if (setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) < 0) {
+        perror("setsockopt");
+        goto cleanup;
+    }
     memset(&serv_addr, 0, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = INADDR_ANY;
