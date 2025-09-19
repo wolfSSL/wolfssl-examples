@@ -382,3 +382,9 @@ tpm/evp_tpm
 /Arduino/**/.visualgdb/*
 /Arduino/sketches/output.log
 /**/*.bak
+
+# Eclipse
+\.settings/
+\.cproject
+\.project
+\.autotools
