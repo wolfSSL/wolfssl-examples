@@ -19,6 +19,14 @@ This directory contains a standalone example demonstrating OCSP stapling with dy
 
 ## Building
 
+For this example, you need to build wolfSSL with OCSP and session certificate support. The following configuration options are required:
+
+```sh
+./configure --enable-ocsp --enable-ocspstapling --enable-ocspstapling2 --enable-cert-setup-cb --enable-sessioncerts
+make
+make install
+```
+
 To build both the server and client, simply run:
 
 ```sh
