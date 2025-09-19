@@ -62,6 +62,7 @@ static int cert_verify_cb(int preverify, WOLFSSL_X509_STORE_CTX* store)
             WOLFSSL_CERT_MANAGER* cm = NULL;
             DecodedCert cert;
             byte certInit = 0;
+            WOLFSSL* ssl = (WOLFSSL*)store->userCtx;
 
             cm = wolfSSL_CertManagerNew();
             if (cm == NULL)
@@ -81,6 +82,27 @@ static int cert_verify_cb(int preverify, WOLFSSL_X509_STORE_CTX* store)
             }
             if (ret == 1 && wc_ParseCert(&cert, CERT_TYPE, VERIFY, cm) != 0)
                 ret = 0;
+
+            if (ret == 1 && (wolfSSL_version(ssl) == TLS1_3_VERSION ||
+                    wolfSSL_version(ssl) == DTLS1_3_VERSION)) {
+                WOLFSSL_BUFFER_INFO* ocspStaple = wolfSSL_GetTls13OcspStatusResp(ssl, (word32)depth);
+                WOLFSSL_OCSP* ocsp = NULL;
+
+                if (ocspStaple == NULL || ocspStaple->buffer == NULL ||ocspStaple->length == 0)
+                    ret = 0;
+                if (ret == 1 && (ocsp = wc_NewOCSP(cm)) == NULL)
+                    ret = 0;
+                if (ret == 1 &&
+                    wc_CheckCertOcspResponse(ocsp, &cert, ocspStaple->buffer,
+                            ocspStaple->length, NULL) != 0)
+                    ret = 0;
+                wc_FreeOCSP(ocsp);
+
+                if (ret == 1)
+                    printf("Client: Manual OCSP staple verification succeeded at depth %d\n", depth);
+                else
+                    printf("Client: Manual OCSP staple verification failed at depth %d\n", depth);
+            }
 
             if (certInit)
                 wc_FreeDecodedCert(&cert);
@@ -152,24 +174,34 @@ cleanup:
     return err;
 }
 
-int main()
+int main(int argc, char** argv)
 {
     int sockfd = -1;
     struct sockaddr_in serv_addr;
     WOLFSSL_CTX* ctx = NULL;
     WOLFSSL* ssl = NULL;
     char buf[32];
+    int use_tls13 = 0;
+
+    if (argc != 2) {
+        printf("Usage: %s [--tls12|--tls13]\n", argv[0]);
+        return 0;
+    }
+    if (strcmp(argv[1], "--tls13") == 0) {
+        use_tls13 = 1;
+    } else if (strcmp(argv[1], "--tls12") == 0) {
+        use_tls13 = 0;
+    } else {
+        printf("Usage: %s [--tls12|--tls13]\n", argv[0]);
+        return 0;
+    }
 
     wolfSSL_Init();
-    ctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method());
+    ctx = wolfSSL_CTX_new(use_tls13 ? wolfTLSv1_3_client_method() : wolfTLSv1_2_client_method());
     if (!ctx) {
         fprintf(stderr, "wolfSSL_CTX_new (client) failed\n");
         goto cleanup;
     }
-    // if (wolfSSL_CTX_load_verify_locations(ctx, CA_CERT, NULL) != WOLFSSL_SUCCESS) {
-    //     fprintf(stderr, "wolfSSL_CTX_load_verify_locations failed\n");
-    //     goto cleanup;
-    // }
     wolfSSL_CTX_set_verify(ctx, SSL_VERIFY_PEER, cert_verify_cb);
     if (wolfSSL_CTX_EnableOCSPStapling(ctx) != WOLFSSL_SUCCESS) {
         fprintf(stderr, "wolfSSL_CTX_EnableOCSPStapling failed\n");
@@ -179,9 +211,17 @@ int main()
         fprintf(stderr, "wolfSSL_CTX_EnableOCSPMustStaple failed\n");
         goto cleanup;
     }
-    if (wolfSSL_CTX_UseOCSPStaplingV2(ctx, WOLFSSL_CSR2_OCSP_MULTI, WOLFSSL_CSR2_OCSP_USE_NONCE) != WOLFSSL_SUCCESS) {
-        fprintf(stderr, "wolfSSL_CTX_UseOCSPStaplingV2 failed\n");
-        goto cleanup;
+    if (use_tls13) {
+        if (wolfSSL_CTX_UseOCSPStapling(ctx, WOLFSSL_CSR_OCSP, 0) != WOLFSSL_SUCCESS) {
+            fprintf(stderr, "wolfSSL_CTX_UseOCSPStaplingV2 failed\n");
+            goto cleanup;
+        }
+    }
+    else {
+        if (wolfSSL_CTX_UseOCSPStaplingV2(ctx, WOLFSSL_CSR2_OCSP_MULTI, 0) != WOLFSSL_SUCCESS) {
+            fprintf(stderr, "wolfSSL_CTX_UseOCSPStaplingV2 failed\n");
+            goto cleanup;
+        }
     }
     wolfSSL_CTX_set_tls12_ocsp_status_verify_cb(ctx, ocsp_verify_cb, NULL);
 
@@ -208,9 +248,12 @@ int main()
         goto cleanup;
     }
     wolfSSL_set_fd(ssl, sockfd);
+    /* No way to get ssl from the store without OPENSSL_EXTRA */
+    wolfSSL_SetCertCbCtx(ssl, ssl);
 
     if (wolfSSL_connect(ssl) == WOLFSSL_SUCCESS) {
         printf("Client: TLS handshake success\n");
+        printf("Negotiated TLS version: %s\n", wolfSSL_get_version(ssl));
         int n = wolfSSL_read(ssl, buf, sizeof(buf)-1);
         if (n > 0) {
             buf[n] = 0;

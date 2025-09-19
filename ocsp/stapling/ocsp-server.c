@@ -319,7 +319,7 @@ int main()
     }
 
     wolfSSL_Init();
-    ctx = wolfSSL_CTX_new(wolfTLSv1_2_server_method());
+    ctx = wolfSSL_CTX_new(wolfTLS_server_method());
     if (!ctx) {
         fprintf(stderr, "wolfSSL_CTX_new failed\n");
         goto cleanup;
@@ -378,6 +378,7 @@ int main()
 
     if (wolfSSL_accept(ssl) == WOLFSSL_SUCCESS) {
         printf("Server: TLS handshake success\n");
+        printf("Negotiated TLS version: %s\n", wolfSSL_get_version(ssl));
         if (wolfSSL_write(ssl, "hello", 5) != 5) {
             fprintf(stderr, "Server: wolfSSL_write failed\n");
         }
