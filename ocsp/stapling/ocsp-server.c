@@ -42,6 +42,9 @@
 static unsigned char* ocsp_resp = NULL;
 static int ocsp_resp_sz = 0;
 
+/* This callback can be used to choose between multiple certs/keys. It can
+ * be used to select certs based on SNI, ciphersuites, etc. Here we just
+ * load a single cert/key. */
 static int cert_cb(WOLFSSL* ssl, void* arg)
 {
     (void)arg;
