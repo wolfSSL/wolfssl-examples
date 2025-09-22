@@ -36,6 +36,8 @@
 #define SERVER_KEY  "server-certs/server1-key.pem"
 #define SERVER_ISSUER_CERT "client-certs/intermediate1-ca-cert.pem"
 #define SERVER_PORT 11111
+#define HTTP_TMP_BUFFER_SIZE 512
+#define URL_SIZE 128
 
 static unsigned char* ocsp_resp = NULL;
 static int ocsp_resp_sz = 0;
@@ -57,158 +59,47 @@ static int cert_cb(WOLFSSL* ssl, void* arg)
 int ocsp_cb(void* ctx, const char* url, int urlSz,
                         byte* ocspReqBuf, int ocspReqSz, byte** ocspRespBuf)
 {
-    (void)ctx;
-    if (url == NULL || urlSz <= 0 ||ocspReqBuf == NULL || ocspReqSz <= 0 ||
-        ocspRespBuf == NULL) {
-        fprintf(stderr, "ocsp_cb: invalid input\n");
-        return -1;
+    int      httpBufSz = 0;
+    byte     httpBuf[HTTP_TMP_BUFFER_SIZE];
+    char     path[URL_SIZE];
+    char     domainName[URL_SIZE];
+    word16   port = 0;
+    SOCKET_T sfd = SOCKET_INVALID;
+    int      ret = -1;
+    int      respSz = 0;
+
+    if (wolfIO_DecodeUrl(url, urlSz, domainName, path, &port) != 0) {
+        WOLFSSL_MSG("Unable to decode OCSP URL");
+        goto cleanup;
     }
 
-    // Only support http://
-    const char* prefix = "http://";
-    size_t prefix_len = strlen(prefix);
-    if (urlSz <= (int)prefix_len || strncmp(url, prefix, prefix_len) != 0) {
-        fprintf(stderr, "ocsp_cb: only http:// URLs are supported\n");
-        return -1;
+    httpBufSz = wolfIO_HttpBuildRequestOcsp(domainName, path, ocspReqSz,
+        httpBuf, HTTP_TMP_BUFFER_SIZE);
+    if (wolfIO_TcpConnect(&sfd, domainName, port, 0) != 0) {
+        WOLFSSL_MSG("OCSP Responder connection failed");
+        goto cleanup;
     }
 
-    // Find domain and port
-    const char* host_start = url + prefix_len;
-    const char* url_end = url + urlSz;
-    const char* colon = memchr(host_start, ':', url_end - host_start);
-    if (!colon) {
-        fprintf(stderr, "ocsp_cb: URL missing port\n");
-        return -1;
-    }
-    const char* slash = memchr(colon, '/', url_end - colon);
-    size_t domain_len = colon - host_start;
-    size_t port_len = (slash ? (size_t)(slash - colon - 1) : (size_t)(url_end - colon - 1));
-
-    if (domain_len == 0 || port_len == 0) {
-        fprintf(stderr, "ocsp_cb: invalid domain or port in URL\n");
-        return -1;
+    if (wolfIO_Send(sfd, (char*)httpBuf, httpBufSz, 0) != httpBufSz) {
+        WOLFSSL_MSG("OCSP http request failed");
+        goto cleanup;
     }
 
-    char domain[256];
-    char port[16];
-    if (domain_len >= sizeof(domain) || port_len >= sizeof(port)) {
-        fprintf(stderr, "ocsp_cb: domain or port too long\n");
-        return -1;
+    if (wolfIO_Send(sfd, (char*)ocspReqBuf, ocspReqSz, 0) != ocspReqSz) {
+        WOLFSSL_MSG("OCSP ocsp request failed");
+        goto cleanup;
     }
-    memcpy(domain, host_start, domain_len);
-    domain[domain_len] = '\0';
-    memcpy(port, colon + 1, port_len);
-    port[port_len] = '\0';
-
-    // Resolve domain and port to IP address
-    struct addrinfo hints, *res = NULL;
-    memset(&hints, 0, sizeof(hints));
-    hints.ai_family = AF_INET;      // IPv4
-    hints.ai_socktype = SOCK_STREAM; // TCP
-
-    int gai_ret = getaddrinfo(domain, port, &hints, &res);
-    if (gai_ret != 0) {
-        fprintf(stderr, "ocsp_cb: getaddrinfo failed: %s\n", gai_strerror(gai_ret));
-        return -1;
+    if ((respSz = wolfIO_HttpProcessResponseOcsp((int)sfd, ocspRespBuf, httpBuf,
+        HTTP_TMP_BUFFER_SIZE, ctx)) <= 0) {
+        WOLFSSL_MSG("OCSP http response failed");
+        goto cleanup;
     }
-
-    // Create a socket
-    int sock = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
-    if (sock < 0) {
-        perror("ocsp_cb: socket");
-        freeaddrinfo(res);
-        return -1;
-    }
-
-    // Connect to the server
-    if (connect(sock, res->ai_addr, res->ai_addrlen) < 0) {
-        perror("ocsp_cb: connect");
-        close(sock);
-        freeaddrinfo(res);
-        return -1;
-    }
-
-    // Prepare HTTP POST header
-    char http_header[512];
-    int header_len = snprintf(
-        http_header, sizeof(http_header),
-        "POST / HTTP/1.0\r\n"
-        "Host: %s\r\n"
-        "Content-Type: application/ocsp-request\r\n"
-        "Content-Length: %d\r\n"
-        "\r\n",
-        domain, ocspReqSz
-    );
-    if (header_len < 0 || (size_t)header_len >= sizeof(http_header)) {
-        fprintf(stderr, "ocsp_cb: HTTP header too long\n");
-        close(sock);
-        freeaddrinfo(res);
-        return -1;
-    }
-
-    // Send HTTP header
-    if (send(sock, http_header, header_len, 0) != header_len) {
-        perror("ocsp_cb: send header");
-        close(sock);
-        freeaddrinfo(res);
-        return -1;
-    }
-    // Send OCSP request body
-    if (send(sock, ocspReqBuf, ocspReqSz, 0) != ocspReqSz) {
-        perror("ocsp_cb: send body");
-        close(sock);
-        freeaddrinfo(res);
-        return -1;
-    }
-    // Read HTTP response
-    char resp_buf[4096];
-    int resp_len = 0;
-    int n;
-    while ((n = recv(sock, resp_buf + resp_len, sizeof(resp_buf) - resp_len, 0)) > 0) {
-        resp_len += n;
-        if (resp_len >= (int)sizeof(resp_buf)) {
-            fprintf(stderr, "ocsp_cb: response too large\n");
-            close(sock);
-            freeaddrinfo(res);
-            return -1;
-        }
-    }
-    if (n < 0) {
-        perror("ocsp_cb: recv");
-        close(sock);
-        freeaddrinfo(res);
-        return -1;
-    }
-    close(sock);
-    freeaddrinfo(res);
-
-    // Find end of HTTP headers
-    char* body = NULL;
-    int body_len = 0;
-    char* header_end = NULL;
-    header_end = strstr(resp_buf, "\r\n\r\n");
-    if (!header_end) {
-        fprintf(stderr, "ocsp_cb: malformed HTTP response\n");
-        return -1;
-    }
-    body = header_end + 4;
-    body_len = resp_len - (body - resp_buf);
-    if (body_len <= 0) {
-        fprintf(stderr, "ocsp_cb: empty HTTP body\n");
-        return -1;
-    }
-
-    // Allocate and copy OCSP response body
-    ocsp_resp = *ocspRespBuf = (byte*)malloc(body_len);
-    ocsp_resp_sz = body_len;
-    if (!*ocspRespBuf) {
-        fprintf(stderr, "ocsp_cb: malloc failed\n");
-        return -1;
-    }
-    memcpy(*ocspRespBuf, body, body_len);
-
-    // Return the length of the OCSP response body
-    return body_len;
+    ocsp_resp = *ocspRespBuf;
+    ocsp_resp_sz = ret = respSz;
+cleanup:
+    if (sfd != SOCKET_INVALID)
+        CloseSocket(sfd);
+    return ret;
 }
 
 static int fetch_ocsp_response(unsigned char** resp, int* respSz)
