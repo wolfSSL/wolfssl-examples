@@ -35,7 +35,7 @@ debug: all
 responder:
 	openssl ocsp -index responder-certs/index.txt -port 22221 \
 	    -rsigner responder-certs/ocsp-responder-cert.pem \
-		-rkey \responder-certs/ocsp-responder-key.pem \
+		-rkey responder-certs/ocsp-responder-key.pem \
 		-CA client-certs/intermediate1-ca-cert.pem
 
 clean:

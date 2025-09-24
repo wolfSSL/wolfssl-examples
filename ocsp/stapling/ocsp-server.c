@@ -48,7 +48,7 @@ static int ocsp_resp_sz = 0;
 static int cert_cb(WOLFSSL* ssl, void* arg)
 {
     (void)arg;
-    if (wolfSSL_use_certificate_file(ssl, SERVER_CERT, WOLFSSL_FILETYPE_PEM) != WOLFSSL_SUCCESS) {
+    if (wolfSSL_use_certificate_chain_file(ssl, SERVER_CERT) != WOLFSSL_SUCCESS) {
         fprintf(stderr, "Error loading server certificate: %s\n", wolfSSL_ERR_reason_error_string(wolfSSL_get_error(ssl, 0)));
         return 0;
     }
@@ -196,7 +196,7 @@ static int status_cb(WOLFSSL* ssl, void* ctx)
         return WOLFSSL_OCSP_STATUS_CB_ALERT_FATAL;
     }
 
-    // wolfSSL takes ownership of resp_buf, so do not free it here
+    /* wolfSSL takes ownership of resp_buf, so do not free it here */
     return WOLFSSL_OCSP_STATUS_CB_OK;
 }
 
@@ -206,6 +206,7 @@ int main()
     struct sockaddr_in serv_addr;
     WOLFSSL_CTX* ctx = NULL;
     WOLFSSL* ssl = NULL;
+    int ret = 1;
 
     if (fetch_ocsp_response(&ocsp_resp, &ocsp_resp_sz) != 0) {
         fprintf(stderr, "Failed to fetch OCSP response at startup\n");
@@ -275,16 +276,19 @@ int main()
         printf("Negotiated TLS version: %s\n", wolfSSL_get_version(ssl));
         if (wolfSSL_write(ssl, "hello", 5) != 5) {
             fprintf(stderr, "Server: wolfSSL_write failed\n");
+            goto cleanup;
         }
     } else {
         fprintf(stderr, "Server: TLS handshake failed: %s\n", wolfSSL_ERR_reason_error_string(wolfSSL_get_error(ssl, 0)));
+        goto cleanup;
     }
 
+    ret = 0;
 cleanup:
     if (ssl) wolfSSL_free(ssl);
     if (connfd >= 0) close(connfd);
     if (listenfd >= 0) close(listenfd);
     if (ctx) wolfSSL_CTX_free(ctx);
     wolfSSL_Cleanup();
-    return 0;
+    return ret;
 }

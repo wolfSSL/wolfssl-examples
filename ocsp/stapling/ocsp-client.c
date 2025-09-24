@@ -57,12 +57,11 @@ static int cert_verify_cb(int preverify, WOLFSSL_X509_STORE_CTX* store)
             || err == WOLFSSL_X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT
 #endif
             ) {
-
+            int i;
             WOLFSSL_BUFFER_INFO* bInfo = &store->certs[depth];
             WOLFSSL_CERT_MANAGER* cm = NULL;
             DecodedCert cert;
             byte certInit = 0;
-            WOLFSSL* ssl = (WOLFSSL*)store->userCtx;
 
             cm = wolfSSL_CertManagerNew();
             if (cm == NULL)
@@ -70,10 +69,13 @@ static int cert_verify_cb(int preverify, WOLFSSL_X509_STORE_CTX* store)
             if (ret == 1 &&
                 wolfSSL_CertManagerLoadCA(cm, CA_CERT, NULL) != WOLFSSL_SUCCESS)
                 ret = 0;
-            /* If verifying leaf cert then we need to load the intermediate CA */
-            if (ret == 1 && depth == 0 &&
-                wolfSSL_CertManagerLoadCA(cm, INTERMEDIATE_CA_CERT, NULL) != WOLFSSL_SUCCESS)
-                ret = 0;
+
+            /* Certs are verified top down so we can load the remainder of the chain */
+            for (i = depth + 1; i < store->totalCerts && ret == 1; i++) {
+                if (wolfSSL_CertManagerLoadCABuffer(cm, store->certs[i].buffer, store->certs[i].length,
+                    WOLFSSL_FILETYPE_ASN1) != WOLFSSL_SUCCESS)
+                    ret = 0;
+            }
 
             /* Verify cert with CA */
             if (ret == 1) {
@@ -82,27 +84,6 @@ static int cert_verify_cb(int preverify, WOLFSSL_X509_STORE_CTX* store)
             }
             if (ret == 1 && wc_ParseCert(&cert, CERT_TYPE, VERIFY, cm) != 0)
                 ret = 0;
-
-            if (ret == 1 && (wolfSSL_version(ssl) == TLS1_3_VERSION ||
-                    wolfSSL_version(ssl) == DTLS1_3_VERSION)) {
-                WOLFSSL_BUFFER_INFO* ocspStaple = wolfSSL_GetTls13OcspStatusResp(ssl, (word32)depth);
-                WOLFSSL_OCSP* ocsp = NULL;
-
-                if (ocspStaple == NULL || ocspStaple->buffer == NULL ||ocspStaple->length == 0)
-                    ret = 0;
-                if (ret == 1 && (ocsp = wc_NewOCSP(cm)) == NULL)
-                    ret = 0;
-                if (ret == 1 &&
-                    wc_CheckCertOcspResponse(ocsp, &cert, ocspStaple->buffer,
-                            ocspStaple->length, NULL) != 0)
-                    ret = 0;
-                wc_FreeOCSP(ocsp);
-
-                if (ret == 1)
-                    printf("Client: Manual OCSP staple verification succeeded at depth %d\n", depth);
-                else
-                    printf("Client: Manual OCSP staple verification failed at depth %d\n", depth);
-            }
 
             if (certInit)
                 wc_FreeDecodedCert(&cert);
@@ -135,20 +116,25 @@ static int ocsp_verify_cb(WOLFSSL* ssl, int err, unsigned char* staple, unsigned
         WOLFSSL_CERT_MANAGER* cm = NULL;
         DecodedCert cert;
         byte certInit = 0;
-        WOLFSSL_OCSP* ocsp;
+        WOLFSSL_OCSP* ocsp = NULL;
         WOLFSSL_X509_CHAIN* peerCerts;
+        int i;
 
         cm = wolfSSL_CertManagerNew();
         if (cm == NULL)
             goto cleanup;
         if (wolfSSL_CertManagerLoadCA(cm, CA_CERT, NULL) != WOLFSSL_SUCCESS)
             goto cleanup;
-        if (wolfSSL_CertManagerLoadCA(cm, INTERMEDIATE_CA_CERT, NULL) != WOLFSSL_SUCCESS)
-            goto cleanup;
 
         peerCerts = wolfSSL_get_peer_chain(ssl);
         if (peerCerts == NULL || wolfSSL_get_chain_count(peerCerts) <= (int)idx)
             goto cleanup;
+
+        for (i = idx + 1; i < wolfSSL_get_chain_count(peerCerts); i++) {
+            if (wolfSSL_CertManagerLoadCABuffer(cm, wolfSSL_get_chain_cert(peerCerts, i),
+                    wolfSSL_get_chain_length(peerCerts, i), WOLFSSL_FILETYPE_ASN1) != WOLFSSL_SUCCESS)
+                goto cleanup;
+        }
 
         wc_InitDecodedCert(&cert, wolfSSL_get_chain_cert(peerCerts, idx), wolfSSL_get_chain_length(peerCerts, idx), NULL);
         certInit = 1;
@@ -182,6 +168,7 @@ int main(int argc, char** argv)
     WOLFSSL* ssl = NULL;
     char buf[32];
     int use_tls13 = 0;
+    int ret = 1;
 
     if (argc != 2) {
         printf("Usage: %s [--tls12|--tls13]\n", argv[0]);
@@ -223,7 +210,7 @@ int main(int argc, char** argv)
             goto cleanup;
         }
     }
-    wolfSSL_CTX_set_tls12_ocsp_status_verify_cb(ctx, ocsp_verify_cb, NULL);
+    wolfSSL_CTX_set_ocsp_status_verify_cb(ctx, ocsp_verify_cb, NULL);
 
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) {
@@ -258,17 +245,21 @@ int main(int argc, char** argv)
         if (n > 0) {
             buf[n] = 0;
             printf("Client: received: %s\n", buf);
+            ret = 0;
         } else if (n < 0) {
             fprintf(stderr, "Client: wolfSSL_read failed: %s\n", wolfSSL_ERR_reason_error_string(wolfSSL_get_error(ssl, 0)));
+            goto cleanup;
         }
     } else {
         fprintf(stderr, "Client: TLS handshake failed: %s\n", wolfSSL_ERR_reason_error_string(wolfSSL_get_error(ssl, 0)));
+        goto cleanup;
     }
 
+    ret = 0;
 cleanup:
     if (ssl) wolfSSL_free(ssl);
     if (sockfd >= 0) close(sockfd);
     if (ctx) wolfSSL_CTX_free(ctx);
     wolfSSL_Cleanup();
-    return 0;
+    return ret;
 }
