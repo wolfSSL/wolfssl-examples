@@ -196,13 +196,13 @@ static int cert_setup_callback(WOLFSSL *ssl, void *_arg) {
     if (wolfSSL_use_certificate_file(ssl, certFileName, SSL_FILETYPE_PEM) !=
             WOLFSSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
-                CERT_FILE);
+                certFileName);
         return 0;
     }
     if (wolfSSL_use_PrivateKey_file(ssl, keyFileName, SSL_FILETYPE_PEM) !=
             WOLFSSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
-                KEY_FILE);
+                keyFileName);
         return 0;
     }
     return 1;
@@ -295,22 +295,6 @@ int main(int argc, char** argv)
      * received from client.
      */
     wolfSSL_CTX_set_cert_cb(ctx, cert_setup_callback, NULL);
-
-    /* Load server certificates into WOLFSSL_CTX */
-    if ((ret = wolfSSL_CTX_use_certificate_file(ctx, CERT_FILE,
-                                    WOLFSSL_FILETYPE_PEM)) != WOLFSSL_SUCCESS) {
-        fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
-                CERT_FILE);
-        goto exit;
-    }
-
-    /* Load server key into WOLFSSL_CTX */
-    if ((ret = wolfSSL_CTX_use_PrivateKey_file(ctx, KEY_FILE,
-                                    WOLFSSL_FILETYPE_PEM)) != WOLFSSL_SUCCESS) {
-        fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
-                KEY_FILE);
-        goto exit;
-    }
 
     /* Load client certificate as "trusted" into WOLFSSL_CTX */
     if ((ret = wolfSSL_CTX_load_verify_locations(ctx, CA_FILE, NULL))
