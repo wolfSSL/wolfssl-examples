@@ -55,78 +55,9 @@
 #define CA_FILE   "../certs/client-cert.pem"
 
 
-#if defined(WOLFSSL_TLS13) && defined(HAVE_SECRET_CALLBACK)
-
-#ifndef WOLFSSL_SSLKEYLOGFILE_OUTPUT
-    #define WOLFSSL_SSLKEYLOGFILE_OUTPUT "sslkeylog.log"
-#endif
-
-/* Callback function for TLS v1.3 secrets for use with Wireshark */
-static int Tls13SecretCallback(WOLFSSL* ssl, int id, const unsigned char* secret,
-    int secretSz, void* ctx)
-{
-    int i;
-    const char* str = NULL;
-    unsigned char serverRandom[32];
-    int serverRandomSz;
-    XFILE fp = stderr;
-    if (ctx) {
-        fp = XFOPEN((const char*)ctx, "ab");
-        if (fp == XBADFILE) {
-            return BAD_FUNC_ARG;
-        }
-    }
-
-    serverRandomSz = (int)wolfSSL_get_server_random(ssl, serverRandom,
-        sizeof(serverRandom));
-
-    if (serverRandomSz <= 0) {
-        printf("Error getting server random %d\n", serverRandomSz);
-    }
-
-#if 0
-    printf("TLS Server Secret CB: Rand %d, Secret %d\n",
-        serverRandomSz, secretSz);
-#endif
-
-    switch (id) {
-        case CLIENT_EARLY_TRAFFIC_SECRET:
-            str = "CLIENT_EARLY_TRAFFIC_SECRET"; break;
-        case EARLY_EXPORTER_SECRET:
-            str = "EARLY_EXPORTER_SECRET"; break;
-        case CLIENT_HANDSHAKE_TRAFFIC_SECRET:
-            str = "CLIENT_HANDSHAKE_TRAFFIC_SECRET"; break;
-        case SERVER_HANDSHAKE_TRAFFIC_SECRET:
-            str = "SERVER_HANDSHAKE_TRAFFIC_SECRET"; break;
-        case CLIENT_TRAFFIC_SECRET:
-            str = "CLIENT_TRAFFIC_SECRET_0"; break;
-        case SERVER_TRAFFIC_SECRET:
-            str = "SERVER_TRAFFIC_SECRET_0"; break;
-        case EXPORTER_SECRET:
-            str = "EXPORTER_SECRET"; break;
-    }
-
-    fprintf(fp, "%s ", str);
-    for (i = 0; i < (int)serverRandomSz; i++) {
-        fprintf(fp, "%02x", serverRandom[i]);
-    }
-    fprintf(fp, " ");
-    for (i = 0; i < secretSz; i++) {
-        fprintf(fp, "%02x", secret[i]);
-    }
-    fprintf(fp, "\n");
-
-    if (fp != stderr) {
-        XFCLOSE(fp);
-    }
-
-    return 0;
-}
-#endif /* WOLFSSL_TLS13 && HAVE_SECRET_CALLBACK */
-
 static int mSockfd = SOCKET_INVALID;
 static int mConnd = SOCKET_INVALID;
-static int mShutdown = 0;
+static volatile int mShutdown = 0;
 
 #ifdef HAVE_SIGNAL
 static void sig_handler(const int sig)
@@ -269,9 +200,6 @@ int main(int argc, char** argv)
     /*---------------------------------*/
     /* Start of wolfSSL initialization and configuration */
     /*---------------------------------*/
-#if 0
-    wolfSSL_Debugging_ON();
-#endif
 
     /* Initialize wolfSSL */
     if ((ret = wolfSSL_Init()) != WOLFSSL_SUCCESS) {
@@ -324,15 +252,6 @@ int main(int argc, char** argv)
         /* Attach wolfSSL to the socket */
         wolfSSL_set_fd(ssl, mConnd);
 
-    #ifdef HAVE_SECRET_CALLBACK
-        /* required for getting random used */
-        wolfSSL_KeepArrays(ssl);
-
-        /* optional logging for wireshark */
-        wolfSSL_set_tls13_secret_cb(ssl, Tls13SecretCallback,
-            (void*)WOLFSSL_SSLKEYLOGFILE_OUTPUT);
-    #endif
-
         /* Establish TLS connection */
         if ((ret = wolfSSL_accept(ssl)) != WOLFSSL_SUCCESS) {
             fprintf(stderr, "wolfSSL_accept error = %d\n",
@@ -341,10 +260,6 @@ int main(int argc, char** argv)
         }
 
         printf("Client connected successfully\n");
-
-    #ifdef HAVE_SECRET_CALLBACK
-        wolfSSL_FreeArrays(ssl);
-    #endif
 
         /* Read the client data into our buff array */
         memset(buff, 0, sizeof(buff));
