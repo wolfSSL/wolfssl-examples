@@ -162,9 +162,8 @@ static int fetch_ocsp_response(unsigned char** resp, int* respSz)
     }
     wolfSSL_CertManagerSetOCSP_Cb(cm, ocsp_cb, NULL, NULL);
 
-    /* Note: This does not return the raw OCSP response, just verifies. */
+    /* This calls ocsp_cb to fetch the response and verifies it. ocsp_cb stores the response globally. */
     if (wolfSSL_CertManagerCheckOCSP(cm, certDer, certDerSz) == WOLFSSL_SUCCESS) {
-        /* For real stapling, you would fetch and set the actual OCSP response here. */
         ret = 0;
     } else {
         fprintf(stderr, "wolfSSL_CertManagerCheckOCSP failed or OCSP not verified\n");
