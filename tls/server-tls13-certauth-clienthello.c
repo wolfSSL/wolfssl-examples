@@ -1,4 +1,4 @@
-/* server-tls13-certauth-c2s.c
+/* server-tls13-certauth-clienthello.c
  *
  * Copyright (C) 2006-2025 wolfSSL Inc.
  *
@@ -60,8 +60,7 @@
     !defined(WOLFSSL_NO_CA_NAMES) && !defined(NO_CERTS) && \
     defined(WOLFSSL_TLS13) && (defined(OPENSSL_EXTRA) || \
     defined(OPENSSL_EXTRA_X509_SMALL)) && (defined(OPENSSL_ALL) || \
-    defined(WOLFSSL_NGINX) || defined(HAVE_LIGHTY)) && \
-    LIBWOLFSSL_VERSION_HEX > 0x05008002
+    defined(WOLFSSL_NGINX) || defined(HAVE_LIGHTY))
 
 static int mSockfd = SOCKET_INVALID;
 static int mConnd = SOCKET_INVALID;
@@ -155,8 +154,7 @@ int main(int argc, char** argv)
     !defined(WOLFSSL_NO_CA_NAMES) && !defined(NO_CERTS) && \
     defined(WOLFSSL_TLS13) && (defined(OPENSSL_EXTRA) || \
     defined(OPENSSL_EXTRA_X509_SMALL)) && (defined(OPENSSL_ALL) || \
-    defined(WOLFSSL_NGINX) || defined(HAVE_LIGHTY)) && \
-    LIBWOLFSSL_VERSION_HEX > 0x05008002
+    defined(WOLFSSL_NGINX) || defined(HAVE_LIGHTY))
 
     struct sockaddr_in servAddr;
     struct sockaddr_in clientAddr;

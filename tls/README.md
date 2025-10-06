@@ -1413,6 +1413,35 @@ Execute them like so:
 ./server-tls-posthsauth 127.0.0.1
 ```
 
+## TLS Example with certificate_authorities extension in ClientHello message
+
+See `client-tls13-certauth-clienthello.c` and `server-tls13-certauth-clienthello.c`. These applications show how to use the TLS 1.3 [certificate_authorities](https://datatracker.ietf.org/doc/html/rfc8446#section-4.2.4) extension to let the client send the names of its supported certificate authorities inside the ClientHello message, so that the server can perform certificate selection based on them. This can be useful in scenarios where the server has multiple certificates issued by separate CAs.
+
+To use this example, you must enable full OpenSSL compatibility. Build and install wolfSSL like so:
+
+```
+$ ./autogen.sh
+$ ./configure --enable-opensslall
+$ make
+$ sudo make install
+```
+
+Then build the examples as follows:
+
+```
+make client-tls13-certauth-clienthello server-tls13-certauth-clienthello
+```
+
+Execute them like so:
+
+```
+./server-tls13-certauth-clienthello
+```
+
+```
+./client-tls13-certauth-clienthello 127.0.0.1
+```
+
 ## Support
 
 Please contact wolfSSL at support@wolfssl.com with any questions, bug fixes,
