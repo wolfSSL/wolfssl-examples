@@ -22,6 +22,8 @@
 /* This example showcases the usage of the TLS 1.3 certificate_authorities
  * extension in the ClientHello message, to indicate to the server which
  * certificate authorities the client supports, guiding certificate selection.
+ *
+ * Example wolfSSL config for this example: ./configure --enable-opensslall
  */
 
 /* the usual suspects */
@@ -52,7 +54,13 @@
 int main(int argc, char** argv)
 {
     int ret = 0;
-#ifdef WOLFSSL_TLS13
+#if !defined(NO_WOLFSSL_CLIENT) && !defined(NO_WOLFSSL_SERVER) && \
+    !defined(WOLFSSL_NO_CA_NAMES) && !defined(NO_CERTS) && \
+    defined(WOLFSSL_TLS13) && (defined(OPENSSL_EXTRA) || \
+    defined(OPENSSL_EXTRA_X509_SMALL)) && (defined(OPENSSL_ALL) || \
+    defined(WOLFSSL_NGINX) || defined(HAVE_LIGHTY)) && \
+    LIBWOLFSSL_VERSION_HEX > 0x05008002
+
     int                sockfd = SOCKET_INVALID;
     struct sockaddr_in servAddr;
     char               buff[256];
@@ -207,7 +215,7 @@ exit:
         wolfSSL_CTX_free(ctx);  /* Free the wolfSSL context object          */
     wolfSSL_Cleanup();          /* Cleanup the wolfSSL environment          */
 #else
-    printf("Example requires TLS v1.3\n");
+    printf("Example requires specific wolfSSL features\n");
 #endif
     (void)argc;
     (void)argv;
