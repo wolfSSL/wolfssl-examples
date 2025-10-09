@@ -41,7 +41,7 @@
 #include <wolfssl/wolfio.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
 
-#if defined(WOLFSSL_TLS13) && defined(WOLFSSL_HAVE_KYBER) && \
+#if defined(WOLFSSL_TLS13) && defined(WOLFSSL_HAVE_MLKEM) && \
     defined(HAVE_DILITHIUM)
 
 #define DEFAULT_PORT 11111
@@ -139,13 +139,13 @@ static void sig_handler(const int sig)
     }
 }
 #endif /* HAVE_SIGNAL */
-#endif /* WOLFSSL_TLS13 && WOLFSSL_HAVE_KYBER && HAVE_DILITHIUM */
+#endif /* WOLFSSL_TLS13 && WOLFSSL_HAVE_MLKEM && HAVE_DILITHIUM */
 
 int main(int argc, char** argv)
 {
     int ret = 0;
 
-#if defined(WOLFSSL_TLS13) && defined(WOLFSSL_HAVE_KYBER) && \
+#if defined(WOLFSSL_TLS13) && defined(WOLFSSL_HAVE_MLKEM) && \
     defined(HAVE_DILITHIUM)
 
     struct sockaddr_in servAddr;
@@ -341,7 +341,7 @@ exit:
     printf("This requires TLS 1.3, ML-DSA (Dilithium) and ML-KEM (Kyber).\n");
     printf("Configure wolfssl like this:\n");
     printf("    ./configure --enable-dilithium --enable-kyber\n");
-#endif /* WOLFSSL_TLS13 && WOLFSSL_HAVE_KYBER && HAVE_DILITHIUM */
+#endif /* WOLFSSL_TLS13 && WOLFSSL_HAVE_MLKEM && HAVE_DILITHIUM */
 
     (void)argc;
     (void)argv;
