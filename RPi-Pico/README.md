@@ -38,7 +38,13 @@ export WOLFSSL_ROOT=/path/to/wolfssl/source
 export PICO_SDK_PATH=/path/to/pico-sdk
 ```
 
-### 3. cmake and make
+### 3. Set `FREERTOS_KERNEL_PATH`
+If you want to use TCP/TLS server or client, You also need to have the [FreeRTOS-Kernel GitHub repository](https://github.com/FreeRTOS/FreeRTOS-Kernel).
+```
+export FREERTOS_KERNEL_PATH=/path/to/FreeRTOS-Kernel
+```
+
+### 4. cmake and make
 
 The following CMAKE options are available:
 
@@ -53,13 +59,27 @@ To use the RP2350 in RISC-V mode, add `-DPICO_PLATFORM=rp2350-riscv`.
 
 ```
 $ cd RPi-Pico
-$ mkdir build
-$ cd build
 $ cmake -DPICO_BOARD=pico_w ..
 $ make
 ```
 
-### 4. Upload to the Pico
+The build produces the following UF2 images:
+
+- testwolfcrypt.uf2
+
+- benchmark.uf2
+
+- Wifi.uf2
+
+- tcp_Client.uf2
+
+- tls_Client.uf2
+
+- tcp_Server.uf2
+
+- tls_Server.uf2
+
+### 5. Upload to the Pico
 
 Hold the boot button and plug the Pico into your computer, you can then
 drag/drop a `.uf2` to the Pico. It will stop becoming a USB mass storage device
@@ -71,7 +91,7 @@ sudo picotool load benchmark.uf2
 sudo picotool reboot
 ```
 
-### 5. Serial output
+### 6. Serial output
 
 If you have not set `USE_UART`, once rebooted the USB port will turn into an
 "Abstract Control Module" serial port. On Linux this will likely be
