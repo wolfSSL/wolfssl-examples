@@ -84,6 +84,8 @@ android/wolfssljni-ndk-sample/proguard-project.txt
 /tls/client-tls
 /tls/client-tls13
 /tls/client-tls13-resume
+/tls/client-tls13-earlydata
+/tls/server-tls13-earlydata
 /tls/client-tls-bio
 /tls/client-tls-cacb
 /tls/client-tls-callback
