@@ -1,6 +1,6 @@
-/* client-tls13-earlydata.c
+/* client-dtls13-earlydata.c
  *
- * Copyright (C) 2006-2025 wolfSSL Inc.
+ * Copyright (C) 2006-2020 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -19,7 +19,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
-/* Example TLS 1.3 client using wolfSSL early data (0-RTT) with session resumption.
+/* Example DTLS 1.3 client using wolfSSL early data (0-RTT) with session resumption.
  * Performs an initial handshake to obtain a session ticket, then reconnects and
  * sends early data using wolfSSL_write_early_data().
  */
@@ -40,30 +40,25 @@
 #define KEY_FILE     "../certs/client-key.pem"
 #define CA_FILE      "../certs/ca-cert.pem"
 
-#define EARLY_DATA_MSG "Early data hello from early data client!"
+#define EARLY_DATA_MSG "Early data hello from early data DTLS client!"
 #define EARLY_DATA_MSG_LEN (sizeof(EARLY_DATA_MSG))
+#define DATA_MSG "Normal data hello from early data DTLS client!"
+#define DATA_MSG_LEN (sizeof(DATA_MSG))
 
-static int tcp_connect(const char* ip, int port) {
+static int udp_connect(const char* ip, int port, struct sockaddr_in* servAddr) {
     int sockfd;
-    struct sockaddr_in servAddr;
 
-    if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+    if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
         perror("socket()");
         return -1;
     }
 
-    memset(&servAddr, 0, sizeof(servAddr));
-    servAddr.sin_family = AF_INET;
-    servAddr.sin_port = htons(port);
+    memset(servAddr, 0, sizeof(*servAddr));
+    servAddr->sin_family = AF_INET;
+    servAddr->sin_port = htons(port);
 
-    if (inet_pton(AF_INET, ip, &servAddr.sin_addr) != 1) {
+    if (inet_pton(AF_INET, ip, &servAddr->sin_addr) != 1) {
         perror("inet_pton()");
-        close(sockfd);
-        return -1;
-    }
-
-    if (connect(sockfd, (struct sockaddr*)&servAddr, sizeof(servAddr)) < 0) {
-        perror("connect()");
         close(sockfd);
         return -1;
     }
@@ -87,6 +82,7 @@ int main(int argc, char** argv)
     char recvBuf[256];
     int len;
     int earlyDataSent = 0;
+    struct sockaddr_in servAddr;
 
     /* Initialize wolfSSL */
     if (wolfSSL_Init() != WOLFSSL_SUCCESS) {
@@ -95,7 +91,7 @@ int main(int argc, char** argv)
     }
 
     /* Create and configure context */
-    ctx = wolfSSL_CTX_new(wolfTLSv1_3_client_method());
+    ctx = wolfSSL_CTX_new(wolfDTLSv1_3_client_method());
     if (!ctx) {
         fprintf(stderr, "wolfSSL_CTX_new failed\n");
         goto cleanup;
@@ -109,7 +105,7 @@ int main(int argc, char** argv)
     }
 
     /* === 1st connection: perform handshake and get session ticket === */
-    sockfd = tcp_connect(server_ip, DEFAULT_PORT);
+    sockfd = udp_connect(server_ip, DEFAULT_PORT, &servAddr);
     if (sockfd < 0) goto cleanup;
 
     ssl = wolfSSL_new(ctx);
@@ -121,6 +117,7 @@ int main(int argc, char** argv)
         fprintf(stderr, "wolfSSL_set_fd failed\n");
         goto cleanup;
     }
+    wolfSSL_dtls_set_peer(ssl, (struct sockaddr*)&servAddr, sizeof(servAddr));
 
     if (wolfSSL_connect(ssl) != WOLFSSL_SUCCESS) {
         fprintf(stderr, "wolfSSL_connect failed\n");
@@ -129,7 +126,6 @@ int main(int argc, char** argv)
 
     /* Check if ticket was received */
     if (!wolfSSL_SessionIsSetup(wolfSSL_SSL_get0_session(ssl))) {
-        /* Attempt to read a session ticket from server */
         (void)wolfSSL_peek(ssl, recvBuf, 0);
         if (!wolfSSL_SessionIsSetup(wolfSSL_SSL_get0_session(ssl))) {
             fprintf(stderr, "Session ticket not received from server\n");
@@ -146,7 +142,7 @@ int main(int argc, char** argv)
 
     printf("Initial handshake complete, session ticket obtained.\n");
 
-    /* Clean up first connection */
+    /* Clean up first connection with full shutdown */
     wolfSSL_shutdown(ssl);
     wolfSSL_free(ssl);
     ssl = NULL;
@@ -154,7 +150,7 @@ int main(int argc, char** argv)
     sockfd = -1;
 
     /* === 2nd connection: resume session and send early data === */
-    sockfd = tcp_connect(server_ip, DEFAULT_PORT);
+    sockfd = udp_connect(server_ip, DEFAULT_PORT, &servAddr);
     if (sockfd < 0) goto cleanup;
 
     ssl = wolfSSL_new(ctx);
@@ -166,6 +162,7 @@ int main(int argc, char** argv)
         fprintf(stderr, "wolfSSL_set_fd (2nd) failed\n");
         goto cleanup;
     }
+    wolfSSL_dtls_set_peer(ssl, (struct sockaddr*)&servAddr, sizeof(servAddr));
 
     if (wolfSSL_set_session(ssl, session) != WOLFSSL_SUCCESS) {
         fprintf(stderr, "wolfSSL_set_session failed\n");
@@ -182,10 +179,19 @@ int main(int argc, char** argv)
 
     /* Complete handshake */
     if (wolfSSL_connect(ssl) != WOLFSSL_SUCCESS) {
-        fprintf(stderr, "wolfSSL_connect (2nd) failed\n");
-        goto cleanup;
+        if (wolfSSL_get_error(ssl, -1) != APP_DATA_READY) {
+            fprintf(stderr, "wolfSSL_connect (2nd) failed\n");
+            goto cleanup;
+        }
     }
     printf("Handshake complete after early data.\n");
+
+    if (wolfSSL_write(ssl, DATA_MSG, DATA_MSG_LEN) != DATA_MSG_LEN) {
+        fprintf(stderr, "wolfSSL_write (normal data) failed\n");
+    }
+    else {
+        printf("Sent normal data: \"%s\"\n", DATA_MSG);
+    }
 
     /* Read server response */
     memset(recvBuf, 0, sizeof(recvBuf));
@@ -195,6 +201,7 @@ int main(int argc, char** argv)
     ret = 0; /* Success */
 
 cleanup:
+    wolfSSL_shutdown(ssl);
     if (ssl) wolfSSL_free(ssl);
     if (session) wolfSSL_SESSION_free(session);
     if (ctx) wolfSSL_CTX_free(ctx);
