@@ -136,14 +136,6 @@ int main(int argc, char** argv)
             continue;
         }
 
-        do {
-            ret = wolfDTLS_accept_stateless(ssl);
-            if (ret == WOLFSSL_FATAL_ERROR) {
-                fprintf(stderr, "wolfDTLS_accept_stateless failed\n");
-                goto cleanup;
-            }
-        } while (ret != WOLFSSL_SUCCESS);
-
         printf("Client connected, processing...\n");
 
         /* wolfSSL_read_early_data reads early data and advances the handshake */
