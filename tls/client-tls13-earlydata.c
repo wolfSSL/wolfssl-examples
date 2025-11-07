@@ -143,6 +143,12 @@ int main(int argc, char** argv)
         fprintf(stderr, "wolfSSL_get1_session failed\n");
         goto cleanup;
     }
+    
+    len = wolfSSL_read(ssl, recvBuf, sizeof(recvBuf) - 1);
+    if (len > 0) {
+        recvBuf[len] = '\0';
+        printf("Server sent: %s\n", recvBuf);
+    }
 
     printf("Initial handshake complete, session ticket obtained.\n");
 
