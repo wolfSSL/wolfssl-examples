@@ -91,6 +91,8 @@ int main(void)
     strncpy(req.subject.unit, "Development", CTC_NAME_SIZE);
     strncpy(req.subject.commonName, "www.wolfssl.com", CTC_NAME_SIZE);
     strncpy(req.subject.email, "info@wolfssl.com", CTC_NAME_SIZE);
+    req.version = 0;
+
     ret = wc_MakeCertReq_ex(&req, der, sizeof(der), ED25519_TYPE, &key);
     if (ret <= 0) {
         printf("Make Cert Req failed: %d\n", ret);

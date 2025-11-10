@@ -127,6 +127,7 @@ sss_status_t ex_sss_entry(ex_sss_boot_ctx_t *pCtx)
         strncpy(req.subject.unit, "Development", CTC_NAME_SIZE);
         strncpy(req.subject.commonName, "www.example.com", CTC_NAME_SIZE);
         strncpy(req.subject.email, "info@example.com", CTC_NAME_SIZE);
+        req.version = 0;
 
         ret = wc_MakeCertReq_ex(&req, der, sizeof(der), ECC_TYPE,
                                 (void*)&ecc);
