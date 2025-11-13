@@ -16,7 +16,7 @@ cd ~/
 git clone https://github.com/philljj/wolfssl.git
 cd ~/wolfssl && git co bsdkm
 ./autogen.sh
-./configure --enable-bsdkm --enable-cryptonly --enable-crypttests --enable-all-crypto --disable-asm && make
+./configure --enable-freebsdkm --enable-cryptonly --enable-crypttests --enable-all-crypto --disable-asm && make
 file bsdkm/libwolfssl.ko
 ```
 
