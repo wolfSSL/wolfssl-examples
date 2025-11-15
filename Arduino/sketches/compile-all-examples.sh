@@ -4,6 +4,23 @@
 # export ARDUINO_ROOT=/home/$USER/Arduino/libraries
 #
 # ./wolfssl-arduino.sh INSTALL  /mnt/c/Users/gojimmypi/Documents/Arduino/libraries
+#
+# usage:
+#
+# ./compile_all_examples.sh board_list.txt [FQBN]
+#
+# example: compile all FQBN items in board_list.txt
+#
+# ./compile_all_examples.sh  board_list.txt
+#
+# example: compile just the teensy:avr:teensy40 board in board_list.txt
+#
+# ./compile_all_examples.sh  board_list.txt teensy:avr:teensy40
+#
+# >>>>>>>>>>>>> EDIT WITH CAUTION <<<<<<<<<<<<<
+#
+# This script is pulled in by https://github.com/wolfSSL/wolfssl/blob/master/.github/workflows/arduino.yml
+#
 
 # Run shell check to ensure this a good script.
 # Specify the executable shell checker you want to use:
@@ -31,6 +48,7 @@ ARDUINO_ROOT="$HOME/Arduino/libraries"
 
 # Used for column alignment; e.g. len(wolfssl_client_dtls) + 2
 MAX_FQBN_LEN=21
+unset TARGET_FQBN
 
 # default board list is board_list.txt, may be overridden
 BOARD_LIST="./board_list.txt"
@@ -50,9 +68,17 @@ if [ $# -gt 0 ]; then
         echo "Error: Parameter specified for board list file does not exist: $1"
         exit 1
     fi
+else
+    echo "Usage:"
+    echo "  $0 board_list.txt [FQBN]"
 fi
 
-# Internal variabled
+if [ $# -gt 1 ]; then
+    TARGET_FQBN="$2"
+    echo "Looking for $TARGET_FQBN"
+fi
+
+# Internal variables
 BOARD_CT=0
 BOARD_COMPILE_CT=0
 BOARD_SKIP_CT=0
@@ -63,7 +89,7 @@ THIS_FOUND_FLAG=0
 # Assume success unless proven otherwise
 SUCCESS="true"
 
-# Same example names, initialized later
+# Some example names, re-initialized later
 EXAMPLES=(wolfssl_client wolfssl_client_dtls server)
 
 # associative array, where the keys are arbitrary strings
@@ -336,12 +362,14 @@ while :; do
 
     BOARD="${line//$'\r'/}"  # Remove carriage returns from the line
 
-    echo ""
-    echo "*************************************************************************************"
-    echo "Testing board: $BOARD"
-    echo "*************************************************************************************"
+    if [[ -z ${TARGET_FQBN:-} || "$TARGET_FQBN" == "$BOARD" ]]; then
+        echo ""
+        echo "*************************************************************************************"
+        echo "Testing board: $BOARD"
+        echo "*************************************************************************************"
+        echo "Checking flags..."
+    fi
 
-    echo "Checking flags..."
     clear_flags
 
     # collect any --no- lines under this FQBN
@@ -356,10 +384,13 @@ while :; do
 
         # echo "  checking [$next] is like --no"
         if [[ $LINE_VALUE == --no-* ]]; then
-            if [[ -n "$LINE_COMMENT" ]]; then
-                echo "$LINE_VALUE: $LINE_COMMENT"
-            else
-                echo "$LINE_VALUE: (No comment provided; Consider adding reason in $BOARD_LIST)"
+            if [[ -z ${TARGET_FQBN:-} || "$TARGET_FQBN" == "$BOARD" ]]; then
+                # Only print if we are compiling this FQBN
+                if [[ -n "$LINE_COMMENT" ]]; then
+                    echo "$LINE_VALUE: $LINE_COMMENT"
+                else
+                    echo "$LINE_VALUE: (No comment provided; Consider adding reason in $BOARD_LIST)"
+                fi
             fi
             set_flag "$LINE_VALUE" "$LINE_COMMENT"
             THIS_FOUND_FLAG=1
@@ -371,9 +402,6 @@ while :; do
         peek=$next
         break
     done
-    if [[ $THIS_FOUND_FLAG -ne 0 ]]; then
-        echo "-------------------------------------------------------------------------------------"
-    fi
 
     # echo "Flags done..."
 
@@ -382,53 +410,63 @@ while :; do
     #    echo "Continue, skipping blank line..."
     #    continue
     # fi
-    echo "Begin Board: $BOARD"
 
-    echo "-------------------------------------------------------------------------------------"
-    ((BOARD_CT++))
-    THIS_EXAMPLE_CT=0
-    for EXAMPLE in "${EXAMPLES[@]}"; do
-        start_time=$(date +%s)  # record start time (epoch seconds)
-        echo "Checking $EXAMPLE for $BOARD"
-        if is_disabled "$EXAMPLE"; then
-            echo "Skipped"
-            ((BOARD_SKIP_CT++))
 
-            if has_comment "$EXAMPLE"; then
-                this_comment=$(comment_for "$EXAMPLE")
-                echo "Comment: $this_comment"
-            else
-                echo "No comment in $BOARD_LIST for disable reason on $EXAMPLE example."
-            fi
-        else
-            # If otherwise not excluded, compile this $EXAMPLE for this $BOARD
-            ((BOARD_COMPILE_CT++))
-            echo "arduino-cli compile --fqbn \"$BOARD\" \"$EXAMPLE\""
-                  arduino-cli compile --fqbn  "$BOARD"   "$EXAMPLE"
-            EXIT_CODE=$?
-            if [ $EXIT_CODE -ne 0 ]; then
-                echo "$ICON_FAIL Compilation failed for $EXAMPLE on $BOARD (Exit code: $EXIT_CODE)"
-                ((BOARD_FAIL_CT++))
-                SUCCESS=false
-                SUMMARY_STATUS+=("$ICON_FAIL")
-            else
-                echo "$ICON_OK Compilation succeeded for $EXAMPLE on $BOARD"
-                SUMMARY_STATUS+=("$ICON_OK")
-            fi # exit code
-
-            SUMMARY_BOARD+=("$BOARD")
-            SUMMARY_EXAMPLE+=("$EXAMPLE")
-        fi # is_disabled check
-
-        end_time=$(date +%s)    # record end time
-        elapsed=$(( end_time - start_time ))
-        echo "Block took ${elapsed} seconds"
-
-        if [[ $THIS_EXAMPLE_CT -lt $EXAMPLE_CT ]]; then
+    # Only print divider if we are testing multiple FQBN, not just the specified parameter
+    if [[ -z ${TARGET_FQBN:-} || "$TARGET_FQBN" == "$BOARD" ]]; then
+        if [[ $THIS_FOUND_FLAG -ne 0 ]]; then
             echo "-------------------------------------------------------------------------------------"
         fi
-        ((THIS_EXAMPLE_CT++))
-    done # for each example
+        echo "Begin Board: $BOARD"
+
+        echo "-------------------------------------------------------------------------------------"
+        ((BOARD_CT++))
+        THIS_EXAMPLE_CT=0
+        for EXAMPLE in "${EXAMPLES[@]}"; do
+            start_time=$(date +%s)  # record start time (epoch seconds)
+            echo "Checking $EXAMPLE for $BOARD"
+            if is_disabled "$EXAMPLE"; then
+                echo "Skipped"
+                ((BOARD_SKIP_CT++))
+
+                if has_comment "$EXAMPLE"; then
+                    this_comment=$(comment_for "$EXAMPLE")
+                    echo "Comment: $this_comment"
+                else
+                    echo "No comment in $BOARD_LIST for disable reason on $EXAMPLE example."
+                fi
+            else
+                # If otherwise not excluded, compile this $EXAMPLE for this $BOARD
+                ((BOARD_COMPILE_CT++))
+                echo "arduino-cli compile --fqbn \"$BOARD\" \"$EXAMPLE\""
+                      arduino-cli compile --fqbn  "$BOARD"   "$EXAMPLE"
+                EXIT_CODE=$?
+                if [ $EXIT_CODE -ne 0 ]; then
+                    echo "$ICON_FAIL Compilation failed for $EXAMPLE on $BOARD (Exit code: $EXIT_CODE)"
+                    ((BOARD_FAIL_CT++))
+                    SUCCESS=false
+                    SUMMARY_STATUS+=("$ICON_FAIL")
+                else
+                    echo "$ICON_OK Compilation succeeded for $EXAMPLE on $BOARD"
+                    SUMMARY_STATUS+=("$ICON_OK")
+                fi # exit code
+
+                SUMMARY_BOARD+=("$BOARD")
+                SUMMARY_EXAMPLE+=("$EXAMPLE")
+            fi # is_disabled check
+
+            end_time=$(date +%s)    # record end time
+            elapsed=$(( end_time - start_time ))
+            echo "Block took ${elapsed} seconds"
+
+            if [[ $THIS_EXAMPLE_CT -lt $EXAMPLE_CT ]]; then
+                echo "-------------------------------------------------------------------------------------"
+            fi
+            ((THIS_EXAMPLE_CT++))
+        done # for each example
+    else
+        echo "Skipped $BOARD, looking for only $TARGET_FQBN"
+    fi
 done < "$BOARD_LIST" # for each BOARD
 
 
