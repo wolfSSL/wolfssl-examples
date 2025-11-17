@@ -28,7 +28,11 @@
 # To view available boards:
 #   arduino-cli board listall | grep '^esp32:esp32:'
 #
-
+# When updating this list:
+#
+#            >>>>> Update arduino-release.yml and arduino.yml  <<<<<
+#
+#
 arduino:avr:leonardoeth
     # Ethernet Leonardo ETH (ATmega32u4 + W5500 Ethernet), only 2K RAM
   --no-wolfssl_AES_CTR     # Global variables use 4973 bytes (194%) of dynamic memory, leaving -2413 bytes for local variables. Maximum is 2560 bytes.
