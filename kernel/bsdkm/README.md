@@ -2,7 +2,6 @@
 
 ## About
 
-
 Tested on FreeBSD 14.2:
 ```sh
 uname -rsm
@@ -13,10 +12,10 @@ FreeBSD 14.2-RELEASE amd64
 
 ```sh
 cd ~/
-git clone https://github.com/philljj/wolfssl.git
-cd ~/wolfssl && git co bsdkm
+git clone https://github.com/wolfSSL/wolfssl.git
+cd ~/wolfssl
 ./autogen.sh
-./configure --enable-freebsdkm --enable-cryptonly --enable-crypttests --enable-all-crypto --disable-asm && make
+./configure --enable-freebsdkm --enable-cryptonly --enable-crypttests --enable-all-crypto && make
 file bsdkm/libwolfssl.ko
 ```
 

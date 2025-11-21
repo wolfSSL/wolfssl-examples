@@ -115,11 +115,11 @@ wc_aes_test_end:
     return ret;
 }
 
-static moduledata_t hellomod = {
+static moduledata_t example_mod = {
     "bsdkm_example", /* name */
     example_loader,  /* loader */
     NULL             /* extra data */
 };
 
-DECLARE_MODULE(bsdkm_example, hellomod, SI_SUB_DRIVERS, SI_ORDER_MIDDLE);
+DECLARE_MODULE(bsdkm_example, example_mod, SI_SUB_DRIVERS, SI_ORDER_MIDDLE);
 MODULE_DEPEND(bsdkm_example, libwolfssl, 1, 1, 1);
