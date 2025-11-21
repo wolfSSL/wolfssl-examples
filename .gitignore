@@ -390,3 +390,11 @@ tpm/evp_tpm
 \.cproject
 \.project
 \.autotools
+
+# FreeBSD kernel module example
+kernel/bsdkm/export_syms
+kernel/bsdkm/i386
+kernel/bsdkm/bsd_example.ko
+kernel/bsdkm/machine
+kernel/bsdkm/opt_global.h
+kernel/bsdkm/x86
