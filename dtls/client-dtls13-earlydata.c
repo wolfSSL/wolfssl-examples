@@ -45,7 +45,7 @@
 #define DATA_MSG "Normal data hello from early data DTLS client!"
 #define DATA_MSG_LEN (sizeof(DATA_MSG))
 
-static int udp_connect(const char* ip, int port, struct sockaddr_in* servAddr) {
+static int udp_create_socket(const char* ip, int port, struct sockaddr_in* servAddr) {
     int sockfd;
 
     if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
@@ -105,7 +105,7 @@ int main(int argc, char** argv)
     }
 
     /* === 1st connection: perform handshake and get session ticket === */
-    sockfd = udp_connect(server_ip, DEFAULT_PORT, &servAddr);
+    sockfd = udp_create_socket(server_ip, DEFAULT_PORT, &servAddr);
     if (sockfd < 0) goto cleanup;
 
     ssl = wolfSSL_new(ctx);
@@ -150,7 +150,7 @@ int main(int argc, char** argv)
     sockfd = -1;
 
     /* === 2nd connection: resume session and send early data === */
-    sockfd = udp_connect(server_ip, DEFAULT_PORT, &servAddr);
+    sockfd = udp_create_socket(server_ip, DEFAULT_PORT, &servAddr);
     if (sockfd < 0) goto cleanup;
 
     ssl = wolfSSL_new(ctx);
@@ -182,6 +182,13 @@ int main(int argc, char** argv)
         if (wolfSSL_get_error(ssl, -1) != APP_DATA_READY) {
             fprintf(stderr, "wolfSSL_connect (2nd) failed\n");
             goto cleanup;
+        }
+        else {
+            memset(recvBuf, 0, sizeof(recvBuf));
+            len = wolfSSL_read(ssl, recvBuf, sizeof(recvBuf) - 1);
+            if (len > 0) {
+                printf("Server sent during handshake: %s\n", recvBuf);
+            }
         }
     }
     printf("Handshake complete after early data.\n");
