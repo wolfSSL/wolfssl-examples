@@ -1,0 +1,98 @@
+with "../wolfssl/wrapper/Ada/config/wolfssl_config.gpr";
+
+library project WolfSSL_SHA256 is
+
+   for Library_Name use "wolfssl";
+
+   for Languages use ("C", "Ada");
+
+   for Source_Dirs use ("../wolfssl/wrapper/Ada",
+                        "../wolfssl",
+                        "../wolfssl/src",
+                        "../wolfssl/wolfcrypt/src");
+
+   --  Don't build the tls client or server application.
+   --  They are not needed in order to build the library.
+   --  Also exclude wolfssl-full_runtime files from this example build
+   for Excluded_Source_Files use
+      ("tls_client_main.adb",
+       "tls_client.ads",
+       "tls_client.adb",
+       "tls_server_main.adb",
+       "tls_server.ads",
+       "tls_server.adb",
+       "spark_sockets.ads",
+       "spark_sockets.adb",
+       "sha256_main.adb",
+       "rsa_verify_main.adb",
+       "wolfssl-full_runtime.adb",
+       "wolfssl-full_runtime.ads");
+
+   for Object_Dir use "./obj";
+   for Library_Dir use "./lib";
+   for Create_Missing_Dirs use "True";
+
+   type Library_Type_Type is ("relocatable", "static", "static-pic");
+   Library_Type : Library_Type_Type := external("LIBRARY_TYPE", "static");
+   for Library_Kind use Library_Type;
+
+   package Naming is
+      for Spec_Suffix ("C") use ".h";
+   end Naming;
+
+   C_Compiler_Config := ();
+
+   case Wolfssl_Config.STATIC_PSK is
+   when "True" => 
+      C_Compiler_Config := 
+         ("-DWOLFSSL_STATIC_PSK" -- Enable the static PSK cipher support
+         );
+   when others =>
+      C_Compiler_Config := ();
+   end case;
+
+   package Compiler is
+      for Switches ("C") use C_Compiler_Config &
+         ("-DWOLFSSL_USER_SETTINGS", --  Use the user_settings.h file.
+          "-Wno-pragmas",
+          "-Wall",
+          "-Wextra",
+          "-Wunknown-pragmas",
+          "--param=ssp-buffer-size=1",
+          "-Waddress",
+          "-Warray-bounds",
+          "-Wbad-function-cast",
+          "-Wchar-subscripts",
+          "-Wcomment",
+          "-Wfloat-equal",
+          "-Wformat-security",
+          "-Wformat=2",
+          "-Wmaybe-uninitialized",
+          "-Wmissing-field-initializers",
+          "-Wmissing-noreturn",
+          "-Wmissing-prototypes",
+          "-Wnested-externs",
+          "-Wnormalized=id",
+          "-Woverride-init",
+          "-Wpointer-arith",
+          "-Wpointer-sign",
+          "-Wshadow",
+          "-Wsign-compare",
+          "-Wstrict-overflow=1",
+          "-Wstrict-prototypes",
+          "-Wswitch-enum",
+          "-Wundef",
+          "-Wunused",
+          "-Wunused-result",
+          "-Wunused-variable",
+          "-Wwrite-strings",
+          "-fwrapv") & External_As_List ("CFLAGS", " ");
+
+      for Switches ("Ada") use ("-g") & External_As_List ("ADAFLAGS", " ");
+   end Compiler;
+
+   package Binder is
+      for Switches ("Ada") use ("-Es");  --  To include stack traces.
+   end Binder;
+
+end WolfSSL_SHA256;
