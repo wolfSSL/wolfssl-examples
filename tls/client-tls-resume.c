@@ -174,12 +174,12 @@ int main(int argc, char** argv)
 
 
     /* Save the session */
-    session = wolfSSL_get_session(ssl);
+    session = wolfSSL_get1_session(ssl);
 
     /* Close the socket */
     wolfSSL_free(ssl);
+    ssl = NULL;
     close(sockfd);
-
 
 
     /* --------------------------------------- *
@@ -275,10 +275,8 @@ exit:
     /* Cleanup and return */
     if (ssl)
         wolfSSL_free(ssl);      /* Free the wolfSSL object              */
-#ifdef OPENSSL_EXTRA   
     if (session)
         wolfSSL_SESSION_free(session);
-#endif    
     if (sockfd != SOCKET_INVALID)
         close(sockfd);          /* Close the socket   */
     if (ctx)
