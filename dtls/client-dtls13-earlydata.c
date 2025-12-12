@@ -178,7 +178,7 @@ int main(int argc, char** argv)
     }
 
     /* Complete handshake */
-    if (wolfSSL_connect(ssl) != WOLFSSL_SUCCESS) {
+    while (wolfSSL_connect(ssl) != WOLFSSL_SUCCESS) {
         if (wolfSSL_get_error(ssl, -1) != APP_DATA_READY) {
             fprintf(stderr, "wolfSSL_connect (2nd) failed\n");
             goto cleanup;
