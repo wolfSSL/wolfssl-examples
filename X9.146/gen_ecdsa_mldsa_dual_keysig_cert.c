@@ -48,6 +48,40 @@
 #define SUBJECT_EMAIL "pq-root@YourDomain.com"
 #else
 #define SUBJECT_EMAIL "pq-server@YourDomain.com"
+#ifdef WOLFSSL_ALT_NAMES
+    /* Add some alt names to our cert: */
+    const char myAltNames[] = {
+         /* SEQUENCE (1 element with 3 segments. Entire length is 41
+          * (0x29 in hex))
+          */
+         0x30, 0x29,
+         /* This is a String 0x8, it denotes a DNSName 0x2 -> 0x82
+          * This strings' length is 9 (0x09)
+          */
+         0x82, 0x09,
+         /* This strings value is "localhost" (in hex) */
+         0x6C, 0x6F, 0x63, 0x61, 0x6C, 0x68, 0x6F, 0x73, 0x74,
+         /* This is a String 0x8, it denotes a DNSName 0x2 -> 0x82
+          * This strings' length is 11 (0x0B)
+          */
+         0x82, 0x0B,
+         /* This strings value is "example.com" (in hex) */
+         0x65, 0x78, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x2e, 0x63, 0x6f, 0x6d,
+         /* This is a String 0x8, it denotes a DNSName 0x2 -> 0x82
+          * This strings' length is 9 (0x09)
+          */
+         0x82, 0x09,
+         /* This strings value is "127.0.0.1" (in hex) */
+         0x31, 0x32, 0x37, 0x2e, 0x30, 0x2e, 0x30, 0x2e, 0x31,
+         /* This is a string 0x08, it denotes an IP Address 0x07 -> 0x87 */
+         /* This strings length is 4 (0x04) */
+         0x87, 0x04,
+         /* The IP address is 127 (0x7F), 0 (0x00), 0, (0x00), 1 (0x01) ->
+          *  127.0.0.1
+          */
+         0x7F, 0x00, 0x00, 0x01
+    };
+#endif
 #endif
 
 void usage(char *prog_name)
@@ -305,6 +339,11 @@ static int do_certgen(int argc, char** argv)
     strncpy(newCert.subject.unit, SUBJECT_UNIT, CTC_NAME_SIZE);
     strncpy(newCert.subject.commonName, SUBJECT_COMMONNAME, CTC_NAME_SIZE);
     strncpy(newCert.subject.email, SUBJECT_EMAIL, CTC_NAME_SIZE);
+
+#if  !defined(GEN_ROOT_CERT) && defined(WOLFSSL_ALT_NAMES)
+    XMEMCPY(newCert.altNames, myAltNames, sizeof(myAltNames));
+    newCert.altNamesSz = (int) sizeof(myAltNames);
+#endif
 
     switch (level)
     {
