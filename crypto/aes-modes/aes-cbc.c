@@ -108,7 +108,8 @@ static int encrypt_file(const char* inFile, const char* outFile,
     padLen = AES_BLOCK_SIZE - (plaintextSz % AES_BLOCK_SIZE);
     paddedSz = plaintextSz + padLen;
 
-    ciphertext = (byte*)malloc(paddedSz + AES_BLOCK_SIZE); /* IV + ciphertext */
+    /* IV + ciphertext */
+    ciphertext = (byte*)malloc(paddedSz + AES_BLOCK_SIZE);
     if (ciphertext == NULL) {
         free(plaintext);
         return -1;
@@ -151,7 +152,8 @@ static int encrypt_file(const char* inFile, const char* outFile,
     }
 
     /* One-shot encrypt */
-    ret = wc_AesCbcEncrypt(&aes, ciphertext + AES_BLOCK_SIZE, plaintext, paddedSz);
+    ret = wc_AesCbcEncrypt(&aes, ciphertext + AES_BLOCK_SIZE, plaintext,
+                           paddedSz);
     wc_AesFree(&aes);
 
     if (ret != 0) {
@@ -246,7 +248,8 @@ static int decrypt_file(const char* inFile, const char* outFile,
     free(ciphertext);
     free(plaintext);
 
-    printf("AES-CBC decryption complete (one-shot, no streaming API available)\n");
+    printf("AES-CBC decryption complete (one-shot, no streaming API "
+           "available)\n");
     return ret;
 }
 
@@ -263,7 +266,8 @@ int main(int argc, char** argv)
 
     wolfCrypt_Init();
 
-    /* Use a fixed key for demonstration (in production, use secure key management) */
+    /* Use a fixed key for demonstration (in production, use secure key
+     * management) */
     memset(key, 0x01, AES_KEY_SIZE);
 
     /* Encrypt to temporary file */

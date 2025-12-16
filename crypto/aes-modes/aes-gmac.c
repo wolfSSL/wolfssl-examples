@@ -207,7 +207,8 @@ static int verify_file(const char* inFile, const char* outFile,
     if (ret != 0) {
         free(input);
         if (ret == AES_GCM_AUTH_E) {
-            printf("Error: Authentication failed! Data may have been tampered.\n");
+            printf("Error: Authentication failed! Data may have been "
+                   "tampered with.\n");
         }
         return ret;
     }
@@ -229,7 +230,8 @@ int main(int argc, char** argv)
 
     if (argc != 3) {
         printf("Usage: %s <input file> <output file>\n", argv[0]);
-        printf("Authenticates input file (one-shot), then verifies to output file\n");
+        printf("Authenticates input file (one-shot), then verifies to output "
+               "file\n");
         printf("Note: GMAC provides authentication only, no encryption\n");
         return 1;
     }

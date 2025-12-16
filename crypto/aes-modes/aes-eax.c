@@ -213,8 +213,8 @@ static int decrypt_file(const char* inFile, const char* outFile,
         }
 
         ret = wc_AesEaxDecryptUpdate(&eax, plaintext + offset,
-                                     input + EAX_NONCE_SIZE + EAX_TAG_SIZE + offset,
-                                     chunkSz, NULL, 0);
+                                     input + EAX_NONCE_SIZE + EAX_TAG_SIZE +
+                                     offset, chunkSz, NULL, 0);
         if (ret != 0) {
             wc_AesEaxFree(&eax);
             free(input);
@@ -242,7 +242,8 @@ static int decrypt_file(const char* inFile, const char* outFile,
     free(input);
     free(plaintext);
 
-    printf("AES-EAX decryption complete (streaming) - authentication verified\n");
+    printf("AES-EAX decryption complete (streaming) - authentication "
+           "verified\n");
     return ret;
 }
 
@@ -253,7 +254,8 @@ int main(int argc, char** argv)
 
     if (argc != 3) {
         printf("Usage: %s <input file> <output file>\n", argv[0]);
-        printf("Encrypts input file (one-shot), then decrypts to output file (streaming)\n");
+        printf("Encrypts input file (one-shot), then decrypts to output file "
+               "(streaming)\n");
         return 1;
     }
 

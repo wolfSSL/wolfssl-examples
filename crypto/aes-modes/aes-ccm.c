@@ -243,7 +243,8 @@ static int decrypt_file(const char* inFile, const char* outFile,
     free(input);
     free(plaintext);
 
-    printf("AES-CCM decryption complete (one-shot, no streaming API available)\n");
+    printf("AES-CCM decryption complete (one-shot, no streaming API "
+           "available)\n");
     return ret;
 }
 

@@ -102,7 +102,8 @@ static int encrypt_file(const char* inFile, const char* outFile,
     ret = read_file(inFile, &plaintext, &plaintextSz);
     if (ret != 0) return ret;
 
-    ciphertext = (byte*)malloc(plaintextSz + AES_BLOCK_SIZE); /* IV + ciphertext */
+    /* IV + ciphertext */
+    ciphertext = (byte*)malloc(plaintextSz + AES_BLOCK_SIZE);
     if (ciphertext == NULL) {
         free(plaintext);
         return -1;
@@ -252,7 +253,8 @@ int main(int argc, char** argv)
 
     if (argc != 3) {
         printf("Usage: %s <input file> <output file>\n", argv[0]);
-        printf("Encrypts input file (one-shot), then decrypts to output file (streaming)\n");
+        printf("Encrypts input file (one-shot), then decrypts to output file "
+               "(streaming)\n");
         return 1;
     }
 

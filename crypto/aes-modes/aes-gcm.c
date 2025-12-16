@@ -266,7 +266,8 @@ static int decrypt_file(const char* inFile, const char* outFile,
     free(input);
     free(plaintext);
 
-    printf("AES-GCM decryption complete (streaming) - authentication verified\n");
+    printf("AES-GCM decryption complete (streaming) - authentication "
+           "verified\n");
     return ret;
 }
 #else

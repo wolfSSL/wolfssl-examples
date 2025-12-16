@@ -41,9 +41,14 @@
 
 #if !defined(NO_AES) && defined(WOLFSSL_AES_XTS)
 
-#define AES_XTS_KEY_SIZE    (AES_256_KEY_SIZE * 2)  /* XTS uses two keys */
-#define XTS_TWEAK_SIZE      16  /* Tweak/IV size */
-#define CHUNK_SIZE          64  /* Chunk size for streaming demo */
+/* XTS uses two keys */
+#define AES_XTS_KEY_SIZE    (AES_256_KEY_SIZE * 2)
+
+/* Tweak/IV size */
+#define XTS_TWEAK_SIZE      16
+
+/* Chunk size for streaming demo */
+#define CHUNK_SIZE          64
 
 static int read_file(const char* filename, byte** data, word32* dataSz)
 {
@@ -107,7 +112,8 @@ static int encrypt_file(const char* inFile, const char* outFile,
 
     /* XTS requires minimum 16 bytes */
     if (plaintextSz < AES_BLOCK_SIZE) {
-        printf("Error: Input must be at least %d bytes for XTS\n", AES_BLOCK_SIZE);
+        printf("Error: Input must be at least %d bytes for XTS\n",
+               AES_BLOCK_SIZE);
         free(plaintext);
         return -1;
     }
@@ -137,7 +143,8 @@ static int encrypt_file(const char* inFile, const char* outFile,
     }
 
     /* Initialize AES-XTS */
-    ret = wc_AesXtsSetKey(&xts, key, keySz, AES_ENCRYPTION, NULL, INVALID_DEVID);
+    ret = wc_AesXtsSetKey(&xts, key, keySz, AES_ENCRYPTION, NULL,
+                          INVALID_DEVID);
     if (ret != 0) {
         free(plaintext);
         free(output);
@@ -204,7 +211,8 @@ static int decrypt_file(const char* inFile, const char* outFile,
     }
 
     /* Initialize AES-XTS for streaming decryption */
-    ret = wc_AesXtsSetKey(&xts, key, keySz, AES_DECRYPTION, NULL, INVALID_DEVID);
+    ret = wc_AesXtsSetKey(&xts, key, keySz, AES_DECRYPTION, NULL,
+                          INVALID_DEVID);
     if (ret != 0) {
         free(input);
         free(plaintext);
@@ -225,7 +233,8 @@ static int decrypt_file(const char* inFile, const char* outFile,
     remaining = ciphertextSz;
 
     while (remaining > AES_BLOCK_SIZE) {
-        chunkSz = remaining - AES_BLOCK_SIZE;  /* Leave at least one block for final */
+        /* Leave at least one block for final */
+        chunkSz = remaining - AES_BLOCK_SIZE;
         if (chunkSz > CHUNK_SIZE) {
             chunkSz = CHUNK_SIZE;
         }
@@ -338,12 +347,14 @@ int main(int argc, char** argv)
 
     if (argc != 3) {
         printf("Usage: %s <input file> <output file>\n", argv[0]);
-        printf("Encrypts input file (one-shot), then decrypts to output file\n");
+        printf("Encrypts input file (one-shot), then decrypts to output "
+               "file\n");
         printf("Note: Input must be at least 16 bytes\n");
 #ifdef WOLFSSL_AESXTS_STREAM
         printf("Streaming decryption enabled\n");
 #else
-        printf("Streaming decryption not available (enable WOLFSSL_AESXTS_STREAM)\n");
+        printf("Streaming decryption not available "
+               "(enable WOLFSSL_AESXTS_STREAM)\n");
 #endif
         return 1;
     }

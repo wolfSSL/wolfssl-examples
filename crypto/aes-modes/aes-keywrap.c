@@ -42,7 +42,9 @@
 #if !defined(NO_AES) && defined(HAVE_AES_KEYWRAP)
 
 #define AES_KEY_SIZE    AES_256_KEY_SIZE
-#define KEYWRAP_BLOCK   8  /* Key wrap block size */
+
+/* Key wrap block size */
+#define KEYWRAP_BLOCK   8
 
 static int read_file(const char* filename, byte** data, word32* dataSz)
 {
@@ -198,7 +200,8 @@ static int unwrap_file(const char* inFile, const char* outFile,
     free(wrapped);
     free(plaintext);
 
-    printf("AES-KEYWRAP unwrapping complete (one-shot, no streaming API available)\n");
+    printf("AES-KEYWRAP unwrapping complete (one-shot, no streaming API "
+           "available)\n");
     return ret;
 }
 

@@ -224,7 +224,8 @@ static int decrypt_file(const char* inFile, const char* outFile,
     free(ciphertext);
     free(plaintext);
 
-    printf("AES-ECB decryption complete (one-shot, no streaming API available)\n");
+    printf("AES-ECB decryption complete (one-shot, no streaming API "
+           "available)\n");
     return ret;
 }
 

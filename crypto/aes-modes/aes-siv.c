@@ -41,8 +41,11 @@
 
 #if !defined(NO_AES) && defined(WOLFSSL_AES_SIV)
 
-#define AES_SIV_KEY_SIZE    (AES_256_KEY_SIZE * 2)  /* SIV uses two keys */
-#define SIV_SIZE            16  /* SIV tag size */
+/* SIV uses two keys */
+#define AES_SIV_KEY_SIZE    (AES_256_KEY_SIZE * 2)
+
+/* SIV tag size */
+#define SIV_SIZE            16
 
 static int read_file(const char* filename, byte** data, word32* dataSz)
 {
@@ -129,7 +132,7 @@ static int encrypt_file(const char* inFile, const char* outFile,
     }
 
     /* One-shot encrypt with SIV */
-    ret = wc_AesSivEncrypt(key, keySz, NULL, 0,  /* No associated data */
+    ret = wc_AesSivEncrypt(key, keySz, NULL, 0,
                            nonce, sizeof(nonce),
                            plaintext, plaintextSz,
                            siv, output + 16 + SIV_SIZE);
@@ -186,7 +189,7 @@ static int decrypt_file(const char* inFile, const char* outFile,
     }
 
     /* One-shot decrypt with SIV verification */
-    ret = wc_AesSivDecrypt(key, keySz, NULL, 0,  /* No associated data */
+    ret = wc_AesSivDecrypt(key, keySz, NULL, 0,
                            nonce, sizeof(nonce),
                            input + 16 + SIV_SIZE, ciphertextSz,
                            siv, plaintext);
@@ -205,7 +208,8 @@ static int decrypt_file(const char* inFile, const char* outFile,
     free(input);
     free(plaintext);
 
-    printf("AES-SIV decryption complete (one-shot, no streaming API available)\n");
+    printf("AES-SIV decryption complete (one-shot, no streaming API "
+           "available)\n");
     return ret;
 }
 

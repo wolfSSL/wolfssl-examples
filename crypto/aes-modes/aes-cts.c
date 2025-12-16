@@ -107,7 +107,8 @@ static int encrypt_file(const char* inFile, const char* outFile,
 
     /* CTS requires minimum 16 bytes */
     if (plaintextSz < AES_BLOCK_SIZE) {
-        printf("Error: Input must be at least %d bytes for CTS\n", AES_BLOCK_SIZE);
+        printf("Error: Input must be at least %d bytes for CTS\n",
+               AES_BLOCK_SIZE);
         free(plaintext);
         return -1;
     }
@@ -203,7 +204,8 @@ static int decrypt_file(const char* inFile, const char* outFile,
     free(input);
     free(plaintext);
 
-    printf("AES-CTS decryption complete (one-shot, no streaming API available)\n");
+    printf("AES-CTS decryption complete (one-shot, no streaming API "
+           "available)\n");
     return ret;
 }
 
@@ -214,7 +216,8 @@ int main(int argc, char** argv)
 
     if (argc != 3) {
         printf("Usage: %s <input file> <output file>\n", argv[0]);
-        printf("Encrypts input file (one-shot), then decrypts to output file (streaming)\n");
+        printf("Encrypts input file (one-shot), then decrypts to output file "
+               "(streaming)\n");
         printf("Note: Input must be at least 16 bytes\n");
         return 1;
     }
