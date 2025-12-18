@@ -1688,3 +1688,203 @@ And that's it! The server has been made into a nonblocking server, and the clien
 2. The Open Group, “setsockopt - set the socket options”, Copyright © 1997, The Single UNIX ® Specification, Version 2
 3. https://en.wikipedia.org/wiki/POSIX_Threads
 4. https://www.quora.com/What-exactly-does-it-mean-for-a-web-server-to-be-blocking-versus-non-blocking 
+
+## Chapter 6: DTLS Session Export and Import
+
+### 6.1 Overview
+
+The DTLS session export/import feature allows you to serialize a DTLS session's state (including keys, cipher specs, sequence numbers, and peer information) to a buffer, save it to persistent storage, and later restore it to continue communication without performing a new handshake.
+
+This is useful for:
+- **Session migration**: Moving a DTLS session between processes or machines
+- **Load balancing**: Distributing sessions across multiple servers
+- **Persistence**: Saving session state across application restarts
+- **Failover**: Restoring sessions after a crash or restart
+
+**Important Security Note**: The exported session data contains sensitive cryptographic keys. These examples encrypt the session data with AES-256-CBC before saving to disk. In production, use a secure key management system instead of hard-coded keys.
+
+### 6.2 Building wolfSSL with Session Export Support
+
+To use these examples, wolfSSL must be compiled with DTLS and session export support:
+
+```bash
+cd wolfssl
+./autogen.sh
+./configure --enable-dtls --enable-sessionexport
+make
+sudo make install
+sudo ldconfig
+```
+
+### 6.3 Building the Examples
+
+```bash
+cd wolfssl-examples/dtls
+make client-dtls-export client-dtls-import server-dtls-export server-dtls-import
+```
+
+### 6.4 Example Applications
+
+#### 6.4.1 client-dtls-export
+
+A DTLS client that performs a handshake with a server and exports its session state to an encrypted file.
+
+**Usage:**
+```bash
+./client-dtls-export <server_ip> [session_file]
+```
+
+**Parameters:**
+- `server_ip`: IP address of the DTLS server
+- `session_file`: Optional filename to save the session (default: `dtls_session.bin`)
+
+**Example:**
+```bash
+# Start the standard DTLS server first
+./server-dtls
+
+# In another terminal, run the export client
+./client-dtls-export 127.0.0.1
+```
+
+#### 6.4.2 client-dtls-import
+
+A DTLS client that imports a previously exported session and resumes communication without a new handshake.
+
+**Usage:**
+```bash
+./client-dtls-import <server_ip> [session_file]
+```
+
+**Parameters:**
+- `server_ip`: IP address of the DTLS server
+- `session_file`: Optional filename to load the session from (default: `dtls_session.bin`)
+
+**Example:**
+```bash
+# After running client-dtls-export, use the import client
+./client-dtls-import 127.0.0.1
+```
+
+#### 6.4.3 server-dtls-export
+
+A DTLS server that accepts a client connection, performs a handshake, and exports its session state to an encrypted file.
+
+**Usage:**
+```bash
+./server-dtls-export [session_file]
+```
+
+**Parameters:**
+- `session_file`: Optional filename to save the session (default: `dtls_server_session.bin`)
+
+**Example:**
+```bash
+./server-dtls-export
+# Then connect with a standard DTLS client
+./client-dtls 127.0.0.1
+```
+
+#### 6.4.4 server-dtls-import
+
+A DTLS server that imports a previously exported session and resumes communication without a new handshake.
+
+**Usage:**
+```bash
+./server-dtls-import [session_file]
+```
+
+**Parameters:**
+- `session_file`: Optional filename to load the session from (default: `dtls_server_session.bin`)
+
+**Example:**
+```bash
+# After running server-dtls-export, use the import server
+./server-dtls-import
+```
+
+### 6.5 Complete Workflow Example
+
+Here's a complete example demonstrating session export and import:
+
+**Terminal 1 - Start the export server:**
+```bash
+./server-dtls-export
+# Wait for client connection...
+```
+
+**Terminal 2 - Connect with export client:**
+```bash
+./client-dtls-export 127.0.0.1
+# Type a message and press Enter
+Hello from client!
+# Session is exported to dtls_session.bin
+```
+
+**Terminal 1 - Server exports session:**
+```
+# Server receives message and exports to dtls_server_session.bin
+```
+
+**Now both client and server have exported their sessions. To resume:**
+
+**Terminal 1 - Start the import server:**
+```bash
+./server-dtls-import
+# Session loaded, waiting for client...
+```
+
+**Terminal 2 - Connect with import client:**
+```bash
+./client-dtls-import 127.0.0.1
+# Session loaded, no handshake needed!
+# Type messages to communicate
+```
+
+### 6.6 Session Data Encryption
+
+The examples use AES-256-CBC to encrypt the session data before saving to disk. The file format is:
+
+```
+[4 bytes: original data length (big-endian)]
+[16 bytes: random IV]
+[N bytes: AES-CBC encrypted session data with PKCS#7 padding]
+```
+
+**Warning**: The examples use a hard-coded AES key for demonstration purposes. In production:
+- Use a secure key management system (KMS)
+- Derive keys from a secure source
+- Consider using authenticated encryption (AES-GCM)
+- Implement proper key rotation
+
+### 6.7 API Reference
+
+The key wolfSSL functions used in these examples:
+
+```c
+/* Export a DTLS session to a buffer */
+int wolfSSL_dtls_export(WOLFSSL* ssl, unsigned char* buf, unsigned int* sz);
+
+/* Import a DTLS session from a buffer */
+int wolfSSL_dtls_import(WOLFSSL* ssl, const unsigned char* buf, unsigned int sz);
+
+/* Export only the session state (sequence numbers, epoch, etc.) */
+int wolfSSL_dtls_export_state_only(WOLFSSL* ssl, unsigned char* buf, unsigned int* sz);
+```
+
+For `wolfSSL_dtls_export`:
+- Call with `buf=NULL` to get the required buffer size in `*sz`
+- Call again with an allocated buffer to perform the export
+- Returns the number of bytes written on success, or negative on error
+
+For `wolfSSL_dtls_import`:
+- Pass the buffer containing the exported session data
+- Returns the number of bytes read on success, or negative on error
+
+### 6.8 Software Bill of Materials (SBOM)
+
+| Component | Version | License | Description |
+|-----------|---------|---------|-------------|
+| wolfSSL | 5.x+ | GPLv2 or Commercial | TLS/DTLS library with session export support |
+| wolfCrypt | 5.x+ | GPLv2 or Commercial | Cryptographic library (AES, RNG) |
+
