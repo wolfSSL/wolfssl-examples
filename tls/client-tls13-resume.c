@@ -37,7 +37,9 @@
 
 #define DEFAULT_PORT 11111
 
-#define CERT_FILE "../certs/ca-cert.pem"
+#define CERT_FILE "../certs/client-cert.pem"
+#define KEY_FILE  "../certs/client-key.pem"
+#define CA_FILE   "../certs/ca-cert.pem"
 
 
 #if defined(WOLFSSL_TLS13) && defined(HAVE_SECRET_CALLBACK)
@@ -138,6 +140,9 @@ int main(int argc, char** argv)
     }
 
 
+#ifdef DEBUG_WOLFSSL
+    wolfSSL_Debugging_ON();
+#endif
 
     /* Initialize wolfSSL */
     wolfSSL_Init();
@@ -160,11 +165,27 @@ int main(int argc, char** argv)
         goto exit;
     }
 
-    /* Load client certificates into WOLFSSL_CTX */
-    if ((ret = wolfSSL_CTX_load_verify_locations(ctx, CERT_FILE, NULL))
+    /* Load client certificate into WOLFSSL_CTX */
+    if ((ret = wolfSSL_CTX_use_certificate_file(ctx, CERT_FILE, WOLFSSL_FILETYPE_PEM))
         != WOLFSSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
                 CERT_FILE);
+        goto exit;
+    }
+
+    /* Load client key into WOLFSSL_CTX */
+    if ((ret = wolfSSL_CTX_use_PrivateKey_file(ctx, KEY_FILE, WOLFSSL_FILETYPE_PEM))
+        != WOLFSSL_SUCCESS) {
+        fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
+                KEY_FILE);
+        goto exit;
+    }
+
+    /* Load client certificates into WOLFSSL_CTX */
+    if ((ret = wolfSSL_CTX_load_verify_locations(ctx, CA_FILE, NULL))
+        != WOLFSSL_SUCCESS) {
+        fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
+                CA_FILE);
         goto exit;
     }
 
@@ -312,8 +333,8 @@ int main(int argc, char** argv)
 
     /* Set up to resume the session */
     if ((ret = wolfSSL_set_session(sslRes, session)) != WOLFSSL_SUCCESS) {
-        fprintf(stderr, "Failed to set session, make sure session tickets "
-                        "(--enable-session-ticket) is enabled\n");
+        fprintf(stderr, "Failed to set session (%d), make sure session tickets "
+                        "(--enable-session-ticket) is enabled\n", ret);
         /*goto exit;*/ /* not fatal */
     }
 
