@@ -1442,6 +1442,46 @@ Execute them like so:
 ./client-tls13-certauth-clienthello 127.0.0.1
 ```
 
+## TLS 1.3 Early Data (0-RTT) with Session Resumption
+
+This pair of examples demonstrates TLS 1.3 early data (0-RTT) using wolfSSL.
+The client performs an initial connection to obtain a session ticket, then
+reconnects and sends early data during the resumed handshake. The server reads
+early data and can send application data immediately (so-called 0.5-RTT), then
+continues with the normal handshake/application data flow.
+
+Files:
+- `server-tls13-earlydata.c`: TLS 1.3 server that accepts connections and reads
+  early data using `wolfSSL_read_early_data()`. It also sets a maximum early
+  data size with `wolfSSL_CTX_set_max_early_data()`.
+- `client-tls13-earlydata.c`: TLS 1.3 client that first connects to obtain a
+  session ticket, then reconnects and sends early data with
+  `wolfSSL_write_early_data()` before finishing the handshake.
+
+Build requirements:
+- wolfSSL must be built with TLS 1.3 and early data support enabled.
+  Enable early data support by building wolfSSL with 
+  `--enable-earlydata --enable-session-ticket`.
+- If early data support is not enabled, these examples will print a message and
+  exit.
+
+Build and run (in `wolfssl-examples/tls`, in separate terminals):
+
+```sh
+make clean && make
+./server-tls13-earlydata
+./client-tls13-earlydata 127.0.0.1
+```
+
+Expected behavior:
+- On the first client connection, a full handshake completes and a session ticket
+  is obtained.
+- On the second client connection, the client sends early data immediately and
+  then completes the TLS handshake.
+- The server logs the received early data and replies both during early-data
+  processing and again after the handshake is complete.
+
+
 ## Support
 
 Please contact wolfSSL at support@wolfssl.com with any questions, bug fixes,

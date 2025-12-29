@@ -55,6 +55,7 @@ android/wolfssljni-ndk-sample/proguard-project.txt
 /dtls/client-dtls-shared
 /dtls/client-dtls
 /dtls/client-dtls13
+/dtls/client-dtls13-earlydata
 /dtls/client-udp
 /dtls/memory-bio-dtls
 /dtls/server-dtls-callback
@@ -64,6 +65,7 @@ android/wolfssljni-ndk-sample/proguard-project.txt
 /dtls/server-dtls-threaded
 /dtls/server-dtls
 /dtls/server-dtls13
+/dtls/server-dtls13-earlydata
 /dtls/server-dtls13-event
 /dtls/server-udp
 
@@ -84,6 +86,8 @@ android/wolfssljni-ndk-sample/proguard-project.txt
 /tls/client-tls
 /tls/client-tls13
 /tls/client-tls13-resume
+/tls/client-tls13-earlydata
+/tls/server-tls13-earlydata
 /tls/client-tls-bio
 /tls/client-tls-cacb
 /tls/client-tls-callback
