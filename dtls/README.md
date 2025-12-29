@@ -79,6 +79,7 @@
       - 5.2.4.1. Variables
       - 5.2.4.2. Adding a Loop
     - 5.2.5. Final Note
+- Chapter 6: DTLS 1.3 Early Data (0-RTT) with Session Resumption
 - References
 ##  CHAPTER 1: A Simple UDP Server & Client
 ###  Section 1: By Kaleb Himes
@@ -1678,6 +1679,50 @@ return 0;
 The code above was taken directly from the DTLS server nonblocking file. 
 
 Be sure to keep in mind that the `AwaitDatagram` code is essentially one large loop that will attempt to listen for a client (in a nonblocking fashion) at every iteration, and will close the loop upon a signal passed by the user.
+
+## Chapter 6: DTLS 1.3 Early Data (0-RTT) with Session Resumption
+
+This pair of examples demonstrates DTLS 1.3 early data (0-RTT) using wolfSSL.
+The client performs an initial connection to obtain a session ticket, then
+reconnects and sends early data during the resumed handshake. The server reads
+early data and can send application data immediately (so-called 0.5-RTT), then
+continues with the normal handshake/application data flow.
+
+It is recommended to build wolfSSL with `WOLFSSL_DTLS13_NO_HRR_ON_RESUME` so the
+server does not send a HelloRetryRequest (HRR) when resuming sessions. (The
+server example also enables this behavior per-connection with
+`wolfSSL_dtls13_no_hrr_on_resume()`.)
+
+Files:
+- `server-dtls13-earlydata.c`: DTLS 1.3 server that receives early data using
+  `wolfSSL_read_early_data()`. It sets a maximum early data size using
+  `wolfSSL_CTX_set_max_early_data()` and may send 0.5-RTT application data.
+- `client-dtls13-earlydata.c`: DTLS 1.3 client that first connects to obtain a
+  session ticket, then reconnects and sends early data using
+  `wolfSSL_write_early_data()` before finishing the handshake. After the
+  handshake, it also sends a normal (post-handshake) application data message.
+
+Build requirements:
+- wolfSSL must be built with DTLS 1.3 and early data support enabled.
+  Enable early data support by building wolfSSL with
+  `--enable-earlydata --enable-session-ticket`.
+
+Build and run (in `wolfssl-examples/dtls`, in separate terminals):
+
+```sh
+make clean && make
+./server-dtls13-earlydata
+./client-dtls13-earlydata 127.0.0.1
+```
+
+Expected behavior:
+- On the first client run/connection, a full handshake completes and a session
+  ticket is obtained.
+- On the second connection, the client sends early data immediately and then
+  completes the DTLS handshake.
+- The server logs any received early data, may send a reply during early-data
+  processing, then finishes the handshake and sends a normal reply after
+  handshake completion.
 
 #### 5.2.5 Final note
 And that's it! The server has been made into a nonblocking server, and the client has been made into a nonblocking client.
