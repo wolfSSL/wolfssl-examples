@@ -35,6 +35,8 @@
 #include <wolfssl/ssl.h>
 #include <wolfssl/wolfio.h>
 
+#ifdef WOLFSSL_EARLY_DATA
+
 #define DEFAULT_PORT 11111
 #define CERT_FILE    "../certs/client-cert.pem"
 #define KEY_FILE     "../certs/client-key.pem"
@@ -128,10 +130,10 @@ int main(int argc, char** argv)
     }
 
     /* Check if ticket was received */
-    if (!wolfSSL_SessionIsSetup(wolfSSL_SSL_get0_session(ssl))) {
+    if (!wolfSSL_SessionIsSetup(wolfSSL_get_session(ssl))) {
         /* Attempt to read a session ticket from server */
         (void)wolfSSL_peek(ssl, recvBuf, 0);
-        if (!wolfSSL_SessionIsSetup(wolfSSL_SSL_get0_session(ssl))) {
+        if (!wolfSSL_SessionIsSetup(wolfSSL_get_session(ssl))) {
             fprintf(stderr, "Session ticket not received from server\n");
             goto cleanup;
         }
@@ -208,3 +210,13 @@ cleanup:
     wolfSSL_Cleanup();
     return ret;
 }
+
+#else
+int main(int argc, char** argv)
+{
+    printf("Example requires TLS v1.3 with Early Data support\n");
+    (void)argc;
+    (void)argv;
+    return 1;
+}
+#endif /* WOLFSSL_EARLY_DATA */

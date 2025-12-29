@@ -34,6 +34,8 @@
 #include <wolfssl/ssl.h>
 #include <wolfssl/wolfio.h>
 
+#ifdef WOLFSSL_EARLY_DATA
+
 #define DEFAULT_PORT 11111
 #define CERT_FILE    "../certs/server-cert.pem"
 #define KEY_FILE     "../certs/server-key.pem"
@@ -198,3 +200,14 @@ cleanup:
     wolfSSL_Cleanup();
     return ret;
 }
+
+#else
+
+int main(int argc, char** argv)
+{
+    printf("Example requires WOLFSSL_EARLY_DATA to be enabled\n");
+    (void)argc;
+    (void)argv;
+    return 0;
+}
+#endif /* WOLFSSL_EARLY_DATA */

@@ -125,9 +125,9 @@ int main(int argc, char** argv)
     }
 
     /* Check if ticket was received */
-    if (!wolfSSL_SessionIsSetup(wolfSSL_SSL_get0_session(ssl))) {
+    if (!wolfSSL_SessionIsSetup(wolfSSL_get_session(ssl))) {
         (void)wolfSSL_peek(ssl, recvBuf, 0);
-        if (!wolfSSL_SessionIsSetup(wolfSSL_SSL_get0_session(ssl))) {
+        if (!wolfSSL_SessionIsSetup(wolfSSL_get_session(ssl))) {
             fprintf(stderr, "Session ticket not received from server\n");
             goto cleanup;
         }
