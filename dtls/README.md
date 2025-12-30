@@ -1738,14 +1738,24 @@ In another terminal, run the client export application, enter a message and then
 ```
 
 Both application will then exit. You can find new .bin files that are generated.
+
 In the first terminal, run the the server import application.
 
 ```bash
-./server-dtls-export
+./server-dtls-import
 ```
 
-It will load the server binary file. In the second terminal, run the client import application, type a message and press enter. The server will be able to get the message and decrypt it as if the two applications had never been interrupted.
-.
+It will import the server binary file.
+
+In the second terminal, run the client import application.
+
+```bash
+./client-dtls-import
+```
+
+It will import the client binary file.
+
+Type a message and press enter. The server will be able to get the message and decrypt it as if the two applications had never been interrupted.
 
 ### 6.5 Session Data Encryption
 
