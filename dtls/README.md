@@ -1676,7 +1676,7 @@ if (cont == 1 || cleanup == 1) {
 return 0;
 ```
 
-The code above was taken directly from the DTLS server nonblocking file. 
+The code above was taken directly from the DTLS server nonblocking file.
 
 Be sure to keep in mind that the `AwaitDatagram` code is essentially one large loop that will attempt to listen for a client (in a nonblocking fashion) at every iteration, and will close the loop upon a signal passed by the user.
 
@@ -1733,3 +1733,86 @@ And that's it! The server has been made into a nonblocking server, and the clien
 2. The Open Group, “setsockopt - set the socket options”, Copyright © 1997, The Single UNIX ® Specification, Version 2
 3. https://en.wikipedia.org/wiki/POSIX_Threads
 4. https://www.quora.com/What-exactly-does-it-mean-for-a-web-server-to-be-blocking-versus-non-blocking 
+
+## Chapter 6: DTLS Session Export and Import
+
+### 6.1 Overview
+
+The DTLS session export/import feature allows you to serialize a DTLS session's state (including keys, cipher specs, sequence numbers, and peer information) to a buffer, save it to persistent storage, and later restore it to continue communication without performing a new handshake.
+
+This is useful for:
+- **Session migration**: Moving a DTLS session between processes
+- **Load balancing**: Distributing sessions across multiple servers
+- **Persistence**: Saving session state across application restarts
+- **Failover**: Restoring sessions after a crash or restart
+
+**Important Security Note**: The exported session data contains sensitive cryptographic keys. These examples encrypt the session data with AES-256-CBC before saving to disk. In production, use a secure key management system instead of hard-coded keys.
+
+### 6.2 Building wolfSSL with Session Export Support
+
+To use these examples, wolfSSL must be compiled with DTLS and session export support:
+
+```bash
+cd wolfssl
+./autogen.sh
+./configure --enable-dtls --enable-sessionexport
+make
+sudo make install
+sudo ldconfig
+```
+
+### 6.3 Building the Examples
+
+```bash
+cd wolfssl-examples/dtls
+make client-dtls-export client-dtls-import server-dtls-export server-dtls-import
+```
+
+### 6.4 Running the Examples
+
+In a terminal run the server export application.
+
+```bash
+./server-dtls-export
+```
+
+
+In another terminal, run the client export application, enter a message and then press enter.
+```bash
+./client-dtls-export 127.0.0.1
+```
+
+Both application will then exit. You can find new .bin files that are generated.
+
+In the first terminal, run the the server import application.
+
+```bash
+./server-dtls-import
+```
+
+It will import the server binary file.
+
+In the second terminal, run the client import application.
+
+```bash
+./client-dtls-import
+```
+
+It will import the client binary file.
+
+Type a message and press enter. The server will be able to get the message and decrypt it as if the two applications had never been interrupted.
+
+### 6.5 Session Data Encryption
+
+The examples use AES-256-CBC to encrypt the session data before saving to disk. The file format is:
+
+```
+[4 bytes: original data length]
+[16 bytes: random IV]
+[N bytes: AES-CBC encrypted session]
+```
+
+**Warning**: The examples use a hard-coded AES key for demonstration purposes. In production:
+- Derive keys from a secure source
+- Consider using authenticated encryption (AES-GCM)
+- Implement proper key rotation
