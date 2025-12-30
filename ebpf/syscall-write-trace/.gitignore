@@ -1,0 +1,13 @@
+# Binaries
+client-tcp
+server-tcp
+write_tracer
+*.o
+*.bpf.o
+*.log
+
+# Editor files
+*~
+*.swp
+.DS_Store
+

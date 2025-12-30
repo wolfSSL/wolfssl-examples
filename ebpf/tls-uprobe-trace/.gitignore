@@ -1,0 +1,13 @@
+# Binaries
+client-tls
+server-tls
+wolfssl_uprobe
+*.o
+*.bpf.o
+*.log
+
+# Editor files
+*~
+*.swp
+.DS_Store
+
