@@ -1,6 +1,6 @@
 /* curve25519_test.c
  *
- * Copyright (C) 2006-2021 wolfSSL Inc.
+ * Copyright (C) 2006-2025 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
  *
@@ -25,12 +25,17 @@
 #include <wolfssl/wolfcrypt/random.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
 
-/*
-./configure --enable-curve25519 --enable-ed25519 && make && sudo make install
-gcc -o curve25519_test -lwolfssl curve25519_test.c
-
-./configure --enable-curve25519 --enable-ed25519 --enable-debug --disable-shared && make
-gcc -g -o curve25519_test -I. ./src/.libs/libwolfssl.a curve25519_test.c
+/* Build option A: wolfssl as dynamic shared library.
+ *
+ * ./configure --enable-curve25519 && make && sudo make install
+ * gcc -o curve25519_test curve25519_test.c -lwolfssl
+ *
+ * Build option B: wolfssl as static library with debugging enabled.
+ * This assumes that wolfssl and wolfssl-examples are in the same directory.
+ *
+ * ./configure --enable-curve25519 --enable-debug --disable-shared && make
+ * gcc -g -o curve25519_test curve25519_test.c -I../../../wolfssl/wolfssl \
+ * ../../../wolfssl/src/.libs/libwolfssl.a
  */
 
 #ifdef HAVE_CURVE25519
@@ -71,10 +76,25 @@ int curve25519_secret(const byte* priv, const byte* pub, byte* secret,
 {
     int ret;
     curve25519_key privKey, pubKey;
+#ifdef WOLFSSL_CURVE25519_BLINDING
+    WC_RNG rng;
+#endif
 
     ret = wc_curve25519_init(&privKey);
     if (ret == 0)
         ret = wc_curve25519_init(&pubKey);
+
+#ifdef WOLFSSL_CURVE25519_BLINDING
+    /* Normally, you would not expect Diffie-Hellman style key exchanges to
+     * require an RNG, but if you have blinding enabled, then you need the RNG
+     * to do blinding. */
+    if (ret == 0) {
+        ret = wc_InitRng(&rng);
+    }
+    if (ret == 0) {
+        ret = wc_curve25519_set_rng(&privKey, &rng);
+    }
+#endif
 
     if (ret == 0) {
         ret = wc_curve25519_import_private_ex(priv, 32, &privKey, endianess);
@@ -96,6 +116,9 @@ int curve25519_secret(const byte* priv, const byte* pub, byte* secret,
             secretsz, endianess);
     }
 
+#ifdef WOLFSSL_CURVE25519_BLINDING
+    wc_FreeRng(&rng);
+#endif
     wc_curve25519_free(&pubKey);
     wc_curve25519_free(&privKey);
     return ret;
