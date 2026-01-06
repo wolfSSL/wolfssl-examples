@@ -31,6 +31,9 @@ extern "C" {
 /* ------------------------------------------------------------------------- */
 #define SIZEOF_LONG_LONG 8
 
+/* Use small stack (heap allocation for large buffers) */
+#define WOLFSSL_SMALL_STACK
+
 /* Threading - single threaded for simple testing */
 /* #define SINGLE_THREADED */
 
