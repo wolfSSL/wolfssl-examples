@@ -1,5 +1,7 @@
 /* stsafe_test.c
  *
+ * STSAFE-A120 test program for wolfSSL integration
+ *
  * Copyright (C) 2006-2026 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)

@@ -1,5 +1,8 @@
 /* wolfssl_stsafe_test.c
  *
+ * Test wolfSSL crypto callbacks with STSAFE-A120
+ * Tests: RNG, ECC P-256, ECC P-384, ECDSA Sign/Verify
+ *
  * Copyright (C) 2006-2026 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)

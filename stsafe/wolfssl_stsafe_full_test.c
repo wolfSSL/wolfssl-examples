@@ -1,5 +1,8 @@
 /* wolfssl_stsafe_full_test.c
  *
+ * Comprehensive wolfSSL integration tests with STSAFE-A120
+ * Tests: RNG, ECC KeyGen, ECDSA Sign/Verify, ECDH, Benchmarks
+ *
  * Copyright (C) 2006-2026 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)

@@ -1,5 +1,7 @@
 /* stse_platform_crypto_wolfssl.c
  *
+ * STSecureElement platform crypto implementation using wolfSSL
+ *
  * Copyright (C) 2006-2026 wolfSSL Inc.
  *
  * This file is part of wolfSSL. (formerly known as CyaSSL)
@@ -34,6 +36,16 @@
 #include <wolfssl/wolfcrypt/sha512.h>
 #include <wolfssl/wolfcrypt/hash.h>
 #include <wolfssl/wolfcrypt/ecc.h>
+#include <wolfssl/wolfcrypt/random.h>
+#ifdef HAVE_AES_KEYWRAP
+    #include <wolfssl/wolfcrypt/aes.h>
+#endif
+#ifdef HAVE_CURVE25519
+    #include <wolfssl/wolfcrypt/curve25519.h>
+#endif
+#ifdef HAVE_ED25519
+    #include <wolfssl/wolfcrypt/ed25519.h>
+#endif
 
 #include <string.h>
 #include <stdlib.h>
@@ -342,6 +354,432 @@ stse_ReturnCode_t stse_platform_ecc_verify(stse_ecc_key_type_t key_type,
 
     return STSE_OK;
 }
+
+/* ========================================================================== */
+/* ECC Key Generation Functions                                               */
+/* ========================================================================== */
+
+#if defined(STSE_CONF_USE_HOST_KEY_ESTABLISHMENT) || \
+    defined(STSE_CONF_USE_HOST_KEY_PROVISIONING_WRAPPED) || \
+    defined(STSE_CONF_USE_HOST_KEY_PROVISIONING_WRAPPED_AUTHENTICATED) || \
+    defined(STSE_CONF_USE_SYMMETRIC_KEY_ESTABLISHMENT) || \
+    defined(STSE_CONF_USE_SYMMETRIC_KEY_ESTABLISHMENT_AUTHENTICATED) || \
+    defined(STSE_CONF_USE_SYMMETRIC_KEY_PROVISIONING_WRAPPED) || \
+    defined(STSE_CONF_USE_SYMMETRIC_KEY_PROVISIONING_WRAPPED_AUTHENTICATED)
+
+stse_ReturnCode_t stse_platform_ecc_generate_key_pair(stse_ecc_key_type_t key_type,
+                                                      PLAT_UI8 *pPrivKey,
+                                                      PLAT_UI8 *pPubKey)
+{
+    ecc_key eccKey;
+    WC_RNG rng;
+    int ret;
+    int key_size;
+    int curve_id;
+    word32 outLen;
+
+    if (pPrivKey == NULL || pPubKey == NULL) {
+        return STSE_PLATFORM_ECC_GENERATE_KEY_PAIR_ERROR;
+    }
+
+    key_size = stse_get_ecc_key_size(key_type);
+    if (key_size == 0) {
+        return STSE_PLATFORM_ECC_GENERATE_KEY_PAIR_ERROR;
+    }
+
+    curve_id = stse_get_wolfssl_curve_id(key_type);
+
+#if defined(STSE_CONF_ECC_CURVE_25519) && defined(HAVE_CURVE25519)
+    if (key_type == STSE_ECC_KT_CURVE25519) {
+        curve25519_key x25519Key;
+
+        ret = wc_InitRng(&rng);
+        if (ret != 0) {
+            return STSE_PLATFORM_ECC_GENERATE_KEY_PAIR_ERROR;
+        }
+
+        ret = wc_curve25519_init(&x25519Key);
+        if (ret != 0) {
+            wc_FreeRng(&rng);
+            return STSE_PLATFORM_ECC_GENERATE_KEY_PAIR_ERROR;
+        }
+
+        ret = wc_curve25519_make_key(&rng, CURVE25519_KEYSIZE, &x25519Key);
+        if (ret != 0) {
+            wc_curve25519_free(&x25519Key);
+            wc_FreeRng(&rng);
+            return STSE_PLATFORM_ECC_GENERATE_KEY_PAIR_ERROR;
+        }
+
+        /* Export private key */
+        outLen = CURVE25519_KEYSIZE;
+        ret = wc_curve25519_export_private_raw(&x25519Key, pPrivKey, &outLen);
+        if (ret != 0) {
+            wc_curve25519_free(&x25519Key);
+            wc_FreeRng(&rng);
+            return STSE_PLATFORM_ECC_GENERATE_KEY_PAIR_ERROR;
+        }
+
+        /* Export public key */
+        outLen = CURVE25519_KEYSIZE;
+        ret = wc_curve25519_export_public(&x25519Key, pPubKey, &outLen);
+
+        wc_curve25519_free(&x25519Key);
+        wc_FreeRng(&rng);
+
+        if (ret != 0) {
+            return STSE_PLATFORM_ECC_GENERATE_KEY_PAIR_ERROR;
+        }
+
+        return STSE_OK;
+    }
+#endif
+
+#if defined(STSE_CONF_ECC_EDWARD_25519) && defined(HAVE_ED25519)
+    if (key_type == STSE_ECC_KT_ED25519) {
+        ed25519_key ed25519Key;
+
+        ret = wc_InitRng(&rng);
+        if (ret != 0) {
+            return STSE_PLATFORM_ECC_GENERATE_KEY_PAIR_ERROR;
+        }
+
+        ret = wc_ed25519_init(&ed25519Key);
+        if (ret != 0) {
+            wc_FreeRng(&rng);
+            return STSE_PLATFORM_ECC_GENERATE_KEY_PAIR_ERROR;
+        }
+
+        ret = wc_ed25519_make_key(&rng, ED25519_KEY_SIZE, &ed25519Key);
+        if (ret != 0) {
+            wc_ed25519_free(&ed25519Key);
+            wc_FreeRng(&rng);
+            return STSE_PLATFORM_ECC_GENERATE_KEY_PAIR_ERROR;
+        }
+
+        /* Export private key */
+        outLen = ED25519_KEY_SIZE;
+        ret = wc_ed25519_export_private_only(&ed25519Key, pPrivKey, &outLen);
+        if (ret != 0) {
+            wc_ed25519_free(&ed25519Key);
+            wc_FreeRng(&rng);
+            return STSE_PLATFORM_ECC_GENERATE_KEY_PAIR_ERROR;
+        }
+
+        /* Export public key */
+        outLen = ED25519_PUB_KEY_SIZE;
+        ret = wc_ed25519_export_public(&ed25519Key, pPubKey, &outLen);
+
+        wc_ed25519_free(&ed25519Key);
+        wc_FreeRng(&rng);
+
+        if (ret != 0) {
+            return STSE_PLATFORM_ECC_GENERATE_KEY_PAIR_ERROR;
+        }
+
+        return STSE_OK;
+    }
+#endif
+
+    /* Standard ECC curves (NIST P-256, P-384, P-521, Brainpool) */
+    ret = wc_InitRng(&rng);
+    if (ret != 0) {
+        return STSE_PLATFORM_ECC_GENERATE_KEY_PAIR_ERROR;
+    }
+
+    ret = wc_ecc_init(&eccKey);
+    if (ret != 0) {
+        wc_FreeRng(&rng);
+        return STSE_PLATFORM_ECC_GENERATE_KEY_PAIR_ERROR;
+    }
+
+    /* Generate key pair */
+    ret = wc_ecc_make_key_ex(&rng, key_size, &eccKey, curve_id);
+    if (ret != 0) {
+        wc_ecc_free(&eccKey);
+        wc_FreeRng(&rng);
+        return STSE_PLATFORM_ECC_GENERATE_KEY_PAIR_ERROR;
+    }
+
+    /* Export private key (raw format) */
+    outLen = key_size;
+    ret = wc_ecc_export_private_only(&eccKey, pPrivKey, &outLen);
+    if (ret != 0) {
+        wc_ecc_free(&eccKey);
+        wc_FreeRng(&rng);
+        return STSE_PLATFORM_ECC_GENERATE_KEY_PAIR_ERROR;
+    }
+
+    /* Export public key as X || Y (raw unsigned format) */
+    ret = wc_ecc_export_public_raw(&eccKey, pPubKey, &outLen,
+                                   pPubKey + key_size, &outLen);
+
+    wc_ecc_free(&eccKey);
+    wc_FreeRng(&rng);
+
+    if (ret != 0) {
+        return STSE_PLATFORM_ECC_GENERATE_KEY_PAIR_ERROR;
+    }
+
+    return STSE_OK;
+}
+
+#endif /* Key establishment/provisioning features */
+
+/* ========================================================================== */
+/* ECC Signing Functions                                                      */
+/* ========================================================================== */
+
+#if defined(STSE_CONF_USE_HOST_KEY_PROVISIONING_WRAPPED_AUTHENTICATED) || \
+    defined(STSE_CONF_USE_SYMMETRIC_KEY_ESTABLISHMENT_AUTHENTICATED) || \
+    defined(STSE_CONF_USE_SYMMETRIC_KEY_PROVISIONING_WRAPPED_AUTHENTICATED)
+
+stse_ReturnCode_t stse_platform_ecc_sign(stse_ecc_key_type_t key_type,
+                                         PLAT_UI8 *pPrivKey,
+                                         PLAT_UI8 *pDigest,
+                                         PLAT_UI16 digestLen,
+                                         PLAT_UI8 *pSignature)
+{
+    ecc_key eccKey;
+    WC_RNG rng;
+    int ret;
+    int key_size;
+    int curve_id;
+    byte derSig[ECC_MAX_SIG_SIZE];
+    word32 derSigLen = sizeof(derSig);
+    word32 rLen, sLen;
+
+    if (pPrivKey == NULL || pDigest == NULL || pSignature == NULL) {
+        return STSE_PLATFORM_ECC_SIGN_ERROR;
+    }
+
+    key_size = stse_get_ecc_key_size(key_type);
+    if (key_size == 0) {
+        return STSE_PLATFORM_ECC_SIGN_ERROR;
+    }
+
+    curve_id = stse_get_wolfssl_curve_id(key_type);
+
+#if defined(STSE_CONF_ECC_EDWARD_25519) && defined(HAVE_ED25519)
+    if (key_type == STSE_ECC_KT_ED25519) {
+        ed25519_key ed25519Key;
+        word32 sigLen = ED25519_SIG_SIZE;
+
+        ret = wc_ed25519_init(&ed25519Key);
+        if (ret != 0) {
+            return STSE_PLATFORM_ECC_SIGN_ERROR;
+        }
+
+        /* Import private key */
+        ret = wc_ed25519_import_private_only(pPrivKey, ED25519_KEY_SIZE, &ed25519Key);
+        if (ret != 0) {
+            wc_ed25519_free(&ed25519Key);
+            return STSE_PLATFORM_ECC_SIGN_ERROR;
+        }
+
+        /* Make public key from private */
+        ret = wc_ed25519_make_public(&ed25519Key, ed25519Key.p, ED25519_PUB_KEY_SIZE);
+        if (ret != 0) {
+            wc_ed25519_free(&ed25519Key);
+            return STSE_PLATFORM_ECC_SIGN_ERROR;
+        }
+        ed25519Key.pubKeySet = 1;
+
+        /* Sign the message (Ed25519 signs the message, not a hash) */
+        ret = wc_ed25519_sign_msg(pDigest, digestLen, pSignature, &sigLen, &ed25519Key);
+
+        wc_ed25519_free(&ed25519Key);
+
+        if (ret != 0) {
+            return STSE_PLATFORM_ECC_SIGN_ERROR;
+        }
+
+        return STSE_OK;
+    }
+#endif
+
+    /* Standard ECDSA curves */
+    ret = wc_InitRng(&rng);
+    if (ret != 0) {
+        return STSE_PLATFORM_ECC_SIGN_ERROR;
+    }
+
+    ret = wc_ecc_init(&eccKey);
+    if (ret != 0) {
+        wc_FreeRng(&rng);
+        return STSE_PLATFORM_ECC_SIGN_ERROR;
+    }
+
+    /* Import private key */
+    ret = wc_ecc_import_private_key_ex(pPrivKey, key_size,
+                                        NULL, 0, /* No public key */
+                                        &eccKey, curve_id);
+    if (ret != 0) {
+        wc_ecc_free(&eccKey);
+        wc_FreeRng(&rng);
+        return STSE_PLATFORM_ECC_SIGN_ERROR;
+    }
+
+    /* Sign the hash - produces DER encoded signature */
+    ret = wc_ecc_sign_hash(pDigest, digestLen, derSig, &derSigLen, &rng, &eccKey);
+    if (ret != 0) {
+        wc_ecc_free(&eccKey);
+        wc_FreeRng(&rng);
+        return STSE_PLATFORM_ECC_SIGN_ERROR;
+    }
+
+    /* Convert DER signature to R || S raw format */
+    rLen = key_size;
+    sLen = key_size;
+    ret = wc_ecc_sig_to_rs(derSig, derSigLen,
+                           pSignature, &rLen,
+                           pSignature + key_size, &sLen);
+
+    wc_ecc_free(&eccKey);
+    wc_FreeRng(&rng);
+
+    if (ret != 0) {
+        return STSE_PLATFORM_ECC_SIGN_ERROR;
+    }
+
+    return STSE_OK;
+}
+
+#endif /* Authenticated provisioning features */
+
+/* ========================================================================== */
+/* ECDH Key Exchange Functions                                                */
+/* ========================================================================== */
+
+#if defined(STSE_CONF_USE_HOST_KEY_ESTABLISHMENT) || \
+    defined(STSE_CONF_USE_HOST_KEY_PROVISIONING_WRAPPED) || \
+    defined(STSE_CONF_USE_HOST_KEY_PROVISIONING_WRAPPED_AUTHENTICATED) || \
+    defined(STSE_CONF_USE_SYMMETRIC_KEY_ESTABLISHMENT) || \
+    defined(STSE_CONF_USE_SYMMETRIC_KEY_ESTABLISHMENT_AUTHENTICATED) || \
+    defined(STSE_CONF_USE_SYMMETRIC_KEY_PROVISIONING_WRAPPED) || \
+    defined(STSE_CONF_USE_SYMMETRIC_KEY_PROVISIONING_WRAPPED_AUTHENTICATED)
+
+stse_ReturnCode_t stse_platform_ecc_ecdh(stse_ecc_key_type_t key_type,
+                                         const PLAT_UI8 *pPubKey,
+                                         const PLAT_UI8 *pPrivKey,
+                                         PLAT_UI8 *pSharedSecret)
+{
+    ecc_key privEccKey;
+    ecc_key pubEccKey;
+    int ret;
+    int key_size;
+    int curve_id;
+    word32 sharedSecretLen;
+
+    if (pPubKey == NULL || pPrivKey == NULL || pSharedSecret == NULL) {
+        return STSE_PLATFORM_ECC_ECDH_ERROR;
+    }
+
+    key_size = stse_get_ecc_key_size(key_type);
+    if (key_size == 0) {
+        return STSE_PLATFORM_ECC_ECDH_ERROR;
+    }
+
+    curve_id = stse_get_wolfssl_curve_id(key_type);
+
+#if defined(STSE_CONF_ECC_CURVE_25519) && defined(HAVE_CURVE25519)
+    if (key_type == STSE_ECC_KT_CURVE25519) {
+        curve25519_key privKey;
+        curve25519_key pubKey;
+
+        ret = wc_curve25519_init(&privKey);
+        if (ret != 0) {
+            return STSE_PLATFORM_ECC_ECDH_ERROR;
+        }
+
+        ret = wc_curve25519_init(&pubKey);
+        if (ret != 0) {
+            wc_curve25519_free(&privKey);
+            return STSE_PLATFORM_ECC_ECDH_ERROR;
+        }
+
+        /* Import private key */
+        ret = wc_curve25519_import_private_ex(pPrivKey, CURVE25519_KEYSIZE,
+                                               &privKey, EC25519_LITTLE_ENDIAN);
+        if (ret != 0) {
+            wc_curve25519_free(&pubKey);
+            wc_curve25519_free(&privKey);
+            return STSE_PLATFORM_ECC_ECDH_ERROR;
+        }
+
+        /* Import public key */
+        ret = wc_curve25519_import_public_ex(pPubKey, CURVE25519_KEYSIZE,
+                                              &pubKey, EC25519_LITTLE_ENDIAN);
+        if (ret != 0) {
+            wc_curve25519_free(&pubKey);
+            wc_curve25519_free(&privKey);
+            return STSE_PLATFORM_ECC_ECDH_ERROR;
+        }
+
+        /* Compute shared secret */
+        sharedSecretLen = CURVE25519_KEYSIZE;
+        ret = wc_curve25519_shared_secret(&privKey, &pubKey, pSharedSecret, &sharedSecretLen);
+
+        wc_curve25519_free(&pubKey);
+        wc_curve25519_free(&privKey);
+
+        if (ret != 0) {
+            return STSE_PLATFORM_ECC_ECDH_ERROR;
+        }
+
+        return STSE_OK;
+    }
+#endif
+
+    /* Standard ECC curves */
+    ret = wc_ecc_init(&privEccKey);
+    if (ret != 0) {
+        return STSE_PLATFORM_ECC_ECDH_ERROR;
+    }
+
+    ret = wc_ecc_init(&pubEccKey);
+    if (ret != 0) {
+        wc_ecc_free(&privEccKey);
+        return STSE_PLATFORM_ECC_ECDH_ERROR;
+    }
+
+    /* Import private key */
+    ret = wc_ecc_import_private_key_ex(pPrivKey, key_size,
+                                        NULL, 0, /* No public key */
+                                        &privEccKey, curve_id);
+    if (ret != 0) {
+        wc_ecc_free(&pubEccKey);
+        wc_ecc_free(&privEccKey);
+        return STSE_PLATFORM_ECC_ECDH_ERROR;
+    }
+
+    /* Import public key (X || Y format) */
+    ret = wc_ecc_import_unsigned(&pubEccKey,
+                                  (byte*)pPubKey,              /* X coordinate */
+                                  (byte*)(pPubKey + key_size), /* Y coordinate */
+                                  NULL,                        /* No private key */
+                                  curve_id);
+    if (ret != 0) {
+        wc_ecc_free(&pubEccKey);
+        wc_ecc_free(&privEccKey);
+        return STSE_PLATFORM_ECC_ECDH_ERROR;
+    }
+
+    /* Compute shared secret */
+    sharedSecretLen = key_size;
+    ret = wc_ecc_shared_secret(&privEccKey, &pubEccKey, pSharedSecret, &sharedSecretLen);
+
+    wc_ecc_free(&pubEccKey);
+    wc_ecc_free(&privEccKey);
+
+    if (ret != 0) {
+        return STSE_PLATFORM_ECC_ECDH_ERROR;
+    }
+
+    return STSE_OK;
+}
+
+#endif /* Key establishment/provisioning features */
 
 /* ========================================================================== */
 /* AES ECB Functions                                                          */
@@ -896,13 +1334,56 @@ stse_ReturnCode_t stse_platform_hmac_sha256_expand(PLAT_UI8 *pPseudorandom_key, 
 }
 
 /* ========================================================================== */
-/* NIST Key Wrap (Optional - stub for now)                                    */
+/* NIST Key Wrap Functions                                                    */
 /* ========================================================================== */
+
+#if defined(STSE_CONF_USE_HOST_KEY_PROVISIONING_WRAPPED) || \
+    defined(STSE_CONF_USE_HOST_KEY_PROVISIONING_WRAPPED_AUTHENTICATED) || \
+    defined(STSE_CONF_USE_SYMMETRIC_KEY_PROVISIONING_WRAPPED) || \
+    defined(STSE_CONF_USE_SYMMETRIC_KEY_PROVISIONING_WRAPPED_AUTHENTICATED)
 
 stse_ReturnCode_t stse_platform_nist_kw_encrypt(PLAT_UI8 *pPayload, PLAT_UI32 payload_length,
                                                 PLAT_UI8 *pKey, PLAT_UI8 key_length,
                                                 PLAT_UI8 *pOutput, PLAT_UI32 *pOutput_length)
 {
+#ifdef HAVE_AES_KEYWRAP
+    Aes aes;
+    int ret;
+
+    if (pPayload == NULL || pKey == NULL || pOutput == NULL || pOutput_length == NULL) {
+        return STSE_PLATFORM_KEYWRAP_ERROR;
+    }
+
+    /* Key wrap input must be at least 16 bytes and multiple of 8 */
+    if (payload_length < 16 || (payload_length % 8) != 0) {
+        return STSE_PLATFORM_KEYWRAP_ERROR;
+    }
+
+    ret = wc_AesInit(&aes, NULL, INVALID_DEVID);
+    if (ret != 0) {
+        return STSE_PLATFORM_KEYWRAP_ERROR;
+    }
+
+    ret = wc_AesSetKey(&aes, pKey, key_length, NULL, AES_ENCRYPTION);
+    if (ret != 0) {
+        wc_AesFree(&aes);
+        return STSE_PLATFORM_KEYWRAP_ERROR;
+    }
+
+    /* NIST Key Wrap adds 8 bytes of overhead */
+    ret = wc_AesKeyWrap(pKey, key_length, pPayload, payload_length,
+                        pOutput, payload_length + 8, NULL);
+
+    wc_AesFree(&aes);
+
+    if (ret <= 0) {
+        return STSE_PLATFORM_KEYWRAP_ERROR;
+    }
+
+    *pOutput_length = (PLAT_UI32)ret;
+
+    return STSE_OK;
+#else
     (void)pPayload;
     (void)payload_length;
     (void)pKey;
@@ -910,7 +1391,10 @@ stse_ReturnCode_t stse_platform_nist_kw_encrypt(PLAT_UI8 *pPayload, PLAT_UI32 pa
     (void)pOutput;
     (void)pOutput_length;
 
-    /* TODO: Implement using wc_AesKeyWrap if needed */
-    return STSE_PLATFORM_AES_ECB_ENCRYPT_ERROR;
+    /* AES Key Wrap not available in this build */
+    return STSE_PLATFORM_KEYWRAP_ERROR;
+#endif /* HAVE_AES_KEYWRAP */
 }
+
+#endif /* Key provisioning wrapped features */
 
