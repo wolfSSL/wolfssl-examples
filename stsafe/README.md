@@ -15,126 +15,100 @@ Test harness for wolfSSL integration with ST STSAFE-A120 secure element on Raspb
 - GCC compiler
 - Linux I2C development headers (`libi2c-dev`)
 
-## Directory Structure
+## Quick Start
 
-```
-stsafe/
-├── Makefile                          # Build configuration
-├── README.md                         # This file
-├── user_settings.h                   # wolfSSL configuration
-├── stsafe_test.c                     # STSELib basic tests
-├── wolfssl_stsafe_test.c             # wolfSSL crypto callback tests
-├── wolfssl_stsafe_full_test.c        # Full integration tests with benchmarks
-└── platform/
-    ├── stse_conf.h                   # STSELib configuration
-    ├── stse_platform_generic.h       # Platform type definitions
-    ├── stse_platform_linux.c         # Linux I2C platform implementation
-    └── stse_platform_crypto_wolfssl.c # wolfSSL crypto for STSELib
-```
-
-## Configuration
-
-### I2C Setup
-
-1. Enable I2C on Raspberry Pi:
-   ```bash
-   sudo raspi-config
-   # Navigate to: Interface Options -> I2C -> Enable
-   ```
-
-2. Verify I2C device:
-   ```bash
-   sudo i2cdetect -y 1
-   # STSAFE should appear at address 0x20
-   ```
-
-3. Set I2C permissions (optional, for non-root access):
-   ```bash
-   sudo usermod -a -G i2c $USER
-   # Logout and login again
-   ```
-
-### Environment
-
-Set paths to dependencies:
-```bash
-export WOLFSSL_DIR=$HOME/wolfssl
-export STSELIB_DIR=$HOME/STSELib
-```
-
-## Building
-
-### Prerequisites
-
-1. Build wolfSSL with required features:
-   ```bash
-   cd $WOLFSSL_DIR
-   ./configure --enable-cryptocb --enable-ecc --enable-cmac --enable-sha384 --enable-debug
-   make
-   ```
-
-2. Clone STSELib:
-   ```bash
-   git clone https://github.com/STMicroelectronics/STSELib.git $STSELIB_DIR
-   ```
-
-### Build Targets
+### 1. Enable I2C on Raspberry Pi
 
 ```bash
-# Build basic STSELib tests (no wolfSSL crypto callbacks)
+sudo raspi-config
+# Navigate to: Interface Options -> I2C -> Enable
+```
+
+Reboot if prompted, then verify the STSAFE device is detected:
+
+```bash
+sudo i2cdetect -y 1
+# STSAFE should appear at address 0x20
+```
+
+Optional: Allow non-root I2C access:
+```bash
+sudo usermod -a -G i2c $USER
+# Logout and login again
+```
+
+### 2. Build wolfSSL
+
+```bash
+cd ~/wolfssl
+./configure --enable-cryptocb --enable-ecc --enable-cmac --enable-sha384
+make
+```
+
+### 3. Clone STSELib
+
+```bash
+git clone https://github.com/STMicroelectronics/STSELib.git ~/STSELib
+```
+
+### 4. Build and Run Tests
+
+```bash
+cd ~/wolfssl-examples/stsafe
+
+# Build all test executables
 make
 
-# Build wolfSSL crypto callback tests
-make wolfssl
-
-# Build full integration tests with benchmarks
-make wolfssl-full
-
-# Build without wolfSSL (basic I2C tests only)
-make basic
-
-# Clean build artifacts
-make clean
-
-# Show configuration
-make info
+# Run all tests
+make test-all
 ```
 
-## Running Tests
+## Test Suites
 
-### Basic STSELib Tests
-```bash
-./stsafe_test
-```
+### Basic STSELib Tests (`stsafe_test`)
 
-Tests:
+Tests core STSAFE-A120 functionality:
 - Echo command (I2C communication)
 - Random number generation
 - ECC P-256 key generation
 - ECDSA P-256 signing
 - ECC P-384 key generation
 
-### wolfSSL Crypto Callback Tests
 ```bash
-./wolfssl_stsafe_test
+make && ./stsafe_test
 ```
 
-Tests:
+### wolfSSL Crypto Callback Tests (`wolfssl_stsafe_test`)
+
+Tests wolfSSL crypto callbacks with STSAFE:
 - RNG with STSAFE-A120
-- ECC P-256 key generation via crypto callback
-- ECC P-384 key generation via crypto callback
-- ECDSA P-256 sign/verify
-- ECDSA P-384 sign/verify
+- ECC P-256/P-384 key generation via crypto callback
+- ECDSA P-256/P-384 sign/verify
 
-### Full Integration Tests
 ```bash
-./wolfssl_stsafe_full_test
+make wolfssl && ./wolfssl_stsafe_test
 ```
 
-Tests:
+### Full Integration Tests (`wolfssl_stsafe_full_test`)
+
+Comprehensive tests with benchmarks:
 - RNG benchmark
 - ECDSA P-256 benchmark (keygen, sign, verify timing)
 - Multiple sequential operations
+
+```bash
+make wolfssl-full && ./wolfssl_stsafe_full_test
+```
+
+## Build Targets
+
+| Target | Description |
+|--------|-------------|
+| `make` | Build all test executables |
+| `make test-all` | Build and run all tests |
+| `make basic` | Build without wolfSSL (basic I2C tests only) |
+| `make clean` | Clean build artifacts |
+| `make info` | Show configuration |
 
 ## Expected Output
 
@@ -175,9 +149,51 @@ Test Summary: 5 passed, 0 failed
 | ECDSA P-256 Sign | ~51 ms | 19.5 ops/sec |
 | ECDSA P-256 Verify | ~79 ms | 12.7 ops/sec |
 
+## Directory Structure
+
+```
+stsafe/
+├── Makefile                          # Build configuration
+├── README.md                         # This file
+├── user_settings.h                   # wolfSSL configuration
+├── stsafe_test.c                     # STSELib basic tests
+├── wolfssl_stsafe_test.c             # wolfSSL crypto callback tests
+├── wolfssl_stsafe_full_test.c        # Full integration tests with benchmarks
+└── platform/
+    ├── stse_conf.h                   # STSELib configuration
+    ├── stse_platform_generic.h       # Platform type definitions
+    ├── stse_platform_linux.c         # Linux I2C platform implementation
+    └── stse_platform_crypto_wolfssl.c # wolfSSL crypto for STSELib
+```
+
+## Environment Variables
+
+Default paths assume `~/wolfssl` and `~/STSELib`. Override if needed:
+
+```bash
+export WOLFSSL_DIR=/path/to/wolfssl
+export STSELIB_DIR=/path/to/STSELib
+```
+
+## Troubleshooting
+
+### Error 0x0104 (STSE_PLATFORM_BUS_ERR)
+
+I2C communication error. Check:
+1. I2C is enabled: `ls /dev/i2c*`
+2. Device detected: `sudo i2cdetect -y 1` (should show `20`)
+3. Wiring connections are secure
+
+### Build errors
+
+Ensure wolfSSL is built with required features:
+```bash
+./configure --enable-cryptocb --enable-ecc --enable-cmac --enable-sha384
+```
+
 ## References
 
 - [wolfSSL Documentation](https://www.wolfssl.com/docs/)
 - [STSELib GitHub](https://github.com/STMicroelectronics/STSELib)
 - [STSAFE-A120 Datasheet](https://www.st.com/en/secure-mcus/stsafe-a120.html)
-- [Raspberry Pi I2C Documentation](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#gpio-and-the-40-pin-header)
+- [Raspberry Pi I2C Documentation](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html)

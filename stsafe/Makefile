@@ -68,9 +68,9 @@ TARGET = stsafe_test
 WOLFSSL_TARGET = wolfssl_stsafe_test
 WOLFSSL_FULL_TARGET = wolfssl_stsafe_full_test
 
-.PHONY: all clean test info basic wolfssl wolfssl-full
+.PHONY: all clean test test-all info basic wolfssl wolfssl-full
 
-all: $(TARGET)
+all: $(TARGET) wolfssl wolfssl-full
 
 # Full build with wolfSSL crypto support
 $(TARGET): $(TEST_SRC) $(PLATFORM_SRC) $(PLATFORM_CRYPTO_SRC)
@@ -144,6 +144,13 @@ wolfssl-full: $(WOLFSSL_FULL_TEST_SRC) $(PLATFORM_SRC) $(PLATFORM_CRYPTO_SRC)
 test-wolfssl-full: wolfssl-full
 	./$(WOLFSSL_FULL_TARGET)
 
+test-all: all
+	@echo "=== Running stsafe_test ===" && ./$(TARGET)
+	@echo ""
+	@echo "=== Running wolfssl_stsafe_test ===" && ./$(WOLFSSL_TARGET)
+	@echo ""
+	@echo "=== Running wolfssl_stsafe_full_test ===" && ./$(WOLFSSL_FULL_TARGET)
+
 clean:
 	rm -f $(TARGET) $(WOLFSSL_TARGET) $(WOLFSSL_FULL_TARGET) *.o stsafe.o stse_platform_linux.o stse_platform_crypto.o
 
@@ -156,7 +163,8 @@ info:
 	@echo "Linker flags: $(LDFLAGS)"
 	@echo ""
 	@echo "Build targets:"
-	@echo "  make        - Build with wolfSSL crypto support (full features)"
-	@echo "  make basic  - Build without wolfSSL (basic tests only)"
-	@echo "  make test   - Build and run tests"
-	@echo "  make clean  - Clean build artifacts"
+	@echo "  make          - Build all test executables"
+	@echo "  make test-all - Build and run all tests"
+	@echo "  make basic    - Build without wolfSSL (basic tests only)"
+	@echo "  make clean    - Clean build artifacts"
+	@echo "  make info     - Show this configuration"
