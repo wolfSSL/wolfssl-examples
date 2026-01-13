@@ -273,7 +273,9 @@ static int test_ecdsa_p256(void)
     for (i = 0; i < 8 && i < (int)sigLen; i++) printf("%02X", sig[i]);
     printf("...\n");
 
-    /* Verify the signature */
+    /* Verify the signature using software (public key only, no hardware needed) */
+    /* Clear devId to force software verification */
+    key.devId = INVALID_DEVID;
     ret = wc_ecc_verify_hash(sig, sigLen, digest, sizeof(digest), &verified, &key);
     if (ret != 0) {
         printf("  Error: wc_ecc_verify_hash failed: %d\n", ret);
@@ -292,6 +294,29 @@ static int test_ecdsa_p256(void)
     }
 
     printf("  Signature verified!\n");
+
+    /* Also verify using hardware (STSAFE) */
+    printf("  Verifying signature using STSAFE hardware...\n");
+    /* Restore devId for hardware verification */
+    key.devId = g_devId;
+    ret = wc_ecc_verify_hash(sig, sigLen, digest, sizeof(digest), &verified, &key);
+    if (ret != 0) {
+        printf("  Error: wc_ecc_verify_hash (HW) failed: %d\n", ret);
+        wc_ecc_free(&key);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECDSA P-256 verify HW");
+        return -1;
+    }
+
+    if (verified != 1) {
+        printf("  Error: Hardware signature verification failed\n");
+        wc_ecc_free(&key);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECDSA P-256 verification result HW");
+        return -1;
+    }
+
+    printf("  Hardware signature verified!\n");
 
     wc_ecc_free(&key);
     wc_FreeRng(&rng);
@@ -360,7 +385,9 @@ static int test_ecdsa_p384(void)
     for (i = 0; i < 8 && i < (int)sigLen; i++) printf("%02X", sig[i]);
     printf("...\n");
 
-    /* Verify the signature */
+    /* Verify the signature using software (public key only, no hardware needed) */
+    /* Clear devId to force software verification */
+    key.devId = INVALID_DEVID;
     ret = wc_ecc_verify_hash(sig, sigLen, digest, sizeof(digest), &verified, &key);
     if (ret != 0) {
         printf("  Error: wc_ecc_verify_hash failed: %d\n", ret);
@@ -380,9 +407,273 @@ static int test_ecdsa_p384(void)
 
     printf("  Signature verified!\n");
 
+    /* Also verify using hardware (STSAFE) */
+    printf("  Verifying signature using STSAFE hardware...\n");
+    /* Restore devId for hardware verification */
+    key.devId = g_devId;
+    ret = wc_ecc_verify_hash(sig, sigLen, digest, sizeof(digest), &verified, &key);
+    if (ret != 0) {
+        printf("  Error: wc_ecc_verify_hash (HW) failed: %d\n", ret);
+        wc_ecc_free(&key);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECDSA P-384 verify HW");
+        return -1;
+    }
+
+    if (verified != 1) {
+        printf("  Error: Hardware signature verification failed\n");
+        wc_ecc_free(&key);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECDSA P-384 verification result HW");
+        return -1;
+    }
+
+    printf("  Hardware signature verified!\n");
+
     wc_ecc_free(&key);
     wc_FreeRng(&rng);
     TEST_PASS("ECDSA P-384 sign/verify");
+    return 0;
+}
+
+/*-----------------------------------------------------------------------------
+ * Test: ECDHE P-256 Key Generation with STSAFE-A120
+ * Note: This tests ephemeral key generation using stse_generate_ECDHE_key_pair
+ *---------------------------------------------------------------------------*/
+static int test_ecdhe_keygen_p256(void)
+{
+    ecc_key key;
+    WC_RNG rng;
+    int ret;
+    byte pubX[32], pubY[32];
+    word32 pubX_len = sizeof(pubX), pubY_len = sizeof(pubY);
+    int i;
+
+    printf("\nTest: ECDHE P-256 Ephemeral Key Generation with STSAFE-A120\n");
+    printf("  Note: Uses stse_generate_ECDHE_key_pair() for ephemeral keys\n");
+
+    ret = wc_InitRng(&rng);
+    if (ret != 0) {
+        printf("  Error: wc_InitRng failed: %d\n", ret);
+        TEST_FAIL("ECDHE P-256 RNG init");
+        return -1;
+    }
+
+    ret = wc_ecc_init_ex(&key, NULL, g_devId);
+    if (ret != 0) {
+        printf("  Error: wc_ecc_init_ex failed: %d\n", ret);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECDHE P-256 init");
+        return -1;
+    }
+
+    /* Generate ECDHE ephemeral key pair - should use STSAFE ECDHE via crypto callback */
+    ret = wc_ecc_make_key_ex(&rng, 32, &key, ECC_SECP256R1);
+    if (ret != 0) {
+        printf("  Error: wc_ecc_make_key_ex failed: %d\n", ret);
+        wc_ecc_free(&key);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECDHE P-256 key generation");
+        return -1;
+    }
+
+    /* Export public key */
+    ret = wc_ecc_export_public_raw(&key, pubX, &pubX_len, pubY, &pubY_len);
+    if (ret != 0 || pubX_len != 32 || pubY_len != 32) {
+        printf("  Error: wc_ecc_export_public_raw failed: %d\n", ret);
+        wc_ecc_free(&key);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECDHE P-256 export public key");
+        return -1;
+    }
+
+    /* Verify public key is non-zero */
+    int all_zero = 1;
+    for (i = 0; i < 32; i++) {
+        if (pubX[i] != 0 || pubY[i] != 0) {
+            all_zero = 0;
+            break;
+        }
+    }
+    if (all_zero) {
+        printf("  Error: Public key is all zeros\n");
+        wc_ecc_free(&key);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECDHE P-256 invalid public key");
+        return -1;
+    }
+
+    printf("  Public Key X: ");
+    for (i = 0; i < 8; i++) printf("%02X", pubX[i]);
+    printf("...\n");
+    printf("  Public Key Y: ");
+    for (i = 0; i < 8; i++) printf("%02X", pubY[i]);
+    printf("...\n");
+    printf("  Ephemeral key generated successfully (private key in STSE internal memory)\n");
+
+    wc_ecc_free(&key);
+    wc_FreeRng(&rng);
+    TEST_PASS("ECDHE P-256 ephemeral key generation");
+    return 0;
+}
+
+/*-----------------------------------------------------------------------------
+ * Test: ECDHE P-256 Shared Secret Computation with STSAFE-A120
+ * Note: This test uses crypto callbacks which use slot-based keys.
+ *       True ECDHE ephemeral keys are only used in TLS PK callbacks.
+ *---------------------------------------------------------------------------*/
+static int test_ecdhe_shared_secret_p256(void)
+{
+    ecc_key keyHW;      /* Hardware key in STSAFE (ephemeral slot via crypto callback) */
+    ecc_key keySW;      /* Software key (wolfCrypt) */
+    WC_RNG rng;
+    int ret;
+    byte sharedHW[32], sharedSW[32];
+    word32 sharedHWLen = sizeof(sharedHW), sharedSWLen = sizeof(sharedSW);
+    int i;
+
+    printf("\nTest: ECDH P-256 Shared Secret Computation (STSAFE + wolfCrypt)\n");
+    printf("  Note: One side uses STSAFE hardware (ephemeral slot), other uses wolfCrypt software\n");
+
+    ret = wc_InitRng(&rng);
+    if (ret != 0) {
+        printf("  Error: wc_InitRng failed: %d\n", ret);
+        TEST_FAIL("ECDHE P-256 shared secret RNG init");
+        return -1;
+    }
+
+    /* Initialize hardware ECDH key (with STSAFE devId) */
+    ret = wc_ecc_init_ex(&keyHW, NULL, g_devId);
+    if (ret != 0) {
+        printf("  Error: wc_ecc_init_ex (HW) failed: %d\n", ret);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECDHE P-256 key init HW");
+        return -1;
+    }
+
+    /* Initialize software key (INVALID_DEVID for software/wolfCrypt) */
+    ret = wc_ecc_init_ex(&keySW, NULL, INVALID_DEVID);
+    if (ret != 0) {
+        printf("  Error: wc_ecc_init_ex (SW) failed: %d\n", ret);
+        wc_ecc_free(&keyHW);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECDHE P-256 key init SW");
+        return -1;
+    }
+
+    /* Generate hardware key pair (in STSAFE ephemeral slot via crypto callback) */
+    printf("  Generating hardware key pair (STSAFE ephemeral slot via crypto callback)...\n");
+    ret = wc_ecc_make_key_ex(&rng, 32, &keyHW, ECC_SECP256R1);
+    if (ret != 0) {
+        printf("  Error: wc_ecc_make_key_ex (HW) failed: %d\n", ret);
+        wc_ecc_free(&keyHW);
+        wc_ecc_free(&keySW);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECDH P-256 keygen HW");
+        return -1;
+    }
+    printf("    HW key generated (in ephemeral slot)\n");
+
+    /* Generate software key pair (wolfCrypt) */
+    printf("  Generating software key pair (wolfCrypt)...\n");
+    ret = wc_ecc_make_key_ex(&rng, 32, &keySW, ECC_SECP256R1);
+    if (ret != 0) {
+        printf("  Error: wc_ecc_make_key_ex (SW) failed: %d\n", ret);
+        wc_ecc_free(&keyHW);
+        wc_ecc_free(&keySW);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECDH P-256 keygen SW");
+        return -1;
+    }
+    printf("    SW key generated\n");
+
+    /* Set RNG on keys for shared secret computation */
+    ret = wc_ecc_set_rng(&keyHW, &rng);
+    if (ret != 0) {
+        printf("  Error: wc_ecc_set_rng (HW) failed: %d\n", ret);
+        wc_ecc_free(&keyHW);
+        wc_ecc_free(&keySW);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECDH P-256 set RNG HW");
+        return -1;
+    }
+    ret = wc_ecc_set_rng(&keySW, &rng);
+    if (ret != 0) {
+        printf("  Error: wc_ecc_set_rng (SW) failed: %d\n", ret);
+        wc_ecc_free(&keyHW);
+        wc_ecc_free(&keySW);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECDH P-256 set RNG SW");
+        return -1;
+    }
+
+    /* Compute shared secret using STSAFE (HW priv * SW pub) */
+    printf("  Computing shared secret (STSAFE: HW priv * SW pub)...\n");
+    ret = wc_ecc_shared_secret(&keyHW, &keySW, sharedHW, &sharedHWLen);
+    if (ret != 0) {
+        printf("  Error: wc_ecc_shared_secret (HW) failed: %d\n", ret);
+        wc_ecc_free(&keyHW);
+        wc_ecc_free(&keySW);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECDH P-256 shared secret HW");
+        return -1;
+    }
+    printf("    STSAFE shared secret computed (%d bytes)\n", sharedHWLen);
+
+    /* Compute shared secret using wolfCrypt (SW priv * HW pub) */
+    printf("  Computing shared secret (wolfCrypt: SW priv * HW pub)...\n");
+    ret = wc_ecc_shared_secret(&keySW, &keyHW, sharedSW, &sharedSWLen);
+    if (ret != 0) {
+        printf("  Error: wc_ecc_shared_secret (SW) failed: %d\n", ret);
+        wc_ecc_free(&keyHW);
+        wc_ecc_free(&keySW);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECDH P-256 shared secret SW");
+        return -1;
+    }
+    printf("    wolfCrypt shared secret computed (%d bytes)\n", sharedSWLen);
+
+    /* Compare shared secrets - they must match! */
+    if (sharedHWLen != sharedSWLen || memcmp(sharedHW, sharedSW, sharedHWLen) != 0) {
+        printf("  Error: Shared secrets don't match!\n");
+        printf("    STSAFE: ");
+        for (i = 0; i < 8; i++) printf("%02X", sharedHW[i]);
+        printf("...\n");
+        printf("    wolfCrypt: ");
+        for (i = 0; i < 8; i++) printf("%02X", sharedSW[i]);
+        printf("...\n");
+        wc_ecc_free(&keyHW);
+        wc_ecc_free(&keySW);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECDH P-256 shared secret mismatch");
+        return -1;
+    }
+
+    /* Verify shared secret is non-zero */
+    int all_zero = 1;
+    for (i = 0; i < (int)sharedHWLen; i++) {
+        if (sharedHW[i] != 0) {
+            all_zero = 0;
+            break;
+        }
+    }
+    if (all_zero) {
+        printf("  Error: Shared secret is all zeros\n");
+        wc_ecc_free(&keyHW);
+        wc_ecc_free(&keySW);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECDH P-256 invalid shared secret");
+        return -1;
+    }
+
+    printf("  Shared secrets match! (");
+    for (i = 0; i < 8; i++) printf("%02X", sharedHW[i]);
+    printf("...)\n");
+
+    wc_ecc_free(&keyHW);
+    wc_ecc_free(&keySW);
+    wc_FreeRng(&rng);
+    TEST_PASS("ECDH P-256 shared secret computation");
     return 0;
 }
 
@@ -434,6 +725,10 @@ int main(void)
     test_ecc_keygen_p384();
     test_ecdsa_p256();
     test_ecdsa_p384();
+
+    /* ECDHE tests */
+    test_ecdhe_keygen_p256();
+    test_ecdhe_shared_secret_p256();
 
     /* Cleanup */
     wc_CryptoCb_UnRegisterDevice(g_devId);

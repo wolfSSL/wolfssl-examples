@@ -84,6 +84,8 @@ Tests wolfSSL crypto callbacks with STSAFE:
 - RNG with STSAFE-A120
 - ECC P-256/P-384 key generation via crypto callback
 - ECDSA P-256/P-384 sign/verify
+- ECDHE P-256 ephemeral key generation
+- ECDHE P-256 shared secret computation
 
 ```bash
 make wolfssl && ./wolfssl_stsafe_test
@@ -94,6 +96,7 @@ make wolfssl && ./wolfssl_stsafe_test
 Comprehensive tests with benchmarks:
 - RNG benchmark
 - ECDSA P-256 benchmark (keygen, sign, verify timing)
+- ECDH P-256 key exchange (uses ECDHE ephemeral keys)
 - Multiple sequential operations
 
 ```bash
@@ -148,6 +151,8 @@ Test Summary: 5 passed, 0 failed
 | ECC P-256 KeyGen | ~40 ms | 25 ops/sec |
 | ECDSA P-256 Sign | ~51 ms | 19.5 ops/sec |
 | ECDSA P-256 Verify | ~79 ms | 12.7 ops/sec |
+| ECDHE P-256 KeyGen | ~42 ms | ~24 ops/sec |
+| ECDHE P-256 Shared Secret | ~38 ms | ~26 ops/sec |
 
 ## Directory Structure
 

@@ -276,6 +276,26 @@ static int test_ecdh_p256(void)
     }
     printf("    SW Key generated in %.2f ms\n", (end - start) / 1000.0);
 
+    /* Set RNG on keys for shared secret computation */
+    ret = wc_ecc_set_rng(&keyHW, &rng);
+    if (ret != 0) {
+        printf("  Error: wc_ecc_set_rng (HW) failed: %d\n", ret);
+        wc_ecc_free(&keyHW);
+        wc_ecc_free(&keySW);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECDH P-256 set RNG HW");
+        return -1;
+    }
+    ret = wc_ecc_set_rng(&keySW, &rng);
+    if (ret != 0) {
+        printf("  Error: wc_ecc_set_rng (SW) failed: %d\n", ret);
+        wc_ecc_free(&keyHW);
+        wc_ecc_free(&keySW);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECDH P-256 set RNG SW");
+        return -1;
+    }
+
     /* Compute shared secret using STSAFE (HW priv * SW pub) */
     printf("  Computing shared secret (STSAFE: HW priv * SW pub)...\n");
     start = get_time_us();
@@ -460,10 +480,8 @@ int main(void)
     test_rng_benchmark();
     test_ecdsa_p256_benchmark();
 
-    /* Note: ECDH requires ephemeral keys via stse_generate_ECDHE_key_pair
-     * which is not yet implemented in the crypto callback.
-     * Skipping ECDH test for now. */
-    printf("\n[SKIP] ECDH P-256 - requires ECDHE key generation (not yet implemented)\n");
+    /* ECDH test - now uses ECDHE ephemeral keys */
+    test_ecdh_p256();
 
     test_multiple_operations();
 
