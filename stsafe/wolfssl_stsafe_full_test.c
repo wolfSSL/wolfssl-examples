@@ -1,7 +1,7 @@
 /* wolfssl_stsafe_full_test.c
  *
  * Comprehensive wolfSSL integration tests with STSAFE-A120
- * Tests: RNG, ECC KeyGen, ECDSA Sign/Verify, ECDH, Benchmarks
+ * Tests: RNG, ECC KeyGen, ECDSA Sign/Verify, ECDH, Benchmarks, Brainpool curves
  *
  * Copyright (C) 2006-2026 wolfSSL Inc.
  *
@@ -354,6 +354,200 @@ static int test_ecdh_p256(void)
 }
 
 /*-----------------------------------------------------------------------------
+ * Test: ECDSA Brainpool P-256 Benchmark
+ *---------------------------------------------------------------------------*/
+#if defined(HAVE_ECC_BRAINPOOL) && defined(STSE_CONF_ECC_BRAINPOOL_P_256)
+static int test_ecdsa_brainpool_p256_benchmark(void)
+{
+    ecc_key key;
+    WC_RNG rng;
+    int ret;
+    byte digest[32];
+    byte sig[128];
+    word32 sigLen;
+    int verified = 0;
+    int iterations = 10;
+    double start, end, elapsed;
+    int i;
+
+    printf("\nTest: ECDSA Brainpool P-256 Benchmark (STSAFE-A120)\n");
+
+    ret = wc_InitRng(&rng);
+    if (ret != 0) {
+        printf("  Error: wc_InitRng failed: %d\n", ret);
+        TEST_FAIL("ECDSA Brainpool P-256 benchmark RNG init");
+        return -1;
+    }
+
+    memset(digest, 0xAB, sizeof(digest));
+
+    ret = wc_ecc_init_ex(&key, NULL, g_devId);
+    if (ret != 0) {
+        printf("  Error: wc_ecc_init_ex failed: %d\n", ret);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECDSA Brainpool P-256 benchmark key init");
+        return -1;
+    }
+
+    /* Benchmark key generation */
+    start = get_time_us();
+    ret = wc_ecc_make_key_ex(&rng, 32, &key, ECC_BRAINPOOLP256R1);
+    end = get_time_us();
+    elapsed = (end - start) / 1000.0;
+
+    if (ret != 0) {
+        printf("  Error: wc_ecc_make_key_ex failed: %d\n", ret);
+        wc_ecc_free(&key);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECDSA Brainpool P-256 keygen");
+        return -1;
+    }
+    printf("  Key generation: %.2f ms\n", elapsed);
+
+    /* Benchmark signing */
+    start = get_time_us();
+    for (i = 0; i < iterations; i++) {
+        sigLen = sizeof(sig);
+        ret = wc_ecc_sign_hash(digest, sizeof(digest), sig, &sigLen, &rng, &key);
+        if (ret != 0) break;
+    }
+    end = get_time_us();
+    elapsed = (end - start) / 1000.0;
+
+    if (ret != 0) {
+        printf("  Error: wc_ecc_sign_hash failed: %d\n", ret);
+        wc_ecc_free(&key);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECDSA Brainpool P-256 sign");
+        return -1;
+    }
+    printf("  Signing: %d ops in %.2f ms (%.2f ops/sec)\n",
+           iterations, elapsed, iterations / (elapsed / 1000.0));
+
+    /* Benchmark verification */
+    start = get_time_us();
+    for (i = 0; i < iterations; i++) {
+        ret = wc_ecc_verify_hash(sig, sigLen, digest, sizeof(digest), &verified, &key);
+        if (ret != 0 || verified != 1) break;
+    }
+    end = get_time_us();
+    elapsed = (end - start) / 1000.0;
+
+    if (ret != 0 || verified != 1) {
+        printf("  Error: wc_ecc_verify_hash failed: %d, verified=%d\n", ret, verified);
+        wc_ecc_free(&key);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECDSA Brainpool P-256 verify");
+        return -1;
+    }
+    printf("  Verification: %d ops in %.2f ms (%.2f ops/sec)\n",
+           iterations, elapsed, iterations / (elapsed / 1000.0));
+
+    wc_ecc_free(&key);
+    wc_FreeRng(&rng);
+    TEST_PASS("ECDSA Brainpool P-256 benchmark");
+    return 0;
+}
+#endif /* HAVE_ECC_BRAINPOOL && STSE_CONF_ECC_BRAINPOOL_P_256 */
+
+/*-----------------------------------------------------------------------------
+ * Test: ECDSA Brainpool P-384 Benchmark
+ *---------------------------------------------------------------------------*/
+#if defined(HAVE_ECC_BRAINPOOL) && defined(STSE_CONF_ECC_BRAINPOOL_P_384)
+static int test_ecdsa_brainpool_p384_benchmark(void)
+{
+    ecc_key key;
+    WC_RNG rng;
+    int ret;
+    byte digest[48];
+    byte sig[128];
+    word32 sigLen;
+    int verified = 0;
+    int iterations = 10;
+    double start, end, elapsed;
+    int i;
+
+    printf("\nTest: ECDSA Brainpool P-384 Benchmark (STSAFE-A120)\n");
+
+    ret = wc_InitRng(&rng);
+    if (ret != 0) {
+        printf("  Error: wc_InitRng failed: %d\n", ret);
+        TEST_FAIL("ECDSA Brainpool P-384 benchmark RNG init");
+        return -1;
+    }
+
+    memset(digest, 0xCD, sizeof(digest));
+
+    ret = wc_ecc_init_ex(&key, NULL, g_devId);
+    if (ret != 0) {
+        printf("  Error: wc_ecc_init_ex failed: %d\n", ret);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECDSA Brainpool P-384 benchmark key init");
+        return -1;
+    }
+
+    /* Benchmark key generation */
+    start = get_time_us();
+    ret = wc_ecc_make_key_ex(&rng, 48, &key, ECC_BRAINPOOLP384R1);
+    end = get_time_us();
+    elapsed = (end - start) / 1000.0;
+
+    if (ret != 0) {
+        printf("  Error: wc_ecc_make_key_ex failed: %d\n", ret);
+        wc_ecc_free(&key);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECDSA Brainpool P-384 keygen");
+        return -1;
+    }
+    printf("  Key generation: %.2f ms\n", elapsed);
+
+    /* Benchmark signing */
+    start = get_time_us();
+    for (i = 0; i < iterations; i++) {
+        sigLen = sizeof(sig);
+        ret = wc_ecc_sign_hash(digest, sizeof(digest), sig, &sigLen, &rng, &key);
+        if (ret != 0) break;
+    }
+    end = get_time_us();
+    elapsed = (end - start) / 1000.0;
+
+    if (ret != 0) {
+        printf("  Error: wc_ecc_sign_hash failed: %d\n", ret);
+        wc_ecc_free(&key);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECDSA Brainpool P-384 sign");
+        return -1;
+    }
+    printf("  Signing: %d ops in %.2f ms (%.2f ops/sec)\n",
+           iterations, elapsed, iterations / (elapsed / 1000.0));
+
+    /* Benchmark verification */
+    start = get_time_us();
+    for (i = 0; i < iterations; i++) {
+        ret = wc_ecc_verify_hash(sig, sigLen, digest, sizeof(digest), &verified, &key);
+        if (ret != 0 || verified != 1) break;
+    }
+    end = get_time_us();
+    elapsed = (end - start) / 1000.0;
+
+    if (ret != 0 || verified != 1) {
+        printf("  Error: wc_ecc_verify_hash failed: %d, verified=%d\n", ret, verified);
+        wc_ecc_free(&key);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECDSA Brainpool P-384 verify");
+        return -1;
+    }
+    printf("  Verification: %d ops in %.2f ms (%.2f ops/sec)\n",
+           iterations, elapsed, iterations / (elapsed / 1000.0));
+
+    wc_ecc_free(&key);
+    wc_FreeRng(&rng);
+    TEST_PASS("ECDSA Brainpool P-384 benchmark");
+    return 0;
+}
+#endif /* HAVE_ECC_BRAINPOOL && STSE_CONF_ECC_BRAINPOOL_P_384 */
+
+/*-----------------------------------------------------------------------------
  * Test: Multiple Key Slots
  *---------------------------------------------------------------------------*/
 static int test_multiple_operations(void)
@@ -479,6 +673,12 @@ int main(void)
     /* Run tests */
     test_rng_benchmark();
     test_ecdsa_p256_benchmark();
+#if defined(HAVE_ECC_BRAINPOOL) && defined(STSE_CONF_ECC_BRAINPOOL_P_256)
+    test_ecdsa_brainpool_p256_benchmark();
+#endif
+#if defined(HAVE_ECC_BRAINPOOL) && defined(STSE_CONF_ECC_BRAINPOOL_P_384)
+    test_ecdsa_brainpool_p384_benchmark();
+#endif
 
     /* ECDH test - now uses ECDHE ephemeral keys */
     test_ecdh_p256();

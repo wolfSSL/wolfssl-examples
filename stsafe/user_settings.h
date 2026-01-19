@@ -67,6 +67,10 @@ extern "C" {
 #undef NO_ECC256               /* Enable P-256 */
 #define HAVE_ECC384            /* Enable P-384 */
 #define ECC_TIMING_RESISTANT
+/* Brainpool curves require WOLFSSL_CUSTOM_CURVES */
+#define WOLFSSL_CUSTOM_CURVES
+#define HAVE_ECC_BRAINPOOL
+#define HAVE_ECC_CDH
 
 /* ECC key import/export functions */
 #define WOLFSSL_PUBLIC_MP      /* For mp_int access in ECC verify */

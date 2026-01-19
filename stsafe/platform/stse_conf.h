@@ -41,6 +41,8 @@ extern "C" {
 /* STSAFE-A ECC services configuration - enable P-256 and P-384 for wolfSSL */
 #define STSE_CONF_ECC_NIST_P_256
 #define STSE_CONF_ECC_NIST_P_384
+//#define STSE_CONF_ECC_BRAINPOOL_P_256
+//#define STSE_CONF_ECC_BRAINPOOL_P_384
 
 /* STSAFE-A HASH services configuration */
 #define STSE_CONF_HASH_SHA_256

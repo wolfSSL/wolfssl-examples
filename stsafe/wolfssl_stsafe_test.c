@@ -1,7 +1,7 @@
 /* wolfssl_stsafe_test.c
  *
  * Test wolfSSL crypto callbacks with STSAFE-A120
- * Tests: RNG, ECC P-256, ECC P-384, ECDSA Sign/Verify
+ * Tests: RNG, ECC P-256, ECC P-384, ECDSA Sign/Verify, Brainpool curves
  *
  * Copyright (C) 2006-2026 wolfSSL Inc.
  *
@@ -437,6 +437,362 @@ static int test_ecdsa_p384(void)
 }
 
 /*-----------------------------------------------------------------------------
+ * Test: ECC Brainpool P-256 Key Generation with STSAFE-A120
+ *---------------------------------------------------------------------------*/
+#if defined(HAVE_ECC_BRAINPOOL) && defined(STSE_CONF_ECC_BRAINPOOL_P_256)
+static int test_ecc_keygen_brainpool_p256(void)
+{
+    ecc_key key;
+    WC_RNG rng;
+    int ret;
+    byte pubX[32], pubY[32];
+    word32 pubX_len = sizeof(pubX), pubY_len = sizeof(pubY);
+    int i;
+
+    printf("\nTest: ECC Brainpool P-256 Key Generation with STSAFE-A120\n");
+
+    ret = wc_InitRng(&rng);
+    if (ret != 0) {
+        printf("  Error: wc_InitRng failed: %d\n", ret);
+        TEST_FAIL("ECC Brainpool P-256 RNG init");
+        return -1;
+    }
+
+    ret = wc_ecc_init_ex(&key, NULL, g_devId);
+    if (ret != 0) {
+        printf("  Error: wc_ecc_init_ex failed: %d\n", ret);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECC Brainpool P-256 init");
+        return -1;
+    }
+
+    /* Generate Brainpool P-256 key pair - should use STSAFE via crypto callback */
+    ret = wc_ecc_make_key_ex(&rng, 32, &key, ECC_BRAINPOOLP256R1);
+    if (ret != 0) {
+        printf("  Error: wc_ecc_make_key_ex failed: %d\n", ret);
+        wc_ecc_free(&key);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECC Brainpool P-256 key generation");
+        return -1;
+    }
+
+    /* Export public key */
+    ret = wc_ecc_export_public_raw(&key, pubX, &pubX_len, pubY, &pubY_len);
+    if (ret != 0) {
+        printf("  Error: wc_ecc_export_public_raw failed: %d\n", ret);
+        wc_ecc_free(&key);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECC Brainpool P-256 export public key");
+        return -1;
+    }
+
+    printf("  Public Key X: ");
+    for (i = 0; i < 8; i++) printf("%02X", pubX[i]);
+    printf("...\n");
+    printf("  Public Key Y: ");
+    for (i = 0; i < 8; i++) printf("%02X", pubY[i]);
+    printf("...\n");
+
+    wc_ecc_free(&key);
+    wc_FreeRng(&rng);
+    TEST_PASS("ECC Brainpool P-256 key generation");
+    return 0;
+}
+#endif /* HAVE_ECC_BRAINPOOL && STSE_CONF_ECC_BRAINPOOL_P_256 */
+
+/*-----------------------------------------------------------------------------
+ * Test: ECC Brainpool P-384 Key Generation with STSAFE-A120
+ *---------------------------------------------------------------------------*/
+#if defined(HAVE_ECC_BRAINPOOL) && defined(STSE_CONF_ECC_BRAINPOOL_P_384)
+static int test_ecc_keygen_brainpool_p384(void)
+{
+    ecc_key key;
+    WC_RNG rng;
+    int ret;
+    byte pubX[48], pubY[48];
+    word32 pubX_len = sizeof(pubX), pubY_len = sizeof(pubY);
+    int i;
+
+    printf("\nTest: ECC Brainpool P-384 Key Generation with STSAFE-A120\n");
+
+    ret = wc_InitRng(&rng);
+    if (ret != 0) {
+        printf("  Error: wc_InitRng failed: %d\n", ret);
+        TEST_FAIL("ECC Brainpool P-384 RNG init");
+        return -1;
+    }
+
+    ret = wc_ecc_init_ex(&key, NULL, g_devId);
+    if (ret != 0) {
+        printf("  Error: wc_ecc_init_ex failed: %d\n", ret);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECC Brainpool P-384 init");
+        return -1;
+    }
+
+    /* Generate Brainpool P-384 key pair - should use STSAFE via crypto callback */
+    ret = wc_ecc_make_key_ex(&rng, 48, &key, ECC_BRAINPOOLP384R1);
+    if (ret != 0) {
+        printf("  Error: wc_ecc_make_key_ex failed: %d\n", ret);
+        wc_ecc_free(&key);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECC Brainpool P-384 key generation");
+        return -1;
+    }
+
+    /* Export public key */
+    ret = wc_ecc_export_public_raw(&key, pubX, &pubX_len, pubY, &pubY_len);
+    if (ret != 0) {
+        printf("  Error: wc_ecc_export_public_raw failed: %d\n", ret);
+        wc_ecc_free(&key);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECC Brainpool P-384 export public key");
+        return -1;
+    }
+
+    printf("  Public Key X: ");
+    for (i = 0; i < 8; i++) printf("%02X", pubX[i]);
+    printf("...\n");
+    printf("  Public Key Y: ");
+    for (i = 0; i < 8; i++) printf("%02X", pubY[i]);
+    printf("...\n");
+
+    wc_ecc_free(&key);
+    wc_FreeRng(&rng);
+    TEST_PASS("ECC Brainpool P-384 key generation");
+    return 0;
+}
+#endif /* HAVE_ECC_BRAINPOOL && STSE_CONF_ECC_BRAINPOOL_P_384 */
+
+/*-----------------------------------------------------------------------------
+ * Test: ECDSA Sign/Verify Brainpool P-256 with STSAFE-A120
+ *---------------------------------------------------------------------------*/
+#if defined(HAVE_ECC_BRAINPOOL) && defined(STSE_CONF_ECC_BRAINPOOL_P_256)
+static int test_ecdsa_brainpool_p256(void)
+{
+    ecc_key key;
+    WC_RNG rng;
+    int ret;
+    byte digest[32];
+    byte sig[128];
+    word32 sigLen = sizeof(sig);
+    int verified = 0;
+    int i;
+
+    printf("\nTest: ECDSA Brainpool P-256 Sign/Verify with STSAFE-A120\n");
+
+    /* Initialize RNG */
+    ret = wc_InitRng(&rng);
+    if (ret != 0) {
+        printf("  Error: wc_InitRng failed: %d\n", ret);
+        TEST_FAIL("ECDSA Brainpool P-256 RNG init");
+        return -1;
+    }
+
+    /* Create test digest */
+    memset(digest, 0xAB, sizeof(digest));
+
+    ret = wc_ecc_init_ex(&key, NULL, g_devId);
+    if (ret != 0) {
+        printf("  Error: wc_ecc_init_ex failed: %d\n", ret);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECDSA Brainpool P-256 key init");
+        return -1;
+    }
+
+    /* Generate key pair using STSAFE */
+    ret = wc_ecc_make_key_ex(&rng, 32, &key, ECC_BRAINPOOLP256R1);
+    if (ret != 0) {
+        printf("  Error: wc_ecc_make_key_ex failed: %d\n", ret);
+        wc_ecc_free(&key);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECDSA Brainpool P-256 key generation");
+        return -1;
+    }
+
+    printf("  Key pair generated.\n");
+
+    /* Sign the digest using STSAFE */
+    ret = wc_ecc_sign_hash(digest, sizeof(digest), sig, &sigLen, &rng, &key);
+    if (ret != 0) {
+        printf("  Error: wc_ecc_sign_hash failed: %d\n", ret);
+        wc_ecc_free(&key);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECDSA Brainpool P-256 sign");
+        return -1;
+    }
+
+    printf("  Signature (%d bytes): ", sigLen);
+    for (i = 0; i < 8 && i < (int)sigLen; i++) printf("%02X", sig[i]);
+    printf("...\n");
+
+    /* Verify the signature using software (public key only, no hardware needed) */
+    /* Clear devId to force software verification */
+    key.devId = INVALID_DEVID;
+    ret = wc_ecc_verify_hash(sig, sigLen, digest, sizeof(digest), &verified, &key);
+    if (ret != 0) {
+        printf("  Error: wc_ecc_verify_hash failed: %d\n", ret);
+        wc_ecc_free(&key);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECDSA Brainpool P-256 verify");
+        return -1;
+    }
+
+    if (verified != 1) {
+        printf("  Error: Signature verification failed\n");
+        wc_ecc_free(&key);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECDSA Brainpool P-256 verification result");
+        return -1;
+    }
+
+    printf("  Signature verified!\n");
+
+    /* Also verify using hardware (STSAFE) */
+    printf("  Verifying signature using STSAFE hardware...\n");
+    /* Restore devId for hardware verification */
+    key.devId = g_devId;
+    ret = wc_ecc_verify_hash(sig, sigLen, digest, sizeof(digest), &verified, &key);
+    if (ret != 0) {
+        printf("  Error: wc_ecc_verify_hash (HW) failed: %d\n", ret);
+        wc_ecc_free(&key);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECDSA Brainpool P-256 verify HW");
+        return -1;
+    }
+
+    if (verified != 1) {
+        printf("  Error: Hardware signature verification failed\n");
+        wc_ecc_free(&key);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECDSA Brainpool P-256 verification result HW");
+        return -1;
+    }
+
+    printf("  Hardware signature verified!\n");
+
+    wc_ecc_free(&key);
+    wc_FreeRng(&rng);
+    TEST_PASS("ECDSA Brainpool P-256 sign/verify");
+    return 0;
+}
+#endif /* HAVE_ECC_BRAINPOOL && STSE_CONF_ECC_BRAINPOOL_P_256 */
+
+/*-----------------------------------------------------------------------------
+ * Test: ECDSA Sign/Verify Brainpool P-384 with STSAFE-A120
+ *---------------------------------------------------------------------------*/
+#if defined(HAVE_ECC_BRAINPOOL) && defined(STSE_CONF_ECC_BRAINPOOL_P_384)
+static int test_ecdsa_brainpool_p384(void)
+{
+    ecc_key key;
+    WC_RNG rng;
+    int ret;
+    byte digest[48];
+    byte sig[128];
+    word32 sigLen = sizeof(sig);
+    int verified = 0;
+    int i;
+
+    printf("\nTest: ECDSA Brainpool P-384 Sign/Verify with STSAFE-A120\n");
+
+    /* Initialize RNG */
+    ret = wc_InitRng(&rng);
+    if (ret != 0) {
+        printf("  Error: wc_InitRng failed: %d\n", ret);
+        TEST_FAIL("ECDSA Brainpool P-384 RNG init");
+        return -1;
+    }
+
+    /* Create test digest */
+    memset(digest, 0xCD, sizeof(digest));
+
+    ret = wc_ecc_init_ex(&key, NULL, g_devId);
+    if (ret != 0) {
+        printf("  Error: wc_ecc_init_ex failed: %d\n", ret);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECDSA Brainpool P-384 key init");
+        return -1;
+    }
+
+    /* Generate key pair using STSAFE */
+    ret = wc_ecc_make_key_ex(&rng, 48, &key, ECC_BRAINPOOLP384R1);
+    if (ret != 0) {
+        printf("  Error: wc_ecc_make_key_ex failed: %d\n", ret);
+        wc_ecc_free(&key);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECDSA Brainpool P-384 key generation");
+        return -1;
+    }
+
+    printf("  Key pair generated.\n");
+
+    /* Sign the digest using STSAFE */
+    ret = wc_ecc_sign_hash(digest, sizeof(digest), sig, &sigLen, &rng, &key);
+    if (ret != 0) {
+        printf("  Error: wc_ecc_sign_hash failed: %d\n", ret);
+        wc_ecc_free(&key);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECDSA Brainpool P-384 sign");
+        return -1;
+    }
+
+    printf("  Signature (%d bytes): ", sigLen);
+    for (i = 0; i < 8 && i < (int)sigLen; i++) printf("%02X", sig[i]);
+    printf("...\n");
+
+    /* Verify the signature using software (public key only, no hardware needed) */
+    /* Clear devId to force software verification */
+    key.devId = INVALID_DEVID;
+    ret = wc_ecc_verify_hash(sig, sigLen, digest, sizeof(digest), &verified, &key);
+    if (ret != 0) {
+        printf("  Error: wc_ecc_verify_hash failed: %d\n", ret);
+        wc_ecc_free(&key);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECDSA Brainpool P-384 verify");
+        return -1;
+    }
+
+    if (verified != 1) {
+        printf("  Error: Signature verification failed\n");
+        wc_ecc_free(&key);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECDSA Brainpool P-384 verification result");
+        return -1;
+    }
+
+    printf("  Signature verified!\n");
+
+    /* Also verify using hardware (STSAFE) */
+    printf("  Verifying signature using STSAFE hardware...\n");
+    /* Restore devId for hardware verification */
+    key.devId = g_devId;
+    ret = wc_ecc_verify_hash(sig, sigLen, digest, sizeof(digest), &verified, &key);
+    if (ret != 0) {
+        printf("  Error: wc_ecc_verify_hash (HW) failed: %d\n", ret);
+        wc_ecc_free(&key);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECDSA Brainpool P-384 verify HW");
+        return -1;
+    }
+
+    if (verified != 1) {
+        printf("  Error: Hardware signature verification failed\n");
+        wc_ecc_free(&key);
+        wc_FreeRng(&rng);
+        TEST_FAIL("ECDSA Brainpool P-384 verification result HW");
+        return -1;
+    }
+
+    printf("  Hardware signature verified!\n");
+
+    wc_ecc_free(&key);
+    wc_FreeRng(&rng);
+    TEST_PASS("ECDSA Brainpool P-384 sign/verify");
+    return 0;
+}
+#endif /* HAVE_ECC_BRAINPOOL && STSE_CONF_ECC_BRAINPOOL_P_384 */
+
+/*-----------------------------------------------------------------------------
  * Test: ECDHE P-256 Key Generation with STSAFE-A120
  * Note: This tests ephemeral key generation using stse_generate_ECDHE_key_pair
  *---------------------------------------------------------------------------*/
@@ -725,6 +1081,14 @@ int main(void)
     test_ecc_keygen_p384();
     test_ecdsa_p256();
     test_ecdsa_p384();
+#if defined(HAVE_ECC_BRAINPOOL) && defined(STSE_CONF_ECC_BRAINPOOL_P_256)
+    test_ecc_keygen_brainpool_p256();
+    test_ecdsa_brainpool_p256();
+#endif
+#if defined(HAVE_ECC_BRAINPOOL) && defined(STSE_CONF_ECC_BRAINPOOL_P_384)
+    test_ecc_keygen_brainpool_p384();
+    test_ecdsa_brainpool_p384();
+#endif
 
     /* ECDHE tests */
     test_ecdhe_keygen_p256();
