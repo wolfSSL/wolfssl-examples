@@ -29,6 +29,7 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <unistd.h>
+#include <netdb.h>
 
 /* wolfSSL */
 #include <wolfssl/options.h>
@@ -47,7 +48,7 @@
 static void print_SSL_error(const char* msg, SSL* ssl)
 {
     int err;
-    
+
     if (ssl != NULL) {
         err = wolfSSL_get_error(ssl, 0);
         fprintf(stderr, "ERROR: %s (err %d, %s)\n", msg, err,
@@ -67,28 +68,28 @@ static int read_SESS(const char* file, SSL* ssl)
     size_t             sz;
     WOLFSSL_SESSION*   sess = NULL;
     int                ret = WOLFSSL_FAILURE;
-    
+
     if (((fp = fopen(file, "rb")) == NULL) ||
         (fseek(fp, 0, SEEK_END) != 0) ||
         ((sz = ftell(fp)) == -1)) {
         fprintf(stderr, "ERROR : failed file %s operation \n", file);
         goto cleanup;
     }
-    
+
     rewind(fp);
     if ((buff = (unsigned char*)malloc(sz)) == NULL ||
         (fread(buff, 1, sz, fp) != sz)) {
         fprintf(stderr, "ERROR : failed reading file\n");
         goto cleanup;
     }
-    
+
     printf("%s size = %ld\n", SAVED_SESS, sz);
-    
+
     p = buff;
     if((sess = wolfSSL_d2i_SSL_SESSION(NULL, (const unsigned char**)&p, sz)) == NULL) {
         print_SSL_error("wolfSSL_d2i_SSL_SESSION", NULL);
     }
-    
+
     if(sess != NULL && (ret = wolfSSL_set_session(ssl, sess) != WOLFSSL_SUCCESS)) {
         print_SSL_error("failed SSL session", ssl);
     } else {
@@ -118,7 +119,7 @@ int main(int argc, char **argv)
 
     char               msg[MSG_SIZE];
     int                ret = WOLFSSL_FAILURE;
-    
+
     (void)ipadd;
 
     /* SSL objects */
@@ -128,15 +129,15 @@ int main(int argc, char **argv)
     memset(&servAddr, 0, sizeof(servAddr));
 
     /* Check for proper calling convention */
-    if (argc == 1) 
+    if (argc == 1)
         fprintf(stderr, "Send to localhost(%s)\n", LOCALHOST);
     if (argc >=2) {
         host = gethostbyname(argv[1]);
         memcpy(&servAddr.sin_addr, host->h_addr_list[0], host->h_length);
     }
-    if (argc >= 3)  
+    if (argc >= 3)
         ca_cert = argv[2];
-    if (argc == 4) 
+    if (argc == 4)
         port = atoi(argv[3]);
     if (argc >= 5) {
         fprintf(stderr, "ERROR: Too many arguments.\n");
@@ -148,7 +149,7 @@ int main(int argc, char **argv)
         fprintf(stderr, "ERROR: failed to initialize the library\n");
         goto cleanup;
     }
-   
+
     /* Create and initialize an SSL context object*/
     if ((ctx = wolfSSL_CTX_new(SSLv23_client_method())) == NULL) {
         fprintf(stderr, "ERROR: failed to create an SSL context object\n");
@@ -156,7 +157,7 @@ int main(int argc, char **argv)
     }
 
     /* Load client certificate into WOLFwolfSSL_CTX */
-    if ((ret = wolfSSL_CTX_use_certificate_file(ctx, CERT_FILE, 
+    if ((ret = wolfSSL_CTX_use_certificate_file(ctx, CERT_FILE,
         WOLFSSL_FILETYPE_PEM)) != WOLFSSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
                 CERT_FILE);
@@ -164,7 +165,7 @@ int main(int argc, char **argv)
     }
 
     /* Load client key into WOLFwolfSSL_CTX */
-    if ((ret = wolfSSL_CTX_use_PrivateKey_file(ctx, KEY_FILE, 
+    if ((ret = wolfSSL_CTX_use_PrivateKey_file(ctx, KEY_FILE,
         WOLFSSL_FILETYPE_PEM)) != WOLFSSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
                 KEY_FILE);
@@ -178,17 +179,17 @@ int main(int argc, char **argv)
         goto cleanup;
     }
 
-   /* 
-    * Set up a TCP Socket and connect to the server 
+   /*
+    * Set up a TCP Socket and connect to the server
     */
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
         fprintf(stderr, "ERROR: failed to create a socket. errno %d\n", errno);
         goto cleanup;
     }
-    
+
     servAddr.sin_family = AF_INET;           /* using IPv4      */
     servAddr.sin_port = htons(port);         /* on DEFAULT_PORT */
-    
+
     if ((ret = connect(sockfd, (struct sockaddr *)&servAddr, sizeof(servAddr)))
             == -1) {
         fprintf(stderr, "ERROR: failed to connect. errno %d\n", errno);
@@ -206,7 +207,7 @@ int main(int argc, char **argv)
         fprintf(stderr, "ERROR: failed to read session information\n");
         goto cleanup;
     }
-    
+
     /* Attach the socket to the SSL */
     if ((ret = wolfSSL_set_fd(ssl, sockfd)) != WOLFSSL_SUCCESS) {
         fprintf(stderr, "ERROR: Failed to set the file descriptor\n");
@@ -226,7 +227,7 @@ int main(int argc, char **argv)
         printf("Session is not reused. New session was negotiated.\n");
     }
 
-   /* 
+   /*
     * Application messaging
     */
     while (1) {
@@ -235,7 +236,7 @@ int main(int argc, char **argv)
             break;
         if (strcmp(msg, "\n") == 0){ /* if empty send HTTP request */
             strncpy(msg, kHttpGetMsg, sizeof(msg));
-        } else 
+        } else
             msg[strnlen(msg, sizeof(msg))-1] = '\0';
         /* send a message to the server */
         if ((ret = wolfSSL_write(ssl, msg, strnlen(msg, sizeof(msg)))) < 0) {
@@ -243,10 +244,10 @@ int main(int argc, char **argv)
             break;
         }
 
-        /* 
+        /*
          * closing the session, and write session information into a file
          * before writing session information, the file is removed if exists
-         */  
+         */
         if (strcmp(msg, "break") == 0) {
             printf("Sending break command\n");
             ret = WOLFSSL_SUCCESS;
