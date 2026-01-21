@@ -30,7 +30,7 @@
 #include <sys/time.h>
 
 /* wolfSSL headers */
-#include <wolfssl/options.h>
+#include "user_settings.h"
 #include <wolfssl/wolfcrypt/settings.h>
 #include <wolfssl/wolfcrypt/random.h>
 #include <wolfssl/wolfcrypt/ecc.h>

@@ -28,8 +28,7 @@
 #include <stdint.h>
 
 /* wolfSSL headers */
-/* Must include options.h to match libwolfssl build settings */
-#include <wolfssl/options.h>
+#include "user_settings.h"
 #include <wolfssl/wolfcrypt/settings.h>
 #include <wolfssl/wolfcrypt/random.h>
 #include <wolfssl/wolfcrypt/ecc.h>
@@ -824,6 +823,7 @@ static int test_ecdhe_keygen_p256(void)
     }
 
     /* Generate ECDHE ephemeral key pair - should use STSAFE ECDHE via crypto callback */
+    key.devCtx = (void*)STSAFE_KEY_SLOT_EPHEMERAL;
     ret = wc_ecc_make_key_ex(&rng, 32, &key, ECC_SECP256R1);
     if (ret != 0) {
         printf("  Error: wc_ecc_make_key_ex failed: %d\n", ret);
@@ -919,6 +919,7 @@ static int test_ecdhe_shared_secret_p256(void)
 
     /* Generate hardware key pair (in STSAFE ephemeral slot via crypto callback) */
     printf("  Generating hardware key pair (STSAFE ephemeral slot via crypto callback)...\n");
+    keyHW.devCtx = (void*)STSAFE_KEY_SLOT_EPHEMERAL;
     ret = wc_ecc_make_key_ex(&rng, 32, &keyHW, ECC_SECP256R1);
     if (ret != 0) {
         printf("  Error: wc_ecc_make_key_ex (HW) failed: %d\n", ret);

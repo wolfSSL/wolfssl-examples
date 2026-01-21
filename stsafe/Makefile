@@ -3,7 +3,7 @@
 # Copyright 2025 wolfSSL Inc.
 
 CC = gcc
-CFLAGS = -Wall -Wextra -O2 -g
+CFLAGS = -Wall -Wextra -O0 -g -Wno-strict-prototypes -DWOLFSSL_USER_SETTINGS
 
 # wolfSSL configuration
 # Option 1: Use installed wolfSSL (after make install)
@@ -22,15 +22,20 @@ INCLUDES = -I. \
            -I$(PLATFORM_DIR) \
            -I$(WOLFSSL_DIR)
 
-# wolfSSL library flags
-# For installed wolfSSL:
-#LDFLAGS = -L$(WOLFSSL_DIR)/lib -lwolfssl -lm
-# For local wolfSSL source (using .libs):
-LDFLAGS = -L$(WOLFSSL_DIR)/src/.libs -lwolfssl -lm -Wl,-rpath,$(WOLFSSL_DIR)/src/.libs
+# Build directory for artifacts
+BUILD_DIR = build
 
-# wolfSSL compile flags
-# WOLFSSL_USER_SETTINGS tells wolfSSL to include user_settings.h
-CFLAGS += -DWOLFSSL_USER_SETTINGS
+# wolfSSL source files - build directly from source
+WOLFSSL_SRC = $(wildcard $(WOLFSSL_DIR)/src/*.c)
+WOLFSSL_CRYPT_SRC = $(wildcard $(WOLFSSL_DIR)/wolfcrypt/src/*.c)
+WOLFSSL_PORT_SRC = $(WOLFSSL_DIR)/wolfcrypt/src/port/st/stsafe.c
+WOLFSSL_ALL_SRC = $(WOLFSSL_SRC) $(WOLFSSL_CRYPT_SRC) $(WOLFSSL_PORT_SRC)
+
+# wolfSSL static library
+WOLFSSL_LIB = $(BUILD_DIR)/libwolfssl.a
+
+# Additional linker flags
+LDFLAGS = -L$(BUILD_DIR) -lwolfssl -lm
 
 # STSELib source files
 STSELIB_CORE_SRC = $(STSELIB_DIR)/core/stse_device.c \
@@ -51,106 +56,44 @@ PLATFORM_SRC = $(PLATFORM_DIR)/stse_platform_linux.c
 # Uncomment when building with wolfSSL crypto support:
 PLATFORM_CRYPTO_SRC = $(PLATFORM_DIR)/stse_platform_crypto_wolfssl.c
 
-# Test source files
-TEST_SRC = stsafe_test.c
-WOLFSSL_TEST_SRC = wolfssl_stsafe_test.c
-WOLFSSL_FULL_TEST_SRC = wolfssl_stsafe_full_test.c
-
-# All sources
-ALL_SRC = $(STSELIB_CORE_SRC) $(STSELIB_API_SRC) $(STSELIB_SERVICES_SRC) \
-          $(STSELIB_CERT_SRC) $(PLATFORM_SRC) $(PLATFORM_CRYPTO_SRC) $(TEST_SRC)
-
-# wolfSSL STSAFE port source
-WOLFSSL_STSAFE_SRC = $(WOLFSSL_DIR)/wolfcrypt/src/port/st/stsafe.c
-
 # Targets
-TARGET = stsafe_test
+STSAFE_TARGET = stsafe_test
 WOLFSSL_TARGET = wolfssl_stsafe_test
 WOLFSSL_FULL_TARGET = wolfssl_stsafe_full_test
+ALL_TARGETS = $(STSAFE_TARGET) $(WOLFSSL_TARGET) $(WOLFSSL_FULL_TARGET)
 
-.PHONY: all clean test test-all info basic wolfssl wolfssl-full
+.PHONY: all clean test-all info
 
-all: $(TARGET) wolfssl wolfssl-full
+all: $(WOLFSSL_LIB) $(ALL_TARGETS)
 
-# Full build with wolfSSL crypto support
-$(TARGET): $(TEST_SRC) $(PLATFORM_SRC) $(PLATFORM_CRYPTO_SRC)
-	$(CC) $(CFLAGS) $(INCLUDES) -o $@ \
-		$(TEST_SRC) \
-		$(PLATFORM_SRC) \
-		$(PLATFORM_CRYPTO_SRC) \
-		$(STSELIB_CORE_SRC) \
-		$(STSELIB_API_SRC) \
-		$(STSELIB_SERVICES_SRC) \
-		$(STSELIB_CERT_SRC) \
+# Create build directory
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
+
+# Build wolfSSL static library
+$(WOLFSSL_LIB): $(WOLFSSL_ALL_SRC) | $(BUILD_DIR)
+	@echo "Building wolfSSL library..."
+	$(CC) $(CFLAGS) $(INCLUDES) -c $(WOLFSSL_ALL_SRC)
+	mv *.o $(BUILD_DIR)/
+	ar rcs $@ $(BUILD_DIR)/*.o
+	@echo "wolfSSL library built successfully"
+
+# Generic rule for all test targets - each target depends on its corresponding .c file
+$(ALL_TARGETS): %: %.c $(WOLFSSL_LIB)
+	$(CC) $(CFLAGS) $(INCLUDES) -o $@ $< \
+		$(PLATFORM_SRC) $(PLATFORM_CRYPTO_SRC) \
+		$(STSELIB_CORE_SRC) $(STSELIB_API_SRC) $(STSELIB_SERVICES_SRC) $(STSELIB_CERT_SRC) \
 		$(LDFLAGS)
-
-# Basic build without wolfSSL (for initial testing without host sessions)
-basic: $(TEST_SRC) $(PLATFORM_SRC)
-	$(CC) $(CFLAGS) $(INCLUDES) -o $(TARGET) \
-		$(TEST_SRC) \
-		$(PLATFORM_SRC) \
-		$(STSELIB_CORE_SRC) \
-		$(STSELIB_API_SRC) \
-		$(STSELIB_SERVICES_SRC) \
-		$(STSELIB_CERT_SRC)
-
-# wolfSSL crypto callback test build
-# Note: We compile stsafe.c directly since it's not built into libwolfssl by default
-WOLFSSL_STSAFE_FLAGS = -DWOLFSSL_USER_SETTINGS -Wno-strict-prototypes
-WOLFSSL_BASE_FLAGS = -Wall -Wextra -O2 -g
-wolfssl: $(WOLFSSL_TEST_SRC) $(PLATFORM_SRC) $(PLATFORM_CRYPTO_SRC)
-	$(CC) $(WOLFSSL_BASE_FLAGS) $(WOLFSSL_STSAFE_FLAGS) -I. -I$(STSELIB_DIR) -I$(PLATFORM_DIR) -I$(WOLFSSL_DIR) \
-		-c $(WOLFSSL_STSAFE_SRC) -o stsafe.o
-	$(CC) $(WOLFSSL_BASE_FLAGS) $(WOLFSSL_STSAFE_FLAGS) -I. -I$(STSELIB_DIR) -I$(PLATFORM_DIR) -I$(WOLFSSL_DIR) \
-		-c $(PLATFORM_SRC) -o stse_platform_linux.o
-	$(CC) $(WOLFSSL_BASE_FLAGS) $(WOLFSSL_STSAFE_FLAGS) -I. -I$(STSELIB_DIR) -I$(PLATFORM_DIR) -I$(WOLFSSL_DIR) \
-		-c $(PLATFORM_CRYPTO_SRC) -o stse_platform_crypto.o
-	$(CC) $(WOLFSSL_BASE_FLAGS) $(WOLFSSL_STSAFE_FLAGS) -I. -I$(STSELIB_DIR) -I$(PLATFORM_DIR) -I$(WOLFSSL_DIR) \
-		-o $(WOLFSSL_TARGET) \
-		$(WOLFSSL_TEST_SRC) \
-		stse_platform_linux.o stse_platform_crypto.o stsafe.o \
-		$(STSELIB_CORE_SRC) \
-		$(STSELIB_API_SRC) \
-		$(STSELIB_SERVICES_SRC) \
-		$(STSELIB_CERT_SRC) \
-		$(LDFLAGS)
-
-test: $(TARGET)
-	./$(TARGET)
-
-test-wolfssl: wolfssl
-	./$(WOLFSSL_TARGET)
-
-# Full wolfSSL integration test with ECDH and benchmarks
-wolfssl-full: $(WOLFSSL_FULL_TEST_SRC) $(PLATFORM_SRC) $(PLATFORM_CRYPTO_SRC)
-	$(CC) $(WOLFSSL_BASE_FLAGS) $(WOLFSSL_STSAFE_FLAGS) -I. -I$(STSELIB_DIR) -I$(PLATFORM_DIR) -I$(WOLFSSL_DIR) \
-		-c $(WOLFSSL_STSAFE_SRC) -o stsafe.o
-	$(CC) $(WOLFSSL_BASE_FLAGS) $(WOLFSSL_STSAFE_FLAGS) -I. -I$(STSELIB_DIR) -I$(PLATFORM_DIR) -I$(WOLFSSL_DIR) \
-		-c $(PLATFORM_SRC) -o stse_platform_linux.o
-	$(CC) $(WOLFSSL_BASE_FLAGS) $(WOLFSSL_STSAFE_FLAGS) -I. -I$(STSELIB_DIR) -I$(PLATFORM_DIR) -I$(WOLFSSL_DIR) \
-		-c $(PLATFORM_CRYPTO_SRC) -o stse_platform_crypto.o
-	$(CC) $(WOLFSSL_BASE_FLAGS) $(WOLFSSL_STSAFE_FLAGS) -I. -I$(STSELIB_DIR) -I$(PLATFORM_DIR) -I$(WOLFSSL_DIR) \
-		-o $(WOLFSSL_FULL_TARGET) \
-		$(WOLFSSL_FULL_TEST_SRC) \
-		stse_platform_linux.o stse_platform_crypto.o stsafe.o \
-		$(STSELIB_CORE_SRC) \
-		$(STSELIB_API_SRC) \
-		$(STSELIB_SERVICES_SRC) \
-		$(STSELIB_CERT_SRC) \
-		$(LDFLAGS)
-
-test-wolfssl-full: wolfssl-full
-	./$(WOLFSSL_FULL_TARGET)
 
 test-all: all
-	@echo "=== Running stsafe_test ===" && ./$(TARGET)
+	@echo "=== Running stsafe_test ===" && ./$(STSAFE_TARGET)
 	@echo ""
 	@echo "=== Running wolfssl_stsafe_test ===" && ./$(WOLFSSL_TARGET)
 	@echo ""
 	@echo "=== Running wolfssl_stsafe_full_test ===" && ./$(WOLFSSL_FULL_TARGET)
 
 clean:
-	rm -f $(TARGET) $(WOLFSSL_TARGET) $(WOLFSSL_FULL_TARGET) *.o stsafe.o stse_platform_linux.o stse_platform_crypto.o
+	rm -rf $(BUILD_DIR) $(ALL_TARGETS)
 
 # Show configuration
 info:
@@ -163,6 +106,5 @@ info:
 	@echo "Build targets:"
 	@echo "  make          - Build all test executables"
 	@echo "  make test-all - Build and run all tests"
-	@echo "  make basic    - Build without wolfSSL (basic tests only)"
 	@echo "  make clean    - Clean build artifacts"
 	@echo "  make info     - Show this configuration"

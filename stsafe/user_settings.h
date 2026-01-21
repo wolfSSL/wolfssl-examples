@@ -42,6 +42,8 @@ extern "C" {
 
 #define NO_OLD_TLS
 
+#define WOLFSSL_IGNORE_FILE_WARN /* Ignore file warnings */
+
 /* ------------------------------------------------------------------------- */
 /* Crypto Algorithms Required for STSAFE Platform                            */
 /* ------------------------------------------------------------------------- */
@@ -123,6 +125,7 @@ extern "C" {
 #define USE_STSAFE_RNG_SEED
 
 /* Include STSELib header path set in Makefile */
+#define STSAFE_INTERFACE_PRINTF printf
 
 #ifdef __cplusplus
 }
