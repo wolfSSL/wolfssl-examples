@@ -218,7 +218,7 @@ static int test_ecdh_p256(void)
     int i;
 
     printf("\nTest: ECDH P-256 Key Exchange (HW + SW)\n");
-    printf("  Note: STSAFE key used for one side, software for other\n");
+    printf("  Note: STSAFE key (ephemeral slot 0xFF) for one side, software for other\n");
 
     ret = wc_InitRng(&rng);
     if (ret != 0) {
@@ -235,6 +235,9 @@ static int test_ecdh_p256(void)
         TEST_FAIL("ECDH P-256 key init HW");
         return -1;
     }
+
+    /* Configure hardware key for ECDH - uses ephemeral slot 0xFF */
+    keyHW.devCtx = (void*)(uintptr_t)STSAFE_KEY_SLOT_EPHEMERAL;
 
     /* Initialize software key (INVALID_DEVID for software) */
     ret = wc_ecc_init_ex(&keySW, NULL, INVALID_DEVID);
