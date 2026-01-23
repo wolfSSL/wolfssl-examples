@@ -87,21 +87,21 @@ int main()
     /* Generate ech config */
     if (wolfSSL_CTX_GenerateEchConfig(ctx, publicName, 0, 0, 0)
         != WOLFSSL_SUCCESS) {
-        fprintf(stderr, "ERROR: failed to wolfSSL_CTX_GenerateEchConfig\n");
+        fprintf(stderr, "ERROR: failed to generate ECH config\n");
         ret = -1;
         goto exit;
     }
 
     if(wolfSSL_CTX_GetEchConfigs(ctx, echConfig, &echConfigLen) !=
         WOLFSSL_SUCCESS) {
-        fprintf(stderr, "ERROR: failed to wolfSSL_CTX_GetEchConfigs\n");
+        fprintf(stderr, "ERROR: failed to get ECH configs\n");
         ret = -1;
         goto exit;
     }
 
     if (Base64_Encode_NoNl(echConfig, echConfigLen, (byte*)echConfigBase64,
         &echConfigBase64Len) != 0) {
-        fprintf(stderr, "ERROR: failed to Base64_Encode_NoNl\n");
+        fprintf(stderr, "ERROR: failed to encode ECH configs in Base64\n");
         ret = -1;
         goto exit;
     }
@@ -111,7 +111,7 @@ int main()
     if(wolfSSL_CTX_UseSNI(ctx, WOLFSSL_SNI_HOST_NAME, privateName,
         privateNameLen) != WOLFSSL_SUCCESS) {
         fprintf(stderr,
-            "ERROR: failed to wolfSSL_CTX_UseSNIwolfSSL_CTX_UseSNI\n");
+            "ERROR: failed to set private SNI\n");
         ret = -1;
         goto exit;
     }
@@ -143,7 +143,7 @@ int main()
     /* Bind the server socket to our port */
     if (bind(sockfd, (struct sockaddr*)&servAddr, sizeof(servAddr)) == -1) {
         fprintf(stderr, "ERROR: failed to bind\n");
-        ret = -1; 
+        ret = -1;
         goto exit;
     }
 

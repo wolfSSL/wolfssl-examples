@@ -18,11 +18,23 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
+
+/* the usual suspects */
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <errno.h>
+
+/* socket includes */
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <unistd.h>
+
 #include <wolfssl/options.h>
 #include <wolfssl/wolfcrypt/settings.h>
 #include <wolfssl/ssl.h>
 #include <wolfssl/test.h>
-#include <errno.h>
 
 #define SERV_PORT 443
 #define CERT_FILE "../certs/ech-client-cert.pem"
@@ -37,7 +49,6 @@ int main(void)
     int sockfd = -1;
     WOLFSSL_CTX* ctx = NULL;
     WOLFSSL* ssl = NULL;
-    WOLFSSL_METHOD* method;
     struct  sockaddr_in servAddr;
     const char message[] =
         "GET /cdn-cgi/trace/ HTTP/1.1\r\n"
@@ -55,75 +66,110 @@ int main(void)
         "Pragma: no-cache\r\n"
         "Cache-Control: no-cache\r\n"
         "\r\n";
-    const char ip_string[] = "162.159.137.85";
-    const char SNI[] = "crypto.cloudflare.com";
-    uint8_t ech_configs[ECHBUFF_LEN];
-    uint32_t ech_configs_len = ECHBUFF_LEN;
+    const char publicIP[] = "104.18.11.118";
+    const char publicSNI[] = "cloudflare-ech.com";
+    const char privateSNI[] = "crypto.cloudflare.com";
+    byte echConfigs[ECHBUFF_LEN];
+    word32 echConfigsLen = ECHBUFF_LEN;
 
-    /* this first tls connection is only used to get the retry configs */
-    /* these configs can also be retrieved from DNS */
-
-    /* create and set up socket */
-    sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    memset(&servAddr, 0, sizeof(servAddr));
-    servAddr.sin_family = AF_INET;
-    servAddr.sin_port = htons(SERV_PORT);
-    /* set the ip string to the cloudflare server */
-    servAddr.sin_addr.s_addr = inet_addr( ip_string );
-
-    /* connect to socket */
-    connect(sockfd, (struct sockaddr *) &servAddr, sizeof(servAddr));
-
-    /* initialize wolfssl library */
-    wolfSSL_Init();
-    method = wolfTLSv1_3_client_method(); /* use TLS v1.3 */
-
-    /* make new ssl context */
-    if ((ctx = wolfSSL_CTX_new(method)) == NULL) {
-        ret = 1;
+    /* Initialize wolfSSL */
+    if ((ret = wolfSSL_Init()) != WOLFSSL_SUCCESS) {
+        fprintf(stderr, "ERROR: Failed to initialize the library\n");
         goto cleanup;
     }
 
-    /* set the server name we want to connect to */
-    ret = wolfSSL_CTX_UseSNI( ctx, WOLFSSL_SNI_HOST_NAME,
-        SNI, strlen(SNI) );
-
-    if (ret != WOLFSSL_SUCCESS) {
-        printf("wolfSSL_CTX_UseSNI error %d", ret);
-        goto ctx_clean;
+    /* Create and initialize WOLFSSL_CTX */
+    if ((ctx = wolfSSL_CTX_new(wolfTLSv1_3_client_method())) == NULL) {
+        fprintf(stderr, "ERROR: failed to create WOLFSSL_CTX\n");
+        ret = -1;
+        goto cleanup;
     }
 
-    /* make new wolfSSL struct */
+    /*---------------------------------------------------*/
+    /* Start of wolfSSL GREASE connection                */
+    /*---------------------------------------------------*/
+
+    /* this first tls connection is only used to get the retry configs - these
+     * configs can also be retrieved from DNS
+     * i.e. `$ dig cloudflare-ech.com HTTPS` */
+
+
+    /* Create a socket that uses an internet IPv4 address,
+     * Sets the socket to be stream based (TCP),
+     * 0 means choose the default protocol. */
+    if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
+        fprintf(stderr, "ERROR: failed to create the socket\n");
+        ret = -1;
+        goto cleanup;
+    }
+
+    /* Initialize the server address struct with zeros */
+    memset(&servAddr, 0, sizeof(servAddr));
+
+    /* Fill in the server address */
+    servAddr.sin_family = AF_INET;             /* using IPv4      */
+    servAddr.sin_port   = htons(SERV_PORT);    /* on DEFAULT_PORT */
+
+    /* set the ip string to the cloudflare ECH server */
+    servAddr.sin_addr.s_addr = inet_addr( publicIP );
+
+    /* Connect to the server */
+    if ((ret = connect(sockfd, (struct sockaddr*) &servAddr, sizeof(servAddr)))
+         == -1) {
+        fprintf(stderr, "ERROR: failed to connect\n");
+        goto cleanup;
+    }
+
+    /* Load client certificates into WOLFSSL_CTX */
+    if ((ret = wolfSSL_CTX_load_verify_locations(ctx, CERT_FILE, NULL))
+            != WOLFSSL_SUCCESS) {
+        fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
+                CERT_FILE);
+        goto ctx_cleanup;
+    }
+
+    /* Create a WOLFSSL object */
     if ((ssl = wolfSSL_new(ctx)) == NULL) {
-        printf("wolfSSL_new error");
-        ret = 1;
-        goto ctx_clean;
+        fprintf(stderr, "ERROR: failed to create WOLFSSL object\n");
+        ret = -1;
+        goto ctx_cleanup;
     }
 
-    /* Add cert to ctx */
-    if ((ret = wolfSSL_CTX_load_verify_locations(ctx, CERT_FILE, 0)) !=
-      WOLFSSL_SUCCESS) {
-        printf("wolfSSL_CTX_load_verify_locations error %d", ret);
-        goto ssl_clean;
+    /* Set SNI to the ECH server
+     * Take care not to set this to the private SNI because that would leak
+     * information about it. The private SNI will only be encrypted once the ECH
+     * configs are set. */
+    if ((ret = wolfSSL_UseSNI(ssl, WOLFSSL_SNI_HOST_NAME, publicSNI,
+            strlen(publicSNI))) != WOLFSSL_SUCCESS) {
+        fprintf(stderr, "ERROR: Failed to set public SNI %d\n", ret);
+        ret = -1;
+        goto ssl_cleanup;
     }
 
-    /* Connect wolfssl to the socket, server, then send message */
-    wolfSSL_set_fd(ssl, sockfd);
-
-    /* this connect will send a grease ech and get the retry configs back */
-    ret = wolfSSL_connect(ssl);
-
-    if (ret != WOLFSSL_SUCCESS) {
-        printf("%d %d\n", ret, wolfSSL_get_error(ssl, ret));
-        goto ssl_clean;
+    /* Attach wolfSSL to the socket */
+    if ((ret = wolfSSL_set_fd(ssl, sockfd)) != WOLFSSL_SUCCESS) {
+        fprintf(stderr, "ERROR: Failed to set the file descriptor %d\n", ret);
+        goto ssl_cleanup;
     }
 
-    /* retrieve the retry configs sent by the server */
-    ret = wolfSSL_GetEchConfigs(ssl, ech_configs, &ech_configs_len);
+    /* Connect to Cloudflare ECH server */
+    if ((ret = wolfSSL_connect(ssl)) != WOLFSSL_SUCCESS) {
+        fprintf(stderr, "ERROR: failed to connect to Cloudflare ECH server\n");
+        fprintf(stderr, "%d %d\n", ret, wolfSSL_get_error(ssl, ret));
+        goto ssl_cleanup;
+    }
 
-    if (ret != WOLFSSL_SUCCESS) {
-        printf("wolfSSL_GetEchConfigs error %d\n", ret);
-        goto ssl_clean;
+    /* If the GREASE was successful then retry configs sent by the server
+     * should be available. Store these in echConfigs for encrypting the
+     * upcoming ECH connection. */
+    if ((ret = wolfSSL_GetEchConfigs(ssl, echConfigs, &echConfigsLen)) !=
+            WOLFSSL_SUCCESS) {
+        fprintf(stderr, "ERROR: unable to get GREASE configs %d\n", ret);
+        goto ssl_cleanup;
+    }
+
+    while (wolfSSL_shutdown(ssl) == WOLFSSL_SHUTDOWN_NOT_DONE) {
+        ; /* do nothing */
     }
 
     /* frees all data before client termination */
@@ -133,47 +179,75 @@ int main(void)
     ssl = NULL;
     sockfd = -1;
 
-    /* now we create a new connection that will send the real ech */
+    /*---------------------------------------------------*/
+    /* Start of wolfSSL ECH connection                   */
+    /*---------------------------------------------------*/
 
-    /* create and set up socket */
-    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
+        fprintf(stderr, "ERROR: failed to create the socket\n");
+        ret = -1;
+        goto ctx_cleanup;
+    }
     memset(&servAddr, 0, sizeof(servAddr));
-    servAddr.sin_family = AF_INET;
-    servAddr.sin_port = htons(SERV_PORT);
-    /* set the ip string to the cloudflare server */
-    servAddr.sin_addr.s_addr = inet_addr( ip_string );
+    servAddr.sin_family = AF_INET;             /* using IPv4      */
+    servAddr.sin_port   = htons(SERV_PORT);    /* on DEFAULT_PORT */
+    servAddr.sin_addr.s_addr = inet_addr( publicIP );
 
-    /* connect to socket */
-    connect(sockfd, (struct sockaddr *) &servAddr, sizeof(servAddr));
-
-    /* make new wolfSSL struct */
-    if ( (ssl = wolfSSL_new(ctx)) == NULL) {
-        printf("wolfSSL_new error");
-        ret = 1;
-        goto ctx_clean;
+    if ((ret = connect(sockfd, (struct sockaddr*) &servAddr, sizeof(servAddr)))
+         == -1) {
+        fprintf(stderr, "ERROR: failed to connect\n");
+        goto ctx_cleanup;
     }
 
-    /* set the ech configs taken from dns */
-    ret = wolfSSL_SetEchConfigs(ssl, ech_configs, ech_configs_len);
-
-    if ( ret != WOLFSSL_SUCCESS ) {
-        printf("wolfSSL_SetEchConfigs error %d", ret);
-        goto ssl_clean;
+    /* Create a WOLFSSL object */
+    if ((ssl = wolfSSL_new(ctx)) == NULL) {
+        fprintf(stderr, "ERROR: failed to create WOLFSSL object\n");
+        ret = -1;
+        goto ctx_cleanup;
     }
 
-    /* Connect wolfssl to the socket, server, then send message */
-    wolfSSL_set_fd(ssl, sockfd);
-
-    /* this connect will send the real ech */
-    ret = wolfSSL_connect(ssl);
-
-    if (ret != WOLFSSL_SUCCESS) {
-        printf( "%d %d\n", ret, wolfSSL_get_error( ssl, ret ) );
-        goto ssl_clean;
+    /* set the ECH configs with configs taken from the GREASE connection */
+    if ((ret = wolfSSL_SetEchConfigs(ssl, echConfigs, echConfigsLen)) !=
+            WOLFSSL_SUCCESS) {
+        fprintf(stderr, "ERROR: failed to set GREASE configs %d\n", ret);
+        goto ssl_cleanup;
     }
 
+    /* Now that ECH configs are set the private SNI will be encrypted, therefore
+     * it is now fine (and correct) to set the private SNI here */
+    if ((ret = wolfSSL_UseSNI(ssl, WOLFSSL_SNI_HOST_NAME, privateSNI,
+            strlen(privateSNI))) != WOLFSSL_SUCCESS) {
+        fprintf(stderr, "ERROR: Failed to set private SNI %d\n", ret);
+        ret = -1;
+        goto ssl_cleanup;
+    }
+
+    /* Attach wolfSSL to the socket */
+    if ((ret = wolfSSL_set_fd(ssl, sockfd)) != WOLFSSL_SUCCESS) {
+        fprintf(stderr, "ERROR: Failed to set the file descriptor %d\n", ret);
+        goto ssl_cleanup;
+    }
+
+    /* Connect to Cloudflare */
+    if ((ret = wolfSSL_connect(ssl)) != WOLFSSL_SUCCESS) {
+        fprintf(stderr, "ERROR: failed to connect to Cloudflare\n");
+        fprintf(stderr, "%d %d\n", ret, wolfSSL_get_error(ssl, ret));
+        goto ssl_cleanup;
+    }
+
+    /* Write the message that will ask the server for information on the
+     * connection */
     wolfSSL_write(ssl, message, strlen(message));
+    if ((ret = wolfSSL_write(ssl, message, strlen(message))) !=
+            strlen(message)) {
+        fprintf(stderr, "ERROR: failed to write entire message\n");
+        fprintf(stderr, "%d bytes of %d bytes were sent",
+                ret, (int)strlen(message));
+        goto ssl_cleanup;
+    }
 
+    /* Retrieve the server's response:
+     * If ECH is being correctly used then 'sni=encrypted' should show up */
     do
     {
         ret = wolfSSL_read(ssl, rd_buf, RDBUFF_LEN);
@@ -181,28 +255,32 @@ int main(void)
         if (ret <= 0)
             break;
 
-        printf("%.*s", ret, rd_buf);
+        fprintf(stdout, "%.*s", ret, rd_buf);
     /* read until the chunk size is 0 */
     } while (rd_buf[0] != '0');
 
+    while (wolfSSL_shutdown(ssl) == WOLFSSL_SHUTDOWN_NOT_DONE) {
+        ; /* do nothing */
+    }
+
     ret = 0;
 
-ssl_clean:
+ssl_cleanup:
     wolfSSL_free(ssl);
     ssl = NULL;
-    close(sockfd);
-    sockfd = -1;
-ctx_clean:
+ctx_cleanup:
     wolfSSL_CTX_free(ctx);
 cleanup:
     wolfSSL_Cleanup();
+    close(sockfd);
+    sockfd = -1;
 
     return ret;
 }
 #else
 int main(void)
 {
-    printf("Please build wolfssl with ./configure --enable-ech\n");
+    fprintf(stderr, "Please build wolfssl with ./configure --enable-ech\n");
     return 1;
 }
 #endif

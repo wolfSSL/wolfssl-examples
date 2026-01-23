@@ -1339,33 +1339,66 @@ To generate your own cert text, see the [DER to C script](https://github.com/wol
 
 ## <a name="ech">Encrypted Client Hello</a>
 
-Encrypted Client Hello (ECH) encrypts sensitive fields in the client hello step of the TLS handshake. The client-ech example connects to a cloudflare server that is setup to test different TLS options including ECH. To build wolfSSL for this ech example run `./configure --enable-ech && make && sudo make install`.
+Encrypted Client Hello (ECH) encrypts sensitive fields in the TLS ClientHello
+message. Doing so provides a means for hiding the Server Name Indication (SNI),
+among other things, from passive observers.
 
-This test is successful if the cloudflare http response shows that `sni=encrypted`.
+To run these examples build wolfSSL with ECH support:
 
 ```sh
-make
-./client-ech 
-HTTP/1.1 200 OK
-Access-Control-Allow-Origin: *
-Cache-Control: no-cache
-Cf-Ray: 77c3e3e937c6b08e-ATL
-Content-Type: text/plain
-Expires: Thu, 01 Jan 1970 00:00:01 GMT
-Server: cloudflare
-X-Content-Type-Options: nosniff
-X-Frame-Options: DENY
-Date: Mon, 19 Dec 2022 23:24:11 GMT
-Transfer-Encoding: chunked
+./configure --enable-ech && make && sudo make install
+```
 
-106
-fl=507f46
+There are four ECH example programs in this directory:
+
+| Program | Description |
+|---|---|
+| `client-ech` | Connects to Cloudflare to demonstrate real-world ECH |
+| `server-ech-local` | Local ECH server; generates its own ECH config at startup |
+| `client-ech-local` | Local ECH client; accepts a base64 ECH config as an argument |
+| `client-ech-grease` | GREASE ECH probe; retrieves retry configs from a local server |
+
+### client-ech — Real-World ECH with Cloudflare
+
+`client-ech` demonstrates ECH against `crypto.cloudflare.com` in two phases:
+
+1. **GREASE phase**: Connects to Cloudflare's ECH endpoint
+   (`cloudflare-ech.com`) without ECH configs set, which causes the library to
+   send GREASE ECH. The server responds with its actual ECH configs as retry
+   configs, which are collected via `wolfSSL_GetEchConfigs()`.
+2. **ECH phase**: Reconnects using the retrieved configs. The retrieved configs
+   are set with `wolfSSL_SetEchConfigs()` which will set the public SNI to
+   (`cloudflare-ech.com`) in addition to enabling encryption of the client
+   hello. The private SNI is set via `wolfSSL_UseSNI()` to
+   (`crypto.cloudflare.com`).
+
+The test succeeds when Cloudflare's `/cdn-cgi/trace` response shows
+`sni=encrypted`.
+
+```sh
+make client-ech
+./client-ech
+HTTP/1.1 200 OK
+Date: Tue, 24 Feb 2026 17:42:20 GMT
+Content-Type: text/plain
+Transfer-Encoding: chunked
+Connection: keep-alive
+Access-Control-Allow-Origin: *
+Server: cloudflare
+CF-RAY: 9d30c24adad5e17a-SEA
+X-Frame-Options: DENY
+X-Content-Type-Options: nosniff
+Expires: Thu, 01 Jan 1970 00:00:01 GMT
+Cache-Control: no-cache
+
+10f
+fl=542f337
 h=crypto.cloudflare.com
 ip=173.93.184.37
-ts=1671492251.082
+ts=1771954940.618
 visit_scheme=https
 uag=Mozilla/5.0 (X11; Linux x86_64; rv:105.0) Gecko/20100101 Firefox/105.0
-colo=ATL
+colo=SEA
 sliver=none
 http=http/1.1
 loc=US
@@ -1373,9 +1406,86 @@ tls=TLSv1.3
 sni=encrypted
 warp=off
 gateway=off
-kex=P-256
+rbi=off
+kex=X25519
 
 0
+```
+
+### Local ECH pair — server-ech-local and client-ech-local
+
+`server-ech-local` and `client-ech-local` demonstrate ECH between two local
+processes without requiring internet access or DNS.
+
+`server-ech-local` generates its own ECH config at startup using
+`wolfSSL_CTX_GenerateEchConfig()`, then encodes and prints it in base64. It
+listens on port 11111 and sets its private SNI to `ech-private-name.com`. The
+server loops accepting clients until it receives the message `shutdown`.
+
+`client-ech-local` takes the server's base64 ECH config as a command-line
+argument, loads it with `wolfSSL_SetEchConfigsBase64()`, and sets its private
+SNI to `ech-private-name.com` before connecting on port 11111. It then reads a
+message from stdin and sends it to the server.
+
+Build:
+
+```sh
+make server-ech-local client-ech-local
+```
+
+Run the server in one terminal; it will print its ECH config:
+
+```sh
+./server-ech-local
+ECH config: <base64-encoded-config>
+Waiting for a connection...
+```
+
+Run the client in a second terminal, passing the base64 config the server printed:
+
+```sh
+./client-ech-local <base64-encoded-config>
+Message for server: hello
+Server: I hear ya fa shizzle!
+Shutdown complete
+```
+
+Send `shutdown` as the message to stop the server.
+
+### client-ech-grease — GREASE Probe to Retrieve Server ECH Configs
+
+GREASE (Generate Random Extensions And Sustain Extensibility) provides several
+benefits to a user:
+1. Determines if a server supports ECH based on the response it gives.
+2. Retrieves ECH configs from the server if the client does not know any. It is
+   an alternative to fetching them from DNS HTTPS records.
+3. Reduces the extent to which GREASE vs ECH connections stick out.
+
+`client-ech-grease` connects to a local server (such as `server-ech-local`) on
+port 11111 without valid ECH configs, which causes the library to send GREASE
+ECH. The server responds with its actual ECH configs as retry configs.
+`client-ech-grease` retrieves these via `wolfSSL_GetEchConfigs()` and prints
+them in base64. It takes the public SNI as a command-line argument.
+
+Build:
+
+```sh
+make client-ech-grease
+```
+
+With `server-ech-local` already running in another terminal, probe for configs:
+
+```sh
+./client-ech-grease ech-public-name.com
+ECH config: <base64-encoded-config>
+
+Shutdown complete
+```
+
+The printed base64 config can then be passed directly to `client-ech-local`:
+
+```sh
+./client-ech-local <base64-encoded-config>
 ```
 
 ## TLS Example with Post-Handshake Authentication
