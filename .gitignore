@@ -402,3 +402,8 @@ kernel/bsdkm/bsd_example.ko
 kernel/bsdkm/machine
 kernel/bsdkm/opt_global.h
 kernel/bsdkm/x86
+
+# STSAFE test executables
+stsafe/stsafe_test
+stsafe/wolfssl_stsafe_test
+stsafe/wolfssl_stsafe_full_test
