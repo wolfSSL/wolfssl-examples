@@ -61,6 +61,8 @@
 /* Epoch for the multicast session */
 #define MCAST_EPOCH     1
 
+#if defined(WOLFSSL_DTLS) && defined(WOLFSSL_MULTICAST)
+
 /* Global flag for clean shutdown */
 static volatile int running = 1;
 
@@ -226,12 +228,6 @@ int main(int argc, char** argv)
 #ifdef DEBUG_WOLFSSL
     wolfSSL_Debugging_ON();
 #endif
-
-#ifndef WOLFSSL_MULTICAST
-    fprintf(stderr, "Error: wolfSSL not built with multicast support\n");
-    fprintf(stderr, "Rebuild with: ./configure --enable-dtls --enable-mcast\n");
-    return 1;
-#else
 
     /* Initialize the pre-shared secrets (same for all peers) */
     memset(pms, 0x23, sizeof(pms));
@@ -450,6 +446,12 @@ cleanup:
     wolfSSL_Cleanup();
 
     printf("Node %d: Goodbye!\n", myId);
-#endif /* WOLFSSL_MULTICAST */
     return 0;
 }
+#else
+int main()
+{
+    fprintf(stderr, "Please configure the wolfssl library with --enable-dtls --enable-mcast.\n");
+    return 0;
+}
+#endif /* WOLFSSL_DTLS && WOLFSSL_MULTICAST */
