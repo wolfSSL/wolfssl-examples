@@ -64,7 +64,7 @@
 #if defined(WOLFSSL_DTLS) && defined(WOLFSSL_MULTICAST)
 
 /* Global flag for clean shutdown */
-static volatile int running = 1;
+static volatile sig_atomic_t int running = 1;
 
 static void sig_handler(int sig)
 {
@@ -452,6 +452,6 @@ cleanup:
 int main()
 {
     fprintf(stderr, "Please configure the wolfssl library with --enable-dtls --enable-mcast.\n");
-    return 0;
+    return EXIT_FAILURE;
 }
 #endif /* WOLFSSL_DTLS && WOLFSSL_MULTICAST */

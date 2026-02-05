@@ -11,6 +11,8 @@ This example uses:
 - Pre-shared secret material (PMS, client random, server random)
 - Multicast group `239.255.0.1:12345`
 
+NOTE: Since this is using NULL encryption, all messages going over the wire are plaintext. This example provides no confidentiality.
+
 ## Requirements
 
 wolfSSL must be built with multicast support:
@@ -18,12 +20,6 @@ wolfSSL must be built with multicast support:
 ```bash
 cd /path/to/wolfssl
 ./configure --enable-dtls --enable-mcast
-make
-```
-
-For static linking (used by this example's Makefile):
-```bash
-./configure --enable-dtls --enable-mcast --enable-static
 make
 ```
 
@@ -94,6 +90,9 @@ All peers must use identical secret material:
 - Cipher suite identifier
 
 In production, this material would be distributed securely out-of-band (e.g., via a key server).
+
+### NULL Encryption
+This example is using NULL encryption. That means all messages going over the wire are plaintext. This example provides no confidentiality.
 
 ## References
 
