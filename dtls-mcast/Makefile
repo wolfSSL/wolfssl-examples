@@ -1,5 +1,8 @@
 # DTLS Multicast Examples Makefile
 CC       = gcc
+WOLFSSL_INSTALL_DIR = /usr/local
+CFLAGS   = -Wall -I$(WOLFSSL_INSTALL_DIR)/include
+LIBS     = -L$(WOLFSSL_INSTALL_DIR)/lib -lwolfssl -lm
 
 # build targets
 TARGETS = mcast-peer
@@ -7,7 +10,7 @@ TARGETS = mcast-peer
 all: $(TARGETS)
 
 mcast-peer: mcast-peer.c
-	$(CC) -o $@ $< -L/usr/local/lib -lwolfssl
+	$(CC) -o $@ $< $(CFLAGS) $(LIBS)
 
 clean:
 	rm -f $(TARGETS)
