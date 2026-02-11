@@ -143,7 +143,7 @@ int main()
     /* Bind the server socket to our port */
     if (bind(sockfd, (struct sockaddr*)&servAddr, sizeof(servAddr)) == -1) {
         fprintf(stderr, "ERROR: failed to bind\n");
-        ret = -1; 
+        ret = -1;
         goto exit;
     }
 
