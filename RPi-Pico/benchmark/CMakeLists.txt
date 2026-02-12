@@ -11,6 +11,7 @@ target_link_libraries(benchmark
 
 target_compile_definitions(benchmark PRIVATE
     WOLFSSL_RPI_PICO
+    PICO_STACK_SIZE=4096
 )
 
 if (USE_UART)

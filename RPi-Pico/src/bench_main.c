@@ -37,9 +37,11 @@ int main(int argc, char **argv)
     int ret;
 
     stdio_init_all();
-    printf("\nSystem clock = %dMHz\n\n", clock_get_hz(clk_sys)/1000000);
-    ret = benchmark_test(NULL);
-    printf("End: %d\n", ret);
+    while(1) {
+        printf("\nSystem clock = %dMHz\n\n", clock_get_hz(clk_sys)/1000000);
+        ret = benchmark_test(NULL);
+        printf("End: %d\n", ret);
+    }
     return ret;
 }
 

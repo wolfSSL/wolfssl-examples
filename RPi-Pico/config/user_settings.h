@@ -45,7 +45,7 @@ extern time_t myTime(time_t *);
 /* ------------------------------------------------------------------------- */
 /* Platform */
 /* ------------------------------------------------------------------------- */
-#define WOLFSSL_GENERAL_ALIGNMENT 4
+#define WOLFSSL_GENERAL_ALIGNMENT 0
 #define SIZEOF_LONG_LONG 8
 #if 0
 #define NO_64BIT /* disable use of 64-bit variables */
@@ -76,7 +76,7 @@ extern time_t myTime(time_t *);
 // #define WOLFSSL_SP_384 /* Enable ECC 384-bit SECP384R1 support */
 
 // #define WOLFSSL_SP_CACHE_RESISTANT
-#define WOLFSSL_SP_MATH     /* only SP math - disables integer.c/tfm.c */
+//#define WOLFSSL_SP_MATH     /* only SP math - disables integer.c/tfm.c */
 #define WOLFSSL_SP_MATH_ALL /* use SP math for all key sizes and curves */
 
     // #define WOLFSSL_SP_NO_MALLOC
