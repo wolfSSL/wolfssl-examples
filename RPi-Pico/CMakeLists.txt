@@ -1,9 +1,13 @@
 cmake_minimum_required(VERSION 3.13)
 
-# Pull in Pico and FreeRTOS
+# Pull in Pico SDK
 include($ENV{PICO_SDK_PATH}/external/pico_sdk_import.cmake)
 #include(pico_extras_import_optional.cmake)
-include($ENV{FREERTOS_KERNEL_PATH}/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_import.cmake)
+
+# Pull in FreeRTOS if available (required for WiFi/TCP/TLS examples)
+if (DEFINED ENV{FREERTOS_KERNEL_PATH})
+    include($ENV{FREERTOS_KERNEL_PATH}/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_import.cmake)
+endif()
 
 
 if(PICO_SDK_VERSION_STRING VERSION_LESS "1.3.0")
@@ -27,6 +31,10 @@ if (USE_WIFI AND NOT PICO_CYW43_SUPPORTED)
     message(FATAL_ERROR "You can only set USE_WIFI when a PICO_BOARD with wifi is used")
 endif()
 
+if (USE_WIFI AND NOT DEFINED ENV{FREERTOS_KERNEL_PATH})
+    message(FATAL_ERROR "FREERTOS_KERNEL_PATH environment variable must be set when USE_WIFI is enabled")
+endif()
+
 ### Global Include Path
     include_directories(config)
     include_directories(include)
@@ -38,9 +46,11 @@ endif()
     #include_directories(${PICO_SDK_PATH}/lib/btstack/test/embedded/)
 
     set(WOLFSSL_ROOT $ENV{WOLFSSL_ROOT})
-    set(FREERTOS_KERNEL_PATH $ENV{FREERTOS_KERNEL_PATH})
-    include_directories(${FREERTOS_KERNEL_PATH}/include/)
-    include_directories(${FREERTOS_KERNEL_PATH}/portable/ThirdParty/GCC/RP2040/include)
+    if (DEFINED ENV{FREERTOS_KERNEL_PATH})
+        set(FREERTOS_KERNEL_PATH $ENV{FREERTOS_KERNEL_PATH})
+        include_directories(${FREERTOS_KERNEL_PATH}/include/)
+        include_directories(${FREERTOS_KERNEL_PATH}/portable/ThirdParty/GCC/RP2040/include)
+    endif()
     include_directories(${WOLFSSL_ROOT})
 ### End of Global Include Path
 

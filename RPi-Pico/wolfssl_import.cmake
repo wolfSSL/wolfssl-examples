@@ -31,6 +31,8 @@ target_compile_definitions(wolfssl PUBLIC
     WOLFSSL_USER_SETTINGS
 )
 
+add_compile_definitions(PICO_USE_STACK_GUARDS=1)
+
 if (${PICO_PLATFORM} STREQUAL "rp2350-arm-s")
 add_compile_definitions(wolfssl WOLFSSL_SP_ARM_CORTEX_M_ASM)
 elseif (${PICO_PLATFORM} STREQUAL "rp2350-riscv")
