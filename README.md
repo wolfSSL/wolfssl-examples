@@ -203,17 +203,6 @@ details.
 
 <br />
 
-#### picotcp (picoTCP Examples)
-
-This directory contains a TLS server created by using picoTCP via wolfSSL 
-custom callbacks.
-
-Please see the [picotcp/README.md](picotcp/README.md) for further usage and 
-details.
-
-
-<br />
-
 #### pk (Public-Key)
 
 This directory contains examples that demonstrate various wolfCrypt public-key 
