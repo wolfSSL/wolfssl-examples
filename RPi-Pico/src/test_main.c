@@ -47,6 +47,8 @@ int main(int argc, char **argv)
 #include <time.h>
 time_t myTime(time_t *t)
 {
-    *t = (((2023 - 1970) * 12 + 8) * 30 * 24 * 60 * 60);
-    return *t;
+    time_t sec = (((2023 - 1970) * 12 + 8) * 30 * 24 * 60 * 60);
+    if (t)
+        *t = sec;
+    return sec;
 }
