@@ -41,7 +41,9 @@
 #define PRIV_KEY_ID  {0x00, 0x01}
 
 #ifndef WOLFCRYPT_ONLY
-int server_tls(int devId, Pkcs11Token* token)
+int server_tls(int devId, Pkcs11Token* token, const char *certLabel,
+               const byte *certId, word32 certIdLen, const byte *privKeyId,
+               word32 privKeyIdLen)
 {
     int                sockfd;
     int                connd;
@@ -52,7 +54,6 @@ int server_tls(int devId, Pkcs11Token* token)
     size_t             len;
     int                shutdown = 0;
     int                ret;
-    unsigned char      privKeyId[] = PRIV_KEY_ID;
     const char*        reply = "I hear ya fa shizzle!\n";
 
     /* declare wolfSSL objects */
@@ -88,20 +89,37 @@ int server_tls(int devId, Pkcs11Token* token)
     }
 
     /* Load server certificates into WOLFSSL_CTX */
-    if (wolfSSL_CTX_use_certificate_file(ctx, CERT_FILE, SSL_FILETYPE_PEM)
-        != SSL_SUCCESS) {
-        fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
-                CERT_FILE);
-        return -1;
+    if (certLabel != NULL) {
+        if (wolfSSL_CTX_use_certificate_label(ctx, certLabel, devId)
+            != SSL_SUCCESS) {
+            fprintf(stderr, "ERROR: failed to load certificate by label: %s\n",
+                    certLabel);
+            return -1;
+        }
+    }
+    else if (certId != NULL) {
+        if (wolfSSL_CTX_use_certificate_id(ctx, certId, certIdLen, devId)
+            != SSL_SUCCESS) {
+            fprintf(stderr, "ERROR: failed to load certificate by id: %s\n",
+                    certId);
+            return -1;
+        }
+    }
+    else {
+        if (wolfSSL_CTX_use_certificate_file(ctx, CERT_FILE, WOLFSSL_FILETYPE_PEM)
+            != SSL_SUCCESS) {
+            fprintf(stderr, "ERROR: failed to load %s, please check the file.\n",
+                    CERT_FILE);
+            return -1;
+        }
     }
 
     /* Load server key into WOLFSSL_CTX */
-    if (wolfSSL_CTX_use_PrivateKey_id(ctx, privKeyId, sizeof(privKeyId), devId,
+    if (wolfSSL_CTX_use_PrivateKey_id(ctx, privKeyId, privKeyIdLen, devId,
             2048/8) != SSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to set id.\n");
         return -1;
     }
-
 
 
     /* Initialize the server address struct with zeros */
@@ -217,29 +235,130 @@ int server_tls(int devId, Pkcs11Token* token)
 }
 #endif
 
+static int string_matches(const char* arg, const char* str)
+{
+    int len = (int)XSTRLEN(str) + 1;
+    return XSTRNCMP(arg, str, len) == 0;
+}
+
+static void Usage(void)
+{
+    printf("server-tls-pkcs11\n");
+    printf("-?                  Help, print this usage\n");
+    printf("-lib <file>         PKCS#11 library to test\n");
+    printf("-slot <num>         Slot number to use\n");
+    printf("-tokenName <string> Token name\n");
+    printf("-userPin <string>   User PIN\n");
+    printf("-privKeyId <string> Private key identifier\n");
+    printf("-certId <string>    Certificate identifier\n");
+    printf("-certLabel <string> Certificate label\n");
+}
+
 int main(int argc, char* argv[])
 {
     int ret;
-    const char* library;
-    const char* slot;
-    const char* tokenName;
-    const char* userPin;
+    const char* library = NULL;
+    const char* tokenName = NULL;
+    const char* userPin = NULL;
+    const char* certLabel = NULL;
+    const byte* certId = NULL;
+    int certIdLen = 0;
     Pkcs11Dev dev;
     Pkcs11Token token;
-    int slotId;
+    int slotId = -1;
     int devId = 1;
+    const unsigned char defaultPrivKeyId[] = PRIV_KEY_ID;
+    int privKeyIdLen = 2;
+    const byte *privKeyId = (const byte *)defaultPrivKeyId;
 
-    if (argc != 4 && argc != 5) {
-        fprintf(stderr,
-           "Usage: server_tls_pkcs11 <libname> <slot> <tokenname> [userpin]\n");
-        return 1;
+    argc--;
+    argv++;
+    while (argc > 0) {
+        if (string_matches(*argv, "-?")) {
+            Usage();
+            return 0;
+        }
+        else if (string_matches(*argv, "-lib")) {
+            argc--;
+            argv++;
+            if (argc == 0) {
+                fprintf(stderr, "Library name not supplied\n");
+                return 1;
+            }
+            library = *argv;
+        }
+        else if (string_matches(*argv, "-slot")) {
+            argc--;
+            argv++;
+            if (argc == 0) {
+                fprintf(stderr, "Slot number not supplied\n");
+                return 1;
+            }
+            slotId = atoi(*argv);
+        }
+        else if (string_matches(*argv, "-tokenName")) {
+            argc--;
+            argv++;
+            if (argc == 0) {
+                fprintf(stderr, "Token name not supplied\n");
+                return 1;
+            }
+            tokenName = *argv;
+        }
+        else if (string_matches(*argv, "-userPin")) {
+            argc--;
+            argv++;
+            if (argc == 0) {
+                fprintf(stderr, "User PIN not supplied\n");
+                return 1;
+            }
+            userPin = *argv;
+        }
+        else if (string_matches(*argv, "-privKeyId")) {
+            argc--;
+            argv++;
+            if (argc == 0) {
+                fprintf(stderr, "Private key identifier not supplied\n");
+                return 1;
+            }
+            privKeyId = (byte*)*argv;
+            privKeyIdLen = (int)strlen(*argv);
+        }
+        else if (string_matches(*argv, "-certId")) {
+            argc--;
+            argv++;
+            if (argc == 0) {
+                fprintf(stderr, "Certificate identifier not supplied\n");
+                return 1;
+            }
+            certId = (byte*)*argv;
+            certIdLen = (int)strlen(*argv);
+        }
+        else if (string_matches(*argv, "-certLabel")) {
+            argc--;
+            argv++;
+            if (argc == 0) {
+                fprintf(stderr, "Certificate label not supplied\n");
+                return 1;
+            }
+            certLabel = (char*)*argv;
+        }
+        else {
+            fprintf(stderr, "Unrecognized command line argument\n  %s\n",
+                argv[0]);
+            Usage();
+            return 1;
+        }
+
+        argc--;
+        argv++;
     }
 
-    library = argv[1];
-    slot = argv[2];
-    tokenName = argv[3];
-    userPin = (argc == 4) ? NULL : argv[4];
-    slotId = atoi(slot);
+    if (library == NULL || tokenName == NULL) {
+        fprintf(stderr, "Error: missing arguments\n");
+        Usage();
+        return 1;
+    }
 
 #if defined(DEBUG_WOLFSSL)
     wolfSSL_Debugging_ON();
@@ -267,7 +386,8 @@ int main(int argc, char* argv[])
             }
             if (ret == 0) {
             #if !defined(WOLFCRYPT_ONLY)
-                ret = server_tls(devId, &token);
+                ret = server_tls(devId, &token, certLabel, certId, certIdLen,
+                    privKeyId, (word32)privKeyIdLen);
                 if (ret != 0)
                     ret = 1;
             #endif
