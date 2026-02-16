@@ -11,7 +11,10 @@ static long epoch_base;
 
 time_t myTime(time_t *tt)
 {
-    return epoch_base + (xTaskGetTickCount() / configTICK_RATE_HZ);
+    time_t sec = epoch_base + (xTaskGetTickCount() / configTICK_RATE_HZ);
+    if (tt)
+        *tt = sec;
+    return sec;
 }
 
 int time_init()
