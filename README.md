@@ -381,11 +381,22 @@ details.
 
 <br />
 
-#### UEFI (wolfCrypt UEFI application Example)
+#### uefi-static (wolfCrypt UEFI application Example)
 
 This directory contains an example UEFI application that runs wolfcrypt test.
 
-Please see the [uefi/README.md](uefi/README.md) for further usage and
+Please see the [uefi-static/README.md](uefi-static/README.md) for further usage and
+details.
+
+
+<br />
+
+#### uefi-library (wolfCrypt UEFI boot module and test app)
+
+This directory contains a UEFI wolfCrypt protocol driver (`libwolfcrypt.efi`)
+and a companion test application (`test.efi`). Examples run on qemu.
+
+Please see the [uefi-library/README.md](uefi-library/README.md) for further usage and
 details.
 
 
@@ -406,4 +417,3 @@ To generate your own cert text, see the [DER to C script](https://github.com/wol
 
 Please contact wolfSSL at support@wolfssl.com with any questions, bug fixes,
 or suggested feature additions.
-
