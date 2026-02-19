@@ -26,6 +26,22 @@
 #include <wolfssl/wolfcrypt/types.h>
 #include <wolfssl/wolfcrypt/wc_port.h>
 
+static void PrintBuffer(const byte* der, word32 derSz)
+{
+    word32 i;
+
+    if (der != NULL) {
+        for (i = 0; i < derSz; i++) {
+            if (i != 0 && !(i%16)) {
+                printf("\n");
+            }
+            printf("%02X", der[i]);
+        }
+        printf("\n");
+    }
+}
+
+
 /* This is an example with using wc_ function for PKCS12. To see an example of
  * wolfSSL_PKCS12 functions look in tests/api.c */
 int main(int argc, char** argv)
@@ -37,7 +53,6 @@ int main(int argc, char** argv)
     byte* certDer = NULL;
     word32 keySz;
     word32 certSz;
-    word32 i;
     byte buffer[5300];
     char *file;
     char defaultFile[] = "./test-servercert.p12";
@@ -48,8 +63,6 @@ int main(int argc, char** argv)
         printf("issue with wolfCrypt_Init()\n");
         return -1;
     }
-
-    printf("extracting private key and certificate from PKCS12 (test-servercert.p12)\n");
 
     pkcs12 = wc_PKCS12_new();
     if (pkcs12 == NULL) {
@@ -63,6 +76,7 @@ int main(int argc, char** argv)
     else {
         file = defaultFile;
     }
+    printf("extracting private key and certificate from PKCS12 (%s)\n", file);
 
     /* open PKCS12 file */
     f = fopen(file, "rb");
@@ -87,42 +101,40 @@ int main(int argc, char** argv)
     ret = wc_PKCS12_parse(pkcs12, "wolfSSL test", &keyDer, &keySz,
             &certDer, &certSz, &list);
     printf("return value of parsing pkcs12 = %d %s\n", ret, (ret == 0)? "SUCCESS": "FAIL");
-    if (ret != 0 || keyDer == NULL || certDer == NULL) {
+    if (ret != 0) {
         printf("\t error parsing pkcs12\n");
         wc_PKCS12_free(pkcs12);
         return -1;
     }
 
     /* print out key and cert found */
-    printf("HEX of Private Key Read (DER format) :\n");
-    for (i = 0; i < keySz; i++) {
-        if (i != 0 && !(i%16)) printf("\n");
-        printf("%02X", keyDer[i]);
-    }
-    printf("\n");
-
-    printf("\nHEX of Certificate Read (DER format) :\n");
-    for (i = 0; i < certSz; i++) {
-        if (i != 0 && !(i%16)) printf("\n");
-        printf("%02X", certDer[i]);
-    }
-    printf("\n");
-
     if (keyDer != NULL) {
+        printf("HEX of Private Key Read (DER format) :\n");
+        PrintBuffer(keyDer, keySz);
         XFREE(keyDer, NULL, DYNAMIC_TYPE_PKCS);
     }
 
     if (certDer != NULL) {
+        printf("\nHEX of Certificate Read (DER format) :\n");
+        PrintBuffer(certDer, certSz);
         XFREE(certDer, NULL, DYNAMIC_TYPE_PKCS);
     }
 
-    /* itterate through list if was not passed as null and free each node */
+    /* Iterate through list of certificates and print each out if was not passed
+     * as null, and then free each node. */
     if (list != NULL) {
         WC_DerCertList* current;
+        int certIdx = 0;
+
+        printf("\nHEX of Certificate LIST (DER format) :\n");
         current = list;
         while (current != NULL) {
-            WC_DerCertList* next = current->next;
+            WC_DerCertList* next;
+
+            next = current->next;
             if (current->buffer != NULL) {
+                printf("\n[CERT %d] :", certIdx++);
+                PrintBuffer(current->buffer, current->bufferSz);
                 XFREE(current->buffer, NULL, DYNAMIC_TYPE_PKCS);
             }
             XFREE(current, NULL, DYNAMIC_TYPE_PKCS);
