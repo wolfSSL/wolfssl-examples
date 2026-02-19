@@ -26,9 +26,9 @@
 #include <wolfssl/wolfcrypt/types.h>
 #include <wolfssl/wolfcrypt/wc_port.h>
 
-static void PRINT_BUFFER(byte* der, int derSz)
+static void PrintBuffer(const byte* der, word32 derSz)
 {
-    int i;
+    word32 i;
 
     if (der != NULL) {
         for (i = 0; i < derSz; i++) {
@@ -110,13 +110,13 @@ int main(int argc, char** argv)
     /* print out key and cert found */
     if (keyDer != NULL) {
         printf("HEX of Private Key Read (DER format) :\n");
-        PRINT_BUFFER(keyDer, keySz);
+        PrintBuffer(keyDer, keySz);
         XFREE(keyDer, NULL, DYNAMIC_TYPE_PKCS);
     }
 
     if (certDer != NULL) {
         printf("\nHEX of Certificate Read (DER format) :\n");
-        PRINT_BUFFER(certDer, certSz);
+        PrintBuffer(certDer, certSz);
         XFREE(certDer, NULL, DYNAMIC_TYPE_PKCS);
     }
 
@@ -134,7 +134,7 @@ int main(int argc, char** argv)
             next = current->next;
             if (current->buffer != NULL) {
                 printf("\n[CERT %d] :", certIdx++);
-                PRINT_BUFFER(current->buffer, current->bufferSz);
+                PrintBuffer(current->buffer, current->bufferSz);
                 XFREE(current->buffer, NULL, DYNAMIC_TYPE_PKCS);
             }
             XFREE(current, NULL, DYNAMIC_TYPE_PKCS);
