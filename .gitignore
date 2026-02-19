@@ -6,6 +6,7 @@
 *.ko
 *.obj
 *.elf
+*.efi
 
 # Libraries
 *.lib
@@ -407,3 +408,6 @@ kernel/bsdkm/x86
 stsafe/stsafe_test
 stsafe/wolfssl_stsafe_test
 stsafe/wolfssl_stsafe_full_test
+
+# uefi-library generated filesystem content
+uefi-library/efifs
