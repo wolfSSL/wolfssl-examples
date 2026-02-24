@@ -155,6 +155,7 @@ int main(int argc, char **argv){
 
     /* cleanup without wolfSSL_Cleanup() and wolfSSL_CTX_free() for now */
     wolfSSL_free(ssl);
+    ssl = NULL;
 
     /*
      * resume session, start new connection and socket
