@@ -1,4 +1,4 @@
-/* client-ech-local.c
+/* client-ech-grease.c
  *
  * Copyright (C) 2023 wolfSSL Inc.
  *
@@ -33,21 +33,22 @@
 /* wolfSSL */
 #include <wolfssl/options.h>
 #include <wolfssl/ssl.h>
+#include <wolfssl/wolfcrypt/coding.h>
 
 #define DEFAULT_PORT 11111
 
 #define CERT_FILE "../certs/ca-cert.pem"
 
 #ifdef HAVE_ECH
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     int                sockfd;
     struct sockaddr_in servAddr;
-    char               buff[256];
-    size_t             len;
+    byte               echConfig[512];
+    word32             echConfigLen = 512;
+    char               echConfigBase64[512];
+    word32             echConfigBase64Len = 512;
     int                ret;
-    const char*        privateName = "ech-private-name.com";
-    int                privateNameLen = strlen(privateName);
 
     /* declare wolfSSL objects */
     WOLFSSL_CTX* ctx;
@@ -55,7 +56,7 @@ int main(int argc, char** argv)
 
     /* Check for proper calling convention */
     if (argc != 2) {
-        printf("usage: %s <base64 ech config>\n", argv[0]);
+        printf("usage: %s <SNI>\n", argv[0]);
         return 0;
     }
 
@@ -75,7 +76,7 @@ int main(int argc, char** argv)
     servAddr.sin_family = AF_INET;             /* using IPv4      */
     servAddr.sin_port   = htons(DEFAULT_PORT); /* on DEFAULT_PORT */
 
-    /* Connect over localhost */
+    /* set the ip to localhost */
     if (inet_pton(AF_INET, "127.0.0.1", &servAddr.sin_addr) != 1) {
         fprintf(stderr, "ERROR: invalid address\n");
         ret = -1;
@@ -88,10 +89,6 @@ int main(int argc, char** argv)
         fprintf(stderr, "ERROR: failed to connect\n");
         goto end;
     }
-
-    /*---------------------------------------------------*/
-    /* Start of wolfSSL initialization and configuration */
-    /*---------------------------------------------------*/
 
     /* Initialize wolfSSL */
     if ((ret = wolfSSL_Init()) != WOLFSSL_SUCCESS) {
@@ -121,18 +118,10 @@ int main(int argc, char** argv)
         goto ctx_cleanup;
     }
 
-    /* Set ECH configs to those provided on the command line */
-    if (wolfSSL_SetEchConfigsBase64(ssl, argv[1], strlen(argv[1])) !=
-        WOLFSSL_SUCCESS) {
-        fprintf(stderr, "ERROR: Failed to set ECH configs\n");
-        ret = -1;
-        goto cleanup;
-    }
-
-    /* Use privateName for private SNI */
-    if (wolfSSL_UseSNI(ssl, WOLFSSL_SNI_HOST_NAME, privateName,
-        privateNameLen) != WOLFSSL_SUCCESS) {
-        fprintf(stderr, "ERROR: Failed to set private SNI\n");
+    /* Set SNI to probe against */
+    if (wolfSSL_UseSNI(ssl, WOLFSSL_SNI_HOST_NAME, argv[1], strlen(argv[1])) !=
+            WOLFSSL_SUCCESS) {
+        fprintf(stderr, "ERROR: Failed to set public SNI\n");
         ret = -1;
         goto cleanup;
     }
@@ -143,45 +132,36 @@ int main(int argc, char** argv)
         goto cleanup;
     }
 
-    /* Connect to wolfSSL on the server side */
+    /* Connect to server */
     if ((ret = wolfSSL_connect(ssl)) != WOLFSSL_SUCCESS) {
-        fprintf(stderr, "ERROR: failed to connect to wolfSSL\n");
+        fprintf(stderr, "ERROR: failed to connect to server\n");
         goto cleanup;
     }
 
-    /* Get a message for the server from stdin */
-    printf("Message for server: ");
-    memset(buff, 0, sizeof(buff));
-    if (fgets(buff, sizeof(buff), stdin) == NULL) {
-        fprintf(stderr, "ERROR: failed to get message for server\n");
+    /* If the GREASE was successful then retry configs sent by the server
+     * should be available */
+    if(wolfSSL_GetEchConfigs(ssl, echConfig, &echConfigLen) !=
+        WOLFSSL_SUCCESS) {
+        fprintf(stderr, "ERROR: failed to get GREASE configs\n");
         ret = -1;
         goto cleanup;
     }
-    len = strnlen(buff, sizeof(buff));
 
-    /* Send the message to the server */
-    if ((ret = wolfSSL_write(ssl, buff, len)) != len) {
-        fprintf(stderr, "ERROR: failed to write entire message\n");
-        fprintf(stderr, "%d bytes of %d bytes were sent", ret, (int) len);
+    /* Print the retrieved configs in Base64 */
+    if (Base64_Encode_NoNl(echConfig, echConfigLen, (byte*)echConfigBase64,
+        &echConfigBase64Len) != 0) {
+        fprintf(stderr, "ERROR: failed to encode ECH configs in Base64\n");
+        ret = -1;
         goto cleanup;
     }
 
-    /* Read the server data into our buff array */
-    memset(buff, 0, sizeof(buff));
-    if ((ret = wolfSSL_read(ssl, buff, sizeof(buff)-1)) == -1) {
-        fprintf(stderr, "ERROR: failed to read\n");
-        goto cleanup;
-    }
-
-    /* Print to stdout any data the server sends */
-    printf("Server: %s\n", buff);
+    printf("ECH config: %s\n\n", echConfigBase64);
 
     /* Bidirectional shutdown */
     while (wolfSSL_shutdown(ssl) == SSL_SHUTDOWN_NOT_DONE) {
-        printf("Shutdown not complete\n");
+        fprintf(stderr, "Shutdown not complete\n");
     }
-
-    printf("Shutdown complete\n");
+    fprintf(stderr, "Shutdown complete\n");
 
     ret = 0;
 
