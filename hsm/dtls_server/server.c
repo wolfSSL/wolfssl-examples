@@ -214,7 +214,8 @@ int main(int argc, char** argv)
         }
     }
 
-    printf("DTLS server starting on port %d...\n", config.port);
+    printf("Example DTLS server using wolfHSM is starting on port %d\n",
+        config.port);
 
     /* Initialize wolfCrypt */
     ret = wolfCrypt_Init();
