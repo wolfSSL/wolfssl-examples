@@ -3,7 +3,7 @@ CFLAGS=-Wall
 WOLFSSL_INSTALL_DIR=/usr/local
 LIBS=-L$(WOLFSSL_INSTALL_DIR)/lib -lwolfssl -lm
 
-all: aes-file-encrypt aescfb-file-encrypt aesctr-file-encrypt aesgcm-file-encrypt aesgcm-oneshot
+all: aes-file-encrypt aescfb-file-encrypt aesctr-file-encrypt aesgcm-file-encrypt aesgcm-oneshot aesgcm-minimal
 
 aes-file-encrypt: aes-file-encrypt.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS) 
@@ -20,7 +20,10 @@ aesgcm-file-encrypt: aesgcm-file-encrypt.o
 aesgcm-oneshot: aesgcm-oneshot.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
+aesgcm-minimal: aesgcm-minimal.o
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+
 .PHONY: clean
 
 clean:
-	rm -f *.o aes-file-encrypt aescfb-file-encrypt aesctr-file-encrypt aesgcm-file-encrypt text* aesgcm-oneshot
+	rm -f *.o aes-file-encrypt aescfb-file-encrypt aesctr-file-encrypt aesgcm-file-encrypt text* aesgcm-oneshot aesgcm-minimal
