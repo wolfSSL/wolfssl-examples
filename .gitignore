@@ -412,5 +412,11 @@ stsafe/stsafe_test
 stsafe/wolfssl_stsafe_test
 stsafe/wolfssl_stsafe_full_test
 
+# HTTP Message Signatures (RFC 9421) example
+http-message-signatures/sign_request
+http-message-signatures/test_vectors
+http-message-signatures/http_server_verify
+http-message-signatures/http_client_signed
+
 # uefi-library generated filesystem content
 uefi-library/efifs
