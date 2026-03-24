@@ -149,11 +149,10 @@ int main(int argc, char** argv)
             continue;
         }
         else if (bytesReceived > 0) {
-            if (connect(listenfd, (const struct sockaddr *)&cliaddr,
-                        sizeof(cliaddr)) != 0) {
-                printf("Udp connect failed.\n");
-                break;
-            }
+            /* Keep the UDP socket unconnected and let wolfSSL route DTLS
+             * packets with wolfSSL_dtls_set_peer(). On macOS, calling
+             * connect() here makes later DTLS sendto() calls fail with
+             * EISCONN during the stateless cookie exchange. */
         }
         else {
             printf("Recvfrom failed.\n");
@@ -229,4 +228,3 @@ int main(int argc, char** argv)
 
     return 0;
 }
-

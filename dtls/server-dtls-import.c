@@ -169,14 +169,6 @@ int main(int argc, char** argv)
         goto cleanup;
     }
 
-    /* Connect UDP socket to client */
-    ret = connect(listenfd, (struct sockaddr*)&cliAddr, cliLen);
-    if (ret != 0) {
-        fprintf(stderr, "Error: UDP connect failed\n");
-        ret = 1;
-        goto cleanup;
-    }
-
     printf("Client connected from %s:%d\n",
            inet_ntoa(cliAddr.sin_addr), ntohs(cliAddr.sin_port));
 
