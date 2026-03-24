@@ -416,3 +416,5 @@ stsafe/wolfssl_stsafe_full_test
 
 # uefi-library generated filesystem content
 uefi-library/efifs
+
+puf/Build

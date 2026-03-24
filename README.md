@@ -249,6 +249,17 @@ Please see the [pkcs7/README.md](pkcs7/README.md) for further usage and details.
 
 <br />
 
+#### PUF (SRAM Physically Unclonable Function)
+
+This directory contains a bare-metal example demonstrating wolfCrypt's SRAM PUF
+support. It derives device-unique cryptographic keys from the power-on state of
+SRAM memory using a BCH(127,64,t=10) fuzzy extractor with HKDF key derivation.
+Tested on NUCLEO-H563ZI (Cortex-M33).
+
+Please see the [puf/README.md](puf/README.md) for further usage and details.
+
+<br />
+
 #### PSK (Pre-Shared Keys)
 
 This directory contains examples of using PSK, with client and server examples 
