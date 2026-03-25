@@ -1,0 +1,39 @@
+From: meta-wolfssl-overrides <noreply@wolfssl.com>
+Subject: [PATCH] Fix KRB5KDF missing wc_AesInit causing segfault
+
+The Aes struct in wp_kdf_krb5kdf_derive is never initialized with
+wc_AesInit. In FIPS mode wc_AesCbcEncrypt dereferences uninitialized
+internal pointers causing a segfault. Additionally wc_AesFree is called
+unconditionally at the end, so early-exit error paths (wrong key size
+etc.) also segfault on the uninitialized struct.
+
+Fix by zeroing the struct at declaration and calling wc_AesInit
+immediately, before any validation that could skip to wc_AesFree.
+
+Signed-off-by: meta-wolfssl-overrides <noreply@wolfssl.com>
+---
+--- a/src/wp_krb5kdf.c
++++ b/src/wp_krb5kdf.c
+@@ -446,7 +446,7 @@
+     size_t osize = 0;
+     size_t cipherLen = 0;
+     int rc;
+-    Aes aes;
++    Aes aes = {0};
+     byte block[AES_BLOCK_SIZE];
+     byte cipherBlock[AES_BLOCK_SIZE];
+     byte *plain = NULL;
+@@ -457,6 +457,13 @@
+     if (!wolfssl_prov_is_running()) {
+         ok = 0;
+     }
++    if (ok) {
++        rc = wc_AesInit(&aes, NULL, INVALID_DEVID);
++        if (rc != 0) {
++            WOLFPROV_MSG_DEBUG_RETCODE(WP_LOG_LEVEL_DEBUG, "wc_AesInit", rc);
++            ok = 0;
++        }
++    }
+     if (ok && (!wp_kdf_krb5kdf_set_ctx_params(ctx, params))) {
+         ok = 0;
+     }
