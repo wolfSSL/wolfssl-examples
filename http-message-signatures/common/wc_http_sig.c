@@ -104,6 +104,8 @@ static const char* resolve_component(const char* name,
                                      const wc_HttpHeader* headers,
                                      int headerCount)
 {
+    int i;
+
     if (name[0] == '@') {
         if (XSTRCMP(name, "@method") == 0)    return method;
         if (XSTRCMP(name, "@authority") == 0) return authority;
@@ -113,12 +115,9 @@ static const char* resolve_component(const char* name,
     }
 
     /* Search headers case-insensitively */
-    {
-        int i;
-        for (i = 0; i < headerCount; i++) {
-            if (strcasecmp_internal(headers[i].name, name) == 0)
-                return headers[i].value;
-        }
+    for (i = 0; i < headerCount; i++) {
+        if (strcasecmp_internal(headers[i].name, name) == 0)
+            return headers[i].value;
     }
     return NULL;
 }
