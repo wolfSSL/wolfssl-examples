@@ -47,7 +47,13 @@
 #include <wolfssl/wolfcrypt/ed25519.h>
 
 /* Maximum sizes for internal buffers.
- * Reduce WC_HTTPSIG_MAX_SIG_BASE on stack-constrained embedded targets. */
+ *
+ * Stack usage: wc_HttpSig_Sign and wc_HttpSig_Verify use large on-stack
+ * wc_SfSigInput and work buffers. Besides WC_HTTPSIG_MAX_SIG_BASE (and
+ * sigParams[1024] in the .c file), the dominant cost is wc_SfSigInput:
+ * items[WC_SF_MAX_ITEMS][WC_SF_MAX_STRING] plus params (see wc_sf.h).
+ * For embedded targets, tune WC_SF_MAX_STRING, WC_SF_MAX_ITEMS, and
+ * WC_HTTPSIG_MAX_SIG_BASE together, or consider heap-allocating internally. */
 #define WC_HTTPSIG_MAX_SIG_BASE    4096
 #define WC_HTTPSIG_MAX_COMPONENTS    16
 #define WC_HTTPSIG_MAX_LABEL         64
@@ -85,6 +91,8 @@ typedef struct {
  * inputOutSz  - In: buffer size. Out: bytes written (NUL-term).
  *
  * Header names are automatically lowercased per RFC 9421 Section 2.1.
+ *
+ * Stack: see WC_HTTPSIG_* / WC_SF_* sizing note above (can exceed ~12KB).
  *
  * Returns 0 on success, negative on error. */
 int wc_HttpSig_Sign(
@@ -133,6 +141,8 @@ int wc_HttpSig_GetKeyId(
  * label           - Signature label to verify, or NULL for first member
  * pubKey          - Ed25519 public key
  * maxAgeSec       - Maximum allowed age of signature in seconds (0 = skip)
+ *
+ * Stack: same considerations as wc_HttpSig_Sign (large wc_SfSigInput + buffers).
  *
  * Returns 0 on success (valid signature), negative on error. */
 int wc_HttpSig_Verify(

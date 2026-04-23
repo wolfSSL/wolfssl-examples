@@ -205,11 +205,15 @@ static int demo_request(ed25519_key* key,
         inputBuf, inputBufSz,
         tamperHdr, tamperVal,
         httpReq, sizeof(httpReq));
+    if (httpLen < 0) {
+        printf("[Client] Failed to build HTTP request\n");
+        return -1;
+    }
 
     fd = do_connect();
     if (fd < 0) return -1;
 
-    send(fd, httpReq, httpLen, 0);
+    send(fd, httpReq, (size_t)httpLen, 0);
     status = read_response(fd);
     close(fd);
 
@@ -245,6 +249,7 @@ int main(void)
     ret = wc_ed25519_import_private_only(kDemoPrivKey, ED25519_KEY_SIZE, &key);
     if (ret != 0) {
         printf("Failed to import private key: %d\n", ret);
+        wc_ed25519_free(&key);
         return 1;
     }
     {

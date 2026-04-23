@@ -356,6 +356,12 @@ int wc_SfGenSigParams(const wc_SfSigInput* in, char* out, word32* outSz)
     if (!in || !out || !outSz)
         return BAD_FUNC_ARG;
 
+    /* Guard the word32 -> int casts below. With the current fixed-size
+     * callers (sigParams[1024]) this is unreachable, but validating here
+     * keeps the function safe if a larger buffer is ever passed in. */
+    if (*outSz > (word32)INT_MAX)
+        return BAD_FUNC_ARG;
+
     maxSz = *outSz;
 
     /* Inner list: ("item1" "item2" ...) */
@@ -407,6 +413,11 @@ int wc_SfGenSigInput(const wc_SfSigInput* in, char* out, word32* outSz)
     word32 paramsLen;
 
     if (!in || !out || !outSz)
+        return BAD_FUNC_ARG;
+
+    /* Same rationale as wc_SfGenSigParams: guard the word32 -> int casts
+     * used inside this function and its callee. */
+    if (*outSz > (word32)INT_MAX)
         return BAD_FUNC_ARG;
 
     /* label= */

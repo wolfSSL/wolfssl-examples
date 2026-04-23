@@ -177,6 +177,8 @@ static int sign_verify_roundtrip_ex(
     int ret;
     ed25519_key key, verifyKey;
     WC_RNG rng;
+    int keyInited = 0;
+    int verifyKeyInited = 0;
     char sigBuf[512];
     word32 sigBufSz = sizeof(sigBuf);
     char inputBuf[1024];
@@ -187,8 +189,10 @@ static int sign_verify_roundtrip_ex(
 
     ret = wc_ed25519_init(&key);
     if (ret != 0) goto done;
+    keyInited = 1;
     ret = wc_ed25519_init(&verifyKey);
     if (ret != 0) goto done;
+    verifyKeyInited = 1;
 
     ret = wc_ed25519_make_key(&rng, ED25519_KEY_SIZE, &key);
     if (ret != 0) goto done;
@@ -218,8 +222,10 @@ static int sign_verify_roundtrip_ex(
         NULL, &verifyKey, maxAgeSec);
 
 done:
-    wc_ed25519_free(&key);
-    wc_ed25519_free(&verifyKey);
+    if (keyInited)
+        wc_ed25519_free(&key);
+    if (verifyKeyInited)
+        wc_ed25519_free(&verifyKey);
     wc_FreeRng(&rng);
     return ret;
 }

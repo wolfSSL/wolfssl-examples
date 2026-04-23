@@ -298,7 +298,9 @@ static int handle_request(int fd, ed25519_key* pubKey)
 
 int main(void)
 {
-    int listenFd, clientFd, ret, opt = 1;
+    int listenFd = -1, clientFd, ret, opt = 1;
+    int pubKeyInited = 0;
+    int rc = 1;
     struct sockaddr_in addr;
     ed25519_key pubKey;
 
@@ -317,16 +319,18 @@ int main(void)
     ret = wc_ed25519_init(&pubKey);
     if (ret != 0) {
         printf("Failed to init public key: %d\n", ret);
-        return 1;
+        goto cleanup;
     }
+    pubKeyInited = 1;
+
     ret = wc_ed25519_import_public(kDemoPubKey, ED25519_PUB_KEY_SIZE, &pubKey);
     if (ret != 0) {
         printf("Failed to import public key: %d\n", ret);
-        return 1;
+        goto cleanup;
     }
 
     listenFd = socket(AF_INET, SOCK_STREAM, 0);
-    if (listenFd < 0) { perror("socket"); return 1; }
+    if (listenFd < 0) { perror("socket"); goto cleanup; }
 
     setsockopt(listenFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
@@ -337,14 +341,12 @@ int main(void)
 
     if (bind(listenFd, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
         perror("bind");
-        close(listenFd);
-        return 1;
+        goto cleanup;
     }
 
     if (listen(listenFd, 5) < 0) {
         perror("listen");
-        close(listenFd);
-        return 1;
+        goto cleanup;
     }
 
     printf("[Server] Listening on localhost:%d (Ctrl-C to stop)\n",
@@ -360,9 +362,14 @@ int main(void)
     }
 
     printf("[Server] Shutting down\n");
-    close(listenFd);
-    wc_ed25519_free(&pubKey);
-    return 0;
+    rc = 0;
+
+cleanup:
+    if (listenFd >= 0)
+        close(listenFd);
+    if (pubKeyInited)
+        wc_ed25519_free(&pubKey);
+    return rc;
 }
 
 #else
