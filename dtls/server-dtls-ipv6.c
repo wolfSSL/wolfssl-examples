@@ -118,6 +118,8 @@ int main(int argc, char** argv)
         if ((listenfd = socket(AF_INET6, SOCK_DGRAM, 0)) < 0 ) {
             printf("Cannot create socket.\n");
             cleanup = 1;
+            cont = 1;
+            break;
         }
         printf("Socket allocated\n");
 
@@ -135,6 +137,8 @@ int main(int argc, char** argv)
             printf("Setsockopt SO_REUSEADDR failed.\n");
             cleanup = 1;
             cont = 1;
+            close(listenfd);
+            break;
         }
 
         /*Bind Socket*/
@@ -142,6 +146,8 @@ int main(int argc, char** argv)
             printf("Bind failed.\n");
             cleanup = 1;
             cont = 1;
+            close(listenfd);
+            break;
         }
 
         printf("Awaiting client connection on port %d\n", SERV_PORT);
@@ -151,7 +157,8 @@ int main(int argc, char** argv)
                 (struct sockaddr*)&cliaddr, &cliLen);
 
         if (bytesReceived < 0) {
-            printf("No clients in que, enter idle state\n");
+            printf("No clients in queue, enter idle state\n");
+            close(listenfd);
             continue;
         }
         else if (bytesReceived > 0) {
@@ -160,12 +167,16 @@ int main(int argc, char** argv)
                 printf("Udp connect failed.\n");
                 cleanup = 1;
                 cont = 1;
+                close(listenfd);
+                break;
             }
         }
         else {
             printf("Recvfrom failed.\n");
             cleanup = 1;
             cont = 1;
+            close(listenfd);
+            break;
         }
         printf("Connected!\n");
 
@@ -174,6 +185,8 @@ int main(int argc, char** argv)
             printf("wolfSSL_new error.\n");
             cleanup = 1;
             cont = 1;
+            close(listenfd);
+            break;
         }
 
         /* set the session ssl to client connection port */
@@ -185,6 +198,8 @@ int main(int argc, char** argv)
 
             printf("error = %d, %s\n", e, wolfSSL_ERR_reason_error_string(e));
             printf("SSL_accept failed.\n");
+            wolfSSL_free(ssl);
+            close(listenfd);
             continue;
         }
         if ((recvLen = wolfSSL_read(ssl, buff, sizeof(buff)-1)) > 0) {
@@ -215,6 +230,7 @@ int main(int argc, char** argv)
         wolfSSL_set_fd(ssl, 0);
         wolfSSL_shutdown(ssl);
         wolfSSL_free(ssl);
+        close(listenfd);
 
         printf("Client left cont to idle state\n");
         cont = 0;
