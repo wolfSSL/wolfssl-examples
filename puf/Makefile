@@ -24,6 +24,10 @@ WOLFSSL_ROOT ?= ../../wolfssl
 BUILD_DIR = ./Build
 BIN = puf_example
 
+# PUF test mode (default on): synthetic SRAM data for testing without hardware.
+# Set PUF_TEST=0 to build for real hardware SRAM.
+PUF_TEST ?= 1
+
 # Architecture
 ARCHFLAGS = -mcpu=cortex-m33 -mthumb -mabi=aapcs
 
@@ -32,6 +36,10 @@ CFLAGS = $(ARCHFLAGS) -std=gnu99 -Wall -Os
 CFLAGS += -ffunction-sections -fdata-sections -fno-builtin
 CFLAGS += -DWOLFSSL_USER_SETTINGS
 CFLAGS += -I. -I$(WOLFSSL_ROOT)
+
+ifeq ($(PUF_TEST),1)
+CFLAGS += -DWOLFSSL_PUF_TEST
+endif
 
 # Linker flags
 LDFLAGS = $(ARCHFLAGS)

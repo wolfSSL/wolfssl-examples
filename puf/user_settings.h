@@ -47,9 +47,10 @@ extern "C" {
 #define WOLFSSL_PUF
 #define WOLFSSL_PUF_SRAM
 
-/* Enable test mode: allows synthetic SRAM data for testing without hardware.
- * Comment out to use real SRAM PUF on actual hardware. */
-#define WOLFSSL_PUF_TEST
+/* WOLFSSL_PUF_TEST enables test mode (synthetic SRAM data for testing
+ * without hardware). Controlled by the Makefile PUF_TEST switch:
+ *   make            (PUF_TEST=1, default) - test mode enabled
+ *   make PUF_TEST=0                       - real hardware SRAM PUF */
 
 /* ------------------------------------------------------------------------- */
 /* Required Dependencies */
