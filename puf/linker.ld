@@ -125,7 +125,11 @@ SECTIONS
     } > RAM
 
     /* PUF SRAM section: NOLOAD prevents startup code from zeroing.
-     * The raw power-on state of these bytes is the PUF source. */
+     * The raw power-on state of these bytes is the PUF source.
+     * Required size is driven by WC_PUF_RAW_BYTES in
+     * wolfssl/wolfcrypt/puf.h (currently 256 bytes). The 4 KB
+     * reservation in MEMORY{} above is generous headroom; the ASSERT
+     * below catches future overflow if WC_PUF_RAW_BYTES grows. */
     .puf_sram (NOLOAD) :
     {
         . = ALIGN(4);
@@ -134,4 +138,7 @@ SECTIONS
         KEEP(*(.puf_sram.*))
         _puf_sram_end = .;
     } > PUF_RAM
+
+    ASSERT(SIZEOF(.puf_sram) <= LENGTH(PUF_RAM),
+           "Error: .puf_sram exceeds reserved PUF_RAM region size")
 }

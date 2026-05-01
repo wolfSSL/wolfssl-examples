@@ -4,9 +4,11 @@
  * Provides USART3 init/output, printf retarget, RNG stub, and time stub.
  *
  * To port to a different MCU, replace this file with your platform's
- * UART and RNG implementation. The interface is:
+ * UART and RNG implementation. The integration points are:
  *   void hal_init(void) - called once at startup before printf
- *   int my_rng_seed_gen(uint8_t* output, uint32_t sz) - RNG seed
+ *   int custom_rand_gen_block(unsigned char* output, unsigned int sz) -
+ *       wolfCrypt RNG callback wired via CUSTOM_RAND_GENERATE_BLOCK in
+ *       user_settings.h. Implement using your MCU's hardware TRNG.
  *   unsigned long my_time(unsigned long* timer) - monotonic time
  *
  * Copyright (C) 2006-2026 wolfSSL Inc.
@@ -64,6 +66,17 @@
 #define USART3_TDR      (*(volatile uint32_t *)(USART3_BASE + 0x28u))
 #define USART3_PRESC    (*(volatile uint32_t *)(USART3_BASE + 0x2Cu))
 
+/* After reset on STM32H563:
+ *   HSI = 64 MHz, HSIDIV = /2 (reset value) -> SYSCLK = 32 MHz
+ *   HPRE = /1                               -> HCLK   = 32 MHz
+ *   PPRE1 = /1                              -> PCLK1  = 32 MHz
+ * The example never reprograms RCC, so PCLK1 stays at 32 MHz and the
+ * USART3 BRR below is correct. If this code is ported into a project
+ * that brings up the PLL, recompute UART_PCLK_HZ from the actual
+ * RCC settings. */
+#define UART_PCLK_HZ      32000000u
+#define UART_BAUD_HZ      115200u
+
 static void delay(volatile uint32_t n)
 {
     while (n--) { }
@@ -90,12 +103,13 @@ static void uart_init(void)
     afr |= (7u << 0);      /* AF7 = USART3 */
     GPIO_AFRH(GPIOD_BASE) = afr;
 
-    /* Configure USART3: 115200 baud at default 32 MHz PCLK1 */
+    /* Configure USART3 for UART_BAUD_HZ at the post-reset PCLK1 (see
+     * UART_PCLK_HZ comment above). 32 MHz / 115200 ~= 278. */
     USART3_CR1 = 0;
     USART3_CR2 = 0;
     USART3_CR3 = 0;
     USART3_PRESC = 0;
-    USART3_BRR = 32000000u / 115200u;  /* ~278 */
+    USART3_BRR = UART_PCLK_HZ / UART_BAUD_HZ;
     USART3_CR1 = (1u << 3);  /* TE */
     delay(10);
     USART3_CR1 |= (1u << 0);  /* UE */
@@ -167,17 +181,27 @@ static void rng_init(void)
     RCC_AHB2ENR |= (1u << 18);  /* RNG clock enable */
     delay(100);
 
-    /* Configure and enable RNG with conditioning reset */
+    /* Build the desired CR value (config bits, RNGEN cleared). The
+     * NIST-SP800-90B compliant config recommended by ST RM0481 for
+     * HSI48 is CONFIG1=0x0F, CONFIG3=0x0D, CLKDIV/CONFIG2 = 0. */
     rng_cr = RNG_CR;
     rng_cr &= ~(0x1Fu << RNG_CR_CONFIG1_SHIFT);
-    rng_cr &= ~(0x7u << RNG_CR_CLKDIV_SHIFT);
-    rng_cr &= ~(0x3u << RNG_CR_CONFIG2_SHIFT);
-    rng_cr &= ~(0x7u << RNG_CR_CONFIG3_SHIFT);
-    rng_cr |= 0x0Fu << RNG_CR_CONFIG1_SHIFT;
-    rng_cr |= 0x0Du << RNG_CR_CONFIG3_SHIFT;
+    rng_cr &= ~(0x7u  << RNG_CR_CLKDIV_SHIFT);
+    rng_cr &= ~(0x3u  << RNG_CR_CONFIG2_SHIFT);
+    rng_cr &= ~(0x7u  << RNG_CR_CONFIG3_SHIFT);
+    rng_cr &= ~RNG_CR_RNGEN;
+    rng_cr |= (0x0Fu << RNG_CR_CONFIG1_SHIFT);
+    rng_cr |= (0x0Du << RNG_CR_CONFIG3_SHIFT);
 
+    /* STM32H5 RNG init sequence (RM0481 28.6.2):
+     *   1. Write CR with CONDRST=1 and the new config bits in the same
+     *      access. CONDRST holds the conditioning logic in reset and
+     *      latches the config.
+     *   2. Write CR again with CONDRST=0 and RNGEN=1 to release the
+     *      reset and start generation. The bit does not auto-clear -
+     *      software must drive it back to 0.
+     *   3. Wait for the first random word: SR.DRDY=1. */
     RNG_CR = RNG_CR_CONDRST | rng_cr;
-    while ((RNG_CR & RNG_CR_CONDRST) == 0u) { }
     RNG_CR = rng_cr | RNG_CR_RNGEN;
     while ((RNG_SR & RNG_SR_DRDY) == 0u) { }
 }

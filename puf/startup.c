@@ -45,7 +45,10 @@ void SystemInit(void)
 {
     /* Set VTOR to flash base */
     *(volatile uint32_t *)0xE000ED08 = 0x08000000;
-    /* Default HSI clock (64 MHz) is sufficient for this example */
+    /* No clock-tree programming. After reset on STM32H563, HSI runs at
+     * 64 MHz with HSIDIV = /2, so SYSCLK = HCLK = PCLK1 = 32 MHz, which
+     * is sufficient for the UART/RNG used in this example. The USART3
+     * baud-rate divisor in stm32.c assumes this 32 MHz PCLK1. */
 }
 
 /* -------------------------------------------------------------------------- */
@@ -117,7 +120,13 @@ void __attribute__((weak, alias("Default_Handler"))) SysTick_Handler(void);
 
 typedef void (*vector_fn)(void);
 
-const vector_fn __isr_vector[] __attribute__((section(".isr_vector"), used)) = {
+/* STM32H563 has 131 external IRQs (0..130, LPTIM6_IRQn).
+ * Plus 16 entries for the Cortex-M core (SP + 15 system handlers). */
+#define STM32H563_EXT_IRQ_COUNT  131u
+#define VECTOR_TABLE_ENTRIES     (16u + STM32H563_EXT_IRQ_COUNT)
+
+const vector_fn __isr_vector[VECTOR_TABLE_ENTRIES]
+    __attribute__((section(".isr_vector"), used)) = {
     (vector_fn)(uintptr_t)&_estack,  /* Initial SP */
     Reset_Handler,                    /* Reset */
     NMI_Handler,                      /* NMI */
@@ -132,5 +141,7 @@ const vector_fn __isr_vector[] __attribute__((section(".isr_vector"), used)) = {
     0,                                /* Reserved */
     PendSV_Handler,                   /* PendSV */
     SysTick_Handler,                  /* SysTick */
-    /* Peripheral IRQs default to Default_Handler via unused slots */
+    /* All STM32H563 peripheral IRQs default to Default_Handler. The
+     * GCC range designator below fills entries 16..(16+131-1). */
+    [16 ... (VECTOR_TABLE_ENTRIES - 1)] = Default_Handler
 };

@@ -34,12 +34,17 @@ make
 
 ### Real Hardware Mode
 
-For actual SRAM PUF on hardware, edit `user_settings.h` and comment out
-`WOLFSSL_PUF_TEST`, then build:
+Test mode is the default and is selected by the Makefile (not the
+header). To build for the real SRAM PUF on hardware, override the
+`PUF_TEST` variable:
 
 ```bash
-make
+make PUF_TEST=0
 ```
+
+This drops the `-DWOLFSSL_PUF_TEST` define and includes `puf_sram_region`
+(placed in the `.puf_sram` NOLOAD section) so `wc_PufReadSram()` reads
+the real power-on SRAM contents.
 
 ### Output
 
@@ -146,5 +151,28 @@ wc_PufZeroize(&ctx);
   unencrypted in flash or transmit over the network.
 - **SRAM must not be accessed before PUF read** - Any read or write to the
   PUF SRAM region before `wc_PufReadSram()` will corrupt the power-on entropy.
-- **Production RNG** - Replace the dummy `my_rng_seed_gen()` with your
-  MCU's hardware RNG (e.g., STM32 RNG peripheral).
+- **Production RNG** - This example wires wolfCrypt's RNG through
+  `CUSTOM_RAND_GENERATE_BLOCK` (in `user_settings.h`) to
+  `custom_rand_gen_block()` in `stm32.c`, which uses the STM32H5 RNG
+  peripheral over HSI48. When porting to another MCU, replace the
+  implementation behind `custom_rand_gen_block()` (or remap
+  `CUSTOM_RAND_GENERATE_BLOCK` to your platform's hardware RNG hook).
+
+## Reproducing on the m33mu Emulator
+
+The m33mu Cortex-M33 emulator can simulate cold-boot SRAM and seeded
+noise so the BCH reconstruction path can be exercised without rebooting
+real hardware:
+
+```bash
+# Deterministic SRAM, boot 0 - enrolls and reconstructs cleanly
+m33mu --puf-seed 0xDEADBEEF --puf-cold-boot 0 Build/puf_example.elf
+
+# Same seed/boot with 2 bit flips per 127-bit codeword - within BCH(t=10)
+m33mu --puf-seed 0xDEADBEEF --puf-cold-boot 0 --puf-noise 2 \
+      Build/puf_example.elf
+```
+
+Identity must match between the enrollment and reconstruction prints as
+long as noise stays within the BCH correction budget (10 flips per
+127-bit codeword; safe margin 2-4).

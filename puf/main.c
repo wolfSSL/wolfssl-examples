@@ -219,49 +219,115 @@ int main(void)
     /* ================================================================== */
     /* REAL HARDWARE: Read actual SRAM PUF                                */
     /* ================================================================== */
-    printf("Mode: HARDWARE (real SRAM PUF)\n\n");
+    {
+        uint8_t identity2[WC_PUF_ID_SZ];
+        uint8_t key2[WC_PUF_KEY_SZ];
 
-    /* Step 2: Read raw SRAM (must be done before any other SRAM access) */
-    ret = wc_PufReadSram(&ctx, (const uint8_t*)puf_sram_region,
-                         sizeof(puf_sram_region));
-    if (ret != 0) {
-        printf("ERROR: wc_PufReadSram failed: %d\n", ret);
-        goto cleanup;
+        printf("Mode: HARDWARE (real SRAM PUF)\n\n");
+
+        /* ---- Phase 1: Enrollment ---- */
+
+        /* Read raw SRAM (must happen before any other access to the
+         * .puf_sram region - the power-on entropy is consumed once). */
+        ret = wc_PufReadSram(&ctx, (const uint8_t*)puf_sram_region,
+                             sizeof(puf_sram_region));
+        if (ret != 0) {
+            printf("ERROR: wc_PufReadSram failed: %d\n", ret);
+            goto cleanup;
+        }
+        printf("SRAM read complete (%d bytes).\n",
+               (int)sizeof(puf_sram_region));
+
+        ret = wc_PufEnroll(&ctx);
+        if (ret != 0) {
+            printf("ERROR: wc_PufEnroll failed: %d\n", ret);
+            goto cleanup;
+        }
+        printf("Enrollment complete.\n");
+
+        /* Save helper data. In production this is written to flash/NVM
+         * for use across reboots; here it stays in RAM so the same run
+         * can also exercise the reconstruction path below. */
+        memcpy(helperData, ctx.helperData, WC_PUF_HELPER_BYTES);
+        print_hex("Helper data (store to NVM)", helperData,
+                  WC_PUF_HELPER_BYTES);
+
+        ret = wc_PufGetIdentity(&ctx, identity, sizeof(identity));
+        if (ret != 0) {
+            printf("ERROR: wc_PufGetIdentity failed: %d\n", ret);
+            goto cleanup;
+        }
+        print_hex("Identity (enrollment)", identity, WC_PUF_ID_SZ);
+
+        ret = wc_PufDeriveKey(&ctx, info, sizeof(info), key, sizeof(key));
+        if (ret != 0) {
+            printf("ERROR: wc_PufDeriveKey failed: %d\n", ret);
+            goto cleanup;
+        }
+        print_hex("Derived key (enrollment)", key, WC_PUF_KEY_SZ);
+
+        /* ---- Phase 2: Reconstruction ---- */
+
+        /* On real hardware the same .puf_sram contents are still in
+         * RAM, so re-reading them yields the same bytes and BCH runs
+         * with zero errors. Under m33mu, run the example a second time
+         * with a different --puf-cold-boot or with --puf-noise to feed
+         * a noisy SRAM image through wc_PufReconstruct using the
+         * helper data captured above. */
+        printf("\n--- Reconstructing from saved helper data ---\n\n");
+
+        ret = wc_PufInit(&ctx);
+        if (ret != 0) {
+            printf("ERROR: wc_PufInit (reconstruct) failed: %d\n", ret);
+            goto cleanup;
+        }
+
+        ret = wc_PufReadSram(&ctx, (const uint8_t*)puf_sram_region,
+                             sizeof(puf_sram_region));
+        if (ret != 0) {
+            printf("ERROR: wc_PufReadSram (reconstruct) failed: %d\n", ret);
+            goto cleanup;
+        }
+
+        ret = wc_PufReconstruct(&ctx, helperData, WC_PUF_HELPER_BYTES);
+        if (ret != 0) {
+            printf("ERROR: wc_PufReconstruct failed: %d\n", ret);
+            goto cleanup;
+        }
+        printf("Reconstruction complete (BCH error correction ran).\n");
+
+        ret = wc_PufGetIdentity(&ctx, identity2, sizeof(identity2));
+        if (ret != 0) {
+            printf("ERROR: wc_PufGetIdentity (reconstruct) failed: %d\n", ret);
+            goto cleanup;
+        }
+        print_hex("Identity (reconstructed)", identity2, WC_PUF_ID_SZ);
+
+        if (memcmp(identity, identity2, WC_PUF_ID_SZ) == 0) {
+            printf("PASS: Identity matches after reconstruction.\n");
+        }
+        else {
+            printf("FAIL: Identity mismatch after reconstruction!\n");
+            ret = -1;
+            goto cleanup;
+        }
+
+        ret = wc_PufDeriveKey(&ctx, info, sizeof(info), key2, sizeof(key2));
+        if (ret != 0) {
+            printf("ERROR: wc_PufDeriveKey (reconstruct) failed: %d\n", ret);
+            goto cleanup;
+        }
+        print_hex("Derived key (reconstructed)", key2, WC_PUF_KEY_SZ);
+
+        if (memcmp(key, key2, WC_PUF_KEY_SZ) == 0) {
+            printf("PASS: Derived key matches after reconstruction.\n");
+        }
+        else {
+            printf("FAIL: Derived key mismatch after reconstruction!\n");
+            ret = -1;
+            goto cleanup;
+        }
     }
-    printf("SRAM read complete (%d bytes).\n", (int)sizeof(puf_sram_region));
-
-    /* Step 3: Enroll (first boot only - save helper data to flash/NVM) */
-    ret = wc_PufEnroll(&ctx);
-    if (ret != 0) {
-        printf("ERROR: wc_PufEnroll failed: %d\n", ret);
-        goto cleanup;
-    }
-    printf("Enrollment complete.\n");
-
-    /* Save helper data for future reconstructions */
-    memcpy(helperData, ctx.helperData, WC_PUF_HELPER_BYTES);
-    print_hex("Helper data (store to NVM)", helperData, WC_PUF_HELPER_BYTES);
-
-    /* Get device identity */
-    ret = wc_PufGetIdentity(&ctx, identity, sizeof(identity));
-    if (ret != 0) {
-        printf("ERROR: wc_PufGetIdentity failed: %d\n", ret);
-        goto cleanup;
-    }
-    print_hex("Device identity", identity, WC_PUF_ID_SZ);
-
-    /* Derive a key */
-    ret = wc_PufDeriveKey(&ctx, info, sizeof(info), key, sizeof(key));
-    if (ret != 0) {
-        printf("ERROR: wc_PufDeriveKey failed: %d\n", ret);
-        goto cleanup;
-    }
-    print_hex("Derived key", key, WC_PUF_KEY_SZ);
-
-    /* Note: On subsequent boots, use wc_PufReconstruct() with the stored
-     * helper data instead of wc_PufEnroll(). The BCH error correction
-     * (t=10, corrects up to 10 bit flips per 127-bit codeword) will
-     * recover the same stable bits even with noisy SRAM. */
 #endif /* WOLFSSL_PUF_TEST */
 
     printf("\n--- PUF example complete ---\n");
