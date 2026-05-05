@@ -402,6 +402,19 @@ details.
 
 <br />
 
+#### http-message-signatures (RFC 9421 HTTP Message Signatures)
+
+This directory contains examples that demonstrate RFC 9421 HTTP Message
+Signatures using wolfCrypt Ed25519, including a signing example,
+client/server demo, and test vectors for RFC 9421 Appendix B.2.6.
+
+Please see the
+[http-message-signatures/README.md](http-message-signatures/README.md)
+for further usage and details.
+
+
+<br />
+
 #### uefi-library (wolfCrypt UEFI boot module and test app)
 
 This directory contains a UEFI wolfCrypt protocol driver (`libwolfcrypt.efi`)
