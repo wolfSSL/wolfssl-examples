@@ -82,8 +82,9 @@ void* wolfssl_thread(void* fd)
 
     /* create WOLFSSL object */
     if ((ssl = wolfSSL_new(ctx)) == NULL) {
-        printf("Fatal error : wolfSSL_new error");
-        /* place signal for forced error exit here */
+        printf("Fatal error : wolfSSL_new error\n");
+        close(connfd);
+        pthread_exit(NULL);
     }
 
     wolfSSL_set_fd(ssl, connfd);

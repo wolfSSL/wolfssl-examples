@@ -358,7 +358,7 @@ int main(int argc, char** argv)
     }
 
 #ifdef HAVE_SECRET_CALLBACK
-    wolfSSL_FreeArrays(ssl);
+    wolfSSL_FreeArrays(sslRes);
 #endif
 
 

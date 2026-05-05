@@ -147,6 +147,7 @@ int main(int argc, char** argv)
         if ((listenfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) {
             printf("Cannot create socket.\n");
             cont = 1;
+            break;
         }
 
         printf("Socket allocated\n");
@@ -160,6 +161,11 @@ int main(int argc, char** argv)
         if (flags < 0) {
             printf("fcntl set failed.\n");
             cleanup = 1;
+        }
+
+        if (cleanup == 1) {
+            close(listenfd);
+            break;
         }
 
         /* Clear servAddr each loop */
@@ -176,6 +182,8 @@ int main(int argc, char** argv)
         if (res < 0) {
             printf("Setsockopt SO_REUSEADDR failed.\n");
             cont = 1;
+            close(listenfd);
+            break;
         }
 
         /*Bind Socket*/
@@ -183,6 +191,8 @@ int main(int argc, char** argv)
                     (struct sockaddr *)&servAddr, sizeof(servAddr)) < 0) {
             printf("Bind failed.\n");
             cont = 1;
+            close(listenfd);
+            break;
         }
 
         printf("Awaiting client connection on port %d\n", SERV_PORT);
@@ -192,11 +202,16 @@ int main(int argc, char** argv)
         do {
             if (cleanup == 1) {
                 cont = 1;
+                close(listenfd);
                 break;
             }
             bytesRecvd = (int)recvfrom(listenfd, (char*)b, sizeof(b), MSG_PEEK,
                 (struct sockaddr*)&cliAddr, &clilen);
         } while (bytesRecvd <= 0);
+
+        if (cont == 1) {
+            break;
+        }
 
         if (bytesRecvd > 0) {
             if (connect(listenfd, (const struct sockaddr*)&cliAddr,
@@ -217,6 +232,8 @@ int main(int argc, char** argv)
         if (( ssl = wolfSSL_new(ctx)) == NULL) {
             printf("wolfSSL_new error.\n");
             cont = 1;
+            close(listenfd);
+            break;
         }
 
         /* set clilen to |cliAddr| */
