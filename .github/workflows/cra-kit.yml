@@ -1,0 +1,22 @@
+name: CRA Kit
+
+on:
+  push:
+    paths:
+      - 'cra-kit/**'
+      - '.github/workflows/cra-kit.yml'
+  pull_request:
+    paths:
+      - 'cra-kit/**'
+      - '.github/workflows/cra-kit.yml'
+
+jobs:
+  validate-auditor-packet:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Validate pinned auditor packet
+        run: ./cra-kit/scripts/validate.sh

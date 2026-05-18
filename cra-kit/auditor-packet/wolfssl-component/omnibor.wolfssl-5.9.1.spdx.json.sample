@@ -1,0 +1,92 @@
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "omnibor.wolfssl-5.9.1",
+  "documentNamespace": "urn:uuid:9a8b7c6d-5e4f-4a3b-9c2d-1e0f3a4b5c6d",
+  "comment": "TRUNCATED SAMPLE — illustrates the shape of bomsh / OmniBOR output. A real omnibor.wolfssl-<ver>.spdx.json from `make bomsh` lists every wolfSSL .c source via gitoid:blob:sha1 alongside the resulting libwolfssl.so. The full omnibor/ Merkle DAG (under auditor-packet/wolfssl-component/omnibor/) is large and not committed here.",
+  "creationInfo": {
+    "creators": [
+      "Organization: wolfSSL Inc.",
+      "Tool: bomsh-1.0",
+      "Tool: bomtrace3"
+    ],
+    "created": "2026-05-12T17:01:12Z"
+  },
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-Package-libwolfssl-so",
+      "name": "libwolfssl.so.43.0.0",
+      "versionInfo": "5.9.1",
+      "supplier": "Organization: wolfSSL Inc.",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "0000000000000000000000000000000000000001"
+        },
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "391e86477f5eee025e677a24b13e2d9a4d3e4c18d88e6359853ebf1c9932279e"
+        }
+      ],
+      "comment": "OmniBOR identifier for the linked binary: gitoid:blob:sha1:0000000000000000000000000000000000000001 — sample placeholder. Real builds emit the actual gitoid covering all .o inputs."
+    }
+  ],
+  "files": [
+    {
+      "SPDXID": "SPDXRef-File-aes-c",
+      "fileName": "wolfcrypt/src/aes.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "1111111111111111111111111111111111111111"
+        }
+      ],
+      "comment": "Sample gitoid:blob:sha1 for aes.c. Real entries cover every .c compiled into libwolfssl.so during the traced make bomsh run."
+    },
+    {
+      "SPDXID": "SPDXRef-File-sha256-c",
+      "fileName": "wolfcrypt/src/sha256.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "2222222222222222222222222222222222222222"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-File-tls13-c",
+      "fileName": "src/tls13.c",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "3333333333333333333333333333333333333333"
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relatedSpdxElement": "SPDXRef-Package-libwolfssl-so",
+      "relationshipType": "DESCRIBES"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-libwolfssl-so",
+      "relatedSpdxElement": "SPDXRef-File-aes-c",
+      "relationshipType": "GENERATED_FROM"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-libwolfssl-so",
+      "relatedSpdxElement": "SPDXRef-File-sha256-c",
+      "relationshipType": "GENERATED_FROM"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-libwolfssl-so",
+      "relatedSpdxElement": "SPDXRef-File-tls13-c",
+      "relationshipType": "GENERATED_FROM"
+    }
+  ]
+}

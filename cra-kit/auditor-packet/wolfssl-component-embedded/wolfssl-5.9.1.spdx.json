@@ -1,0 +1,53 @@
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "wolfssl-5.9.1",
+  "documentNamespace": "urn:uuid:480ff203-f994-5b71-b858-0653e74e422a",
+  "creationInfo": {
+    "creators": [
+      "Organization: wolfSSL Inc.",
+      "Tool: wolfssl-sbom-gen-1.0"
+    ],
+    "created": "2026-05-18T11:56:58Z"
+  },
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-Package-wolfssl",
+      "name": "wolfssl",
+      "versionInfo": "5.9.1",
+      "supplier": "Organization: wolfSSL Inc.",
+      "downloadLocation": "https://github.com/wolfSSL/wolfssl",
+      "filesAnalyzed": false,
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "3538981aad331ad5cd160abd2b51ce0a5fa1a58b3c51f990e08ca91bb44627a0"
+        }
+      ],
+      "licenseConcluded": "GPL-3.0-only",
+      "licenseDeclared": "GPL-3.0-only",
+      "copyrightText": "Copyright (C) 2006-2026 wolfSSL Inc.",
+      "comment": "Build configuration defines: AES_MAX_KEY_SIZE, DH_MAX_SIZE, ECC_DECODE_EXTRA, ECC_MIN_KEY_SZ, FLASH_QUALIFIER, HAVE_AESGCM, HAVE_AES_CBC, HAVE_AES_DECRYPT, HAVE_ALL_CURVES, HAVE_ECC, HAVE_ECC_CHECK_KEY, HAVE_ECC_DHE, HAVE_ECC_KEY_EXPORT, HAVE_ECC_KEY_IMPORT, HAVE_ECC_SIGN, HAVE_ECC_VERIFY, HAVE_PBKDF1, HAVE_PBKDF2, HAVE_PKCS12, HAVE_PKCS8, HAVE_PUBLIC_FFDHE, LIBWOLFSSL_CMAKE_OUTPUT, MIN_FFDHE_BITS, MIN_FFDHE_FP_MAX_BITS, NO_OLD_TLS, NO_PSK, NO_RC4, NO_XSTREAM_ALIGN, RSA_DECODE_EXTRA, USE_WOLFSSL_MEMORY, WC_ASYNC_DEV_SIZE, WC_TEST_NO_ECC_SIGN_VERIFY_ZERO_DIGEST, WOLFSSL_ABI, WOLFSSL_AES_128, WOLFSSL_AES_192, WOLFSSL_AES_256, WOLFSSL_ALERT_COUNT_MAX, WOLFSSL_API, WOLFSSL_ASN_TEMPLATE, WOLFSSL_ASYNC_IO, WOLFSSL_BASE64_DECODE, WOLFSSL_FIPS_VERSION2_CODE, WOLFSSL_FIPS_VERSION_CODE, WOLFSSL_GENERAL_ALIGNMENT, WOLFSSL_HAVE_PRF, WOLFSSL_LOCAL, WOLFSSL_MAX_EMPTY_RECORDS, WOLFSSL_MIN_AUTH_TAG_SZ, WOLFSSL_PEM_TO_DER, WOLFSSL_SMALL_STACK_STATIC, WOLFSSL_SP_ADD_D, WOLFSSL_SP_INVMOD, WOLFSSL_SP_INVMOD_MONT_CT, WOLFSSL_SP_MATH_ALL, WOLFSSL_SP_MUL_D, WOLFSSL_SP_NO_DYN_STACK, WOLFSSL_SP_PRIME_GEN, WOLFSSL_SP_READ_RADIX_10, WOLFSSL_SP_READ_RADIX_16, WOLFSSL_SP_SUB_D, WOLFSSL_TEST_VIS, WOLFSSL_TLS13, WOLFSSL_USER_SETTINGS, WOLFSSL_W64_WRAPPER, XGEN_ALIGN | hash-kind=source-merkle-omnibor | source-set=aes.c,ecc.c,keys.c,random.c,sha.c,sha256.c,tls.c,tls13.c,wc_port.c",
+      "externalRefs": [
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "cpe23Type",
+          "referenceLocator": "cpe:2.3:a:wolfssl:wolfssl:5.9.1:*:*:*:*:*:*:*"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/wolfSSL/wolfssl@v5.9.1"
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relatedSpdxElement": "SPDXRef-Package-wolfssl",
+      "relationshipType": "DESCRIBES"
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "acme-connect-gateway-1.0.0",
+  "documentNamespace": "urn:uuid:8d3c2f9e-6b4a-4d7c-9f1e-a5b8c0d2e4f6",
+  "creationInfo": {
+    "creators": [
+      "Organization: Acme Industries (fictional example)"
+    ],
+    "created": "2026-05-18T12:00:00Z"
+  },
+  "externalDocumentRefs": [
+    {
+      "externalDocumentId": "DocumentRef-wolfssl",
+      "spdxDocument": "file:wolfssl-component/wolfssl-5.9.1.spdx.json",
+      "checksum": {
+        "algorithm": "SHA256",
+        "checksumValue": "36fdc0c8a192a0fadc4c5024ff75ecee3a56dd8a431dfb25bfa8afcf467cfdef"
+      }
+    }
+  ],
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-Package-Product",
+      "name": "acme-connect-gateway",
+      "versionInfo": "1.0.0",
+      "supplier": "Organization: Acme Industries",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relatedSpdxElement": "SPDXRef-Package-Product",
+      "relationshipType": "DESCRIBES"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-Product",
+      "relatedSpdxElement": "DocumentRef-wolfssl:SPDXRef-Package-wolfssl",
+      "relationshipType": "STATIC_LINK",
+      "comment": "Fictional embedded firmware links wolfSSL statically; use DYNAMIC_LINK for .so"
+    }
+  ]
+}
