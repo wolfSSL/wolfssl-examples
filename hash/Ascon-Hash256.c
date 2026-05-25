@@ -28,6 +28,8 @@
 #include <wolfssl/ssl.h>
 #include <wolfssl/wolfcrypt/ascon.h>
 
+#define BLOCK_SIZE 4096
+
 #ifdef HAVE_ASCON
 void usage(void)
 {
@@ -36,31 +38,31 @@ void usage(void)
 }
 #endif
 
-void free_mem(wc_AsconHash256 *asconHash, byte *hash, byte *rawInput, FILE *inputStream) {
+void free_mem(wc_AsconHash256 *asconHash, byte *rawInput, FILE *inputStream) {
     if (asconHash != NULL) {
         wc_AsconHash256_Free(asconHash);
     }
+
     if (rawInput != NULL) {
         free(rawInput);
     }
+
     if (inputStream != NULL) {
         fclose(inputStream);
-    }
-    if (hash != NULL) {
-        free(hash);
     }
 }
 
 int main(int argc, char** argv)
 {
-    int ret = 0;
+    int ret = 1;
 #ifdef HAVE_ASCON
     wc_AsconHash256* asconHash = NULL;
-    byte*  hash = NULL;
+    byte   hash[ASCON_HASH256_SZ] = {0};
     byte*  rawInput = NULL;
     FILE* inputStream = NULL;
     char* fName = NULL;
     int fileLength = 0;
+    int chunkRead = BLOCK_SIZE;
 
     if (argc < 2)
         usage();
@@ -71,7 +73,6 @@ int main(int argc, char** argv)
         inputStream = fopen(fName, "rb");
         if (inputStream == NULL) {
             printf("ERROR: Unable to open file\n");
-            ret = -1;
             break;
         }
 
@@ -84,43 +85,40 @@ int main(int argc, char** argv)
         asconHash = wc_AsconHash256_New();
         if (asconHash == NULL) {
             printf("ERROR: Unable to create the hash context\n");
-            ret = -1;
             break;
         }
 
-        hash = (byte*) malloc(ASCON_HASH256_SZ);
-        if (hash == NULL) {
-            printf("ERROR: Unable to allocate space for hash value\n");
-            ret = -1;
-            break;
-        }
 
-        rawInput = (byte*) malloc(fileLength);
+        rawInput = (byte*) malloc(BLOCK_SIZE);
         if (rawInput == NULL) {
             printf("ERROR: Unable to allocate space for raw input\n");
-            ret = -1;
             break;
         }
 
-        /* Read input file into a byte array*/
-        size_t read = fread(rawInput, 1, fileLength, inputStream);
-        if (read != fileLength) {
-            printf("ERROR: Failed to read the size of input file\n");
-            ret = -1;
-            break;
+        for (int i = 0; i < BLOCK_SIZE; i += BLOCK_SIZE) {
+            if (chunkRead > fileLength - i)
+                chunkRead = fileLength - i;
+
+            /* Read blocks from input file into a byte array*/
+            size_t read = fread(rawInput, 1, chunkRead, inputStream);
+            if (read != chunkRead) {
+                printf("ERROR: Failed to read the size of input file\n");
+                break;
+            }
+
+            ret = wc_AsconHash256_Update(asconHash, rawInput, chunkRead);
+            if (ret != 0) {
+                printf("ERROR: Hash update failed\n");
+                ret = 1;
+                break;
+            }
         }
 
-        ret = wc_AsconHash256_Update(asconHash, rawInput, fileLength);
-        if (ret != 0) {
-            printf("ERROR: Hash update failed\n");
-            ret = -1;
-            break;
-        }
 
         ret = wc_AsconHash256_Final(asconHash, hash);
         if (ret != 0) {
             printf("ERROR: Hash operation failed");
-            ret = -1;
+            ret = 1;
             break;
         }
         break;
@@ -131,7 +129,7 @@ int main(int argc, char** argv)
         printf("%02x", hash[i]);
     printf("\n");
 
-    free_mem(asconHash, hash, rawInput, inputStream);
+    free_mem(asconHash, rawInput, inputStream);
 #else
     printf("Please enable Ascon-Hash256 (--enable-ascon --enable-experimental) in wolfCrypt\n");
 #endif
