@@ -48,9 +48,9 @@ static const byte ad[AD_SIZE] = {
     0x1C, 0x1D, 0x1E, 0x1F,
 };
 
-void MemFree(wc_AsconAEAD128 *ascon, byte *key, int size, FILE *inFile, FILE *outFile, WC_RNG* rng, byte *input, byte *output, int length, int rngInit) {
+void MemFree(wc_AsconAEAD128 *ascon, byte *key, int size, FILE *inFile, FILE *outFile, WC_RNG* rng, byte *input, byte *output, int length, int rngInit, int encrypt) {
     if (input != NULL) {
-        memset(input, 0, BLOCK_SIZE);
+        memset(input, 0, encrypt ? BLOCK_SIZE : length);
         free(input);
     }
     if (output != NULL) {
@@ -103,6 +103,7 @@ int AsconEncrypt(wc_AsconAEAD128* ascon, byte* key, int size, FILE* inFile, FILE
 {
     WC_RNG   rng;
     int      rngInit = 0;
+    int      encrypt = 1;
     byte     nonce[ASCON_AEAD128_NONCE_SZ] = {0};
     byte     salt[SALT_SIZE] = {0};
     byte     tag[ASCON_AEAD128_TAG_SZ] = {0};
@@ -202,7 +203,7 @@ int AsconEncrypt(wc_AsconAEAD128* ascon, byte* key, int size, FILE* inFile, FILE
 
     /* closes the opened files and frees the memory*/
     cleanup:
-        MemFree(ascon, key, size, inFile, outFile, &rng, input, output, inFileLength, rngInit);
+        MemFree(ascon, key, size, inFile, outFile, &rng, input, output, inFileLength, rngInit, encrypt);
     return ret;
 }
 
@@ -213,6 +214,7 @@ int AsconDecrypt(wc_AsconAEAD128* ascon, byte* key, int size, FILE* inFile, FILE
 {
     WC_RNG   rng;
     int      rngInit = 0;
+    int      encrypt = 0;
     byte     nonce[ASCON_AEAD128_NONCE_SZ] = {0};
     byte     salt[SALT_SIZE] = {0};
     byte     tag[ASCON_AEAD128_TAG_SZ] = {0};
@@ -321,7 +323,7 @@ int AsconDecrypt(wc_AsconAEAD128* ascon, byte* key, int size, FILE* inFile, FILE
     }
 
     cleanup:
-        MemFree(ascon, key, size, inFile, outFile, &rng, input, output, aSize, rngInit);
+        MemFree(ascon, key, size, inFile, outFile, &rng, input, output, aSize, rngInit, encrypt);
     return ret;
 }
 
