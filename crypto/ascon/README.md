@@ -12,8 +12,7 @@ How to use ascon-file-encrypt.c
         NOTE: When decrypting make sure the key is the same used for the
         encryption, otherwise it won't decode correctly. Which is the idea.
         Only those with the key will be able to decode the message. If no
-        key is entered into the command line, it will use "0123456789abcdef"
-        by default.
+        key is entered into the command line, the program will error out.
 
 4)  Running 'make clean' will delete the executable as well as any created
     files. Making sure that the only files left are 'ascon-file-encrypt.c',

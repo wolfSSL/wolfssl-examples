@@ -50,7 +50,7 @@ static const byte ad[AD_SIZE] = {
 
 void MemFree(wc_AsconAEAD128 *ascon, byte *key, int size, FILE *inFile, FILE *outFile, WC_RNG* rng, byte *input, byte *output, int length, int rngInit) {
     if (input != NULL) {
-        memset(input, 0, length);
+        memset(input, 0, BLOCK_SIZE);
         free(input);
     }
     if (output != NULL) {
@@ -75,7 +75,6 @@ void MemFree(wc_AsconAEAD128 *ascon, byte *key, int size, FILE *inFile, FILE *ou
     if (ascon != NULL) {
         wc_AsconAEAD128_Free(ascon);
     }
-
 }
 
 /*
@@ -118,88 +117,92 @@ int AsconEncrypt(wc_AsconAEAD128* ascon, byte* key, int size, FILE* inFile, FILE
     byte* input = malloc(BLOCK_SIZE);
     byte* output = malloc(inFileLength);
 
-    while (1) { // to avoid memory leakage in case of an error
-        ret = wc_InitRng(&rng);
-        if (ret != 0) {
-            printf("Failed to initialize random number generator\n");
-            break;
-        }
-        rngInit = 1;
-
-        /* stretches key to fit size */
-        ret = GenerateKey(&rng, key, size, salt);
-        if (ret != 0) {
-            printf("Generate key failed.\n");
-            break;
-        }
-
-        /* sets key */
-        ret = wc_AsconAEAD128_SetKey(ascon, key);
-        if (ret != 0) {
-            printf("Set key failed.\n");
-            break;
-        }
-
-        /* Generate random nonce for each encryption */
-        ret = wc_RNG_GenerateBlock(&rng, nonce, ASCON_AEAD128_NONCE_SZ);
-        if (ret != 0) {
-            printf("Generate nonce failed.\n");
-            break;
-        }
-
-        /* sets nonce */
-        ret = wc_AsconAEAD128_SetNonce(ascon, nonce);
-        if (ret != 0) {
-            printf("Set nonce failed.\n");
-            break;
-        }
-
-
-        /* sets additional data */
-        ret = wc_AsconAEAD128_SetAD(ascon, ad, AD_SIZE);
-        if (ret != 0) {
-            printf("Set AD failed.\n");
-            break;
-        }
-
-        /* Loop reading a block at a time */
-        for (int j = 0; j < inFileLength; j += BLOCK_SIZE) {
-            if (chunk_read > inFileLength - j) {
-                chunk_read = inFileLength - j;
-            }
-
-            ret = fread(input, 1, chunk_read, inFile);
-            if (ret != chunk_read) {
-                printf("ERROR: Failed to read the appropriate amount\n");
-                ret = -1;
-                break;
-            }
-
-            /* encrypts the message to the output based on input length */
-            ret = wc_AsconAEAD128_EncryptUpdate(ascon, output+j, input, inFileLength);
-            if (ret != 0) {
-                printf("Encrypt update failed.\n");
-                break;
-            }
-
-        }
-
-        /* Finalize encryption and generate tag */
-        ret = wc_AsconAEAD128_EncryptFinal(ascon, tag);
-        if (ret != 0) {
-            printf("Encrypt final failed.\n");
-            break;
-        }
-
-        /* writes to outFile */
-        fwrite(salt, 1, SALT_SIZE, outFile);
-        fwrite(nonce, 1, ASCON_AEAD128_NONCE_SZ, outFile);
-        fwrite(tag, 1, ASCON_AEAD128_TAG_SZ, outFile);
-        fwrite(output, 1, inFileLength, outFile);
-        break;
+    if (input == NULL || output == NULL) {
+        goto cleanup;
     }
+
+    ret = wc_InitRng(&rng);
+    if (ret != 0) {
+        printf("Failed to initialize random number generator\n");
+        goto cleanup;
+    }
+    rngInit = 1;
+
+    /* stretches key to fit size */
+    ret = GenerateKey(&rng, key, size, salt);
+    if (ret != 0) {
+        printf("Generate key failed.\n");
+        goto cleanup;
+    }
+
+    /* sets key */
+    ret = wc_AsconAEAD128_SetKey(ascon, key);
+    if (ret != 0) {
+        printf("Set key failed.\n");
+        goto cleanup;
+    }
+
+    /* Generate random nonce for each encryption */
+    ret = wc_RNG_GenerateBlock(&rng, nonce, ASCON_AEAD128_NONCE_SZ);
+    if (ret != 0) {
+        printf("Generate nonce failed.\n");
+        goto cleanup;
+    }
+
+    /* sets nonce */
+    ret = wc_AsconAEAD128_SetNonce(ascon, nonce);
+    if (ret != 0) {
+        printf("Set nonce failed.\n");
+        goto cleanup;
+    }
+
+
+    /* sets additional data */
+    ret = wc_AsconAEAD128_SetAD(ascon, ad, AD_SIZE);
+    if (ret != 0) {
+        printf("Set AD failed.\n");
+        goto cleanup;
+    }
+
+    /* Loop reading a block at a time */
+    for (int j = 0; j < inFileLength; j += BLOCK_SIZE) {
+        if (chunk_read > inFileLength - j) {
+            chunk_read = inFileLength - j;
+        }
+
+        ret = fread(input, 1, chunk_read, inFile);
+        if (ret != chunk_read) {
+            printf("ERROR: Failed to read the appropriate amount\n");
+            ret = -1;
+            goto cleanup;
+        }
+
+        /* encrypts the message to the output based on input length */
+        ret = wc_AsconAEAD128_EncryptUpdate(ascon, output+j, input, chunk_read);
+        if (ret != 0) {
+            printf("Encrypt update failed.\n");
+            goto cleanup;
+        }
+
+    }
+
+    /* Finalize encryption and generate tag */
+    ret = wc_AsconAEAD128_EncryptFinal(ascon, tag);
+    if (ret != 0) {
+        printf("Encrypt final failed.\n");
+        goto cleanup;
+    }
+
+    /* writes to outFile */
+    fwrite(salt, 1, SALT_SIZE, outFile);
+    fwrite(nonce, 1, ASCON_AEAD128_NONCE_SZ, outFile);
+    fwrite(tag, 1, ASCON_AEAD128_TAG_SZ, outFile);
+    fwrite(output, 1, inFileLength, outFile);
+
+
     /* closes the opened files and frees the memory*/
-    MemFree(ascon, key, size, inFile, outFile, &rng, input, output, inFileLength, rngInit);
+    cleanup:
+        MemFree(ascon, key, size, inFile, outFile, &rng, input, output, inFileLength, rngInit);
     return ret;
 }
 
@@ -224,99 +227,101 @@ int AsconDecrypt(wc_AsconAEAD128* ascon, byte* key, int size, FILE* inFile, FILE
     byte* input = malloc(aSize);
     byte* output = malloc(aSize);
 
-    while (1) { // While loop is used as a kind of jump
-        ret = wc_InitRng(&rng);
-        if (ret != 0) {
-            printf("Failed to initialize random number generator\n");
-            break;
-        }
-        rngInit = 1;
-
-        /* reads from inFile and writes whatever is there to the input array */
-        ret = fread(input, 1, length, inFile);
-        if (ret != length) {
-            printf("Error while reading input file.\n");
-            break;
-        }
-
-        int i = 0;
-
-        if (length > FILE_HEADER_SIZE) {
-
-            /* finds salt from input message */
-            for (; i < SALT_SIZE; i++) {
-                salt[i] = input[i];
-            }
-
-            /* finds nonce from input message */
-            for (; i < ASCON_AEAD128_NONCE_SZ + SALT_SIZE; i++) {
-                nonce[i - SALT_SIZE] = input[i];
-            }
-
-            /* finds tag from input message */
-            for (; i < FILE_HEADER_SIZE; i++) {
-                tag[i - SALT_SIZE - ASCON_AEAD128_NONCE_SZ] = input[i];
-            }
-
-            /* replicates old key if keys match */
-            ret = wc_PBKDF2(key, key, strlen((const char*)key), salt, SALT_SIZE, 4096,
-                size, WC_SHA256);
-            if (ret != 0) {
-                printf("Replicating old key failed.\n");
-                break;
-            }
-
-            /* sets key */
-            ret = wc_AsconAEAD128_SetKey(ascon, key);
-            if (ret != 0) {
-                printf("Set key failed.\n");
-                break;
-            }
-
-            /* sets nonce */
-            ret = wc_AsconAEAD128_SetNonce(ascon, nonce);
-            if (ret != 0) {
-                printf("Set nonce failed.\n");
-                break;
-            }
-
-            /* sets additional data */
-            ret = wc_AsconAEAD128_SetAD(ascon, ad, AD_SIZE);
-            if (ret != 0) {
-                printf("Set AD failed.\n");
-                break;
-            }
-
-            /* change length to remove salt/nonce/tag block from being decrypted */
-            length -= FILE_HEADER_SIZE;
-            for (int j = 0; j < length; j++) {
-                /* shifts message: ignores salt/nonce/tag on message*/
-                input[j] = input[j + FILE_HEADER_SIZE];
-            }
-
-            /* decrypts the message to output based on input length */
-            ret = wc_AsconAEAD128_DecryptUpdate(ascon, output, input, length);
-            if (ret != 0) {
-                printf("Decrypt update failed.\n");
-                break;
-            }
-
-            /* Finalize decryption and verify tag */
-            ret = wc_AsconAEAD128_DecryptFinal(ascon, tag);
-            if (ret != 0) {
-                printf("Decrypt final failed.\n");
-                break;
-            }
-
-            /* writes output to the outFile based on shortened length */
-            fwrite(output, 1, length, outFile);
-            break;
-        } else {
-            printf("Invalid length of input file\n");
-            break;
-        }
+    if (input == NULL || output == NULL) {
+        goto cleanup;
     }
-    MemFree(ascon, key, size, inFile, outFile, &rng, input, output, aSize, rngInit);
+
+
+    ret = wc_InitRng(&rng);
+    if (ret != 0) {
+        printf("Failed to initialize random number generator\n");
+        goto cleanup;
+    }
+    rngInit = 1;
+
+    /* reads from inFile and writes whatever is there to the input array */
+    ret = fread(input, 1, length, inFile);
+    if (ret != length) {
+        printf("Error while reading input file.\n");
+        goto cleanup;
+    }
+
+    int i = 0;
+
+    if (length > FILE_HEADER_SIZE) {
+
+        /* finds salt from input message */
+        for (; i < SALT_SIZE; i++) {
+            salt[i] = input[i];
+        }
+
+        /* finds nonce from input message */
+        for (; i < ASCON_AEAD128_NONCE_SZ + SALT_SIZE; i++) {
+            nonce[i - SALT_SIZE] = input[i];
+        }
+
+        /* finds tag from input message */
+        for (; i < FILE_HEADER_SIZE; i++) {
+            tag[i - SALT_SIZE - ASCON_AEAD128_NONCE_SZ] = input[i];
+        }
+
+        /* replicates old key if passwords match */
+        ret = wc_PBKDF2(key, key, strlen((const char*)key), salt, SALT_SIZE, 4096,size, WC_SHA256);
+        if (ret != 0) {
+            printf("Replicating old key failed.\n");
+            goto cleanup;
+        }
+
+        /* sets key */
+        ret = wc_AsconAEAD128_SetKey(ascon, key);
+        if (ret != 0) {
+            printf("Set key failed.\n");
+            goto cleanup;
+        }
+
+        /* sets nonce */
+        ret = wc_AsconAEAD128_SetNonce(ascon, nonce);
+        if (ret != 0) {
+            printf("Set nonce failed.\n");
+            goto cleanup;
+        }
+
+        /* sets additional data */
+        ret = wc_AsconAEAD128_SetAD(ascon, ad, AD_SIZE);
+        if (ret != 0) {
+            printf("Set AD failed.\n");
+            goto cleanup;
+        }
+
+        /* change length to remove salt/nonce/tag block from being decrypted */
+        length -= FILE_HEADER_SIZE;
+        for (int j = 0; j < length; j++) {
+            /* shifts message: ignores salt/nonce/tag on message*/
+            input[j] = input[j + FILE_HEADER_SIZE];
+        }
+
+        /* decrypts the message to output based on input length */
+        ret = wc_AsconAEAD128_DecryptUpdate(ascon, output, input, length);
+        if (ret != 0) {
+            printf("Decrypt update failed.\n");
+            goto cleanup;
+        }
+
+        /* Finalize decryption and verify tag */
+        ret = wc_AsconAEAD128_DecryptFinal(ascon, tag);
+        if (ret != 0) {
+            printf("Decrypt final failed.\n");
+            goto cleanup;
+        }
+
+        /* writes output to the outFile based on shortened length */
+        fwrite(output, 1, length, outFile);
+    } else {
+        printf("Invalid length of input file\n");
+    }
+
+    cleanup:
+        MemFree(ascon, key, size, inFile, outFile, &rng, input, output, aSize, rngInit);
     return ret;
 }
 
@@ -347,31 +352,31 @@ int NoEcho(char* key)
     nflags.c_lflag &= ~ECHO;
     nflags.c_lflag |= ECHONL;
 
-    while (ret == 0) {
-        if (tcsetattr(fileno(stdin), TCSANOW, &nflags) != 0) {
-            printf("Error: tcsetattr failed to disable terminal echo\n");
-            ret = -1060;
-            continue;
-        }
 
-        printf("Unique Password: ");
-        if (fgets(key, ASCON_AEAD128_KEY_SZ, stdin) == NULL) {
-            printf("Error: fgets failed to retrieve secure key input\n");
-            ret = -1070;
-            continue;
-        }
+    if (tcsetattr(fileno(stdin), TCSANOW, &nflags) != 0) {
+        printf("Error: tcsetattr failed to disable terminal echo\n");
+        ret = -1;
+        goto restore;
+    }
 
-        // Assign default value for key in case no user input
-        if (key[strlen(key) - 1] == '\n') {
-            memcpy(key, "0123456789abcdef", ASCON_AEAD128_KEY_SZ);
-        }
-        break;
+    printf("Unique Password: ");
+    if (fgets(key, ASCON_AEAD128_KEY_SZ, stdin) == NULL) {
+        printf("Error: fgets failed to retrieve secure key input\n");
+        ret = -1;
+        goto restore;
+    }
+
+    // Error out on no valid password.
+    if (strlen(key) == 1) {
+        printf("No password entered\n");
+        ret = -1;
     }
 
     /* restore terminal regardless */
+    restore:
     if (tcsetattr(fileno(stdin), TCSANOW, &oflags) != 0) {
         printf("Error: tcsetattr failed to enable terminal echo\n");
-        ret = -1080;
+        ret = -1;
     }
     return ret;
 }
