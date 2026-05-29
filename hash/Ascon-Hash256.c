@@ -69,59 +69,55 @@ int main(int argc, char** argv)
     fName = argv[1];
     printf("Hash input file %s\n", fName);
 
-    while (1) {
-        inputStream = fopen(fName, "rb");
-        if (inputStream == NULL) {
-            printf("ERROR: Unable to open file\n");
-            break;
+
+    inputStream = fopen(fName, "rb");
+    if (inputStream == NULL) {
+        printf("ERROR: Unable to open file\n");
+        goto cleanup;
+    }
+
+    /* find length of the file */
+    fseek(inputStream, 0, SEEK_END);
+    fileLength = (int) ftell(inputStream);
+    fseek(inputStream, 0, SEEK_SET);
+
+    /* Create and initialize hash context */
+    asconHash = wc_AsconHash256_New();
+    if (asconHash == NULL) {
+        printf("ERROR: Unable to create the hash context\n");
+        goto cleanup;
+    }
+
+    rawInput = (byte*) malloc(BLOCK_SIZE);
+    if (rawInput == NULL) {
+        printf("ERROR: Unable to allocate space for raw input\n");
+        goto cleanup;
+    }
+
+    for (int i = 0; i < BLOCK_SIZE; i += BLOCK_SIZE) {
+        if (chunkRead > fileLength - i)
+            chunkRead = fileLength - i;
+
+        /* Read blocks from input file into a byte array*/
+        size_t read = fread(rawInput, 1, chunkRead, inputStream);
+        if (read != chunkRead) {
+            printf("ERROR: Failed to read the size of input file\n");
+            goto cleanup;
         }
 
-        /* find length of the file */
-        fseek(inputStream, 0, SEEK_END);
-        fileLength = (int) ftell(inputStream);
-        fseek(inputStream, 0, SEEK_SET);
-
-        /* Create and initialize hash context */
-        asconHash = wc_AsconHash256_New();
-        if (asconHash == NULL) {
-            printf("ERROR: Unable to create the hash context\n");
-            break;
-        }
-
-
-        rawInput = (byte*) malloc(BLOCK_SIZE);
-        if (rawInput == NULL) {
-            printf("ERROR: Unable to allocate space for raw input\n");
-            break;
-        }
-
-        for (int i = 0; i < BLOCK_SIZE; i += BLOCK_SIZE) {
-            if (chunkRead > fileLength - i)
-                chunkRead = fileLength - i;
-
-            /* Read blocks from input file into a byte array*/
-            size_t read = fread(rawInput, 1, chunkRead, inputStream);
-            if (read != chunkRead) {
-                printf("ERROR: Failed to read the size of input file\n");
-                break;
-            }
-
-            ret = wc_AsconHash256_Update(asconHash, rawInput, chunkRead);
-            if (ret != 0) {
-                printf("ERROR: Hash update failed\n");
-                ret = 1;
-                break;
-            }
-        }
-
-
-        ret = wc_AsconHash256_Final(asconHash, hash);
+        ret = wc_AsconHash256_Update(asconHash, rawInput, chunkRead);
         if (ret != 0) {
-            printf("ERROR: Hash operation failed");
+            printf("ERROR: Hash update failed\n");
             ret = 1;
-            break;
+            goto cleanup;
         }
-        break;
+    }
+
+    ret = wc_AsconHash256_Final(asconHash, hash);
+    if (ret != 0) {
+        printf("ERROR: Hash operation failed");
+        ret = 1;
+        goto cleanup;
     }
 
     printf("Hash result is: ");
@@ -129,7 +125,8 @@ int main(int argc, char** argv)
         printf("%02x", hash[i]);
     printf("\n");
 
-    free_mem(asconHash, rawInput, inputStream);
+    cleanup:
+        free_mem(asconHash, rawInput, inputStream);
 #else
     printf("Please enable Ascon-Hash256 (--enable-ascon --enable-experimental) in wolfCrypt\n");
 #endif
