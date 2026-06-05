@@ -16,4 +16,4 @@ How to use ascon-file-encrypt.c
 
 4)  Running 'make clean' will delete the executable as well as any created
     files. Making sure that the only files left are 'ascon-file-encrypt.c',
-    'Makefile', and 'README'.
+    'Makefile', and 'README.md'.

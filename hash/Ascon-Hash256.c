@@ -1,6 +1,6 @@
 /* Ascon-Hash256.c
  *
- * Copyright (C) 2006-2020 wolfSSL Inc.
+ * Copyright (C) 2006-2026 wolfSSL Inc.
  *
  * This file is part of wolfSSL.
  *
@@ -25,7 +25,6 @@
 #endif
 #include <wolfssl/options.h>
 #include <wolfssl/wolfcrypt/settings.h>
-#include <wolfssl/ssl.h>
 #include <wolfssl/wolfcrypt/ascon.h>
 
 #define BLOCK_SIZE 4096
@@ -94,7 +93,7 @@ int main(int argc, char** argv)
         goto cleanup;
     }
 
-    for (int i = 0; i < BLOCK_SIZE; i += BLOCK_SIZE) {
+    for (int i = 0; i < fileLength; i += BLOCK_SIZE) {
         if (chunkRead > fileLength - i)
             chunkRead = fileLength - i;
 
