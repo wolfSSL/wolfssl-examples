@@ -60,7 +60,7 @@ int main(int argc, char** argv)
     byte*  rawInput = NULL;
     FILE* inputStream = NULL;
     char* fName = NULL;
-    int fileLength = 0;
+    long fileLength = 0;
     int chunkRead = BLOCK_SIZE;
 
     if (argc < 2)
@@ -77,7 +77,7 @@ int main(int argc, char** argv)
 
     /* find length of the file */
     fseek(inputStream, 0, SEEK_END);
-    fileLength = (int) ftell(inputStream);
+    fileLength = ftell(inputStream);
     fseek(inputStream, 0, SEEK_SET);
 
     /* Create and initialize hash context */
