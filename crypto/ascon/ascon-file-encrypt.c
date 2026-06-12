@@ -181,7 +181,7 @@ int AsconEncrypt(wc_AsconCtx* ctx)
     }
 
     /* Loop reading a block at a time */
-    for (int j = 0; j < ctx->inFileLength; j += BLOCK_SIZE) {
+    for (long j = 0; j <= ctx->inFileLength; j += BLOCK_SIZE) {
         if (chunk_read > ctx->inFileLength - j) {
             chunk_read = ctx->inFileLength - j;
         }
@@ -260,7 +260,7 @@ int AsconDecrypt(wc_AsconCtx* ctx)
     ctx->rngInit = 1;
 
 
-    if (ctx->inFileLength > FILE_HEADER_SIZE) {
+    if (ctx->inFileLength >= FILE_HEADER_SIZE) {
         int      chunk_read = BLOCK_SIZE;
         int      i = 0;
 
@@ -312,7 +312,7 @@ int AsconDecrypt(wc_AsconCtx* ctx)
         /* Start decrypting ciphertext */
         ctx->inFileLength -= FILE_HEADER_SIZE;
 
-        for (int j = 0; j < ctx->inFileLength; j += BLOCK_SIZE) {
+        for (long j = 0; j <= ctx->inFileLength; j += BLOCK_SIZE) {
             if (chunk_read > ctx->inFileLength - j) {
                 chunk_read = ctx->inFileLength - j;
             }

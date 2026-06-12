@@ -93,7 +93,7 @@ int main(int argc, char** argv)
         goto cleanup;
     }
 
-    for (int i = 0; i < fileLength; i += BLOCK_SIZE) {
+    for (long i = 0; i < fileLength; i += BLOCK_SIZE) {
         if (chunkRead > fileLength - i)
             chunkRead = fileLength - i;
 
