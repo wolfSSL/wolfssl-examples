@@ -117,6 +117,10 @@ _run_embedded() {
     echo "      fallback reflects target macros, not the host's."
 
     DEFINES_H="$OUT_DIR/.wolfssl-defines-$$.h"
+    # Clean up the temp defines file on every exit path, including a failing
+    # generator run (it previously leaked the dotfile under `set -e` if the
+    # final gen-sbom invocation failed before the manual `rm -f`).
+    trap 'rm -f "$DEFINES_H"' EXIT
     CC=${CC:-cc}
     if ! "$CC" -dM -E \
         -I"$WOLFSSL_DIR" \
@@ -124,7 +128,6 @@ _run_embedded() {
         -DWOLFSSL_USER_SETTINGS \
         -include "$SETTINGS_H" \
         -x c /dev/null >"$DEFINES_H" 2>/dev/null; then
-        rm -f "$DEFINES_H"
         echo "ERROR: $CC -dM -E failed; install pcpp or set CC to your cross-compiler." >&2
         exit 1
     fi
@@ -137,11 +140,24 @@ _run_embedded() {
         --license-file "$WOLFSSL_DIR/LICENSING" \
         --options-h "$DEFINES_H" \
         --srcs $@
-    rm -f "$DEFINES_H"
 }
 
 _run_autotools() {
     echo "==> Autotools path: make sbom"
+    # `make sbom` names its output after the wolfSSL TREE's version
+    # (PACKAGE_VERSION), not the kit's pinned VERSION. If they differ, the
+    # `cp` below would otherwise fail with a cryptic "No such file or
+    # directory" under `set -eu`. Detect the mismatch early and explain it.
+    _tree_ver=$(sed -n \
+        's/.*LIBWOLFSSL_VERSION_STRING[[:space:]]*"\([^"]*\)".*/\1/p' \
+        "$WOLFSSL_DIR/wolfssl/version.h" 2>/dev/null || true)
+    if [ -n "$_tree_ver" ] && [ "$_tree_ver" != "$VERSION" ]; then
+        echo "ERROR: wolfSSL tree is version $_tree_ver but the kit is pinned to $VERSION." >&2
+        echo "       'make sbom' emits wolfssl-${_tree_ver}.* while the pinned auditor" >&2
+        echo "       packet references wolfssl-${VERSION}.*. Check out a wolfSSL $VERSION" >&2
+        echo "       tree, or update cra-kit/VERSION (and the pinned sample references)." >&2
+        exit 1
+    fi
   (cd "$WOLFSSL_DIR" && {
       if [ ! -f Makefile ]; then
           echo "       Running ./configure first..."

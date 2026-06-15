@@ -30,7 +30,7 @@
       "externalReferences": [
         {
           "type": "bom",
-          "url": "file:wolfssl-component/wolfssl-5.9.1.cdx.json",
+          "url": "file:./wolfssl-component/wolfssl-5.9.1.cdx.json",
           "comment": "Component SBOM from wolfSSL; regenerate with scripts/generate-wolfssl-sbom.sh",
           "hashes": [
             {

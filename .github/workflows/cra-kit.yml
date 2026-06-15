@@ -20,3 +20,11 @@ jobs:
           python-version: '3.x'
       - name: Validate pinned auditor packet
         run: ./cra-kit/scripts/validate.sh
+      - name: Shell syntax check (sh -n)
+        run: |
+          for s in cra-kit/scripts/*.sh; do
+            echo "sh -n $s"
+            sh -n "$s"
+          done
+      - name: ShellCheck scripts
+        run: shellcheck cra-kit/scripts/*.sh
