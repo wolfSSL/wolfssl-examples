@@ -45,6 +45,7 @@
 typedef struct wc_AsconCtx {
     wc_AsconAEAD128*   ascon;
     byte*              key;
+    byte*              password;
     FILE*              inFile;
     FILE*              outFile;
     const char*        outFileName;
@@ -90,6 +91,13 @@ void MemFree(wc_AsconCtx* ctx, int error) {
             memset(ctx->key, 0, ASCON_AEAD128_KEY_SZ);
             free(ctx->key);
         }
+
+        if (ctx->password != NULL) {
+            memset(ctx->password, 0, PASSWORD_SIZE);
+            free(ctx->password);
+        }
+
+
         /* Those two functions check validity of pointer before freeing it*/
         if (ctx->rngInit && &ctx->rng != NULL) {
             wc_FreeRng(&ctx->rng);
@@ -105,16 +113,16 @@ void MemFree(wc_AsconCtx* ctx, int error) {
 }
 
 /*
- * Makes a cryptographically secure key by stretching a user entered key
+ * Makes a cryptographically secure key by stretching a user entered password
  */
-int GenerateKey(WC_RNG* rng, byte* key, int size, byte* salt)
+int GenerateKey(WC_RNG* rng, byte* key, byte* password, byte* salt)
 {
     if (wc_RNG_GenerateBlock(rng, salt, SALT_SIZE) != SUCCESS)
         return ERROR;
 
     /* stretches key */
-    if (wc_PBKDF2(key, key, strlen((const char*)key), salt, SALT_SIZE, 4096,
-        size, WC_SHA256) != SUCCESS)
+    if (wc_PBKDF2(key, password, strlen((const char*)password), salt, SALT_SIZE, 4096,
+        ASCON_AEAD128_KEY_SZ, WC_SHA256) != SUCCESS)
         return ERROR;
 
     return SUCCESS;
@@ -150,8 +158,8 @@ int AsconEncrypt(wc_AsconCtx* ctx)
     }
     ctx->rngInit = 1;
 
-    /* stretches key to fit size */
-    if (GenerateKey(&ctx->rng, ctx->key, ASCON_AEAD128_KEY_SZ, salt) != SUCCESS) {
+    /* Generate key from password and salt */
+    if (GenerateKey(&ctx->rng, ctx->key, ctx->password, salt) != SUCCESS) {
         printf("Generate key failed.\n");
         return ERROR;
     }
@@ -286,7 +294,7 @@ int AsconDecrypt(wc_AsconCtx* ctx)
         }
 
         /* replicates old key if passwords match */
-        if (wc_PBKDF2(ctx->key, ctx->key, strlen((const char*)ctx->key), salt, SALT_SIZE, 4096,ASCON_AEAD128_KEY_SZ, WC_SHA256) != SUCCESS) {
+        if (wc_PBKDF2(ctx->key, ctx->password, strlen((const char*)ctx->password), salt, SALT_SIZE, 4096,ASCON_AEAD128_KEY_SZ, WC_SHA256) != SUCCESS) {
             printf("Replicating old key failed.\n");
             return ERROR;
         }
@@ -366,7 +374,7 @@ void help()
 /*
  * temporarily disables echoing in terminal for secure key input
  */
-int NoEcho(char* key)
+int NoEcho(char* password)
 {
     struct termios oflags, nflags;
     int ret = SUCCESS;
@@ -419,6 +427,7 @@ int main(int argc, char** argv)
     }
     ctx->ascon = NULL;
     ctx->key = NULL;
+    ctx->password = NULL;
     ctx->inFile = NULL;
     ctx->outFile = NULL;
     ctx->plainText = NULL;
@@ -474,13 +483,19 @@ int main(int argc, char** argv)
             printf(": -i filename -o filename\n");
     } else {
         if (choice != 'n') {
-            ctx->key = malloc(ASCON_AEAD128_KEY_SZ);    /* sets size memory of key */
+            ctx->key = malloc(ASCON_AEAD128_KEY_SZ);
             if (ctx->key == NULL) {
                 printf("Could not allocate memory for key\n");
                 goto cleanup;
             }
 
-            if (NoEcho((char*)ctx->key) != SUCCESS) {
+            ctx->password = malloc(PASSWORD_SIZE);
+            if (ctx->password == NULL) {
+                printf("Could not allocate memory for password\n");
+                goto cleanup;
+            }
+
+            if (NoEcho((char*)ctx->password) != SUCCESS) {
                 printf("Entering user password failed\n");
                 goto cleanup;
             }
