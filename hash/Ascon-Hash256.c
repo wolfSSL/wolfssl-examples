@@ -76,9 +76,21 @@ int main(int argc, char** argv)
     }
 
     /* find length of the file */
-    fseek(inputStream, 0, SEEK_END);
+    if (fseek(inputStream, 0, SEEK_END) != 0 ) {
+        printf("fseek failed\n");
+        goto cleanup;
+    }
+
     fileLength = ftell(inputStream);
-    fseek(inputStream, 0, SEEK_SET);
+    if (fileLength < 0) {
+        printf("ftell failed\n");
+        goto cleanup;
+    }
+
+    if (fseek(inputStream, 0, SEEK_SET) != 0) {
+        printf("fseek failed\n");
+        goto cleanup;
+    }
 
     /* Create and initialize hash context */
     asconHash = wc_AsconHash256_New();

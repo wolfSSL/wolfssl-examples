@@ -133,17 +133,32 @@ int GenerateKey(WC_RNG* rng, byte* key, byte* password, byte* salt)
  */
 int AsconEncrypt(wc_AsconCtx* ctx)
 {
-
     byte     nonce[ASCON_AEAD128_NONCE_SZ] = {0};
     byte     salt[SALT_SIZE] = {0};
     byte     tag[ASCON_AEAD128_TAG_SZ] = {0};
     int      chunk_read = BLOCK_SIZE;
 
 
-    fseek(ctx->inFile, 0, SEEK_END);
+    if (fseek(ctx->inFile, 0, SEEK_END) != SUCCESS) {
+        printf("fseek failed\n");
+        return ERROR;
+    }
+
     ctx->inFileLength = ftell(ctx->inFile);
-    fseek(ctx->inFile, 0, SEEK_SET);
-    fseek(ctx->outFile, FILE_HEADER_SIZE, SEEK_SET);
+    if (ctx->inFileLength < 0) {
+        printf("ftell failed\n");
+        return ERROR;
+    }
+
+    if (fseek(ctx->inFile, 0, SEEK_SET) != SUCCESS) {
+        printf("fseek failed\n");
+        return ERROR;
+    }
+
+    if (fseek(ctx->outFile, FILE_HEADER_SIZE, SEEK_SET) != SUCCESS) {
+        printf("fseek failed\n");
+        return ERROR;
+    }
 
     ctx->plainText = malloc(BLOCK_SIZE);
     ctx->cipherText = malloc(BLOCK_SIZE);
@@ -220,7 +235,11 @@ int AsconEncrypt(wc_AsconCtx* ctx)
     }
 
     /* writes to outFile */
-    fseek(ctx->outFile, 0, SEEK_SET);
+    if (fseek(ctx->outFile, 0, SEEK_SET) != SUCCESS) {
+        printf("fseek failed\n");
+        return ERROR;
+    }
+
     if (fwrite(salt, 1, SALT_SIZE, ctx->outFile) != SALT_SIZE) {
         printf("ERROR: Failed to write the appropriate amount\n");
         return ERROR;
@@ -249,9 +268,21 @@ int AsconDecrypt(wc_AsconCtx* ctx)
     byte     tag[ASCON_AEAD128_TAG_SZ] = {0};
 
 
-    fseek(ctx->inFile, 0, SEEK_END);
+    if (fseek(ctx->inFile, 0, SEEK_END) != SUCCESS) {
+        printf("fseek failed\n");
+        return ERROR;
+    }
+
     ctx->inFileLength = ftell(ctx->inFile);
-    fseek(ctx->inFile, 0, SEEK_SET);
+    if (ctx->inFileLength < 0) {
+        printf("ftell failed\n");
+        return ERROR;
+    }
+
+    if (fseek(ctx->inFile, 0, SEEK_SET) != SUCCESS) {
+        printf("fseek failed\n");
+        return ERROR;
+    }
 
 
     ctx->plainText = malloc(BLOCK_SIZE);
