@@ -453,6 +453,14 @@ int NoEcho(char* password)
 int main(int argc, char** argv)
 {
     int    ret = ERROR;   /* return value */
+    const char* in;
+    int    option;    /* choice of how to run program */
+    int    inCheck = 0;
+    int    outCheck = 0;
+    char   choice = 'n';
+
+
+
     wc_AsconCtx* ctx = (wc_AsconCtx*) malloc(sizeof(wc_AsconCtx));
     if (ctx == NULL) {
         printf("Memory allocation for ctx failed.\n");
@@ -466,15 +474,6 @@ int main(int argc, char** argv)
     ctx->plainText = NULL;
     ctx->cipherText = NULL;
     ctx->outFile = NULL;
-
-
-    const char* in;
-
-    int    option;    /* choice of how to run program */
-    int    inCheck = 0;
-    int    outCheck = 0;
-    char   choice = 'n';
-
 
 
     while ((option = getopt(argc, argv, "dei:o:")) != -1) {
