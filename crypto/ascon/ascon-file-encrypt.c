@@ -424,15 +424,17 @@ int NoEcho(char* password)
     }
 
     printf("Unique Password: ");
-    if (fgets(key, PASSWORD_SIZE, stdin) == NULL) {
-        printf("Error: fgets failed to retrieve secure key input\n");
+    if (fgets(password, PASSWORD_SIZE, stdin) == NULL) {
+        printf("Error: fgets failed to retrieve password input\n");
         ret = ERROR;
         goto restore;
     }
 
-    key[strlen(key) - 1] = 0;
-    // Error out on no valid password.
-    if (key[0] == 0) {
+    // Remove trailing newline, if present
+    password[strcspn(password, "\n")] = '\0';
+
+    // Check if password is empty
+    if (password[0] == '\0') {
         printf("No password entered\n");
         ret = ERROR;
     }
