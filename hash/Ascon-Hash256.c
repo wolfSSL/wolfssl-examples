@@ -56,12 +56,15 @@ int main(int argc, char** argv)
     int ret = 1;
 #ifdef HAVE_ASCON
     wc_AsconHash256* asconHash = NULL;
-    byte   hash[ASCON_HASH256_SZ] = {0};
-    byte*  rawInput = NULL;
-    FILE* inputStream = NULL;
-    char* fName = NULL;
-    long fileLength = 0;
-    int chunkRead = BLOCK_SIZE;
+    byte             hash[ASCON_HASH256_SZ] = {0};
+    byte*            rawInput = NULL;
+    FILE*            inputStream = NULL;
+    char*            fName = NULL;
+    long             fileLength = 0;
+    int              chunkRead = BLOCK_SIZE;
+    long             i;
+    int              j;
+    size_t           read;
 
     if (argc < 2)
         usage();
@@ -105,12 +108,12 @@ int main(int argc, char** argv)
         goto cleanup;
     }
 
-    for (long i = 0; i < fileLength; i += BLOCK_SIZE) {
+    for (i = 0; i < fileLength; i += BLOCK_SIZE) {
         if (chunkRead > fileLength - i)
             chunkRead = fileLength - i;
 
         /* Read blocks from input file into a byte array*/
-        size_t read = fread(rawInput, 1, chunkRead, inputStream);
+        read = fread(rawInput, 1, chunkRead, inputStream);
         if (read != chunkRead) {
             printf("ERROR: Failed to read the size of input file\n");
             goto cleanup;
@@ -132,8 +135,8 @@ int main(int argc, char** argv)
     }
 
     printf("Hash result is: ");
-    for (int i = 0; i < ASCON_HASH256_SZ; i++)
-        printf("%02x", hash[i]);
+    for (j = 0; j < ASCON_HASH256_SZ; j++)
+        printf("%02x", hash[j]);
     printf("\n");
 
     cleanup:

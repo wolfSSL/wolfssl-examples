@@ -137,6 +137,7 @@ int AsconEncrypt(wc_AsconCtx* ctx)
     byte     salt[SALT_SIZE] = {0};
     byte     tag[ASCON_AEAD128_TAG_SZ] = {0};
     int      chunk_read = BLOCK_SIZE;
+    long     j;
 
 
     if (fseek(ctx->inFile, 0, SEEK_END) != SUCCESS) {
@@ -204,7 +205,7 @@ int AsconEncrypt(wc_AsconCtx* ctx)
     }
 
     /* Loop reading a block at a time */
-    for (long j = 0; j <= ctx->inFileLength; j += BLOCK_SIZE) {
+    for (j = 0; j <= ctx->inFileLength; j += BLOCK_SIZE) {
         if (chunk_read > ctx->inFileLength - j) {
             chunk_read = ctx->inFileLength - j;
         }
@@ -302,6 +303,7 @@ int AsconDecrypt(wc_AsconCtx* ctx)
     if (ctx->inFileLength >= FILE_HEADER_SIZE) {
         int      chunk_read = BLOCK_SIZE;
         int      i = 0;
+        long     j;
 
         /* read the file header and extract salt, nonce, and tag */
         if (fread(ctx->cipherText, 1, FILE_HEADER_SIZE, ctx->inFile) != FILE_HEADER_SIZE) {
@@ -351,7 +353,7 @@ int AsconDecrypt(wc_AsconCtx* ctx)
         /* Start decrypting ciphertext */
         ctx->inFileLength -= FILE_HEADER_SIZE;
 
-        for (long j = 0; j <= ctx->inFileLength; j += BLOCK_SIZE) {
+        for (j = 0; j <= ctx->inFileLength; j += BLOCK_SIZE) {
             if (chunk_read > ctx->inFileLength - j) {
                 chunk_read = ctx->inFileLength - j;
             }
@@ -466,6 +468,9 @@ int main(int argc, char** argv)
         printf("Memory allocation for ctx failed.\n");
         return ret;
     }
+
+    memset(ctx, 0, sizeof(*ctx));
+
     ctx->ascon = NULL;
     ctx->key = NULL;
     ctx->password = NULL;
