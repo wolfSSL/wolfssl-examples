@@ -6,7 +6,7 @@
 #               validation, when those tools are installed locally.
 set -eu
 
-SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+SCRIPT_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 KIT_DIR=$(dirname "$SCRIPT_DIR")
 AP="$KIT_DIR/auditor-packet"
 PRODUCT_CDX="$AP/product-acme-connect-gateway.cdx.json"
@@ -17,20 +17,22 @@ ok() { echo "OK: $*"; }
 
 command -v python3 >/dev/null 2>&1 || fail "python3 required"
 
-# shellcheck disable=SC1090
+# shellcheck disable=SC1090,SC1091
 . "$KIT_DIR/VERSION" 2>/dev/null || WOLFSSL_VERSION=5.9.1
 WOLF_CDX="$AP/wolfssl-component/wolfssl-${WOLFSSL_VERSION}.cdx.json"
 WOLF_SPDX="$AP/wolfssl-component/wolfssl-${WOLFSSL_VERSION}.spdx.json"
 
 for f in "$PRODUCT_CDX" "$PRODUCT_SPDX" "$WOLF_CDX" "$WOLF_SPDX"; do
     [ -f "$f" ] || fail "missing $f"
-    python3 -c "import json; json.load(open('$f'))" || fail "invalid JSON: $f"
+    F="$f" python3 -c "import json, os; json.load(open(os.environ['F']))" || fail "invalid JSON: $f"
     ok "$(basename "$f") parses"
 done
 
-# CycloneDX 1.6 serialNumber must match urn:uuid:<v4-uuid>; auditors with strict
-# validators (cyclonedx-cli) reject anything else. Catch this even when the tool
-# isn't installed.
+# CycloneDX 1.6 serialNumber must be a well-formed urn:uuid; auditors with strict
+# validators (cyclonedx-cli) reject anything else. We accept RFC 4122 versions 1-5:
+# the product SBOM uses a random v4, while the wolfSSL component SBOMs use a
+# deterministic name-based v5 so regenerated samples keep a stable serialNumber.
+# Catch malformed values even when the tool isn't installed.
 PRODUCT_CDX="$PRODUCT_CDX" WOLF_CDX="$WOLF_CDX" python3 <<'PY'
 import json, os, re, sys
 UUID = re.compile(r"^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$", re.I)
@@ -39,10 +41,10 @@ for env in ("PRODUCT_CDX", "WOLF_CDX"):
     path = os.environ[env]
     sn = json.load(open(path)).get("serialNumber", "")
     if not UUID.match(sn):
-        errors.append(f"{os.path.basename(path)}: serialNumber {sn!r} is not urn:uuid:<v4>")
+        errors.append(f"{os.path.basename(path)}: serialNumber {sn!r} is not a urn:uuid:<v1-5>")
 if errors:
     sys.exit("CycloneDX serialNumber violation(s):\n  " + "\n  ".join(errors))
-print("OK: CycloneDX serialNumbers are valid urn:uuid:<v4>")
+print("OK: CycloneDX serialNumbers are valid urn:uuid (v1-5)")
 PY
 
 PRODUCT_SPDX="$PRODUCT_SPDX" WOLF_SPDX="$WOLF_SPDX" python3 <<'PY'

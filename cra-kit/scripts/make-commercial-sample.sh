@@ -12,10 +12,10 @@
 #       ./scripts/generate-wolfssl-sbom.sh
 set -eu
 
-SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+SCRIPT_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 KIT_DIR=$(dirname "$SCRIPT_DIR")
 
-# shellcheck disable=SC1090
+# shellcheck disable=SC1090,SC1091
 . "$KIT_DIR/VERSION"
 COMP_DIR="$KIT_DIR/auditor-packet/wolfssl-component"
 GPL_CDX="$COMP_DIR/wolfssl-${WOLFSSL_VERSION}.cdx.json"

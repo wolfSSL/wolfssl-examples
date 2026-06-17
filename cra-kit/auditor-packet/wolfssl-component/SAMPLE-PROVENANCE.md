@@ -19,3 +19,16 @@ Regenerate autotools samples and fix the product stub checksum:
 ```sh
 ./scripts/refresh-samples.sh
 ```
+
+## A note on timestamps
+
+The sample SBOMs carry different `metadata.timestamp` / `created` values because
+they were generated at different times, not in a single run:
+
+- `wolfssl-component/` (autotools): `2026-05-12`
+- `wolfssl-component-embedded/` (embedded demo): `2026-05-18`
+- `product-acme-connect-gateway.*` (product stub): `2026-05-18`
+
+This is expected for hand-pinned samples and does not affect validation
+(`scripts/validate.sh` checks cross-document checksums, not timestamps).
+Regenerating via `refresh-samples.sh` will update them to the current time.

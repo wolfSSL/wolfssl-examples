@@ -3,14 +3,14 @@
 # (SPDX externalDocumentRef checksum + CycloneDX bom externalReference hash).
 set -eu
 
-SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+SCRIPT_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 KIT_DIR=$(dirname "$SCRIPT_DIR")
 
 export CRA_SBOM_MODE=autotools
 export CRA_SBOM_OUT_DIR="$KIT_DIR/auditor-packet/wolfssl-component"
 "$SCRIPT_DIR/generate-wolfssl-sbom.sh"
 
-# shellcheck disable=SC1090
+# shellcheck disable=SC1090,SC1091
 . "$KIT_DIR/VERSION"
 COMPONENT_SPDX="$KIT_DIR/auditor-packet/wolfssl-component/wolfssl-${WOLFSSL_VERSION}.spdx.json"
 COMPONENT_CDX="$KIT_DIR/auditor-packet/wolfssl-component/wolfssl-${WOLFSSL_VERSION}.cdx.json"

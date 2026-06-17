@@ -6,8 +6,9 @@
 #   CRA_LICENSE_OVERRIDE=<SPDX-id>     (optional: e.g. LicenseRef-wolfSSL-Commercial)
 set -eu
 
-SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+SCRIPT_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 KIT_DIR=$(dirname "$SCRIPT_DIR")
+# shellcheck disable=SC2015  # `|| true` is a deliberate set -e guard, not if-then-else
 WOLFSSL_DIR=${WOLFSSL_DIR:-$(cd "$KIT_DIR/../../wolfssl" 2>/dev/null && pwd || true)}
 OUT_DIR=${CRA_SBOM_OUT_DIR:-"$KIT_DIR/auditor-packet/wolfssl-component"}
 VERSION_FILE="$KIT_DIR/VERSION"
@@ -98,7 +99,6 @@ _run_embedded() {
 
     if _py=$(_python_with_pcpp); then
         echo "       Using $_py (pcpp) for --user-settings"
-        # shellcheck disable=SC2068
         "$_py" "$GEN" \
             --name wolfssl --version "$VERSION" \
             --license-file "$WOLFSSL_DIR/LICENSING" \
@@ -106,7 +106,7 @@ _run_embedded() {
             --user-settings-include "$WOLFSSL_DIR" \
             --user-settings-include "$KIT_DIR" \
             --user-settings-define WOLFSSL_USER_SETTINGS \
-            --srcs $@
+            --srcs "$@"
         return 0
     fi
 
@@ -134,12 +134,11 @@ _run_embedded() {
 
     PYTHON=python3
     command -v python3 >/dev/null 2>&1 || PYTHON=python
-    # shellcheck disable=SC2068
     "$PYTHON" "$GEN" \
         --name wolfssl --version "$VERSION" \
         --license-file "$WOLFSSL_DIR/LICENSING" \
         --options-h "$DEFINES_H" \
-        --srcs $@
+        --srcs "$@"
 }
 
 _run_autotools() {
@@ -200,8 +199,8 @@ esac
 # GHSA / Snyk / Trivy match without per-vendor mapping. Embedded outputs from
 # the kit's 9-file demo --srcs list also get a wolfssl:sbom:demo property so a
 # downstream auditor cannot mistake them for production-complete SBOMs.
-CDX_OUT="$CDX_OUT" SPDX_OUT="$SPDX_OUT" CRA_SBOM_MODE_FINAL="$MODE" \
-python3 <<'PY' || echo "WARN: post-process skipped (python3 missing or JSON malformed)"
+if ! CDX_OUT="$CDX_OUT" SPDX_OUT="$SPDX_OUT" CRA_SBOM_MODE_FINAL="$MODE" \
+python3 <<'PY'
 import json, os, pathlib
 
 cdx = pathlib.Path(os.environ["CDX_OUT"])
@@ -244,5 +243,10 @@ if spdx.exists():
     spdx.write_text(json.dumps(d, indent=2) + "\n")
     print(f"Post-processed {spdx.name}: PURL canonicalized" + (", demo watermark added" if demo else ""))
 PY
+then
+    echo "ERROR: post-process failed (PURL canonicalization/watermarking incomplete)." >&2
+    echo "       The emitted SBOM may carry pkg:generic PURLs or lack demo watermarks; not trusting it." >&2
+    exit 1
+fi
 
 echo "Done."

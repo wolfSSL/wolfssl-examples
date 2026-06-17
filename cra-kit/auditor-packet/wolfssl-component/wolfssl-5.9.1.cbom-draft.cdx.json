@@ -222,7 +222,8 @@
         }
       },
       "properties": [
-        {"name": "wolfssl:build:macro", "value": "WOLFSSL_TLS13"}
+        {"name": "wolfssl:build:macro", "value": "WOLFSSL_TLS13"},
+        {"name": "wolfssl:note:sha-512-omitted", "value": "SHA-512 is built into the component (crypto-sha-512) but is intentionally absent from this cryptoRefArray: TLS 1.3 handshake/HKDF use SHA-256/SHA-384, not SHA-512. SHA-512 is exposed as a crypto asset for callers, not as a TLS 1.3 protocol dependency."}
       ]
     }
   ],
