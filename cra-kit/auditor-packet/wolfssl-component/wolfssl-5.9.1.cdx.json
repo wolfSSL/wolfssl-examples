@@ -12,7 +12,7 @@
           "type": "application",
           "author": "wolfSSL Inc.",
           "name": "wolfssl-sbom-gen",
-          "version": "1.0"
+          "version": "1.1"
         }
       ]
     },
@@ -44,6 +44,22 @@
         {
           "type": "vcs",
           "url": "https://github.com/wolfSSL/wolfssl"
+        },
+        {
+          "type": "website",
+          "url": "https://www.wolfssl.com/"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/wolfSSL/wolfssl/issues"
+        },
+        {
+          "type": "advisories",
+          "url": "https://github.com/wolfSSL/wolfssl/security/advisories"
+        },
+        {
+          "type": "security-contact",
+          "url": "https://www.wolfssl.com/.well-known/security.txt"
         }
       ],
       "properties": [
@@ -286,6 +302,26 @@
         {
           "name": "wolfssl:build:WOLFSSL_X86_64_BUILD",
           "value": "1"
+        },
+        {
+          "name": "wolfssl:sbom:hash-kind",
+          "value": "library-binary"
+        }
+      ],
+      "components": [
+        {
+          "type": "file",
+          "name": "libwolfssl.44.dylib",
+          "hashes": [
+            {
+              "alg": "SHA-1",
+              "content": "def1d74ce45e708d8230084cdea4f45a9cad144c"
+            },
+            {
+              "alg": "SHA-256",
+              "content": "391e86477f5eee025e677a24b13e2d9a4d3e4c18d88e6359853ebf1c9932279e"
+            }
+          ]
         }
       ]
     }

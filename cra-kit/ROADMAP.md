@@ -7,10 +7,10 @@ Honest status for customer conversations. This is **not** a commitment schedule.
 | **SBOM** (SPDX 2.3 + CycloneDX 1.6) | **Available** | `make sbom` or `scripts/gen-sbom` |
 | **Config-accurate build properties** | **Available** | Read `wolfssl:build:*` in `.cdx.json` |
 | **Embedded source-merkle checksum** | **Available** | `gen-sbom` with `--srcs` (no `libwolfssl.a` required) |
-| **Commercial license in SBOM** | **Available** | `CRA_LICENSE_OVERRIDE=LicenseRef-wolfSSL-Commercial ./scripts/generate-wolfssl-sbom.sh` (or `make-commercial-sample.sh` to derive from pinned GPL samples) |
+| **Commercial license in SBOM** | **Available** | `CRA_LICENSE_OVERRIDE=LicenseRef-wolfSSL-Commercial CRA_LICENSE_TEXT=/path/to/commercial-license.txt ./scripts/generate-wolfssl-sbom.sh` (a `LicenseRef-*` override requires the licence text; or use `make-commercial-sample.sh` to derive from pinned GPL samples) |
 | **Reproducible SBOM timestamps** | **Available** | `SOURCE_DATE_EPOCH` |
 | **OmniBOR / `make bomsh`** | **Available** | Linux **build host** only; optional for CRA |
-| **`pkg:github` PURL** | **Available** | Auto-canonicalised by `generate-wolfssl-sbom.sh` post-process; resolves in OSV / GHSA / Snyk / Trivy without per-vendor mapping |
+| **`pkg:github` PURL** | **Available** | Emitted natively by `gen-sbom`; resolves in OSV / GHSA / Snyk / Trivy without per-vendor mapping |
 | **Cryptographic-asset draft** (CycloneDX 1.6) | **Draft sample** | Hand-rolled `wolfssl-<ver>.cbom-draft.cdx.json` alongside SBOM (4–6 starter entries); upstream automation: roadmap |
 | **Formal CBOM** (`cryptographic-asset` profile, all primitives) | **Roadmap** | Use draft sample + `wolfssl:build:*` properties |
 | **VEX templates / automation** | **Roadmap** | Your scanner + wolfSSL [advisories](https://www.wolfssl.com/docs/security-vulnerabilities/) |

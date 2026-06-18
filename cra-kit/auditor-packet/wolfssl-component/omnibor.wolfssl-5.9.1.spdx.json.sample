@@ -28,10 +28,10 @@
         },
         {
           "algorithm": "SHA256",
-          "checksumValue": "391e86477f5eee025e677a24b13e2d9a4d3e4c18d88e6359853ebf1c9932279e"
+          "checksumValue": "0000000000000000000000000000000000000000000000000000000000000000"
         }
       ],
-      "comment": "OmniBOR identifier for the linked binary: gitoid:blob:sha1:0000000000000000000000000000000000000001 — sample placeholder. Real builds emit the actual gitoid covering all .o inputs."
+      "comment": "SENTINEL VALUES — both the SHA-1 gitoid and the SHA-256 here are all-zero placeholders, NOT real digests. A compiled .so cannot share the source archive's hash, so this sample deliberately avoids any real-looking value a customer might copy. Real builds emit the actual binary digests and the gitoid covering all .o inputs."
     }
   ],
   "files": [

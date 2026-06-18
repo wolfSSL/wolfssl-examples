@@ -2,7 +2,7 @@
 
 | File | CRA reference | Status |
 |------|---------------|--------|
-| [`classification-statement.md`](classification-statement.md) | Annex III / IV | ✅ Decided — Class I (default), self-certification |
+| [`classification-statement.md`](classification-statement.md) | Annex III / IV | ✅ Decided — default category (not Annex III/IV), self-certification |
 | [`conformity-assessment-route.md`](conformity-assessment-route.md) | Art. 32, Annex VIII | ✅ Module A self-assessment |
 | [`declaration-of-conformity.template.md`](declaration-of-conformity.template.md) | Art. 28 | 🟡 Template ready; signature pending product release alignment |
 | [`eu-authorised-representative.md`](eu-authorised-representative.md) | Art. 18 | 🟠 In progress — appointment underway |

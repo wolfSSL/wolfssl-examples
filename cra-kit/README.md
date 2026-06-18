@@ -86,7 +86,15 @@ SBOM = your job.
 |---------|-------|------------------------|
 | **A. Linux / server / Yocto / package** | `./configure && make` | `make sbom` in wolfSSL tree |
 | **B. Embedded / RTOS / IDE** | `user_settings.h` + your Makefile / Keil / Zephyr / ESP-IDF | `./scripts/generate-embedded-sbom.sh` (kit demo) or upstream `gen-sbom` |
-| **C. Commercial license** | Either | `CRA_LICENSE_OVERRIDE=LicenseRef-wolfSSL-Commercial ./scripts/generate-wolfssl-sbom.sh` |
+| **C. Commercial license** | Either | `CRA_LICENSE_OVERRIDE=LicenseRef-wolfSSL-Commercial CRA_LICENSE_TEXT=/path/to/commercial-license.txt ./scripts/generate-wolfssl-sbom.sh` |
+
+> **Commercial (`LicenseRef-*`) overrides require `CRA_LICENSE_TEXT`** pointing at
+> the plain-text licence you received from wolfSSL. SPDX 2.3 §10.1 requires the
+> licence text to be embedded for any `LicenseRef-*`; both `gen-sbom` and
+> `make sbom` hard-fail without it. A stock SPDX id (e.g. `Apache-2.0`) needs no
+> text. If you don't have the text file handy, use
+> [`scripts/make-commercial-sample.sh`](scripts/make-commercial-sample.sh) to
+> derive a commercial sample from the pinned GPL samples instead.
 
 **Every manufacturer still:**
 
@@ -122,7 +130,8 @@ CRA_SBOM_MODE=embedded ./scripts/generate-wolfssl-sbom.sh   # rarely used for pa
 ./scripts/generate-embedded-sbom.sh         # writes wolfssl-component-embedded/
 
 CRA_LICENSE_OVERRIDE=LicenseRef-wolfSSL-Commercial \
-    ./scripts/generate-wolfssl-sbom.sh      # commercial-license sample
+    CRA_LICENSE_TEXT=/path/to/wolfssl-commercial-license.txt \
+    ./scripts/generate-wolfssl-sbom.sh      # commercial-license sample (text required)
 ./scripts/make-commercial-sample.sh         # derive from pinned GPL samples (no rebuild)
 ```
 

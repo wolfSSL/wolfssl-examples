@@ -16,7 +16,7 @@
       "spdxDocument": "file:./wolfssl-component/wolfssl-5.9.1.spdx.json",
       "checksum": {
         "algorithm": "SHA256",
-        "checksumValue": "36fdc0c8a192a0fadc4c5024ff75ecee3a56dd8a431dfb25bfa8afcf467cfdef"
+        "checksumValue": "a60bda42e4e0c874f21abaed7b34e72ac6ea329662fbac33f8487608753042f2"
       }
     }
   ],
@@ -25,7 +25,7 @@
       "SPDXID": "SPDXRef-Package-Product",
       "name": "acme-connect-gateway",
       "versionInfo": "1.0.0",
-      "supplier": "Organization: Acme Industries",
+      "supplier": "Organization: Acme Industries (fictional example)",
       "downloadLocation": "NOASSERTION",
       "filesAnalyzed": false
     }

@@ -4,6 +4,10 @@
 #   WOLFSSL_DIR=path/to/wolfssl
 #   CRA_PYTHON=python3                 (optional: interpreter with pcpp for embedded path)
 #   CRA_LICENSE_OVERRIDE=<SPDX-id>     (optional: e.g. LicenseRef-wolfSSL-Commercial)
+#   CRA_LICENSE_TEXT=<path>            (required when CRA_LICENSE_OVERRIDE is a
+#                                       LicenseRef-* id: the plain-text licence
+#                                       embedded in the SBOM. gen-sbom / make sbom
+#                                       hard-fail without it.)
 set -eu
 
 SCRIPT_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
@@ -32,6 +36,37 @@ echo "Outputs:      $CDX_OUT"
 echo "              $SPDX_OUT"
 if [ -n "${CRA_LICENSE_OVERRIDE:-}" ]; then
     echo "License override: $CRA_LICENSE_OVERRIDE"
+fi
+
+# A LicenseRef-* override (e.g. the commercial license) requires the actual
+# licence text to be embedded in the SBOM (SPDX 2.3 §10.1). Both gen-sbom and
+# `make sbom` hard-fail without it, so catch the omission here with an
+# actionable message instead of letting the run die deep in the generator.
+if [ -n "${CRA_LICENSE_OVERRIDE:-}" ]; then
+    case "$CRA_LICENSE_OVERRIDE" in
+        LicenseRef-*)
+            if [ -z "${CRA_LICENSE_TEXT:-}" ]; then
+                echo "ERROR: CRA_LICENSE_OVERRIDE=$CRA_LICENSE_OVERRIDE is a LicenseRef-* identifier," >&2
+                echo "       but CRA_LICENSE_TEXT is not set. SPDX 2.3 requires the licence text to be" >&2
+                echo "       embedded for any LicenseRef-* used in licenseConcluded/licenseDeclared." >&2
+                echo "       Re-run with CRA_LICENSE_TEXT=/path/to/wolfssl-commercial-license.txt," >&2
+                echo "       or use scripts/make-commercial-sample.sh to derive from the pinned GPL samples." >&2
+                exit 1
+            fi
+            if [ ! -f "$CRA_LICENSE_TEXT" ]; then
+                echo "ERROR: CRA_LICENSE_TEXT=$CRA_LICENSE_TEXT not found." >&2
+                exit 1
+            fi
+            ;;
+    esac
+fi
+
+# Canonicalize CRA_LICENSE_TEXT to an absolute path: the autotools path runs
+# `make sbom` inside a `cd "$WOLFSSL_DIR"` subshell, where a relative path would
+# otherwise resolve against the wolfSSL tree rather than the caller's CWD.
+if [ -n "${CRA_LICENSE_TEXT:-}" ] && [ -f "$CRA_LICENSE_TEXT" ]; then
+    CRA_LICENSE_TEXT=$(CDPATH='' cd -- "$(dirname -- "$CRA_LICENSE_TEXT")" && pwd)/$(basename -- "$CRA_LICENSE_TEXT")
+    echo "License text:     $CRA_LICENSE_TEXT"
 fi
 
 # Pick a Python that can `import pcpp` (pip may target a different python3 than /usr/local/bin).
@@ -88,13 +123,26 @@ _run_embedded() {
         exit 1
     fi
 
-    # shellcheck disable=SC2046
-    set -- $( _embedded_srcs )
+    # Build the positional list of source files newline-safely so paths that
+    # contain spaces survive (POSIX sh has no arrays; unquoted command
+    # substitution would word-split and corrupt such paths).
+    set --
+    while IFS= read -r _src; do
+        [ -n "$_src" ] || continue
+        set -- "$@" "$_src"
+    done <<EOF
+$(_embedded_srcs)
+EOF
 
     # Optional commercial license override (LicenseRef-wolfSSL-Commercial etc).
+    # A LicenseRef-* override must be accompanied by --license-text (validated
+    # up front above); a stock SPDX id needs no text.
     set -- "$@" --cdx-out "$CDX_OUT" --spdx-out "$SPDX_OUT"
     if [ -n "${CRA_LICENSE_OVERRIDE:-}" ]; then
         set -- "$@" --license-override "$CRA_LICENSE_OVERRIDE"
+        if [ -n "${CRA_LICENSE_TEXT:-}" ]; then
+            set -- "$@" --license-text "$CRA_LICENSE_TEXT"
+        fi
     fi
 
     if _py=$(_python_with_pcpp); then
@@ -116,9 +164,14 @@ _run_embedded() {
     echo "      Cross builds: set CC=arm-none-eabi-gcc (or your target compiler) so the"
     echo "      fallback reflects target macros, not the host's."
 
-    DEFINES_H="$OUT_DIR/.wolfssl-defines-$$.h"
+    # Use mktemp so the temp filename is unpredictable: a fixed PID-based name in
+    # a shared/CI directory could be pre-created or raced by another job.
+    DEFINES_H=$(mktemp "${TMPDIR:-/tmp}/wolfssl-defines.XXXXXX") || {
+        echo "ERROR: mktemp failed for the defines temp file." >&2
+        exit 1
+    }
     # Clean up the temp defines file on every exit path, including a failing
-    # generator run (it previously leaked the dotfile under `set -e` if the
+    # generator run (it previously leaked the file under `set -e` if the
     # final gen-sbom invocation failed before the manual `rm -f`).
     trap 'rm -f "$DEFINES_H"' EXIT
     CC=${CC:-cc}
@@ -163,7 +216,12 @@ _run_autotools() {
           ./configure
       fi
       if [ -n "${CRA_LICENSE_OVERRIDE:-}" ]; then
-          make sbom SBOM_LICENSE_OVERRIDE="$CRA_LICENSE_OVERRIDE"
+          if [ -n "${CRA_LICENSE_TEXT:-}" ]; then
+              make sbom SBOM_LICENSE_OVERRIDE="$CRA_LICENSE_OVERRIDE" \
+                        SBOM_LICENSE_TEXT="$CRA_LICENSE_TEXT"
+          else
+              make sbom SBOM_LICENSE_OVERRIDE="$CRA_LICENSE_OVERRIDE"
+          fi
       else
           make sbom
       fi
@@ -194,11 +252,13 @@ case "$MODE" in
         ;;
 esac
 
-# ---- Post-process: PURL canonicalization + demo watermarks ----------------
-# gen-sbom emits pkg:generic/wolfssl@X — we canonicalize to pkg:github so OSV /
-# GHSA / Snyk / Trivy match without per-vendor mapping. Embedded outputs from
-# the kit's 9-file demo --srcs list also get a wolfssl:sbom:demo property so a
-# downstream auditor cannot mistake them for production-complete SBOMs.
+# ---- Post-process: demo watermarks (+ defensive PURL canonicalization) ----
+# Current gen-sbom already emits pkg:github/wolfSSL/wolfssl@vX natively, so the
+# PURL rewrite below is a defensive no-op kept only for older wolfSSL trees that
+# emitted pkg:generic/wolfssl@X. The substantive step here is the demo
+# watermark: embedded outputs from the kit's 9-file demo --srcs list get a
+# wolfssl:sbom:demo property so a downstream auditor cannot mistake them for
+# production-complete SBOMs.
 if ! CDX_OUT="$CDX_OUT" SPDX_OUT="$SPDX_OUT" CRA_SBOM_MODE_FINAL="$MODE" \
 python3 <<'PY'
 import json, os, pathlib
@@ -227,7 +287,7 @@ if cdx.exists():
                 "value": "true (built-in --srcs list, not production-complete)"
             })
     cdx.write_text(json.dumps(d, indent=2) + "\n")
-    print(f"Post-processed {cdx.name}: PURL canonicalized" + (", demo watermark added" if demo else ""))
+    print(f"Post-processed {cdx.name}" + (": demo watermark added" if demo else ": no changes needed"))
 
 if spdx.exists():
     d = json.loads(spdx.read_text())
@@ -241,7 +301,7 @@ if spdx.exists():
             if marker not in existing:
                 pkg["comment"] = (marker + " " + existing).strip()
     spdx.write_text(json.dumps(d, indent=2) + "\n")
-    print(f"Post-processed {spdx.name}: PURL canonicalized" + (", demo watermark added" if demo else ""))
+    print(f"Post-processed {spdx.name}" + (": demo watermark added" if demo else ": no changes needed"))
 PY
 then
     echo "ERROR: post-process failed (PURL canonicalization/watermarking incomplete)." >&2

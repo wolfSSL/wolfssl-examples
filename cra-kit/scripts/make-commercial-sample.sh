@@ -64,7 +64,13 @@ d["hasExtractedLicensingInfos"] = [
         "seeAlsos": ["https://www.wolfssl.com/license/"],
     }
 ]
+# Only the wolfSSL package is relicensed. Dependency packages (e.g. zlib/Zlib,
+# liboqs/MIT) keep their own upstream licenses; overwriting them would falsely
+# claim the wolfSSL commercial license covers third-party code. This mirrors the
+# CycloneDX side above, which only touches metadata.component.
 for pkg in d.get("packages", []):
+    if pkg.get("SPDXID") != "SPDXRef-Package-wolfssl" and pkg.get("name") != "wolfssl":
+        continue
     pkg["licenseConcluded"] = license_id
     pkg["licenseDeclared"] = license_id
     existing = pkg.get("comment", "")

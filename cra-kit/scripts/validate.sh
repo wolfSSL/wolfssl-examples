@@ -96,6 +96,41 @@ print("OK: product CycloneDX bom hash matches wolfssl-component CDX")
 print("OK: product CycloneDX wolfssl component has supplier")
 PY
 
+# ---- Optional: embedded component SBOMs (if generated) --------------------
+# scripts/generate-embedded-sbom.sh writes here; outputs are .gitignored so the
+# dir is usually empty in a fresh checkout. When present, parse them and confirm
+# the demo watermark so an embedded demo SBOM can't be mistaken for production.
+EMBEDDED_DIR="$AP/wolfssl-component-embedded"
+EMBEDDED_CDX="$EMBEDDED_DIR/wolfssl-${WOLFSSL_VERSION}.cdx.json"
+EMBEDDED_SPDX="$EMBEDDED_DIR/wolfssl-${WOLFSSL_VERSION}.spdx.json"
+if [ -f "$EMBEDDED_CDX" ] || [ -f "$EMBEDDED_SPDX" ]; then
+    for f in "$EMBEDDED_CDX" "$EMBEDDED_SPDX"; do
+        [ -f "$f" ] || continue
+        F="$f" python3 -c "import json, os; json.load(open(os.environ['F']))" \
+            || fail "invalid JSON: $f"
+        ok "$(basename "$f") (embedded) parses"
+    done
+    # The embedded dir is .gitignored scratch output, so a missing watermark is
+    # a warning (the file may be a leftover or a direct gen-sbom run), not a hard
+    # failure. generate-embedded-sbom.sh always watermarks its own output.
+    if [ -f "$EMBEDDED_CDX" ]; then
+        EMBEDDED_CDX="$EMBEDDED_CDX" python3 <<'PY'
+import json, os
+d = json.load(open(os.environ["EMBEDDED_CDX"]))
+props = d.get("metadata", {}).get("component", {}).get("properties", [])
+if any(p.get("name") == "wolfssl:sbom:demo" for p in props):
+    print("OK: embedded CycloneDX SBOM carries the demo watermark")
+else:
+    print("WARNING: embedded CycloneDX SBOM lacks the wolfssl:sbom:demo "
+          "watermark; regenerate via scripts/generate-embedded-sbom.sh so it "
+          "cannot be mistaken for a production-complete SBOM.")
+PY
+    fi
+else
+    echo "NOTE: no embedded SBOMs in $EMBEDDED_DIR; skipping embedded checks."
+    echo "      Generate with: ./scripts/generate-embedded-sbom.sh"
+fi
+
 # ---- Optional: cyclonedx-cli schema validation ----------------------------
 CDX_TOOL=
 if command -v cyclonedx-cli >/dev/null 2>&1; then

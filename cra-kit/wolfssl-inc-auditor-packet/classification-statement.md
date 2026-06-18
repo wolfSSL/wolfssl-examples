@@ -5,8 +5,9 @@
 
 ## Decision
 
-wolfSSL Inc. classifies the following products as **default class** ("Class I")
-for CRA purposes:
+wolfSSL Inc. classifies the following products as **default category** — neither
+Annex III "important" (class I / class II) nor Annex IV "critical" — for CRA
+purposes:
 
 | Product | Classification | Rationale |
 |---------|----------------|-----------|

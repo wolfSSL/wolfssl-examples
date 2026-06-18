@@ -7,7 +7,7 @@
   "creationInfo": {
     "creators": [
       "Organization: wolfSSL Inc.",
-      "Tool: wolfssl-sbom-gen-1.0"
+      "Tool: wolfssl-sbom-gen-1.1"
     ],
     "created": "2026-05-12T16:59:40Z"
   },
@@ -29,6 +29,14 @@
       "licenseDeclared": "GPL-3.0-only",
       "copyrightText": "Copyright (C) 2006-2026 wolfSSL Inc.",
       "comment": "Build configuration defines: ECC_MIN_KEY_SZ, ECC_SHAMIR, ECC_TIMING_RESISTANT, ERROR_QUEUE_PER_THREAD, GCM_TABLE_4BIT, HAVE_AESGCM, HAVE_CHACHA, HAVE_C___ATOMIC, HAVE_DH_DEFAULT_PARAMS, HAVE_ECC, HAVE_ENCRYPT_THEN_MAC, HAVE_EXTENDED_MASTER, HAVE_FFDHE_2048, HAVE_GETPID, HAVE_HASHDRBG, HAVE_HKDF, HAVE_POLY1305, HAVE_SERVER_RENEGOTIATION_INFO, HAVE_SNI, HAVE_SUPPORTED_CURVES, HAVE_THREAD_LS, HAVE_TLS_EXTENSIONS, HAVE_WC_INTROSPECTION, HAVE___UINT128_T, NO_DES3, NO_DES3_TLS_SUITES, NO_DO178, NO_DSA, NO_MD4, NO_MD5, NO_OLD_TLS, NO_PSK, NO_RC4, TFM_TIMING_RESISTANT, WC_NO_ASYNC_THREADING, WC_RSA_BLINDING, WC_RSA_PSS, WOLFSSL_ARMASM_NO_HW_CRYPTO, WOLFSSL_ASN_PRINT, WOLFSSL_ASN_TEMPLATE, WOLFSSL_BASE64_ENCODE, WOLFSSL_DRBG_SHA512, WOLFSSL_HAVE_ASSERT_H, WOLFSSL_HAVE_ATOMIC_H, WOLFSSL_HAVE_MLKEM, WOLFSSL_PQC_HYBRIDS, WOLFSSL_PSS_LONG_SALT, WOLFSSL_SHA224, WOLFSSL_SHA3, WOLFSSL_SHA384, WOLFSSL_SHA512, WOLFSSL_SHAKE128, WOLFSSL_SHAKE256, WOLFSSL_SP_MATH_ALL, WOLFSSL_SP_X86_64, WOLFSSL_SYS_CA_CERTS, WOLFSSL_TLS13, WOLFSSL_TLS_NO_MLKEM_STANDALONE, WOLFSSL_USE_ALIGN, WOLFSSL_X86_64_BUILD",
+      "annotations": [
+        {
+          "annotationDate": "2026-05-12T16:59:40Z",
+          "annotationType": "OTHER",
+          "annotator": "Tool: wolfssl-sbom-gen-1.1",
+          "comment": "wolfssl:sbom:hash-kind=library-binary"
+        }
+      ],
       "externalRefs": [
         {
           "referenceCategory": "SECURITY",
@@ -39,6 +47,11 @@
           "referenceCategory": "PACKAGE-MANAGER",
           "referenceType": "purl",
           "referenceLocator": "pkg:github/wolfSSL/wolfssl@v5.9.1"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "advisory",
+          "referenceLocator": "https://github.com/wolfSSL/wolfssl/security/advisories"
         }
       ]
     }

@@ -30,9 +30,9 @@ point of contact in the EU.
    Casa Group) offer AR-as-a-service across CE-marking regulations. Cost is
    typically EUR 1500–4000/year per regulation; lead time 4–6 weeks.
 
-The internal call was made by wolfSSL leadership in [DATE TO BE CONFIRMED]. The
-written mandate will be in place before 11 Sep 2026 (Art. 14 vulnerability
-reporting onset) and certainly before 11 Dec 2027 (full CRA applicability).
+The internal decision is being finalised by wolfSSL leadership. The written
+mandate will be in place before 11 Sep 2026 (Art. 14 vulnerability reporting
+onset) and certainly before 11 Dec 2027 (full CRA applicability).
 
 ## Placeholder identity
 
