@@ -37,6 +37,16 @@ LIBS+=$(STATIC_LIB)
 
 ## Usage
 
+### `Ascon-Hash256`
+
+This example shows how to hash an input file using Ascon-Hash256.
+
+```
+./Ascon-Hash256 input.txt
+Hash input file input.txt
+Hash result is: cfef206d17eff5187fe5b5451326d5489eab2d65fe71faab84a6d9300ef7c6f8
+```
+
 ### `sha256-hash`
 
 This example shows how to hash an input file using SHA-256.

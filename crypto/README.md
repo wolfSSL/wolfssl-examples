@@ -6,6 +6,8 @@ For further usage and details:
 
 Please see the [3des/README.md](3des/README.md) for 3des.
 
+Please see the [ascon/README.md](ascon/README.md) for ascon.
+
 Please see the [aes/README.md](aes/README.md) for aes.
 
 Please see the [camellia/README.md](camellia/README.md) for camellia.
