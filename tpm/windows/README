@@ -1,0 +1,12 @@
+
+1. `mkdir certs`
+2. Generate csr using wolfTPM `csr.exe`
+3. Process csr to generate certificate `client-rsa-cert.pem`
+4. Open solution `tpm-examples.sln`
+5. Set host `MQTT_HOST` in `mqtt_tpm_simple.c`
+6. For `curl_tpm`, copy server CA cert to ca-cert.pem or change path setting `CURLOPT_CAINFO`
+7. Build solution
+
+After building the example is ready to be run. Note that projects are
+setup to run in this directory, so certs and keyblobs should be copied
+here if necessary.
