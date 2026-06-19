@@ -12,6 +12,12 @@ menu "Example Configuration"
         help
             WiFi password (WPA or WPA2) for the example to use.
 
+    config TLS_SMP_TARGET_HOST
+        string "Target Host"
+        default "127.0.0.1"
+        help
+            Set the target host IP address / domain
+
     config ESP_MAXIMUM_RETRY
         int "Maximum retry"
         default 5
