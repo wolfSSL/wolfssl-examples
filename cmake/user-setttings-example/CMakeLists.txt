@@ -26,6 +26,6 @@ target_link_libraries(wolfssl PRIVATE
 )
 
 # add in our application
-add_executable(hash myApp.c)
+add_executable(hash ${CMAKE_SOURCE_DIR}/../myApp.c)
 target_link_libraries(hash wolfssl)
 
