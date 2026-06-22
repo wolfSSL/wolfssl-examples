@@ -1,13 +1,32 @@
 #!/bin/sh
-# Generate wolfSSL component SBOMs (autotools make sbom or embedded gen-sbom).
-#   CRA_SBOM_MODE=autotools|embedded   (default: autotools if configure+Makefile exist)
-#   WOLFSSL_DIR=path/to/wolfssl
-#   CRA_PYTHON=python3                 (optional: interpreter with pcpp for embedded path)
-#   CRA_LICENSE_OVERRIDE=<SPDX-id>     (optional: e.g. LicenseRef-wolfSSL-Commercial)
-#   CRA_LICENSE_TEXT=<path>            (required when CRA_LICENSE_OVERRIDE is a
-#                                       LicenseRef-* id: the plain-text licence
-#                                       embedded in the SBOM. gen-sbom / make sbom
-#                                       hard-fail without it.)
+# Generate wolfSSL component SBOMs (autotools make sbom, cmake sbom, or embedded gen-sbom).
+#
+# Mode selection:
+#   CRA_SBOM_MODE=autotools|cmake|embedded
+#     autotools (default when configure+Makefile exist): runs `make sbom`
+#     cmake: runs `cmake --build $WOLFSSL_BUILD_DIR --target sbom`
+#     embedded: runs gen-sbom directly with source files and user_settings.h
+#
+# Required variables:
+#   WOLFSSL_DIR=path/to/wolfssl         (source tree root)
+#
+# Mode-specific variables:
+#   WOLFSSL_BUILD_DIR=path/to/build     (cmake mode: path to cmake build directory)
+#   CRA_SBOM_SRCS_FILE=path/to/srcs.txt (embedded: file listing .c paths, one per line;
+#                                         combined with the built-in demo list unless
+#                                         CRA_SBOM_SRCS_ONLY_FROM_FILE=true)
+#   CRA_SBOM_SRCS_ONLY_FROM_FILE=true   (embedded: skip the built-in demo list and
+#                                         use only paths from CRA_SBOM_SRCS_FILE)
+#   CRA_SBOM_NO_HASH=true               (embedded: emit SBOM without a real artifact
+#                                         hash; use when no source list is available)
+#
+# Optional variables:
+#   CRA_PYTHON=python3                  (interpreter with pcpp; for embedded path)
+#   CRA_LICENSE_OVERRIDE=<SPDX-id>      (e.g. LicenseRef-wolfSSL-Commercial)
+#   CRA_LICENSE_TEXT=<path>             (required when CRA_LICENSE_OVERRIDE is a
+#                                        LicenseRef-* id: plain-text licence embedded
+#                                        in the SBOM; gen-sbom / make sbom hard-fail
+#                                        without it.)
 set -eu
 
 SCRIPT_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
@@ -104,9 +123,6 @@ _embedded_srcs() {
 
 _run_embedded() {
     echo "==> Embedded path: gen-sbom with CRA Kit user_settings.h"
-    echo "    NOTE: --srcs uses the kit's built-in 9-file DEMO list. Production SBOMs"
-    echo "          must pass every wolfSSL .c file you compile. Output is watermarked"
-    echo "          wolfssl:sbom:demo=true so this can never silently ship."
     if [ ! -f "$KIT_DIR/user_settings.h" ]; then
         echo "ERROR: $KIT_DIR/user_settings.h missing (demo settings for WOLFSSL_USER_SETTINGS)." >&2
         exit 1
@@ -123,20 +139,81 @@ _run_embedded() {
         exit 1
     fi
 
-    # Build the positional list of source files newline-safely so paths that
-    # contain spaces survive (POSIX sh has no arrays; unquoted command
-    # substitution would word-split and corrupt such paths).
+    # --no-artifact-hash: skip all source-file logic and emit a placeholder hash.
+    # Use when no compiled library AND no source file list is accessible.
+    if [ "${CRA_SBOM_NO_HASH:-}" = "true" ] || [ "${CRA_SBOM_NO_HASH:-}" = "1" ]; then
+        if [ -n "${CRA_SBOM_SRCS_FILE:-}" ] || [ -n "${CRA_SBOM_SRCS_ONLY_FROM_FILE:-}" ]; then
+            echo "ERROR: CRA_SBOM_NO_HASH cannot be combined with CRA_SBOM_SRCS_FILE." >&2
+            exit 1
+        fi
+        echo "    NOTE: CRA_SBOM_NO_HASH=true: emitting SBOM with placeholder hash."
+        echo "          Contact wolfssl@wolfssl.com to discuss integrity verification"
+        echo "          options before using this in production."
+        set -- --no-artifact-hash --cdx-out "$CDX_OUT" --spdx-out "$SPDX_OUT"
+        if [ -n "${CRA_LICENSE_OVERRIDE:-}" ]; then
+            set -- "$@" --license-override "$CRA_LICENSE_OVERRIDE"
+            if [ -n "${CRA_LICENSE_TEXT:-}" ]; then
+                set -- "$@" --license-text "$CRA_LICENSE_TEXT"
+            fi
+        fi
+        _py=$(command -v python3 2>/dev/null || command -v python)
+        [ -n "$_py" ] || { echo "ERROR: python3 not found." >&2; exit 1; }
+        "$_py" "$GEN" \
+            --name wolfssl --version "$VERSION" \
+            --license-file "$WOLFSSL_DIR/LICENSING" \
+            --user-settings "$SETTINGS_H" \
+            --user-settings-include "$WOLFSSL_DIR" \
+            --user-settings-include "$KIT_DIR" \
+            --user-settings-define WOLFSSL_USER_SETTINGS \
+            "$@"
+        return 0
+    fi
+
+    # Build the source file list.
+    #
+    # Priority:
+    #   CRA_SBOM_SRCS_ONLY_FROM_FILE=true  — use only the caller-supplied file
+    #   CRA_SBOM_SRCS_FILE (without ONLY)  — merge file with built-in demo list
+    #   (neither)                           — use built-in demo list
+    #
+    # The built-in 9-file demo list is for kit demonstration only.  Production
+    # SBOMs MUST list every wolfSSL .c file on your link line.  The post-
+    # processing step below watermarks demo outputs with wolfssl:sbom:demo=true.
     set --
-    while IFS= read -r _src; do
-        [ -n "$_src" ] || continue
-        set -- "$@" "$_src"
-    done <<EOF
+    if [ "${CRA_SBOM_SRCS_ONLY_FROM_FILE:-}" = "true" ]; then
+        if [ -z "${CRA_SBOM_SRCS_FILE:-}" ]; then
+            echo "ERROR: CRA_SBOM_SRCS_ONLY_FROM_FILE=true requires CRA_SBOM_SRCS_FILE." >&2
+            exit 1
+        fi
+        echo "    Using source list from $CRA_SBOM_SRCS_FILE (CRA_SBOM_SRCS_ONLY_FROM_FILE=true)"
+    else
+        echo "    NOTE: --srcs uses the kit's built-in 9-file DEMO list. Production SBOMs"
+        echo "          must list every wolfSSL .c file you compile. Set CRA_SBOM_SRCS_FILE"
+        echo "          to your link-time source list to replace the demo list."
+        echo "          Output is watermarked wolfssl:sbom:demo=true."
+        while IFS= read -r _src; do
+            [ -n "$_src" ] || continue
+            set -- "$@" "$_src"
+        done <<EOF
 $(_embedded_srcs)
 EOF
+    fi
+
+    # Optional caller-supplied source list file (combined with or replacing the demo list).
+    _srcs_file_args=""
+    if [ -n "${CRA_SBOM_SRCS_FILE:-}" ]; then
+        if [ ! -f "$CRA_SBOM_SRCS_FILE" ]; then
+            echo "ERROR: CRA_SBOM_SRCS_FILE=$CRA_SBOM_SRCS_FILE not found." >&2
+            exit 1
+        fi
+        _srcs_file_args="--srcs-file $CRA_SBOM_SRCS_FILE"
+    fi
 
     # Optional commercial license override (LicenseRef-wolfSSL-Commercial etc).
     # A LicenseRef-* override must be accompanied by --license-text (validated
     # up front above); a stock SPDX id needs no text.
+    # Append the --srcs positional args last; argparse stops --srcs consumption
+    # at the next -- option, so --cdx-out / --spdx-out end the list cleanly.
     set -- "$@" --cdx-out "$CDX_OUT" --spdx-out "$SPDX_OUT"
     if [ -n "${CRA_LICENSE_OVERRIDE:-}" ]; then
         set -- "$@" --license-override "$CRA_LICENSE_OVERRIDE"
@@ -147,6 +224,7 @@ EOF
 
     if _py=$(_python_with_pcpp); then
         echo "       Using $_py (pcpp) for --user-settings"
+        # shellcheck disable=SC2086
         "$_py" "$GEN" \
             --name wolfssl --version "$VERSION" \
             --license-file "$WOLFSSL_DIR/LICENSING" \
@@ -154,6 +232,7 @@ EOF
             --user-settings-include "$WOLFSSL_DIR" \
             --user-settings-include "$KIT_DIR" \
             --user-settings-define WOLFSSL_USER_SETTINGS \
+            ${_srcs_file_args} \
             --srcs "$@"
         return 0
     fi
@@ -187,11 +266,64 @@ EOF
 
     PYTHON=python3
     command -v python3 >/dev/null 2>&1 || PYTHON=python
+    # shellcheck disable=SC2086
     "$PYTHON" "$GEN" \
         --name wolfssl --version "$VERSION" \
         --license-file "$WOLFSSL_DIR/LICENSING" \
         --options-h "$DEFINES_H" \
+        ${_srcs_file_args} \
         --srcs "$@"
+}
+
+_run_cmake() {
+    echo "==> cmake path: cmake --build --target sbom"
+    if [ -z "${WOLFSSL_BUILD_DIR:-}" ]; then
+        echo "ERROR: WOLFSSL_BUILD_DIR is not set." >&2
+        echo "       Set it to your cmake out-of-source build directory." >&2
+        echo "       Example: cmake -B build && WOLFSSL_BUILD_DIR=\$PWD/build $0" >&2
+        exit 1
+    fi
+    if [ ! -d "$WOLFSSL_BUILD_DIR" ]; then
+        echo "ERROR: WOLFSSL_BUILD_DIR=$WOLFSSL_BUILD_DIR is not a directory." >&2
+        exit 1
+    fi
+    if ! command -v cmake >/dev/null 2>&1; then
+        echo "ERROR: cmake not found in PATH." >&2
+        exit 1
+    fi
+
+    # Detect version from cmake cache so we can find the output files.
+    _cmake_ver=$(cmake -L -N "$WOLFSSL_BUILD_DIR" 2>/dev/null \
+        | sed -n 's/.*PROJECT_VERSION:STATIC=\(.*\)/\1/p' \
+        | head -1)
+    if [ -z "$_cmake_ver" ]; then
+        echo "WARNING: could not detect PROJECT_VERSION from cmake cache; using kit VERSION=$VERSION" >&2
+        _cmake_ver="$VERSION"
+    fi
+    if [ "$_cmake_ver" != "$VERSION" ]; then
+        echo "ERROR: cmake build has wolfSSL $_cmake_ver but the kit is pinned to $VERSION." >&2
+        echo "       Update cra-kit/VERSION or reconfigure cmake against wolfSSL $VERSION." >&2
+        exit 1
+    fi
+
+    cmake --build "$WOLFSSL_BUILD_DIR" --target sbom
+
+    _cdx_src="$WOLFSSL_BUILD_DIR/wolfssl-${VERSION}.cdx.json"
+    _spdx_src="$WOLFSSL_BUILD_DIR/wolfssl-${VERSION}.spdx.json"
+    _tv_src="$WOLFSSL_BUILD_DIR/wolfssl-${VERSION}.spdx"
+    for _f in "$_cdx_src" "$_spdx_src"; do
+        if [ ! -f "$_f" ]; then
+            echo "ERROR: expected cmake sbom output not found: $_f" >&2
+            echo "       The sbom target may have failed; check cmake build output above." >&2
+            exit 1
+        fi
+    done
+
+    cp -f "$_cdx_src"  "$CDX_OUT"
+    cp -f "$_spdx_src" "$SPDX_OUT"
+    if [ -f "$_tv_src" ]; then
+        cp -f "$_tv_src" "$OUT_DIR/"
+    fi
 }
 
 _run_autotools() {
@@ -237,8 +369,12 @@ MODE=${CRA_SBOM_MODE:-}
 case "$MODE" in
     embedded) _run_embedded ;;
     autotools) _run_autotools ;;
+    cmake) _run_cmake ;;
     "")
-        if [ -f "$WOLFSSL_DIR/Makefile" ] && [ -f "$WOLFSSL_DIR/configure" ]; then
+        if [ -n "${WOLFSSL_BUILD_DIR:-}" ] && [ -d "${WOLFSSL_BUILD_DIR}" ]; then
+            MODE=cmake
+            _run_cmake
+        elif [ -f "$WOLFSSL_DIR/Makefile" ] && [ -f "$WOLFSSL_DIR/configure" ]; then
             MODE=autotools
             _run_autotools
         else
@@ -247,7 +383,7 @@ case "$MODE" in
         fi
         ;;
     *)
-        echo "ERROR: CRA_SBOM_MODE must be 'autotools' or 'embedded', not '$MODE'" >&2
+        echo "ERROR: CRA_SBOM_MODE must be 'autotools', 'cmake', or 'embedded', not '$MODE'" >&2
         exit 1
         ;;
 esac
@@ -260,12 +396,14 @@ esac
 # wolfssl:sbom:demo property so a downstream auditor cannot mistake them for
 # production-complete SBOMs.
 if ! CDX_OUT="$CDX_OUT" SPDX_OUT="$SPDX_OUT" CRA_SBOM_MODE_FINAL="$MODE" \
+   CRA_SBOM_SRCS_ONLY_FROM_FILE="${CRA_SBOM_SRCS_ONLY_FROM_FILE:-}" \
 python3 <<'PY'
 import json, os, pathlib
 
 cdx = pathlib.Path(os.environ["CDX_OUT"])
 spdx = pathlib.Path(os.environ["SPDX_OUT"])
-demo = os.environ.get("CRA_SBOM_MODE_FINAL") == "embedded"
+demo = os.environ.get("CRA_SBOM_MODE_FINAL") == "embedded" and \
+       os.environ.get("CRA_SBOM_SRCS_ONLY_FROM_FILE") != "true"
 
 GENERIC = "pkg:generic/wolfssl@"
 GITHUB = "pkg:github/wolfSSL/wolfssl@v"
