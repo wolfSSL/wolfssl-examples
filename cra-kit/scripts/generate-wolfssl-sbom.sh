@@ -214,6 +214,9 @@ EOF
     # up front above); a stock SPDX id needs no text.
     # Append the --srcs positional args last; argparse stops --srcs consumption
     # at the next -- option, so --cdx-out / --spdx-out end the list cleanly.
+    # Capture whether positional srcs exist before output flags are appended.
+    _srcs_flag=""
+    [ $# -gt 0 ] && _srcs_flag="--srcs"
     set -- "$@" --cdx-out "$CDX_OUT" --spdx-out "$SPDX_OUT"
     if [ -n "${CRA_LICENSE_OVERRIDE:-}" ]; then
         set -- "$@" --license-override "$CRA_LICENSE_OVERRIDE"
@@ -233,7 +236,7 @@ EOF
             --user-settings-include "$KIT_DIR" \
             --user-settings-define WOLFSSL_USER_SETTINGS \
             ${_srcs_file_args} \
-            --srcs "$@"
+            ${_srcs_flag} "$@"
         return 0
     fi
 
@@ -272,7 +275,7 @@ EOF
         --license-file "$WOLFSSL_DIR/LICENSING" \
         --options-h "$DEFINES_H" \
         ${_srcs_file_args} \
-        --srcs "$@"
+        ${_srcs_flag} "$@"
 }
 
 _run_cmake() {
