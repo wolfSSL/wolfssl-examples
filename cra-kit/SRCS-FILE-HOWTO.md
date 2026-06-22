@@ -18,6 +18,11 @@ WOLFSSL_DIR=/path/to/wolfssl \
 only the paths in your file.  Omit it to merge your list with the kit's
 built-in 9-file demo list (keeps the `wolfssl:sbom:demo=true` watermark).
 
+Manual extraction is now optional for most build systems.  Set the right
+environment variable for your build system and the kit script extracts the
+source list automatically — no `CRA_SBOM_SRCS_FILE` needed.  See the
+relevant section below for the variable to set and any tool requirements.
+
 ---
 
 ## Custom Makefile
@@ -58,6 +63,22 @@ contains `wolfssl` and ends in `.c`.
 or compiled through recursive `$(MAKE) -C` sub-invocations that do not echo
 the final compile lines.  Use Option A in those cases.
 
+### Automatic extraction
+
+Set `CRA_SBOM_MAKEFILE_DIR` to the directory containing your project Makefile, then run the
+kit script with no `CRA_SBOM_SRCS_FILE`:
+
+```sh
+CRA_SBOM_MODE=embedded \
+CRA_SBOM_MAKEFILE_DIR=/path/to/your/project \
+WOLFSSL_DIR=/path/to/wolfssl \
+./scripts/generate-wolfssl-sbom.sh
+```
+
+The script tries the `print-wolfssl-srcs` target first; if that target does not exist, it
+falls back to `make -n` dry-run.  Either way the extracted list is used automatically —
+no manual `CRA_SBOM_SRCS_FILE` needed.
+
 ---
 
 ## CMake — `compile_commands.json`
@@ -86,6 +107,20 @@ The `grep -E` step restricts to `src/` and `wolfcrypt/src/` — without it,
 files you did not ship.
 
 **Requirements**: `jq` (`apt install jq` / `brew install jq`).
+
+### Automatic extraction
+
+Set `WOLFSSL_BUILD_DIR` to your cmake build directory.  The kit script detects
+`compile_commands.json` automatically and extracts wolfssl sources without manual steps:
+
+```sh
+CRA_SBOM_MODE=embedded \
+WOLFSSL_BUILD_DIR=/path/to/build \
+WOLFSSL_DIR=/path/to/wolfssl \
+./scripts/generate-wolfssl-sbom.sh
+```
+
+Requires `jq` on the host.
 
 ---
 
@@ -120,6 +155,20 @@ A typical wolfssl Zephyr build produces around 89 library sources
 
 **Requirements**: `jq` must be installed on the host running the extraction
 (not the target board).
+
+### Automatic extraction
+
+Same as CMake — set `WOLFSSL_BUILD_DIR` to the `west build` output directory:
+
+```sh
+CRA_SBOM_MODE=embedded \
+WOLFSSL_BUILD_DIR=/path/to/wolfssl-app/build \
+WOLFSSL_DIR=/path/to/wolfssl \
+./scripts/generate-wolfssl-sbom.sh
+```
+
+Requires `jq`.  The `compile_commands.json` must have been generated at cmake configure time
+(pass `-DCMAKE_EXPORT_COMPILE_COMMANDS=ON` to `west build`).
 
 ---
 
@@ -157,6 +206,21 @@ project directory.
 If wolfssl is added as a **local component** (placed manually in
 `components/wolfssl/` rather than managed), replace `managed_components/wolfssl__wolfssl`
 with `components/wolfssl` in the filter.
+
+### Automatic extraction
+
+Set `WOLFSSL_BUILD_DIR` to your project's `build/` directory:
+
+```sh
+CRA_SBOM_MODE=embedded \
+WOLFSSL_BUILD_DIR=/path/to/esp-idf-project/build \
+WOLFSSL_DIR=/path/to/wolfssl \
+./scripts/generate-wolfssl-sbom.sh
+```
+
+The script detects the ESP-IDF managed-component layout (`managed_components/wolfssl__wolfssl/`)
+automatically when `WOLFSSL_DIR` sources are not found under `WOLFSSL_BUILD_DIR` directly.
+Requires `jq`.
 
 ---
 
@@ -258,6 +322,22 @@ and search for `<RTE>`.  If present and `<component Cvendor="wolfSSL">` is
 inside it, you are using the CMSIS Pack (Option A).  If wolfssl `.c` files
 appear under `<Groups>` directly, use Option B.
 
+### Automatic extraction
+
+Set `CRA_SBOM_KEIL_PROJECT` to the path of your `.uvprojx` file:
+
+```sh
+CRA_SBOM_MODE=embedded \
+CRA_SBOM_KEIL_PROJECT=/path/to/MyProject.uvprojx \
+WOLFSSL_DIR=/path/to/wolfssl \
+./scripts/generate-wolfssl-sbom.sh
+```
+
+The script parses the project file and chooses Option A (CMSIS Pack) or Option B
+(explicit FilePath) automatically based on whether a `<component Cvendor="wolfSSL">` is
+present in the RTE block.  For CMSIS Pack mode the installed `.pdsc` must be present at
+`~/.arm/Packs/wolfSSL/wolfSSL/<version>/wolfSSL.pdsc`.  Requires `python3`.
+
 ---
 
 ## IAR Embedded Workbench (`.ewp`)
@@ -348,6 +428,19 @@ standard `wolfSSL-Lib.ewp` project.
 - Application-specific `.c` files (test runners, benchmark harness) will also
   appear; remove them from `wolfssl-srcs.txt` manually if they are not part
   of your shipped wolfssl build.
+
+### Automatic extraction
+
+Set `CRA_SBOM_IAR_PROJECT` to the path of your `.ewp` file:
+
+```sh
+CRA_SBOM_MODE=embedded \
+CRA_SBOM_IAR_PROJECT=/path/to/wolfSSL-Lib.ewp \
+WOLFSSL_DIR=/path/to/wolfssl \
+./scripts/generate-wolfssl-sbom.sh
+```
+
+The script resolves `$PROJ_DIR$` automatically.  Requires `python3`.
 
 ---
 
