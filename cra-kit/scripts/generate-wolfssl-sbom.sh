@@ -296,9 +296,9 @@ _run_cmake() {
     fi
 
     # Detect version from cmake cache so we can find the output files.
-    _cmake_ver=$(cmake -L -N "$WOLFSSL_BUILD_DIR" 2>/dev/null \
-        | sed -n 's/.*PROJECT_VERSION:STATIC=\(.*\)/\1/p' \
-        | head -1)
+    # cmake -L/-LA both omit :STATIC (internal) entries; grep the cache file directly.
+    _cmake_ver=$(grep -m1 '^CMAKE_PROJECT_VERSION:STATIC=' \
+        "$WOLFSSL_BUILD_DIR/CMakeCache.txt" 2>/dev/null | cut -d= -f2)
     if [ -z "$_cmake_ver" ]; then
         echo "WARNING: could not detect PROJECT_VERSION from cmake cache; using kit VERSION=$VERSION" >&2
         _cmake_ver="$VERSION"
