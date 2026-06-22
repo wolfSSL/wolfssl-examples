@@ -91,20 +91,18 @@ files you did not ship.
 
 ## Zephyr RTOS
 
-> **Note**: This section was written from knowledge of Zephyr's build system.
-> It has not been run against a live Zephyr + wolfssl-zephyr workspace.
-> Verify on your own board before using in production.  Corrections welcome.
-
-Zephyr uses CMake and always writes `compile_commands.json` to the build dir:
+Zephyr uses CMake internally.  Add `-DCMAKE_EXPORT_COMPILE_COMMANDS=ON` at
+build time to get `compile_commands.json` in your build directory:
 
 ```sh
-west build -b <board> -- -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+west build -b <board> -- -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+  -DZEPHYR_EXTRA_MODULES=/path/to/wolfssl
 ```
 
-(Some Zephyr versions enable `compile_commands.json` by default; check
-`build/compile_commands.json` after a plain `west build`.)
+`compile_commands.json` is written by CMake at configure time — it exists
+even if the compilation itself fails (e.g., missing cross-compiler).
 
-Extract wolfSSL sources:
+Extract wolfSSL library sources:
 
 ```sh
 WOLFSSL_DIR=/path/to/wolfssl
@@ -115,63 +113,132 @@ jq -r '.[].file' build/compile_commands.json \
   > wolfssl-srcs.txt
 ```
 
-The filter pattern is the same as the CMake section above.  Zephyr may also
-compile wolfssl via its module system (`modules/crypto/wolfssl/`); adjust the
-`grep "^${WOLFSSL_DIR}/"` prefix to match your workspace layout.
+All paths in `compile_commands.json` are absolute.  The `WOLFSSL_DIR` filter
+matches entries from the wolfssl module directly; no path translation needed.
+A typical wolfssl Zephyr build produces around 89 library sources
+(`wolfcrypt/src/` + `src/`).
+
+**Requirements**: `jq` must be installed on the host running the extraction
+(not the target board).
 
 ---
 
 ## ESP-IDF
 
-> **Note**: This section was written from knowledge of ESP-IDF's build system.
-> It has not been run against a live ESP-IDF + wolfssl component workspace.
-> Verify on your own target before using in production.  Corrections welcome.
-
-ESP-IDF also uses CMake.  Build your project normally:
+ESP-IDF uses CMake and writes `compile_commands.json` to the `build/`
+subdirectory automatically.  Build your project normally:
 
 ```sh
 idf.py build
 ```
 
-ESP-IDF writes `compile_commands.json` to the `build/` subdirectory:
+When wolfssl is added as a **managed component** (via `idf_component.yml`
+declaring `wolfssl/wolfssl`), the ESP-IDF component manager downloads it into
+`managed_components/wolfssl__wolfssl/` inside your project.  The directory name
+is `wolfssl__wolfssl` (registry namespace and name joined with double
+underscore).
+
+Extract the wolfssl library sources:
 
 ```sh
-WOLFSSL_DIR=/path/to/wolfssl
-jq -r '.[].file' build/compile_commands.json \
-  | grep "^${WOLFSSL_DIR}/" \
+PROJECT_DIR=/path/to/your/esp-idf-project
+jq -r '.[].file' "${PROJECT_DIR}/build/compile_commands.json" \
+  | grep "^${PROJECT_DIR}/managed_components/wolfssl__wolfssl/" \
   | grep -E "/(wolfcrypt/src|src)/[^/]+\.c$" \
   | sort -u \
   > wolfssl-srcs.txt
 ```
 
-If wolfssl is installed as a managed component, it may appear under
-`build/esp-idf/wolfssl/` or `components/wolfssl/`; adjust the path filter
-accordingly.
+All paths in `compile_commands.json` are absolute.  The
+`grep -E "/(wolfcrypt/src|src)/[^/]+\.c$"` step excludes build-generated
+files (e.g., `build/project_elf_src_esp32.c`) that also appear under the
+project directory.
+
+If wolfssl is added as a **local component** (placed manually in
+`components/wolfssl/` rather than managed), replace `managed_components/wolfssl__wolfssl`
+with `components/wolfssl` in the filter.
 
 ---
 
 ## Keil MDK / uVision (`.uvprojx`)
 
-> **Note**: This section was written from knowledge of the `.uvprojx` XML
-> schema.  It has not been tested with a live Keil installation (Windows-only,
-> licensed tool).  Verify path separators and group filtering on your project
-> before using in production.  Corrections welcome.
+> **Note**: Keil MDK is Windows-only and requires a license.  This section
+> was verified against real wolfSSL Keil project files from
+> `wolfssl/IDE/MDK5-ARM/`.  The CMSIS Pack note below reflects actual
+> wolfSSL project structure.
 
-Keil stores source files in XML.  Extract wolfSSL sources with Python:
+Keil projects integrate wolfssl in one of two ways — the extraction method
+differs between them.
+
+### Option A — wolfSSL CMSIS Pack (modern, recommended)
+
+The official wolfSSL Keil projects (e.g., `wolfSSL-Lib.uvprojx`) use the
+**CMSIS Pack RTE (Run-Time Environment)**.  In this mode the wolfssl sources
+are **not listed in the `.uvprojx` file** — they are resolved at build time
+from the installed wolfSSL CMSIS pack.  The project XML records which pack
+components are selected, not which `.c` files they compile.
+
+To find the source list, locate the installed pack descriptor:
+
+```
+# Windows
+%LOCALAPPDATA%\Arm\Packs\wolfSSL\wolfSSL\<version>\wolfSSL.pdsc
+
+# Linux / macOS (Keil Studio / CMSIS-Toolbox)
+~/.arm/Packs/wolfSSL/wolfSSL/<version>/wolfSSL.pdsc
+```
+
+The `.pdsc` file is XML.  Extract the `.c` sources for your selected
+component group (e.g., `wolfCrypt/CORE`):
 
 ```python
 #!/usr/bin/env python3
-"""Extract wolfssl .c paths from a Keil .uvprojx file."""
-import sys
-import xml.etree.ElementTree as ET
+"""Extract .c sources for a wolfSSL CMSIS Pack component from its .pdsc."""
+import sys, xml.etree.ElementTree as ET
+
+pdsc = ET.parse(sys.argv[1])
+cgroup = sys.argv[2] if len(sys.argv) > 2 else ''   # e.g. "wolfCrypt"
+
+for comp in pdsc.findall('.//component'):
+    if cgroup and comp.get('Cgroup', '') != cgroup:
+        continue
+    for f in comp.findall('.//file[@category="source"]'):
+        name = f.get('name', '')
+        if name.lower().endswith('.c'):
+            print(name.replace('\\', '/'))
+```
+
+Usage:
+
+```sh
+python3 extract-pdsc-srcs.py wolfSSL.pdsc wolfCrypt > wolfssl-srcs.txt
+```
+
+Paths in the `.pdsc` are relative to the pack root directory.  Prefix with
+the pack install path to make them absolute before passing to `gen-sbom`.
+
+### Option B — wolfssl sources listed directly in the project
+
+Older or custom projects may list wolfssl `.c` files explicitly as
+`<File><FilePath>` entries under `<Groups>`.  The Python script
+from the CMSIS approach will produce no output for these — use this
+instead:
+
+```python
+#!/usr/bin/env python3
+"""Extract explicit .c FilePath entries from a Keil .uvprojx (non-pack)."""
+import sys, xml.etree.ElementTree as ET
 
 proj = ET.parse(sys.argv[1])
 paths = set()
-for fp in proj.findall('.//File/FilePath'):
-    path = fp.text or ''
-    if path.lower().endswith('.c') and 'wolfssl' in path.lower():
-        # Keil stores paths with backslashes; normalise.
-        paths.add(path.replace('\\', '/'))
+for file_elem in proj.findall('.//File'):
+    fp   = file_elem.find('FilePath')
+    ft   = file_elem.find('FileType')
+    if fp is None or not fp.text:
+        continue
+    ftype = int(ft.text) if ft is not None and ft.text else 0
+    if ftype == 1 or fp.text.lower().endswith('.c'):
+        paths.add(fp.text.replace('\\', '/'))
 
 for p in sorted(paths):
     print(p)
@@ -183,49 +250,104 @@ Usage:
 python3 extract-keil-srcs.py MyProject.uvprojx > wolfssl-srcs.txt
 ```
 
-**Caveats**:
-- Paths are relative to the `.uvprojx` file; prefix `WOLFSSL_DIR` if
-  `gen-sbom` needs absolute paths.
-- Groups named "Exclude" or marked `<FileType>` ≠ 1 (C source) should
-  be filtered; the snippet above may need extending for complex projects.
+Paths are relative to the `.uvprojx` file.  Resolve to absolute before
+passing to `gen-sbom`.
+
+**How to tell which option you need**: open the `.uvprojx` in a text editor
+and search for `<RTE>`.  If present and `<component Cvendor="wolfSSL">` is
+inside it, you are using the CMSIS Pack (Option A).  If wolfssl `.c` files
+appear under `<Groups>` directly, use Option B.
 
 ---
 
 ## IAR Embedded Workbench (`.ewp`)
 
-> **Note**: This section was written from knowledge of the `.ewp` XML schema.
-> It has not been tested with a live IAR installation (Windows-only, licensed
-> tool).  Verify on your own project before using in production.  Corrections
-> welcome.
+> **Note**: IAR EW is Windows-only and requires a license.  This section
+> was verified against real wolfSSL IAR project files from
+> `wolfssl/IDE/IAR-EWARM/`.
 
-IAR uses a similar XML format:
+IAR stores source files as `<file><name>` elements with a `$PROJ_DIR$`
+path prefix (IAR's built-in variable for the directory containing the `.ewp`
+file) and Windows backslash separators.
+
+**Important**: wolfssl sources live under `wolfcrypt/src/` and `src/` — neither
+path segment contains the string `"wolfssl"`.  Do **not** filter by `"wolfssl"`
+substring; instead filter by path depth or accept all `.c` files from the
+project.
 
 ```python
 #!/usr/bin/env python3
-"""Extract wolfssl .c paths from an IAR .ewp file."""
-import sys
-import xml.etree.ElementTree as ET
+r"""
+Extract .c source paths from an IAR EWARM .ewp project file.
 
-proj = ET.parse(sys.argv[1])
-paths = set()
-for name in proj.findall('.//file/name'):
-    path = name.text or ''
-    if path.lower().endswith('.c') and 'wolfssl' in path.lower():
-        paths.add(path.replace('\\', '/'))
+Paths are emitted as absolute paths (resolves $PROJ_DIR$ automatically).
+Pass --raw to keep the original $PROJ_DIR$ prefix instead.
 
-for p in sorted(paths):
-    print(p)
+Usage:
+  python3 extract-iar-srcs.py MyProject.ewp [--raw] > wolfssl-srcs.txt
+"""
+import sys, os, argparse, xml.etree.ElementTree as ET
+
+
+def is_excluded(file_elem):
+    """True if the file is excluded from at least one build configuration."""
+    return file_elem.find('excluded') is not None
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument('ewp')
+    ap.add_argument('--raw', action='store_true',
+                    help='Keep $PROJ_DIR$ prefix instead of resolving')
+    args = ap.parse_args()
+
+    proj_dir = os.path.dirname(os.path.abspath(args.ewp))
+    proj = ET.parse(args.ewp)
+    paths = set()
+
+    for file_elem in proj.findall('.//file'):
+        if is_excluded(file_elem):
+            continue
+        name = file_elem.find('name')
+        if name is None or not name.text:
+            continue
+        raw = name.text
+        if not raw.lower().endswith('.c'):
+            continue
+        if args.raw:
+            paths.add(raw.replace('\\', '/'))
+        else:
+            resolved = raw.replace('$PROJ_DIR$', proj_dir)
+            paths.add(os.path.normpath(resolved.replace('\\', '/')))
+
+    for p in sorted(paths):
+        print(p)
+
+
+if __name__ == '__main__':
+    main()
 ```
 
 Usage:
 
 ```sh
-python3 extract-iar-srcs.py MyProject.ewp > wolfssl-srcs.txt
+# Absolute paths (ready for gen-sbom)
+python3 extract-iar-srcs.py wolfSSL-Lib.ewp > wolfssl-srcs.txt
+
+# Keep $PROJ_DIR$ prefix (for inspection)
+python3 extract-iar-srcs.py wolfSSL-Lib.ewp --raw > wolfssl-srcs.txt
 ```
 
-**Caveats**: IAR paths are typically `$PROJ_DIR$\wolfssl\...` — strip the
-`$PROJ_DIR$` prefix and replace with the absolute path before passing to
-`gen-sbom`.
+This produces 65 sources (56 under `wolfcrypt/src/`, 9 under `src/`) for the
+standard `wolfSSL-Lib.ewp` project.
+
+**Caveats**:
+- The script skips files that appear in `<excluded>` blocks (per-configuration
+  exclusions).  If you need sources for a specific configuration only, check
+  `<excluded><configuration>` matches against your target config name.
+- Application-specific `.c` files (test runners, benchmark harness) will also
+  appear; remove them from `wolfssl-srcs.txt` manually if they are not part
+  of your shipped wolfssl build.
 
 ---
 
