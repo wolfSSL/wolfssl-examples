@@ -170,8 +170,8 @@ _auto_extract_srcs() {
         fi
         _auto=$(mktemp "${TMPDIR:-/tmp}/wolfssl-auto-srcs.XXXXXX")
         _auto_tempfiles="${_auto_tempfiles:-} $_auto"
-        if make -C "$CRA_SBOM_MAKEFILE_DIR" -n print-wolfssl-srcs >/dev/null 2>&1; then
-            make -C "$CRA_SBOM_MAKEFILE_DIR" print-wolfssl-srcs 2>/dev/null \
+        if make --no-print-directory -C "$CRA_SBOM_MAKEFILE_DIR" -n print-wolfssl-srcs >/dev/null 2>&1; then
+            make --no-print-directory -C "$CRA_SBOM_MAKEFILE_DIR" print-wolfssl-srcs 2>/dev/null \
                 | sort -u > "$_auto"
         fi
         if [ ! -s "$_auto" ]; then
@@ -203,16 +203,18 @@ _auto_extract_srcs() {
         fi
         _auto=$(mktemp "${TMPDIR:-/tmp}/wolfssl-auto-srcs.XXXXXX")
         _auto_tempfiles="${_auto_tempfiles:-} $_auto"
-        python3 - "$CRA_SBOM_KEIL_PROJECT" > "$_auto" <<'PYEOF'
+        python3 - "$CRA_SBOM_KEIL_PROJECT" "$WOLFSSL_DIR" > "$_auto" <<'PYEOF'
 import sys, os, glob, xml.etree.ElementTree as ET
 
 proj_file = sys.argv[1]
+wolfssl_dir = sys.argv[2] if len(sys.argv) > 2 else ''
 proj_dir = os.path.dirname(os.path.abspath(proj_file))
 proj = ET.parse(proj_file)
 paths = set()
 
 rte = proj.find('.//RTE')
 if rte is not None and rte.find('.//component[@Cvendor="wolfSSL"]') is not None:
+    # CMSIS Pack RTE: sources come from the installed pack .pdsc
     pdsc_candidates = sorted(glob.glob(
         os.path.expanduser('~/.arm/Packs/wolfSSL/wolfSSL/*/wolfSSL.pdsc')
     ))
@@ -229,6 +231,15 @@ if rte is not None and rte.find('.//component[@Cvendor="wolfSSL"]') is not None:
             name = f.get('name', '')
             if name.lower().endswith('.c'):
                 paths.add(os.path.normpath(os.path.join(pack_dir, name.replace('\\', '/'))))
+    elif wolfssl_dir and os.path.isdir(wolfssl_dir):
+        # Pack not installed locally; enumerate sources directly from WOLFSSL_DIR.
+        # The CMSIS Pack contains the full wolfssl library (wolfcrypt/src/ + src/).
+        for subdir in ('wolfcrypt/src', 'src'):
+            d = os.path.join(wolfssl_dir, subdir)
+            if os.path.isdir(d):
+                for name in os.listdir(d):
+                    if name.endswith('.c'):
+                        paths.add(os.path.join(d, name))
 else:
     for file_elem in proj.findall('.//File'):
         fp = file_elem.find('FilePath')
