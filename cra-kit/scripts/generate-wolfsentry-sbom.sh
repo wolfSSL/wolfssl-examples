@@ -11,6 +11,10 @@
 # Optional variables:
 #   CRA_SBOM_OUT_DIR=<path>             (default: $KIT_DIR/auditor-packet/wolfsentry-component)
 #   CC=<compiler>                       (default: cc; for -dM -E options dump)
+#   CRA_WOLFSENTRY_IP_STACK=wolfip|lwip|none
+#                              (default: none; selects which optional IP-stack glue
+#                               to include; wolfip/ and lwip/ have identical basenames
+#                               so exactly one can be included per SBOM)
 set -eu
 
 SCRIPT_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
@@ -19,6 +23,18 @@ KIT_DIR=$(dirname "$SCRIPT_DIR")
 # shellcheck disable=SC2015
 WOLFSENTRY_DIR=${WOLFSENTRY_DIR:-$(cd "$KIT_DIR/../../wolfsentry" 2>/dev/null && pwd || true)}
 OUT_DIR=${CRA_SBOM_OUT_DIR:-"$KIT_DIR/auditor-packet/wolfsentry-component"}
+
+# CRA_WOLFSENTRY_IP_STACK selects which optional IP stack glue is included.
+# Values: wolfip, lwip, none (default: none).
+# Why default none: wolfip/ and lwip/ both contain packet_filter_glue.c;
+# including both breaks gen-sbom's unique-basename requirement and would
+# misrepresent the firmware (only one is compiled per build).
+CRA_WOLFSENTRY_IP_STACK="${CRA_WOLFSENTRY_IP_STACK:-none}"
+
+case "$CRA_WOLFSENTRY_IP_STACK" in
+    wolfip|lwip|none) ;;
+    *) echo "ERROR: CRA_WOLFSENTRY_IP_STACK must be wolfip, lwip, or none (got: $CRA_WOLFSENTRY_IP_STACK)" >&2; exit 1 ;;
+esac
 
 if [ -z "${WOLFSENTRY_DIR:-}" ] || [ ! -d "$WOLFSENTRY_DIR" ]; then
     echo "ERROR: wolfSentry source not found." >&2
@@ -69,13 +85,27 @@ echo "gen-sbom:        $GEN_SBOM"
 echo "Outputs:         $CDX_OUT"
 echo "                 $SPDX_OUT"
 
-# Enumerate all .c sources from $WOLFSENTRY_DIR/src/ (the directory the Makefile
-# compiles from; conditional sources like json/ and lwip/ are subdirs of src/).
-SRCS=$(find "$WOLFSENTRY_DIR/src" -name "*.c" | sort)
+# Core sources: all .c files except the two IP stack subdirs (which have
+# duplicate basenames and must be selected individually via CRA_WOLFSENTRY_IP_STACK).
+SRCS=$(find "$WOLFSENTRY_DIR/src" -name "*.c" \
+    ! -path "*/wolfip/*" \
+    ! -path "*/lwip/*" \
+    | sort)
 if [ -z "$SRCS" ]; then
     echo "ERROR: no .c files found under $WOLFSENTRY_DIR/src/" >&2
     exit 1
 fi
+
+# Optionally add the selected IP stack.
+if [ "$CRA_WOLFSENTRY_IP_STACK" != "none" ]; then
+    SRCS="$SRCS
+$(find "$WOLFSENTRY_DIR/src/$CRA_WOLFSENTRY_IP_STACK" -name "*.c" | sort)"
+    echo "    IP stack: $CRA_WOLFSENTRY_IP_STACK"
+else
+    echo "    NOTE: CRA_WOLFSENTRY_IP_STACK not set; IP glue excluded from SBOM."
+    echo "          Set CRA_WOLFSENTRY_IP_STACK=wolfip or lwip to include it."
+fi
+
 _n=$(echo "$SRCS" | wc -l | tr -d ' ')
 echo "Sources:         $_n .c files from $WOLFSENTRY_DIR/src/"
 
