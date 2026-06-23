@@ -70,8 +70,8 @@ WOLFBOOT_EXT_FLASH=${WOLFBOOT_EXT_FLASH:-0}
 
 OUT_DIR=${CRA_SBOM_OUT_DIR:-"$KIT_DIR/auditor-packet/wolfboot-component"}
 
-# gen-sbom lives inside the wolfssl submodule under wolfBoot.
-GEN_SBOM="$WOLFBOOT_DIR/lib/wolfssl/scripts/gen-sbom"
+# gen-sbom lives inside the wolfssl submodule under wolfBoot; GEN_SBOM env var overrides.
+GEN_SBOM="${GEN_SBOM:-$WOLFBOOT_DIR/lib/wolfssl/scripts/gen-sbom}"
 if [ ! -f "$GEN_SBOM" ]; then
     echo "ERROR: gen-sbom not found at $GEN_SBOM" >&2
     echo "  Ensure the wolfssl submodule is initialized:" >&2
