@@ -2,9 +2,11 @@
 # Generate wolfTPM component SBOMs (autotools make sbom, cmake sbom, or direct gen-sbom).
 #
 # Mode selection:
-#   CRA_SBOM_MODE=autotools|cmake
+#   CRA_SBOM_MODE=autotools|cmake|embedded
 #     autotools (default when configure+Makefile exist): runs `make sbom`
 #     cmake: auto-extracts sources from compile_commands.json and runs gen-sbom directly
+#     embedded: hashes the wolfTPM core sources + one platform HAL file directly
+#               (for firmware builds that compile wolfTPM in, with no .so to hash)
 #
 # Required variables:
 #   WOLFSSL_DIR=path/to/wolfssl         (source tree root; provides gen-sbom)
@@ -13,6 +15,17 @@
 # Mode-specific variables:
 #   WOLFTPM_BUILD_DIR=path/to/build     (cmake mode: path to cmake build directory;
 #                                         triggers compile_commands.json auto-extraction)
+#   CRA_TPM_HAL=st|espressif|microchip|atmel|zephyr|xilinx|uboot|barebox|qnx|mmio|infineon
+#                                       (embedded mode: selects the single platform HAL
+#                                         file hal/tpm_io_${CRA_TPM_HAL}.c. Required for a
+#                                         complete embedded SBOM; if unset, no HAL file is
+#                                         hashed and a warning is emitted.)
+#   CRA_SBOM_SRCS_FILE=path/to/srcs.txt (embedded mode: explicit source list, one .c path
+#                                         per line; takes priority over all auto-detection.
+#                                         The caller owns correctness of this list.)
+#   CRA_TPM_OPTIONS_H=path/to/options.h (embedded mode: flat #define build-config header for
+#                                         feature enumeration; defaults to
+#                                         $WOLFTPM_DIR/wolftpm/options.h)
 #
 # Optional variables:
 #   CRA_LICENSE_OVERRIDE=<SPDX-id>      (e.g. LicenseRef-wolfTPM-Commercial)
@@ -204,10 +217,157 @@ _run_cmake() {
     "$PYTHON3" "$GEN" "$@"
 }
 
+_run_embedded() {
+    echo "==> Embedded path: hash wolfTPM core sources + one platform HAL"
+
+    GEN_PY=$(command -v python3 2>/dev/null || command -v python 2>/dev/null || true)
+    if [ -z "$GEN_PY" ]; then
+        echo "ERROR: python3 not found in PATH (needed to run gen-sbom)." >&2
+        exit 1
+    fi
+
+    if [ ! -d "$WOLFTPM_DIR/src" ]; then
+        echo "ERROR: $WOLFTPM_DIR/src not found; not a wolfTPM source tree?" >&2
+        exit 1
+    fi
+
+    # gen-sbom needs a build-config header to enumerate enabled features for the
+    # SBOM (it requires exactly one of --options-h / --user-settings). For wolfTPM
+    # the committed wolftpm/options.h is a flat #define file in the same shape the
+    # autotools `make sbom` path feeds via --options-h, so reuse it; callers whose
+    # firmware uses a different config can point CRA_TPM_OPTIONS_H at their header.
+    OPTIONS_H=${CRA_TPM_OPTIONS_H:-"$WOLFTPM_DIR/wolftpm/options.h"}
+    if [ ! -f "$OPTIONS_H" ]; then
+        echo "ERROR: build-config header not found: $OPTIONS_H" >&2
+        echo "       Run ./configure in WOLFTPM_DIR to generate wolftpm/options.h," >&2
+        echo "       or set CRA_TPM_OPTIONS_H to your firmware's flat #define header." >&2
+        exit 1
+    fi
+
+    # Source list, one .c path per line.
+    _srcs=$(mktemp "${TMPDIR:-/tmp}/wolftpm-embedded-srcs.XXXXXX") || {
+        echo "ERROR: mktemp failed for the embedded source list." >&2
+        exit 1
+    }
+    _auto_tempfiles="${_auto_tempfiles:-} $_srcs"
+
+    # CRA_SBOM_SRCS_FILE takes priority over all auto-detection: when the caller
+    # supplies an explicit list they have already reconciled it against their exact
+    # firmware link line (core + the correct HAL + any tpm2_* they actually build),
+    # so second-guessing it here could only drop or add files they did not intend.
+    if [ -n "${CRA_SBOM_SRCS_FILE:-}" ]; then
+        if [ ! -f "$CRA_SBOM_SRCS_FILE" ]; then
+            echo "ERROR: CRA_SBOM_SRCS_FILE=$CRA_SBOM_SRCS_FILE not found." >&2
+            exit 1
+        fi
+        echo "    Using caller-supplied source list: $CRA_SBOM_SRCS_FILE"
+        cp -f "$CRA_SBOM_SRCS_FILE" "$_srcs" || {
+            echo "ERROR: could not read CRA_SBOM_SRCS_FILE." >&2
+            exit 1
+        }
+    else
+        # Core sources: every src/tpm2*.c EXCEPT the host-only transports below.
+        # The excluded files (Linux /dev/tpm0, Windows TBS, swtpm simulator) target
+        # a full OS and will not compile or link on a bare-metal/RTOS firmware build,
+        # so including them would misrepresent what is actually in the firmware.
+        for _f in "$WOLFTPM_DIR"/src/tpm2*.c; do
+            [ -f "$_f" ] || continue
+            case "$(basename "$_f")" in
+                tpm2_linux.c|tpm2_winapi.c|tpm2_swtpm.c) continue ;;
+            esac
+            echo "$_f" >> "$_srcs" || {
+                echo "ERROR: failed writing core source to list." >&2
+                exit 1
+            }
+        done
+
+        # Dispatcher: always part of the HAL layer.
+        if [ -f "$WOLFTPM_DIR/hal/tpm_io.c" ]; then
+            echo "$WOLFTPM_DIR/hal/tpm_io.c" >> "$_srcs" || {
+                echo "ERROR: failed writing dispatcher to list." >&2
+                exit 1
+            }
+        fi
+
+        # Platform HAL: exactly one tpm_io_<plat>.c belongs in a given firmware.
+        # Which one is the caller's responsibility — only they know the target board.
+        # Picking the wrong HAL (or all of them) would produce an SBOM that does not
+        # match the shipped firmware, so we hash exactly the one named by CRA_TPM_HAL
+        # and refuse to guess: an unset CRA_TPM_HAL yields a warning and no HAL file.
+        if [ -n "${CRA_TPM_HAL:-}" ]; then
+            _hal="$WOLFTPM_DIR/hal/tpm_io_${CRA_TPM_HAL}.c"
+            if [ ! -f "$_hal" ]; then
+                echo "ERROR: CRA_TPM_HAL=$CRA_TPM_HAL but $_hal does not exist." >&2
+                echo "       Available HALs:" >&2
+                for _h in "$WOLFTPM_DIR"/hal/tpm_io_*.c; do
+                    [ -f "$_h" ] || continue
+                    _b=$(basename "$_h"); _b=${_b#tpm_io_}; _b=${_b%.c}
+                    echo "         $_b" >&2
+                done
+                exit 1
+            fi
+            echo "$_hal" >> "$_srcs" || {
+                echo "ERROR: failed writing HAL source to list." >&2
+                exit 1
+            }
+            echo "    HAL: tpm_io_${CRA_TPM_HAL}.c"
+        else
+            echo "WARNING: CRA_TPM_HAL not set; HAL source excluded from SBOM. Set CRA_TPM_HAL=st|espressif|..." >&2
+        fi
+    fi
+
+    if [ ! -s "$_srcs" ]; then
+        echo "ERROR: no source files collected for the embedded SBOM." >&2
+        exit 1
+    fi
+
+    # wolfcrypt/wolfssl sources are intentionally NOT hashed here: they are a
+    # separate component covered by generate-wolfssl-sbom.sh (embedded mode), and
+    # the wolfSSL SBOM is referenced as a dependency rather than duplicated.
+
+    _n=$(wc -l < "$_srcs" | tr -d ' ')
+    echo "NOTE: hashed $_n source file(s)"
+
+    # gen-sbom takes the source list as a positional --srcs vector (exactly one
+    # of --lib / --srcs is accepted). Build the option vector first, then append
+    # the collected paths after --srcs so they bind as that argument's nargs list.
+    set -- \
+        --name wolftpm \
+        --version "$VERSION" \
+        --supplier "wolfSSL Inc." \
+        --license-file "$WOLFTPM_DIR/LICENSE" \
+        --options-h "$OPTIONS_H" \
+        --cdx-out "$CDX_OUT" \
+        --spdx-out "$SPDX_OUT"
+    if [ -n "${CRA_LICENSE_OVERRIDE:-}" ]; then
+        set -- "$@" --license-override "$CRA_LICENSE_OVERRIDE"
+        if [ -n "${CRA_LICENSE_TEXT:-}" ]; then
+            set -- "$@" --license-text "$CRA_LICENSE_TEXT"
+        fi
+    fi
+    set -- "$@" --srcs
+    while IFS= read -r _src; do
+        [ -n "$_src" ] || continue
+        set -- "$@" "$_src"
+    done < "$_srcs"
+    "$GEN_PY" "$GEN" "$@" || {
+        echo "ERROR: gen-sbom failed in embedded mode." >&2
+        exit 1
+    }
+
+    for _out in "$CDX_OUT" "$SPDX_OUT"; do
+        if [ ! -s "$_out" ]; then
+            echo "ERROR: expected output $_out is missing or empty." >&2
+            exit 1
+        fi
+    done
+}
+
 MODE=${CRA_SBOM_MODE:-}
 case "$MODE" in
     autotools) _run_autotools ;;
     cmake) _run_cmake ;;
+    embedded) _run_embedded ;;
     "")
         if [ -n "${WOLFTPM_BUILD_DIR:-}" ] && [ -d "${WOLFTPM_BUILD_DIR}" ]; then
             MODE=cmake
@@ -224,7 +384,7 @@ case "$MODE" in
         fi
         ;;
     *)
-        echo "ERROR: CRA_SBOM_MODE must be 'autotools' or 'cmake', not '$MODE'" >&2
+        echo "ERROR: CRA_SBOM_MODE must be 'autotools', 'cmake', or 'embedded', not '$MODE'" >&2
         exit 1
         ;;
 esac
