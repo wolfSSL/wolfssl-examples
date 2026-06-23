@@ -16,8 +16,12 @@
 # Embedded-mode variables (CRA_SBOM_MODE=embedded):
 #   CRA_SBOM_SRCS_FILE=path/to/srcs.txt (explicit .c list, one path per line;
 #                                         used verbatim — highest priority)
+#   CRA_SBOM_KEIL_PROJECT=path/to/x.uvprojx (parse Keil project for .c sources)
+#   CRA_SBOM_IAR_PROJECT=path/to/x.ewp   (parse IAR project for .c sources)
+#   CRA_SBOM_MAKEFILE_DIR=path/to/dir    (run `make -n` to extract .c sources)
 #   CRA_SBOM_BUILD_DIR=path/to/build    (CMake/ESP-IDF build dir; sources are
 #                                         read from its compile_commands.json)
+#   CRA_SBOM_NO_HASH — not yet supported; blocked on SBOM-cgz
 #
 # Optional variables:
 #   CRA_LICENSE_OVERRIDE=<SPDX-id>  (e.g. LicenseRef-wolfSSL-Commercial)
@@ -31,6 +35,9 @@ set -eu
 
 SCRIPT_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 KIT_DIR=$(dirname "$SCRIPT_DIR")
+
+# Shared source-extraction helper (Keil/IAR/Makefile/compile_commands.json).
+. "$SCRIPT_DIR/_cra-sbom-extract.sh"
 
 # shellcheck disable=SC2015
 WOLFSSL_DIR=${WOLFSSL_DIR:-$(cd "$KIT_DIR/../../wolfssl" 2>/dev/null && pwd || true)}
@@ -175,14 +182,6 @@ _run_embedded() {
         exit 1
     fi
 
-    # Resolve the source list. Priority order:
-    #   1. CRA_SBOM_SRCS_FILE  — the caller knows their exact build better than any
-    #      heuristic, so an explicit list always wins and is used verbatim.
-    #   2. compile_commands.json under CRA_SBOM_BUILD_DIR — ESP-IDF and other
-    #      CMake-based builds emit this, the most common embedded path with
-    #      build-system support; filter it to WOLFMQTT_DIR sources only.
-    #   3. Default glob of src/mqtt_*.c — documented fallback for Arduino and
-    #      bare-metal builds that produce no compile_commands.json.
     SRCS_LIST=$(mktemp "${TMPDIR:-/tmp}/wolfmqtt-srcs.XXXXXX") || {
         echo "ERROR: mktemp failed for the source-list temp file." >&2
         exit 1
@@ -196,46 +195,29 @@ _run_embedded() {
         echo "ERROR: mktemp failed for the empty options temp file." >&2
         exit 1
     }
-    trap 'rm -f "$SRCS_LIST" "$EMPTY_OPTS"' EXIT
+    # _cra_auto_tempfiles collects any temp files the shared extractor creates;
+    # initialise it so the EXIT trap is safe under `set -u` even when the
+    # extractor adds nothing (e.g. the default-glob path).
+    _cra_auto_tempfiles=""
+    trap 'rm -f "$SRCS_LIST" "$EMPTY_OPTS" $_cra_auto_tempfiles' EXIT
 
-    if [ -n "${CRA_SBOM_SRCS_FILE:-}" ]; then
-        if [ ! -f "$CRA_SBOM_SRCS_FILE" ]; then
-            echo "ERROR: CRA_SBOM_SRCS_FILE=$CRA_SBOM_SRCS_FILE not found." >&2
-            exit 1
-        fi
-        echo "    Source list: CRA_SBOM_SRCS_FILE=$CRA_SBOM_SRCS_FILE (verbatim)"
-        grep -v '^[[:space:]]*$' "$CRA_SBOM_SRCS_FILE" > "$SRCS_LIST" || {
-            echo "ERROR: failed to read CRA_SBOM_SRCS_FILE=$CRA_SBOM_SRCS_FILE." >&2
-            exit 1
-        }
-    elif [ -n "${CRA_SBOM_BUILD_DIR:-}" ] && [ -f "${CRA_SBOM_BUILD_DIR}/compile_commands.json" ]; then
-        _ccdb="${CRA_SBOM_BUILD_DIR}/compile_commands.json"
-        if ! command -v jq >/dev/null 2>&1; then
-            echo "ERROR: jq is required to read sources from $_ccdb." >&2
-            echo "       Install jq, or set CRA_SBOM_SRCS_FILE manually." >&2
-            exit 1
-        fi
-        echo "    Source list: $_ccdb (filtered to WOLFMQTT_DIR)"
-        jq -r '.[].file' "$_ccdb" \
-            | grep "^${WOLFMQTT_DIR}/" \
-            | grep -E '/src/mqtt_[^/]+\.c$' \
-            | sort -u > "$SRCS_LIST" || {
-                echo "ERROR: failed to extract sources from $_ccdb." >&2
-                exit 1
-            }
-        if [ ! -s "$SRCS_LIST" ]; then
-            echo "ERROR: $_ccdb yielded no wolfMQTT sources under $WOLFMQTT_DIR/src." >&2
-            echo "       Check CRA_SBOM_BUILD_DIR, or set CRA_SBOM_SRCS_FILE manually." >&2
-            exit 1
-        fi
-    else
+    # Resolve the source list via the shared extractor (CRA_SBOM_SRCS_FILE,
+    # Keil/IAR projects, Makefile dry-run, or compile_commands.json). It returns
+    # 2 when no extraction method is selected, in which case we fall back to the
+    # default mqtt_*.c glob.
+    _cra_rc=0
+    _cra_extract_srcs "$WOLFMQTT_DIR" "wolfmqtt" "$SRCS_LIST" || _cra_rc=$?
+
+    if [ "$_cra_rc" -eq 2 ]; then
+        # No extraction method active: use default glob (all src/mqtt_*.c sorted).
+        # Why: MQTT has no HAL split, so the full source set is the right default
+        # for bare-metal builds without a build-system-extractable source list.
         echo "    Source list: default glob $WOLFMQTT_DIR/src/mqtt_*.c"
-        for _f in "$WOLFMQTT_DIR"/src/mqtt_*.c; do
-            [ -f "$_f" ] && echo "$_f"
-        done | sort -u > "$SRCS_LIST" || {
-            echo "ERROR: failed to enumerate $WOLFMQTT_DIR/src/mqtt_*.c." >&2
-            exit 1
-        }
+        for _c in "$WOLFMQTT_DIR"/src/mqtt_*.c; do
+            [ -f "$_c" ] && echo "$_c"
+        done | sort > "$SRCS_LIST"
+    elif [ "$_cra_rc" -ne 0 ]; then
+        exit 1
     fi
 
     if [ ! -s "$SRCS_LIST" ]; then
@@ -246,6 +228,7 @@ _run_embedded() {
     # Pass the resolved sources positionally to gen-sbom's --srcs (it takes a
     # space-separated list; argparse stops consuming at the next -- option, so
     # --cdx-out/--spdx-out terminate the list cleanly).
+    # ponytail: gen-sbom lacks --srcs-file; upgrade path: SBOM-cgz
     set --
     while IFS= read -r _src; do
         [ -n "$_src" ] || continue
