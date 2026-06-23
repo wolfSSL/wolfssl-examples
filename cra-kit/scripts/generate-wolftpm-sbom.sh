@@ -214,7 +214,6 @@ _run_cmake() {
         --version "$VERSION" \
         --supplier "wolfSSL Inc." \
         --license-file "$WOLFTPM_DIR/LICENSE" \
-        --srcs-file "$CRA_SBOM_SRCS_FILE" \
         --cdx-out "$CDX_OUT" \
         --spdx-out "$SPDX_OUT"
     if [ -n "${CRA_LICENSE_OVERRIDE:-}" ]; then
@@ -223,6 +222,13 @@ _run_cmake() {
             set -- "$@" --license-text "$CRA_LICENSE_TEXT"
         fi
     fi
+    # ponytail: gen-sbom lacks --srcs-file; pass list as positional args after --srcs
+    # ceiling: ARG_MAX on very large source trees; upgrade path: SBOM-cgz
+    set -- "$@" --srcs
+    while IFS= read -r _src; do
+        [ -n "$_src" ] || continue
+        set -- "$@" "$_src"
+    done < "$CRA_SBOM_SRCS_FILE"
     "$PYTHON3" "$GEN" "$@"
 }
 
@@ -253,44 +259,8 @@ _run_embedded() {
         exit 1
     fi
 
-    # --no-artifact-hash: skip all source-file logic and emit a placeholder hash.
-    # Use when no compiled library AND no source file list is accessible. The
-    # options.h header is still required so the SBOM enumerates enabled features.
-    if [ "${CRA_SBOM_NO_HASH:-}" = "true" ] || [ "${CRA_SBOM_NO_HASH:-}" = "1" ]; then
-        if [ -n "${CRA_SBOM_SRCS_FILE:-}" ]; then
-            echo "ERROR: CRA_SBOM_NO_HASH cannot be combined with CRA_SBOM_SRCS_FILE." >&2
-            exit 1
-        fi
-        echo "    NOTE: CRA_SBOM_NO_HASH=true: emitting SBOM with placeholder hash."
-        echo "          Contact wolfssl@wolfssl.com to discuss integrity verification"
-        echo "          options before using this in production."
-        set -- \
-            --name wolftpm \
-            --version "$VERSION" \
-            --supplier "wolfSSL Inc." \
-            --license-file "$WOLFTPM_DIR/LICENSE" \
-            --options-h "$OPTIONS_H" \
-            --no-artifact-hash \
-            --cdx-out "$CDX_OUT" \
-            --spdx-out "$SPDX_OUT"
-        if [ -n "${CRA_LICENSE_OVERRIDE:-}" ]; then
-            set -- "$@" --license-override "$CRA_LICENSE_OVERRIDE"
-            if [ -n "${CRA_LICENSE_TEXT:-}" ]; then
-                set -- "$@" --license-text "$CRA_LICENSE_TEXT"
-            fi
-        fi
-        "$GEN_PY" "$GEN" "$@" || {
-            echo "ERROR: gen-sbom failed in embedded NO_HASH mode." >&2
-            exit 1
-        }
-        for _out in "$CDX_OUT" "$SPDX_OUT"; do
-            if [ ! -s "$_out" ]; then
-                echo "ERROR: expected output $_out is missing or empty." >&2
-                exit 1
-            fi
-        done
-        return 0
-    fi
+    # CRA_SBOM_NO_HASH is not yet supported: gen-sbom requires --lib or --srcs and
+    # has no --no-artifact-hash flag. Blocked on SBOM-cgz.
 
     # Source list, one .c path per line.
     _srcs=$(mktemp "${TMPDIR:-/tmp}/wolftpm-embedded-srcs.XXXXXX") || {
