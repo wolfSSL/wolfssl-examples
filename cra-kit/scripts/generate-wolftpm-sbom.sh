@@ -30,9 +30,11 @@
 #                                         hash, skipping the source list — for NDA customers
 #                                         who cannot share source lists; WARNING: not
 #                                         suitable for production compliance)
-#   CRA_TPM_OPTIONS_H=path/to/options.h (embedded mode: flat #define build-config header for
-#                                         feature enumeration; defaults to
-#                                         $WOLFTPM_DIR/wolftpm/options.h)
+#   CRA_TPM_OPTIONS_H=path/to/options.h (embedded/cmake mode: flat #define build-config header
+#                                         for feature enumeration. Embedded mode defaults to
+#                                         $WOLFTPM_DIR/wolftpm/options.h; cmake mode prefers the
+#                                         cmake-generated $WOLFTPM_BUILD_DIR/wolftpm/options.h,
+#                                         then falls back to the source-tree copy.)
 #
 # Optional variables:
 #   CRA_LICENSE_OVERRIDE=<SPDX-id>      (e.g. LicenseRef-wolfTPM-Commercial)
@@ -211,11 +213,29 @@ _run_cmake() {
         exit 1
     fi
 
+    # gen-sbom requires exactly one of --options-h / --user-settings to enumerate
+    # enabled features. Prefer the cmake-generated header (reflects the actual
+    # build config) over the source-tree template; CRA_TPM_OPTIONS_H overrides both.
+    _options_h="${CRA_TPM_OPTIONS_H:-}"
+    if [ -z "$_options_h" ] && [ -n "${WOLFTPM_BUILD_DIR:-}" ] && \
+       [ -f "$WOLFTPM_BUILD_DIR/wolftpm/options.h" ]; then
+        _options_h="$WOLFTPM_BUILD_DIR/wolftpm/options.h"
+    fi
+    if [ -z "$_options_h" ] && [ -f "$WOLFTPM_DIR/wolftpm/options.h" ]; then
+        _options_h="$WOLFTPM_DIR/wolftpm/options.h"
+    fi
+    if [ -z "$_options_h" ]; then
+        echo "ERROR: no wolftpm/options.h found." >&2
+        echo "  Run cmake to generate it, or set CRA_TPM_OPTIONS_H." >&2
+        exit 1
+    fi
+
     set -- \
         --name wolftpm \
         --version "$VERSION" \
         --supplier "wolfSSL Inc." \
         --license-file "$WOLFTPM_DIR/LICENSE" \
+        --options-h "$_options_h" \
         --cdx-out "$CDX_OUT" \
         --spdx-out "$SPDX_OUT"
     if [ -n "${CRA_LICENSE_OVERRIDE:-}" ]; then
