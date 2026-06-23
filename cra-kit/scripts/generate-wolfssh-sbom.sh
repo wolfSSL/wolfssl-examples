@@ -1,16 +1,42 @@
 #!/bin/sh
-# Generate wolfSSH component SBOM (autotools make sbom).
+# Generate wolfSSH component SBOM (autotools make sbom, or embedded gen-sbom).
+#
+# Mode selection:
+#   CRA_SBOM_MODE=autotools|embedded   (default: autotools)
+#     autotools: builds libwolfssh.so and runs `make sbom`
+#     embedded:  hashes wolfSSH source files directly (no .so is produced when
+#                wolfSSH is compiled into firmware), via wolfSSL's gen-sbom.
 #
 # Required variables:
 #   WOLFSSL_DIR=path/to/wolfssl         (source tree root; provides gen-sbom)
 #   WOLFSSH_DIR=path/to/wolfssh         (source tree root)
 #
+# Embedded-mode variables:
+#   CRA_SBOM_BUILD_DIR=path/to/build    (embedded: dir containing
+#                                        compile_commands.json for CMake / ESP-IDF
+#                                        / Zephyr builds, used to extract the exact
+#                                        wolfSSH .c files on the link line)
+#   CRA_SBOM_SRCS_FILE=path/to/srcs.txt (embedded: explicit list of wolfSSH .c
+#                                        paths, one per line; takes priority over
+#                                        every other source-resolution method)
+#
 # Optional variables:
+#   CRA_SBOM_OUT_DIR=<path>             (output directory; default auditor-packet)
 #   CRA_LICENSE_OVERRIDE=<SPDX-id>      (e.g. LicenseRef-wolfSSH-Commercial)
 #   CRA_LICENSE_TEXT=<path>             (required when CRA_LICENSE_OVERRIDE is a
 #                                        LicenseRef-* id: plain-text licence embedded
-#                                        in the SBOM; make sbom hard-fails without it.)
+#                                        in the SBOM; make sbom / gen-sbom hard-fail
+#                                        without it.)
+# POSIX sh (script is #!/bin/sh and run via `sh`); dash has no `set -o pipefail`,
+# so we use `set -eu` like the rest of the kit. Pipelines that must not mask a
+# failed first stage are checked explicitly instead.
 set -eu
+
+# Accumulator for temp files (embedded source extraction); cleaned up on exit.
+# Why: mktemp temp files must not leak if any later command fails under set -e;
+# a single EXIT trap removes them on every exit path including errors.
+_auto_tempfiles=""
+trap 'rm -f ${_auto_tempfiles:-}' EXIT
 
 SCRIPT_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 KIT_DIR=$(dirname "$SCRIPT_DIR")
@@ -81,6 +107,190 @@ if [ -n "${CRA_LICENSE_TEXT:-}" ] && [ -f "$CRA_LICENSE_TEXT" ]; then
     echo "License text:     $CRA_LICENSE_TEXT"
 fi
 
+# Pick a Python that can `import pcpp` (pip may target a different python3 than
+# the one first on PATH). pcpp lets gen-sbom walk settings.h without a compiler.
+_python_with_pcpp() {
+    for py in ${CRA_PYTHON:-} python3 python; do
+        [ -n "$py" ] || continue
+        if command -v "$py" >/dev/null 2>&1 && \
+           "$py" -c "import pcpp" 2>/dev/null; then
+            echo "$py"
+            return 0
+        fi
+    done
+    return 1
+}
+
+# Resolve the wolfSSH source list for embedded mode into the file named by $1.
+#
+# Source set rule: ONLY wolfSSH protocol sources (${WOLFSSH_DIR}/src/*.c) are
+# product-owned and belong in this component. The wolfcrypt / wolfSSL sources
+# that wolfSSH links against are NOT included here — they are a separate
+# component covered by generate-wolfssl-sbom.sh and referenced as a dependency.
+# Mixing them in would double-count the crypto library across two SBOMs.
+#
+# Priority order (first match wins):
+#   1. CRA_SBOM_SRCS_FILE   — explicit user list beats anything inferred, because
+#                             the user knows their exact link line; we must not
+#                             second-guess it.
+#   2. compile_commands.json at CRA_SBOM_BUILD_DIR — accurate per-build extraction
+#                             for CMake / ESP-IDF / Zephyr.
+#   3. Default: all ${WOLFSSH_DIR}/src/*.c sorted — the "all sources" fallback for
+#                             toolchains (IAR, Keil, MPLAB) that produce no
+#                             compile_commands.json and where we cannot infer the
+#                             exact subset compiled. Listing all sources is the
+#                             safe over-approximation: it never omits a file that
+#                             shipped.
+_resolve_wolfssh_srcs() {
+    _out="$1"
+
+    # 1. Explicit user-provided list (verbatim).
+    if [ -n "${CRA_SBOM_SRCS_FILE:-}" ]; then
+        if [ ! -f "$CRA_SBOM_SRCS_FILE" ]; then
+            echo "ERROR: CRA_SBOM_SRCS_FILE=$CRA_SBOM_SRCS_FILE not found." >&2
+            exit 1
+        fi
+        if [ ! -s "$CRA_SBOM_SRCS_FILE" ]; then
+            echo "ERROR: CRA_SBOM_SRCS_FILE=$CRA_SBOM_SRCS_FILE is empty." >&2
+            exit 1
+        fi
+        grep -v '^[[:space:]]*$' "$CRA_SBOM_SRCS_FILE" > "$_out" || {
+            echo "ERROR: failed to read CRA_SBOM_SRCS_FILE=$CRA_SBOM_SRCS_FILE." >&2
+            exit 1
+        }
+        echo "    Using explicit source list from $CRA_SBOM_SRCS_FILE"
+        return 0
+    fi
+
+    # 2. compile_commands.json (CMake / ESP-IDF / Zephyr).
+    if [ -n "${CRA_SBOM_BUILD_DIR:-}" ] && \
+       [ -f "$CRA_SBOM_BUILD_DIR/compile_commands.json" ]; then
+        _ccdb="$CRA_SBOM_BUILD_DIR/compile_commands.json"
+        if ! command -v jq >/dev/null 2>&1; then
+            echo "ERROR: jq is required to extract sources from compile_commands.json." >&2
+            echo "       Install jq, or set CRA_SBOM_SRCS_FILE manually." >&2
+            exit 1
+        fi
+        # Restrict to wolfSSH's own src/*.c; exclude any wolfcrypt/wolfssl entries
+        # that share the build (they belong to the wolfssl component).
+        jq -r '.[].file' "$_ccdb" \
+            | grep "^${WOLFSSH_DIR}/src/" \
+            | grep -E '/src/[^/]+\.c$' \
+            | sort -u > "$_out" || {
+                echo "ERROR: failed to parse $_ccdb with jq." >&2
+                exit 1
+            }
+        if [ -s "$_out" ]; then
+            _n=$(wc -l < "$_out" | tr -d ' ')
+            echo "    Extracted $_n wolfSSH sources from compile_commands.json"
+            return 0
+        fi
+        echo "    WARNING: compile_commands.json found but yielded no wolfSSH" >&2
+        echo "             src/ sources; falling back to all src/*.c." >&2
+    fi
+
+    # 3. Default fallback: every wolfSSH src/*.c. A POSIX glob expands in sorted
+    # order; guard the no-match case where the pattern stays literal.
+    : > "$_out"
+    for _c in "$WOLFSSH_DIR"/src/*.c; do
+        [ -f "$_c" ] || continue
+        printf '%s\n' "$_c" >> "$_out"
+    done
+    if [ ! -s "$_out" ]; then
+        echo "ERROR: no wolfSSH sources found in $WOLFSSH_DIR/src/*.c." >&2
+        exit 1
+    fi
+    _n=$(wc -l < "$_out" | tr -d ' ')
+    echo "    Using all $_n wolfSSH sources from $WOLFSSH_DIR/src/*.c (default)"
+    return 0
+}
+
+_run_embedded() {
+    echo "==> Embedded path: gen-sbom hashing wolfSSH source files"
+
+    GEN="$WOLFSSL_DIR/scripts/gen-sbom"
+    if [ ! -f "$GEN" ]; then
+        echo "ERROR: $GEN not found (need a wolfSSL tree with SBOM support)." >&2
+        exit 1
+    fi
+
+    # gen-sbom's embedded entry point walks wolfSSL's settings.h to resolve the
+    # build config. wolfSSH headers pull in wolfSSL headers, so we reuse the same
+    # settings.h + kit user_settings.h the wolfssl embedded path uses.
+    SETTINGS_H="$WOLFSSL_DIR/wolfssl/wolfcrypt/settings.h"
+    if [ ! -f "$SETTINGS_H" ]; then
+        echo "ERROR: $SETTINGS_H not found." >&2
+        exit 1
+    fi
+    if [ ! -f "$KIT_DIR/user_settings.h" ]; then
+        echo "ERROR: $KIT_DIR/user_settings.h missing (demo WOLFSSL_USER_SETTINGS)." >&2
+        exit 1
+    fi
+
+    if ! command -v python3 >/dev/null 2>&1; then
+        echo "ERROR: python3 not found in PATH (required by gen-sbom)." >&2
+        exit 1
+    fi
+
+    # Resolve the source list into a temp file (cleaned up by the EXIT trap).
+    _srcs=$(mktemp "${TMPDIR:-/tmp}/wolfssh-srcs.XXXXXX") || {
+        echo "ERROR: mktemp failed for the source-list temp file." >&2
+        exit 1
+    }
+    _auto_tempfiles="${_auto_tempfiles:-} $_srcs"
+    _resolve_wolfssh_srcs "$_srcs"
+
+    # Build the positional --srcs argument list from the resolved file.
+    set --
+    while IFS= read -r _src; do
+        [ -n "$_src" ] || continue
+        if [ ! -f "$_src" ]; then
+            echo "ERROR: source file does not exist: $_src" >&2
+            exit 1
+        fi
+        set -- "$@" "$_src"
+    done < "$_srcs"
+    if [ $# -eq 0 ]; then
+        echo "ERROR: resolved source list is empty." >&2
+        exit 1
+    fi
+
+    # Prepend --srcs, then append the trailing options. argparse stops --srcs
+    # consumption at the next -- option, so --cdx-out / --spdx-out end it cleanly.
+    set -- --srcs "$@" --cdx-out "$CDX_OUT" --spdx-out "$SPDX_OUT"
+    if [ -n "${CRA_LICENSE_OVERRIDE:-}" ]; then
+        set -- "$@" --license-override "$CRA_LICENSE_OVERRIDE"
+        if [ -n "${CRA_LICENSE_TEXT:-}" ]; then
+            set -- "$@" --license-text "$CRA_LICENSE_TEXT"
+        fi
+    fi
+
+    if _py=$(_python_with_pcpp); then
+        echo "       Using $_py (pcpp) for --user-settings"
+    else
+        echo "ERROR: no python3/python with pcpp installed (required for embedded mode)." >&2
+        echo "       Install it on the same interpreter: python3 -m pip install pcpp" >&2
+        exit 1
+    fi
+
+    "$_py" "$GEN" \
+        --name wolfssh --version "$VERSION" \
+        --license-file "$WOLFSSH_DIR/LICENSING" \
+        --user-settings "$SETTINGS_H" \
+        --user-settings-include "$WOLFSSL_DIR" \
+        --user-settings-include "$KIT_DIR" \
+        --user-settings-define WOLFSSL_USER_SETTINGS \
+        "$@"
+
+    # Verify gen-sbom actually produced both outputs and they are non-empty.
+    for _f in "$CDX_OUT" "$SPDX_OUT"; do
+        if [ ! -s "$_f" ]; then
+            echo "ERROR: expected output missing or empty: $_f" >&2
+            exit 1
+        fi
+    done
+}
+
 _run_autotools() {
     echo "==> Autotools path: make sbom"
     # `make sbom` names its output after the wolfSSH TREE's version
@@ -118,7 +328,15 @@ _run_autotools() {
   })
 }
 
-_run_autotools
+MODE=${CRA_SBOM_MODE:-autotools}
+case "$MODE" in
+    embedded) _run_embedded ;;
+    autotools) _run_autotools ;;
+    *)
+        echo "ERROR: CRA_SBOM_MODE must be 'autotools' or 'embedded', not '$MODE'" >&2
+        exit 1
+        ;;
+esac
 
 # ---- Post-process: defensive PURL canonicalization ----
 # Current gen-sbom already emits pkg:github/wolfSSL/wolfSSH@vX natively for
@@ -161,4 +379,6 @@ then
     exit 1
 fi
 
-echo "Done."
+echo "Done. SBOM outputs:"
+echo "  $CDX_OUT"
+echo "  $SPDX_OUT"
