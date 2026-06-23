@@ -27,7 +27,9 @@
 #   CRA_SBOM_IAR_PROJECT=<path>         (embedded mode: auto-extract srcs from an IAR .ewp)
 #   CRA_SBOM_MAKEFILE_DIR=<path>        (embedded mode: auto-extract srcs via `make -n`)
 #   CRA_SBOM_NO_HASH=true               (embedded mode: emit SBOM without a real artifact
-#                                         hash; use when no source list is available)
+#                                         hash, skipping the source list — for NDA customers
+#                                         who cannot share source lists; WARNING: not
+#                                         suitable for production compliance)
 #   CRA_TPM_OPTIONS_H=path/to/options.h (embedded mode: flat #define build-config header for
 #                                         feature enumeration; defaults to
 #                                         $WOLFTPM_DIR/wolftpm/options.h)
@@ -222,13 +224,7 @@ _run_cmake() {
             set -- "$@" --license-text "$CRA_LICENSE_TEXT"
         fi
     fi
-    # ponytail: gen-sbom lacks --srcs-file; pass list as positional args after --srcs
-    # ceiling: ARG_MAX on very large source trees; upgrade path: SBOM-cgz
-    set -- "$@" --srcs
-    while IFS= read -r _src; do
-        [ -n "$_src" ] || continue
-        set -- "$@" "$_src"
-    done < "$CRA_SBOM_SRCS_FILE"
+    set -- "$@" --srcs-file "$CRA_SBOM_SRCS_FILE"
     "$PYTHON3" "$GEN" "$@"
 }
 
@@ -259,8 +255,39 @@ _run_embedded() {
         exit 1
     fi
 
-    # CRA_SBOM_NO_HASH is not yet supported: gen-sbom requires --lib or --srcs and
-    # has no --no-artifact-hash flag. Blocked on SBOM-cgz.
+    # CRA_SBOM_NO_HASH emits a placeholder checksum and skips the source list
+    # entirely (for NDA customers who cannot share source lists).  OPTIONS_H is
+    # still required so the SBOM records the enabled-feature build properties.
+    if [ "${CRA_SBOM_NO_HASH:-}" = "true" ] || [ "${CRA_SBOM_NO_HASH:-}" = "1" ]; then
+        echo "    NOTE: CRA_SBOM_NO_HASH=true: emitting SBOM without artifact hash."
+        echo "          WARNING: not suitable for production CRA compliance." >&2
+        set -- \
+            --name wolftpm \
+            --version "$VERSION" \
+            --supplier "wolfSSL Inc." \
+            --license-file "$WOLFTPM_DIR/LICENSE" \
+            --options-h "$OPTIONS_H" \
+            --no-artifact-hash \
+            --cdx-out "$CDX_OUT" \
+            --spdx-out "$SPDX_OUT"
+        if [ -n "${CRA_LICENSE_OVERRIDE:-}" ]; then
+            set -- "$@" --license-override "$CRA_LICENSE_OVERRIDE"
+            if [ -n "${CRA_LICENSE_TEXT:-}" ]; then
+                set -- "$@" --license-text "$CRA_LICENSE_TEXT"
+            fi
+        fi
+        "$GEN_PY" "$GEN" "$@" || {
+            echo "ERROR: gen-sbom failed in embedded mode." >&2
+            exit 1
+        }
+        for _out in "$CDX_OUT" "$SPDX_OUT"; do
+            if [ ! -s "$_out" ]; then
+                echo "ERROR: expected output $_out is missing or empty." >&2
+                exit 1
+            fi
+        done
+        return 0
+    fi
 
     # Source list, one .c path per line.
     _srcs=$(mktemp "${TMPDIR:-/tmp}/wolftpm-embedded-srcs.XXXXXX") || {
@@ -355,9 +382,6 @@ _run_embedded() {
     # separate component covered by generate-wolfssl-sbom.sh (embedded mode), and
     # the wolfSSL SBOM is referenced as a dependency rather than duplicated.
 
-    # gen-sbom takes the source list as a positional --srcs vector (exactly one
-    # of --lib / --srcs is accepted). Build the option vector first, then append
-    # the collected paths after --srcs so they bind as that argument's nargs list.
     set -- \
         --name wolftpm \
         --version "$VERSION" \
@@ -372,11 +396,7 @@ _run_embedded() {
             set -- "$@" --license-text "$CRA_LICENSE_TEXT"
         fi
     fi
-    set -- "$@" --srcs
-    while IFS= read -r _src; do
-        [ -n "$_src" ] || continue
-        set -- "$@" "$_src"
-    done < "$_srcs"
+    set -- "$@" --srcs-file "$_srcs"
     "$GEN_PY" "$GEN" "$@" || {
         echo "ERROR: gen-sbom failed in embedded mode." >&2
         exit 1

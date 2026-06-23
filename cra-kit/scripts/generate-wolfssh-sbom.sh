@@ -22,7 +22,10 @@
 #   CRA_SBOM_KEIL_PROJECT=path          (embedded: auto-extract from Keil .uvprojx)
 #   CRA_SBOM_IAR_PROJECT=path           (embedded: auto-extract from IAR .ewp)
 #   CRA_SBOM_MAKEFILE_DIR=path          (embedded: auto-extract via make -n dry-run)
-#   CRA_SBOM_NO_HASH — not yet supported; blocked on SBOM-cgz (gen-sbom --no-artifact-hash)
+#   CRA_SBOM_NO_HASH=true               (embedded: emit SBOM without an artifact
+#                                        hash, skipping the source list — for NDA
+#                                        customers who cannot share source lists;
+#                                        WARNING: not suitable for production compliance)
 #
 # Optional variables:
 #   CRA_SBOM_OUT_DIR=<path>             (output directory; default auditor-packet)
@@ -208,34 +211,35 @@ _run_embedded() {
         exit 1
     fi
 
-    # Resolve the source list into a temp file (cleaned up by the EXIT trap).
-    _srcs=$(mktemp "${TMPDIR:-/tmp}/wolfssh-srcs.XXXXXX") || {
-        echo "ERROR: mktemp failed for the source-list temp file." >&2
-        exit 1
-    }
-    _auto_tempfiles="${_auto_tempfiles:-} $_srcs"
-    _resolve_wolfssh_srcs "$_srcs"
+    # CRA_SBOM_NO_HASH emits a placeholder checksum and skips the source list
+    # entirely (for NDA customers who cannot share source lists).
+    if [ "${CRA_SBOM_NO_HASH:-}" = "true" ] || [ "${CRA_SBOM_NO_HASH:-}" = "1" ]; then
+        echo "       NOTE: CRA_SBOM_NO_HASH=true: emitting SBOM without artifact hash."
+        echo "             WARNING: not suitable for production CRA compliance." >&2
+        set -- --no-artifact-hash --cdx-out "$CDX_OUT" --spdx-out "$SPDX_OUT"
+    else
+        # Resolve the source list into a temp file (cleaned up by the EXIT trap).
+        _srcs=$(mktemp "${TMPDIR:-/tmp}/wolfssh-srcs.XXXXXX") || {
+            echo "ERROR: mktemp failed for the source-list temp file." >&2
+            exit 1
+        }
+        _auto_tempfiles="${_auto_tempfiles:-} $_srcs"
+        _resolve_wolfssh_srcs "$_srcs"
 
-    # Build the positional --srcs argument list from the resolved file.
-    # ponytail: gen-sbom lacks --srcs-file; pass list as positional args
-    # ceiling: ARG_MAX; upgrade path: SBOM-cgz adds --srcs-file to gen-sbom
-    set --
-    while IFS= read -r _src; do
-        [ -n "$_src" ] || continue
-        if [ ! -f "$_src" ]; then
-            echo "ERROR: source file does not exist: $_src" >&2
+        # Validate every resolved path exists before handing the file to gen-sbom.
+        while IFS= read -r _src; do
+            [ -n "$_src" ] || continue
+            if [ ! -f "$_src" ]; then
+                echo "ERROR: source file does not exist: $_src" >&2
+                exit 1
+            fi
+        done < "$_srcs"
+        if [ ! -s "$_srcs" ]; then
+            echo "ERROR: resolved source list is empty." >&2
             exit 1
         fi
-        set -- "$@" "$_src"
-    done < "$_srcs"
-    if [ $# -eq 0 ]; then
-        echo "ERROR: resolved source list is empty." >&2
-        exit 1
+        set -- --srcs-file "$_srcs" --cdx-out "$CDX_OUT" --spdx-out "$SPDX_OUT"
     fi
-
-    # Prepend --srcs, then append the trailing options. argparse stops --srcs
-    # consumption at the next -- option, so --cdx-out / --spdx-out end it cleanly.
-    set -- --srcs "$@" --cdx-out "$CDX_OUT" --spdx-out "$SPDX_OUT"
     if [ -n "${CRA_LICENSE_OVERRIDE:-}" ]; then
         set -- "$@" --license-override "$CRA_LICENSE_OVERRIDE"
         if [ -n "${CRA_LICENSE_TEXT:-}" ]; then

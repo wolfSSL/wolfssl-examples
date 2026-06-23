@@ -28,7 +28,10 @@
 #   CRA_SBOM_SRCS_FILE=path          explicit .c file list (overrides make -n)
 #   CRA_SBOM_KEIL_PROJECT=path       auto-extract from Keil .uvprojx (overrides make -n)
 #   CRA_SBOM_IAR_PROJECT=path        auto-extract from IAR .ewp (overrides make -n)
-#   CRA_SBOM_NO_HASH — not yet supported; blocked on SBOM-cgz (gen-sbom --no-artifact-hash)
+#   CRA_SBOM_NO_HASH=true            emit SBOM without an artifact hash, skipping
+#                                    the source list — for NDA customers who cannot
+#                                    share source lists; WARNING: not suitable for
+#                                    production compliance
 set -eu
 
 SCRIPT_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
@@ -53,16 +56,26 @@ if [ -z "${WOLFBOOT_DIR:-}" ] || [ ! -d "$WOLFBOOT_DIR" ]; then
     exit 1
 fi
 
-if [ -z "${WOLFBOOT_TARGET:-}" ]; then
-    echo "ERROR: WOLFBOOT_TARGET is not set." >&2
-    echo "  Example: WOLFBOOT_TARGET=stm32h7 $0" >&2
-    exit 1
+# CRA_SBOM_NO_HASH skips the make -n source extraction entirely, so TARGET/SIGN
+# (which only drive that extraction) are not required in that mode.
+if [ "${CRA_SBOM_NO_HASH:-}" = "true" ] || [ "${CRA_SBOM_NO_HASH:-}" = "1" ]; then
+    _no_hash=1
+else
+    _no_hash=0
 fi
 
-if [ -z "${WOLFBOOT_SIGN:-}" ]; then
-    echo "ERROR: WOLFBOOT_SIGN is not set." >&2
-    echo "  Example: WOLFBOOT_SIGN=ECC256 $0" >&2
-    exit 1
+if [ "$_no_hash" = "0" ]; then
+    if [ -z "${WOLFBOOT_TARGET:-}" ]; then
+        echo "ERROR: WOLFBOOT_TARGET is not set." >&2
+        echo "  Example: WOLFBOOT_TARGET=stm32h7 $0" >&2
+        exit 1
+    fi
+
+    if [ -z "${WOLFBOOT_SIGN:-}" ]; then
+        echo "ERROR: WOLFBOOT_SIGN is not set." >&2
+        echo "  Example: WOLFBOOT_SIGN=ECC256 $0" >&2
+        exit 1
+    fi
 fi
 
 WOLFBOOT_HASH=${WOLFBOOT_HASH:-SHA256}
@@ -93,7 +106,9 @@ CDX_OUT="$OUT_DIR/wolfboot-${VERSION}.cdx.json"
 SPDX_OUT="$OUT_DIR/wolfboot-${VERSION}.spdx.json"
 
 echo "wolfBoot tree:  $WOLFBOOT_DIR"
-echo "Configuration:  TARGET=$WOLFBOOT_TARGET SIGN=$WOLFBOOT_SIGN HASH=$WOLFBOOT_HASH EXT_FLASH=$WOLFBOOT_EXT_FLASH"
+if [ "$_no_hash" = "0" ]; then
+    echo "Configuration:  TARGET=$WOLFBOOT_TARGET SIGN=$WOLFBOOT_SIGN HASH=$WOLFBOOT_HASH EXT_FLASH=$WOLFBOOT_EXT_FLASH"
+fi
 echo "Version:        $VERSION"
 echo "Outputs:        $CDX_OUT"
 echo "                $SPDX_OUT"
@@ -126,6 +141,8 @@ if [ -n "${CRA_LICENSE_TEXT:-}" ] && [ -f "$CRA_LICENSE_TEXT" ]; then
     CRA_LICENSE_TEXT=$(CDPATH='' cd -- "$(dirname -- "$CRA_LICENSE_TEXT")" && pwd)/$(basename -- "$CRA_LICENSE_TEXT")
 fi
 
+# CRA_SBOM_NO_HASH (resolved to $_no_hash above) emits a placeholder checksum
+# and skips the source list entirely (NDA customers who cannot share sources).
 # Extract the configuration-specific source list.
 #
 # Priority order:
@@ -138,6 +155,7 @@ fi
 # (driven by TARGET/SIGN/HASH/EXT_FLASH, not the generic CRA_SBOM_MAKEFILE_DIR /
 # compile_commands.json handlers), so we blank those two env vars before calling
 # the helper and run our own make -n below when no IDE project is set.
+if [ "$_no_hash" = "0" ]; then
 _srcs_tmp=$(mktemp "${TMPDIR:-/tmp}/wolfboot-sbom-srcs.XXXXXX")
 _auto_tempfiles="${_auto_tempfiles:-} $_srcs_tmp"
 
@@ -215,6 +233,10 @@ fi
 
 _n_abs=$(wc -l < "$_srcs_abs_tmp" | tr -d ' ')
 echo "    Resolved $_n_abs paths ($(( _n - _n_abs )) non-existent skipped)"
+else
+    echo "==> CRA_SBOM_NO_HASH=true: emitting SBOM without artifact hash."
+    echo "    WARNING: not suitable for production CRA compliance." >&2
+fi
 
 # Preprocess build settings for gen-sbom --options-h.
 #
@@ -241,16 +263,12 @@ _PYTHON=${CRA_PYTHON:-python3}
 command -v "$_PYTHON" >/dev/null 2>&1 || \
     { echo "ERROR: $_PYTHON not found. Set CRA_PYTHON to your Python interpreter." >&2; exit 1; }
 
-# Read absolute source paths into positional parameters.
-# ponytail: gen-sbom lacks --srcs-file; pass list as positional args
-# ceiling: ARG_MAX; upgrade path: SBOM-cgz adds --srcs-file to gen-sbom
-set --
-while IFS= read -r _src; do
-    [ -n "$_src" ] || continue
-    set -- "$@" "$_src"
-done < "$_srcs_abs_tmp"
-
 _license_override=${CRA_LICENSE_OVERRIDE:-GPL-3.0-only}
+if [ "$_no_hash" = "1" ]; then
+    set -- --no-artifact-hash
+else
+    set -- --srcs-file "$_srcs_abs_tmp"
+fi
 set -- "$@" \
     --cdx-out "$CDX_OUT" \
     --spdx-out "$SPDX_OUT" \
@@ -267,7 +285,7 @@ echo "==> Running gen-sbom ..."
     --supplier "wolfSSL Inc." \
     --license-file "$WOLFBOOT_DIR/LICENSE" \
     --options-h "$_defines_tmp" \
-    --srcs "$@"
+    "$@"
 
 echo "SBOM written:"
 echo "  $CDX_OUT"

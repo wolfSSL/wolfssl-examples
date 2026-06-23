@@ -20,7 +20,9 @@
 #   CRA_SBOM_KEIL_PROJECT=path    auto-extract from Keil .uvprojx
 #   CRA_SBOM_IAR_PROJECT=path     auto-extract from IAR .ewp
 #   CRA_SBOM_MAKEFILE_DIR=path    auto-extract via make -n dry-run
-#   CRA_SBOM_NO_HASH — not yet supported; blocked on SBOM-cgz (gen-sbom --no-artifact-hash)
+#   CRA_SBOM_NO_HASH=true         emit SBOM without an artifact hash (NDA
+#                                 customers who cannot share source lists;
+#                                 WARNING: not suitable for production compliance)
 set -eu
 
 . "$(dirname "$0")/_cra-sbom-extract.sh"
@@ -120,37 +122,43 @@ _python_with_pcpp() {
 
 echo "==> Embedded path: gen-sbom with CC -dM -E (no user_settings.h)"
 
-_srcs_file=$(mktemp "${TMPDIR:-/tmp}/wolfhsm-srcs.XXXXXX")
-_auto_tempfiles="${_auto_tempfiles:-} $_srcs_file"
+# CRA_SBOM_NO_HASH emits a placeholder checksum and skips the source list
+# entirely (for NDA customers who cannot share source lists).
+if [ "${CRA_SBOM_NO_HASH:-}" = "true" ] || [ "${CRA_SBOM_NO_HASH:-}" = "1" ]; then
+    echo "    NOTE: CRA_SBOM_NO_HASH=true: emitting SBOM without artifact hash."
+    echo "          WARNING: not suitable for production CRA compliance." >&2
+    _hash_arg="--no-artifact-hash"
+else
+    _srcs_file=$(mktemp "${TMPDIR:-/tmp}/wolfhsm-srcs.XXXXXX")
+    _auto_tempfiles="${_auto_tempfiles:-} $_srcs_file"
 
-# Allow WOLFHSM_BUILD_DIR to feed compile_commands.json extraction. The shared
-# library reads CRA_SBOM_BUILD_DIR; map our wolfHSM-style env var onto it.
-CRA_SBOM_BUILD_DIR="${WOLFHSM_BUILD_DIR:-}"
+    # Allow WOLFHSM_BUILD_DIR to feed compile_commands.json extraction. The
+    # shared library reads CRA_SBOM_BUILD_DIR; map our env var onto it.
+    CRA_SBOM_BUILD_DIR="${WOLFHSM_BUILD_DIR:-}"
 
-_cra_rc=0
-_cra_extract_srcs "$WOLFHSM_DIR" "wolfhsm" "$_srcs_file" || _cra_rc=$?
+    _cra_rc=0
+    _cra_extract_srcs "$WOLFHSM_DIR" "wolfhsm" "$_srcs_file" || _cra_rc=$?
 
-if [ "$_cra_rc" -eq 2 ]; then
-    # No extraction method active: enumerate all wolfHSM C sources via find.
-    # find is used (not glob) because wolfHSM sources span subdirectories.
-    find "$WOLFHSM_DIR/src" -name "*.c" | sort > "$_srcs_file" || {
-        echo "ERROR: find failed on $WOLFHSM_DIR/src" >&2; exit 1
-    }
+    if [ "$_cra_rc" -eq 2 ]; then
+        # No extraction method active: enumerate all wolfHSM C sources via find.
+        # find is used (not glob) because wolfHSM sources span subdirectories.
+        find "$WOLFHSM_DIR/src" -name "*.c" | sort > "$_srcs_file" || {
+            echo "ERROR: find failed on $WOLFHSM_DIR/src" >&2; exit 1
+        }
+        _n=$(wc -l < "$_srcs_file" | tr -d ' ')
+        echo "    Source list: find $WOLFHSM_DIR/src -name '*.c' ($_n files)"
+    elif [ "$_cra_rc" -ne 0 ]; then
+        exit 1
+    fi
+
+    if [ ! -s "$_srcs_file" ]; then
+        echo "ERROR: no wolfHSM sources found in $WOLFHSM_DIR/src" >&2
+        exit 1
+    fi
     _n=$(wc -l < "$_srcs_file" | tr -d ' ')
-    echo "    Source list: find $WOLFHSM_DIR/src -name '*.c' ($_n files)"
-elif [ "$_cra_rc" -ne 0 ]; then
-    exit 1
+    echo "NOTE: hashed $_n source file(s)"
+    _hash_arg="--srcs-file $_srcs_file"
 fi
-
-if [ ! -s "$_srcs_file" ]; then
-    echo "ERROR: no wolfHSM sources found in $WOLFHSM_DIR/src" >&2
-    exit 1
-fi
-_n=$(wc -l < "$_srcs_file" | tr -d ' ')
-echo "NOTE: hashed $_n source file(s)"
-
-# ponytail: gen-sbom lacks --srcs-file; pass list as positional args
-# ceiling: ARG_MAX; upgrade path: SBOM-cgz adds --srcs-file to gen-sbom
 
 # Build license-override args.
 _license_args=""
@@ -180,7 +188,7 @@ if _py=$(_python_with_pcpp); then
         --user-settings "$SETTINGS_H" \
         --user-settings-include "$WOLFHSM_DIR" \
         --user-settings-include "$WOLFSSL_DIR" \
-        --srcs $(cat "$_srcs_file") \
+        ${_hash_arg} \
         --cdx-out "$CDX_OUT" \
         --spdx-out "$SPDX_OUT" \
         ${_license_args}
@@ -209,7 +217,7 @@ else
         --supplier "wolfSSL Inc." \
         --license-file "$WOLFHSM_DIR/LICENSING" \
         --options-h "$_defines" \
-        --srcs $(cat "$_srcs_file") \
+        ${_hash_arg} \
         --cdx-out "$CDX_OUT" \
         --spdx-out "$SPDX_OUT" \
         ${_license_args}

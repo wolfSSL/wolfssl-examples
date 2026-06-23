@@ -21,7 +21,10 @@
 #   CRA_SBOM_MAKEFILE_DIR=path/to/dir    (run `make -n` to extract .c sources)
 #   CRA_SBOM_BUILD_DIR=path/to/build    (CMake/ESP-IDF build dir; sources are
 #                                         read from its compile_commands.json)
-#   CRA_SBOM_NO_HASH — not yet supported; blocked on SBOM-cgz
+#   CRA_SBOM_NO_HASH=true               (emit SBOM without an artifact hash,
+#                                         skipping the source list — for NDA
+#                                         customers who cannot share source lists;
+#                                         WARNING: not suitable for production compliance)
 #
 # Optional variables:
 #   CRA_LICENSE_OVERRIDE=<SPDX-id>  (e.g. LicenseRef-wolfSSL-Commercial)
@@ -201,46 +204,51 @@ _run_embedded() {
     _cra_auto_tempfiles=""
     trap 'rm -f "$SRCS_LIST" "$EMPTY_OPTS" $_cra_auto_tempfiles' EXIT
 
-    # Resolve the source list via the shared extractor (CRA_SBOM_SRCS_FILE,
-    # Keil/IAR projects, Makefile dry-run, or compile_commands.json). It returns
-    # 2 when no extraction method is selected, in which case we fall back to the
-    # default mqtt_*.c glob.
-    _cra_rc=0
-    _cra_extract_srcs "$WOLFMQTT_DIR" "wolfmqtt" "$SRCS_LIST" || _cra_rc=$?
+    # CRA_SBOM_NO_HASH emits a placeholder checksum and skips the source list
+    # entirely (for NDA customers who cannot share source lists).
+    if [ "${CRA_SBOM_NO_HASH:-}" = "true" ] || [ "${CRA_SBOM_NO_HASH:-}" = "1" ]; then
+        echo "    NOTE: CRA_SBOM_NO_HASH=true: emitting SBOM without artifact hash."
+        echo "          WARNING: not suitable for production CRA compliance." >&2
+        _count=0
+        set -- --no-artifact-hash --cdx-out "$CDX_OUT" --spdx-out "$SPDX_OUT"
+    else
+        # Resolve the source list via the shared extractor (CRA_SBOM_SRCS_FILE,
+        # Keil/IAR projects, Makefile dry-run, or compile_commands.json). It
+        # returns 2 when no extraction method is selected, in which case we
+        # fall back to the default mqtt_*.c glob.
+        _cra_rc=0
+        _cra_extract_srcs "$WOLFMQTT_DIR" "wolfmqtt" "$SRCS_LIST" || _cra_rc=$?
 
-    if [ "$_cra_rc" -eq 2 ]; then
-        # No extraction method active: use default glob (all src/mqtt_*.c sorted).
-        # Why: MQTT has no HAL split, so the full source set is the right default
-        # for bare-metal builds without a build-system-extractable source list.
-        echo "    Source list: default glob $WOLFMQTT_DIR/src/mqtt_*.c"
-        for _c in "$WOLFMQTT_DIR"/src/mqtt_*.c; do
-            [ -f "$_c" ] && echo "$_c"
-        done | sort > "$SRCS_LIST"
-    elif [ "$_cra_rc" -ne 0 ]; then
-        exit 1
-    fi
-
-    if [ ! -s "$SRCS_LIST" ]; then
-        echo "ERROR: no MQTT source files found to hash." >&2
-        exit 1
-    fi
-
-    # Pass the resolved sources positionally to gen-sbom's --srcs (it takes a
-    # space-separated list; argparse stops consuming at the next -- option, so
-    # --cdx-out/--spdx-out terminate the list cleanly).
-    # ponytail: gen-sbom lacks --srcs-file; upgrade path: SBOM-cgz
-    set --
-    while IFS= read -r _src; do
-        [ -n "$_src" ] || continue
-        if [ ! -f "$_src" ]; then
-            echo "ERROR: listed source not found: $_src" >&2
+        if [ "$_cra_rc" -eq 2 ]; then
+            # No extraction method active: use default glob (all src/mqtt_*.c
+            # sorted).  MQTT has no HAL split, so the full source set is the
+            # right default for bare-metal builds without an extractable list.
+            echo "    Source list: default glob $WOLFMQTT_DIR/src/mqtt_*.c"
+            for _c in "$WOLFMQTT_DIR"/src/mqtt_*.c; do
+                [ -f "$_c" ] && echo "$_c"
+            done | sort > "$SRCS_LIST"
+        elif [ "$_cra_rc" -ne 0 ]; then
             exit 1
         fi
-        set -- "$@" "$_src"
-    done < "$SRCS_LIST"
 
-    _count=$#
-    set -- --srcs "$@" --cdx-out "$CDX_OUT" --spdx-out "$SPDX_OUT"
+        if [ ! -s "$SRCS_LIST" ]; then
+            echo "ERROR: no MQTT source files found to hash." >&2
+            exit 1
+        fi
+
+        # Validate every resolved path exists before handing the file to gen-sbom.
+        _count=0
+        while IFS= read -r _src; do
+            [ -n "$_src" ] || continue
+            if [ ! -f "$_src" ]; then
+                echo "ERROR: listed source not found: $_src" >&2
+                exit 1
+            fi
+            _count=$((_count + 1))
+        done < "$SRCS_LIST"
+
+        set -- --srcs-file "$SRCS_LIST" --cdx-out "$CDX_OUT" --spdx-out "$SPDX_OUT"
+    fi
     if [ -n "${CRA_LICENSE_OVERRIDE:-}" ]; then
         set -- "$@" --license-override "$CRA_LICENSE_OVERRIDE"
         if [ -n "${CRA_LICENSE_TEXT:-}" ]; then
@@ -257,7 +265,11 @@ _run_embedded() {
             exit 1
         }
 
-    echo "NOTE: hashed ${_count} source file(s)"
+    if [ "${CRA_SBOM_NO_HASH:-}" = "true" ] || [ "${CRA_SBOM_NO_HASH:-}" = "1" ]; then
+        echo "NOTE: artifact hash omitted (CRA_SBOM_NO_HASH)"
+    else
+        echo "NOTE: hashed ${_count} source file(s)"
+    fi
 }
 
 case "${CRA_SBOM_MODE:-autotools}" in
