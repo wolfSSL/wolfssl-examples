@@ -23,6 +23,11 @@
 #   CRA_SBOM_SRCS_FILE=path/to/srcs.txt (embedded mode: explicit source list, one .c path
 #                                         per line; takes priority over all auto-detection.
 #                                         The caller owns correctness of this list.)
+#   CRA_SBOM_KEIL_PROJECT=<path>        (embedded mode: auto-extract srcs from a Keil .uvprojx)
+#   CRA_SBOM_IAR_PROJECT=<path>         (embedded mode: auto-extract srcs from an IAR .ewp)
+#   CRA_SBOM_MAKEFILE_DIR=<path>        (embedded mode: auto-extract srcs via `make -n`)
+#   CRA_SBOM_NO_HASH=true               (embedded mode: emit SBOM without a real artifact
+#                                         hash; use when no source list is available)
 #   CRA_TPM_OPTIONS_H=path/to/options.h (embedded mode: flat #define build-config header for
 #                                         feature enumeration; defaults to
 #                                         $WOLFTPM_DIR/wolftpm/options.h)
@@ -36,6 +41,8 @@
 set -eu
 
 SCRIPT_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
+# shellcheck source=_cra-sbom-extract.sh disable=SC1091
+. "$SCRIPT_DIR/_cra-sbom-extract.sh"
 KIT_DIR=$(dirname "$SCRIPT_DIR")
 # shellcheck disable=SC2015  # `|| true` is a deliberate set -e guard, not if-then-else
 WOLFTPM_DIR=${WOLFTPM_DIR:-$(cd "$KIT_DIR/../../wolftpm" 2>/dev/null && pwd || true)}
@@ -108,9 +115,11 @@ if [ -n "${CRA_LICENSE_TEXT:-}" ] && [ -f "$CRA_LICENSE_TEXT" ]; then
     echo "License text:     $CRA_LICENSE_TEXT"
 fi
 
-# Accumulator for temp files; cleaned up on exit.
+# Accumulators for temp files; cleaned up on exit. The shared extraction library
+# appends to _cra_auto_tempfiles, so trap both.
 _auto_tempfiles=""
-trap 'rm -f ${_auto_tempfiles:-}' EXIT
+_cra_auto_tempfiles=""
+trap 'rm -f ${_auto_tempfiles:-} ${_cra_auto_tempfiles:-}' EXIT
 
 _auto_extract_srcs() {
     # Extract wolftpm sources from compile_commands.json (CMake build).
@@ -244,6 +253,45 @@ _run_embedded() {
         exit 1
     fi
 
+    # --no-artifact-hash: skip all source-file logic and emit a placeholder hash.
+    # Use when no compiled library AND no source file list is accessible. The
+    # options.h header is still required so the SBOM enumerates enabled features.
+    if [ "${CRA_SBOM_NO_HASH:-}" = "true" ] || [ "${CRA_SBOM_NO_HASH:-}" = "1" ]; then
+        if [ -n "${CRA_SBOM_SRCS_FILE:-}" ]; then
+            echo "ERROR: CRA_SBOM_NO_HASH cannot be combined with CRA_SBOM_SRCS_FILE." >&2
+            exit 1
+        fi
+        echo "    NOTE: CRA_SBOM_NO_HASH=true: emitting SBOM with placeholder hash."
+        echo "          Contact wolfssl@wolfssl.com to discuss integrity verification"
+        echo "          options before using this in production."
+        set -- \
+            --name wolftpm \
+            --version "$VERSION" \
+            --supplier "wolfSSL Inc." \
+            --license-file "$WOLFTPM_DIR/LICENSE" \
+            --options-h "$OPTIONS_H" \
+            --no-artifact-hash \
+            --cdx-out "$CDX_OUT" \
+            --spdx-out "$SPDX_OUT"
+        if [ -n "${CRA_LICENSE_OVERRIDE:-}" ]; then
+            set -- "$@" --license-override "$CRA_LICENSE_OVERRIDE"
+            if [ -n "${CRA_LICENSE_TEXT:-}" ]; then
+                set -- "$@" --license-text "$CRA_LICENSE_TEXT"
+            fi
+        fi
+        "$GEN_PY" "$GEN" "$@" || {
+            echo "ERROR: gen-sbom failed in embedded NO_HASH mode." >&2
+            exit 1
+        }
+        for _out in "$CDX_OUT" "$SPDX_OUT"; do
+            if [ ! -s "$_out" ]; then
+                echo "ERROR: expected output $_out is missing or empty." >&2
+                exit 1
+            fi
+        done
+        return 0
+    fi
+
     # Source list, one .c path per line.
     _srcs=$(mktemp "${TMPDIR:-/tmp}/wolftpm-embedded-srcs.XXXXXX") || {
         echo "ERROR: mktemp failed for the embedded source list." >&2
@@ -251,21 +299,27 @@ _run_embedded() {
     }
     _auto_tempfiles="${_auto_tempfiles:-} $_srcs"
 
-    # CRA_SBOM_SRCS_FILE takes priority over all auto-detection: when the caller
-    # supplies an explicit list they have already reconciled it against their exact
-    # firmware link line (core + the correct HAL + any tpm2_* they actually build),
-    # so second-guessing it here could only drop or add files they did not intend.
-    if [ -n "${CRA_SBOM_SRCS_FILE:-}" ]; then
-        if [ ! -f "$CRA_SBOM_SRCS_FILE" ]; then
-            echo "ERROR: CRA_SBOM_SRCS_FILE=$CRA_SBOM_SRCS_FILE not found." >&2
-            exit 1
-        fi
-        echo "    Using caller-supplied source list: $CRA_SBOM_SRCS_FILE"
-        cp -f "$CRA_SBOM_SRCS_FILE" "$_srcs" || {
-            echo "ERROR: could not read CRA_SBOM_SRCS_FILE." >&2
-            exit 1
-        }
-    else
+    # Resolve the source list. The shared library handles CRA_SBOM_SRCS_FILE,
+    # Keil/IAR/Makefile, and compile_commands.json extraction; it returns:
+    #   0 = a build-system method produced the list (trust it verbatim)
+    #   2 = no method active (fall back to the default glob + HAL selection)
+    #   1 = a method was selected but failed (library already explained why)
+    # `|| _cra_rc=$?` keeps `set -e` from aborting on the non-zero returns.
+    _cra_rc=0
+    _cra_extract_srcs "$WOLFTPM_DIR" "wolftpm" "$_srcs" || _cra_rc=$?
+
+    if [ "$_cra_rc" -eq 0 ]; then
+        # A build-system method (Keil/IAR/Makefile/compile_commands) produced the
+        # list. Trust it: the build system already selected the correct single HAL
+        # and excluded the host-only transports (tpm2_linux.c, tpm2_winapi.c,
+        # tpm2_swtpm.c). Do NOT apply CRA_TPM_HAL on top — that would double-count
+        # the HAL or, if CRA_TPM_HAL disagrees with the build, conflict with it.
+        _n=$(wc -l < "$_srcs" | tr -d ' ')
+        echo "NOTE: hashed $_n source file(s) (from build system)"
+    elif [ "$_cra_rc" -eq 2 ]; then
+        # No extraction method active: build the default source list ourselves,
+        # selecting the single platform HAL via CRA_TPM_HAL.
+        #
         # Core sources: every src/tpm2*.c EXCEPT the host-only transports below.
         # The excluded files (Linux /dev/tpm0, Windows TBS, swtpm simulator) target
         # a full OS and will not compile or link on a bare-metal/RTOS firmware build,
@@ -314,19 +368,22 @@ _run_embedded() {
         else
             echo "WARNING: CRA_TPM_HAL not set; HAL source excluded from SBOM. Set CRA_TPM_HAL=st|espressif|..." >&2
         fi
-    fi
 
-    if [ ! -s "$_srcs" ]; then
-        echo "ERROR: no source files collected for the embedded SBOM." >&2
+        if [ ! -s "$_srcs" ]; then
+            echo "ERROR: no source files collected for the embedded SBOM." >&2
+            exit 1
+        fi
+
+        _n=$(wc -l < "$_srcs" | tr -d ' ')
+        echo "NOTE: hashed $_n source file(s)"
+    else
+        # Library selected a method but it failed; it already printed the reason.
         exit 1
     fi
 
     # wolfcrypt/wolfssl sources are intentionally NOT hashed here: they are a
     # separate component covered by generate-wolfssl-sbom.sh (embedded mode), and
     # the wolfSSL SBOM is referenced as a dependency rather than duplicated.
-
-    _n=$(wc -l < "$_srcs" | tr -d ' ')
-    echo "NOTE: hashed $_n source file(s)"
 
     # gen-sbom takes the source list as a positional --srcs vector (exactly one
     # of --lib / --srcs is accepted). Build the option vector first, then append
