@@ -69,16 +69,17 @@ if [ ! -f "$HEADER" ]; then
     echo "ERROR: version header not found: $HEADER" >&2
     exit 1
 fi
-VERSION=$(awk '
-    /WOLFSENTRY_VERSION_MAJOR/ { maj=$3 }
-    /WOLFSENTRY_VERSION_MINOR/ { min=$3 }
-    /WOLFSENTRY_VERSION_TINY/  { tiny=$3 }
-    END { print maj"."min"."tiny }
-' "$HEADER")
-if [ -z "$VERSION" ] || [ "$VERSION" = ".." ]; then
-    echo "ERROR: could not extract version from $HEADER" >&2
-    exit 1
-fi
+_extract_ver() {
+    grep -E "^#define[[:space:]]+$1[[:space:]]+[0-9]+" "$HEADER" | awk '{print $3}'
+}
+_major=$(_extract_ver WOLFSENTRY_VERSION_MAJOR)
+_minor=$(_extract_ver WOLFSENTRY_VERSION_MINOR)
+_tiny=$(_extract_ver WOLFSENTRY_VERSION_TINY)
+VERSION="${_major}.${_minor}.${_tiny}"
+case "$VERSION" in
+    [0-9]*.[0-9]*.[0-9]*) ;;
+    *) echo "ERROR: could not parse wolfsentry version from $HEADER (got: '$VERSION')" >&2; exit 1 ;;
+esac
 
 mkdir -p "$OUT_DIR"
 CDX_OUT="$OUT_DIR/wolfsentry-${VERSION}.cdx.json"
