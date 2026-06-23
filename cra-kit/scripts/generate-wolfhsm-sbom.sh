@@ -15,11 +15,21 @@
 #   CRA_PYTHON=python3            (interpreter with pcpp)
 #   CRA_LICENSE_OVERRIDE=<SPDX>  (e.g. LicenseRef-wolfSSL-Commercial)
 #   CRA_LICENSE_TEXT=<path>       (required when CRA_LICENSE_OVERRIDE is LicenseRef-*)
+#   WOLFHSM_BUILD_DIR=path        auto-extract from compile_commands.json
+#   CRA_SBOM_SRCS_FILE=path       explicit .c file list, one per line
+#   CRA_SBOM_KEIL_PROJECT=path    auto-extract from Keil .uvprojx
+#   CRA_SBOM_IAR_PROJECT=path     auto-extract from IAR .ewp
+#   CRA_SBOM_MAKEFILE_DIR=path    auto-extract via make -n dry-run
+#   CRA_SBOM_NO_HASH — not yet supported; blocked on SBOM-cgz (gen-sbom --no-artifact-hash)
 set -eu
 
-# Accumulator for temp files; cleaned up on exit.
+. "$(dirname "$0")/_cra-sbom-extract.sh"
+
+# Accumulator for temp files; cleaned up on exit. The shared extraction library
+# appends to _cra_auto_tempfiles, so trap both.
 _auto_tempfiles=""
-trap 'rm -f ${_auto_tempfiles:-}' EXIT
+_cra_auto_tempfiles=""
+trap 'rm -f ${_auto_tempfiles:-} ${_cra_auto_tempfiles:-}' EXIT
 
 SCRIPT_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 KIT_DIR=$(dirname "$SCRIPT_DIR")
@@ -108,23 +118,39 @@ _python_with_pcpp() {
     return 1
 }
 
-# Enumerate wolfHSM sources: all *.c directly under src/ (no recursion).
-_wolfhsm_srcs() {
-    find "$WOLFHSM_DIR/src" -maxdepth 1 -name "*.c" | sort
-}
-
 echo "==> Embedded path: gen-sbom with CC -dM -E (no user_settings.h)"
 
-# Write collected source paths to a temp file for --srcs-file.
 _srcs_file=$(mktemp "${TMPDIR:-/tmp}/wolfhsm-srcs.XXXXXX")
 _auto_tempfiles="${_auto_tempfiles:-} $_srcs_file"
-_wolfhsm_srcs > "$_srcs_file"
-_n=$(wc -l < "$_srcs_file" | tr -d ' ')
-echo "    Sources: $_n .c files from $WOLFHSM_DIR/src/"
-if [ ! -s "$_srcs_file" ]; then
-    echo "ERROR: no .c files found under $WOLFHSM_DIR/src/." >&2
+
+# Allow WOLFHSM_BUILD_DIR to feed compile_commands.json extraction. The shared
+# library reads CRA_SBOM_BUILD_DIR; map our wolfHSM-style env var onto it.
+CRA_SBOM_BUILD_DIR="${WOLFHSM_BUILD_DIR:-}"
+
+_cra_rc=0
+_cra_extract_srcs "$WOLFHSM_DIR" "wolfhsm" "$_srcs_file" || _cra_rc=$?
+
+if [ "$_cra_rc" -eq 2 ]; then
+    # No extraction method active: enumerate all wolfHSM C sources via find.
+    # find is used (not glob) because wolfHSM sources span subdirectories.
+    find "$WOLFHSM_DIR/src" -name "*.c" | sort > "$_srcs_file" || {
+        echo "ERROR: find failed on $WOLFHSM_DIR/src" >&2; exit 1
+    }
+    _n=$(wc -l < "$_srcs_file" | tr -d ' ')
+    echo "    Source list: find $WOLFHSM_DIR/src -name '*.c' ($_n files)"
+elif [ "$_cra_rc" -ne 0 ]; then
     exit 1
 fi
+
+if [ ! -s "$_srcs_file" ]; then
+    echo "ERROR: no wolfHSM sources found in $WOLFHSM_DIR/src" >&2
+    exit 1
+fi
+_n=$(wc -l < "$_srcs_file" | tr -d ' ')
+echo "NOTE: hashed $_n source file(s)"
+
+# ponytail: gen-sbom lacks --srcs-file; pass list as positional args
+# ceiling: ARG_MAX; upgrade path: SBOM-cgz adds --srcs-file to gen-sbom
 
 # Build license-override args.
 _license_args=""
@@ -154,7 +180,7 @@ if _py=$(_python_with_pcpp); then
         --user-settings "$SETTINGS_H" \
         --user-settings-include "$WOLFHSM_DIR" \
         --user-settings-include "$WOLFSSL_DIR" \
-        --srcs-file "$_srcs_file" \
+        --srcs $(cat "$_srcs_file") \
         --cdx-out "$CDX_OUT" \
         --spdx-out "$SPDX_OUT" \
         ${_license_args}
@@ -183,7 +209,7 @@ else
         --supplier "wolfSSL Inc." \
         --license-file "$WOLFHSM_DIR/LICENSING" \
         --options-h "$_defines" \
-        --srcs-file "$_srcs_file" \
+        --srcs $(cat "$_srcs_file") \
         --cdx-out "$CDX_OUT" \
         --spdx-out "$SPDX_OUT" \
         ${_license_args}
