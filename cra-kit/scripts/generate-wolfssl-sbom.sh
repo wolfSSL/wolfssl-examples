@@ -34,11 +34,16 @@
 #                                        without it.)
 set -eu
 
-# Accumulator for temp files created by _auto_extract_srcs; cleaned up on exit.
+# Accumulator for temp files created by _auto_extract_srcs / the shared
+# extraction library; cleaned up on exit. The library appends to
+# _cra_auto_tempfiles, so trap both.
 _auto_tempfiles=""
-trap 'rm -f ${_auto_tempfiles:-}' EXIT
+_cra_auto_tempfiles=""
+trap 'rm -f ${_auto_tempfiles:-} ${_cra_auto_tempfiles:-}' EXIT
 
 SCRIPT_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
+# shellcheck source=_cra-sbom-extract.sh disable=SC1091
+. "$SCRIPT_DIR/_cra-sbom-extract.sh"
 KIT_DIR=$(dirname "$SCRIPT_DIR")
 # shellcheck disable=SC2015  # `|| true` is a deliberate set -e guard, not if-then-else
 WOLFSSL_DIR=${WOLFSSL_DIR:-$(cd "$KIT_DIR/../../wolfssl" 2>/dev/null && pwd || true)}
@@ -131,190 +136,34 @@ _embedded_srcs() {
 }
 
 _auto_extract_srcs() {
-    # Method 1: compile_commands.json (CMake / Zephyr / ESP-IDF)
-    if [ -n "${WOLFSSL_BUILD_DIR:-}" ] && [ -f "$WOLFSSL_BUILD_DIR/compile_commands.json" ]; then
-        _ccdb="$WOLFSSL_BUILD_DIR/compile_commands.json"
-        if ! command -v jq >/dev/null 2>&1; then
-            echo "ERROR: jq is required to auto-extract sources from compile_commands.json." >&2
-            echo "       Install jq, or set CRA_SBOM_SRCS_FILE manually. See SRCS-FILE-HOWTO.md." >&2
-            exit 1
-        fi
-        _auto=$(mktemp "${TMPDIR:-/tmp}/wolfssl-auto-srcs.XXXXXX")
-        _auto_tempfiles="${_auto_tempfiles:-} $_auto"
-        jq -r '.[].file' "$_ccdb" \
-            | grep "^${WOLFSSL_DIR}/" \
-            | grep -E '/(wolfcrypt/src|src)/[^/]+\.c$' \
-            | sort -u > "$_auto"
-        if [ ! -s "$_auto" ]; then
-            _esp_proj=$(dirname "$WOLFSSL_BUILD_DIR")
-            jq -r '.[].file' "$_ccdb" \
-                | grep "^${_esp_proj}/managed_components/wolfssl__wolfssl/" \
-                | grep -E '/(wolfcrypt/src|src)/[^/]+\.c$' \
-                | sort -u > "$_auto"
-        fi
-        if [ -s "$_auto" ]; then
-            _n=$(wc -l < "$_auto" | tr -d ' ')
-            echo "    Auto-extracted $_n wolfssl sources from compile_commands.json"
-            CRA_SBOM_SRCS_FILE="$_auto"
-            CRA_SBOM_SRCS_ONLY_FROM_FILE=true
-            return 0
-        fi
-        echo "    WARNING: compile_commands.json found but yielded no wolfssl sources; trying next method." >&2
+    # Delegate to the shared extraction library. The library reads
+    # CRA_SBOM_BUILD_DIR for compile_commands.json; map WOLFSSL_BUILD_DIR onto it
+    # so the embedded cmake/Zephyr/ESP-IDF auto-extraction keeps working.
+    if [ -n "${WOLFSSL_BUILD_DIR:-}" ]; then
+        CRA_SBOM_BUILD_DIR=${CRA_SBOM_BUILD_DIR:-$WOLFSSL_BUILD_DIR}
     fi
-
-    # Method 2: Makefile
-    if [ -n "${CRA_SBOM_MAKEFILE_DIR:-}" ]; then
-        if [ ! -d "$CRA_SBOM_MAKEFILE_DIR" ]; then
-            echo "ERROR: CRA_SBOM_MAKEFILE_DIR=$CRA_SBOM_MAKEFILE_DIR is not a directory." >&2
-            exit 1
-        fi
-        _auto=$(mktemp "${TMPDIR:-/tmp}/wolfssl-auto-srcs.XXXXXX")
-        _auto_tempfiles="${_auto_tempfiles:-} $_auto"
-        if make --no-print-directory -C "$CRA_SBOM_MAKEFILE_DIR" -n print-wolfssl-srcs >/dev/null 2>&1; then
-            make --no-print-directory -C "$CRA_SBOM_MAKEFILE_DIR" print-wolfssl-srcs 2>/dev/null \
-                | sort -u > "$_auto"
-        fi
-        if [ ! -s "$_auto" ]; then
-            make -C "$CRA_SBOM_MAKEFILE_DIR" -n 2>/dev/null \
-                | grep -oE '[^ ]+wolfssl[^ ]+\.c' \
-                | sort -u > "$_auto" || true
-        fi
-        if [ -s "$_auto" ]; then
-            _n=$(wc -l < "$_auto" | tr -d ' ')
-            echo "    Auto-extracted $_n wolfssl sources via Makefile (CRA_SBOM_MAKEFILE_DIR=$CRA_SBOM_MAKEFILE_DIR)"
-            CRA_SBOM_SRCS_FILE="$_auto"
-            CRA_SBOM_SRCS_ONLY_FROM_FILE=true
-            return 0
-        fi
-        echo "ERROR: CRA_SBOM_MAKEFILE_DIR is set but make yielded no wolfssl sources." >&2
-        echo "       Add a 'print-wolfssl-srcs' target or ensure 'make -n' references wolfssl .c files." >&2
+    _auto=$(mktemp "${TMPDIR:-/tmp}/wolfssl-auto-srcs.XXXXXX") || {
+        echo "ERROR: mktemp failed for the auto-extract source list." >&2
         exit 1
-    fi
-
-    # Method 3: Keil .uvprojx
-    if [ -n "${CRA_SBOM_KEIL_PROJECT:-}" ]; then
-        if [ ! -f "$CRA_SBOM_KEIL_PROJECT" ]; then
-            echo "ERROR: CRA_SBOM_KEIL_PROJECT=$CRA_SBOM_KEIL_PROJECT not found." >&2
-            exit 1
-        fi
-        if ! command -v python3 >/dev/null 2>&1; then
-            echo "ERROR: python3 is required to parse a Keil .uvprojx file." >&2
-            exit 1
-        fi
-        _auto=$(mktemp "${TMPDIR:-/tmp}/wolfssl-auto-srcs.XXXXXX")
-        _auto_tempfiles="${_auto_tempfiles:-} $_auto"
-        python3 - "$CRA_SBOM_KEIL_PROJECT" "$WOLFSSL_DIR" > "$_auto" <<'PYEOF'
-import sys, os, glob, xml.etree.ElementTree as ET
-
-proj_file = sys.argv[1]
-wolfssl_dir = sys.argv[2] if len(sys.argv) > 2 else ''
-proj_dir = os.path.dirname(os.path.abspath(proj_file))
-proj = ET.parse(proj_file)
-paths = set()
-
-rte = proj.find('.//RTE')
-if rte is not None and rte.find('.//component[@Cvendor="wolfSSL"]') is not None:
-    # CMSIS Pack RTE: sources come from the installed pack .pdsc
-    pdsc_candidates = sorted(glob.glob(
-        os.path.expanduser('~/.arm/Packs/wolfSSL/wolfSSL/*/wolfSSL.pdsc')
-    ))
-    if os.name == 'nt':
-        appdata = os.environ.get('LOCALAPPDATA', '')
-        pdsc_candidates += sorted(glob.glob(
-            os.path.join(appdata, 'Arm', 'Packs', 'wolfSSL', 'wolfSSL', '*', 'wolfSSL.pdsc')
-        ))
-    if pdsc_candidates:
-        pdsc_file = pdsc_candidates[-1]
-        pack_dir = os.path.dirname(pdsc_file)
-        pdsc = ET.parse(pdsc_file)
-        for f in pdsc.findall('.//file[@category="source"]'):
-            name = f.get('name', '')
-            if name.lower().endswith('.c'):
-                paths.add(os.path.normpath(os.path.join(pack_dir, name.replace('\\', '/'))))
-    elif wolfssl_dir and os.path.isdir(wolfssl_dir):
-        # Pack not installed locally; enumerate sources directly from WOLFSSL_DIR.
-        # The CMSIS Pack contains the full wolfssl library (wolfcrypt/src/ + src/).
-        for subdir in ('wolfcrypt/src', 'src'):
-            d = os.path.join(wolfssl_dir, subdir)
-            if os.path.isdir(d):
-                for name in os.listdir(d):
-                    if name.endswith('.c'):
-                        paths.add(os.path.join(d, name))
-else:
-    for file_elem in proj.findall('.//File'):
-        fp = file_elem.find('FilePath')
-        ft = file_elem.find('FileType')
-        if fp is None or not fp.text:
-            continue
-        ftype = int(ft.text) if ft is not None and ft.text else 0
-        if ftype == 1 or fp.text.lower().endswith('.c'):
-            abs_path = os.path.normpath(
-                os.path.join(proj_dir, fp.text.replace('\\', '/'))
-            )
-            paths.add(abs_path)
-
-for p in sorted(paths):
-    print(p)
-PYEOF
-        if [ -s "$_auto" ]; then
-            _n=$(wc -l < "$_auto" | tr -d ' ')
-            echo "    Auto-extracted $_n wolfssl sources from Keil project"
+    }
+    _auto_tempfiles="${_auto_tempfiles:-} $_auto"
+    # `|| _rc=$?` keeps `set -e` from aborting on the library's non-zero returns
+    # (1 = error, 2 = no method) so we can dispatch on the code below.
+    _rc=0
+    _cra_extract_srcs "$WOLFSSL_DIR" "wolfssl" "$_auto" || _rc=$?
+    case "$_rc" in
+        0)
             CRA_SBOM_SRCS_FILE="$_auto"
             CRA_SBOM_SRCS_ONLY_FROM_FILE=true
-            return 0
-        fi
-        echo "ERROR: CRA_SBOM_KEIL_PROJECT is set but no sources were extracted from $CRA_SBOM_KEIL_PROJECT." >&2
-        exit 1
-    fi
-
-    # Method 4: IAR .ewp
-    if [ -n "${CRA_SBOM_IAR_PROJECT:-}" ]; then
-        if [ ! -f "$CRA_SBOM_IAR_PROJECT" ]; then
-            echo "ERROR: CRA_SBOM_IAR_PROJECT=$CRA_SBOM_IAR_PROJECT not found." >&2
+            ;;
+        2)
+            # No extraction method selected; fall back to the built-in demo list.
+            ;;
+        *)
+            # Library already printed an actionable error to stderr.
             exit 1
-        fi
-        if ! command -v python3 >/dev/null 2>&1; then
-            echo "ERROR: python3 is required to parse an IAR .ewp file." >&2
-            exit 1
-        fi
-        _auto=$(mktemp "${TMPDIR:-/tmp}/wolfssl-auto-srcs.XXXXXX")
-        _auto_tempfiles="${_auto_tempfiles:-} $_auto"
-        python3 - "$CRA_SBOM_IAR_PROJECT" > "$_auto" <<'PYEOF'
-import sys, os, xml.etree.ElementTree as ET
-
-def is_excluded(file_elem):
-    return file_elem.find('excluded') is not None
-
-proj_file = sys.argv[1]
-proj_dir = os.path.dirname(os.path.abspath(proj_file))
-proj = ET.parse(proj_file)
-paths = set()
-
-for file_elem in proj.findall('.//file'):
-    if is_excluded(file_elem):
-        continue
-    name_elem = file_elem.find('name')
-    if name_elem is None or not name_elem.text:
-        continue
-    raw = name_elem.text
-    if not raw.lower().endswith('.c'):
-        continue
-    resolved = raw.replace('$PROJ_DIR$', proj_dir)
-    paths.add(os.path.normpath(resolved.replace('\\', '/')))
-
-for p in sorted(paths):
-    print(p)
-PYEOF
-        if [ -s "$_auto" ]; then
-            _n=$(wc -l < "$_auto" | tr -d ' ')
-            echo "    Auto-extracted $_n wolfssl sources from IAR project"
-            CRA_SBOM_SRCS_FILE="$_auto"
-            CRA_SBOM_SRCS_ONLY_FROM_FILE=true
-            return 0
-        fi
-        echo "ERROR: CRA_SBOM_IAR_PROJECT is set but no sources were extracted from $CRA_SBOM_IAR_PROJECT." >&2
-        exit 1
-    fi
+            ;;
+    esac
 }
 
 _run_embedded() {
