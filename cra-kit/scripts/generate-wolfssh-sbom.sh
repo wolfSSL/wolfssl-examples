@@ -19,6 +19,10 @@
 #   CRA_SBOM_SRCS_FILE=path/to/srcs.txt (embedded: explicit list of wolfSSH .c
 #                                        paths, one per line; takes priority over
 #                                        every other source-resolution method)
+#   CRA_SBOM_KEIL_PROJECT=path          (embedded: auto-extract from Keil .uvprojx)
+#   CRA_SBOM_IAR_PROJECT=path           (embedded: auto-extract from IAR .ewp)
+#   CRA_SBOM_MAKEFILE_DIR=path          (embedded: auto-extract via make -n dry-run)
+#   CRA_SBOM_NO_HASH — not yet supported; blocked on SBOM-cgz (gen-sbom --no-artifact-hash)
 #
 # Optional variables:
 #   CRA_SBOM_OUT_DIR=<path>             (output directory; default auditor-packet)
@@ -36,10 +40,14 @@ set -eu
 # Why: mktemp temp files must not leak if any later command fails under set -e;
 # a single EXIT trap removes them on every exit path including errors.
 _auto_tempfiles=""
-trap 'rm -f ${_auto_tempfiles:-}' EXIT
+# _cra_auto_tempfiles is populated by _cra-sbom-extract.sh's helpers; clean both.
+trap 'rm -f ${_auto_tempfiles:-} ${_cra_auto_tempfiles:-}' EXIT
 
 SCRIPT_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 KIT_DIR=$(dirname "$SCRIPT_DIR")
+
+# shared extraction methods (Keil, IAR, Makefile, compile_commands.json)
+. "$SCRIPT_DIR/_cra-sbom-extract.sh"
 # shellcheck disable=SC2015  # `|| true` is a deliberate set -e guard, not if-then-else
 WOLFSSL_DIR=${WOLFSSL_DIR:-$(cd "$KIT_DIR/../../wolfssl" 2>/dev/null && pwd || true)}
 WOLFSSH_DIR=${WOLFSSH_DIR:-$(cd "$KIT_DIR/../../wolfSSH" 2>/dev/null && pwd || true)}
@@ -129,68 +137,36 @@ _python_with_pcpp() {
 # component covered by generate-wolfssl-sbom.sh and referenced as a dependency.
 # Mixing them in would double-count the crypto library across two SBOMs.
 #
-# Priority order (first match wins):
+# Priority order (first match wins), all but the last handled by
+# _cra_extract_srcs from _cra-sbom-extract.sh:
 #   1. CRA_SBOM_SRCS_FILE   — explicit user list beats anything inferred, because
-#                             the user knows their exact link line; we must not
-#                             second-guess it.
-#   2. compile_commands.json at CRA_SBOM_BUILD_DIR — accurate per-build extraction
-#                             for CMake / ESP-IDF / Zephyr.
-#   3. Default: all ${WOLFSSH_DIR}/src/*.c sorted — the "all sources" fallback for
-#                             toolchains (IAR, Keil, MPLAB) that produce no
-#                             compile_commands.json and where we cannot infer the
-#                             exact subset compiled. Listing all sources is the
-#                             safe over-approximation: it never omits a file that
+#                             the user knows their exact link line.
+#   2. CRA_SBOM_KEIL_PROJECT — parse Keil .uvprojx, filter to WOLFSSH_DIR.
+#   3. CRA_SBOM_IAR_PROJECT  — parse IAR .ewp, filter to WOLFSSH_DIR.
+#   4. CRA_SBOM_MAKEFILE_DIR — `make -n` dry-run, filter to WOLFSSH_DIR.
+#   5. compile_commands.json at CRA_SBOM_BUILD_DIR — per-build extraction for
+#                             CMake / ESP-IDF / Zephyr.
+#   6. Default: all ${WOLFSSH_DIR}/src/*.c sorted — the "all sources" fallback
+#                             for toolchains where we cannot infer the exact
+#                             subset compiled. Listing all sources is the safe
+#                             over-approximation: it never omits a file that
 #                             shipped.
 _resolve_wolfssh_srcs() {
     _out="$1"
 
-    # 1. Explicit user-provided list (verbatim).
-    if [ -n "${CRA_SBOM_SRCS_FILE:-}" ]; then
-        if [ ! -f "$CRA_SBOM_SRCS_FILE" ]; then
-            echo "ERROR: CRA_SBOM_SRCS_FILE=$CRA_SBOM_SRCS_FILE not found." >&2
-            exit 1
-        fi
-        if [ ! -s "$CRA_SBOM_SRCS_FILE" ]; then
-            echo "ERROR: CRA_SBOM_SRCS_FILE=$CRA_SBOM_SRCS_FILE is empty." >&2
-            exit 1
-        fi
-        grep -v '^[[:space:]]*$' "$CRA_SBOM_SRCS_FILE" > "$_out" || {
-            echo "ERROR: failed to read CRA_SBOM_SRCS_FILE=$CRA_SBOM_SRCS_FILE." >&2
-            exit 1
-        }
-        echo "    Using explicit source list from $CRA_SBOM_SRCS_FILE"
+    # Try every env-var-driven extraction method (SRCS_FILE, Keil, IAR,
+    # Makefile, compile_commands.json). rc=2 means none was set: fall back to
+    # the wolfSSH default glob below.
+    _cra_rc=0
+    _cra_extract_srcs "$WOLFSSH_DIR" "wolfssh" "$_out" || _cra_rc=$?
+    if [ "$_cra_rc" -eq 0 ]; then
         return 0
+    elif [ "$_cra_rc" -ne 2 ]; then
+        exit 1  # _cra_extract_srcs already printed the error
     fi
 
-    # 2. compile_commands.json (CMake / ESP-IDF / Zephyr).
-    if [ -n "${CRA_SBOM_BUILD_DIR:-}" ] && \
-       [ -f "$CRA_SBOM_BUILD_DIR/compile_commands.json" ]; then
-        _ccdb="$CRA_SBOM_BUILD_DIR/compile_commands.json"
-        if ! command -v jq >/dev/null 2>&1; then
-            echo "ERROR: jq is required to extract sources from compile_commands.json." >&2
-            echo "       Install jq, or set CRA_SBOM_SRCS_FILE manually." >&2
-            exit 1
-        fi
-        # Restrict to wolfSSH's own src/*.c; exclude any wolfcrypt/wolfssl entries
-        # that share the build (they belong to the wolfssl component).
-        jq -r '.[].file' "$_ccdb" \
-            | grep "^${WOLFSSH_DIR}/src/" \
-            | grep -E '/src/[^/]+\.c$' \
-            | sort -u > "$_out" || {
-                echo "ERROR: failed to parse $_ccdb with jq." >&2
-                exit 1
-            }
-        if [ -s "$_out" ]; then
-            _n=$(wc -l < "$_out" | tr -d ' ')
-            echo "    Extracted $_n wolfSSH sources from compile_commands.json"
-            return 0
-        fi
-        echo "    WARNING: compile_commands.json found but yielded no wolfSSH" >&2
-        echo "             src/ sources; falling back to all src/*.c." >&2
-    fi
-
-    # 3. Default fallback: every wolfSSH src/*.c. A POSIX glob expands in sorted
-    # order; guard the no-match case where the pattern stays literal.
+    # No extraction env var set: every wolfSSH src/*.c. A POSIX glob expands in
+    # sorted order; guard the no-match case where the pattern stays literal.
     : > "$_out"
     for _c in "$WOLFSSH_DIR"/src/*.c; do
         [ -f "$_c" ] || continue
@@ -241,6 +217,8 @@ _run_embedded() {
     _resolve_wolfssh_srcs "$_srcs"
 
     # Build the positional --srcs argument list from the resolved file.
+    # ponytail: gen-sbom lacks --srcs-file; pass list as positional args
+    # ceiling: ARG_MAX; upgrade path: SBOM-cgz adds --srcs-file to gen-sbom
     set --
     while IFS= read -r _src; do
         [ -n "$_src" ] || continue
