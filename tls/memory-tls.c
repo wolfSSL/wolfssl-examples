@@ -153,7 +153,7 @@ static void* client_thread(void* args)
     wolfSSL_SetIORecv(cli_ctx, ClientRecv);
 
     WOLFSSL* cli_ssl = wolfSSL_new(cli_ctx);
-    if (cli_ctx == NULL) err_sys("bad client new");
+    if (cli_ssl == NULL) err_sys("bad client new");
 
     ret = wolfSSL_connect(cli_ssl);
     if (ret != WOLFSSL_SUCCESS) err_sys("bad client tls connect");
@@ -185,7 +185,7 @@ int main()
     wolfSSL_SetIORecv(srv_ctx, ServerRecv);
 
     WOLFSSL* srv_ssl = wolfSSL_new(srv_ctx);
-    if (srv_ctx == NULL) err_sys("bad server new");
+    if (srv_ssl == NULL) err_sys("bad server new");
 
     /* start client thread */
     pthread_t tid;
