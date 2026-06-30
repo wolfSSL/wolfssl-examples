@@ -189,7 +189,7 @@ int main(int argc, char** argv)
     wolfSSL_set_fd(read_ssl, sockfd);
 
     /* Connect to wolfSSL on the server side */
-    if ((ret = wolfSSL_connect(read_ssl) != SSL_SUCCESS)) {
+    if ((ret = wolfSSL_connect(read_ssl)) != SSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to connect to wolfSSL\n");
         goto exit;
     }
