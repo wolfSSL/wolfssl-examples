@@ -78,6 +78,10 @@ void* wolfssl_thread(void* fd)
     char buf[MAXLINE];
     char response[] = "I hear ya for shizzle";
 
+    /* fd was heap-allocated per connection by main(); free it now that the
+     * descriptor has been copied into connfd. */
+    free(fd);
+
     memset(buf, 0, MAXLINE);
 
     /* create WOLFSSL object */
@@ -230,12 +234,26 @@ int main()
             return 1;
         }
         else {
+            int* connfd_ptr;
+
             printf("Connection from %s, port %d\n",
                    inet_ntop(AF_INET, &cliAddr.sin_addr, buff, sizeof(buff)),
                    ntohs(cliAddr.sin_port));
 
-            if (pthread_create(&thread, NULL, &wolfssl_thread, (void*) &connfd)
+            /* Give each thread its own heap-allocated copy of the descriptor;
+             * passing &connfd would let the next accept() overwrite it. */
+            connfd_ptr = malloc(sizeof(int));
+            if (connfd_ptr == NULL) {
+                printf("Fatal error : malloc error\n");
+                close(connfd);
+                return 1;
+            }
+            *connfd_ptr = connfd;
+
+            if (pthread_create(&thread, NULL, &wolfssl_thread, connfd_ptr)
                                != 0) {
+                close(connfd);
+                free(connfd_ptr);
                 return 1;
             }
             if (pthread_detach(thread) != 0) {
