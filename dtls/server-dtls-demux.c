@@ -704,7 +704,7 @@ static void addTimeSpec(struct timespec* ts, WOLFSSL* ssl)
     if (ts->tv_nsec + rem > 999999999) {
         /* does not fit in tv_nsec member */
         ts->tv_sec++;
-        ts->tv_nsec = ts->tv_nsec + rem - 999999999;
+        ts->tv_nsec = ts->tv_nsec + rem - 1000000000;
     }
     else {
         ts->tv_nsec += rem;
