@@ -148,18 +148,18 @@ main(int    argc,
         return EXIT_FAILURE;
     }
 
+    ret = talk_to_server(ssl_res, "client message after resume");
+
+    if (ret) {
+        return EXIT_FAILURE;
+    }
+
     /* Test if the resume was successful */
     if (wolfSSL_session_reused(ssl_res)) {
         printf("info: session ID reused; Successful resume\n");
     }
     else {
         printf("info: session ID not reused\n");
-    }
-
-    ret = talk_to_server(ssl_res, "client message after resume");
-
-    if (ret) {
-        return EXIT_FAILURE;
     }
 
     /* Cleanup memory used for storing the session information */

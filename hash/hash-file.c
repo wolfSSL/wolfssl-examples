@@ -99,7 +99,7 @@ enum wc_HashType hash_type_from_string(char* name)
 #endif
 #ifdef WOLFSSL_SM3
     else if (strcmp(name, "SM3") == 0) {
-        return WC_HASH_TYPE_SHAKE256;
+        return WC_HASH_TYPE_SM3;
     }
 #endif
     else {

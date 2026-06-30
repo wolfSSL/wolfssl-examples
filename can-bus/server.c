@@ -51,8 +51,9 @@ int main(int argc, char *argv[])
         int input;
         char reply[RECV_MSG_LEN];
         memset(reply, 0, RECV_MSG_LEN);
-        input = wolfSSL_read(ssl, reply, RECV_MSG_LEN);
+        input = wolfSSL_read(ssl, reply, RECV_MSG_LEN - 1);
         if (input > 0) {
+            reply[input] = '\0';
             printf("Got message: %s\n", reply);
         }
     }
