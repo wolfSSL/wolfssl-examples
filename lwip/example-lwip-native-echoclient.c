@@ -117,7 +117,7 @@ void tls_echoclient_connect(void)
             ret = wolfSSL_write(ssl, TEST_MSG, sizeof(TEST_MSG));
             if (ret <= 0) {
                 loggingCb(0, "error when writing TLS message");
-                shutdown();
+                TLS_shutdown();
             }
             else {
                 tlsWaitingForReply = 1;
@@ -133,12 +133,12 @@ void tls_echoclient_connect(void)
                 if (err != SSL_ERROR_WANT_READ &&
                     err != WOLFSSL_ERROR_WANT_WRITE) {
                     loggingCb(0, "error when reading TLS message");
-                    shutdown();
+                    TLS_shutdown();
                 }
             }
             if (ret > 0) {
                 loggingCb(0, reply);
-                shutdown(); /* received reply, done with connection */
+                TLS_shutdown(); /* received reply, done with connection */
             }
         }
     }
@@ -169,7 +169,7 @@ static int TLS_setup(void)
     ctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method());
     if (ctx == NULL) {
         loggingCb(0, "ctx was null");
-        shutdown();
+        TLS_shutdown();
         return ERR_MEM;
     }
 
@@ -203,7 +203,7 @@ static int TLS_connect(void)
         if (err != SSL_ERROR_WANT_READ && err != WOLFSSL_ERROR_WANT_WRITE) {
             loggingCb(0, "connect error, shutting down");
             loggingCb(0, wolfSSL_ERR_reason_error_string(err));
-            shutdown();
+            TLS_shutdown();
             return ERR_CONN;
         }
         loggingCb(0, "found want read/write");

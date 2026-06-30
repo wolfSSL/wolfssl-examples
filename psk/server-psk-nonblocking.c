@@ -109,7 +109,7 @@ int main()
                       "DHE-PSK-AES128-GCM-SHA256:"
                       "DHE-PSK-AES256-CBC-SHA384:"
                       "DHE-PSK-AES128-CBC-SHA256:"
-                      "DHE-PSK-CHACHA20-POLY1305"
+                      "DHE-PSK-CHACHA20-POLY1305:"
 #endif
                       "ECDHE-PSK-AES128-CBC-SHA256:"
                       "ECDHE-PSK-CHACHA20-POLY1305:";
