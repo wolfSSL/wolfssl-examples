@@ -176,6 +176,7 @@ static int ReadSmimeAndCert(char* smimeFile, char* certFile, char* contentFile,
 {
     int ret;
     XFILE f;
+    int contentMaxSz = *contentSz;
     *contentSz = 0;
 
     f = XFOPEN(smimeFile, "rb");
@@ -227,10 +228,10 @@ static int ReadSmimeAndCert(char* smimeFile, char* certFile, char* contentFile,
             return -1;
         }
         else {
-            ret = XFREAD(content, 1, *contentSz, f);
+            ret = XFREAD(content, 1, contentMaxSz, f);
             if (ret >= 0) {
-                if (ret == *contentSz) {
-                    printf("Cert read in was larger than buffer\n");
+                if (ret == contentMaxSz) {
+                    printf("Content read in was larger than buffer\n");
                     XFCLOSE(f);
                     return -1;
                 }

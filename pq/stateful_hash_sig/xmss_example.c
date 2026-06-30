@@ -261,7 +261,7 @@ do_xmss_example(const char * params,
     }
 
     ret = wc_XmssKey_GetPrivLen(&signingKey, &privSz);
-    if (ret || pubSz == 0) {
+    if (ret || privSz == 0) {
         fprintf(stderr, "error: wc_XmssKey_GetPrivLen returned: %d, %d\n",
                 ret, privSz);
         goto exit_xmss_example;

@@ -463,8 +463,8 @@ WOLFSSL* newSSL(WOLFSSL_CTX* ctx, int fd, WC_RNG* rng, struct ConnList* connList
         /* Check that the CID is not in use */
         for (conn = connList; conn != NULL; conn = conn->next) {
             byte* cid = NULL;
-            if (wolfSSL_dtls_cid_get0_rx(ssl, &cid) == WOLFSSL_SUCCESS &&
-                    memcmp(newCid, cid, CID_SIZE) == 0) {
+            if (wolfSSL_dtls_cid_get0_rx(conn->ssl, &cid) == WOLFSSL_SUCCESS &&
+                    cid != NULL && memcmp(newCid, cid, CID_SIZE) == 0) {
                 found = 1;
                 break;
             }
