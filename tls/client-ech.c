@@ -237,7 +237,6 @@ int main(void)
 
     /* Write the message that will ask the server for information on the
      * connection */
-    wolfSSL_write(ssl, message, strlen(message));
     if ((ret = wolfSSL_write(ssl, message, strlen(message))) !=
             strlen(message)) {
         fprintf(stderr, "ERROR: failed to write entire message\n");

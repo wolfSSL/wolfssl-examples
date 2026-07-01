@@ -730,7 +730,7 @@ long ftell(FILE* stream)
     fPtr = (EFI_FILE_HANDLE*)stream;
 
     fSize = fileSize(*(fPtr));
-    if (fileSize == 0) {
+    if (fSize == 0) {
         uefi_printf_wolfssl("File is of size 0\n");
         return 0;
     }
@@ -756,7 +756,7 @@ size_t fread(void* ptr, size_t size, size_t count, FILE* stream)
     fPtr = (EFI_FILE_HANDLE*)stream;
 
     fSize = fileSize(*(fPtr));
-    if (fileSize == 0) {
+    if (fSize == 0) {
         uefi_printf_wolfssl("File is of size 0\n");
         return 0;
     }
@@ -1103,8 +1103,9 @@ struct dirent* readdir(DIR* stream)
     }
 
     fSize = fileSize(*(fPtr));
-    if (fileSize == 0) {
+    if (fSize == 0) {
         uefi_printf_wolfssl("File is of size 0\n");
+        XFREE(dirPtr, NULL, DYNAMIC_TYPE_TMP_BUFFER);
         return 0;
     }
 

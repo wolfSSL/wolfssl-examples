@@ -210,7 +210,7 @@ int main(int argc, char** argv)
 
     /* First call to get required buffer size */
     ret = wolfSSL_dtls_export(ssl, NULL, &sessionSz);
-    if (ret < 0 || sessionSz == 0) {
+    if (ret != 0 && sessionSz == 0) {
         fprintf(stderr, "Error: wolfSSL_dtls_export (get size) failed: %d\n",
                 ret);
         ret = 1;
