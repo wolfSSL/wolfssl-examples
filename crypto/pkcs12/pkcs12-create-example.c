@@ -152,9 +152,8 @@ static int loadKey(byte** keyDer, word32* keySz, RsaKey* key, const char* f)
         printf("return from loading in private key = %d\n", ret);
     }
 
-    if (*keySz < 0) {
+    if (ret < 0) {
         printf("unable to decode private key\n");
-        ret = *keySz;
     }
 
     return ret;

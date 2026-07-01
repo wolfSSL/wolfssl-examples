@@ -433,7 +433,7 @@ int main(int argc, char *argv[])
 
     /* Free allocated items */
     wc_FreeDhKey(&key1);
-    wc_FreeDhKey(&key1);
+    wc_FreeDhKey(&key2);
     wc_FreeRng(&rng);
 
     return 0;
