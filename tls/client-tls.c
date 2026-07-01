@@ -108,7 +108,7 @@ int main(int argc, char** argv)
     if (ctx == NULL) {
         fprintf(stderr, "ERROR: failed to create WOLFSSL_CTX\n");
         ret = -1;
-        goto socket_cleanup;
+        goto ctx_cleanup;
     }
 
     /* Load client certificates into WOLFSSL_CTX */
@@ -178,7 +178,8 @@ int main(int argc, char** argv)
 cleanup:
     wolfSSL_free(ssl);      /* Free the wolfSSL object                  */
 ctx_cleanup:
-    wolfSSL_CTX_free(ctx);  /* Free the wolfSSL context object          */
+    if (ctx)
+        wolfSSL_CTX_free(ctx);  /* Free the wolfSSL context object      */
     wolfSSL_Cleanup();      /* Cleanup the wolfSSL environment          */
 socket_cleanup:
     close(sockfd);          /* Close the connection to the server       */

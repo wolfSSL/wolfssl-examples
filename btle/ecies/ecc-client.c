@@ -142,6 +142,7 @@ int main(int argc, char** argv)
         ret = btle_recv(peerSalt, EXCHANGE_SALT_SZ, &type, devCtx);
         if (ret <= 0) {
             printf("btle_recv failed %d!\n", ret);
+            goto cleanup;
         }
         if (type != BTLE_PKT_TYPE_SALT) {
             printf("btle_recv expected salt!\n");

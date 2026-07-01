@@ -152,7 +152,7 @@ int main(int argc, char** argv)
 
         if (wolfSSL_set_fd(ssl, listenfd) != WOLFSSL_SUCCESS) {
             fprintf(stderr, "wolfSSL_set_fd error.\n");
-            break;
+            goto cleanup;
         }
 
         if (wolfSSL_accept(ssl) != WOLFSSL_SUCCESS) {

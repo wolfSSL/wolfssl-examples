@@ -109,9 +109,8 @@ int main(int argc, char **argv)
      * Sets the socket to be stream based (TCP),
      * 0 means choose the default protocol. */
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
+        printf("ERROR: failed to create socket\n");
         ret = -1;
-        err = wolfSSL_get_error(ssl, ret);
-        printf("error = %d, %s\n", err, wolfSSL_ERR_error_string(err, buffer));
         goto exit;
     }
 
@@ -119,18 +118,16 @@ int main(int argc, char **argv)
 
     /* Create and initialize WOLFSSL_CTX */
     if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_server_method())) == NULL) {
+        printf("ERROR: failed to create CTX\n");
         ret = -1;
-        err = wolfSSL_get_error(ssl, ret);
-        printf("error = %d, %s\n", err, wolfSSL_ERR_error_string(err, buffer));
         goto exit;
     }
 
     /* Set cipher suite */
     if (cipherList != NULL) {
         if (wolfSSL_CTX_set_cipher_list(ctx, cipherList) != WOLFSSL_SUCCESS) {
+            printf("ERROR: failed to set cipher list: %s\n", cipherList);
             ret = -1;
-            err = wolfSSL_get_error(ssl, ret);
-            printf("error = %d, %s\n", err, wolfSSL_ERR_error_string(err, buffer));
             goto exit;
         }
     }
@@ -138,16 +135,14 @@ int main(int argc, char **argv)
     /* Load server certificates into WOLFSSL_CTX */
     if ((ret = wolfSSL_CTX_use_certificate_file(ctx, CERT_FILE, SSL_FILETYPE_PEM))
         != WOLFSSL_SUCCESS) {
-        err = wolfSSL_get_error(ssl, ret);
-        printf("error = %d, %s\n", err, wolfSSL_ERR_error_string(err, buffer));
+        printf("ERROR %d: failed to use certificate file %s\n", ret, CERT_FILE);
         goto exit;
     }
 
     /* Load server key into WOLFSSL_CTX */
     if ((ret = wolfSSL_CTX_use_PrivateKey_file(ctx, KEY_FILE, SSL_FILETYPE_PEM))
         != WOLFSSL_SUCCESS) {
-        err = wolfSSL_get_error(ssl, ret);
-        printf("error = %d, %s\n", err, wolfSSL_ERR_error_string(err, buffer));
+        printf("ERROR %d: failed to use private key file %s\n", ret, KEY_FILE);
         goto exit;
     }
 
@@ -165,17 +160,15 @@ int main(int argc, char **argv)
 
     /* Bind the server socket to our port */
     if (bind(sockfd, (struct sockaddr*)&servAddr, sizeof(servAddr)) == -1) {
-        ret = -1; 
-        err = wolfSSL_get_error(ssl, ret);
-        printf("error = %d, %s\n", err, wolfSSL_ERR_error_string(err, buffer));
+        printf("ERROR: failed to bind socket\n");
+        ret = -1;
         goto exit;
     }
 
     /* Listen for a new connection, allow 5 pending connections */
     if (listen(sockfd, 5) == -1) {
+        printf("ERROR: failed to listen on socket\n");
         ret = -1;
-        err = wolfSSL_get_error(ssl, ret);
-        printf("error = %d, %s\n", err, wolfSSL_ERR_error_string(err, buffer));
         goto exit;
     }
 
@@ -188,17 +181,15 @@ int main(int argc, char **argv)
         /* Accept client connections */
         if ((connd = accept(sockfd, (struct sockaddr*)&clientAddr, &size))
             == -1) {
+            printf("ERROR: failed to accept connection\n");
             ret = -1;
-            err = wolfSSL_get_error(ssl, ret);
-            printf("error = %d, %s\n", err, wolfSSL_ERR_error_string(err, buffer));
             goto exit;
         }
 
         /* Create a WOLFSSL object */
         if ((ssl = wolfSSL_new(ctx)) == NULL) {
             ret = -1;
-            err = wolfSSL_get_error(ssl, ret);
-            printf("error = %d, %s\n", err, wolfSSL_ERR_error_string(err, buffer));
+            printf("ERROR: failed to create WOLFSSL object\n");
             goto exit;
         }
 

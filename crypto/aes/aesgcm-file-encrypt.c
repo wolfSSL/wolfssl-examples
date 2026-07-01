@@ -475,7 +475,6 @@ int decrypt_file_AesGCM(const char *in_file, const char *out_file,
              * remove the partially written output file. */
             fprintf(stderr,
                 "Authentication failed, removing unverified output file\n");
-            unlink(out_file);
         }
     }
 exit:
@@ -493,6 +492,10 @@ exit:
     XFREE(out_buf, NULL, DYNAMIC_TYPE_TMP_BUFFER);
     close(in_fd);
     close(out_fd);
+    if (ret != 0) {
+        unlink(out_file);
+    }
+
     if (ret != 0) {
         unlink(out_file);
     }
@@ -760,7 +763,8 @@ int decrypt_file(const char *in_file, const char *out_file, const char *key_str)
         goto exit;
     }
     if (EVP_DecryptFinal_ex(ctx, out_buf, &out_len) != WOLFSSL_SUCCESS) {
-        perror("EVP_DecryptFinal_ex");
+        fprintf(stderr,
+            "Authentication failed, removing unverified output file\n");
         ret = AES_GCM_AUTH_E;
         goto exit;
     }
@@ -773,11 +777,10 @@ int decrypt_file(const char *in_file, const char *out_file, const char *key_str)
     if (ret == WOLFSSL_SUCCESS) {
         ret = EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_GET_TAG,
                                   AES_IV_SIZE, tag_dec);
-        if (ret == WOLFSSL_SUCCESS &&
+        if (ret != WOLFSSL_SUCCESS ||
             (memcmp(tag_enc, tag_dec, AESGCM_TAG_SIZE) != 0)) {
-            perror("TAG didn't match\n");
-            /* Authentication failed, unauthenticated plaintext was
-             * already written to out_file above; remove it. */
+            fprintf(stderr,
+                "Authentication failed, removing unverified output file\n");
             ret = AES_GCM_AUTH_E;
             goto exit;
         }
@@ -837,11 +840,11 @@ text.bin", (file_sz/1024)+1, file_sz);
     pclose(pipe);
 
 #ifdef OPENSSL_EXTRA
-    const char *cmd_enc_evp ="./aesgcm-file-encrypt -e 256 -m 1 \
+    const char *cmd_enc_evp ="./aesgcm-file-encrypt -e 256 -m 2 \
                               -k 77CF00EC060192530B5D06B6B426799B \
                               -v 77CF00EC060192530B5D06B6B426799B \
                               -i text.bin -o text2cipher.evp.bin";
-    const char *cmd_dec_evp ="./aesgcm-file-encrypt -d 256 -m 1 \
+    const char *cmd_dec_evp ="./aesgcm-file-encrypt -d 256 -m 2 \
                             -k 77CF00EC060192530B5D06B6B426799B \
                             -i text2cipher.evp.bin -o text2cipher2text.evp.bin";
     const char *cmd_diff_evp = "diff -q text.bin text2cipher2text.evp.bin";
