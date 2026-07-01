@@ -96,9 +96,8 @@ int main(int argc, char** argv)
      * Sets the socket to be stream based (TCP),
      * 0 means choose the default protocol. */
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
+        printf("ERROR: failed to create socket\n");
         ret = -1;
-        err = wolfSSL_get_error(ssl, ret);
-        printf("error = %d, %s\n", err, wolfSSL_ERR_error_string(err, buffer));
         goto end;
     }
 
@@ -111,17 +110,15 @@ int main(int argc, char** argv)
 
     /* Get the server IPv4 address from the command line call */
     if (inet_pton(AF_INET, argv[1], &servAddr.sin_addr) != 1) {
+        printf("ERROR: invalid address\n");
         ret = -1;
-        err = wolfSSL_get_error(ssl, ret);
-        printf("error = %d, %s\n", err, wolfSSL_ERR_error_string(err, buffer));
         goto end;
     }
 
     /* Connect to the server */
     if ((ret = connect(sockfd, (struct sockaddr*) &servAddr, sizeof(servAddr)))
          == -1) {
-        err = wolfSSL_get_error(ssl, ret);
-        printf("error = %d, %s\n", err, wolfSSL_ERR_error_string(err, buffer));
+        printf("ERROR: failed to connect\n");
         goto end;
     }
 
@@ -130,24 +127,22 @@ int main(int argc, char** argv)
     /*---------------------------------*/
     /* Initialize wolfSSL */
     if ((ret = wolfSSL_Init()) != WOLFSSL_SUCCESS) {
-        err = wolfSSL_get_error(ssl, ret);
-        printf("error = %d, %s\n", err, wolfSSL_ERR_error_string(err, buffer));
+        printf("ERROR: failed to initialize the library\n");
         goto socket_cleanup;
     }
 
     /* Create and initialize WOLFSSL_CTX */
     if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method())) == NULL) {
+        printf("ERROR: failed to create WOLFSSL_CTX\n");
         ret = -1;
-        err = wolfSSL_get_error(ssl, ret);
-        printf("error = %d, %s\n", err, wolfSSL_ERR_error_string(err, buffer));
-        goto socket_cleanup;
+        goto ctx_cleanup;
     }
 
     /* Set cipher suite */
     if (cipherList != NULL) {
         if (wolfSSL_CTX_set_cipher_list(ctx, cipherList) != WOLFSSL_SUCCESS) {
-            err = wolfSSL_get_error(ssl, ret);
-            printf("error = %d, %s\n", err, wolfSSL_ERR_error_string(err, buffer));
+            printf("ERROR: failed to set cipher list: %s\n", cipherList);
+            ret = -1;
             goto ctx_cleanup;
         }
     }
@@ -155,16 +150,14 @@ int main(int argc, char** argv)
     /* Load client certificates into WOLFSSL_CTX */
     if ((ret = wolfSSL_CTX_load_verify_locations(ctx, CERT_FILE, NULL))
          != SSL_SUCCESS) {
-        err = wolfSSL_get_error(ssl, ret);
-        printf("error = %d, %s\n", err, wolfSSL_ERR_error_string(err, buffer));
+        printf("ERROR %d: failed to load %s\n", ret, CERT_FILE);
         goto ctx_cleanup;
     }
 
     /* Create a WOLFSSL object */
     if ((ssl = wolfSSL_new(ctx)) == NULL) {
         ret = -1;
-        err = wolfSSL_get_error(ssl, ret);
-        printf("error = %d, %s\n", err, wolfSSL_ERR_error_string(err, buffer));
+        printf("ERROR: failed to create WOLFSSL object\n");
         goto ctx_cleanup;
     }
 
@@ -190,9 +183,8 @@ int main(int argc, char** argv)
     printf("Message for server: ");
     memset(buff, 0, sizeof(buff));
     if (fgets(buff, sizeof(buff), stdin) == NULL) {
+        printf("ERROR: failed to get message for server\n");
         ret = -1;
-        err = wolfSSL_get_error(ssl, ret);
-        printf("error = %d, %s\n", err, wolfSSL_ERR_error_string(err, buffer));
         goto cleanup;
     }
     len = strnlen(buff, sizeof(buff));
@@ -228,7 +220,8 @@ int main(int argc, char** argv)
 cleanup:
     wolfSSL_free(ssl);      /* Free the wolfSSL object                  */
 ctx_cleanup:
-    wolfSSL_CTX_free(ctx);  /* Free the wolfSSL context object          */
+    if (ctx)
+        wolfSSL_CTX_free(ctx);  /* Free the wolfSSL context object      */
     wolfSSL_Cleanup();      /* Cleanup the wolfSSL environment          */
 socket_cleanup:
     close(sockfd);          /* Close the connection to the server       */

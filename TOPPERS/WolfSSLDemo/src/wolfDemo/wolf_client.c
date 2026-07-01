@@ -149,7 +149,7 @@ int wolfSSL_TLS_client(void *v_ctx, func_args *args)
     }
 
     if ((ssl = wolfSSL_new(ctx)) == NULL) {
-        printf("ERROR wolfSSL_new: %d\n", wolfSSL_get_error(ssl, 0));
+        printf("ERROR wolfSSL_new failed\n");
         ret = -1;
         goto exit_;
     }
