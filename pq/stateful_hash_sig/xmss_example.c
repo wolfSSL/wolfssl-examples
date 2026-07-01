@@ -286,6 +286,7 @@ do_xmss_example(const char * params,
     read_buf = malloc(privSz);
     if (read_buf == NULL) {
         fprintf(stderr, "error: malloc read_buf failed\n");
+        ret = MEMORY_E;
         goto exit_xmss_example;
     }
 
@@ -309,6 +310,7 @@ do_xmss_example(const char * params,
     sig = malloc(sigSz);
     if (sig == NULL) {
         fprintf(stderr, "error: malloc(%d) failed\n", sigSz);
+        ret = MEMORY_E;
         goto exit_xmss_example;
     }
 

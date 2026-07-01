@@ -48,6 +48,16 @@ int main(int argc, char** argv)
     wolfSSL_Debugging_ON();
 #endif
 
+    /* PKCS_Init captures/saves this, so make sure
+     * isDynamic = 0 since it is on the stack. Set this before any
+     * code path that can reach the exit label and call wc_PKCS7_Free(). */
+    pkcs7.isDynamic = 0;
+
+    /* Init before any code path that can reach the exit label and call
+     * wc_PKCS7_Free(), so the struct is always fully zeroed first. */
+    rc = wc_PKCS7_Init(&pkcs7, NULL, INVALID_DEVID);
+    if (rc != 0) goto exit;
+
     /* load PKCS7 */
     derFile = fopen(pkcs7SignedPem, "rb");
     if (derFile) {
@@ -72,14 +82,12 @@ int main(int argc, char** argv)
         }
         rc = 0;
     }
-
-    /* PKCS_Init captures/saves this, so make sure
-     * isDynamic = 0 since it is on the stack */
-    pkcs7.isDynamic = 0;
+    else {
+        rc = -1;
+        goto exit;
+    }
 
     /* Test verify */
-    rc = wc_PKCS7_Init(&pkcs7, NULL, INVALID_DEVID);
-    if (rc != 0) goto exit;
     rc = wc_PKCS7_InitWithCert(&pkcs7, NULL, 0);
     if (rc != 0) goto exit;
 
@@ -112,9 +120,21 @@ int main(int argc, char** argv)
     /* load PKCS7 */
     derFile = fopen(pkcs7SignedDer, "rb");
     if (derFile) {
+        int derFileSz;
         fseek(derFile, 0, SEEK_END);
-        fileSz = (int)ftell(derFile);
+        derFileSz = (int)ftell(derFile);
         rewind(derFile);
+
+        if (derFileSz > (int)fileSz) {
+            XFREE(fileBuf, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+            fileBuf = (byte*)XMALLOC(derFileSz, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+            if (fileBuf == NULL) {
+                rc = MEMORY_E;
+                fclose(derFile);
+                goto exit;
+            }
+        }
+        fileSz = derFileSz;
 
         rc = (int)fread(fileBuf, 1, fileSz, derFile);
         fclose(derFile);
@@ -125,6 +145,10 @@ int main(int argc, char** argv)
             goto exit;
         }
         rc = 0;
+    }
+    else {
+        rc = -1;
+        goto exit;
     }
 
     /* Verify DER output matches expected output */

@@ -140,10 +140,19 @@ int main(int argc, char** argv)
     print_buf("Digest Input Data:", Digest_given, DATA_BLOCK_LEN);
 
     /* Init */
-    wc_InitRng(&rng);
+    ret = wc_InitRng(&rng);
+    if (ret != 0) {
+        printf("error %d initializing rng\n", ret);
+        return ret;
+    }
 
     /* Init Rsa Key */
-    wc_InitRsaKey(&rsakey, NULL);
+    ret = wc_InitRsaKey(&rsakey, NULL);
+    if (ret != 0) {
+        printf("error %d initializing rsa key\n", ret);
+        wc_FreeRng(&rng);
+        return ret;
+    }
 
     XMEMSET(DER_buf, 0, sizeof(DER_buf));
     

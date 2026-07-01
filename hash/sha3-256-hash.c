@@ -72,6 +72,7 @@ int main(int argc, char** argv)
     if (ret != 0) {
         printf("Failed to initialize sha structure\n");
         fclose(inputStream);
+        return ret;
     }
 
     /* Loop reading a block at a time, finishing with any excess */

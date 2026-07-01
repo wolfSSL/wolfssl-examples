@@ -133,7 +133,7 @@ static int do_certgen(int argc, char** argv)
     if (ret != 0) goto exit;
     initNewKey = 1;
 
-    wc_MakeRsaKey(&newKey, 2048, WC_RSA_EXPONENT, &rng);
+    ret = wc_MakeRsaKey(&newKey, 2048, WC_RSA_EXPONENT, &rng);
     if (ret != 0) goto exit;
 
     printf("Successfully created new RSA key\n\n");

@@ -88,8 +88,18 @@ int main()
     word32 idx;
     size_t sz;
 
-    wc_InitRng(&rng);
-    wc_ed448_init(&key);
+    ret = wc_InitRng(&rng);
+    if (ret != 0) {
+        printf("error %d initializing rng\n", ret);
+        return ret;
+    }
+
+    ret = wc_ed448_init(&key);
+    if (ret != 0) {
+        printf("error %d initializing ed448 key\n", ret);
+        wc_FreeRng(&rng);
+        return ret;
+    }
 
     /*
      * Make a private Ed25510 key
@@ -99,6 +109,8 @@ int main()
     ret = wc_ed448_make_key(&rng, ED448_KEY_SIZE, &key);
     if (ret != 0) {
         printf("error %d making Ed448 key\n", ret);
+        wc_ed448_free(&key);
+        wc_FreeRng(&rng);
         return ret;
     }
 
@@ -110,6 +122,8 @@ int main()
     ret = wc_Ed448KeyToDer(&key, der, sizeof(der));
     if (ret < 0) {
         printf("error %d in Ed448 to der\n", ret);
+        wc_ed448_free(&key);
+        wc_FreeRng(&rng);
         return ret;
     }
     sz = ret;
@@ -117,6 +131,8 @@ int main()
     /* write private key to file */
     ret = write_file("private key", privFile, der, sz);
     if (ret < 0) {
+        wc_ed448_free(&key);
+        wc_FreeRng(&rng);
         return ret;
     }
 
@@ -130,6 +146,7 @@ int main()
     sz = sizeof(buf);
     ret = read_file("private key", privFile, buf, &sz);
     if (ret < 0) {
+        wc_FreeRng(&rng);
         return ret;
     }
 
@@ -141,6 +158,8 @@ int main()
     ret = wc_Ed448PrivateKeyDecode(buf, &idx, &key, (word32)sz);
     if (ret != 0) {
         printf("error decoding private key\n");
+        wc_ed448_free(&key);
+        wc_FreeRng(&rng);
         return ret;
     }
 
@@ -162,6 +181,8 @@ int main()
     ret = wc_ed448_make_key(&rng, ED448_KEY_SIZE, &key);
     if (ret != 0) {
         printf("error %d making Ed448 key\n", ret);
+        wc_ed448_free(&key);
+        wc_FreeRng(&rng);
         return ret;
     }
 
@@ -175,12 +196,16 @@ int main()
     ret = wc_ed448_export_public(&key, buf, (word32*)&sz);
     if (ret != 0) {
         printf("error exporting public Ed448 key\n");
+        wc_ed448_free(&key);
+        wc_FreeRng(&rng);
         return ret;
     }
 
     /* write public key to file */
     ret = write_file("public key", pubFile, buf, sz);
     if (ret < 0) {
+        wc_ed448_free(&key);
+        wc_FreeRng(&rng);
         return ret;
     }
 

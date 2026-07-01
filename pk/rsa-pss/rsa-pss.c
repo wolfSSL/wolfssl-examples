@@ -116,7 +116,7 @@ static int read_file(const char* filename, unsigned char* data, int* sz)
     *sz = fileSz;
     err = 0;
 load_end:
-    fclose(f);
+    if (f != NULL) fclose(f);
     return err;
 }
 
