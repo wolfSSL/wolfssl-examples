@@ -310,6 +310,8 @@ static int gen_csr(const char* arg1)
 #endif
     void* keyPtr = NULL;
     WC_RNG rng;
+    int initRng = 0;
+    int initKey = 0;
     Cert req;
     byte   der[LARGE_TEMP_SZ];
     word32 derSz;
@@ -342,6 +344,7 @@ static int gen_csr(const char* arg1)
         printf("RNG initialization failed: %d\n", ret);
         goto exit;
     }
+    initRng = 1;
 
     /* setup test key */
 #ifdef HAVE_ECC
@@ -394,6 +397,7 @@ static int gen_csr(const char* arg1)
         printf("Key initialization failed: %d\n", ret);
         goto exit;
     }
+    initKey = 1;
 
     /* decode public key */
 #ifdef HAVE_ECC
@@ -467,18 +471,19 @@ static int gen_csr(const char* arg1)
 
 exit:
 #ifdef HAVE_ECC
-    if (type == ECC_TYPE)
+    if (type == ECC_TYPE && initKey)
         wc_ecc_free(&ecKeyPub);
 #endif
 #ifndef NO_RSA
-    if (type == RSA_TYPE)
+    if (type == RSA_TYPE && initKey)
         wc_FreeRsaKey(&rsaKeyPub);
 #endif
 #ifdef HAVE_ED25519
-    if (type == ED25519_TYPE)
+    if (type == ED25519_TYPE && initKey)
         wc_ed25519_free(&edKeyPub);
 #endif
-    wc_FreeRng(&rng);
+    if (initRng)
+        wc_FreeRng(&rng);
 
     wolfCrypt_Cleanup();
 

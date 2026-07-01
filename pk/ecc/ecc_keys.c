@@ -51,12 +51,24 @@ int main()
     FILE* derFile;
     size_t sz;
 
-    wc_InitRng(&rng);
-    wc_ecc_init(&key);
+    ret = wc_InitRng(&rng);
+    if (ret != 0) {
+        printf("error %d initializing rng\n", ret);
+        return ret;
+    }
+
+    ret = wc_ecc_init(&key);
+    if (ret != 0) {
+        printf("error %d initializing ecc key\n", ret);
+        wc_FreeRng(&rng);
+        return ret;
+    }
 
     ret = wc_ecc_make_key_ex(&rng, ECC_CURVE_SZ, &key, ECC_CURVE_ID);
     if (ret != 0) {
         printf("error %d making ecc key\n", ret);
+        wc_ecc_free(&key);
+        wc_FreeRng(&rng);
         return ret;
     }
 
@@ -64,6 +76,8 @@ int main()
     ret = wc_EccKeyToDer(&key, der, sizeof(der));
     if (ret < 0) {
         printf("error %d in ecc to der\n", ret);
+        wc_ecc_free(&key);
+        wc_FreeRng(&rng);
         return ret;
     }
     sz = ret;
@@ -72,6 +86,8 @@ int main()
     derFile = fopen("ecc-key.der", "w");
     if (!derFile) {
         printf("error loading file\n");
+        wc_ecc_free(&key);
+        wc_FreeRng(&rng);
         return -1;
     }
 
@@ -84,6 +100,7 @@ int main()
     derFile = fopen("ecc-key.der", "rb");
     if (!derFile) {
         printf("error reading from file\n");
+        wc_FreeRng(&rng);
         return -1;
     }
     sz = fread(buf, 1, sizeof(buf), derFile);
@@ -95,6 +112,8 @@ int main()
     idx = 0;
     if (wc_EccPrivateKeyDecode(buf, &idx, &key, (word32)sz) != 0) {
         printf("error decoding private key\n");
+        wc_ecc_free(&key);
+        wc_FreeRng(&rng);
         return -1;
     }
     wc_ecc_free(&key);
@@ -113,6 +132,8 @@ int main()
     ret = wc_ecc_make_key_ex(&rng, ECC_CURVE_SZ, &key, ECC_CURVE_ID);
     if (ret != 0) {
         printf("error %d making ecc key\n", ret);
+        wc_ecc_free(&key);
+        wc_FreeRng(&rng);
         return ret;
     }
 
@@ -121,6 +142,8 @@ int main()
     sz = sizeof(buf);
     if (wc_ecc_export_x963(&key, buf, (word32*)&sz) != 0) {
         printf("error exporting public ecc key\n");
+        wc_ecc_free(&key);
+        wc_FreeRng(&rng);
         return -1;
     }
 
@@ -128,6 +151,8 @@ int main()
     derFile = fopen("ecc-public.x963", "w"); /* reused the derFile pointer */
     if (!derFile) {
         printf("error loading file\n");
+        wc_ecc_free(&key);
+        wc_FreeRng(&rng);
         return -1;
     }
     fwrite(buf, 1, sz, derFile);

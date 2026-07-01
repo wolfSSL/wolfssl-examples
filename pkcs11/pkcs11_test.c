@@ -284,13 +284,23 @@ int get_public_key(RsaKey* key, Pkcs11Token* token, CK_SESSION_HANDLE session,
         modSz = template[0].ulValueLen;
         expSz = template[1].ulValueLen;
         mod = (unsigned char *)malloc(modSz);
-        template[0].pValue = mod;
         exp = (CK_BYTE_PTR) malloc(expSz);
-        template[1].pValue = exp;
+        if (mod == NULL || exp == NULL) {
+            ret = MEMORY_E;
+        }
+        else {
+            template[0].pValue = mod;
+            template[1].pValue = exp;
 
-        rv = token->func->C_GetAttributeValue(session, pubKey, template, 2);
+            rv = token->func->C_GetAttributeValue(session, pubKey, template, 2);
+            if (rv != CKR_OK)
+                ret = -1;
+        }
     }
-    if (rv == CKR_OK)
+    else
+        ret = -1;
+
+    if (rv == CKR_OK && ret == 0)
         ret = wc_RsaPublicKeyDecodeRaw(mod, modSz, exp, expSz, key);
 
     if (exp != NULL)

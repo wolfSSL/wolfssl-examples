@@ -345,6 +345,7 @@ do_lms_example(int    levels,
     sig = malloc(sigSz);
     if (sig == NULL) {
         fprintf(stderr, "error: malloc(%d) failed\n", sigSz);
+        ret = MEMORY_E;
         goto exit_lms_example;
     }
 

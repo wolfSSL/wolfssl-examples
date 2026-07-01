@@ -180,11 +180,19 @@ static int do_csrsign(int argc, char** argv)
     printf("Successfully read %d bytes from %s\n\n", pemSz, csrPemFile);
 
     ret = wc_CertPemToDer(pemBuf, pemSz, derBuf, LARGE_TEMP_SZ, CERTREQ_TYPE);
-    if (ret >= 0) {
+    if (ret == ASN_NO_PEM_HEADER) {
+        memcpy(derBuf, pemBuf, pemSz);
+        memset(pemBuf, 0, LARGE_TEMP_SZ);
+        derSz = pemSz;
+        ret = 0;
+        printf("CSR Cert file detected as DER\n\n");
+    } else if (ret >= 0) {
         derSz = ret;
         ret = 0;
+        printf("Converted CSR Cert PEM to DER %d bytes\n", derSz);
+    } else {
+        goto exit;
     }
-    printf("Converted CSR Cert PEM to DER %d bytes\n", derSz);
 
 #ifdef HAVE_DECODEDCERT
     /* Code for parsing a CSR to a DecodedCert struct */

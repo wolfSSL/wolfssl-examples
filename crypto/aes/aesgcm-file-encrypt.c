@@ -466,9 +466,17 @@ int decrypt_file_AesGCM(const char *in_file, const char *out_file,
      }
 
     if (ret == 0) {
-        /* The tag param is used to compare to the 
+        /* The tag param is used to compare to the
            calculated tag during decryption */
         ret = wc_AesGcmDecryptFinal(&gcm, tag, AESGCM_TAG_SIZE);
+        if (ret != 0) {
+            /* Authentication failed. The unauthenticated plaintext
+             * written above must not be left readable on disk, so
+             * remove the partially written output file. */
+            fprintf(stderr,
+                "Authentication failed, removing unverified output file\n");
+            unlink(out_file);
+        }
     }
 exit:
     if (aes_initialized) {
@@ -768,6 +776,8 @@ int decrypt_file(const char *in_file, const char *out_file, const char *key_str)
         if (ret == WOLFSSL_SUCCESS &&
             (memcmp(tag_enc, tag_dec, AESGCM_TAG_SIZE) != 0)) {
             perror("TAG didn't match\n");
+            /* Authentication failed, unauthenticated plaintext was
+             * already written to out_file above; remove it. */
             ret = AES_GCM_AUTH_E;
             goto exit;
         }

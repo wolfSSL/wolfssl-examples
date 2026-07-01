@@ -66,10 +66,19 @@ int ecc_sign_verify_test(enum wc_HashType hash_type, enum wc_SignatureType sig_t
     word32 eccPubKeyLen, eccPrivKeyLen;
 
     /* Init */
-    wc_InitRng(&rng);
+    ret = wc_InitRng(&rng);
+    if (ret != 0) {
+        printf("ECC RNG Init failed! %d\n", ret);
+        return EXIT_FAILURE;
+    }
 
     /* Generate key */
-    wc_ecc_init(&eccKey);
+    ret = wc_ecc_init(&eccKey);
+    if (ret != 0) {
+        printf("ECC Key Init failed! %d\n", ret);
+        wc_FreeRng(&rng);
+        return EXIT_FAILURE;
+    }
     ret = wc_ecc_make_key_ex(&rng, 32, &eccKey, ECC_CURVE_DEF);
     if(ret != 0) {
         printf("ECC Make Key Failed! %d\n", ret);

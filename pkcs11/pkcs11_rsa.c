@@ -260,15 +260,15 @@ static int rsa_sign_verify(int devId)
         if (ret == 0) {
             fprintf(stderr, "Verifying\n");
             ret = wc_RsaSSL_Verify(sig, sigSz, pt, (int)ptSz, &pub);
-            if (ret < 0)
+            if (ret < 0) {
                 fprintf(stderr, "Failed to verify: %d\n", ret);
-
-            if (XMEMCMP(hash, pt, ret) != 0) {
-                fprintf(stderr, "Failed to verify\n");
+            } else if (ret != (int)hashSz || XMEMCMP(hash, pt, ret) != 0) {
+                fprintf(stderr, "Failed to verify: hash mismatch\n");
+                ret = -1;
+            } else {
+                ret = 0;
             }
-
             wc_FreeRsaKey(&pub);
-            ret = 0;
         }
     }
 

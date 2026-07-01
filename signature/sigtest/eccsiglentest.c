@@ -78,10 +78,19 @@ int ecc_sign_verify_test(enum wc_HashType hash_type,
 #endif
 
     /* Init */
-    wc_InitRng(&rng);
+    ret = wc_InitRng(&rng);
+    if (ret != 0) {
+        printf("ECC RNG Init Failed! %d\n", ret);
+        return ret;
+    }
 
     /* Generate key */
-    wc_ecc_init(&eccKey);
+    ret = wc_ecc_init(&eccKey);
+    if (ret != 0) {
+        printf("ECC Key Init Failed! %d\n", ret);
+        wc_FreeRng(&rng);
+        return ret;
+    }
 
     ret = wc_ecc_make_key_ex(&rng, keySz, &eccKey, curveId);
     if(ret != 0) {

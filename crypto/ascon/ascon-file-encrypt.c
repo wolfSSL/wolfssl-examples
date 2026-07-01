@@ -31,6 +31,10 @@
 #include <wolfssl/wolfcrypt/random.h>
 #include <wolfssl/wolfcrypt/pwdbased.h>
 
+#ifndef HAVE_ASCON
+    #error "Please build wolfSSL with the --enable-ascon option"
+#endif
+
 #define ASCON_AEAD128_RATE 16
 #define SALT_SIZE           8
 #define AD_SIZE             32
@@ -353,6 +357,12 @@ int AsconDecrypt(wc_AsconCtx* ctx)
         /* Start decrypting ciphertext */
         ctx->inFileLength -= FILE_HEADER_SIZE;
 
+        /* The plaintext written here is unauthenticated until
+         * DecryptFinal() verifies the tag below. It is written out
+         * incrementally to keep memory bounded to BLOCK_SIZE; if
+         * authentication fails, the caller's MemFree() removes the
+         * output file so the unverified plaintext is never left
+         * behind on disk. */
         for (j = 0; j <= ctx->inFileLength; j += BLOCK_SIZE) {
             if (chunk_read > ctx->inFileLength - j) {
                 chunk_read = ctx->inFileLength - j;
@@ -369,15 +379,13 @@ int AsconDecrypt(wc_AsconCtx* ctx)
                 return ERROR;
             }
 
-            /* write plaintext to output file */
-            if (fwrite(ctx->plainText, 1, chunk_read, ctx->outFile) != chunk_read) {
+            if (fwrite(ctx->plainText, 1, chunk_read, ctx->outFile) != (size_t)chunk_read) {
                 printf("ERROR: Failed to write the appropriate amount\n");
                 return ERROR;
             }
-
         }
 
-        /* Finalize decryption and verify tag */
+        /* Finalize decryption and verify tag. */
         if (wc_AsconAEAD128_DecryptFinal(ctx->ascon, tag) != SUCCESS) {
             printf("Decrypt final failed.\n");
             return ERROR;
