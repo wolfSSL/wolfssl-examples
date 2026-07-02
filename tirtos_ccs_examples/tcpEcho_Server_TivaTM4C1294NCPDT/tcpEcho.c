@@ -211,7 +211,7 @@ Void tcpHandler(UArg arg0, UArg arg1)
         /* Wait for incoming request */
         if ((clientfd = accept(lSocket, (struct sockaddr*)&client_addr,
             &addrlen)) == -1) {
-            System_printf("tcpHandler: Accept failed %d\n");
+            System_printf("tcpHandler: Accept failed %d\n", fdError());
             exitApp(ctx);
         }
 

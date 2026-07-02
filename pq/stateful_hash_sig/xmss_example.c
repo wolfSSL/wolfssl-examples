@@ -20,6 +20,8 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <errno.h>
+#include <string.h>
 
 #include <wolfssl/options.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
@@ -116,8 +118,8 @@ write_key_file(const byte * priv,
         /* Create the file if it didn't exist. */
         file = fopen(filename, "w+");
         if (!file) {
-            fprintf(stderr, "error: fopen(%s, \"w+\") failed: %d\n", filename,
-                    ferror(file));
+            fprintf(stderr, "error: fopen(%s, \"w+\") failed: %s\n", filename,
+                    strerror(errno));
             return WC_XMSS_RC_WRITE_FAIL;
         }
     }

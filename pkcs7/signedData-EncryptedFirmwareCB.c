@@ -192,7 +192,7 @@ static int myDecryptionFunc(PKCS7* pkcs7, int encryptOID, byte* iv, int ivSz,
                 printf("%02X", keyIdRaw[i]);
             printf("\n");
         }
-        keyId = *(int*)(keyIdRaw + 2);
+        XMEMCPY(&keyId, keyIdRaw + 2, sizeof(keyId));
         printf("\t\tStripping off OCTET TAG and length the keyId = %d\n", keyId);
     }
 
@@ -473,6 +473,11 @@ static int verifyBundle(byte* derBuf, word32 derSz)
     int  decodedSz = 2048;
 
     pkcs7 = wc_PKCS7_New(NULL, 0);
+    if (pkcs7 == NULL) {
+        printf("\tError allocating PKCS7 structure\n");
+        ret = MEMORY_E;
+        goto exit;
+    }
 
     /* Test verify */
     ret = wc_PKCS7_Init(pkcs7, NULL, INVALID_DEVID);

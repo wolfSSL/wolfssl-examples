@@ -145,14 +145,23 @@ static WC_INLINE void ShowX509Chain(WOLFSSL_X509_CHAIN* chain, int count,
     const char* hdr)
 {
     int i;
-    int length;
+    int ret;
+    int length = 0;
     unsigned char buffer[3072];
     WOLFSSL_X509* chainX509;
 
     for (i = 0; i < count; i++) {
-        wolfSSL_get_chain_cert_pem(chain, i, buffer, sizeof(buffer), &length);
-        buffer[length] = 0;
-        printf("\n%s: %d has length %d data = \n%s\n", hdr, i, length, buffer);
+        ret = wolfSSL_get_chain_cert_pem(chain, i, buffer, sizeof(buffer),
+                &length);
+        if (ret == WOLFSSL_SUCCESS && length >= 0 &&
+                length < (int)sizeof(buffer)) {
+            buffer[length] = 0;
+            printf("\n%s: %d has length %d data = \n%s\n", hdr, i, length,
+                    buffer);
+        }
+        else {
+            printf("\n%s: %d failed to get chain cert pem\n", hdr, i);
+        }
 
         chainX509 = wolfSSL_get_chain_X509(chain, i);
         if (chainX509)
