@@ -23,10 +23,16 @@
 #include <unistd.h>
 #include <termios.h>
 #include <wolfssl/options.h>
+#include <wolfssl/wolfcrypt/wc_port.h>
+#include <wolfssl/wolfcrypt/memory.h>
 #include <wolfssl/wolfcrypt/aes.h>
 #include <wolfssl/wolfcrypt/sha256.h>
 #include <wolfssl/wolfcrypt/random.h>
 #include <wolfssl/wolfcrypt/pwdbased.h>
+
+#ifndef XPRINTF
+    #define XPRINTF printf
+#endif
 
 #if defined(HAVE_PBKDF2) && !defined(NO_PWDBASED) && \
     defined(WOLFSSL_AES_COUNTER)
@@ -59,76 +65,109 @@ int AesCtrEncrypt(Aes* aes, byte* key, int size, FILE* inFile, FILE* outFile)
 {
     WC_RNG     rng;
     byte    iv[AES_BLOCK_SIZE];
-    byte*   input;
-    byte*   output;
+    byte*   input = NULL;
+    byte*   output = NULL;
     byte    salt[SALT_SIZE] = {0};
 
     int     ret = 0;
     int     length;
+    int     rngInit = 0;
+    int     aesInit = 0;
 
     fseek(inFile, 0, SEEK_END);
     length = ftell(inFile);
     fseek(inFile, 0, SEEK_SET);
 
-    input = malloc(length);
-    output = malloc(length);
+    input = (byte*)XMALLOC(length, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+    output = (byte*)XMALLOC(length, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+    if (input == NULL || output == NULL) {
+        XPRINTF("Failed to allocate memory\n");
+        ret = -1050;
+    }
 
-    ret = wc_InitRng(&rng);
-    if (ret != 0) {
-        printf("Failed to initialize random number generator\n");
-        return -1030;
+    if (ret == 0) {
+        ret = wc_InitRng(&rng);
+        if (ret != 0)
+            XPRINTF("Failed to initialize random number generator\n");
+        else
+            rngInit = 1;
     }
 
     /* reads from inFile and writes whatever is there to the input array */
-    ret = fread(input, 1, length, inFile);
     if (ret == 0) {
-        printf("Input file does not exist.\n");
-        return -1010;
+        ret = fread(input, 1, length, inFile);
+        if (ret == 0) {
+            XPRINTF("Input file does not exist.\n");
+            ret = -1010;
+        }
+        else
+            ret = 0;
     }
 
-    ret = wc_RNG_GenerateBlock(&rng, iv, AES_BLOCK_SIZE);
-    if (ret != 0)
-        return -1020;
+    if (ret == 0) {
+        ret = wc_RNG_GenerateBlock(&rng, iv, AES_BLOCK_SIZE);
+        if (ret != 0)
+            ret = -1020;
+    }
 
     /* stretches key to fit size */
-    ret = GenerateKey(&rng, key, size, salt);
-    if (ret != 0)
-        return -1040;
+    if (ret == 0) {
+        ret = GenerateKey(&rng, key, size, salt);
+        if (ret != 0)
+            ret = -1040;
+    }
 
     /* inits aes structure */
-    ret = wc_AesInit(aes, NULL, INVALID_DEVID);
-    if (ret != 0) {
-        printf("AesInit returned: %d\n", ret);
-        return -1001;
+    if (ret == 0) {
+        ret = wc_AesInit(aes, NULL, INVALID_DEVID);
+        if (ret != 0) {
+            XPRINTF("AesInit returned: %d\n", ret);
+            ret = -1000;
+        }
+        else
+            aesInit = 1;
     }
 
     /* sets key */
-    ret = wc_AesSetKey(aes, key, size, iv, AES_ENCRYPTION);
-    if (ret != 0) {
-        printf("SetKey returned: %d\n", ret);
-        return -1001;
+    if (ret == 0) {
+        ret = wc_AesSetKey(aes, key, size, iv, AES_ENCRYPTION);
+        if (ret != 0) {
+            XPRINTF("SetKey returned: %d\n", ret);
+            ret = -1001;
+        }
     }
 
     /* encrypts the message to the output based on input length + padding */
-    ret = wc_AesCtrEncrypt(aes, output, input, length);
-    if (ret != 0)
-        return -1005;
+    if (ret == 0) {
+        ret = wc_AesCtrEncrypt(aes, output, input, length);
+        if (ret != 0)
+            ret = -1005;
+    }
 
-    /* writes to outFile */
-    fwrite(salt, 1, SALT_SIZE, outFile);
-    fwrite(iv, 1, AES_BLOCK_SIZE, outFile);
-    fwrite(output, 1, length, outFile);
+    if (ret == 0) {
+        /* writes to outFile */
+        fwrite(salt, 1, SALT_SIZE, outFile);
+        fwrite(iv, 1, AES_BLOCK_SIZE, outFile);
+        fwrite(output, 1, length, outFile);
+    }
 
     /* closes the opened files and frees the memory*/
-    memset(input, 0, length);
-    memset(output, 0, length);
-    memset(key, 0, size);
-    free(input);
-    free(output);
-    free(key);
+    if (input != NULL) {
+        wc_ForceZero(input, length);
+        XFREE(input, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+    }
+    if (output != NULL) {
+        wc_ForceZero(output, length);
+        XFREE(output, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+    }
+    wc_ForceZero(key, size);
+    XFREE(key, NULL, DYNAMIC_TYPE_TMP_BUFFER);
     fclose(inFile);
     fclose(outFile);
-    wc_FreeRng(&rng);
+    if (aesInit)
+        wc_AesFree(aes);
+    if (rngInit)
+        wc_FreeRng(&rng);
 
     return ret;
 }
@@ -138,74 +177,111 @@ int AesCtrEncrypt(Aes* aes, byte* key, int size, FILE* inFile, FILE* outFile)
  */
 int AesCtrDecrypt(Aes* aes, byte* key, int size, FILE* inFile, FILE* outFile)
 {
-    byte*   input;
-    byte*   output;
-    byte*   salt;
-    byte*   iv;
-    byte*   c;
+    byte*   input = NULL;
+    byte*   output = NULL;
+    byte*   salt = NULL;
+    byte*   iv = NULL;
+    byte*   c = NULL;
 
     int     ret = 0;
     int     bufSz;
-    int     cSz;
+    int     cSz = 0;
+    int     aesInit = 0;
 
     fseek(inFile, 0, SEEK_END);
     bufSz = ftell(inFile);
     fseek(inFile, 0, SEEK_SET);
 
-    input = malloc(bufSz);
-    output = malloc(bufSz);
-
-    /* reads from inFile and writes whatever is there to the input array */
-    ret = fread(input, 1, bufSz, inFile);
-    if (ret == 0) {
-        printf("Input file does not exist.\n");
-        return -1010;
+    /* verify the file is large enough to contain the salt and IV before
+     * allocating buffers or computing sizes from it (prevents a negative
+     * cSz / integer underflow on a truncated input file) */
+    if (bufSz < SALT_SIZE + AES_BLOCK_SIZE) {
+        XPRINTF("Input file is too small.\n");
+        ret = -1011;
     }
 
-    salt = input;
-    iv = input + SALT_SIZE;
-    c = input + SALT_SIZE + AES_BLOCK_SIZE;
-    cSz = bufSz - SALT_SIZE - AES_BLOCK_SIZE;
+    if (ret == 0) {
+        input = (byte*)XMALLOC(bufSz, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+        output = (byte*)XMALLOC(bufSz, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+        if (input == NULL || output == NULL) {
+            XPRINTF("Failed to allocate memory\n");
+            ret = -1051;
+        }
+    }
+
+    /* reads from inFile and writes whatever is there to the input array */
+    if (ret == 0) {
+        ret = fread(input, 1, bufSz, inFile);
+        if (ret == 0) {
+            XPRINTF("Input file does not exist.\n");
+            ret = -1010;
+        }
+        else {
+            ret = 0;
+            salt = input;
+            iv = input + SALT_SIZE;
+            c = input + SALT_SIZE + AES_BLOCK_SIZE;
+            cSz = bufSz - SALT_SIZE - AES_BLOCK_SIZE;
+        }
+    }
 
     /* replicates old key if keys match */
-    ret = wc_PBKDF2(key, key, strlen((const char*)key), salt, SALT_SIZE, 4096,
-        size, WC_SHA256);
-    if (ret != 0)
-        return -1050;
+    if (ret == 0) {
+        ret = wc_PBKDF2(key, key, strlen((const char*)key), salt, SALT_SIZE,
+            4096, size, WC_SHA256);
+        if (ret != 0)
+            ret = -1050;
+    }
 
     /* inits aes structure */
-    ret = wc_AesInit(aes, NULL, INVALID_DEVID);
-    if (ret != 0) {
-        printf("AesInit returned: %d\n", ret);
-        return -1002;
+    if (ret == 0) {
+        ret = wc_AesInit(aes, NULL, INVALID_DEVID);
+        if (ret != 0) {
+            XPRINTF("AesInit returned: %d\n", ret);
+            ret = -1000;
+        }
+        else
+            aesInit = 1;
     }
 
     /* sets key */
     /* decrypt uses AES_ENCRYPTION */
-    ret = wc_AesSetKey(aes, key, size, iv, AES_ENCRYPTION);
-    if (ret != 0) {
-        printf("SetKey returned: %d\n", ret);
-        return -1002;
+    if (ret == 0) {
+        ret = wc_AesSetKey(aes, key, size, iv, AES_ENCRYPTION);
+        if (ret != 0) {
+            XPRINTF("SetKey returned: %d\n", ret);
+            ret = -1002;
+        }
     }
 
-    ret = wc_AesCtrEncrypt(aes, output, c, cSz);
-    if (ret != 0)
-        return -1006;
+    if (ret == 0) {
+        ret = wc_AesCtrEncrypt(aes, output, c, cSz);
+        if (ret != 0)
+            ret = -1006;
+    }
 
-    /* writes output to the outFile based on shortened length */
-    fwrite(output, 1, cSz, outFile);
+    if (ret == 0) {
+        /* writes output to the outFile based on shortened length */
+        fwrite(output, 1, cSz, outFile);
+    }
 
     /* closes the opened files and frees the memory*/
-    memset(input, 0, bufSz);
-    memset(output, 0, bufSz);
-    memset(key, 0, size);
-    free(input);
-    free(output);
-    free(key);
+    if (input != NULL) {
+        wc_ForceZero(input, bufSz);
+        XFREE(input, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+    }
+    if (output != NULL) {
+        wc_ForceZero(output, bufSz);
+        XFREE(output, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+    }
+    wc_ForceZero(key, size);
+    XFREE(key, NULL, DYNAMIC_TYPE_TMP_BUFFER);
     fclose(inFile);
     fclose(outFile);
+    if (aesInit)
+        wc_AesFree(aes);
 
-    return 0;
+    return ret;
 }
 
 /*
@@ -213,11 +289,11 @@ int AesCtrDecrypt(Aes* aes, byte* key, int size, FILE* inFile, FILE* outFile)
  */
 void help()
 {
-    printf("\n~~~~~~~~~~~~~~~~~~~~|Help|~~~~~~~~~~~~~~~~~~~~~\n\n");
-    printf("Usage: ./aesctr-file-encrypt <-option> <KeySize> <-i file.in> "
+    XPRINTF("\n~~~~~~~~~~~~~~~~~~~~|Help|~~~~~~~~~~~~~~~~~~~~~\n\n");
+    XPRINTF("Usage: ./aesctr-file-encrypt <-option> <KeySize> <-i file.in> "
         "<-o file.out>\n\n");
-    printf("Options\n");
-    printf("-d    Decryption\n-e    Encryption\n-h    Help\n");
+    XPRINTF("Options\n");
+    XPRINTF("-d    Decryption\n-e    Encryption\n-h    Help\n");
 }
 
 /*
@@ -226,30 +302,41 @@ void help()
 int NoEcho(char* key, int size)
 {
     struct termios oflags, nflags;
+    int isTTY;
+    size_t keyLen;
 
-    /* disabling echo */
-    tcgetattr(fileno(stdin), &oflags);
-    nflags = oflags;
-    nflags.c_lflag &= ~ECHO;
-    nflags.c_lflag |= ECHONL;
+    isTTY = isatty(fileno(stdin));
 
-    if (tcsetattr(fileno(stdin), TCSANOW, &nflags) != 0) {
-        printf("Error: tcsetattr failed to disable terminal echo\n");
-        return -1060;
+    if (isTTY) {
+        /* disabling echo */
+        tcgetattr(fileno(stdin), &oflags);
+        nflags = oflags;
+        nflags.c_lflag &= ~ECHO;
+        nflags.c_lflag |= ECHONL;
+
+        if (tcsetattr(fileno(stdin), TCSANOW, &nflags) != 0) {
+            XPRINTF("Error: tcsetattr failed to disable terminal echo\n");
+            return -1060;
+        }
     }
 
-    printf("Unique Password: ");
+    XPRINTF("Unique Password: ");
     if (fgets(key, size, stdin) == NULL) {
-        printf("Error: fgets failed to retrieve secure key input\n");
+        XPRINTF("Error: fgets failed to retrieve secure key input\n");
         return -1070;
     }
 
-    key[strlen(key) - 1] = 0;
+    keyLen = strlen(key);
+    if (keyLen > 0 && key[keyLen - 1] == '\n') {
+        key[keyLen - 1] = 0;
+    }
 
-    /* restore terminal */
-    if (tcsetattr(fileno(stdin), TCSANOW, &oflags) != 0) {
-        printf("Error: tcsetattr failed to enable terminal echo\n");
-        return -1080;
+    if (isTTY) {
+        /* restore terminal */
+        if (tcsetattr(fileno(stdin), TCSANOW, &oflags) != 0) {
+            XPRINTF("Error: tcsetattr failed to enable terminal echo\n");
+            return -1080;
+        }
     }
     return 0;
 }
@@ -270,7 +357,7 @@ int SizeCheck(int *size)
     }
     else {
         /* if the entered size does not match acceptable size */
-        printf("Invalid AES key size\n");
+        XPRINTF("Invalid AES key size\n");
         ret = -1080;
     }
 
@@ -321,7 +408,7 @@ int main(int argc, char** argv)
                 break;
             case '?':
                 if (optopt) {
-                    printf("Ending Session\n");
+                    XPRINTF("Ending Session\n");
                     return -111;
                 }
             default:
@@ -329,19 +416,31 @@ int main(int argc, char** argv)
         }
     }
     if (inCheck == 0 || outCheck == 0) {
-            printf("Must have both input and output file");
-            printf(": -i filename -o filename\n");
+            XPRINTF("Must have both input and output file");
+            XPRINTF(": -i filename -o filename\n");
     }
     else if (ret == 0 && choice != 'n' && inFile != NULL) {
-        key = malloc(size);    /* sets size memory of key */
-        ret = NoEcho((char*)key, size);
-        if (choice == 'e')
-            AesCtrEncrypt(&aes, key, size, inFile, outFile);
-        else if (choice == 'd')
-            AesCtrDecrypt(&aes, key, size, inFile, outFile);
+        key = (byte*)XMALLOC(size, NULL, DYNAMIC_TYPE_TMP_BUFFER);    /* sets size memory of key */
+        if (key == NULL) {
+            XPRINTF("Failed to allocate memory for key\n");
+            ret = -1050;
+        }
+        else {
+            ret = NoEcho((char*)key, size);
+            if (ret == 0) {
+                if (choice == 'e')
+                    ret = AesCtrEncrypt(&aes, key, size, inFile, outFile);
+                else if (choice == 'd')
+                    ret = AesCtrDecrypt(&aes, key, size, inFile, outFile);
+            }
+            else {
+                wc_ForceZero(key, size);
+                XFREE(key, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+            }
+        }
     }
     else if (choice == 'n') {
-        printf("Must select either -e[128, 192, 256] or -d[128, 192, 256] \
+        XPRINTF("Must select either -e[128, 192, 256] or -d[128, 192, 256] \
                 for encryption and decryption\n");
         ret = -110;
     }
@@ -352,7 +451,7 @@ int main(int argc, char** argv)
 #else
 int main()
 {
-    printf("Missing pwdbased, pbkdf2, or aes-ctr from wolfSSL\n");
+    XPRINTF("Missing pwdbased, pbkdf2, or aes-ctr from wolfSSL\n");
     return 0;
 }
 #endif

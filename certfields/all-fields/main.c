@@ -64,7 +64,7 @@ int main(int argc, char** argv)
 
     RsaKey pubKeyRsa;
     ecc_key pubKeyEcc;
-    WOLFSSL_X509* cert;
+    WOLFSSL_X509* cert = NULL;
     WOLFSSL_EVP_PKEY* pubKeyTmp;
     WOLFSSL_X509_NAME* name;
 

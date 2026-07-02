@@ -38,6 +38,7 @@
 #include <wolfssl/wolfcrypt/settings.h>
 #include <wolfssl/wolfcrypt/aes.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
+#include <wolfssl/wolfcrypt/memory.h>
 
 #if !defined(NO_AES) && defined(HAVE_AES_KEYWRAP)
 
@@ -61,7 +62,7 @@ static int read_file(const char* filename, byte** data, word32* dataSz)
     fileSz = ftell(fp);
     fseek(fp, 0, SEEK_SET);
 
-    *data = (byte*)malloc(fileSz);
+    *data = (byte*)XMALLOC(fileSz, NULL, DYNAMIC_TYPE_TMP_BUFFER);
     if (*data == NULL) {
         fclose(fp);
         printf("Error: Memory allocation failed\n");
@@ -112,16 +113,25 @@ static int wrap_file(const char* inFile, const char* outFile,
     /* Wrapped output is input + 8 bytes (integrity check value) */
     /* Also store original size (4 bytes) at beginning */
     wrappedSz = 4 + paddedSz + KEYWRAP_BLOCK;
-    wrapped = (byte*)malloc(wrappedSz);
+    wrapped = (byte*)XMALLOC(wrappedSz, NULL, DYNAMIC_TYPE_TMP_BUFFER);
     if (wrapped == NULL) {
-        free(plaintext);
+        wc_ForceZero(plaintext, plaintextSz);
+        XFREE(plaintext, NULL, DYNAMIC_TYPE_TMP_BUFFER);
         return -1;
     }
 
     /* Apply padding if needed */
     if (padLen > 0) {
-        plaintext = (byte*)realloc(plaintext, paddedSz);
-        memset(plaintext + plaintextSz, 0, padLen);
+        byte* tmp = (byte*)XREALLOC(plaintext, paddedSz, NULL,
+                                     DYNAMIC_TYPE_TMP_BUFFER);
+        if (tmp == NULL) {
+            wc_ForceZero(plaintext, plaintextSz);
+            XFREE(plaintext, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+            XFREE(wrapped, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+            return -1;
+        }
+        plaintext = tmp;
+        XMEMSET(plaintext + plaintextSz, 0, padLen);
     }
 
     /* One-shot key wrap */
@@ -129,8 +139,9 @@ static int wrap_file(const char* inFile, const char* outFile,
                         wrapped + 4, wrappedSz - 4, NULL);
 
     if (ret < 0) {
-        free(plaintext);
-        free(wrapped);
+        wc_ForceZero(plaintext, paddedSz);
+        XFREE(plaintext, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+        XFREE(wrapped, NULL, DYNAMIC_TYPE_TMP_BUFFER);
         return ret;
     }
 
@@ -142,8 +153,9 @@ static int wrap_file(const char* inFile, const char* outFile,
 
     ret = write_file(outFile, wrapped, wrappedSz);
 
-    free(plaintext);
-    free(wrapped);
+    wc_ForceZero(plaintext, paddedSz);
+    XFREE(plaintext, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+    XFREE(wrapped, NULL, DYNAMIC_TYPE_TMP_BUFFER);
 
     printf("AES-KEYWRAP wrapping complete (one-shot)\n");
     return ret;
@@ -164,7 +176,7 @@ static int unwrap_file(const char* inFile, const char* outFile,
     if (ret != 0) return ret;
 
     if (wrappedSz < 4 + KEYWRAP_BLOCK * 2) {
-        free(wrapped);
+        XFREE(wrapped, NULL, DYNAMIC_TYPE_TMP_BUFFER);
         printf("Error: File too small\n");
         return -1;
     }
@@ -177,9 +189,14 @@ static int unwrap_file(const char* inFile, const char* outFile,
 
     /* Unwrapped size is wrapped - 4 (size header) - 8 (integrity check) */
     plaintextSz = wrappedSz - 4 - KEYWRAP_BLOCK;
-    plaintext = (byte*)malloc(plaintextSz);
+    if (originalSz > plaintextSz) {
+        XFREE(wrapped, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+        printf("Error: Invalid decrypted size\n");
+        return -1;
+    }
+    plaintext = (byte*)XMALLOC(plaintextSz, NULL, DYNAMIC_TYPE_TMP_BUFFER);
     if (plaintext == NULL) {
-        free(wrapped);
+        XFREE(wrapped, NULL, DYNAMIC_TYPE_TMP_BUFFER);
         return -1;
     }
 
@@ -188,8 +205,9 @@ static int unwrap_file(const char* inFile, const char* outFile,
                           plaintext, plaintextSz, NULL);
 
     if (ret < 0) {
-        free(wrapped);
-        free(plaintext);
+        XFREE(wrapped, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+        wc_ForceZero(plaintext, plaintextSz);
+        XFREE(plaintext, NULL, DYNAMIC_TYPE_TMP_BUFFER);
         printf("Error: Key unwrap failed (integrity check may have failed)\n");
         return ret;
     }
@@ -197,8 +215,9 @@ static int unwrap_file(const char* inFile, const char* outFile,
     /* Use original size to remove padding */
     ret = write_file(outFile, plaintext, originalSz);
 
-    free(wrapped);
-    free(plaintext);
+    XFREE(wrapped, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+    wc_ForceZero(plaintext, plaintextSz);
+    XFREE(plaintext, NULL, DYNAMIC_TYPE_TMP_BUFFER);
 
     printf("AES-KEYWRAP unwrapping complete (one-shot, no streaming API "
            "available)\n");
@@ -220,12 +239,13 @@ int main(int argc, char** argv)
     wolfCrypt_Init();
 
     /* Use a fixed key for demonstration */
-    memset(key, 0x0C, AES_KEY_SIZE);
+    XMEMSET(key, 0x0C, AES_KEY_SIZE);
 
     /* Wrap to temporary file */
     ret = wrap_file(argv[1], "temp_wrapped.bin", key, AES_KEY_SIZE);
     if (ret != 0) {
         printf("Wrapping failed: %d\n", ret);
+        wc_ForceZero(key, AES_KEY_SIZE);
         wolfCrypt_Cleanup();
         return 1;
     }
@@ -234,6 +254,7 @@ int main(int argc, char** argv)
     ret = unwrap_file("temp_wrapped.bin", argv[2], key, AES_KEY_SIZE);
     if (ret != 0) {
         printf("Unwrapping failed: %d\n", ret);
+        wc_ForceZero(key, AES_KEY_SIZE);
         wolfCrypt_Cleanup();
         return 1;
     }
@@ -243,6 +264,7 @@ int main(int argc, char** argv)
 
     printf("Success! Unwrapped file written to %s\n", argv[2]);
 
+    wc_ForceZero(key, AES_KEY_SIZE);
     wolfCrypt_Cleanup();
     return 0;
 }
