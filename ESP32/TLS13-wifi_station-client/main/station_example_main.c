@@ -9,6 +9,7 @@
 
 
 #include <string.h>
+#include <errno.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/event_groups.h"
@@ -192,7 +193,7 @@ int set_time() {
     int i = 0;
     for (i = 0; i < NTP_SERVER_COUNT; i++) {
         const char* thisServer = ntpServerList[i];
-        if (strncmp(thisServer, "\x00", 1)) {
+        if (XSTRNCMP(thisServer, "\x00", 1)) {
             /* just in case we run out of NTP servers */
             break;
         }
@@ -302,7 +303,7 @@ int tls_smp_client_task() {
 
 
     /* Initialize the server address struct with zeros */
-    memset(&servAddr, 0, sizeof(servAddr));
+    XMEMSET(&servAddr, 0, sizeof(servAddr));
 
     /* Fill in the server address */
     servAddr.sin_family = AF_INET; /* using IPv4      */
@@ -357,13 +358,13 @@ int tls_smp_client_task() {
          * a non-negative integer, the socket file descriptor.
         */
         sockfd = socket(AF_INET, SOCK_STREAM, 0);
-        if (sockfd > 0) {
+        if (sockfd >= 0) {
             ESP_LOGI(TAG,"socket creation successful\n");
         }
         else {
-            // TODO show errno
+            ESP_LOGE(TAG,
+                     "ERROR: failed to create a socket (errno = %d).\n", errno);
             ret = WOLFSSL_FAILURE;
-            ESP_LOGE(TAG, "ERROR: failed to create a socket.\n");
         }
     }
     else {
@@ -398,8 +399,8 @@ int tls_smp_client_task() {
             ESP_LOGI(TAG,"sockfd connect successful\n");
         }
         else {
-            // TODO show errno
-            ESP_LOGE(TAG, "ERROR: socket connect failed\n");
+            ESP_LOGE(TAG,
+                     "ERROR: socket connect failed (errno = %d)\n", errno);
             ret = WOLFSSL_FAILURE;
         }
     }
@@ -837,13 +838,13 @@ int tls_smp_client_task() {
     */
     if (ret == WOLFSSL_SUCCESS) {
 
-        memset(buff, 0, BUFF_SIZE);
+        XMEMSET(buff, 0, BUFF_SIZE);
 
         /* get the length of our message, never longer than the declared size */
 
         /* TODO check for zero length */
 
-        len = strnlen(sendMessage, sendMessageSize);
+        len = XSTRLEN(sendMessage);
 
         /* write the message over secure connection to the server */
         if (wolfSSL_write(ssl, sendMessage, len) == len) {
@@ -923,7 +924,7 @@ int tls_smp_client_task() {
     if (ret == WOLFSSL_SUCCESS) {
         /* even though the result should be a zero-terminated string,
          * we'll clear the receive buffer */
-        memset(buff, 0, BUFF_SIZE);
+        XMEMSET(buff, 0, BUFF_SIZE);
 
         /* read the response data from our secure connection */
         if (wolfSSL_read(ssl, buff, BUFF_SIZE - 1) > 0) {

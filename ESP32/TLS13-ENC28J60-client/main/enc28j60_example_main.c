@@ -125,6 +125,13 @@ TickType_t DelayTicks = 5000 / portTICK_PERIOD_MS;
  **/
   
 
+static void LogSocketError(const char* fmt, int err)
+{
+    char err_msg[128];
+    XSNPRINTF(err_msg, sizeof(err_msg), fmt, err);
+    WOLFSSL_ERROR_MSG(err_msg);
+}
+
 int tls_smp_client_task() {
     int ret = WOLFSSL_SUCCESS; /* assume success until proven wrong */
     int sockfd = 0; /* the socket that will carry our secure connection */
@@ -165,7 +172,7 @@ int tls_smp_client_task() {
 #endif /* WOLFSSL_TLS13 */
    
     /* Initialize the server address struct with zeros */
-    memset(&servAddr, 0, sizeof(servAddr));
+    XMEMSET(&servAddr, 0, sizeof(servAddr));
 
     /* Fill in the server address */
     servAddr.sin_family = AF_INET; /* using IPv4      */
@@ -220,13 +227,12 @@ int tls_smp_client_task() {
          * a non-negative integer, the socket file descriptor.
         */
         sockfd = socket(AF_INET, SOCK_STREAM, 0);
-        if (sockfd > 0) {
+        if (sockfd >= 0) {
             WOLFSSL_MSG("socket creation successful\n");
         }
         else {
-            // TODO show errno 
+            LogSocketError("ERROR: failed to create a socket (errno = %d).\n", errno);
             ret = WOLFSSL_FAILURE;
-            WOLFSSL_ERROR_MSG("ERROR: failed to create a socket.\n");
         }
     }
     else {
@@ -258,8 +264,7 @@ int tls_smp_client_task() {
             WOLFSSL_MSG("sockfd connect successful\n");
         }
         else {
-            // TODO show errno
-            WOLFSSL_ERROR_MSG("ERROR: socket connect failed\n");
+            LogSocketError("ERROR: socket connect failed (errno = %d)\n", errno);
             ret = WOLFSSL_FAILURE;
         }
     }
@@ -697,13 +702,13 @@ int tls_smp_client_task() {
     */
     if (ret == WOLFSSL_SUCCESS) {
 
-        memset(buff, 0, BUFF_SIZE);
+        XMEMSET(buff, 0, BUFF_SIZE);
     
         /* get the length of our message, never longer than the declared size */
         
         /* TODO check for zero length */
         
-        len = strnlen(sendMessage, sendMessageSize);
+        len = XSTRLEN(sendMessage);
         
         /* write the message over secure connection to the server */
         if (wolfSSL_write(ssl, sendMessage, len) == len) {
@@ -783,7 +788,7 @@ int tls_smp_client_task() {
     if (ret == WOLFSSL_SUCCESS) {
         /* even though the result should be a zero-terminated string, 
          * we'll clear the receive buffer */
-        memset(buff, 0, BUFF_SIZE);
+        XMEMSET(buff, 0, BUFF_SIZE);
         
         /* read the response data from our secure connection */
         if (wolfSSL_read(ssl, buff, BUFF_SIZE - 1) > 0) {
@@ -946,7 +951,7 @@ int set_time() {
     int i = 0;
     for (i = 0; i < NTP_SERVER_COUNT; i++) {
         const char* thisServer = ntpServerList[i];
-        if (strncmp(thisServer, "\x00", 1)) {
+        if (XSTRNCMP(thisServer, "\x00", 1)) {
             /* just in case we run out of NTP servers */
             break;
         }

@@ -156,7 +156,7 @@ WOLFSSL_ESP_TASK dtls13_smp_client_task(void *pvParameters)
     ESP_LOGI(TAG, "See ./include/client-dtls13.h to update settings.");
     ESP_LOGI(TAG, "Setting server address to %s, port %d.",
                    TLS_SMP_SERVER_ADDRESS, SERV_PORT);
-    memset(&servAddr, 0, sizeof(servAddr));
+    XMEMSET(&servAddr, 0, sizeof(servAddr));
     servAddr.sin_family = AF_INET;
     servAddr.sin_port = htons(SERV_PORT);
     if (inet_pton(AF_INET, TLS_SMP_SERVER_ADDRESS, &servAddr.sin_addr) < 1) {
@@ -199,10 +199,11 @@ WOLFSSL_ESP_TASK dtls13_smp_client_task(void *pvParameters)
 
         ESP_LOGI(TAG, "Sending message");
 
-        strcpy(sendLine, "Hello World.");
+        XSTRCPY(sendLine, "Hello World.");
 
         /* Send sendLine to the server */
-        if (wolfSSL_write(ssl, sendLine, strlen(sendLine)) != strlen(sendLine)) {
+        if (wolfSSL_write(ssl, sendLine, XSTRLEN(sendLine)) !=
+                XSTRLEN(sendLine)) {
             err = wolfSSL_get_error(ssl, 0);
             ESP_LOGE(TAG, "err = %d, %s\n",
                            err, wolfSSL_ERR_reason_error_string(err));
