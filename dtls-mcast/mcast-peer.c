@@ -32,6 +32,9 @@
 #include <wolfssl/options.h>
 #include <wolfssl/ssl.h>
 #include <wolfssl/error-ssl.h>
+#include <wolfssl/wolfcrypt/random.h>
+#include <wolfssl/wolfcrypt/pwdbased.h>
+#include <wolfssl/wolfcrypt/memory.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -61,7 +64,8 @@
 /* Epoch for the multicast session */
 #define MCAST_EPOCH     1
 
-#if defined(WOLFSSL_DTLS) && defined(WOLFSSL_MULTICAST)
+#if defined(WOLFSSL_DTLS) && defined(WOLFSSL_MULTICAST) && \
+    defined(HAVE_PBKDF2) && !defined(NO_PWDBASED)
 
 /* Global flag for clean shutdown */
 static volatile sig_atomic_t running = 1;
@@ -230,14 +234,83 @@ int main(int argc, char** argv)
 #endif
 
     /* Initialize the pre-shared secrets (same for all peers) */
-    memset(pms, 0x23, sizeof(pms));
-    memset(clientRandom, 0xA5, sizeof(clientRandom));
-    memset(serverRandom, 0x5A, sizeof(serverRandom));
+    {
+        const char* envSecret = getenv("DTLS_MCAST_SECRET");
+        char genSecret[2 * PMS_SIZE + 1];
+        const char* secret;
+        size_t len;
+
+        if (envSecret != NULL) {
+            secret = envSecret;
+        }
+        else {
+            byte secretBytes[PMS_SIZE];
+            WC_RNG rng;
+
+            printf("WARNING: DTLS_MCAST_SECRET not set. Generating a random "
+                   "multicast secret for this run.\n"
+                   "         Export the printed value as DTLS_MCAST_SECRET "
+                   "on ALL peers so they can share the same secret.\n");
+
+            ret = wc_InitRng(&rng);
+            if (ret != 0) {
+                fprintf(stderr, "Error: wc_InitRng failed: %d\n", ret);
+                return 1;
+            }
+            ret = wc_RNG_GenerateBlock(&rng, secretBytes, sizeof(secretBytes));
+            wc_FreeRng(&rng);
+            if (ret != 0) {
+                fprintf(stderr, "Error: Failed to generate random multicast "
+                        "secret: %d\n", ret);
+                wc_ForceZero(secretBytes, sizeof(secretBytes));
+                return 1;
+            }
+
+            for (i = 0; i < (int)sizeof(secretBytes); i++)
+                snprintf(&genSecret[i * 2], 3, "%02x", secretBytes[i]);
+            wc_ForceZero(secretBytes, sizeof(secretBytes));
+
+            printf("Generated multicast secret (hex): %s\n"
+                   "Export this value as DTLS_MCAST_SECRET on ALL peers.\n",
+                   genSecret);
+
+            secret = genSecret;
+        }
+
+        len = strlen(secret);
+
+        /* PBKDF2 guards against a weak DTLS_MCAST_SECRET; distinct salts
+         * keep pms/clientRandom/serverRandom independent yet peer-shared. */
+        ret = wc_PBKDF2(pms, (byte*)secret, (int)len,
+                (byte*)"mcast-pms", 9, 4096, sizeof(pms), WC_SHA256);
+        if (ret == 0)
+            ret = wc_PBKDF2(clientRandom, (byte*)secret, (int)len,
+                    (byte*)"mcast-client-random", 19, 4096,
+                    sizeof(clientRandom), WC_SHA256);
+        if (ret == 0)
+            ret = wc_PBKDF2(serverRandom, (byte*)secret, (int)len,
+                    (byte*)"mcast-server-random", 19, 4096,
+                    sizeof(serverRandom), WC_SHA256);
+
+        wc_ForceZero(genSecret, sizeof(genSecret));
+
+        if (ret != 0) {
+            fprintf(stderr, "Error: Failed to derive multicast secret: %d\n",
+                    ret);
+            wc_ForceZero(pms, sizeof(pms));
+            wc_ForceZero(clientRandom, sizeof(clientRandom));
+            wc_ForceZero(serverRandom, sizeof(serverRandom));
+            return 1;
+        }
+    }
 
     /* Initialize wolfSSL */
     ret = wolfSSL_Init();
     if (ret != WOLFSSL_SUCCESS) {
         fprintf(stderr, "Error: wolfSSL_Init failed: %d\n", ret);
+        wc_ForceZero(pms, sizeof(pms));
+        wc_ForceZero(clientRandom, sizeof(clientRandom));
+        wc_ForceZero(serverRandom, sizeof(serverRandom));
         return 1;
     }
 
@@ -423,6 +496,9 @@ int main(int argc, char** argv)
     printf("\nNode %d: Shutting down...\n", myId);
 
 cleanup:
+    wc_ForceZero(pms, sizeof(pms));
+    wc_ForceZero(clientRandom, sizeof(clientRandom));
+    wc_ForceZero(serverRandom, sizeof(serverRandom));
     if (sslTx != NULL) {
         wolfSSL_free(sslTx);
     }
@@ -451,7 +527,8 @@ cleanup:
 #else
 int main()
 {
-    fprintf(stderr, "Please configure the wolfssl library with --enable-dtls --enable-mcast.\n");
+    fprintf(stderr, "Please configure the wolfssl library with "
+            "--enable-dtls --enable-mcast --enable-pwdbased.\n");
     return EXIT_FAILURE;
 }
-#endif /* WOLFSSL_DTLS && WOLFSSL_MULTICAST */
+#endif /* WOLFSSL_DTLS && WOLFSSL_MULTICAST && HAVE_PBKDF2 && !NO_PWDBASED */

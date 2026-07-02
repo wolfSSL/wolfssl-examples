@@ -180,6 +180,7 @@ int encrypt_file_AesGCM(const char *in_file, const char *out_file,
     byte key[AES_KEY_SIZE];
     byte tag_enc[AESGCM_TAG_SIZE];
     Aes gcm;
+    int aes_initialized = 0;
 
     if (!in_file || !out_file || !key_str || !iv_str) {
         return BAD_FUNC_ARG;
@@ -242,6 +243,7 @@ int encrypt_file_AesGCM(const char *in_file, const char *out_file,
         printf("AesInit returned: %d\n", ret);
         goto exit;
     }
+    aes_initialized = 1;
 
     ret = wc_AesGcmEncryptInit(&gcm, key, AES_KEY_SIZE, iv, AES_IV_SIZE);
     if (ret == 0) {
@@ -304,6 +306,9 @@ int encrypt_file_AesGCM(const char *in_file, const char *out_file,
     }
     printf("File encryption with AES GCM complete.\n");
 exit:
+    if (aes_initialized) {
+        wc_AesFree(&gcm);
+    }
     wc_ForceZero(key, AES_KEY_SIZE);
     wc_ForceZero(iv, AES_IV_SIZE);
     wc_ForceZero(tag_enc, AESGCM_TAG_SIZE);
@@ -352,6 +357,7 @@ int decrypt_file_AesGCM(const char *in_file, const char *out_file,
     byte key[AES_KEY_SIZE];
     byte tag[AESGCM_TAG_SIZE];
     Aes gcm;
+    int aes_initialized = 0;
 
     if (!in_file || !out_file || !key_str) {
         return BAD_FUNC_ARG;
@@ -434,6 +440,14 @@ int decrypt_file_AesGCM(const char *in_file, const char *out_file,
         goto exit;
     }
 
+    /* inits aes structure */
+    ret = wc_AesInit(&gcm, NULL, INVALID_DEVID);
+    if (ret != 0) {
+        printf("AesInit returned: %d\n", ret);
+        goto exit;
+    }
+    aes_initialized = 1;
+
     ret = wc_AesGcmDecryptInit(&gcm, key, AES_KEY_SIZE, iv, AES_IV_SIZE);
 
     while (ret == 0) {
@@ -457,6 +471,9 @@ int decrypt_file_AesGCM(const char *in_file, const char *out_file,
         ret = wc_AesGcmDecryptFinal(&gcm, tag, AESGCM_TAG_SIZE);
     }
 exit:
+    if (aes_initialized) {
+        wc_AesFree(&gcm);
+    }
     wc_ForceZero(key, AES_KEY_SIZE);
     wc_ForceZero(iv, AES_IV_SIZE);
     wc_ForceZero(tag, AESGCM_TAG_SIZE);

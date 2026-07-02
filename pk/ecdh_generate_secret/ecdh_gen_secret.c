@@ -37,6 +37,32 @@ int do_ecc(void);
 int do_25519(void);
 int do_448(void);
 
+/* Constant-time buffer compare for secret material.
+ *
+ * wolfSSL's own constant-time compare (ConstantCompare() in
+ * wolfcrypt/src/misc.c) is WOLFSSL_LOCAL and not exported, so it can't be
+ * called from application code. This is the pattern to use instead of
+ * XMEMCMP/memcmp whenever comparing secrets, MACs, or derived key material:
+ * every byte is compared regardless of where a mismatch occurs, so the
+ * runtime doesn't leak position information via early-exit timing.
+ *
+ * Returns 0 if the buffers are equal, non-zero otherwise. */
+#if defined(HAVE_ECC) || defined(HAVE_CURVE25519) || defined(HAVE_CURVE448)
+static int const_time_memcmp(const void* a, const void* b, size_t len)
+{
+    const byte* pa = (const byte*)a;
+    const byte* pb = (const byte*)b;
+    byte diff = 0;
+    size_t i;
+
+    for (i = 0; i < len; i++) {
+        diff |= (byte)(pa[i] ^ pb[i]);
+    }
+
+    return (int)diff;
+}
+#endif /* HAVE_ECC || HAVE_CURVE25519 || HAVE_CURVE448 */
+
 int main(int argc, char** argv)
 {
     int curveChoice = 0;
@@ -111,7 +137,9 @@ int do_ecc(void)
     wc_ecc_set_rng(&BobKey, &rng);
     ret = wc_ecc_shared_secret(&BobKey, &AliceKey, BobSecret, &secretLen);
     if (ret == 0) {
-        if (XMEMCMP(AliceSecret, BobSecret, secretLen))
+        /* Use a constant-time compare (not XMEMCMP) since these buffers
+         * hold secret key material. See const_time_memcmp() above. */
+        if (const_time_memcmp(AliceSecret, BobSecret, secretLen))
             printf("Failed to generate a common secret\n");
     } else {
         goto all_three;
@@ -172,7 +200,9 @@ int do_25519(void)
     secretLen = ECC_256_BIT_FIELD; /* explicit reset for best practice */
     ret = wc_curve25519_shared_secret(&BobKey, &AliceKey, BobSecret, &secretLen);
     if (ret == 0) {
-        if (XMEMCMP(AliceSecret, BobSecret, secretLen))
+        /* Use a constant-time compare (not XMEMCMP) since these buffers
+         * hold secret key material. See const_time_memcmp() above. */
+        if (const_time_memcmp(AliceSecret, BobSecret, secretLen))
             printf("Failed to generate a common secret\n");
     } else {
         goto all_three;
@@ -233,7 +263,9 @@ int do_448(void)
     secretLen = ECC_448_BIT_FIELD; /* explicit reset for best practice */
     ret = wc_curve448_shared_secret(&BobKey, &AliceKey, BobSecret, &secretLen);
     if (ret == 0) {
-        if (XMEMCMP(AliceSecret, BobSecret, secretLen))
+        /* Use a constant-time compare (not XMEMCMP) since these buffers
+         * hold secret key material. See const_time_memcmp() above. */
+        if (const_time_memcmp(AliceSecret, BobSecret, secretLen))
             printf("Failed to generate a common secret\n");
     } else {
         goto all_three;
@@ -285,7 +317,10 @@ void Usage(int* curveChoice)
 
     if (answer == 'y') {
         printf("\nEnter an option from the above curve list > ");
-        scanf("%s", input);
+        if (scanf("%9s", input) != 1) {
+            printf("Invalid input\n");
+            exit(-1);
+        }
         printf("You entered: %s\n", input);
         sscanf(input, "%d", curveChoice);
         if (*curveChoice != 1 && *curveChoice != 2) {

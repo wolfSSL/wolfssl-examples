@@ -192,7 +192,6 @@ int Des3Encrypt(Des3* des3, byte* key, int size, FILE* inFile, FILE* outFile)
  */
 int Des3Decrypt(Des3* des3, byte* key, int size, FILE* inFile, FILE* outFile)
 {
-    WC_RNG  rng;
     byte    iv[DES3_BLOCK_SIZE];
     byte*   input = NULL;
     byte*   output = NULL;
@@ -202,7 +201,6 @@ int Des3Decrypt(Des3* des3, byte* key, int size, FILE* inFile, FILE* outFile)
     int     ret = 0;
     int     length;
     int     aSize;
-    int     rngInit = 0;
     int     des3Init = 0;
 
     fseek(inFile, 0, SEEK_END);
@@ -226,14 +224,6 @@ int Des3Decrypt(Des3* des3, byte* key, int size, FILE* inFile, FILE* outFile)
             XPRINTF("Failed to allocate memory\n");
             ret = -1051;
         }
-    }
-
-    if (ret == 0) {
-        ret = wc_InitRng(&rng);
-        if (ret != 0)
-            XPRINTF("Failed to initialize random number generator\n");
-        else
-            rngInit = 1;
     }
 
     /* reads from inFile and writes whatever is there to the input array */
@@ -332,8 +322,6 @@ int Des3Decrypt(Des3* des3, byte* key, int size, FILE* inFile, FILE* outFile)
     fclose(outFile);
     if (des3Init)
         wc_Des3Free(des3);
-    if (rngInit)
-        wc_FreeRng(&rng);
 
     return ret;
 }
@@ -460,15 +448,19 @@ int main(int argc, char** argv)
     }
 
     if (inCheck == 0 || outCheck == 0) {
-            XPRINTF("Must have both input and output file");
-            XPRINTF(": -i filename -o filename\n");
+        XPRINTF("Must have both input and output file");
+        XPRINTF(": -i filename -o filename\n");
+        if (inFile != NULL) fclose(inFile);
+        if (outFile != NULL) fclose(outFile);
     }
-
-    else if (ret == 0 && choice != 'n' && inFile != NULL) {
+    else if (ret == 0 && choice != 'n' && inFile != NULL && outFile != NULL) {
         key = (byte*)XMALLOC(size, NULL, DYNAMIC_TYPE_TMP_BUFFER);    /* sets size memory of key */
         if (key == NULL) {
             XPRINTF("Failed to allocate memory for key\n");
             ret = -1050;
+            fclose(inFile);
+            if (outFile != NULL)
+                fclose(outFile);
         }
         else {
             ret = NoEcho((char*)key, size);
@@ -481,12 +473,23 @@ int main(int argc, char** argv)
             else {
                 wc_ForceZero(key, size);
                 XFREE(key, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+                fclose(inFile);
+                if (outFile != NULL)
+                    fclose(outFile);
             }
         }
     }
-    else if (choice == 'n') {
-        XPRINTF("Must select either -e[56,112,168] or -d[56,112,168] for \
+    else {
+        if (choice == 'n') {
+            XPRINTF("Must select either -e[56,112,168] or -d[56,112,168] for \
                 encryption and decryption\n");
+        }
+        if (inFile != NULL) {
+            fclose(inFile);
+        }
+        if (outFile != NULL) {
+            fclose(outFile);
+        }
     }
 
     return ret;
