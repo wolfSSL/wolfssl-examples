@@ -87,6 +87,7 @@
 
 /* wolfcrypt includes */
 #include "wolfssl/wolfcrypt/types.h"       /* types and X-defines */
+#include "wolfssl/wolfcrypt/memory.h"      /* For wc_ForceZero */
 
 #ifndef CCBVAULTIC_NO_SHA
 #include "wolfssl/wolfcrypt/hash.h"  /* For HASH_FLAGS and types */
@@ -155,6 +156,31 @@ static void hexdump(const unsigned char* p, size_t len)
         XPRINTF("\n");
 }
 #endif
+
+#ifdef WOLF_CRYPTO_CB
+/* Constant-time buffer compare for secret material.
+ *
+ * wolfSSL's own constant-time compare (ConstantCompare() in
+ * wolfcrypt/src/misc.c) is WOLFSSL_LOCAL and not exported, so it can't be
+ * called from application code. Every byte is compared regardless of where
+ * a mismatch occurs, so the runtime doesn't leak position information via
+ * early-exit timing.
+ *
+ * Returns 0 if the buffers are equal, non-zero otherwise. */
+static int const_time_memcmp(const void* a, const void* b, size_t len)
+{
+    const byte* pa = (const byte*)a;
+    const byte* pb = (const byte*)b;
+    byte diff = 0;
+    size_t i;
+
+    for (i = 0; i < len; i++) {
+        diff |= (byte)(pa[i] ^ pb[i]);
+    }
+
+    return (int)diff;
+}
+#endif /* WOLF_CRYPTO_CB */
 
 /* Helper to translate vlt return codes to wolfSSL code */
 static int translateError(int vlt_rc)
@@ -231,10 +257,14 @@ void ccbVaultIc_Cleanup(ccbVaultIc_Context *c)
         return;
 
     /* Free allocated buffers */
-    if (c->m != NULL)
+    if (c->m != NULL) {
+        wc_ForceZero(c->m, c->m_len);
         XFREE(c->m, NULL, NULL);
-    if (c->aescbc_key != NULL)
+    }
+    if (c->aescbc_key != NULL) {
+        wc_ForceZero(c->aescbc_key, c->aescbc_keylen);
         XFREE(c->aescbc_key, NULL, NULL);
+    }
 
     clearContext(c);
 
@@ -975,10 +1005,12 @@ static int HandleCipherCallback(int devId, wc_CryptoInfo* info,
             vlt_mode = VLT_DECRYPT_MODE;
         }
 
-        /* Check if key is not the same as last time */
+        /* Check if key is not the same as last time. Uses a constant-time
+         * compare since this is secret key material, even though this
+         * check only gates a cache refresh (not authentication). */
         if ((c->aescbc_key    == NULL) ||
             (c->aescbc_keylen != aes->keylen) ||
-            (XMEMCMP(c->aescbc_key, aes->devKey, aes->keylen))) {
+            (const_time_memcmp(c->aescbc_key, aes->devKey, aes->keylen))) {
 #if defined(CCBVAULTIC_DEBUG_ALL)
             XPRINTF("   New AES Key: ckey:%p clen:%lu akey:%p alen:%u\n",
                     c->aescbc_key,c->aescbc_keylen, aes->devKey, aes->keylen);
@@ -986,6 +1018,7 @@ static int HandleCipherCallback(int devId, wc_CryptoInfo* info,
 #endif
             /* Free the current key buffer if necessary */
             if (c->aescbc_key != NULL) {
+                wc_ForceZero(c->aescbc_key, c->aescbc_keylen);
                 XFREE(c->aescbc_key, NULL, NULL);
                 c->aescbc_key    = NULL;
                 c->aescbc_keylen = 0;

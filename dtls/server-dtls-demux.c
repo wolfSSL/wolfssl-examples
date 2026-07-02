@@ -413,12 +413,25 @@ WOLFSSL_CTX* newCTX(void)
     return ctx;
 }
 
+/* Stateless cookie secret, generated once per run. Must stay stable across
+ * newSSL() calls so in-flight cookie retries from other clients still
+ * validate. Applications should rotate it periodically (e.g. on a timer),
+ * not on every call. */
+static byte cookieSecret[32];
+static int cookieSecretSet = 0;
+
 WOLFSSL* newSSL(WOLFSSL_CTX* ctx, int fd, WC_RNG* rng, struct ConnList* connList)
 {
     WOLFSSL* ssl = NULL;
-    /* Applications should update this secret periodically */
-    char *secret = "My secret";
     byte newCid[CID_SIZE];
+
+    if (!cookieSecretSet) {
+        if (wc_RNG_GenerateBlock(rng, cookieSecret, sizeof(cookieSecret)) != 0) {
+            fprintf(stderr, "wc_RNG_GenerateBlock error.\n");
+            return NULL;
+        }
+        cookieSecretSet = 1;
+    }
 
     /* Create the WOLFSSL Object */
     if ((ssl = wolfSSL_new(ctx)) == NULL) {
@@ -427,13 +440,13 @@ WOLFSSL* newSSL(WOLFSSL_CTX* ctx, int fd, WC_RNG* rng, struct ConnList* connList
     }
     /* Set the secret for cookie creation */
 #if defined(WOLFSSL_SEND_HRR_COOKIE)
-    if (wolfSSL_send_hrr_cookie(ssl, (byte*)secret, strlen(secret)) != WOLFSSL_SUCCESS) {
+    if (wolfSSL_send_hrr_cookie(ssl, cookieSecret, sizeof(cookieSecret)) != WOLFSSL_SUCCESS) {
         fprintf(stderr, "wolfSSL_send_hrr_cookie error.\n");
         wolfSSL_free(ssl);
         return NULL;
     }
 #endif
-    if (wolfSSL_DTLS_SetCookieSecret(ssl, (byte*)secret, strlen(secret)) != 0) {
+    if (wolfSSL_DTLS_SetCookieSecret(ssl, cookieSecret, sizeof(cookieSecret)) != 0) {
         fprintf(stderr, "wolfSSL_DTLS_SetCookieSecret error.\n");
         wolfSSL_free(ssl);
         return NULL;

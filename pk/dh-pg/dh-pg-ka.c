@@ -32,6 +32,29 @@
 #define DEF_KA_CHECKS     512
 #define DEF_PARAMS_GEN    8
 
+/* Constant-time buffer compare for secret material.
+ *
+ * wolfSSL's own constant-time compare (ConstantCompare() in
+ * wolfcrypt/src/misc.c) is WOLFSSL_LOCAL and not exported, so it can't be
+ * called from application code. Every byte is compared regardless of where
+ * a mismatch occurs, so the runtime doesn't leak position information via
+ * early-exit timing.
+ *
+ * Returns 0 if the buffers are equal, non-zero otherwise. */
+static int const_time_memcmp(const void* a, const void* b, size_t len)
+{
+    const unsigned char* pa = (const unsigned char*)a;
+    const unsigned char* pb = (const unsigned char*)b;
+    unsigned char diff = 0;
+    size_t i;
+
+    for (i = 0; i < len; i++) {
+        diff |= (unsigned char)(pa[i] ^ pb[i]);
+    }
+
+    return (int)diff;
+}
+
 int load_dh_params(DhKey* key1, DhKey* key2, WC_RNG* rng)
 {
     int ret;
@@ -412,8 +435,8 @@ int main(int argc, char *argv[])
             }
 
             /* Secret's should be the same */
-            if ((secret1_len != secret2_len) || (XMEMCMP(secret1, secret2,
-                                                         secret1_len) != 0)) {
+            if ((secret1_len != secret2_len) || (const_time_memcmp(secret1,
+                                                 secret2, secret1_len) != 0)) {
                 fprintf(stderr, "Secrets different\n");
                 print_dh(&key1);
                 ec = 1;

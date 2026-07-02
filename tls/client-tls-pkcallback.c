@@ -98,7 +98,7 @@ static int load_file(const char* fname, byte** buf, size_t* bufLen)
     rewind(lFile);
     if (fileSz > 0) {
         *bufLen = (size_t)fileSz;
-        *buf = (byte*)malloc(*bufLen);
+        *buf = (byte*)XMALLOC(*bufLen, NULL, DYNAMIC_TYPE_TMP_BUFFER);
         if (*buf == NULL) {
             ret = MEMORY_E;
             printf("Error allocating %lu bytes\n", (unsigned long)*bufLen);
@@ -128,20 +128,24 @@ static int load_key_file(const char* fname, byte** derBuf, word32* derLen)
     if (ret != 0)
         return ret;
 
-    *derBuf = (byte*)malloc(bufLen);
+    *derBuf = (byte*)XMALLOC(bufLen, NULL, DYNAMIC_TYPE_TMP_BUFFER);
     if (*derBuf == NULL) {
-        free(buf);
+        wc_ForceZero(buf, bufLen);
+        XFREE(buf, NULL, DYNAMIC_TYPE_TMP_BUFFER);
         return MEMORY_E;
     }
 
     ret = wc_KeyPemToDer(buf, (word32)bufLen, *derBuf, (word32)bufLen, NULL);
     if (ret < 0) {
-        free(buf);
-        free(*derBuf);
+        wc_ForceZero(buf, bufLen);
+        XFREE(buf, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+        wc_ForceZero(*derBuf, bufLen);
+        XFREE(*derBuf, NULL, DYNAMIC_TYPE_TMP_BUFFER);
         return ret;
     }
     *derLen = ret;
-    free(buf);
+    wc_ForceZero(buf, bufLen);
+    XFREE(buf, NULL, DYNAMIC_TYPE_TMP_BUFFER);
 
     return 0;
 }
@@ -168,22 +172,28 @@ static int myEccSign(WOLFSSL* ssl, const byte* in, word32 inSz,
 #endif
 
     ret = load_key_file(cbInfo->keyFile, &keyBuf, &keySz);
-    if (ret == 0) {
-        ret = wc_ecc_init(&cbInfo->keyEcc);
-        if (ret == 0) {
-            word32 idx = 0;
-            ret = wc_EccPrivateKeyDecode(keyBuf, &idx, &cbInfo->keyEcc, keySz);
-            if (ret == 0) {
-                WC_RNG *rng = wolfSSL_GetRNG(ssl);
-
-                printf("PK ECC Sign: Curve ID %d\n", cbInfo->keyEcc.dp->id);
-                ret = wc_ecc_sign_hash(in, inSz, out, outSz, rng,
-                    &cbInfo->keyEcc);
-            }
-            wc_ecc_free(&cbInfo->keyEcc);
-        }
+    if (ret != 0) {
+#ifdef WOLFSSL_ASYNC_CRYPT
+        cbInfo->state = 0;
+#endif
+        return ret;
     }
-    free(keyBuf);
+
+    ret = wc_ecc_init(&cbInfo->keyEcc);
+    if (ret == 0) {
+        word32 idx = 0;
+        ret = wc_EccPrivateKeyDecode(keyBuf, &idx, &cbInfo->keyEcc, keySz);
+        if (ret == 0) {
+            WC_RNG *rng = wolfSSL_GetRNG(ssl);
+
+            printf("PK ECC Sign: Curve ID %d\n", cbInfo->keyEcc.dp->id);
+            ret = wc_ecc_sign_hash(in, inSz, out, outSz, rng,
+                &cbInfo->keyEcc);
+        }
+        wc_ecc_free(&cbInfo->keyEcc);
+    }
+    wc_ForceZero(keyBuf, keySz);
+    XFREE(keyBuf, NULL, DYNAMIC_TYPE_TMP_BUFFER);
 
 #ifdef WOLFSSL_ASYNC_CRYPT
     cbInfo->state = 0;
@@ -218,8 +228,12 @@ static int myRsaSign(WOLFSSL* ssl, const byte* in, word32 inSz,
 #endif
 
     ret = load_key_file(cbInfo->keyFile, &keyBuf, &keySz);
-    if (ret != 0)
+    if (ret != 0) {
+#ifdef WOLFSSL_ASYNC_CRYPT
+        cbInfo->state = 0;
+#endif
         return ret;
+    }
 
     ret = wc_InitRsaKey(&cbInfo->keyRsa, NULL);
     if (ret == 0) {
@@ -234,7 +248,8 @@ static int myRsaSign(WOLFSSL* ssl, const byte* in, word32 inSz,
         }
         wc_FreeRsaKey(&cbInfo->keyRsa);
     }
-    free(keyBuf);
+    wc_ForceZero(keyBuf, keySz);
+    XFREE(keyBuf, NULL, DYNAMIC_TYPE_TMP_BUFFER);
 #ifdef WOLFSSL_ASYNC_CRYPT
     cbInfo->state = 0;
 #endif
@@ -300,7 +315,8 @@ static int myRsaPssSign(WOLFSSL* ssl, const byte* in, word32 inSz,
         }
         wc_FreeRsaKey(&cbInfo->keyRsa);
     }
-    free(keyBuf);
+    wc_ForceZero(keyBuf, keySz);
+    XFREE(keyBuf, NULL, DYNAMIC_TYPE_TMP_BUFFER);
 
     printf("PK RSA PSS Sign: ret %d, outSz %u\n", ret, *outSz);
 
@@ -325,7 +341,7 @@ int main(int argc, char** argv)
 
     /* PK callback context */
     PkCbInfo myCtx;
-    memset(&myCtx, 0, sizeof(myCtx));
+    XMEMSET(&myCtx, 0, sizeof(myCtx));
     myCtx.keyFile = KEY_FILE;
 
     /* Check for proper calling convention */
@@ -351,7 +367,7 @@ int main(int argc, char** argv)
     }
 
     /* Initialize the server address struct with zeros */
-    memset(&servAddr, 0, sizeof(servAddr));
+    XMEMSET(&servAddr, 0, sizeof(servAddr));
 
     /* Fill in the server address */
     servAddr.sin_family = AF_INET;             /* using IPv4      */
@@ -477,7 +493,7 @@ int main(int argc, char** argv)
 
     /* Get a message for the server from stdin */
     printf("Message for server: ");
-    memset(buff, 0, sizeof(buff));
+    XMEMSET(buff, 0, sizeof(buff));
     if (fgets(buff, sizeof(buff), stdin) == NULL) {
         fprintf(stderr, "ERROR: failed to get message for server\n");
         ret = -1;
@@ -493,7 +509,7 @@ int main(int argc, char** argv)
     }
 
     /* Read the server data into our buff array */
-    memset(buff, 0, sizeof(buff));
+    XMEMSET(buff, 0, sizeof(buff));
     if ((ret = wolfSSL_read(ssl, buff, sizeof(buff)-1)) == -1) {
         fprintf(stderr, "ERROR: failed to read\n");
         goto exit;

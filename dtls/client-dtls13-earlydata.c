@@ -208,8 +208,10 @@ int main(int argc, char** argv)
     ret = 0; /* Success */
 
 cleanup:
-    wolfSSL_shutdown(ssl);
-    if (ssl) wolfSSL_free(ssl);
+    if (ssl) {
+        wolfSSL_shutdown(ssl);
+        wolfSSL_free(ssl);
+    }
     if (session) wolfSSL_SESSION_free(session);
     if (ctx) wolfSSL_CTX_free(ctx);
     if (sockfd >= 0) close(sockfd);

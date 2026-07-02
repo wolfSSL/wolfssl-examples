@@ -416,14 +416,19 @@ int main(int argc, char** argv)
         }
     }
     if (inCheck == 0 || outCheck == 0) {
-            XPRINTF("Must have both input and output file");
-            XPRINTF(": -i filename -o filename\n");
+        XPRINTF("Must have both input and output file");
+        XPRINTF(": -i filename -o filename\n");
+        if (inFile != NULL) fclose(inFile);
+        if (outFile != NULL) fclose(outFile);
     }
-    else if (ret == 0 && choice != 'n' && inFile != NULL) {
+    else if (ret == 0 && choice != 'n' && inFile != NULL && outFile != NULL) {
         key = (byte*)XMALLOC(size, NULL, DYNAMIC_TYPE_TMP_BUFFER);    /* sets size memory of key */
         if (key == NULL) {
             XPRINTF("Failed to allocate memory for key\n");
             ret = -1050;
+            fclose(inFile);
+            if (outFile != NULL)
+                fclose(outFile);
         }
         else {
             ret = NoEcho((char*)key, size);
@@ -436,13 +441,24 @@ int main(int argc, char** argv)
             else {
                 wc_ForceZero(key, size);
                 XFREE(key, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+                fclose(inFile);
+                if (outFile != NULL)
+                    fclose(outFile);
             }
         }
     }
-    else if (choice == 'n') {
-        XPRINTF("Must select either -e[128, 192, 256] or -d[128, 192, 256] \
+    else {
+        if (choice == 'n') {
+            XPRINTF("Must select either -e[128, 192, 256] or -d[128, 192, 256] \
                 for encryption and decryption\n");
-        ret = -110;
+            ret = -110;
+        }
+        if (inFile != NULL) {
+            fclose(inFile);
+        }
+        if (outFile != NULL) {
+            fclose(outFile);
+        }
     }
 
     return ret;

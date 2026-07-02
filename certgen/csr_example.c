@@ -218,6 +218,7 @@ static int init_pk_key(Cert* req, void** keyPtr, WC_RNG* rng, byte* der,
             ret = wc_ecc_init((ecc_key*)*keyPtr);
             if (ret != 0) {
                 XFREE(*keyPtr, NULL, DYNAMIC_TYPE_ECC);
+                *keyPtr = NULL;
                 break;
             }
             ret = wc_ecc_make_key_ex(rng, 32, (ecc_key*)*keyPtr, ECC_SECP256R1);
@@ -249,6 +250,7 @@ static int init_pk_key(Cert* req, void** keyPtr, WC_RNG* rng, byte* der,
             ret = wc_InitRsaKey((RsaKey*)*keyPtr, NULL);
             if (ret != 0) {
                 XFREE(*keyPtr, NULL, DYNAMIC_TYPE_RSA);
+                *keyPtr = NULL;
                 break;
             }
             ret = wc_MakeRsaKey((RsaKey*)*keyPtr, 2048, WC_RSA_EXPONENT, rng);
@@ -280,6 +282,7 @@ static int init_pk_key(Cert* req, void** keyPtr, WC_RNG* rng, byte* der,
             ret = wc_ed25519_init((ed25519_key*)*keyPtr);
             if (ret != 0) {
                 XFREE(*keyPtr, NULL, DYNAMIC_TYPE_ED25519);
+                *keyPtr = NULL;
                 break;
             }
             ret = wc_ed25519_make_key(rng, ED25519_KEY_SIZE,

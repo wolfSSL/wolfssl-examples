@@ -44,6 +44,7 @@
 #include <arpa/inet.h>
 #include <wolfssl/ssl.h>
 #include <wolfssl/error-ssl.h>
+#include <wolfssl/wolfcrypt/random.h>
 #include <errno.h>
 #include <signal.h>
 #include <unistd.h>
@@ -217,6 +218,15 @@ cleanup:
     return INVALID_SOCKET;
 }
 
+/* Stateless HRR cookie secret, generated once per run. Must stay stable
+ * across newPendingSSL() calls so in-flight cookie retries from other
+ * clients still validate. Applications should rotate it periodically
+ * (e.g. on a timer), not on every call. */
+#if !defined(USE_DTLS12) && defined(WOLFSSL_SEND_HRR_COOKIE)
+static byte cookieSecret[32];
+static int cookieSecretSet = 0;
+#endif
+
 static int newPendingSSL(void)
 {
     WOLFSSL* ssl;
@@ -248,15 +258,28 @@ static int newPendingSSL(void)
     }
 
 #if !defined(USE_DTLS12) && defined(WOLFSSL_SEND_HRR_COOKIE)
-    {
-        /* Applications should update this secret periodically */
-        char *secret = "My secret";
-        if (wolfSSL_send_hrr_cookie(ssl, (byte*)secret, strlen(secret))
-                != WOLFSSL_SUCCESS) {
-            fprintf(stderr, "wolfSSL_send_hrr_cookie error.\n");
+    if (!cookieSecretSet) {
+        WC_RNG rng;
+        int rngRet;
+
+        rngRet = wc_InitRng(&rng);
+        if (rngRet == 0) {
+            rngRet = wc_RNG_GenerateBlock(&rng, cookieSecret, sizeof(cookieSecret));
+            wc_FreeRng(&rng);
+        }
+        if (rngRet != 0) {
+            fprintf(stderr, "Failed to generate cookie secret: %d\n", rngRet);
             wolfSSL_free(ssl);
             return 0;
         }
+        cookieSecretSet = 1;
+    }
+
+    if (wolfSSL_send_hrr_cookie(ssl, cookieSecret, sizeof(cookieSecret))
+            != WOLFSSL_SUCCESS) {
+        fprintf(stderr, "wolfSSL_send_hrr_cookie error.\n");
+        wolfSSL_free(ssl);
+        return 0;
     }
 #endif
 
