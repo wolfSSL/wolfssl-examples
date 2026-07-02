@@ -429,6 +429,8 @@ static void huk_ecdsa_test(void)
     byte    seed[32]    __attribute__((aligned(32)));
     byte    d[32]       __attribute__((aligned(32)));
     byte    wrapped[32] __attribute__((aligned(32)));
+    byte    wrapIv[12]  __attribute__((aligned(32)));   /* GCM nonce for the wrap */
+    byte    wrapTag[16] __attribute__((aligned(32)));   /* GCM auth tag */
     byte    hash[32]    __attribute__((aligned(32)));
     byte    qx[32];
     byte    qy[32];
@@ -473,25 +475,30 @@ static void huk_ecdsa_test(void)
         goto cleanup;
     }
 
-    /* Wrap the scalar under the HUK: ECB-encrypt with the HUK device + seed. */
+    /* Wrap the scalar under the HUK: AES-GCM-encrypt with the HUK device + seed
+     * so the blob is authenticated (a tampered/wrong blob fails at unwrap). */
+    memset(wrapIv, 0x24, sizeof(wrapIv));   /* demo nonce; use a fresh one/provision */
     ret = wc_AesInit(&aes, NULL, WC_HUK_DEVID);
     if (ret == 0) {
-        ret = wc_AesSetKey(&aes, seed, sizeof(seed), NULL, AES_ENCRYPTION);
+        ret = wc_AesGcmSetKey(&aes, seed, sizeof(seed));
     }
     if (ret == 0) {
-        ret = wc_AesEcbEncrypt(&aes, wrapped, d, sizeof(d));
+        ret = wc_AesGcmEncrypt(&aes, wrapped, d, sizeof(d), wrapIv, sizeof(wrapIv),
+                               wrapTag, sizeof(wrapTag), NULL, 0);
     }
     wc_AesFree(&aes);
-    CHECK("wrap scalar under HUK (ECB)", ret == 0);
+    CHECK("wrap scalar under HUK (GCM)", ret == 0);
     if (ret != 0) {
         goto cleanup;
     }
 
-    /* Sign via the HUK-bound key (unwraps under the HUK, then signs). */
+    /* Sign via the HUK-bound key (GCM-unwraps under the HUK, then signs). */
     memset(&hk, 0, sizeof(hk));
     hk.seed = seed;       hk.seedSz = sizeof(seed);
-    hk.wrapped = wrapped; hk.wrappedLen = sizeof(wrapped);
+    hk.wrapped = wrapped; hk.wrappedLen = 32;
     hk.plainLen = 32;
+    hk.iv = wrapIv;       hk.ivSz = sizeof(wrapIv);
+    hk.tag = wrapTag;     hk.tagSz = sizeof(wrapTag);
     /* Route the sign through the HW ECDSA engine (hal_ecdsa, validated on the
      * RTL8735B). Set 0 for the software-after-unwrap path (the port default).
      * hk.otpPrkSel can instead select an OTP-resident key (scalar never in
