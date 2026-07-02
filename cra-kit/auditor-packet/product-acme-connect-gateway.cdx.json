@@ -27,6 +27,13 @@
       },
       "purl": "pkg:github/wolfSSL/wolfssl@v5.9.1",
       "cpe": "cpe:2.3:a:wolfssl:wolfssl:5.9.1:*:*:*:*:*:*:*",
+      "licenses": [
+        {
+          "license": {
+            "id": "GPL-3.0-only"
+          }
+        }
+      ],
       "externalReferences": [
         {
           "type": "bom",
@@ -35,7 +42,7 @@
           "hashes": [
             {
               "alg": "SHA-256",
-              "content": "bc8c6b9f5fbe829edb594dc74bcb95a202ca1b402ab1dca60f858aa9fe2ec6e3"
+              "content": "f9498cc976e97dd6bd096943c6357a561f2c41a7b3c674e83a3cc47f1a3ab096"
             }
           ]
         }

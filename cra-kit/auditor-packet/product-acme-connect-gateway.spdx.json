@@ -16,7 +16,7 @@
       "spdxDocument": "file:./wolfssl-component/wolfssl-5.9.1.spdx.json",
       "checksum": {
         "algorithm": "SHA256",
-        "checksumValue": "a60bda42e4e0c874f21abaed7b34e72ac6ea329662fbac33f8487608753042f2"
+        "checksumValue": "793e78273ef4733d1dd334bac7759b1bb066e608562bc2737205c9cd4d9a56bd"
       }
     }
   ],

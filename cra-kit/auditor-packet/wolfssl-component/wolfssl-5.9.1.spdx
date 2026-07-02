@@ -3,7 +3,7 @@ SPDXVersion: SPDX-2.3
 DataLicense: CC0-1.0
 SPDXID: SPDXRef-DOCUMENT
 DocumentName: wolfssl-5.9.1
-DocumentNamespace: urn:uuid:480ff203-f994-5b71-b858-0653e74e422a
+DocumentNamespace: urn:uuid:5b1f8e0a-3c4d-5a6b-9c2e-7d1af9c02e5b
 
 ## Creation Information
 Creator: Organization: wolfSSL Inc.
@@ -17,7 +17,7 @@ PackageVersion: 5.9.1
 PackageSupplier: Organization: wolfSSL Inc.
 PackageDownloadLocation: https://github.com/wolfSSL/wolfssl
 FilesAnalyzed: false
-PackageChecksum: SHA256: 391e86477f5eee025e677a24b13e2d9a4d3e4c18d88e6359853ebf1c9932279e
+PackageChecksum: SHA256: 0000000000000000000000000000000000000000000000000000000000000000
 PackageLicenseConcluded: GPL-3.0-only
 PackageLicenseDeclared: GPL-3.0-only
 PackageCopyrightText: Copyright (C) 2006-2026 wolfSSL Inc.

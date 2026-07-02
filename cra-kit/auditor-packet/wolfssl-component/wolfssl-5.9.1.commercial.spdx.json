@@ -22,7 +22,7 @@
       "checksums": [
         {
           "algorithm": "SHA256",
-          "checksumValue": "391e86477f5eee025e677a24b13e2d9a4d3e4c18d88e6359853ebf1c9932279e"
+          "checksumValue": "0000000000000000000000000000000000000000000000000000000000000000"
         }
       ],
       "licenseConcluded": "LicenseRef-wolfSSL-Commercial",

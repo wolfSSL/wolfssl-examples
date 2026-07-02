@@ -7,8 +7,16 @@ were produced with the **autotools** path:
 cd "$WOLFSSL_DIR" && ./configure && make sbom
 ```
 
-They reflect a **configured library build** (SHA-256 of `libwolfssl` and full
-`wolfssl:build:*` properties from `options.h`).
+They reflect a **configured library build** — the full `wolfssl:build:*`
+properties are captured from `options.h`.
+
+The binary artifact digest (the library `PackageChecksum` / component hash and
+the `libwolfssl.44.dylib` file entry) is intentionally an **all-zeros
+sentinel**, not a captured hash. A compiled binary is not bit-reproducible
+across toolchains, platforms, and timestamps, so a pinned sample must not ship
+a concrete, real-looking binary hash that a customer might copy verbatim.
+Running `./scripts/refresh-samples.sh` against your own build replaces the
+sentinel with the real digest of the artifact you actually shipped.
 
 They are **not** the same as the **embedded** demo under
 [`../wolfssl-component-embedded/`](../wolfssl-component-embedded/), which uses
