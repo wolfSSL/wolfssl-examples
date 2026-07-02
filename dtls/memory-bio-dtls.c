@@ -170,7 +170,7 @@ int main()
     }
 
     srv_ssl = wolfSSL_new(srv_ctx);
-    if (srv_ctx == NULL) {
+    if (srv_ssl == NULL) {
         err_sys("bad server new");
     }
 

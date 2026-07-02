@@ -224,7 +224,7 @@ int main(int argc, char** argv)
     verifySz = ret;
     ret = 0;
 
-    if (signSz == ret && XMEMCMP(plain, in, (size_t)ret)) {
+    if (verifySz != (int)inSz || XMEMCMP(plain, in, inSz) != 0) {
         ret = SIG_VERIFY_E;
     }
 
@@ -242,9 +242,7 @@ prog_end:
     wc_FreeRng(&rng);
     wolfSSL_Cleanup();
 
-    (void)verifySz;
-
-    return 0;
+    return ret;
 #else
     (void)kRsaKey;
 
