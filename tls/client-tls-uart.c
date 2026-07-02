@@ -88,7 +88,7 @@ static int uartIORx(WOLFSSL *ssl, char *buf, int sz, void *ctx)
         if (recvd > sz)
             recvd = sz;
         XMEMCPY(buf, cbCtx->buf, recvd);
-        XMEMCPY(cbCtx->buf, cbCtx->buf + recvd, cbCtx->pos - recvd);
+        XMEMMOVE(cbCtx->buf, cbCtx->buf + recvd, cbCtx->pos - recvd);
         cbCtx->pos -= recvd;
     }
 

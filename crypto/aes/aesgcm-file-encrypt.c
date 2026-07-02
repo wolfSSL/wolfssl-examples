@@ -28,6 +28,7 @@
 #include <wolfssl/wolfcrypt/aes.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
 #include <wolfssl/wolfcrypt/types.h>
+#include <wolfssl/wolfcrypt/memory.h>
 
 #include <stdio.h>
 #include <fcntl.h>
@@ -212,26 +213,26 @@ int encrypt_file_AesGCM(const char *in_file, const char *out_file,
         buffer_size = MIN_BUFFER_SIZE;
     }
 
-    in_buf = malloc(buffer_size);
+    in_buf = XMALLOC(buffer_size, NULL, DYNAMIC_TYPE_TMP_BUFFER);
     if (in_buf == NULL) {
         perror("malloc");
         close(in_fd);
         close(out_fd);
         exit(EXIT_FAILURE);
     }
-    out_buf = malloc(buffer_size);
+    out_buf = XMALLOC(buffer_size, NULL, DYNAMIC_TYPE_TMP_BUFFER);
     if (out_buf == NULL) {
         perror("malloc");
         close(in_fd);
         close(out_fd);
-        free(in_buf);
+        XFREE(in_buf, NULL, DYNAMIC_TYPE_TMP_BUFFER);
         exit(EXIT_FAILURE);
     }
 
-    memset(&gcm, 0, sizeof(Aes));
-    memset(iv, 0, AES_IV_SIZE);
-    memset(key, 0, AES_KEY_SIZE);
-    memset(tag_enc, 0, AESGCM_TAG_SIZE);
+    XMEMSET(&gcm, 0, sizeof(Aes));
+    XMEMSET(iv, 0, AES_IV_SIZE);
+    XMEMSET(key, 0, AES_KEY_SIZE);
+    XMEMSET(tag_enc, 0, AESGCM_TAG_SIZE);
     strncpy((char *)iv, iv_str, AES_IV_SIZE);
     strncpy((char *)key, key_str, AES_KEY_SIZE);
 
@@ -303,11 +304,20 @@ int encrypt_file_AesGCM(const char *in_file, const char *out_file,
     }
     printf("File encryption with AES GCM complete.\n");
 exit:
-    free(in_buf);
-    free(out_buf);
+    wc_ForceZero(key, AES_KEY_SIZE);
+    wc_ForceZero(iv, AES_IV_SIZE);
+    wc_ForceZero(tag_enc, AESGCM_TAG_SIZE);
+    if (in_buf != NULL)
+        wc_ForceZero(in_buf, buffer_size);
+    if (out_buf != NULL)
+        wc_ForceZero(out_buf, buffer_size);
+    XFREE(in_buf, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+    XFREE(out_buf, NULL, DYNAMIC_TYPE_TMP_BUFFER);
     close(in_fd);
     close(out_fd);
-
+    if (ret != 0) {
+        unlink(out_file);
+    }
 
     return ret;
 }
@@ -376,26 +386,26 @@ int decrypt_file_AesGCM(const char *in_file, const char *out_file,
         buffer_size = MIN_BUFFER_SIZE;
     }
 
-    in_buf = malloc(buffer_size);
+    in_buf = XMALLOC(buffer_size, NULL, DYNAMIC_TYPE_TMP_BUFFER);
     if (in_buf == NULL) {
         perror("malloc");
         close(in_fd);
         close(out_fd);
         exit(EXIT_FAILURE);
     }
-    out_buf = malloc(buffer_size);
+    out_buf = XMALLOC(buffer_size, NULL, DYNAMIC_TYPE_TMP_BUFFER);
     if (out_buf == NULL) {
         perror("malloc");
         close(in_fd);
         close(out_fd);
-        free(in_buf);
+        XFREE(in_buf, NULL, DYNAMIC_TYPE_TMP_BUFFER);
         exit(EXIT_FAILURE);
     }
 
-    memset(&gcm, 0, sizeof(Aes));
-    memset(iv, 0, AES_IV_SIZE);
-    memset(key, 0, AES_KEY_SIZE);
-    memset(tag, 0, AESGCM_TAG_SIZE);
+    XMEMSET(&gcm, 0, sizeof(Aes));
+    XMEMSET(iv, 0, AES_IV_SIZE);
+    XMEMSET(key, 0, AES_KEY_SIZE);
+    XMEMSET(tag, 0, AESGCM_TAG_SIZE);
     strncpy((char *)key, key_str, AES_KEY_SIZE);
 
     /* Extract a WOLFCRYPT MAGIC | TAG | IV  from the cipher file */
@@ -447,10 +457,20 @@ int decrypt_file_AesGCM(const char *in_file, const char *out_file,
         ret = wc_AesGcmDecryptFinal(&gcm, tag, AESGCM_TAG_SIZE);
     }
 exit:
-    free(in_buf);
-    free(out_buf);
+    wc_ForceZero(key, AES_KEY_SIZE);
+    wc_ForceZero(iv, AES_IV_SIZE);
+    wc_ForceZero(tag, AESGCM_TAG_SIZE);
+    if (in_buf != NULL)
+        wc_ForceZero(in_buf, buffer_size);
+    if (out_buf != NULL)
+        wc_ForceZero(out_buf, buffer_size);
+    XFREE(in_buf, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+    XFREE(out_buf, NULL, DYNAMIC_TYPE_TMP_BUFFER);
     close(in_fd);
     close(out_fd);
+    if (ret != 0) {
+        unlink(out_file);
+    }
 
     printf("File decryption with AES GCM complete.\n");
     return ret;
@@ -496,9 +516,9 @@ int encrypt_file(const char *in_file, const char *out_file,
         return -1;
     }
 
-    memset(iv, 0, AES_IV_SIZE);
-    memset(key, 0, AES_KEY_SIZE);
-    memset(tag_enc, 0, AESGCM_TAG_SIZE);
+    XMEMSET(iv, 0, AES_IV_SIZE);
+    XMEMSET(key, 0, AES_KEY_SIZE);
+    XMEMSET(tag_enc, 0, AESGCM_TAG_SIZE);
     strncpy((char *)iv, iv_str, AES_IV_SIZE);
     strncpy((char *)key, key_str, AES_KEY_SIZE);
 
@@ -590,9 +610,15 @@ int encrypt_file(const char *in_file, const char *out_file,
     }
     printf("File encryption with EVP GCM complete.\n");
 exit:
+    wc_ForceZero(key, AES_KEY_SIZE);
+    wc_ForceZero(iv, AES_IV_SIZE);
+    wc_ForceZero(tag_enc, AESGCM_TAG_SIZE);
     EVP_CIPHER_CTX_free(ctx);
     close(in_fd);
     close(out_fd);
+    if (ret != WOLFSSL_SUCCESS) {
+        unlink(out_file);
+    }
     return ret;
 }
 
@@ -641,10 +667,10 @@ int decrypt_file(const char *in_file, const char *out_file, const char *key_str)
         return -1;
     }
 
-    memset(iv, 0, AES_IV_SIZE);
-    memset(key, 0, AES_KEY_SIZE);
-    memset(tag_enc, 0, AESGCM_TAG_SIZE);
-    memset(tag_dec, 0, AESGCM_TAG_SIZE);
+    XMEMSET(iv, 0, AES_IV_SIZE);
+    XMEMSET(key, 0, AES_KEY_SIZE);
+    XMEMSET(tag_enc, 0, AESGCM_TAG_SIZE);
+    XMEMSET(tag_dec, 0, AESGCM_TAG_SIZE);
     strncpy((char *)key, key_str, AES_KEY_SIZE);
 
     /* Extract a WOLFCRYPT MAGIC | TAG | IV  from the cipher file */
@@ -725,15 +751,23 @@ int decrypt_file(const char *in_file, const char *out_file, const char *key_str)
         if (ret == WOLFSSL_SUCCESS &&
             (memcmp(tag_enc, tag_dec, AESGCM_TAG_SIZE) != 0)) {
             perror("TAG didn't match\n");
-            exit(EXIT_FAILURE);
+            ret = AES_GCM_AUTH_E;
+            goto exit;
         }
     }
     printf("File decryption with EVP GCM complete.\n");
 
 exit:
+    wc_ForceZero(key, AES_KEY_SIZE);
+    wc_ForceZero(iv, AES_IV_SIZE);
+    wc_ForceZero(tag_enc, AESGCM_TAG_SIZE);
+    wc_ForceZero(tag_dec, AESGCM_TAG_SIZE);
     EVP_CIPHER_CTX_free(ctx);
     close(in_fd);
     close(out_fd);
+    if (ret != WOLFSSL_SUCCESS) {
+        unlink(out_file);
+    }
     return ret;
 }
 #endif
