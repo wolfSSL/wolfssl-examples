@@ -43,8 +43,6 @@
 static struct sockaddr_in servAddr;     /* our server's address */
 static struct sockaddr_in cliaddr;      /* the client's address */
 
-void sig_handler(const int sig);
-
 int main(int argc, char** argv)
 {
     /* Loc short for "location" */
