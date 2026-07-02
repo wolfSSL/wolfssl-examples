@@ -158,11 +158,12 @@ void tlsClient_test(void *arg)
             goto exit;
         }
 
-        ret = wolfSSL_read(ssl, buffer, BUFF_SIZE);
+        ret = wolfSSL_read(ssl, buffer, BUFF_SIZE - 1);
         if (ret < 0) {
             printf("Failed to read data. err=%d\n", ret);
             goto exit;
         }
+        buffer[ret] = '\0';
         printf("Message: %s\n", buffer);
 
         wolfSSL_free(ssl);

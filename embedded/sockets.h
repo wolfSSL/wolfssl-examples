@@ -35,8 +35,13 @@
         typedef int socklen_t ;
         static unsigned long inet_addr(const char *cp)
     {
-        unsigned int a[4] ; unsigned long ret ;
-        sscanf(cp, "%d.%d.%d.%d", &a[0], &a[1], &a[2], &a[3]) ;
+        unsigned int a[4] = {0, 0, 0, 0} ; unsigned long ret ; int i ;
+        if (sscanf(cp, "%u.%u.%u.%u", &a[0], &a[1], &a[2], &a[3]) != 4)
+            return 0xFFFFFFFFUL ; /* INADDR_NONE */
+        for (i = 0; i < 4; i++) {
+            if (a[i] > 255)
+                return 0xFFFFFFFFUL ; /* INADDR_NONE */
+        }
         ret = ((a[3]<<24) + (a[2]<<16) + (a[1]<<8) + a[0]) ;
         return(ret) ;
     }

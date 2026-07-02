@@ -52,10 +52,21 @@ pthread_mutex_t client_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t  client_cond  = PTHREAD_COND_INITIALIZER;
 
 
+/* Manual test for the buffer-full guard below: shrink to_server/to_client
+ * to a small size (e.g. 1024) and have client_thread() call wolfSSL_write()
+ * with a message larger than that buffer; ServerSend/ClientSend should
+ * return WOLFSSL_CBIO_ERR_GENERAL instead of overflowing the array. */
+
 /* server send callback */
 int ServerSend(WOLFSSL* ssl, char* buf, int sz, void* ctx)
 {
     pthread_mutex_lock(&client_mutex);
+
+    if (client_write_idx + sz > (int)sizeof(to_client)) {
+        pthread_cond_signal(&client_cond);
+        pthread_mutex_unlock(&client_mutex);
+        return WOLFSSL_CBIO_ERR_GENERAL;
+    }
 
     memcpy(&to_client[client_write_idx], buf, sz);
     client_write_idx += sz;
@@ -94,6 +105,12 @@ int ServerRecv(WOLFSSL* ssl, char* buf, int sz, void* ctx)
 int ClientSend(WOLFSSL* ssl, char* buf, int sz, void* ctx)
 {
     pthread_mutex_lock(&server_mutex);
+
+    if (server_write_idx + sz > (int)sizeof(to_server)) {
+        pthread_cond_signal(&server_cond);
+        pthread_mutex_unlock(&server_mutex);
+        return WOLFSSL_CBIO_ERR_GENERAL;
+    }
 
     memcpy(&to_server[server_write_idx], buf, sz);
     server_write_idx += sz;
