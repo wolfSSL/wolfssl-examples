@@ -12,6 +12,8 @@ extern "C" {
 /* ---- HUK crypto-callback device (our RealTek port) ---- */
 #define WOLFSSL_RTL8735B_HUK
 #define WOLF_CRYPTO_CB
+#define WOLF_CRYPTO_CB_COPY        /* HUK HMAC buffer copy/free ops */
+#define WOLF_CRYPTO_CB_FREE
 
 /* ---- platform / RTOS ---- */
 #define WOLFSSL_GENERAL_ALIGNMENT 4
