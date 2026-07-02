@@ -180,6 +180,7 @@ int main(int argc, char** argv)
     wolfSSL_free(ssl);
     ssl = NULL;
     close(sockfd);
+    sockfd = SOCKET_INVALID;
 
 
     /* --------------------------------------- *

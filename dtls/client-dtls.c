@@ -62,7 +62,7 @@ int main (int argc, char** argv)
 
     /* Initialize wolfSSL before assigning ctx */
     wolfSSL_Init();
-  
+
     /* wolfSSL_Debugging_ON(); */
 
     if ( (ctx = wolfSSL_CTX_new(wolfDTLSv1_2_client_method())) == NULL) {
@@ -72,7 +72,7 @@ int main (int argc, char** argv)
 
     /* Load certificates into ctx variable */
     if (wolfSSL_CTX_load_verify_locations(ctx, certs, 0)
-	    != SSL_SUCCESS) {
+            != SSL_SUCCESS) {
         fprintf(stderr, "Error loading %s, please check the file.\n", certs);
         return 1;
     }
@@ -103,9 +103,9 @@ int main (int argc, char** argv)
     /* Set the file descriptor for ssl and connect with ssl variable */
     wolfSSL_set_fd(ssl, sockfd);
     if (wolfSSL_connect(ssl) != SSL_SUCCESS) {
-	    err1 = wolfSSL_get_error(ssl, 0);
-	    printf("err = %d, %s\n", err1, wolfSSL_ERR_reason_error_string(err1));
-	    printf("SSL_connect failed");
+        err1 = wolfSSL_get_error(ssl, 0);
+        printf("err = %d, %s\n", err1, wolfSSL_ERR_reason_error_string(err1));
+        printf("SSL_connect failed");
         return 1;
     }
 
@@ -129,10 +129,11 @@ int main (int argc, char** argv)
                 printf("wolfSSL_read failed");
             }
         }
-
-        /* Add a terminating character to the generic server message */
-        recvLine[n] = '\0';
-        fputs(recvLine, stdout);
+        else {
+            /* Add a terminating character to the generic server message */
+            recvLine[n] = '\0';
+            fputs(recvLine, stdout);
+        }
     }
 /*                End code for sending datagram to server                    */
 /*****************************************************************************/

@@ -29,6 +29,7 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <unistd.h>
+#include <netdb.h>
 
 /* wolfSSL */
 #include <wolfssl/options.h>
@@ -222,7 +223,11 @@ int main(int argc, char **argv)
          * before writing session information
          */  
         if (strcmp(msg, "break") == 0) {
-            session = wolfSSL_get_session(ssl);
+            session = wolfSSL_get1_session(ssl);
+            if (session == NULL) {
+                print_SSL_error("failed wolfSSL_get1_session", ssl);
+                break;
+            }
             ret = write_SESS(session, SAVED_SESS);
             break;
         }

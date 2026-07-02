@@ -63,7 +63,7 @@ static WOLFSSL_CTX * ctx = NULL;
 static volatile int  stop_server = 0;
 
 static int    new_udp_listen_socket(void);
-static void   safer_shutdown(thread_args_t * args);
+static int    safer_shutdown(thread_args_t * args);
 static void * server_work(void * thread_args);
 static void   sig_handler(const int sig);
 static void   cleanup_threadpool(pthread_t * threads, thread_args_t * args,
@@ -78,7 +78,7 @@ main(int   argc,
     char               servKeyLoc[] =  "../certs/server-key.pem";
     int                ret = 0;
     /* Variables for awaiting datagram */
-    int                listenfd = 0;   /* Initialize our socket */
+    int                listenfd = -1;  /* Initialize our socket */
     struct sockaddr_in cliaddr;         /* the client's address */
     socklen_t          cliLen = sizeof(cliaddr);
     /* variables needed for threading */
@@ -89,6 +89,9 @@ main(int   argc,
 
     memset(threads, 0, sizeof(threads));
     memset(args, 0, sizeof(args));
+    for (size_t i = 0; i < DTLS_NUMTHREADS; ++i) {
+        args[i].activefd = -1;
+    }
 
     while ((opt = getopt(argc, argv, "t:?")) != -1) {
         switch (opt) {
@@ -159,7 +162,7 @@ main(int   argc,
     /* Create a UDP/IP socket */
     listenfd = new_udp_listen_socket();
 
-    if (listenfd <= 0 ) {
+    if (listenfd < 0) {
         printf("error: cannot create socket: %d\n", listenfd);
         return EXIT_FAILURE;
     }
@@ -243,7 +246,10 @@ main(int   argc,
 
     /* All threads exited. Do a final cleanup pass just in case. */
     for (size_t i = 0; i < n_threads; ++i) {
-        safer_shutdown(&args[i]);
+        ret = safer_shutdown(&args[i]);
+        if (ret != 0) {
+            printf("error: safer_shutdown failed: %d\n", ret);
+        }
     }
 
     wolfSSL_CTX_free(ctx);
@@ -256,13 +262,13 @@ static int
 new_udp_listen_socket(void)
 {
     struct sockaddr_in listen_addr;        /* our server's address */
-    int                sockfd = 0;
+    int                sockfd = -1;
     int                ret = 0;
     int                on = 1;
 
     sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 
-    if (sockfd <= 0) {
+    if (sockfd < 0) {
         int errsave = errno;
         printf("error: socket returned %d\n", errsave);
         return -1;
@@ -277,14 +283,14 @@ new_udp_listen_socket(void)
     if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (char*)&on, sizeof(on)) != 0) {
         printf("error: setsockopt() with SO_REUSEADDR");
         close(sockfd);
-        sockfd = 0;
+        sockfd = -1;
         return -1;
     }
 #ifdef SO_REUSEPORT
     if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEPORT, (char*)&on, sizeof(on)) != 0) {
         printf("error: setsockopt() with SO_REUSEPORT");
         close(sockfd);
-        sockfd = 0;
+        sockfd = -1;
         return -1;
     }
 #endif
@@ -296,7 +302,7 @@ new_udp_listen_socket(void)
         int errsave = errno;
         printf("error: bind returned %d\n", errsave);
         close(sockfd);
-        sockfd = 0;
+        sockfd = -1;
         return -1;
     }
 
@@ -370,21 +376,24 @@ server_work(void * args)
         }
     }
 
-    safer_shutdown(thread_args);
+    ret = safer_shutdown(thread_args);
+    if (ret != 0) {
+        printf("error: safer_shutdown failed: %d\n", ret);
+    }
     printf("info: exiting thread %ld\n", (long)pthread_self());
     pthread_exit(NULL);
 }
 
 /* Small shutdown wrapper to safely clean up a thread's
  * connection. */
-static void
+static int
 safer_shutdown(thread_args_t * args)
 {
-    int ret;
+    int ret = 0;
 
     if (args == NULL) {
         printf("error: safer_shutdown with null args\n");
-        return;
+        return -1;
     }
 
     if (args->ssl != NULL) {
@@ -395,19 +404,28 @@ safer_shutdown(thread_args_t * args)
         if (ret != WOLFSSL_SUCCESS)
             ret = wolfSSL_shutdown(args->ssl);
 
+        if (ret != WOLFSSL_SUCCESS) {
+            printf("warning: wolfSSL_shutdown did not complete cleanly: %d\n",
+                    ret);
+            ret = -1;
+        }
+        else {
+            ret = 0;
+        }
+
         wolfSSL_free(args->ssl);
         args->ssl = NULL;
     }
 
-    if (args->activefd > 0) {
+    if (args->activefd >= 0) {
         printf("info: closed socket: %d\n", args->activefd);
         close(args->activefd);
-        args->activefd = 0;
+        args->activefd = -1;
     }
 
     args->done = 1;
 
-    return;
+    return ret;
 }
 
 static void

@@ -47,7 +47,7 @@ main(int    argc,
      char * argv[])
 {
     /* standard variables used in a dtls client*/
-    int               sockfd = 0;
+    int               sockfd = -1;
     int               err1;
     const char *      host = argv[1];
     WOLFSSL *         ssl = NULL; /* The ssl for original connection. */
@@ -88,7 +88,7 @@ main(int    argc,
 
     sockfd = new_udp_client_socket(ssl, host);
 
-    if (sockfd <= 0) {
+    if (sockfd < 0) {
         printf("error: new_udp_client_socket failed\n");
         return EXIT_FAILURE;
     }
@@ -123,7 +123,7 @@ main(int    argc,
     close(sockfd);
 
     ssl = NULL;
-    sockfd = 0;
+    sockfd = -1;
 
     /* Make a new WOLFSSL. */
     ssl_res = wolfSSL_new(ctx);
@@ -143,7 +143,7 @@ main(int    argc,
     /* Open a new udp socket. */
     sockfd = new_udp_client_socket(ssl_res, host);
 
-    if (sockfd <= 0) {
+    if (sockfd < 0) {
         printf("error: new_udp_client_socket failed\n");
         return EXIT_FAILURE;
     }
@@ -173,7 +173,7 @@ main(int    argc,
 
     ssl_res = NULL;
     session = NULL;
-    sockfd = 0;
+    sockfd = -1;
 
     return 0;
 }
@@ -187,12 +187,12 @@ new_udp_client_socket(WOLFSSL *    ssl,
                       const char * host)
 {
     struct sockaddr_in  servAddr;
-    int                 sockfd = 0;
+    int                 sockfd = -1;
     int                 ret = 0;
 
     sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 
-    if (sockfd <= 0) {
+    if (sockfd < 0) {
         int errsave = errno;
         printf("error: socket returned %d\n", errsave);
         return -1;
@@ -208,7 +208,7 @@ new_udp_client_socket(WOLFSSL *    ssl,
     if (ret != 1) {
         printf("error: inet_pton %s returned %d\n", host, ret);
         close(sockfd);
-        sockfd = 0;
+        sockfd = -1;
         return -1;
     }
 
@@ -217,7 +217,7 @@ new_udp_client_socket(WOLFSSL *    ssl,
     if (ret != SSL_SUCCESS) {
         printf("error: wolfSSL_dtls_set_peer returned %d\n", ret);
         close(sockfd);
-        sockfd = 0;
+        sockfd = -1;
         return -1;
     }
 

@@ -49,7 +49,7 @@ static void Usage(const char* progName)
 
 int main(int argc, char** argv)
 {
-    int             sockfd = 0;
+    int             sockfd = -1;
     int             ret;
     struct          sockaddr_in servAddr;
     WOLFSSL*        ssl = NULL;
@@ -60,6 +60,7 @@ int main(int argc, char** argv)
     unsigned char*  sessionBuf = NULL;
     unsigned int    sessionSz = 0;
     int             n;
+    int             err_occurred = 0;
 
     /* Program argument checking */
     if (argc < 2 || argc > 3) {
@@ -149,6 +150,8 @@ int main(int argc, char** argv)
             int err = wolfSSL_get_error(ssl, ret);
             fprintf(stderr, "Error: wolfSSL_write failed: %d (%s)\n",
                     err, wolfSSL_ERR_reason_error_string(err));
+            ret = 1;
+            err_occurred = 1;
             break;
         }
         printf("Sent: %s", sendLine);
@@ -164,6 +167,8 @@ int main(int argc, char** argv)
             if (err != SSL_ERROR_WANT_READ) {
                 fprintf(stderr, "Error: wolfSSL_read failed: %d (%s)\n",
                         err, wolfSSL_ERR_reason_error_string(err));
+                ret = 1;
+                err_occurred = 1;
                 break;
             }
         }
@@ -171,7 +176,9 @@ int main(int argc, char** argv)
         printf("\nEnter message (or 'quit' to exit):\n");
     }
 
-    ret = 0;
+    if (!err_occurred) {
+        ret = 0;
+    }
 
 cleanup:
     if (sessionBuf != NULL) free(sessionBuf);
@@ -179,7 +186,7 @@ cleanup:
         wolfSSL_shutdown(ssl);
         wolfSSL_free(ssl);
     }
-    if (sockfd > 0) close(sockfd);
+    if (sockfd >= 0) close(sockfd);
     if (ctx != NULL) wolfSSL_CTX_free(ctx);
     wolfSSL_Cleanup();
 

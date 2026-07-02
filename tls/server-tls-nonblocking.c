@@ -228,7 +228,7 @@ int main()
             ret = wolfSSL_accept(ssl);
             err = wolfSSL_get_error(ssl, ret);
             if (err == WOLFSSL_ERROR_WANT_READ)
-                tcp_select(sockfd, SELECT_WAIT_SEC, 1);
+                tcp_select(connd, SELECT_WAIT_SEC, 1);
         } while (err == WOLFSSL_ERROR_WANT_READ || err == WOLFSSL_ERROR_WANT_WRITE);
         if (ret != WOLFSSL_SUCCESS) {
             fprintf(stderr, "wolfSSL_accept error %d (%d)\n", err, ret);
@@ -244,7 +244,7 @@ int main()
             err = wolfSSL_get_error(ssl, ret);
 
             if (err == WOLFSSL_ERROR_WANT_READ)
-                tcp_select(sockfd, SELECT_WAIT_SEC, 1);
+                tcp_select(connd, SELECT_WAIT_SEC, 1);
         }
         while (err == WOLFSSL_ERROR_WANT_READ);
         if (ret < 0) {
@@ -272,7 +272,8 @@ int main()
         do {
             ret = wolfSSL_write(ssl, reply, len);
             err = wolfSSL_get_error(ssl, ret);
-            sleep(1);
+            if (err == WOLFSSL_ERROR_WANT_WRITE)
+                tcp_select(connd, SELECT_WAIT_SEC, 0);
         }
         while (err == WOLFSSL_ERROR_WANT_WRITE);
         if (ret < 0) {
@@ -285,7 +286,7 @@ int main()
             ret = wolfSSL_shutdown(ssl);
             err = wolfSSL_get_error(ssl, 0);
             if (err == WOLFSSL_ERROR_WANT_READ)
-                tcp_select(sockfd, SELECT_WAIT_SEC, 1);
+                tcp_select(connd, SELECT_WAIT_SEC, 1);
         } while (err == WOLFSSL_ERROR_WANT_READ || err == WOLFSSL_ERROR_WANT_WRITE);
 
         /* Cleanup after this connection */

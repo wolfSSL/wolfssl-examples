@@ -92,7 +92,7 @@ static void* client_thread(void* args)
     }
 
     cli_ssl = wolfSSL_new(cli_ctx);
-    if (cli_ctx == NULL) {
+    if (cli_ssl == NULL) {
         err_sys("bad client new");
     }
 

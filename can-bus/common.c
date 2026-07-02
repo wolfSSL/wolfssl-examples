@@ -161,7 +161,7 @@ int setup_connection(const char *interface, int local_id, int remote_id)
     /* Connect to CAN bus provided on command line, filter out everything
      * except for the remote CAN ID */
     sock = can_connect(interface, remote_id);
-    if (sock < 1) {
+    if (sock < 0) {
         return -1;
     }
     can_con_info.sock = sock;

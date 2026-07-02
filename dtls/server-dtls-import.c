@@ -59,7 +59,7 @@ int main(int argc, char** argv)
 {
     int             ret = 0;
     int             on = 1;
-    int             listenfd = 0;
+    int             listenfd = -1;
     int             recvLen;
     WOLFSSL_CTX*    ctx = NULL;
     WOLFSSL*        ssl = NULL;
@@ -72,6 +72,7 @@ int main(int argc, char** argv)
     const char*     sessionFile = DEFAULT_SERVER_SESSION_FILE;
     unsigned char*  sessionBuf = NULL;
     unsigned int    sessionSz = 0;
+    int             err_occurred = 0;
 
     /* Program argument checking */
     if (argc > 2) {
@@ -202,6 +203,8 @@ int main(int argc, char** argv)
                 int err = wolfSSL_get_error(ssl, ret);
                 fprintf(stderr, "Error: wolfSSL_write failed: %d (%s)\n",
                         err, wolfSSL_ERR_reason_error_string(err));
+                ret = 1;
+                err_occurred = 1;
                 break;
             }
         }
@@ -210,12 +213,16 @@ int main(int argc, char** argv)
             if (err != SSL_ERROR_WANT_READ) {
                 fprintf(stderr, "Error: wolfSSL_read failed: %d (%s)\n",
                         err, wolfSSL_ERR_reason_error_string(err));
+                ret = 1;
+                err_occurred = 1;
                 break;
             }
         }
     }
 
-    ret = 0;
+    if (!err_occurred) {
+        ret = 0;
+    }
 
 cleanup:
     if (sessionBuf != NULL) free(sessionBuf);
@@ -223,7 +230,7 @@ cleanup:
         wolfSSL_shutdown(ssl);
         wolfSSL_free(ssl);
     }
-    if (listenfd > 0) close(listenfd);
+    if (listenfd >= 0) close(listenfd);
     if (ctx != NULL) wolfSSL_CTX_free(ctx);
     wolfSSL_Cleanup();
 
