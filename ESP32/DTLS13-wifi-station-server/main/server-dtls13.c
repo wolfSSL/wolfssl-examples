@@ -244,7 +244,7 @@ WOLFSSL_ESP_TASK dtls13_smp_server_task(void *pvParameters)
 
     /* initialize network vars */
     if (ret == WOLFSSL_SUCCESS) {
-        memset((char *)&servAddr, 0, sizeof(servAddr));
+        XMEMSET((char *)&servAddr, 0, sizeof(servAddr));
         /* host-to-network-long conversion (htonl) */
         /* host-to-network-short conversion (htons) */
         servAddr.sin_family      = AF_INET;

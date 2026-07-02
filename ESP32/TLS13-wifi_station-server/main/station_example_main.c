@@ -9,6 +9,7 @@
 
 
 #include <string.h>
+#include <errno.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/event_groups.h"
@@ -196,7 +197,7 @@ int set_time() {
     int i = 0;
     for (i = 0; i < NTP_SERVER_COUNT; i++) {
         const char* thisServer = ntpServerList[i];
-        if (strncmp(thisServer, "\x00", 1)) {
+        if (XSTRNCMP(thisServer, "\x00", 1)) {
             /* just in case we run out of NTP servers */
             break;
         }
@@ -291,6 +292,13 @@ void wifi_init_sta(void)
     vEventGroupDelete(s_wifi_event_group);
 }
 
+static void LogSocketError(const char* fmt, int err)
+{
+    char err_msg[128];
+    XSNPRINTF(err_msg, sizeof(err_msg), fmt, err);
+    WOLFSSL_ERROR_MSG(err_msg);
+}
+
 int tls_smp_server_task() {
     int ret = WOLFSSL_SUCCESS; /* assume success until proven wrong */
     int sockfd = 0; /* the socket that will carry our secure connection */
@@ -330,7 +338,7 @@ int tls_smp_server_task() {
 #endif /* WOLFSSL_TLS13 */
 
     /* Initialize the server address struct with zeros */
-    memset(&servAddr, 0, sizeof(servAddr));
+    XMEMSET(&servAddr, 0, sizeof(servAddr));
 
     /* Fill in the server address */
     servAddr.sin_family      = AF_INET; /* using IPv4      */
@@ -427,13 +435,12 @@ int tls_smp_server_task() {
          * a non-negative integer, the socket file descriptor.
         */
         sockfd = socket(AF_INET, SOCK_STREAM, 0);
-        if (sockfd > 0) {
+        if (sockfd >= 0) {
             WOLFSSL_MSG("socket creation successful\n");
         }
         else {
-            // TODO show errno
+            LogSocketError("ERROR: failed to create a socket (errno = %d).\n", errno);
             ret = WOLFSSL_FAILURE;
-            WOLFSSL_ERROR_MSG("ERROR: failed to create a socket.\n");
         }
     }
     else {
@@ -501,9 +508,8 @@ int tls_smp_server_task() {
             WOLFSSL_MSG("setsockopt re-use addr successful\n");
         }
         else {
-            ESP_LOGE(TAG, "setsockopt failed with code %i", soc_ret);
+            LogSocketError("ERROR: failed to setsockopt addr on socket (errno = %d).\n", errno);
             ret = WOLFSSL_FAILURE;
-            WOLFSSL_ERROR_MSG("ERROR: failed to setsockopt addr on socket.\n");
         }
     }
     else {
@@ -584,8 +590,8 @@ int tls_smp_server_task() {
             WOLFSSL_MSG("socket bind successful\n");
         }
         else {
+            LogSocketError("ERROR: failed to bind to socket (errno = %d).\n", errno);
             ret = WOLFSSL_FAILURE;
-            WOLFSSL_ERROR_MSG("ERROR: failed to bind to socket.\n");
         }
     }
 
@@ -632,8 +638,8 @@ int tls_smp_server_task() {
             WOLFSSL_MSG("socket listen successful\n");
         }
         else {
+            LogSocketError("ERROR: failed to listen to socket (errno = %d).\n", errno);
             ret = WOLFSSL_FAILURE;
-            WOLFSSL_ERROR_MSG("ERROR: failed to listen to socket.\n");
         }
     }
 
@@ -913,20 +919,18 @@ int tls_smp_server_task() {
         /* Accept client connections */
         if ((mConnd = accept(sockfd, (struct sockaddr*)&clientAddr, &size))
             == -1) {
-
-            ret = -1;
-            goto exit;
             WOLFSSL_ERROR_MSG("ERROR: failed socket connection accept\n");
             ret = WOLFSSL_FAILURE;
+            break;
         }
 
         /* Create a WOLFSSL object */
         if ((ssl = wolfSSL_new(ctx)) == NULL) {
             WOLFSSL_ERROR_MSG("ERROR: failed to create WOLFSSL object\n");
-            ret = -1;
-            goto exit;
-            WOLFSSL_ERROR_MSG("ERROR: failed wolfSSL_new during loop\n");
             ret = WOLFSSL_FAILURE;
+            close(mConnd);
+            mConnd = SOCKET_INVALID;
+            break;
         }
 
         /* Attach wolfSSL to the socket */
@@ -945,47 +949,56 @@ int tls_smp_server_task() {
         /* Establish TLS connection */
         if ((ret = wolfSSL_accept(ssl)) != WOLFSSL_SUCCESS) {
             WOLFSSL_ERROR_MSG("ERROR: wolfSSL_accept\n");
-
-            ret = WOLFSSL_FAILURE;
             ESP_LOGE(TAG, "wolfSSL_accept error = %d\n",
                            wolfSSL_get_error(ssl, ret));
-            goto exit;
+            ret = WOLFSSL_FAILURE;
         }
         else {
             WOLFSSL_MSG("Client connected successfully\n");
         }
 
 #ifdef HAVE_SECRET_CALLBACK
-        wolfSSL_FreeArrays(ssl);
+        if (ret == WOLFSSL_SUCCESS) {
+            wolfSSL_FreeArrays(ssl);
+        }
 #endif
 
         /* Read the client data into our buff array */
-        memset(buff, 0, sizeof(buff));
-        if ((ret = wolfSSL_read(ssl, buff, sizeof(buff) - 1)) < 0) {
-            ESP_LOGE(TAG, "wolfSSL_read error = %d\n",
-                           wolfSSL_get_error(ssl, ret));
-            goto exit;
+        if (ret == WOLFSSL_SUCCESS) {
+            int readRet;
+            XMEMSET(buff, 0, sizeof(buff));
+            readRet = wolfSSL_read(ssl, buff, sizeof(buff) - 1);
+            if (readRet <= 0) {
+                ESP_LOGE(TAG, "wolfSSL_read error = %d\n",
+                               wolfSSL_get_error(ssl, readRet));
+                ret = WOLFSSL_FAILURE;
+            }
         }
 
-        /* Print any data the client sends */
-        ESP_LOGI(TAG, "Client: %s\n", buff);
+        if (ret == WOLFSSL_SUCCESS) {
+            /* Print any data the client sends */
+            ESP_LOGI(TAG, "Client: %s\n", buff);
 
-        /* Check for server shutdown command */
-        if (strncmp(buff, "shutdown", 8) == 0) {
-            ESP_LOGI(TAG, "Shutdown command issued!\n");
-            mShutdown = 1;
-        }
+            /* Check for server shutdown command */
+            if (XSTRNCMP(buff, "shutdown", 8) == 0) {
+                ESP_LOGI(TAG, "Shutdown command issued!\n");
+                mShutdown = 1;
+            }
 
-        /* Write our reply into buff */
-        memset(buff, 0, sizeof(buff));
-        memcpy(buff, reply, strlen(reply));
-        len = strnlen(buff, sizeof(buff));
+            /* Write our reply into buff */
+            XMEMSET(buff, 0, sizeof(buff));
+            XMEMCPY(buff, reply, XSTRLEN(reply));
+            len = XSTRLEN(buff);
 
-        /* Reply back to the client */
-        if ((ret = wolfSSL_write(ssl, buff, len)) != len) {
-            ESP_LOGE(TAG, "wolfSSL_write error = %d\n",
-                           wolfSSL_get_error(ssl, ret));
-            goto exit;
+            /* Reply back to the client */
+            {
+                int writeRet = wolfSSL_write(ssl, buff, len);
+                if (writeRet != len) {
+                    ESP_LOGE(TAG, "wolfSSL_write error = %d\n",
+                                   wolfSSL_get_error(ssl, writeRet));
+                    ret = WOLFSSL_FAILURE;
+                }
+            }
         }
 
         /* Cleanup after this connection */
@@ -998,6 +1011,12 @@ int tls_smp_server_task() {
             close(mConnd); /* Close the connection to the client   */
             mConnd = SOCKET_INVALID;
         }
+
+        /* A handshake (wolfSSL_accept) or read/write failure on this client's
+         * connection shouldn't stop the server from accepting the next one.
+         * Fatal setup failures above (socket accept/wolfSSL_new) already break
+         * out of the loop. */
+        ret = WOLFSSL_SUCCESS;
     }
 
     WOLFSSL_MSG("Shutdown complete\n");
@@ -1009,7 +1028,6 @@ int tls_smp_server_task() {
     *
     ***************************************************************************
     */
-exit:
     if (mConnd != SOCKET_INVALID) {
         close(mConnd); /* Close the connection to the client      */
         mConnd = SOCKET_INVALID;
