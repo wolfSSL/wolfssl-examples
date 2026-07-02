@@ -50,7 +50,7 @@ static void Usage(const char* progName)
 
 int main(int argc, char** argv)
 {
-    int             sockfd = 0;
+    int             sockfd = -1;
     int             ret;
     struct          sockaddr_in servAddr;
     WOLFSSL*        ssl = NULL;
@@ -203,7 +203,7 @@ cleanup:
         wolfSSL_shutdown(ssl);
         wolfSSL_free(ssl);
     }
-    if (sockfd > 0) close(sockfd);
+    if (sockfd >= 0) close(sockfd);
     if (ctx != NULL) wolfSSL_CTX_free(ctx);
     wolfSSL_Cleanup();
 

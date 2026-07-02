@@ -47,7 +47,7 @@ typedef struct {
     WOLFSSL_CTX * ctx;
 } thread_args_t;
 
-static void   safer_shutdown(thread_args_t * args);
+static int    safer_shutdown(thread_args_t * args);
 static void * client_work(void * arg);
 
 int
@@ -107,6 +107,7 @@ main(int    argc,
 
     for (size_t i = 0; i < n_threads; ++i) {
         args[i].ctx = ctx;
+        args[i].activefd = -1;
         ret = pthread_create(&threads[i], NULL, client_work, &args[i]);
 
         if (ret == 0 ) {
@@ -123,6 +124,14 @@ main(int    argc,
             pthread_join(threads[i], NULL);
             printf("info: joined thread: %ld\n", (long)threads[i]);
             threads[i] = 0;
+        }
+    }
+
+    /* All threads exited. Do a final cleanup pass just in case. */
+    for (size_t i = 0; i < n_threads; ++i) {
+        ret = safer_shutdown(&args[i]);
+        if (ret != 0) {
+            printf("error: safer_shutdown failed: %d\n", ret);
         }
     }
 
@@ -159,18 +168,22 @@ client_work(void * args)
     ret = inet_pton(AF_INET, localhost_ip, &servAddr.sin_addr);
     if (ret != 1) {
         printf("error: inet_pton %s returned %d\n", localhost_ip, ret);
+        safer_shutdown(thread_args);
         return NULL;
     }
 
     ret = wolfSSL_dtls_set_peer(thread_args->ssl, &servAddr, sizeof(servAddr));
     if (ret != SSL_SUCCESS) {
         printf("error: wolfSSL_dtls_set_peer returned %d\n", ret);
+        safer_shutdown(thread_args);
         return NULL;
     }
 
     thread_args->activefd = socket(AF_INET, SOCK_DGRAM, 0);
-    if (thread_args->activefd <= 0) {
+    if (thread_args->activefd < 0) {
         printf("error: socket returned %d\n", thread_args->activefd);
+        thread_args->activefd = -1;
+        safer_shutdown(thread_args);
         return NULL;
     }
 
@@ -183,6 +196,7 @@ client_work(void * args)
         printf("error: thread %ld: wolfSSL_connect returned = %d, %s\n",
                 (long)pthread_self(), err1,
                 wolfSSL_ERR_reason_error_string(err1));
+        safer_shutdown(thread_args);
         return NULL;
     }
 
@@ -246,33 +260,48 @@ client_work(void * args)
         sleep(1);
     }
 
-    safer_shutdown(thread_args);
+    ret = safer_shutdown(thread_args);
+    if (ret != 0) {
+        printf("error: safer_shutdown failed: %d\n", ret);
+    }
 
     return NULL;
 }
 
 /* Small shutdown wrapper to safely clean up a thread's
  * connection. */
-static void
+static int
 safer_shutdown(thread_args_t * args)
 {
+    int ret = 0;
+
     if (args == NULL) {
         printf("error: safer_shutdown with null args\n");
-        return;
+        return -1;
     }
 
     if (args->ssl != NULL) {
         printf("info: closed tls session: %p\n", (void*) args->ssl);
-        wolfSSL_shutdown(args->ssl);
+        ret = wolfSSL_shutdown(args->ssl);
+
+        if (ret != WOLFSSL_SUCCESS) {
+            printf("warning: wolfSSL_shutdown did not complete cleanly: %d\n",
+                    ret);
+            ret = -1;
+        }
+        else {
+            ret = 0;
+        }
+
         wolfSSL_free(args->ssl);
         args->ssl = NULL;
     }
 
-    if (args->activefd > 0) {
+    if (args->activefd >= 0) {
         printf("info: closed socket: %d\n", args->activefd);
         close(args->activefd);
-        args->activefd = 0;
+        args->activefd = -1;
     }
 
-    return;
+    return ret;
 }

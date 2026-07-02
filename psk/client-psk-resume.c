@@ -95,13 +95,15 @@ int main(int argc, char **argv){
     /* converts IPv4 addresses from text to binary form */
     ret = inet_pton(AF_INET, argv[1], &servaddr.sin_addr);
     if (ret != 1){
-        ret = -1; goto exit;
+        ret = -1;
+        goto exit;
     }
 
     /* attempts to make a connection on a socket */
     ret = connect(sockfd, (struct sockaddr *) &servaddr, sizeof(servaddr));
     if (ret != 0 ){
-        ret = -1; goto exit;
+        ret = -1;
+        goto exit;
     }
 
     wolfSSL_Init();  /* initialize wolfSSL */
@@ -109,7 +111,8 @@ int main(int argc, char **argv){
     /* create and initialize WOLFSSL_CTX structure */
     if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method())) == NULL) {
         fprintf(stderr, "wolfSSL_CTX_new error.\n");
-        ret = -1; goto exit;
+        ret = -1;
+        goto exit;
     }
 
 #ifndef NO_PSK
@@ -122,7 +125,8 @@ int main(int argc, char **argv){
     /* create wolfSSL object after each tcp connect */
     if ( (ssl = wolfSSL_new(ctx)) == NULL) {
         fprintf(stderr, "wolfSSL_new error.\n");
-        ret = -1; goto exit;
+        ret = -1;
+        goto exit;
     }
 
     /* associate the file descriptor with the session */
@@ -131,20 +135,22 @@ int main(int argc, char **argv){
      /* takes inputting string and outputs it to the server */
     if (wolfSSL_write(ssl, sendline, sizeof(sendline)) != sizeof(sendline)) {
         printf("Write Error to Server\n");
-        ret = -1; goto exit;
+        ret = -1;
+        goto exit;
     }
 
     /* flags if the Server stopped before the client could end */
     if (wolfSSL_read(ssl, recvline, MAXLINE) < 0 ) {
         printf("Client: Server Terminated Prematurely!\n");
-        ret = -1; goto exit;
+        ret = -1;
+        goto exit;
     }
 
     /* show message from the server */
     printf("Server Message: %s\n", recvline);
 
     /* Save the session ID to reuse */
-    session   = wolfSSL_get_session(ssl);
+    session   = wolfSSL_get1_session(ssl);
     sslResume = wolfSSL_new(ctx);
 
     /* shut down wolfSSL */
@@ -152,10 +158,21 @@ int main(int argc, char **argv){
 
     /* close connection */
     close(sockfd);
+    sockfd = SOCKET_INVALID;
 
     /* cleanup without wolfSSL_Cleanup() and wolfSSL_CTX_free() for now */
     wolfSSL_free(ssl);
     ssl = NULL;
+
+    if (session == NULL) {
+        ret = -1;
+        goto exit;
+    }
+
+    if (sslResume == NULL) {
+        ret = -1;
+        goto exit;
+    }
 
     /*
      * resume session, start new connection and socket
@@ -213,6 +230,8 @@ exit:
         wolfSSL_free(ssl);      /* Free the wolfSSL object              */
     if (sslResume)
         wolfSSL_free(sslResume);      /* Free the wolfSSL object        */
+    if (session != NULL)
+        wolfSSL_SESSION_free(session);
     if (sockfd != SOCKET_INVALID)
         close(sockfd);          /* Close the socket   */
     if (sock != SOCKET_INVALID)

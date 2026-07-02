@@ -63,7 +63,7 @@ int main(int argc, char** argv)
     char            servKeyLoc[] = "../certs/server-key.pem";
     int             ret = 0;
     int             on = 1;
-    int             listenfd = 0;
+    int             listenfd = -1;
     int             recvLen;
     WOLFSSL_CTX*    ctx = NULL;
     WOLFSSL*        ssl = NULL;
@@ -274,7 +274,7 @@ cleanup:
         wolfSSL_shutdown(ssl);
         wolfSSL_free(ssl);
     }
-    if (listenfd > 0) close(listenfd);
+    if (listenfd >= 0) close(listenfd);
     if (ctx != NULL) wolfSSL_CTX_free(ctx);
     wolfSSL_Cleanup();
 

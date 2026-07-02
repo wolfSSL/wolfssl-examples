@@ -40,7 +40,6 @@
 #define SERV_PORT   11111           /* define our server port number */
 #define MSGLEN      4096
 
-static int cleanup = 0;                 /* To handle shutdown */
 static struct sockaddr_in servAddr;     /* our server's address */
 static struct sockaddr_in cliaddr;      /* the client's address */
 
@@ -59,7 +58,7 @@ int main(int argc, char** argv)
     int           res = 1;
     int           bytesReceived = 0;
     int           recvLen = 0;    /* length of message */
-    int           listenfd = 0;   /* Initialize our socket */
+    int           listenfd = -1;  /* Initialize our socket */
     WOLFSSL*      ssl = NULL;
     socklen_t     cliLen;
     socklen_t     len = sizeof(int);
@@ -105,11 +104,11 @@ int main(int argc, char** argv)
     /* Await Datagram */
     ;
 
-    while (cleanup != 1) {
+    while (1) {
         /* Create a UDP/IP socket */
         listenfd = socket(AF_INET, SOCK_DGRAM, 0);
 
-        if (listenfd <= 0 ) {
+        if (listenfd < 0 ) {
             printf("error: cannot create socket: %d\n", listenfd);
             break;
         }
@@ -211,16 +210,19 @@ int main(int argc, char** argv)
         wolfSSL_set_fd(ssl, 0);
         wolfSSL_shutdown(ssl);
         wolfSSL_free(ssl);
+        ssl = NULL;
         close(listenfd);
-        cleanup = 0;
+        listenfd = -1;
 
         printf("Client left cont to idle state\n");
     }
     
-    if (cleanup == 1) {
+    if (ssl != NULL) {
         wolfSSL_set_fd(ssl, 0);
         wolfSSL_shutdown(ssl);
         wolfSSL_free(ssl);
+    }
+    if (listenfd >= 0) {
         close(listenfd);
     }
 
