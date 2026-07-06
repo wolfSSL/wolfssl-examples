@@ -97,7 +97,12 @@ int main(int argc, char** argv)
         return -1;
     }
 
-    wc_InitRng(&rng);
+    ret = wc_InitRng(&rng);
+    if (ret != 0) {
+        printf("wc_InitRng failed with error %d\n", ret);
+        wolfCrypt_Cleanup();
+        return -1;
+    }
 
     ret = createEccKey(&rng, &hwKey, WOLFSSL_CAAM_DEVID);
     if (ret != 0) {

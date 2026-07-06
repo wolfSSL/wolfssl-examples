@@ -336,7 +336,7 @@ int enc_wolfSSL_Cleanup(void)
     /* free up all WOLFSSL_CTX's */
     for (id = 0; id < MAX_WOLFSSL_CTX; id++)
         RemoveCTX(id);
-    wolfSSL_Cleanup();
+    return wolfSSL_Cleanup();
 }
 
 void printf(const char *fmt, ...)
@@ -347,16 +347,6 @@ void printf(const char *fmt, ...)
     vsnprintf(buf, BUFSIZ, fmt, ap);
     va_end(ap);
     ocall_print_string(buf);
-}
-
-int sprintf(char* buf, const char *fmt, ...)
-{
-    va_list ap;
-    int ret;
-    va_start(ap, fmt);
-    ret = vsnprintf(buf, BUFSIZ, fmt, ap);
-    va_end(ap);
-    return ret;
 }
 
 double current_time(void)

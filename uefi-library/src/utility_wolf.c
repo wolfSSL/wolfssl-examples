@@ -83,16 +83,16 @@ unsigned int calculateBufferSize(const char* msg, va_list args)
 
     while (*p) {
         if (*p == '%' && *(p + 1)) {
-            p++; // Move past '%'
-            if (*p == 's' || *p == 'a') { // Handle strings
+            p++; /* Move past '%' */
+            if (*p == 's' || *p == 'a') { /* Handle strings */
                 char* str = va_arg(args_copy, char*);
                 if (str) {
-                    size += XSTRLEN(str); // Add the length of the string
+                    size += XSTRLEN(str); /* Add the length of the string */
                 }
             } else if (*p == 'd' || *p == 'u' || *p == 'x') {
-                va_arg(args_copy, int); // Skip integers
+                va_arg(args_copy, int); /* Skip integers */
             } else if (*p == 'f') {
-                va_arg(args_copy, double); // Skip doubles
+                va_arg(args_copy, double); /* Skip doubles */
             }
         }
         p++;
@@ -527,7 +527,7 @@ FILE* fopen(const char* filename, const char* mode)
 
     parseAndReplace(filename, temp, "/", "\\");
     uefi_printf_wolfssl("Filename After: %s\n", filename);
-    //parseAndReplace(filename, temp, "./", "\\");
+    /* parseAndReplace(filename, temp, "./", "\\"); */
 #else
     temp = (char*)filename;
 #endif
@@ -628,6 +628,7 @@ int fclose(FILE* stream)
     int ret = -1;
     (void)stream;
     EFI_FILE_HANDLE* fPtr = NULL;
+    EFI_STATUS status;
 
     uefi_printf_debug("Inside custom fclose\n");
     if (stream == NULL) {
@@ -636,7 +637,8 @@ int fclose(FILE* stream)
     }
     fPtr = (EFI_FILE_HANDLE*)stream;
 
-    uefi_call_wrapper((*fPtr)->Close, 1, *fPtr);
+    status = uefi_call_wrapper((*fPtr)->Close, 1, *fPtr);
+    ret = EFI_ERROR(status) ? -1 : 0;
 
 
     XFREE(fPtr, NULL, DYNAMIC_TYPE_TMP_BUFFER);
@@ -1043,7 +1045,7 @@ size_t fwrite(const void* ptr, size_t size, size_t count, FILE* stream)
 {
     size_t ret = 0; /* Number of items successfully written */
     EFI_FILE_HANDLE* fPtr = NULL;
-    //UINTN totalBytes = count * size * 8; /* Total bytes to write */
+    /* UINTN totalBytes = count * size * 8; -- Total bytes to write */
     EFI_STATUS status;
     uefi_printf_debug("Inside custom fwrite\n");
 
@@ -1335,7 +1337,7 @@ unsigned long long current_time(int reset)
 
     /* Convert to total seconds */
     unsigned long long total_seconds =
-        //(days_since_epoch * 86400) + // Uncomment to return epoch time
+        /* (days_since_epoch * 86400) + -- Uncomment to return epoch time */
         (time_uefi.Hour * 3600) +
         (time_uefi.Minute * 60) +
         time_uefi.Second;

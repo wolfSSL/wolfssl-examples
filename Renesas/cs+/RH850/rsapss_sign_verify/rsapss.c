@@ -108,18 +108,19 @@ static int load_rsa_private_key(RsaKey* pRsaKey)
 static int sign_with_rsa_key(RsaKey* pRsaKey, WC_RNG* rng, const char* msg)
 {
     int ret;
-    
+
     /* Hash message to b signed */
-    if (hash_msg(msg, hash) != 0 ) {
+    ret = hash_msg(msg, hash);
+    if (ret != 0 ) {
         goto sign_end;
     }
-    
+
     printf("Signing hash of message\n");
     /* RSA-PSS sign */
     ret = wc_RsaPSS_Sign(hash, sizeof(hash), pSignature, sizeof(pSignature),
         WC_HASH_TYPE_SHA256, WC_MGF1SHA256, pRsaKey, rng);
     if (ret <= 0) {
-        printf("  RSA private encryption failed with error %d\n");
+        printf("  RSA private encryption failed with error %d\n", ret);
         goto sign_end;
     }
     
@@ -135,7 +136,8 @@ static int verify_with_rsa_public_key(RsaKey* pRsaKey, const char* msg)
     byte  pDecrypted[RSA_KEY_SIZE/8];
     byte* pt;
     /* Hash message to be signed. */
-    if (hash_msg(msg, hash) != 0) {
+    ret = hash_msg(msg, hash);
+    if (ret != 0) {
         goto verify_end;
     }
     

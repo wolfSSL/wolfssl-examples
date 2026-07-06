@@ -13,10 +13,16 @@
 
 #define uefi_printf(_f_, ...) Print(L##_f_, ##__VA_ARGS__)
 
-void char8_to_char16(const char* str8, wchar_t* str16)
+void char8_to_char16(const char* str8, wchar_t* str16, size_t cap)
 {
 	size_t i;
 	size_t size_str8 = strlen(str8);
+	if (cap == 0) {
+		return;
+	}
+	if (size_str8 > cap - 1) {
+		size_str8 = cap - 1;
+	}
 	for (i = 0; i < size_str8; ++i) {
 		str16[i] = (wchar_t)str8[i];
 	}
@@ -26,7 +32,7 @@ void char8_to_char16(const char* str8, wchar_t* str16)
 void logging_cb(const int logLevel, const char *const logMessage)
 {
 	wchar_t str16[STR_SIZE];
-	char8_to_char16(logMessage, str16);
+	char8_to_char16(logMessage, str16, STR_SIZE);
     uefi_printf("%s", str16);
 }
 

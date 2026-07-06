@@ -91,7 +91,7 @@ size_t  _REL_sizeof_sysheap = SIZEOF_HEAP;
 
 void main(void)
 {
-   byte ret;
+   int ret;
    
    R_SYSTEM_ClockInit();
    R_SYSTEM_TimerInit();
