@@ -140,6 +140,7 @@ int main (int argc, char** argv)
             if (readErr != SSL_ERROR_WANT_READ) {
                 printf("wolfSSL_read failed");
             }
+            continue;
         }
 
         /* Add a terminating character to the generic server message */

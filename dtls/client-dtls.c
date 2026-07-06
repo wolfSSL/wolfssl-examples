@@ -129,10 +129,11 @@ int main (int argc, char** argv)
                 printf("wolfSSL_read failed");
             }
         }
-
-        /* Add a terminating character to the generic server message */
-        recvLine[n] = '\0';
-        fputs(recvLine, stdout);
+        else {
+            /* Add a terminating character to the generic server message */
+            recvLine[n] = '\0';
+            fputs(recvLine, stdout);
+        }
     }
 /*                End code for sending datagram to server                    */
 /*****************************************************************************/
