@@ -57,7 +57,7 @@ unsigned int my_psk_server_cb(WOLFSSL* ssl, const char* identity,
 int CbIOSend(WOLFSSL *ssl, char *buf, int sz, void *ctx);
 int CbIORecv(WOLFSSL *ssl, char *buf, int sz, void *ctx);
 int ConvertHexToBin(const char* h1, byte* b1, word32* b1Sz);
-WOLFSSL* Server(WOLFSSL_CTX* ctx, char* suite, int setSuite);
+WOLFSSL* Server(WOLFSSL_CTX** ctx_ptr, char* suite, int setSuite);
 
 static int fpSend;
 static int fpRecv;
@@ -102,8 +102,9 @@ int CbIOSend(WOLFSSL *ssl, char *buf, int sz, void *ctx)
 }
 
 
-WOLFSSL* Server(WOLFSSL_CTX* ctx, char* suite, int setSuite)
+WOLFSSL* Server(WOLFSSL_CTX** ctx_ptr, char* suite, int setSuite)
 {
+    WOLFSSL_CTX* ctx;
     WOLFSSL* ssl;
     int ret = -1;
 
@@ -118,14 +119,16 @@ WOLFSSL* Server(WOLFSSL_CTX* ctx, char* suite, int setSuite)
 #endif
 
     if (wolfSSL_CTX_use_certificate_file(ctx, serverCert, SSL_FILETYPE_PEM)
-                                                    != SSL_SUCCESS) {
+                                                     != SSL_SUCCESS) {
         printf("trouble loading server cert file\n");
+        wolfSSL_CTX_free(ctx);
         return NULL;
     }
 
     if (wolfSSL_CTX_use_PrivateKey_file(ctx, serverKey, SSL_FILETYPE_PEM)
-                                                    != SSL_SUCCESS) {
+                                                     != SSL_SUCCESS) {
         printf("trouble loading server key file\n");
+        wolfSSL_CTX_free(ctx);
         return NULL;
     }
 
@@ -150,6 +153,7 @@ WOLFSSL* Server(WOLFSSL_CTX* ctx, char* suite, int setSuite)
     }
 
     wolfSSL_set_fd(ssl, fpRecv);
+    if (ctx_ptr) *ctx_ptr = ctx;
     return ssl;
 }
 
@@ -178,8 +182,8 @@ int main(int argc, char** argv)
     wolfSSL_Init();
 
     /* Example usage */
-//    sslServ = Server(ctxServ, "ECDHE-RSA-AES128-SHA", 1);
-    sslServ = Server(ctxServ, "let-wolfssl-choose", 0);
+//    sslServ = Server(&ctxServ, "ECDHE-RSA-AES128-SHA", 1);
+    sslServ = Server(&ctxServ, "let-wolfssl-choose", 0);
 
     if (sslServ == NULL) { printf("sslServ NULL\n"); return 0;}
     ret = SSL_FAILURE;
@@ -191,8 +195,6 @@ int main(int argc, char** argv)
         if (ret != SSL_SUCCESS) {
             if (error != SSL_ERROR_WANT_READ &&
                 error != SSL_ERROR_WANT_WRITE) {
-                wolfSSL_free(sslServ);
-                wolfSSL_CTX_free(ctxServ);
                 printf("server ssl accept failed ret = %d error = %d wr = %d\n",
                                                ret, error, SSL_ERROR_WANT_READ);
                 goto cleanup;
@@ -254,9 +256,13 @@ cleanup:
     close(open(CR, O_RDWR | O_NOCTTY | O_NDELAY));
     close(open(SR, O_RDWR | O_NOCTTY | O_NDELAY));
 
-    wolfSSL_shutdown(sslServ);
-    wolfSSL_free(sslServ);
-    wolfSSL_CTX_free(ctxServ);
+    if (sslServ) {
+        wolfSSL_shutdown(sslServ);
+        wolfSSL_free(sslServ);
+    }
+    if (ctxServ) {
+        wolfSSL_CTX_free(ctxServ);
+    }
     wolfSSL_Cleanup();
     /* Reset the contents of the receive and send files for next run */
     fclose(fopen(SR, "wb"));

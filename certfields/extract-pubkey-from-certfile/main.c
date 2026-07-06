@@ -36,8 +36,8 @@ int main(void)
 {
     int ret = -1;
 #ifdef OPENSSL_EXTRA
-    WOLFSSL_X509* x509cert;
-    WOLFSSL_EVP_PKEY* pubKeyTmp;
+    WOLFSSL_X509* x509cert = NULL;
+    WOLFSSL_EVP_PKEY* pubKeyTmp = NULL;
     RsaKey pubKey;
     char* certFName = "../../certs/client-cert.pem";
     word32 idx = 0;
@@ -55,16 +55,27 @@ int main(void)
     pubKeyTmp = wolfSSL_X509_get_pubkey(x509cert);
     if (pubKeyTmp == NULL) {
         printf("Failed to extract public key, abort!\n");
+        wolfSSL_X509_free(x509cert);
         return ret;
     }
     printf("Extracted public key successfully\n");
 
     /* setup a key structure to receive the extracted key */
-    wc_InitRsaKey(&pubKey, 0);
+    ret = wc_InitRsaKey(&pubKey, 0);
+    if (ret != 0) {
+        printf("Failed to init RSA key, abort!\n");
+        wolfSSL_EVP_PKEY_free(pubKeyTmp);
+        wolfSSL_X509_free(x509cert);
+        return ret;
+    }
+
     ret = wc_RsaPublicKeyDecode((byte*)pubKeyTmp->pkey.ptr, &idx, &pubKey,
                                  (word32) pubKeyTmp->pkey_sz);
     if (ret != 0) {
         printf("Failed to decode public key from pubKeyTmp, abort!\n");
+        wc_FreeRsaKey(&pubKey);
+        wolfSSL_EVP_PKEY_free(pubKeyTmp);
+        wolfSSL_X509_free(x509cert);
         return ret;
     }
     printf("Successfully decoded public key\n");
@@ -74,10 +85,9 @@ int main(void)
         printf("%02X", pubKeyTmp->pkey.ptr[i] & 0xFF);
     } printf("\n");
 
-
+    wc_FreeRsaKey(&pubKey);
     wolfSSL_EVP_PKEY_free(pubKeyTmp);
     wolfSSL_X509_free(x509cert);
-    wc_FreeRsaKey(&pubKey);
 #else
     printf("Please configure wolfssl with --enable-opensslextra to try using\n"
            "this example\n");

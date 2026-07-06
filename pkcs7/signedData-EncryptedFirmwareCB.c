@@ -82,6 +82,7 @@ static int write_file_buffer(const char* fileName, byte* in, word32 inSz)
     ret = (int)fwrite(in, 1, inSz, file);
     if (ret == 0) {
         printf("ERROR: writing buffer to output file\n");
+        fclose(file);
         return -1;
     }
     fclose(file);
@@ -387,6 +388,7 @@ static int generateBundle(byte* out, word32 *outSz, const byte* encryptKey,
         *outSz = ret;
         if (write_file_buffer(fileName, out, ret) != 0) {
             printf("ERROR: error writing encoded to output file\n");
+            wc_PKCS7_Free(pkcs7);
             return -1;
         }
 
@@ -438,7 +440,8 @@ static int getFirmwareKey(PKCS7* pkcs7, byte* key, word32 keySz)
             wc_PKCS7_Init(envPkcs7, NULL, 0);
             if (wc_PKCS7_SetWrapCEKCb(envPkcs7, myCEKwrapFunc) != 0) {
                 printf("\tIssue setting CEK wrap callback\n");
-                return ret;
+                wc_PKCS7_Free(envPkcs7);
+                return BAD_FUNC_ARG;
             }
             envPkcs7->contentOID = FIRMWARE_PKG_DATA; /* expected content */
             ret = wc_PKCS7_DecodeEnvelopedData(envPkcs7, atr, ret,

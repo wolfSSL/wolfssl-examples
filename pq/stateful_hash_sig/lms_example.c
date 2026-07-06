@@ -148,8 +148,7 @@ write_key_file(const byte * priv,
         /* Create the file if it didn't exist. */
         file = fopen(filename, "w+");
         if (!file) {
-            fprintf(stderr, "error: fopen(%s, \"w+\") failed: %d\n", filename,
-                    ferror(file));
+            fprintf(stderr, "error: fopen(%s, \"w+\") failed\n", filename);
             return WC_LMS_RC_WRITE_FAIL;
         }
     }
@@ -159,6 +158,7 @@ write_key_file(const byte * priv,
     if (n_write != privSz) {
         fprintf(stderr, "error: wrote %zu, expected %d: %d\n", n_write, privSz,
                 ferror(file));
+        fclose(file);
         return WC_LMS_RC_WRITE_FAIL;
     }
 
@@ -172,12 +172,14 @@ write_key_file(const byte * priv,
     if (n_read != n_write) {
         fprintf(stderr, "error: read %zu, expected %zu: %d\n", n_read, n_write,
                 ferror(file));
+        fclose(file);
         return WC_LMS_RC_WRITE_FAIL;
     }
 
     n_cmp = XMEMCMP(buff, priv, n_write);
     if (n_cmp != 0) {
         fprintf(stderr, "error: write data was corrupted: %d\n", n_cmp);
+        fclose(file);
         return WC_LMS_RC_WRITE_FAIL;
     }
 
@@ -217,6 +219,7 @@ read_key_file(byte * priv,
     if (n_read != privSz) {
         fprintf(stderr, "error: read %zu, expected %d: %d\n", n_read, privSz,
                 ferror(file));
+        fclose(file);
         return WC_LMS_RC_READ_FAIL;
     }
 

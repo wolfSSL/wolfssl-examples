@@ -124,6 +124,7 @@ static int write_file(const char* fileName, byte* in, word32 inSz)
     ret = (int)fwrite(in, 1, inSz, file);
     if (ret == 0) {
         printf("ERROR: writing buffer to output file\n");
+        fclose(file);
         return -1;
     }
     fclose(file);
@@ -244,6 +245,7 @@ static int myCryptoCb(int devIdArg, wc_CryptoInfo* info, void* ctx)
 
                     ret = wc_InitRsaKey_ex(&rsaPriv, NULL, INVALID_DEVID);
                     if (ret != 0) {
+                        free(der);
                         return ret;
                     }
                     ret = wc_RsaPrivateKeyDecode(der, &idx, &rsaPriv, derSz);
@@ -306,6 +308,7 @@ static int myCryptoCb(int devIdArg, wc_CryptoInfo* info, void* ctx)
 
             ret = wc_ecc_init_ex(&eccPriv, NULL, INVALID_DEVID);
             if (ret != 0) {
+                free(der);
                 return ret;
             }
             ret = wc_EccPrivateKeyDecode(der, &idx, &eccPriv, derSz);

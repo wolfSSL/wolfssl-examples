@@ -111,6 +111,7 @@ int can_connect(const char *address, uint16_t filter)
     addr.can_ifindex = ifr.ifr_ifindex;
     if (bind(sock, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
        perror("Bind error\n");
+       close(sock);
        return -1;
     }
 
@@ -122,7 +123,7 @@ void can_close()
     close(can_con_info.sock);
 }
 
-void close_ssl(WOLFSSL_CTX *ctx, WOLFSSL *ssl)
+void close_ssl(WOLFSSL_CTX *ctx, WOLFSSL *ssl, char *receive_buffer)
 {
     if (ssl) {
         int ret = WOLFSSL_SHUTDOWN_NOT_DONE;
@@ -134,10 +135,11 @@ void close_ssl(WOLFSSL_CTX *ctx, WOLFSSL *ssl)
             int err = wolfSSL_get_error(ssl, ret);
             fprintf(stderr, "Error shutting down TLS connection: %d, %s",
                     err, wolfSSL_ERR_error_string(err, buffer));
-            return;
         }
     }
     can_close();
+
+    free(receive_buffer);
 
     wolfSSL_free(ssl);
     wolfSSL_CTX_free(ctx);
@@ -170,13 +172,19 @@ int setup_connection(const char *interface, int local_id, int remote_id)
 }
 
 int setup_ssl(enum service_type type, WOLFSSL_CTX **new_ctx,
-        WOLFSSL_METHOD **new_method, WOLFSSL **new_ssl)
+        WOLFSSL_METHOD **new_method, WOLFSSL **new_ssl,
+        char **new_receive_buffer)
 {
     int ret;
     WOLFSSL_CTX *ctx = NULL;
     WOLFSSL_METHOD* method = NULL;
     WOLFSSL* ssl = NULL;
     char *receive_buffer = malloc(ISOTP_DEFAULT_BUFFER_SIZE);
+    if (receive_buffer == NULL) {
+        fprintf(stderr, "Could not allocate receive buffer\n");
+        close_ssl(NULL, NULL, NULL);
+        return -1;
+    }
 
     if (type == SERVICE_TYPE_CLIENT) {
         method = wolfTLSv1_3_client_method();
@@ -186,13 +194,14 @@ int setup_ssl(enum service_type type, WOLFSSL_CTX **new_ctx,
 
     if (!method) {
         fprintf(stderr, "Could not init wolfSSL method\n");
+        close_ssl(NULL, NULL, receive_buffer);
         return -1;
     }
 
     ctx = wolfSSL_CTX_new(method);
     if (!ctx) {
         fprintf(stderr, "Could not init wolfSSL context\n");
-        close_ssl(NULL, NULL);
+        close_ssl(NULL, NULL, receive_buffer);
         return -1;
     }
 
@@ -208,7 +217,7 @@ int setup_ssl(enum service_type type, WOLFSSL_CTX **new_ctx,
     if (ret != WOLFSSL_SUCCESS) {
         fprintf(stderr, "ERROR: failed to load cert, "
                 "please check the file.\n");
-        close_ssl(ctx, NULL);
+        close_ssl(ctx, NULL, receive_buffer);
         return -1;
     }
 
@@ -217,7 +226,7 @@ int setup_ssl(enum service_type type, WOLFSSL_CTX **new_ctx,
                         WOLFSSL_FILETYPE_PEM)) != WOLFSSL_SUCCESS) {
             fprintf(stderr, "ERROR: failed to load key file, "
                     "please check the file.\n");
-            close_ssl(ctx, NULL);
+            close_ssl(ctx, NULL, receive_buffer);
             return -1;
         }
     }
@@ -225,7 +234,7 @@ int setup_ssl(enum service_type type, WOLFSSL_CTX **new_ctx,
     ssl = wolfSSL_new(ctx);
     if (!ssl) {
         fprintf(stderr, "Could not init wolfSSL\n");
-        close_ssl(ctx, NULL);
+        close_ssl(ctx, NULL, receive_buffer);
         return -1;
     }
 
@@ -245,12 +254,13 @@ int setup_ssl(enum service_type type, WOLFSSL_CTX **new_ctx,
         int err = wolfSSL_get_error(ssl, ret);
         fprintf(stderr, "ERROR: failed to connect using wolfSSL: %d, %s\n",
                 err, wolfSSL_ERR_error_string(err, buffer));
-        close_ssl(ctx, ssl);
+        close_ssl(ctx, ssl, receive_buffer);
         return -1;
     }
     *new_ctx = ctx;
     *new_method = method;
     *new_ssl = ssl;
+    *new_receive_buffer = receive_buffer;
 
     printf("SSL handshake done!\n");
 

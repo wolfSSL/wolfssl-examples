@@ -57,8 +57,9 @@ int can_send(struct isotp_can_data *data, void *arg);
 int can_connect(const char *address, uint16_t filter);
 void can_close(void);
 
-void close_ssl(WOLFSSL_CTX *ctx, WOLFSSL *ssl);
+void close_ssl(WOLFSSL_CTX *ctx, WOLFSSL *ssl, char *receive_buffer);
 int setup_connection(const char *interface, int local_id, int remote_id);
 int setup_ssl(enum service_type type, WOLFSSL_CTX **new_ctx,
-        WOLFSSL_METHOD **new_method, WOLFSSL **new_ssl);
+        WOLFSSL_METHOD **new_method, WOLFSSL **new_ssl,
+        char **new_receive_buffer);
 #endif /* __CANCOMMON_H__ */

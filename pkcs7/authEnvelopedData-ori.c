@@ -78,6 +78,7 @@ static int write_file_buffer(const char* fileName, byte* in, word32 inSz)
     ret = (int)fwrite(in, 1, inSz, file);
     if (ret == 0) {
         printf("ERROR: writing buffer to output file\n");
+        fclose(file);
         return -1;
     }
     fclose(file);
