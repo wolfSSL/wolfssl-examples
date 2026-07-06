@@ -160,7 +160,7 @@ int wolfSSL_TLS_client(void *v_ctx, func_args *args)
                                         cliecc_cert_der_256,
                                         sizeof_cliecc_cert_der_256,
                                         WOLFSSL_FILETYPE_ASN1);
-        if(err != SSL_SUCCESS) {
+        if(ret != SSL_SUCCESS) {
             printf("ERROR: can't load client-certificate\n");
             ret = -1;
             goto exit_;

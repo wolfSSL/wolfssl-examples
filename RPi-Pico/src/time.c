@@ -36,12 +36,12 @@ int time_init()
     }
     printf("%d, %d, %d, %d, %d, %d\n",
            t.tm_year, t.tm_mon, t.tm_mday,
-           t.tm_hour, t.tm_min, &t.tm_sec);
+           t.tm_hour, t.tm_min, t.tm_sec);
         if (t.tm_year < 70)
         t.tm_year += 100; /* base year of 1900 */
     t.tm_mon--;
     epoch_base = mktime(&t);
-    printf("epoch base = %d\n", epoch_base);
+    printf("epoch base = %ld\n", epoch_base);
     return 0;
 
 }

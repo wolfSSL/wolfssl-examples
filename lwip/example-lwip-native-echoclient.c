@@ -65,7 +65,7 @@
 #endif
 
 #ifndef MAX_MSG_SIZE
-#define MAX_MSG_SIZE
+#define MAX_MSG_SIZE 1024
 #endif
 
 #define TEST_MSG "TLS **TEST 1** "
@@ -127,7 +127,7 @@ void tls_echoclient_connect(void)
         /* read a reply from the server */
         if (tlsWaitingForReply == 1) {
             memset(reply, 0, sizeof(reply));
-            ret = wolfSSL_read(ssl, reply, sizeof(reply));
+            ret = wolfSSL_read(ssl, reply, sizeof(reply) - 1);
             if (ret <= 0) {
                 err = wolfSSL_get_error(ssl, 0);
                 if (err != SSL_ERROR_WANT_READ &&
@@ -137,6 +137,7 @@ void tls_echoclient_connect(void)
                 }
             }
             if (ret > 0) {
+                reply[ret] = '\0';
                 loggingCb(0, reply);
                 shutdown(); /* received reply, done with connection */
             }
@@ -181,10 +182,7 @@ static int TLS_setup(void)
         return ERR_MEM;
     }
 
-#if 1
-    /* Disable peer certificate validation for testing */
-    wolfSSL_CTX_set_verify(ctx, WOLFSSL_VERIFY_NONE, NULL);
-#endif
+    wolfSSL_CTX_set_verify(ctx, WOLFSSL_VERIFY_PEER, NULL);
 
     ssl = wolfSSL_new(ctx);
     if (ssl == NULL) {
