@@ -158,6 +158,9 @@ int main(int argc, char** argv)
 
     TestAesCbc(&enc, &dec);
 
+    wc_AesFree(&enc);
+    wc_AesFree(&dec);
+
     wc_SECO_CloseHSM();
     wolfCrypt_Cleanup();
     return 0;

@@ -93,7 +93,11 @@ static int createSignature(ecc_key* key, byte* sigOut, word32* sigOutSz,
     int ret;
     WC_RNG rng;
 
-    wc_InitRng(&rng);
+    ret = wc_InitRng(&rng);
+    if (ret != 0) {
+        printf("wc_InitRng failed with error %d\n", ret);
+        return ret;
+    }
     ret = wc_ecc_sign_hash(msg, msgSz, sigOut, sigOutSz, &rng, key);
     if (ret != 0) {
         printf("sign hash failed with error %d\n", ret);
@@ -164,7 +168,12 @@ int main(int argc, char** argv)
         printf("Could not initialize wolfSSL library!\n");
         return -1;
     }
-    wc_InitRng(&rng);
+    ret = wc_InitRng(&rng);
+    if (ret != 0) {
+        printf("wc_InitRng failed with error %d\n", ret);
+        wolfCrypt_Cleanup();
+        return -1;
+    }
 
     XMEMSET(sig, 0, sigSz);
     ret = createEccKey(&rng, &hardKey, 32, WOLFSSL_CAAM_DEVID);
