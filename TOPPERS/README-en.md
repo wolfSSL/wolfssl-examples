@@ -123,6 +123,12 @@ If you have used the smart configurator to generate code for [r_bsp],[r_cmt_rx],
 Note:<br>
 `T4_Library_ether_ccrx_rxv1_little` may be an error in the linker immediately after configuration/build Clear There is, but `T4_Library_ether_ccrx_rxv1_little`` from [Linker]/[Archives]/[User defined archive (library) files (-I)]/[×] in [Settings] of the [Properties] dialog [C/C++ Build] of the project. Please delete it.
 
+3-10. Local Verification of ECC Configuration (USE_ECC_CERT)
+
+To locally compile and verify the build with ECC certificate support:
+1. Define the macro `USE_ECC_CERT` in `TOPPERS/WolfSSLDemo/src/wolfDemo/user_settings.h` (e.g., `#define USE_ECC_CERT`) or add it to the compiler preprocessor macros list in the e² studio project configuration.
+2. Build the project as described in step 3-8 to ensure that the code under `#if defined(USE_ECC_CERT)` compiles without errors.
+
 ### 3-1 Run Server Program
 
 3-1-1. Enable `#define WOLFSSL_SERVER_TEST` in `wolf_demo.h`. IP addres will be assigned by DHCP.

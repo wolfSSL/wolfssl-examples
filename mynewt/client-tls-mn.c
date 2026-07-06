@@ -35,7 +35,6 @@
 
 #include <shell/shell.h>
 #include <mn_socket/mn_socket.h>
-// #include <inet_def_service/inet_def_service.h>
 
 #include <assert.h>
 #include <string.h>
@@ -57,7 +56,7 @@ extern time_t time(time_t*);
 #define USE_CERT_BUFFERS_2048
 #include <wolfssl/certs_test.h>
 
-#define DEFAULT_IPADDR "93.184.216.34" // www.example.com
+#define DEFAULT_IPADDR "93.184.216.34" /* www.example.com */
 #define DEFAULT_PORT 443
 
 struct os_sem test_sem;
@@ -173,11 +172,11 @@ net_cli(int argc, char **argv)
         int port = DEFAULT_PORT;
 
         if(argc > 3) {
-            // get ip address from argument
+            /* get ip address from argument */
             addrStr = argv[2];
         }
         if(argc > 4) {
-            // get port number from argument
+            /* get port number from argument */
             char *eptr = NULL;
             port = strtoul(argv[3], &eptr, 0);
             if (*eptr != '\0') {
@@ -381,7 +380,7 @@ static WOLFSSL*     ssl = NULL;
 static int wolfssl_ctx_init() {
     if(wolfsslCtx && ssl) {
         console_printf("ERROR: already initialize WOLFSSL_CTX and ssl\n");
-        return -1; // already init
+        return -1; /* already init */
     }
 
     /* Create and initialize WOLFSSL_CTX */

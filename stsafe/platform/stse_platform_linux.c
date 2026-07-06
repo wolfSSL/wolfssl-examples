@@ -121,6 +121,9 @@ stse_ReturnCode_t stse_platform_i2c_send_continue(
     (void)speed;
 
     if (data_size != 0) {
+        if ((PLAT_UI32)i2c_tx_frame_offset + data_size > I2C_BUFFER_SIZE) {
+            return STSE_PLATFORM_BUFFER_ERR;
+        }
         if (pData == NULL) {
             memset((I2c_tx_buffer + i2c_tx_frame_offset), 0x00, data_size);
         } else {
@@ -150,6 +153,9 @@ stse_ReturnCode_t stse_platform_i2c_send_stop(
 
     /* Add final element if provided */
     if (pElement != NULL && element_size > 0) {
+        if ((PLAT_UI32)i2c_tx_frame_offset + element_size > I2C_BUFFER_SIZE) {
+            return STSE_PLATFORM_BUFFER_ERR;
+        }
         memcpy((I2c_tx_buffer + i2c_tx_frame_offset), pElement, element_size);
         i2c_tx_frame_offset += element_size;
     }
@@ -203,6 +209,7 @@ stse_ReturnCode_t stse_platform_i2c_send(
     return STSE_OK;
 }
 
+/* \note pFrame_payload must be at least I2C_BUFFER_SIZE bytes. */
 stse_ReturnCode_t stse_platform_i2c_receive(
     PLAT_UI8 busID,
     PLAT_UI8 devAddr,
@@ -242,6 +249,11 @@ stse_ReturnCode_t stse_platform_i2c_receive(
     }
 
     PLAT_UI16 payload_len = ((PLAT_UI16)len_bytes[0] << 8) | len_bytes[1];
+
+    if (payload_len > I2C_BUFFER_SIZE) {
+        return STSE_PLATFORM_BUFFER_ERR;
+    }
+
     *pFrame_payload_Length = payload_len;
 
     if (payload_len > 0 && pFrame_payload != NULL) {

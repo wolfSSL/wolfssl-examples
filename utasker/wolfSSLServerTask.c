@@ -104,6 +104,7 @@ int CacheRecvBuffer(UTASKER_RECVCTX* ctx, unsigned char* data,
 int ResetRecvBuffer(UTASKER_RECVCTX* ctx);
 int UTasker_Receive(WOLFSSL* ssl, char* buf, int sz, void* ctx);
 int UTasker_Send(WOLFSSL* ssl, char* buf, int sz, void* ctx);
+static void AbortServerTLSInit(void);
 
 /* ---------------------------- SOCKET LISTENERS --------------------------- */
 
@@ -171,6 +172,18 @@ static int fnServerListener(USOCKET Socket, unsigned char ucEvent,
 
 /* ------------------------------- APP TASK -------------------------------- */
 
+/*
+ * release resources acquired so far during serverTLSInit and abort setup
+ */
+static void AbortServerTLSInit(void)
+{
+    if (sslCtx != NULL) {
+        wolfSSL_CTX_free(sslCtx);
+        sslCtx = NULL;
+    }
+    wolfSSL_Cleanup();
+    serverState = serverIdle;
+}
 
 /*
  * wolfSSL server app task
@@ -208,7 +221,8 @@ extern void fnTLSServerTask(TTASKTABLE *ptrTaskTable)
         sslCtx = wolfSSL_CTX_new(wolfTLSv1_2_server_method());
         if (sslCtx == NULL) {
             fnDebugMsg("ERROR: wolfSSL_CTX_new() failed\r\n");
-            serverState = serverShutdown;
+            AbortServerTLSInit();
+            return;
         }
         else {
             fnDebugMsg("status: Created WOLFSSL_CTX\r\n");
@@ -220,7 +234,8 @@ extern void fnTLSServerTask(TTASKTABLE *ptrTaskTable)
             SSL_FILETYPE_ASN1);
         if (ret != SSL_SUCCESS) {
             fnDebugMsg("ERROR: wolfSSL_CTX_use_certificate_chain_buffer\r\n");
-            serverState = serverShutdown;
+            AbortServerTLSInit();
+            return;
         }
 
         /* load server private key */
@@ -229,7 +244,8 @@ extern void fnTLSServerTask(TTASKTABLE *ptrTaskTable)
             SSL_FILETYPE_ASN1);
         if (ret != SSL_SUCCESS) {
             fnDebugMsg("ERROR: wolfSSL_CTX_use_PrivateKey_buffer\r\n");
-            serverState = serverShutdown;
+            AbortServerTLSInit();
+            return;
         }
 
         /* register wolfSSL send/recv callbacks */
@@ -268,6 +284,7 @@ extern void fnTLSServerTask(TTASKTABLE *ptrTaskTable)
         if (ssl == NULL) {
             fnDebugMsg("ERROR: wolfSSL_new\r\n");
             serverState = serverShutdown;
+            return;
         }
         else {
             fnDebugMsg("status: Created WOLFSSL session object\r\n");

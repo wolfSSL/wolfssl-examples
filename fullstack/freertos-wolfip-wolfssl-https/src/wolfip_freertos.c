@@ -21,6 +21,7 @@
 
 #include "wolfip_freertos.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -36,8 +37,20 @@
 
 /* Implementation of wolfIP's required random number generator */
 uint32_t wolfIP_getrandom(void) {
-    uint32_t ret;
-    getrandom(&ret, sizeof(ret), 0);
+    uint32_t ret = 0;
+    size_t got = 0;
+
+    while (got < sizeof(ret)) {
+        ssize_t r = getrandom(((uint8_t*)&ret) + got, sizeof(ret) - got, 0);
+        if (r <= 0) {
+            if (r < 0 && errno == EINTR) {
+                continue;
+            }
+            fprintf(stderr, "getrandom() failed, aborting\n");
+            abort();
+        }
+        got += (size_t)r;
+    }
     return ret;
 }
 

@@ -388,6 +388,7 @@ extern void fnTLSClientTask(TTASKTABLE *ptrTaskTable)
         if (sslCtx == NULL) {
             fnDebugMsg("ERROR: wolfSSL_CTX_new() failed\r\n");
             clientState = clientShutdown;
+            return;
         }
         else {
             fnDebugMsg("status: Created WOLFSSL_CTX\r\n");
@@ -404,6 +405,7 @@ extern void fnTLSClientTask(TTASKTABLE *ptrTaskTable)
         if (ret != SSL_SUCCESS) {
             fnDebugMsg("ERROR: wolfSSL_CTX_load_verify_buffer\r\n");
             clientState = clientShutdown;
+            return;
         }
         else {
             fnDebugMsg("status: Loaded trusted CA certificates\r\n");
@@ -428,6 +430,7 @@ extern void fnTLSClientTask(TTASKTABLE *ptrTaskTable)
         if (ssl == NULL) {
             fnDebugMsg("ERROR: wolfSSL_new\r\n");
             clientState = clientShutdown;
+            return;
         }
         else {
             fnDebugMsg("status: Created WOLFSSL session object\r\n");
