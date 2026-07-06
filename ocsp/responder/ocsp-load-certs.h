@@ -26,8 +26,10 @@
 
 #include <wolfssl/wolfcrypt/wc_port.h> /* WC_MAYBE_UNUSED */
 #include <wolfssl/wolfcrypt/asn.h>     /* wc_CertPemToDer, wc_KeyPemToDer */
+#include <wolfssl/wolfcrypt/memory.h>  /* wc_ForceZero */
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 /* Load file into malloc'd buffer. Caller must free(*buf). */
 static WC_MAYBE_UNUSED byte* LoadFile(const char* path, int* outSz)
@@ -76,8 +78,17 @@ static WC_MAYBE_UNUSED byte* LoadKeyDer(const char* path, int* derSz)
     pem = LoadFile(path, &pemSz);
     if (!pem) return NULL;
     der = (byte*)malloc((size_t)pemSz);
-    if (!der) { free(pem); return NULL; }
+    if (!der) {
+        /* Zero the PEM buffer before releasing it, it may hold the
+         * unencrypted private key material. */
+        wc_ForceZero(pem, (word32)pemSz);
+        free(pem);
+        return NULL;
+    }
     ret = wc_KeyPemToDer(pem, pemSz, der, pemSz, NULL);
+    /* Zero the PEM buffer before releasing it since it may contain the
+     * unencrypted private key material. */
+    wc_ForceZero(pem, (word32)pemSz);
     free(pem);
     if (ret <= 0) { free(der); return NULL; }
     *derSz = ret;

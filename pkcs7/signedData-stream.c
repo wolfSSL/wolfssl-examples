@@ -345,6 +345,7 @@ int main(int argc, char** argv)
     }
     if (encryptedSz <= 0) {
         printf("error reading file %s\n", encodedFile);
+        ret = -1;
         goto out;
     }
     printf("read %d bytes from file\n", encryptedSz);

@@ -39,16 +39,21 @@ static ecc_key mGenKey;
 static void* do_it(void* args)
 {
     int ret;
+    int initKey = 0;
 
     InitMemoryTracker();
 
     ret = wc_ecc_init(&mGenKey);
     if (ret == 0) {
+        initKey = 1;
         ret = wc_ecc_make_key(&mRng, TEST_KEY_SZ, &mGenKey);
     }
     if (ret != 0) {
         printf("ecc make key failed %d\n", ret);
     }
+
+    if (initKey)
+        wc_ecc_free(&mGenKey);
 
     ShowMemoryTracker();
     CleanupMemoryTracker();

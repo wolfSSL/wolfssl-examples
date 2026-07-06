@@ -27,6 +27,7 @@
 #include <wolfssl/wolfcrypt/error-crypt.h>
 #include <wolfssl/wolfcrypt/logging.h>
 #include <wolfssl/wolfcrypt/cryptocb.h>
+#include <wolfssl/wolfcrypt/memory.h>
 #ifdef USE_PSA
 #include <wolfssl/wolfcrypt/port/psa/psa.h>
 #include <psa/crypto.h>
@@ -245,6 +246,7 @@ static int myCryptoCb(int devIdArg, wc_CryptoInfo* info, void* ctx)
 
                     ret = wc_InitRsaKey_ex(&rsaPriv, NULL, INVALID_DEVID);
                     if (ret != 0) {
+                        wc_ForceZero(der, derSz);
                         free(der);
                         return ret;
                     }
@@ -308,6 +310,7 @@ static int myCryptoCb(int devIdArg, wc_CryptoInfo* info, void* ctx)
 
             ret = wc_ecc_init_ex(&eccPriv, NULL, INVALID_DEVID);
             if (ret != 0) {
+                wc_ForceZero(der, derSz);
                 free(der);
                 return ret;
             }

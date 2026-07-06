@@ -265,8 +265,12 @@ cleanup:
     }
     wolfSSL_Cleanup();
     /* Reset the contents of the receive and send files for next run */
-    fclose(fopen(SR, "wb"));
-    fclose(fopen(CR, "wb"));
+    {
+        FILE* f = fopen(SR, "wb");
+        if (f != NULL) fclose(f);
+        f = fopen(CR, "wb");
+        if (f != NULL) fclose(f);
+    }
 
     return -1;
 }

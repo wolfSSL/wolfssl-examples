@@ -224,7 +224,11 @@ exit:
 
     XFREE(derBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
     XFREE(pemBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-    XFREE(caKeyBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    if (caKeyBuf != NULL) {
+        /* Zero the CA private key material before releasing the buffer. */
+        wc_ForceZero(caKeyBuf, LARGE_TEMP_SZ);
+        XFREE(caKeyBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    }
 
     if (initCaKey)
         wc_ecc_free(&caKey);

@@ -2,12 +2,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
 #include <unistd.h>
 
 /* wolfssl includes */
 #include <wolfssl/options.h>
 #include <wolfssl/wolfcrypt/dilithium.h>
 #include <wolfssl/wolfcrypt/random.h>
+#include <wolfssl/wolfcrypt/memory.h>
 
 struct ml_dsa_len_t {
     uint8_t      sec_cat;
@@ -50,7 +52,9 @@ main(int    argc,
     int          rc = 0;
     int          opt = 0;
     MlDsaKey     key;
+    int          initKey = 0;
     WC_RNG       rng;
+    int          initRng = 0;
     byte *       priv = NULL;
     byte *       pub = NULL;
     byte *       sig = NULL;
@@ -93,7 +97,12 @@ main(int    argc,
         ml_dsa_print_parms_and_die();
     }
 
-    wc_InitRng(&rng);
+    rc = wc_InitRng(&rng);
+    if (rc != 0) {
+        printf("error: wc_InitRng returned %d\n", rc);
+        goto ml_dsa_exit;
+    }
+    initRng = 1;
 
     rc = ml_dsa_sec_valid();
     if (rc < 0) {
@@ -105,6 +114,7 @@ main(int    argc,
         printf("error: wc_MlDsaKey_Init returned %d\n", rc);
         goto ml_dsa_exit;
     }
+    initKey = 1;
 
     rc = wc_MlDsaKey_SetParams(&key, sec_cat);
     if (rc != 0) {
@@ -243,11 +253,20 @@ main(int    argc,
 
     ml_dsa_exit:
 
-    wc_MlDsaKey_Free(&key);
-    wc_FreeRng(&rng);
+    if (initKey) {
+        wc_MlDsaKey_Free(&key);
+    }
+    if (initRng) {
+        wc_FreeRng(&rng);
+    }
 
     ml_dsa_free((void *) &sig);
     ml_dsa_free((void *) &pub);
+    /* priv holds the secret ML-DSA private key material, zero it before
+     * releasing the buffer. */
+    if (priv != NULL) {
+        wc_ForceZero(priv, (word32) ml_dsa_priv_len);
+    }
     ml_dsa_free((void *) &priv);
 
     return rc == 0 ? EXIT_SUCCESS : EXIT_FAILURE;

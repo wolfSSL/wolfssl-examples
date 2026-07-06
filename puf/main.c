@@ -31,6 +31,7 @@
 #include <wolfssl/wolfcrypt/puf.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
 #include <wolfssl/wolfcrypt/wc_port.h>
+#include <wolfssl/wolfcrypt/memory.h>
 
 #include <stdint.h>
 #include <stdio.h>
@@ -195,6 +196,8 @@ int main(void)
         else {
             printf("FAIL: Identity mismatch!\n");
             ret = -1;
+            wc_ForceZero(key2, sizeof(key2));
+            wc_ForceZero(identity2, sizeof(identity2));
             goto cleanup;
         }
 
@@ -202,6 +205,8 @@ int main(void)
         ret = wc_PufDeriveKey(&ctx, info, sizeof(info), key2, sizeof(key2));
         if (ret != 0) {
             printf("ERROR: wc_PufDeriveKey failed: %d\n", ret);
+            wc_ForceZero(key2, sizeof(key2));
+            wc_ForceZero(identity2, sizeof(identity2));
             goto cleanup;
         }
         print_hex("Derived key (reconstructed)", key2, WC_PUF_KEY_SZ);
@@ -212,6 +217,11 @@ int main(void)
         else {
             printf("FAIL: Derived key mismatch!\n");
             ret = -1;
+        }
+
+        wc_ForceZero(key2, sizeof(key2));
+        wc_ForceZero(identity2, sizeof(identity2));
+        if (ret != 0) {
             goto cleanup;
         }
     }
@@ -309,12 +319,16 @@ int main(void)
         else {
             printf("FAIL: Identity mismatch after reconstruction!\n");
             ret = -1;
+            wc_ForceZero(key2, sizeof(key2));
+            wc_ForceZero(identity2, sizeof(identity2));
             goto cleanup;
         }
 
         ret = wc_PufDeriveKey(&ctx, info, sizeof(info), key2, sizeof(key2));
         if (ret != 0) {
             printf("ERROR: wc_PufDeriveKey (reconstruct) failed: %d\n", ret);
+            wc_ForceZero(key2, sizeof(key2));
+            wc_ForceZero(identity2, sizeof(identity2));
             goto cleanup;
         }
         print_hex("Derived key (reconstructed)", key2, WC_PUF_KEY_SZ);
@@ -325,6 +339,11 @@ int main(void)
         else {
             printf("FAIL: Derived key mismatch after reconstruction!\n");
             ret = -1;
+        }
+
+        wc_ForceZero(key2, sizeof(key2));
+        wc_ForceZero(identity2, sizeof(identity2));
+        if (ret != 0) {
             goto cleanup;
         }
     }
@@ -334,6 +353,9 @@ int main(void)
 
 cleanup:
     /* Securely zeroize all PUF secrets */
+    wc_ForceZero(key, sizeof(key));
+    wc_ForceZero(identity, sizeof(identity));
+    wc_ForceZero(helperData, sizeof(helperData));
     wc_PufZeroize(&ctx);
     wolfCrypt_Cleanup();
 

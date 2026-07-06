@@ -103,7 +103,8 @@ int can_connect(const char *address, uint16_t filter)
     /* Set the filter */
     setsockopt(sock, SOL_CAN_RAW, CAN_RAW_FILTER, &rfilter, sizeof(rfilter));
 
-    strcpy(ifr.ifr_name, address);
+    strncpy(ifr.ifr_name, address, IFNAMSIZ - 1);
+    ifr.ifr_name[IFNAMSIZ - 1] = '\0';
     ioctl(sock, SIOCGIFINDEX, &ifr);
 
     memset(&addr, 0, sizeof(addr));
@@ -205,11 +206,11 @@ int setup_ssl(enum service_type type, WOLFSSL_CTX **new_ctx,
         return -1;
     }
 
-    wolfSSL_CTX_set_verify(ctx, WOLFSSL_VERIFY_NONE, NULL);
-
     if (type == SERVICE_TYPE_CLIENT) {
-        ret = wolfSSL_CTX_load_verify_locations(ctx, "client.pem", NULL);
+        wolfSSL_CTX_set_verify(ctx, WOLFSSL_VERIFY_PEER, NULL);
+        ret = wolfSSL_CTX_load_verify_locations(ctx, "ca.crt", NULL);
     } else {
+        wolfSSL_CTX_set_verify(ctx, WOLFSSL_VERIFY_NONE, NULL);
         ret = wolfSSL_CTX_use_certificate_file(ctx, "server.pem",
                 WOLFSSL_FILETYPE_PEM);
     }

@@ -29,11 +29,20 @@
 
 #include <wolfssl/options.h>
 #include <wolfssl/ssl.h>
+#include <wolfssl/wolfcrypt/wc_port.h>
+#include <wolfssl/wolfcrypt/memory.h>
 #include <wolfssl/wolfcrypt/aes.h>
 #include <wolfssl/wolfcrypt/random.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#ifndef XPRINTF
+    #define XPRINTF printf
+#endif
+#ifndef XFPRINTF
+    #define XFPRINTF fprintf
+#endif
 
 /* Default file for session export/import */
 #define DEFAULT_CLIENT_SESSION_FILE "dtls_client_session.bin"
@@ -83,7 +92,7 @@ int SaveEncryptedSession(const char* filename,
     /* Initialize RNG for IV generation */
     ret = wc_InitRng(&rng);
     if (ret != 0) {
-        printf("Error: wc_InitRng failed: %d\n", ret);
+        XPRINTF("Error: wc_InitRng failed: %d\n", ret);
         return -1;
     }
     rngInit = 1;
@@ -91,15 +100,15 @@ int SaveEncryptedSession(const char* filename,
     /* Generate random IV */
     ret = wc_RNG_GenerateBlock(&rng, iv, AES_BLOCK_SZ);
     if (ret != 0) {
-        printf("Error: Failed to generate IV: %d\n", ret);
+        XPRINTF("Error: Failed to generate IV: %d\n", ret);
         goto cleanup;
     }
 
     /* Allocate buffers */
-    paddedData = (unsigned char*)malloc(paddedSz);
-    encryptedData = (unsigned char*)malloc(paddedSz);
+    paddedData = (unsigned char*)XMALLOC(paddedSz, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+    encryptedData = (unsigned char*)XMALLOC(paddedSz, NULL, DYNAMIC_TYPE_TMP_BUFFER);
     if (paddedData == NULL || encryptedData == NULL) {
-        printf("Error: Memory allocation failed\n");
+        XPRINTF("Error: Memory allocation failed\n");
         ret = -1;
         goto cleanup;
     }
@@ -111,7 +120,7 @@ int SaveEncryptedSession(const char* filename,
     /* Initialize AES */
     ret = wc_AesInit(&aes, NULL, INVALID_DEVID);
     if (ret != 0) {
-        printf("Error: wc_AesInit failed: %d\n", ret);
+        XPRINTF("Error: wc_AesInit failed: %d\n", ret);
         goto cleanup;
     }
     aesInit = 1;
@@ -119,21 +128,21 @@ int SaveEncryptedSession(const char* filename,
     /* Set AES key for encryption */
     ret = wc_AesSetKey(&aes, AES_KEY, sizeof(AES_KEY), iv, AES_ENCRYPTION);
     if (ret != 0) {
-        printf("Error: wc_AesSetKey failed: %d\n", ret);
+        XPRINTF("Error: wc_AesSetKey failed: %d\n", ret);
         goto cleanup;
     }
 
     /* Encrypt the data */
     ret = wc_AesCbcEncrypt(&aes, encryptedData, paddedData, paddedSz);
     if (ret != 0) {
-        printf("Error: wc_AesCbcEncrypt failed: %d\n", ret);
+        XPRINTF("Error: wc_AesCbcEncrypt failed: %d\n", ret);
         goto cleanup;
     }
 
     /* Write to file */
     fp = fopen(filename, "wb");
     if (fp == NULL) {
-        printf("Error: Cannot open file %s for writing\n", filename);
+        XPRINTF("Error: Cannot open file %s for writing\n", filename);
         ret = -1;
         goto cleanup;
     }
@@ -146,7 +155,7 @@ int SaveEncryptedSession(const char* filename,
         sizeBuf[2] = (sessionSz >> 8) & 0xFF;
         sizeBuf[3] = sessionSz & 0xFF;
         if (fwrite(sizeBuf, 1, 4, fp) != 4) {
-            printf("Error: Failed to write size to file\n");
+            XPRINTF("Error: Failed to write size to file\n");
             ret = -1;
             goto cleanup;
         }
@@ -154,25 +163,31 @@ int SaveEncryptedSession(const char* filename,
 
     /* Write IV */
     if (fwrite(iv, 1, AES_BLOCK_SZ, fp) != AES_BLOCK_SZ) {
-        printf("Error: Failed to write IV to file\n");
+        XPRINTF("Error: Failed to write IV to file\n");
         ret = -1;
         goto cleanup;
     }
 
     /* Write encrypted data */
     if (fwrite(encryptedData, 1, paddedSz, fp) != paddedSz) {
-        printf("Error: Failed to write encrypted data to file\n");
+        XPRINTF("Error: Failed to write encrypted data to file\n");
         ret = -1;
         goto cleanup;
     }
 
-    printf("Session saved to %s (%u bytes encrypted)\n", filename, paddedSz);
+    XPRINTF("Session saved to %s (%u bytes encrypted)\n", filename, paddedSz);
     ret = 0;
 
 cleanup:
     if (fp != NULL) fclose(fp);
-    if (paddedData != NULL) free(paddedData);
-    if (encryptedData != NULL) free(encryptedData);
+    if (paddedData != NULL) {
+        wc_ForceZero(paddedData, paddedSz);
+        XFREE(paddedData, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+    }
+    if (encryptedData != NULL) {
+        wc_ForceZero(encryptedData, paddedSz);
+        XFREE(encryptedData, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+    }
     if (aesInit) wc_AesFree(&aes);
     if (rngInit) wc_FreeRng(&rng);
 
@@ -183,9 +198,14 @@ cleanup:
  * Load and decrypt session data from file
  * Returns allocated session data (caller must free), or NULL on error
  * sessionSz is set to the size of the returned data
+ * allocSz, if non-NULL, is set to the full allocated size of the returned
+ * bufSz, if non-NULL, is set to the full allocated size of the returned
+ * buffer (>= *sessionSz), for callers that need to wc_ForceZero() the
+ * entire allocation before freeing it
  */
 unsigned char* LoadEncryptedSession(const char* filename,
-                                    unsigned int* sessionSz)
+                                    unsigned int* sessionSz,
+                                    unsigned int* bufSz)
 {
     FILE* fp = NULL;
     Aes aes;
@@ -202,7 +222,7 @@ unsigned char* LoadEncryptedSession(const char* filename,
     /* Open file */
     fp = fopen(filename, "rb");
     if (fp == NULL) {
-        printf("Error: Cannot open file %s for reading\n", filename);
+        XPRINTF("Error: Cannot open file %s for reading\n", filename);
         return NULL;
     }
 
@@ -212,14 +232,14 @@ unsigned char* LoadEncryptedSession(const char* filename,
     fseek(fp, 0, SEEK_SET);
 
     if (fileSize < (4 + AES_BLOCK_SZ + AES_BLOCK_SZ)) {
-        printf("Error: File too small to contain valid session data\n");
+        XPRINTF("Error: File too small to contain valid session data\n");
         fclose(fp);
         return NULL;
     }
 
     /* Read original size */
     if (fread(sizeBuf, 1, 4, fp) != 4) {
-        printf("Error: Failed to read size from file\n");
+        XPRINTF("Error: Failed to read size from file\n");
         fclose(fp);
         return NULL;
     }
@@ -230,7 +250,7 @@ unsigned char* LoadEncryptedSession(const char* filename,
 
     /* Read IV */
     if (fread(iv, 1, AES_BLOCK_SZ, fp) != AES_BLOCK_SZ) {
-        printf("Error: Failed to read IV from file\n");
+        XPRINTF("Error: Failed to read IV from file\n");
         fclose(fp);
         return NULL;
     }
@@ -239,16 +259,16 @@ unsigned char* LoadEncryptedSession(const char* filename,
     encryptedSz = (unsigned int)(fileSize - 4 - AES_BLOCK_SZ);
 
     /* Allocate buffers */
-    encryptedData = (unsigned char*)malloc(encryptedSz);
-    decryptedData = (unsigned char*)malloc(encryptedSz);
+    encryptedData = (unsigned char*)XMALLOC(encryptedSz, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+    decryptedData = (unsigned char*)XMALLOC(encryptedSz, NULL, DYNAMIC_TYPE_TMP_BUFFER);
     if (encryptedData == NULL || decryptedData == NULL) {
-        printf("Error: Memory allocation failed\n");
+        XPRINTF("Error: Memory allocation failed\n");
         goto cleanup;
     }
 
     /* Read encrypted data */
     if (fread(encryptedData, 1, encryptedSz, fp) != encryptedSz) {
-        printf("Error: Failed to read encrypted data from file\n");
+        XPRINTF("Error: Failed to read encrypted data from file\n");
         goto cleanup;
     }
     fclose(fp);
@@ -257,7 +277,7 @@ unsigned char* LoadEncryptedSession(const char* filename,
     /* Initialize AES */
     ret = wc_AesInit(&aes, NULL, INVALID_DEVID);
     if (ret != 0) {
-        printf("Error: wc_AesInit failed: %d\n", ret);
+        XPRINTF("Error: wc_AesInit failed: %d\n", ret);
         goto cleanup;
     }
     aesInit = 1;
@@ -265,36 +285,48 @@ unsigned char* LoadEncryptedSession(const char* filename,
     /* Set AES key for decryption */
     ret = wc_AesSetKey(&aes, AES_KEY, sizeof(AES_KEY), iv, AES_DECRYPTION);
     if (ret != 0) {
-        printf("Error: wc_AesSetKey failed: %d\n", ret);
+        XPRINTF("Error: wc_AesSetKey failed: %d\n", ret);
         goto cleanup;
     }
 
     /* Decrypt the data */
     ret = wc_AesCbcDecrypt(&aes, decryptedData, encryptedData, encryptedSz);
     if (ret != 0) {
-        printf("Error: wc_AesCbcDecrypt failed: %d\n", ret);
+        XPRINTF("Error: wc_AesCbcDecrypt failed: %d\n", ret);
         goto cleanup;
     }
 
     /* Verify padding and original size */
     if (originalSz > encryptedSz) {
-        printf("Error: Invalid original size in file\n");
+        XPRINTF("Error: Invalid original size in file\n");
         goto cleanup;
     }
 
     *sessionSz = originalSz;
-    printf("Session loaded from %s (%u bytes)\n", filename, originalSz);
+    if (bufSz != NULL) {
+        *bufSz = encryptedSz;
+    }
+    XPRINTF("Session loaded from %s (%u bytes)\n", filename, originalSz);
 
     /* Clean up and return decrypted data */
-    if (encryptedData != NULL) free(encryptedData);
+    if (encryptedData != NULL) {
+        wc_ForceZero(encryptedData, encryptedSz);
+        XFREE(encryptedData, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+    }
     if (aesInit) wc_AesFree(&aes);
 
     return decryptedData;
 
 cleanup:
     if (fp != NULL) fclose(fp);
-    if (encryptedData != NULL) free(encryptedData);
-    if (decryptedData != NULL) free(decryptedData);
+    if (encryptedData != NULL) {
+        wc_ForceZero(encryptedData, encryptedSz);
+        XFREE(encryptedData, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+    }
+    if (decryptedData != NULL) {
+        wc_ForceZero(decryptedData, encryptedSz);
+        XFREE(decryptedData, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+    }
     if (aesInit) wc_AesFree(&aes);
 
     return NULL;
