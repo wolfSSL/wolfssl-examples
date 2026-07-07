@@ -675,11 +675,13 @@ int decrypt_file(const char *in_file, const char *out_file, const char *key_str)
     ctx = EVP_CIPHER_CTX_new();
     if (ctx == NULL) {
         perror("EVP_CIPHER_CTX_new");
+        ret = -1;
         goto exit;
     }
     if (EVP_DecryptInit_ex(ctx, EVP_aes_256_gcm(), NULL, key, iv) !=
         WOLFSSL_SUCCESS) {
         perror("EVP_DecryptInit_ex");
+        ret = -1;
         goto exit;
     }
     while (1) {
@@ -689,7 +691,8 @@ int decrypt_file(const char *in_file, const char *out_file, const char *key_str)
 
         if (EVP_DecryptUpdate(ctx, out_buf, &out_len, in_buf, in_len) !=
                 WOLFSSL_SUCCESS) {
-            perror("EVP_DecryptInit_ex");
+            perror("EVP_DecryptUpdate");
+            ret = -1;
             goto exit;
         }
         if (write(out_fd, out_buf, out_len) != out_len) {
@@ -702,10 +705,12 @@ int decrypt_file(const char *in_file, const char *out_file, const char *key_str)
     if (EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_AEAD_SET_TAG, AES_IV_SIZE, tag_enc)
             != WOLFSSL_SUCCESS) {
         perror("EVP_CIPHER_CTX_ctrl");
+        ret = -1;
         goto exit;
     }
     if (EVP_DecryptFinal_ex(ctx, out_buf, &out_len) != WOLFSSL_SUCCESS) {
-        perror("EVP_DecryptInit_ex");
+        perror("EVP_DecryptFinal_ex");
+        ret = AES_GCM_AUTH_E;
         goto exit;
     }
     if (write(out_fd, out_buf, out_len) != out_len) {
