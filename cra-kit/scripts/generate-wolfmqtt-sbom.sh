@@ -34,15 +34,17 @@ set -eu
 # Enable pipefail when the shell supports it (bash/ksh/some dash builds).
 # Plain POSIX sh may not; tolerate its absence so the script still runs.
 # shellcheck disable=SC3040
-(set -o pipefail) 2>/dev/null && set -o pipefail || true
+if (set -o pipefail) 2>/dev/null; then set -o pipefail; fi
 
 SCRIPT_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 KIT_DIR=$(dirname "$SCRIPT_DIR")
 
 # Shared source-extraction helper (Keil/IAR/Makefile/compile_commands.json).
+# shellcheck disable=SC1091  # sourced helper, resolved at runtime
 . "$SCRIPT_DIR/_cra-sbom-extract.sh"
 
 # shellcheck disable=SC2015
+# shellcheck disable=SC2015  # fallback to unset on cd failure is intentional
 WOLFSSL_DIR=${WOLFSSL_DIR:-$(cd "$KIT_DIR/../../wolfssl" 2>/dev/null && pwd || true)}
 WOLFMQTT_DIR=${WOLFMQTT_DIR:-}
 

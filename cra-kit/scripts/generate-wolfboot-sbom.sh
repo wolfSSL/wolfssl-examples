@@ -44,10 +44,12 @@ _cra_auto_tempfiles=""
 trap 'rm -f ${_auto_tempfiles:-} ${_cra_auto_tempfiles:-}' EXIT
 
 # shellcheck source=_cra-sbom-extract.sh disable=SC1091
+# shellcheck disable=SC1091  # sourced helper, resolved at runtime
 . "$SCRIPT_DIR/_cra-sbom-extract.sh"
 
 # Default wolfBoot directory: sibling of the wolfssl-examples checkout.
 # shellcheck disable=SC2015
+# shellcheck disable=SC2015  # fallback to unset on cd failure is intentional
 WOLFBOOT_DIR=${WOLFBOOT_DIR:-$(cd "$KIT_DIR/../../wolfBoot" 2>/dev/null && pwd || true)}
 
 if [ -z "${WOLFBOOT_DIR:-}" ] || [ ! -d "$WOLFBOOT_DIR" ]; then

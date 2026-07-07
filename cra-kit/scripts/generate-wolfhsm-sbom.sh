@@ -25,6 +25,7 @@
 #                                 WARNING: not suitable for production compliance)
 set -eu
 
+# shellcheck disable=SC1091  # sourced helper, resolved at runtime
 . "$(dirname "$0")/_cra-sbom-extract.sh"
 
 # Accumulator for temp files; cleaned up on exit. The shared extraction library
@@ -38,6 +39,7 @@ KIT_DIR=$(dirname "$SCRIPT_DIR")
 
 # Locate WOLFSSL_DIR (default: sibling of wolfssl-examples).
 # shellcheck disable=SC2015
+# shellcheck disable=SC2015  # fallback to unset on cd failure is intentional
 WOLFSSL_DIR=${WOLFSSL_DIR:-$(cd "$KIT_DIR/../../wolfssl" 2>/dev/null && pwd || true)}
 # WOLFHSM_DIR has no sensible default; must be explicit.
 WOLFHSM_DIR=${WOLFHSM_DIR:-}
@@ -134,7 +136,7 @@ else
 
     # Allow WOLFHSM_BUILD_DIR to feed compile_commands.json extraction. The
     # shared library reads CRA_SBOM_BUILD_DIR; map our env var onto it.
-    CRA_SBOM_BUILD_DIR="${WOLFHSM_BUILD_DIR:-}"
+    CRA_SBOM_BUILD_DIR="${CRA_SBOM_BUILD_DIR:-${WOLFHSM_BUILD_DIR:-}}"
 
     _cra_rc=0
     _cra_extract_srcs "$WOLFHSM_DIR" "wolfhsm" "$_srcs_file" || _cra_rc=$?

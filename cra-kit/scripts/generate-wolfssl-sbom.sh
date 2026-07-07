@@ -43,9 +43,11 @@ trap 'rm -f ${_auto_tempfiles:-} ${_cra_auto_tempfiles:-}' EXIT
 
 SCRIPT_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 # shellcheck source=_cra-sbom-extract.sh disable=SC1091
+# shellcheck disable=SC1091  # sourced helper, resolved at runtime
 . "$SCRIPT_DIR/_cra-sbom-extract.sh"
 KIT_DIR=$(dirname "$SCRIPT_DIR")
 # shellcheck disable=SC2015  # `|| true` is a deliberate set -e guard, not if-then-else
+# shellcheck disable=SC2015  # fallback to unset on cd failure is intentional
 WOLFSSL_DIR=${WOLFSSL_DIR:-$(cd "$KIT_DIR/../../wolfssl" 2>/dev/null && pwd || true)}
 OUT_DIR=${CRA_SBOM_OUT_DIR:-"$KIT_DIR/auditor-packet/wolfssl-component"}
 VERSION_FILE="$KIT_DIR/VERSION"

@@ -43,6 +43,7 @@ set -eu
 # Why: mktemp temp files must not leak if any later command fails under set -e;
 # a single EXIT trap removes them on every exit path including errors.
 _auto_tempfiles=""
+_cra_auto_tempfiles=""
 # _cra_auto_tempfiles is populated by _cra-sbom-extract.sh's helpers; clean both.
 trap 'rm -f ${_auto_tempfiles:-} ${_cra_auto_tempfiles:-}' EXIT
 
@@ -50,9 +51,12 @@ SCRIPT_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 KIT_DIR=$(dirname "$SCRIPT_DIR")
 
 # shared extraction methods (Keil, IAR, Makefile, compile_commands.json)
+# shellcheck disable=SC1091  # sourced helper, resolved at runtime
 . "$SCRIPT_DIR/_cra-sbom-extract.sh"
 # shellcheck disable=SC2015  # `|| true` is a deliberate set -e guard, not if-then-else
+# shellcheck disable=SC2015  # fallback to unset on cd failure is intentional
 WOLFSSL_DIR=${WOLFSSL_DIR:-$(cd "$KIT_DIR/../../wolfssl" 2>/dev/null && pwd || true)}
+# shellcheck disable=SC2015  # fallback to unset on cd failure is intentional
 WOLFSSH_DIR=${WOLFSSH_DIR:-$(cd "$KIT_DIR/../../wolfSSH" 2>/dev/null && pwd || true)}
 OUT_DIR=${CRA_SBOM_OUT_DIR:-"$KIT_DIR/auditor-packet/wolfssh-component"}
 

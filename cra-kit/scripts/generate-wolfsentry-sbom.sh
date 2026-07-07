@@ -24,6 +24,7 @@ SCRIPT_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 KIT_DIR=$(dirname "$SCRIPT_DIR")
 
 # shellcheck disable=SC2015
+# shellcheck disable=SC2015  # fallback to unset on cd failure is intentional
 WOLFSENTRY_DIR=${WOLFSENTRY_DIR:-$(cd "$KIT_DIR/../../wolfsentry" 2>/dev/null && pwd || true)}
 OUT_DIR=${CRA_SBOM_OUT_DIR:-"$KIT_DIR/auditor-packet/wolfsentry-component"}
 
