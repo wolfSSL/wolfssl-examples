@@ -287,6 +287,14 @@ pq/ml_dsa/ml_dsa_test
 pq/ml_dsa/*.bin
 pq/ml_dsa/*.key
 
+# PQC crypto-proxy
+pq/pqc_proxy/pq-proxy
+pq/pqc_proxy/pq-client
+pq/pqc_proxy/legacy-server
+pq/pqc_proxy/upgrade-proxy
+pq/pqc_proxy/legacy-client
+pq/pqc_proxy/pq-server
+
 embedded/tls-client-server
 embedded/tls-server-size
 embedded/tls-sock-client
