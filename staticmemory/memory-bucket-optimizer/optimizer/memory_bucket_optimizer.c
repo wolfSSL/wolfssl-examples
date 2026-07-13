@@ -45,6 +45,7 @@ typedef struct AllocationEventNode {
     struct AllocationEventNode* next;
 } AllocationEventNode;
 AllocationEventNode* event_head = NULL;
+static AllocationEventNode* event_tail = NULL;
 
 /* Linked list node for unique allocation sizes */
 typedef struct AllocSizeNode {
@@ -94,11 +95,11 @@ void add_allocation_event(AllocationEventNode** list, int size, int timestamp,
     if (node) {
         if (*list == NULL) {
             event_head = node;
-            *list = node;
+            *list = node;  /* Caller's pointer keeps referencing the head */
         } else {
-            (*list)->next = node;
-            *list = node;  /* Update the list pointer to point to the new node */
+            event_tail->next = node;  /* Append via the tail, not the head */
         }
+        event_tail = node;
     }
 }
 
