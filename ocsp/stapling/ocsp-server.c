@@ -288,6 +288,11 @@ cleanup:
     if (connfd >= 0) close(connfd);
     if (listenfd >= 0) close(listenfd);
     if (ctx) wolfSSL_CTX_free(ctx);
+    if (ocsp_resp) {
+        XFREE(ocsp_resp, NULL, DYNAMIC_TYPE_OCSP);
+        ocsp_resp = NULL;
+        ocsp_resp_sz = 0;
+    }
     wolfSSL_Cleanup();
     return ret;
 }

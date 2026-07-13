@@ -382,7 +382,11 @@ cleanup:
     if (responder) wc_OcspResponder_free(responder);
     if (caCertInit) wc_FreeDecodedCert(&caCert);
     free(caCertDer);
-    free(caKeyDer);
+    if (caKeyDer) {
+        /* Zero the CA private key material before releasing the buffer. */
+        wc_ForceZero(caKeyDer, (word32)caKeyDerSz);
+        free(caKeyDer);
+    }
     wolfSSL_Cleanup();
     return ret;
 }
