@@ -75,6 +75,7 @@ static int write_file_buffer(const char* fileName, byte* in, word32 inSz)
     ret = (int)fwrite(in, 1, inSz, file);
     if (ret == 0) {
         printf("ERROR: writing buffer to output file\n");
+        fclose(file);
         return -1;
     }
     fclose(file);
@@ -94,9 +95,10 @@ static int authEnvelopedData_encrypt(byte* cert, word32 certSz, byte* key,
         return -1;
 
     ret = wc_InitRng(&rng);
-    if(ret != 0){
-       printf("wc_InitRng() failed, ret = %d\n", ret);
-       return -1;
+    if (ret != 0) {
+        printf("wc_InitRng() failed, ret = %d\n", ret);
+        wc_PKCS7_Free(pkcs7);
+        return -1;
     }
 
     pkcs7->content     = (byte*)data;
@@ -104,7 +106,7 @@ static int authEnvelopedData_encrypt(byte* cert, word32 certSz, byte* key,
     pkcs7->contentOID  = DATA;
     pkcs7->encryptOID  = AES256GCMb;
     pkcs7->rng         = &rng;
-    
+
     /* add recipient using ECC certificate (KARI type) */
     ret = wc_PKCS7_AddRecipient_KARI(pkcs7, cert, certSz, AES256_WRAP,
                                      dhSinglePass_stdDH_sha256kdf_scheme,
@@ -112,6 +114,7 @@ static int authEnvelopedData_encrypt(byte* cert, word32 certSz, byte* key,
     if (ret < 0) {
         printf("wc_PKCS7_AddRecipient_KARI() failed, ret = %d\n", ret);
         wc_PKCS7_Free(pkcs7);
+        wc_FreeRng(&rng);
         return -1;
     }
 
@@ -120,6 +123,7 @@ static int authEnvelopedData_encrypt(byte* cert, word32 certSz, byte* key,
     if (ret <= 0) {
         printf("wc_PKCS7_EncodeAuthEnvelopedData() failed, ret = %d\n", ret);
         wc_PKCS7_Free(pkcs7);
+        wc_FreeRng(&rng);
         return -1;
 
     } else {
@@ -128,6 +132,8 @@ static int authEnvelopedData_encrypt(byte* cert, word32 certSz, byte* key,
 
         if (write_file_buffer(encodedFileKARI, out, ret) != 0) {
             printf("ERROR: error writing encoded to output file\n");
+            wc_PKCS7_Free(pkcs7);
+            wc_FreeRng(&rng);
             return -1;
         }
     }
@@ -151,9 +157,10 @@ static int authEnvelopedData_decrypt(byte* in, word32 inSz, byte* cert,
         return -1;
 
     ret = wc_InitRng(&rng);
-    if(ret != 0){
-       printf("wc_InitRng() failed, ret = %d\n", ret);
-       return -1;
+    if (ret != 0) {
+        printf("wc_InitRng() failed, ret = %d\n", ret);
+        wc_PKCS7_Free(pkcs7);
+        return -1;
     }
 
     /* init with recipient cert */
@@ -161,6 +168,7 @@ static int authEnvelopedData_decrypt(byte* in, word32 inSz, byte* cert,
     if (ret != 0) {
         printf("ERROR: wc_PKCS7_InitWithCert(), ret = %d\n", ret);
         wc_PKCS7_Free(pkcs7);
+        wc_FreeRng(&rng);
         return -1;
     }
 
@@ -169,6 +177,7 @@ static int authEnvelopedData_decrypt(byte* in, word32 inSz, byte* cert,
     if (ret != 0) {
         printf("ERROR: wc_PKCS7_SetKey(), ret = %d\n", ret);
         wc_PKCS7_Free(pkcs7);
+        wc_FreeRng(&rng);
         return -1;
     }
 
@@ -179,6 +188,7 @@ static int authEnvelopedData_decrypt(byte* in, word32 inSz, byte* cert,
     if (ret <= 0 || (ret != sizeof(data)) || (XMEMCMP(out, data, ret) != 0)) {
         printf("ERROR: wc_PKCS7_DecodeAuthEnvelopedData(), ret = %d\n", ret);
         wc_PKCS7_Free(pkcs7);
+        wc_FreeRng(&rng);
         return -1;
 
     } else {

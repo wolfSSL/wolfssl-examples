@@ -56,6 +56,7 @@ int main(int argc, char** argv)
     word32 singleCertDerSz;     /* tmp size of one DER cert in decoded PKCS7 */
     byte*  singleCertPem;
     word32 singleCertPemSz;
+    int    pemRet;
     FILE* file;
 
 #ifdef DEBUG_WOLFSSL
@@ -114,14 +115,15 @@ int main(int argc, char** argv)
         XMEMSET(singleCertPem, 0, singleCertPemSz);
 
         /* convert DER to PEM */
-        singleCertPemSz = wc_DerToPem(singleCertDer, singleCertDerSz,
+        pemRet = wc_DerToPem(singleCertDer, singleCertDerSz,
                                       singleCertPem, singleCertPemSz,
                                       CERT_TYPE);
-        if (singleCertPemSz < 0) {
-            printf("Error converting DER to PEM, ret = %d\n", singleCertPemSz);
+        if (pemRet < 0) {
+            printf("Error converting DER to PEM, ret = %d\n", pemRet);
             XFREE(singleCertPem, NULL, DYNAMIC_TYPE_TMP_BUFFER);
             break;
         }
+        singleCertPemSz = (word32)pemRet;
         printf("converted DER to PEM, pemSz = %d\n", singleCertPemSz);
         printf("CERT [%d] PEM:\n", i);
 
