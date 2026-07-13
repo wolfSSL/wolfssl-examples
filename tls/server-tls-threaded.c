@@ -73,6 +73,7 @@ void* ClientHandler(void* args)
     /* Create a WOLFSSL object */
     if ((ssl = wolfSSL_new(pkg->ctx)) == NULL) {
         fprintf(stderr, "ERROR: failed to create WOLFSSL object\n");
+        close(pkg->connd);
         pkg->open = 1;
         pthread_exit(NULL);
     }
@@ -90,6 +91,8 @@ void* ClientHandler(void* args)
         printf("ret = %d\n", ret);
         fprintf(stderr, "wolfSSL_accept error = %d\n",
             wolfSSL_get_error(ssl, ret));
+        wolfSSL_free(ssl);
+        close(pkg->connd);
         pkg->open = 1;
         pthread_exit(NULL);
     }

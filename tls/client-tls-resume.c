@@ -180,6 +180,7 @@ int main(int argc, char** argv)
     wolfSSL_free(ssl);
     ssl = NULL;
     close(sockfd);
+    sockfd = SOCKET_INVALID;
 
 
     /* --------------------------------------- *
@@ -275,6 +276,8 @@ exit:
     /* Cleanup and return */
     if (ssl)
         wolfSSL_free(ssl);      /* Free the wolfSSL object              */
+    if (sslRes)
+        wolfSSL_free(sslRes);   /* Free the resumed wolfSSL object      */
     if (session)
         wolfSSL_SESSION_free(session);
     if (sockfd != SOCKET_INVALID)
