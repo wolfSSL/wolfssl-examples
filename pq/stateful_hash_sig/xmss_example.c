@@ -129,6 +129,7 @@ write_key_file(const byte * priv,
     if (n_write != privSz) {
         fprintf(stderr, "error: wrote %zu, expected %d: %d\n", n_write, privSz,
                 ferror(file));
+        fclose(file);
         return WC_XMSS_RC_WRITE_FAIL;
     }
 
@@ -142,12 +143,16 @@ write_key_file(const byte * priv,
     if (n_read != n_write) {
         fprintf(stderr, "error: read %zu, expected %zu: %d\n", n_read, n_write,
                 ferror(file));
+        fclose(file);
+        wc_ForceZero(read_buf, privSz);
         return WC_XMSS_RC_WRITE_FAIL;
     }
 
     n_cmp = XMEMCMP(read_buf, priv, n_write);
+    wc_ForceZero(read_buf, privSz);
     if (n_cmp != 0) {
         fprintf(stderr, "error: write data was corrupted: %d\n", n_cmp);
+        fclose(file);
         return WC_XMSS_RC_WRITE_FAIL;
     }
 
@@ -187,6 +192,7 @@ read_key_file(byte * priv,
     if (n_read != privSz) {
         fprintf(stderr, "error: read %zu, expected %d: %d\n", n_read, privSz,
                 ferror(file));
+        fclose(file);
         return WC_XMSS_RC_READ_FAIL;
     }
 
@@ -208,6 +214,8 @@ do_xmss_example(const char * params,
     word32       sigSz = 0;
     word32       privSz = 0;
     word32       pubSz = 0;
+    int          initSigningKey = 0;
+    int          initVerifyKey = 0;
 
     printf("using parameters: %s\n", params);
 
@@ -216,12 +224,14 @@ do_xmss_example(const char * params,
         fprintf(stderr, "error: wc_XmssKey_Init returned %d\n", ret);
         goto exit_xmss_example;
     }
+    initSigningKey = 1;
 
     ret = wc_XmssKey_Init(&verifyKey, NULL, 0);
     if (ret) {
         fprintf(stderr, "error: wc_XmssKey_Init returned %d\n", ret);
         goto exit_xmss_example;
     }
+    initVerifyKey = 1;
 
     ret = wc_XmssKey_SetParamStr(&signingKey, params);
     if (ret) {
@@ -343,12 +353,15 @@ exit_xmss_example:
     }
 
     if (read_buf != NULL) {
+        wc_ForceZero(read_buf, privSz);
         free(read_buf);
         read_buf = NULL;
     }
 
-    wc_XmssKey_Free(&signingKey);
-    wc_XmssKey_Free(&verifyKey);
+    if (initSigningKey)
+        wc_XmssKey_Free(&signingKey);
+    if (initVerifyKey)
+        wc_XmssKey_Free(&verifyKey);
 
     return ret;
 }
@@ -413,6 +426,7 @@ do_xmss_example(const char * params,
     word32  pubSz = 0;
     byte    pub[XMSS_SHA256_PUBLEN];
     byte    msg[32];
+    int     initVerifyKey = 0;
 
     printf("using parameters: %s\n", params);
 
@@ -421,6 +435,7 @@ do_xmss_example(const char * params,
         fprintf(stderr, "error: wc_XmssKey_Init returned %d\n", ret);
         goto exit_xmss_example;
     }
+    initVerifyKey = 1;
 
     ret = wc_XmssKey_SetParamStr(&verifyKey, params);
     if (ret) {
@@ -497,7 +512,8 @@ exit_xmss_example:
         sig = NULL;
     }
 
-    wc_XmssKey_Free(&verifyKey);
+    if (initVerifyKey)
+        wc_XmssKey_Free(&verifyKey);
 
     return ret;
 }

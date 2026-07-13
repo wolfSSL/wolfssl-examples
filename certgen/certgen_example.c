@@ -26,6 +26,7 @@
 #include <wolfssl/wolfcrypt/asn_public.h>
 #include <wolfssl/wolfcrypt/asn.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
+#include <wolfssl/wolfcrypt/memory.h>
 
 #if defined(WOLFSSL_CERT_REQ) && defined(WOLFSSL_CERT_GEN) && \
     defined(WOLFSSL_KEY_GEN) && defined(HAVE_ECC)
@@ -255,6 +256,8 @@ exit:
 
     XFREE(derBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
     XFREE(pemBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    if (caKeyBuf != NULL)
+        wc_ForceZero(caKeyBuf, LARGE_TEMP_SZ);
     XFREE(caKeyBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
 
     if (initCaKey)

@@ -26,6 +26,7 @@
 #include <wolfssl/wolfcrypt/asn_public.h>
 #include <wolfssl/wolfcrypt/asn.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
+#include <wolfssl/wolfcrypt/memory.h>
 
 /* Check if the internal asn API's are available */
 #if defined(WOLFSSL_TEST_CERT) || defined(OPENSSL_EXTRA) || \
@@ -327,7 +328,11 @@ static int do_csrsign(int argc, char** argv)
 
 exit:
 
+    if (derBuf != NULL)
+        wc_ForceZero(derBuf, LARGE_TEMP_SZ);
     XFREE(derBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    if (pemBuf != NULL)
+        wc_ForceZero(pemBuf, LARGE_TEMP_SZ);
     XFREE(pemBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
     XFREE(caCertBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
 

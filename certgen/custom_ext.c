@@ -27,6 +27,7 @@
 #include <wolfssl/wolfcrypt/asn_public.h>
 #include <wolfssl/wolfcrypt/asn.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
+#include <wolfssl/wolfcrypt/memory.h>
 
 #if defined(WOLFSSL_ASN_TEMPLATE) && defined(WOLFSSL_CERT_GEN) && \
     defined(WOLFSSL_KEY_GEN) && defined(WOLFSSL_CUSTOM_OID) && \
@@ -109,7 +110,8 @@ static int do_certgen(int argc, char** argv)
 
     printf("Successfully read %d bytes from %s\n", caKeySz, caKeyFile);
 
-    wc_ecc_init(&caKey);
+    ret = wc_ecc_init(&caKey);
+    if (ret != 0) goto exit;
     initCaKey = 1;
 
     printf("Decoding the CA private key\n");
@@ -224,7 +226,11 @@ exit:
 
     XFREE(derBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
     XFREE(pemBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
-    XFREE(caKeyBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    if (caKeyBuf != NULL) {
+        /* Zero the CA private key material before releasing the buffer. */
+        wc_ForceZero(caKeyBuf, LARGE_TEMP_SZ);
+        XFREE(caKeyBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    }
 
     if (initCaKey)
         wc_ecc_free(&caKey);
