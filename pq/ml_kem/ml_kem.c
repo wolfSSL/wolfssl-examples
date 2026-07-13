@@ -26,9 +26,10 @@
     #include <wolfssl/options.h>
 #endif
 #include <wolfssl/wolfcrypt/settings.h>
-#include <wolfssl/wolfcrypt/mlkem.h>
 #include <wolfssl/wolfcrypt/wc_mlkem.h>
 #include <wolfssl/wolfcrypt/random.h>
+#include <wolfssl/wolfcrypt/memory.h>
+#include <wolfssl/wolfcrypt/error-crypt.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -54,6 +55,9 @@ int main(int argc, char** argv)
     MlKemKey BobKey;
     int ret = 0;
     WC_RNG rng;
+    int rngInit = 0;
+    int aliceKeyInit = 0;
+    int bobKeyInit = 0;
     byte alice_pub[WC_ML_KEM_512_PUBLIC_KEY_SIZE];
     byte bob_ct[WC_ML_KEM_512_CIPHER_TEXT_SIZE];
     byte alice_ss[WC_ML_KEM_SS_SZ];
@@ -62,12 +66,20 @@ int main(int argc, char** argv)
     printf("Alice creates an ML-KEM-512 key pair\n\n");
 
     ret = wc_InitRng(&rng);
-
     if (ret == 0)
+        rngInit = 1;
+
+    if (ret == 0) {
         ret = wc_MlKemKey_Init(&AliceKey, WC_ML_KEM_512, 0, INVALID_DEVID);
+        if (ret == 0)
+            aliceKeyInit = 1;
+    }
 
-    if (ret == 0)
+    if (ret == 0) {
         ret = wc_MlKemKey_Init(&BobKey, WC_ML_KEM_512, 0, INVALID_DEVID);
+        if (ret == 0)
+            bobKeyInit = 1;
+    }
 
     if (ret == 0)
         ret = wc_MlKemKey_MakeKey(&AliceKey, &rng);
@@ -75,8 +87,11 @@ int main(int argc, char** argv)
     if (ret == 0)
         ret = wc_MlKemKey_EncodePublicKey(&AliceKey, alice_pub, WC_ML_KEM_512_PUBLIC_KEY_SIZE);
 
-    if (ret == 0)
-        printf("Bob receives public key (size=%d): %s\n\n", WC_ML_KEM_512_PUBLIC_KEY_SIZE, to_hex_string(alice_pub, WC_ML_KEM_512_PUBLIC_KEY_SIZE));
+    if (ret == 0) {
+        char* alice_pub_hex = to_hex_string(alice_pub, WC_ML_KEM_512_PUBLIC_KEY_SIZE);
+        printf("Bob receives public key (size=%d): %s\n\n", WC_ML_KEM_512_PUBLIC_KEY_SIZE, alice_pub_hex);
+        free(alice_pub_hex);
+    }
 
     if (ret == 0)
         ret = wc_MlKemKey_DecodePublicKey(&BobKey, alice_pub, WC_ML_KEM_512_PUBLIC_KEY_SIZE);
@@ -84,8 +99,11 @@ int main(int argc, char** argv)
     if (ret == 0)
         ret = wc_MlKemKey_Encapsulate(&BobKey, bob_ct, bob_ss, &rng);
 
-    if (ret == 0)
-        printf("Bob Encapsulates secret (Size=%d): %s\n\n", WC_ML_KEM_512_CIPHER_TEXT_SIZE, to_hex_string(bob_ct, WC_ML_KEM_512_CIPHER_TEXT_SIZE));
+    if (ret == 0) {
+        char* bob_ct_hex = to_hex_string(bob_ct, WC_ML_KEM_512_CIPHER_TEXT_SIZE);
+        printf("Bob Encapsulates secret (Size=%d): %s\n\n", WC_ML_KEM_512_CIPHER_TEXT_SIZE, bob_ct_hex);
+        free(bob_ct_hex);
+    }
 
     if (ret == 0)
         printf("Alice receives the ciphertext\n");
@@ -94,15 +112,36 @@ int main(int argc, char** argv)
         ret = wc_MlKemKey_Decapsulate(&AliceKey, alice_ss, bob_ct, WC_ML_KEM_512_CIPHER_TEXT_SIZE);
 
     if (ret == 0) {
-        printf("Alice's Shared Secret: %s\n\n", to_hex_string(alice_ss, WC_ML_KEM_SS_SZ));
-        printf("  Bob's Shared Secret: %s\n\n", to_hex_string(bob_ss, WC_ML_KEM_SS_SZ));
+        char* alice_ss_hex = to_hex_string(alice_ss, WC_ML_KEM_SS_SZ);
+        char* bob_ss_hex = to_hex_string(bob_ss, WC_ML_KEM_SS_SZ);
+        if (alice_ss_hex == NULL || bob_ss_hex == NULL) {
+            ret = MEMORY_E;
+        }
+        else {
+            printf("Alice's Shared Secret: %s\n\n", alice_ss_hex);
+            printf("  Bob's Shared Secret: %s\n\n", bob_ss_hex);
+        }
+        if (alice_ss_hex != NULL) {
+            wc_ForceZero(alice_ss_hex, 2 * WC_ML_KEM_SS_SZ);
+            free(alice_ss_hex);
+        }
+        if (bob_ss_hex != NULL) {
+            wc_ForceZero(bob_ss_hex, 2 * WC_ML_KEM_SS_SZ);
+            free(bob_ss_hex);
+        }
     } else {
         printf("An error occurred\n");
     }
 
-    wc_MlKemKey_Free(&AliceKey);
-    wc_MlKemKey_Free(&BobKey);
-    wc_FreeRng(&rng);
+    wc_ForceZero(alice_ss, sizeof(alice_ss));
+    wc_ForceZero(bob_ss, sizeof(bob_ss));
+
+    if (aliceKeyInit)
+        wc_MlKemKey_Free(&AliceKey);
+    if (bobKeyInit)
+        wc_MlKemKey_Free(&BobKey);
+    if (rngInit)
+        wc_FreeRng(&rng);
     return ret;
 }
 

@@ -28,6 +28,7 @@
 #include <wolfssl/wolfcrypt/asn.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
 #include <wolfssl/wolfcrypt/logging.h>
+#include <wolfssl/wolfcrypt/memory.h>
 
 #if defined(WOLFSSL_DUAL_ALG_CERTS) && defined(HAVE_DILITHIUM)
 
@@ -138,6 +139,7 @@ static int do_certgen(int argc, char** argv)
 #endif /* !GEN_ROOT_CERT */
     int initPreTBS = 0;
     dilithium_key altCaKey;
+    int initAltCaKey = 0;
     word32 idx = 0;
 
 #if 0
@@ -216,7 +218,9 @@ static int do_certgen(int argc, char** argv)
     printf("Successfully read %d bytes from %s\n", altPrivSz, altPrivFile);
 
     printf("Decoding the CA alt private key\n");
-    wc_dilithium_init(&altCaKey);
+    ret = wc_dilithium_init(&altCaKey);
+    if (ret != 0) goto exit;
+    initAltCaKey = 1;
     ret = wc_dilithium_set_level(&altCaKey, 2);
     if (ret < 0) goto exit;
 
@@ -356,12 +360,20 @@ static int do_certgen(int argc, char** argv)
     printf("SUCCESS!\n");
 exit:
 
+    wc_ForceZero(caKeyBuf, sizeof(caKeyBuf));
+#ifndef GEN_ROOT_CERT
+    wc_ForceZero(serverKeyBuf, sizeof(serverKeyBuf));
+#endif
+    wc_ForceZero(altPrivBuf, sizeof(altPrivBuf));
+
     if (initCaKey)
         wc_FreeRsaKey(&caKey);
 #ifndef GEN_ROOT_CERT
     if (initServerKey)
         wc_FreeRsaKey(&serverKey);
 #endif
+    if (initAltCaKey)
+        wc_dilithium_free(&altCaKey);
     if (initPreTBS)
         wc_FreeDecodedCert(&preTBS);
     if (initRng)

@@ -148,8 +148,7 @@ write_key_file(const byte * priv,
         /* Create the file if it didn't exist. */
         file = fopen(filename, "w+");
         if (!file) {
-            fprintf(stderr, "error: fopen(%s, \"w+\") failed: %d\n", filename,
-                    ferror(file));
+            fprintf(stderr, "error: fopen(%s, \"w+\") failed\n", filename);
             return WC_LMS_RC_WRITE_FAIL;
         }
     }
@@ -159,6 +158,7 @@ write_key_file(const byte * priv,
     if (n_write != privSz) {
         fprintf(stderr, "error: wrote %zu, expected %d: %d\n", n_write, privSz,
                 ferror(file));
+        fclose(file);
         return WC_LMS_RC_WRITE_FAIL;
     }
 
@@ -172,12 +172,16 @@ write_key_file(const byte * priv,
     if (n_read != n_write) {
         fprintf(stderr, "error: read %zu, expected %zu: %d\n", n_read, n_write,
                 ferror(file));
+        fclose(file);
+        wc_ForceZero(buff, sizeof(buff));
         return WC_LMS_RC_WRITE_FAIL;
     }
 
     n_cmp = XMEMCMP(buff, priv, n_write);
+    wc_ForceZero(buff, sizeof(buff));
     if (n_cmp != 0) {
         fprintf(stderr, "error: write data was corrupted: %d\n", n_cmp);
+        fclose(file);
         return WC_LMS_RC_WRITE_FAIL;
     }
 
@@ -217,6 +221,7 @@ read_key_file(byte * priv,
     if (n_read != privSz) {
         fprintf(stderr, "error: read %zu, expected %d: %d\n", n_read, privSz,
                 ferror(file));
+        fclose(file);
         return WC_LMS_RC_READ_FAIL;
     }
 
@@ -242,6 +247,8 @@ do_lms_example(int    levels,
     word32       privSz = 0;
     word32       pubSz = 0;
     byte         priv[HSS_MAX_PRIVATE_KEY_LEN];
+    int          initSigningKey = 0;
+    int          initVerifyKey = 0;
 
     printf("using parameters: levels=%d, height=%d, winternitz=%d\n",
            levels, height, winternitz);
@@ -251,12 +258,14 @@ do_lms_example(int    levels,
         fprintf(stderr, "error: wc_LmsKey_Init returned %d\n", ret);
         goto exit_lms_example;
     }
+    initSigningKey = 1;
 
     ret = wc_LmsKey_Init(&verifyKey, NULL, 0);
     if (ret) {
         fprintf(stderr, "error: wc_LmsKey_Init returned %d\n", ret);
         goto exit_lms_example;
     }
+    initVerifyKey = 1;
 
     ret = wc_LmsKey_SetParameters(&signingKey, levels, height, winternitz);
     if (ret) {
@@ -377,8 +386,11 @@ exit_lms_example:
         sig = NULL;
     }
 
-    wc_LmsKey_Free(&signingKey);
-    wc_LmsKey_Free(&verifyKey);
+    wc_ForceZero(priv, sizeof(priv));
+    if (initSigningKey)
+        wc_LmsKey_Free(&signingKey);
+    if (initVerifyKey)
+        wc_LmsKey_Free(&verifyKey);
 
     return ret;
 }

@@ -27,6 +27,7 @@
 #include <wolfssl/wolfcrypt/asn.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
 #include <wolfssl/wolfcrypt/wc_port.h>
+#include <wolfssl/wolfcrypt/memory.h>
 
 #if defined(WOLFSSL_CERT_REQ) && defined(WOLFSSL_CERT_GEN) && \
     defined(WOLFSSL_KEY_GEN) && defined(HAVE_ECC)
@@ -137,6 +138,7 @@ static int do_cagen(int argc, char** argv)
     fclose(file);
     printf("Successfully converted the DER to PEM to \"%s\"\n\n",
         pemKeyOutput);
+    wc_ForceZero(pemBuf, LARGE_TEMP_SZ);
     XFREE(pemBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
     pemBuf = NULL;
 #endif
@@ -212,7 +214,11 @@ static int do_cagen(int argc, char** argv)
 
 exit:
 
+    if (derBuf != NULL)
+        wc_ForceZero(derBuf, LARGE_TEMP_SZ);
     XFREE(derBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
+    if (pemBuf != NULL)
+        wc_ForceZero(pemBuf, LARGE_TEMP_SZ);
     XFREE(pemBuf, HEAP_HINT, DYNAMIC_TYPE_TMP_BUFFER);
 
     if (initNewKey)

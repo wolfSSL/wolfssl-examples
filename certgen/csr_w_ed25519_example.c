@@ -23,6 +23,7 @@
 #include <wolfssl/wolfcrypt/settings.h>
 #include <wolfssl/wolfcrypt/ed25519.h>
 #include <wolfssl/wolfcrypt/asn_public.h>
+#include <wolfssl/wolfcrypt/memory.h>
 
 #define MAX_TEMP_SIZE 1024
 
@@ -42,6 +43,8 @@ int main(void)
     Cert req;
     byte der[MAX_TEMP_SIZE], pem[MAX_TEMP_SIZE];
     int  derSz;
+    int  initKey = 0;
+    int  initRng = 0;
 
     XMEMSET(&rng, 0, sizeof(rng));
     XMEMSET(&key, 0, sizeof(key));
@@ -51,12 +54,14 @@ int main(void)
         printf("ECC init key failed: %d\n", ret);
         goto exit;
     }
+    initKey = 1;
 
     ret = wc_InitRng(&rng);
     if (ret != 0) {
         printf("Init rng failed: %d\n", ret);
         goto exit;
     }
+    initRng = 1;
 
     ret = wc_ed25519_make_key(&rng, ED25519_KEY_SIZE, &key);
     if (ret != 0) {
@@ -117,8 +122,14 @@ int main(void)
     printf("%s", pem);
 
 exit:
-    wc_ed25519_free(&key);
-    wc_FreeRng(&rng);
+    wc_ForceZero(der, sizeof(der));
+    wc_ForceZero(pem, sizeof(pem));
+    if (initKey) {
+        wc_ed25519_free(&key);
+    }
+    if (initRng) {
+        wc_FreeRng(&rng);
+    }
 
     return ret;
 #endif

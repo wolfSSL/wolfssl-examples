@@ -123,10 +123,15 @@ static int SignFirmware(byte* hashBuf, word32 hashLen, byte* sigBuf, word32* sig
     if (gMyKeyInit == 0) {
         ret = wc_ecc_init(&gMyKey);
         if (ret == 0) {
+            gMyKeyInit = 1;
             ret = wc_ecc_make_key_ex(&rng, ECC_KEY_SIZE, &gMyKey, ECC_KEY_CURVE);
             if (ret == 0) {
-                gMyKeyInit = 1;
                 printf("KeyGen Done\n");
+            }
+            else {
+                /* keygen failed, free key and allow retry on next call */
+                wc_ecc_free(&gMyKey);
+                gMyKeyInit = 0;
             }
         }
     }
@@ -179,6 +184,11 @@ int main(void)
         printf("\n");
         PrintBuffer(sigBuf, sigLen);
     #endif
+    }
+
+    if (gMyKeyInit) {
+        wc_ecc_free(&gMyKey);
+        gMyKeyInit = 0;
     }
 
     return ret;
