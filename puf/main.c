@@ -31,6 +31,7 @@
 #include <wolfssl/wolfcrypt/puf.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
 #include <wolfssl/wolfcrypt/wc_port.h>
+#include <wolfssl/wolfcrypt/memory.h>
 
 #include <stdint.h>
 #include <stdio.h>
@@ -74,6 +75,8 @@ int main(void)
     int ret;
     uint8_t identity[WC_PUF_ID_SZ];
     uint8_t key[WC_PUF_KEY_SZ];
+    uint8_t identity2[WC_PUF_ID_SZ];
+    uint8_t key2[WC_PUF_KEY_SZ];
     uint8_t helperData[WC_PUF_HELPER_BYTES];
     const uint8_t info[] = "puf-example-key";
 
@@ -105,8 +108,6 @@ int main(void)
         /* Synthetic SRAM pattern for testing (deterministic) */
         uint8_t testSram[WC_PUF_RAW_BYTES];
         uint8_t noisySram[WC_PUF_RAW_BYTES];
-        uint8_t identity2[WC_PUF_ID_SZ];
-        uint8_t key2[WC_PUF_KEY_SZ];
         uint32_t i;
 
         printf("Mode: TEST (synthetic SRAM data)\n\n");
@@ -220,9 +221,6 @@ int main(void)
     /* REAL HARDWARE: Read actual SRAM PUF                                */
     /* ================================================================== */
     {
-        uint8_t identity2[WC_PUF_ID_SZ];
-        uint8_t key2[WC_PUF_KEY_SZ];
-
         printf("Mode: HARDWARE (real SRAM PUF)\n\n");
 
         /* ---- Phase 1: Enrollment ---- */
@@ -334,6 +332,11 @@ int main(void)
 
 cleanup:
     /* Securely zeroize all PUF secrets */
+    wc_ForceZero(key, sizeof(key));
+    wc_ForceZero(identity, sizeof(identity));
+    wc_ForceZero(key2, sizeof(key2));
+    wc_ForceZero(identity2, sizeof(identity2));
+    wc_ForceZero(helperData, sizeof(helperData));
     wc_PufZeroize(&ctx);
     wolfCrypt_Cleanup();
 
