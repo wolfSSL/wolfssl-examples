@@ -43,6 +43,7 @@ int main(int argc, char** argv)
     word32 plainSz;
     ecc_key myKey, peerKey;
     int type;
+    int initRng = 0;
 
     wolfCrypt_Init();
 
@@ -71,6 +72,7 @@ int main(int argc, char** argv)
         printf("wc_InitRng failed! %d\n", ret);
         goto cleanup;
     }
+    initRng = 1;
 
     ret = wc_ecc_make_key(&rng, 32, &myKey);
     if (ret != 0) {
@@ -205,6 +207,13 @@ int main(int argc, char** argv)
     }
 
 cleanup:
+
+    wc_ecc_free(&myKey);
+    wc_ecc_free(&peerKey);
+    if (srvCtx != NULL)
+        wc_ecc_ctx_free(srvCtx);
+    if (initRng)
+        wc_FreeRng(&rng);
 
     if (devCtx != NULL)
         btle_close(devCtx);

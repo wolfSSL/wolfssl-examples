@@ -30,6 +30,7 @@ int main(int argc, char *argv[])
     WOLFSSL_CTX *ctx = NULL;
     WOLFSSL_METHOD* method = NULL;
     WOLFSSL* ssl = NULL;
+    char *receive_buffer = NULL;
     int ret;
 
     if (argc != 2) {
@@ -42,7 +43,7 @@ int main(int argc, char *argv[])
         return ret;
     }
 
-    ret = setup_ssl(SERVICE_TYPE_SERVER, &ctx, &method, &ssl);
+    ret = setup_ssl(SERVICE_TYPE_SERVER, &ctx, &method, &ssl, &receive_buffer);
     if (ret) {
         return ret;
     }
@@ -58,7 +59,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    close_ssl(ctx, ssl);
+    close_ssl(ctx, ssl, receive_buffer);
 
     return 0;
 }

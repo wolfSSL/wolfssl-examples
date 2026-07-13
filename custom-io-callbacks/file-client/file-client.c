@@ -57,7 +57,7 @@ unsigned int my_psk_client_cb(WOLFSSL* ssl, const char* hint,
 
 int CbIOSend(WOLFSSL *ssl, char *buf, int sz, void *ctx);
 int CbIORecv(WOLFSSL *ssl, char *buf, int sz, void *ctx);
-WOLFSSL* Client(WOLFSSL_CTX* ctx, char* suite, int setSuite, int doVerify);
+WOLFSSL* Client(WOLFSSL_CTX** ctx_ptr, char* suite, int setSuite, int doVerify);
 WOLFSSL_METHOD* SetMethodClient(int i);
 
 
@@ -118,8 +118,9 @@ int CbIOSend(WOLFSSL *ssl, char *buf, int sz, void *ctx)
     return ret;
 }
 
-WOLFSSL* Client(WOLFSSL_CTX* ctx, char* suite, int setSuite, int doVerify)
+WOLFSSL* Client(WOLFSSL_CTX** ctx_ptr, char* suite, int setSuite, int doVerify)
 {
+    WOLFSSL_CTX* ctx;
     WOLFSSL*     ssl = NULL;
     int ret;
 
@@ -132,6 +133,7 @@ WOLFSSL* Client(WOLFSSL_CTX* ctx, char* suite, int setSuite, int doVerify)
         if ((wolfSSL_CTX_load_verify_locations(ctx, peerAuthority, 0))
                                                               != SSL_SUCCESS) {
             printf("Failed to load CA (peer Authority) file\n");
+            wolfSSL_CTX_free(ctx);
             return NULL;
         }
     } else {
@@ -160,6 +162,7 @@ WOLFSSL* Client(WOLFSSL_CTX* ctx, char* suite, int setSuite, int doVerify)
 
     wolfSSL_set_fd(ssl, fpRecv);
 
+    if (ctx_ptr) *ctx_ptr = ctx;
     return ssl;
 }
 
@@ -184,9 +187,7 @@ int main(int argc, char** argv)
 
     wolfSSL_Init();
 
-    /* Example usage */
-//    sslServ = Server(ctxServ, "ECDHE-RSA-AES128-SHA", 1);
-    sslCli  = Client(ctxCli, "let-wolfssl-decide", 0, 1);
+    sslCli  = Client(&ctxCli, "let-wolfssl-decide", 0, 1);
 
     if (sslCli == NULL) {
         printf("Failed to start client\n");
@@ -205,8 +206,6 @@ int main(int argc, char** argv)
         if (ret != SSL_SUCCESS) {
             if (error != SSL_ERROR_WANT_READ &&
                 error != SSL_ERROR_WANT_WRITE) {
-                wolfSSL_free(sslCli);
-                wolfSSL_CTX_free(ctxCli);
                 printf("client ssl connect failed\n");
                 goto cleanup;
             }
@@ -250,9 +249,13 @@ int main(int argc, char** argv)
 
 cleanup:
 
-    wolfSSL_shutdown(sslCli);
-    wolfSSL_free(sslCli);
-    wolfSSL_CTX_free(ctxCli);
+    if (sslCli) {
+        wolfSSL_shutdown(sslCli);
+        wolfSSL_free(sslCli);
+    }
+    if (ctxCli) {
+        wolfSSL_CTX_free(ctxCli);
+    }
     wolfSSL_Cleanup();
     /* close the streams so client can reset file contents */
     close(fpSend);

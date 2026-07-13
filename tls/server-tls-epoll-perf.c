@@ -475,6 +475,7 @@ static int SSLConn_Accept(SSLConn_CTX* ctx, WOLFSSL_CTX* sslCtx,
 
     /* Setup SSL/TLS connection. */
     if ((conn->ssl = wolfSSL_new(sslCtx)) == NULL) {
+        close(conn->sockfd);
         free(conn);
         fprintf(stderr, "wolfSSL_new error.\n");
         return EXIT_FAILURE;
