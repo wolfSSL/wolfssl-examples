@@ -37,6 +37,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 #if defined(HAVE_OCSP) && defined(HAVE_OCSP_RESPONDER) && \
@@ -402,7 +403,11 @@ cleanup:
     if (caCertInit)
         wc_FreeDecodedCert(&caCert);
     free(caCertDer);
-    free(caKeyDer);
+    if (caKeyDer) {
+        /* Zero the CA private key material before releasing the buffer. */
+        wc_ForceZero(caKeyDer, (word32)caKeyDerSz);
+        free(caKeyDer);
+    }
     free(serverCertDer);
 
     wolfSSL_Cleanup();

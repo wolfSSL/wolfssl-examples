@@ -41,9 +41,9 @@
 
 static void Usage(const char* progName)
 {
-    printf("Usage: %s <server IP> [session_file]\n", progName);
-    printf("  server IP    - IP address of the DTLS server\n");
-    printf("  session_file - Optional: file to load session from (default: %s)\n",
+    XPRINTF("Usage: %s <server IP> [session_file]\n", progName);
+    XPRINTF("  server IP    - IP address of the DTLS server\n");
+    XPRINTF("  session_file - Optional: file to load session from (default: %s)\n",
            DEFAULT_CLIENT_SESSION_FILE);
 }
 
@@ -59,6 +59,7 @@ int main(int argc, char** argv)
     const char*     sessionFile = DEFAULT_CLIENT_SESSION_FILE;
     unsigned char*  sessionBuf = NULL;
     unsigned int    sessionSz = 0;
+    unsigned int    sessionBufSz = 0;
     int             n;
     int             err_occurred = 0;
 
@@ -78,7 +79,7 @@ int main(int argc, char** argv)
     /* Create DTLS 1.2 context */
     ctx = wolfSSL_CTX_new(wolfDTLSv1_2_client_method());
     if (ctx == NULL) {
-        fprintf(stderr, "Error: wolfSSL_CTX_new failed\n");
+        XFPRINTF(stderr, "Error: wolfSSL_CTX_new failed\n");
         ret = 1;
         goto cleanup;
     }
@@ -86,36 +87,36 @@ int main(int argc, char** argv)
     /* Create SSL object */
     ssl = wolfSSL_new(ctx);
     if (ssl == NULL) {
-        fprintf(stderr, "Error: wolfSSL_new failed\n");
+        XFPRINTF(stderr, "Error: wolfSSL_new failed\n");
         ret = 1;
         goto cleanup;
     }
 
     /* Load encrypted session from file */
-    printf("Loading session from %s...\n", sessionFile);
-    sessionBuf = LoadEncryptedSession(sessionFile, &sessionSz);
+    XPRINTF("Loading session from %s...\n", sessionFile);
+    sessionBuf = LoadEncryptedSession(sessionFile, &sessionSz, &sessionBufSz);
     if (sessionBuf == NULL) {
-        fprintf(stderr, "Error: Failed to load session from file\n");
+        XFPRINTF(stderr, "Error: Failed to load session from file\n");
         ret = 1;
         goto cleanup;
     }
 
     /* Import the session */
-    printf("Importing DTLS session (%u bytes)...\n", sessionSz);
+    XPRINTF("Importing DTLS session (%u bytes)...\n", sessionSz);
     ret = wolfSSL_dtls_import(ssl, sessionBuf, sessionSz);
     if (ret < 0) {
-        fprintf(stderr, "Error: wolfSSL_dtls_import failed: %d\n", ret);
+        XFPRINTF(stderr, "Error: wolfSSL_dtls_import failed: %d\n", ret);
         ret = 1;
         goto cleanup;
     }
-    printf("Session imported successfully!\n");
+    XPRINTF("Session imported successfully!\n");
 
     /* Setup server address */
     memset(&servAddr, 0, sizeof(servAddr));
     servAddr.sin_family = AF_INET;
     servAddr.sin_port = htons(SERV_PORT);
     if (inet_pton(AF_INET, argv[1], &servAddr.sin_addr) != 1) {
-        fprintf(stderr, "Error: Invalid IP address: %s\n", argv[1]);
+        XFPRINTF(stderr, "Error: Invalid IP address: %s\n", argv[1]);
         ret = 1;
         goto cleanup;
     }
@@ -126,7 +127,7 @@ int main(int argc, char** argv)
     /* Create UDP socket */
     sockfd = socket(AF_INET, SOCK_DGRAM, 0);
     if (sockfd < 0) {
-        fprintf(stderr, "Error: Cannot create socket\n");
+        XFPRINTF(stderr, "Error: Cannot create socket\n");
         ret = 1;
         goto cleanup;
     }
@@ -134,11 +135,11 @@ int main(int argc, char** argv)
     /* Set the socket file descriptor */
     wolfSSL_set_fd(ssl, sockfd);
 
-    printf("Session restored - no handshake needed!\n");
-    printf("Ready to communicate with server %s:%d\n\n", argv[1], SERV_PORT);
+    XPRINTF("Session restored - no handshake needed!\n");
+    XPRINTF("Ready to communicate with server %s:%d\n\n", argv[1], SERV_PORT);
 
     /* Send messages using the imported session */
-    printf("Enter message to send (or 'quit' to exit):\n");
+    XPRINTF("Enter message to send (or 'quit' to exit):\n");
     while (fgets(sendLine, MAXLINE, stdin) != NULL) {
         if (strncmp(sendLine, "quit", 4) == 0) {
             break;
@@ -148,24 +149,24 @@ int main(int argc, char** argv)
         ret = wolfSSL_write(ssl, sendLine, (int)strlen(sendLine));
         if (ret != (int)strlen(sendLine)) {
             int err = wolfSSL_get_error(ssl, ret);
-            fprintf(stderr, "Error: wolfSSL_write failed: %d (%s)\n",
+            XFPRINTF(stderr, "Error: wolfSSL_write failed: %d (%s)\n",
                     err, wolfSSL_ERR_reason_error_string(err));
             ret = 1;
             err_occurred = 1;
             break;
         }
-        printf("Sent: %s", sendLine);
+        XPRINTF("Sent: %s", sendLine);
 
         /* Read response */
         n = wolfSSL_read(ssl, recvLine, sizeof(recvLine) - 1);
         if (n > 0) {
             recvLine[n] = '\0';
-            printf("Received: %s", recvLine);
+            XPRINTF("Received: %s", recvLine);
         }
         else {
             int err = wolfSSL_get_error(ssl, n);
             if (err != SSL_ERROR_WANT_READ) {
-                fprintf(stderr, "Error: wolfSSL_read failed: %d (%s)\n",
+                XFPRINTF(stderr, "Error: wolfSSL_read failed: %d (%s)\n",
                         err, wolfSSL_ERR_reason_error_string(err));
                 ret = 1;
                 err_occurred = 1;
@@ -173,7 +174,7 @@ int main(int argc, char** argv)
             }
         }
 
-        printf("\nEnter message (or 'quit' to exit):\n");
+        XPRINTF("\nEnter message (or 'quit' to exit):\n");
     }
 
     if (!err_occurred) {
@@ -181,7 +182,10 @@ int main(int argc, char** argv)
     }
 
 cleanup:
-    if (sessionBuf != NULL) free(sessionBuf);
+    if (sessionBuf != NULL) {
+        wc_ForceZero(sessionBuf, sessionBufSz);
+        XFREE(sessionBuf, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+    }
     if (ssl != NULL) {
         wolfSSL_shutdown(ssl);
         wolfSSL_free(ssl);

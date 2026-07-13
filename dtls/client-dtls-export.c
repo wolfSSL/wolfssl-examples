@@ -42,9 +42,9 @@
 
 static void Usage(const char* progName)
 {
-    printf("Usage: %s <server IP> [session_file]\n", progName);
-    printf("  server IP    - IP address of the DTLS server\n");
-    printf("  session_file - Optional: file to save session (default: %s)\n",
+    XPRINTF("Usage: %s <server IP> [session_file]\n", progName);
+    XPRINTF("  server IP    - IP address of the DTLS server\n");
+    XPRINTF("  session_file - Optional: file to save session (default: %s)\n",
            DEFAULT_CLIENT_SESSION_FILE);
 }
 
@@ -61,6 +61,7 @@ int main(int argc, char** argv)
     const char*     sessionFile = DEFAULT_CLIENT_SESSION_FILE;
     unsigned char*  sessionBuf = NULL;
     unsigned int    sessionSz = 0;
+    unsigned int    sessionBufSz = 0;
     int             n;
 
     /* Program argument checking */
@@ -79,7 +80,7 @@ int main(int argc, char** argv)
     /* Create DTLS 1.2 context */
     ctx = wolfSSL_CTX_new(wolfDTLSv1_2_client_method());
     if (ctx == NULL) {
-        fprintf(stderr, "Error: wolfSSL_CTX_new failed\n");
+        XFPRINTF(stderr, "Error: wolfSSL_CTX_new failed\n");
         ret = 1;
         goto cleanup;
     }
@@ -87,7 +88,7 @@ int main(int argc, char** argv)
     /* Load CA certificates */
     ret = wolfSSL_CTX_load_verify_locations(ctx, certs, NULL);
     if (ret != SSL_SUCCESS) {
-        fprintf(stderr, "Error: Failed to load CA cert %s\n", certs);
+        XFPRINTF(stderr, "Error: Failed to load CA cert %s\n", certs);
         ret = 1;
         goto cleanup;
     }
@@ -95,7 +96,7 @@ int main(int argc, char** argv)
     /* Create SSL object */
     ssl = wolfSSL_new(ctx);
     if (ssl == NULL) {
-        fprintf(stderr, "Error: wolfSSL_new failed\n");
+        XFPRINTF(stderr, "Error: wolfSSL_new failed\n");
         ret = 1;
         goto cleanup;
     }
@@ -105,7 +106,7 @@ int main(int argc, char** argv)
     servAddr.sin_family = AF_INET;
     servAddr.sin_port = htons(SERV_PORT);
     if (inet_pton(AF_INET, argv[1], &servAddr.sin_addr) != 1) {
-        fprintf(stderr, "Error: Invalid IP address: %s\n", argv[1]);
+        XFPRINTF(stderr, "Error: Invalid IP address: %s\n", argv[1]);
         ret = 1;
         goto cleanup;
     }
@@ -116,7 +117,7 @@ int main(int argc, char** argv)
     /* Create UDP socket */
     sockfd = socket(AF_INET, SOCK_DGRAM, 0);
     if (sockfd < 0) {
-        fprintf(stderr, "Error: Cannot create socket\n");
+        XFPRINTF(stderr, "Error: Cannot create socket\n");
         ret = 1;
         goto cleanup;
     }
@@ -125,80 +126,84 @@ int main(int argc, char** argv)
     wolfSSL_set_fd(ssl, sockfd);
 
     /* Perform DTLS handshake */
-    printf("Connecting to server %s:%d...\n", argv[1], SERV_PORT);
+    XPRINTF("Connecting to server %s:%d...\n", argv[1], SERV_PORT);
     ret = wolfSSL_connect(ssl);
     if (ret != SSL_SUCCESS) {
         int err = wolfSSL_get_error(ssl, ret);
-        fprintf(stderr, "Error: wolfSSL_connect failed: %d (%s)\n",
+        XFPRINTF(stderr, "Error: wolfSSL_connect failed: %d (%s)\n",
                 err, wolfSSL_ERR_reason_error_string(err));
         ret = 1;
         goto cleanup;
     }
-    printf("DTLS handshake successful!\n");
+    XPRINTF("DTLS handshake successful!\n");
 
     /* Export the session */
-    printf("Exporting DTLS session...\n");
+    XPRINTF("Exporting DTLS session...\n");
 
     /* First call to get required buffer size */
     ret = wolfSSL_dtls_export(ssl, NULL, &sessionSz);
-    if (ret != 0 && sessionSz == 0) {
-        fprintf(stderr, "Error: wolfSSL_dtls_export (get size) failed: %d\n",
+    if (sessionSz == 0) {
+        XFPRINTF(stderr, "Error: wolfSSL_dtls_export (get size) failed: %d\n",
                 ret);
         ret = 1;
         goto cleanup;
     }
 
     /* Allocate buffer for session data */
-    sessionBuf = (unsigned char*)malloc(sessionSz);
+    sessionBuf = (unsigned char*)XMALLOC(sessionSz, NULL, DYNAMIC_TYPE_TMP_BUFFER);
     if (sessionBuf == NULL) {
-        fprintf(stderr, "Error: Memory allocation failed\n");
+        XFPRINTF(stderr, "Error: Memory allocation failed\n");
         ret = 1;
         goto cleanup;
     }
+    sessionBufSz = sessionSz;
 
     /* Export the session */
     ret = wolfSSL_dtls_export(ssl, sessionBuf, &sessionSz);
     if (ret <= 0) {
-        fprintf(stderr, "Error: wolfSSL_dtls_export failed: %d\n", ret);
+        XFPRINTF(stderr, "Error: wolfSSL_dtls_export failed: %d\n", ret);
         ret = 1;
         goto cleanup;
     }
-    printf("Session exported: %d bytes\n", ret);
+    XPRINTF("Session exported: %d bytes\n", ret);
     sessionSz = ret;
 
     /* Save encrypted session to file */
     ret = SaveEncryptedSession(sessionFile, sessionBuf, sessionSz);
     if (ret != 0) {
-        fprintf(stderr, "Error: Failed to save encrypted session\n");
+        XFPRINTF(stderr, "Error: Failed to save encrypted session\n");
         ret = 1;
         goto cleanup;
     }
 
     /* Send a test message */
-    printf("\nEnter message to send (or press Enter to skip): ");
+    XPRINTF("\nEnter message to send (or press Enter to skip): ");
     if (fgets(sendLine, MAXLINE, stdin) != NULL && sendLine[0] != '\n') {
         ret = wolfSSL_write(ssl, sendLine, (int)strlen(sendLine));
         if (ret != (int)strlen(sendLine)) {
-            fprintf(stderr, "Error: wolfSSL_write failed\n");
+            XFPRINTF(stderr, "Error: wolfSSL_write failed\n");
         }
         else {
-            printf("Sent: %s", sendLine);
+            XPRINTF("Sent: %s", sendLine);
 
             /* Read response */
             n = wolfSSL_read(ssl, recvLine, sizeof(recvLine) - 1);
             if (n > 0) {
                 recvLine[n] = '\0';
-                printf("Received: %s", recvLine);
+                XPRINTF("Received: %s", recvLine);
             }
         }
     }
 
-    printf("\nSession exported and saved to: %s\n", sessionFile);
-    printf("You can now use client-dtls-import to resume this session.\n");
+    XPRINTF("\nSession exported and saved to: %s\n", sessionFile);
+    XPRINTF("You can now use client-dtls-import to resume this session.\n");
     ret = 0;
 
 cleanup:
-    if (sessionBuf != NULL) free(sessionBuf);
+    if (sessionBuf != NULL) {
+        wc_ForceZero(sessionBuf, sessionBufSz);
+        XFREE(sessionBuf, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+    }
     if (ssl != NULL) {
         wolfSSL_shutdown(ssl);
         wolfSSL_free(ssl);
