@@ -75,6 +75,7 @@ static int write_file_buffer(const char* fileName, byte* in, word32 inSz)
     ret = (int)fwrite(in, 1, inSz, file);
     if (ret == 0) {
         printf("ERROR: writing buffer to output file\n");
+        fclose(file);
         return -1;
     }
     fclose(file);
@@ -150,6 +151,8 @@ static int signedData_sign_noattrs(byte* cert, word32 certSz, byte* key,
 
         if (write_file_buffer(encodedFileNoAttrs, out, ret) != 0) {
             printf("ERROR: error writing encoded to output file\n");
+            wc_PKCS7_Free(pkcs7);
+            wc_FreeRng(&rng);
             return -1;
         }
     }
@@ -239,6 +242,8 @@ static int signedData_sign_attrs(byte* cert, word32 certSz, byte* key,
 
         if (write_file_buffer(encodedFileAttrs, out, ret) != 0) {
             printf("ERROR: error writing encoded to output file\n");
+            wc_PKCS7_Free(pkcs7);
+            wc_FreeRng(&rng);
             return -1;
         }
 

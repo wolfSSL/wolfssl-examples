@@ -335,11 +335,17 @@ int main(int argc, char** argv)
 
     {
         FILE* f = fopen(encodedFile, "rb");
+        if (f == NULL) {
+            printf("error opening file %s\n", encodedFile);
+            ret = -1;
+            goto out;
+        }
         encryptedSz = fread(encrypted, 1, encryptedSz, f);
         fclose(f);
     }
     if (encryptedSz <= 0) {
         printf("error reading file %s\n", encodedFile);
+        ret = -1;
         goto out;
     }
     printf("read %d bytes from file\n", encryptedSz);
@@ -347,8 +353,10 @@ int main(int argc, char** argv)
     decryptedSz = signedData_verify(encrypted, encryptedSz,
                                     cert, certSz, key, keySz,
                                     decrypted, decryptedSz);
-    if (decryptedSz < 0)
-        return -1;
+    if (decryptedSz < 0) {
+        ret = -1;
+        goto out;
+    }
 #endif
 out:
 
