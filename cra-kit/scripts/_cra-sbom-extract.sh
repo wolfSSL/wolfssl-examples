@@ -240,7 +240,7 @@ PYEOF
         fi
         jq -r '.[].file' "$CRA_SBOM_BUILD_DIR/compile_commands.json" \
             | grep -F "$_cra_product_dir/" \
-            | grep -E '\.c$' \
+            | grep -E '/(wolfcrypt/src|src)/[^/]+\.c$' \
             | sort -u > "$_cra_out_file" || true
         if [ ! -s "$_cra_out_file" ]; then
             echo "ERROR: compile_commands.json in $CRA_SBOM_BUILD_DIR yielded no $_cra_product_name sources under $_cra_product_dir." >&2

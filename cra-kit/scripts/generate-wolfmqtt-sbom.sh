@@ -137,6 +137,16 @@ _run_autotools() {
         else
             make sbom WOLFSSL_DIR="$WOLFSSL_DIR"
         fi
+        # make sbom names artifacts after configure.ac's PACKAGE_VERSION; if
+        # that ever skews from wolfmqtt/version.h (our $VERSION), fail with an
+        # explanation instead of a cryptic cp "No such file" under set -eu.
+        if [ ! -f "wolfmqtt-${VERSION}.cdx.json" ]; then
+            echo "ERROR: make sbom did not produce wolfmqtt-${VERSION}.cdx.json." >&2
+            echo "       wolfmqtt/version.h says $VERSION but the autotools" >&2
+            echo "       PACKAGE_VERSION (which names make sbom outputs) differs:" >&2
+            ls wolfmqtt-*.cdx.json >&2 2>/dev/null || true
+            exit 1
+        fi
         cp -f "wolfmqtt-${VERSION}.cdx.json" "$CDX_OUT"
         cp -f "wolfmqtt-${VERSION}.spdx.json" "$SPDX_OUT"
         if [ -f "wolfmqtt-${VERSION}.spdx" ]; then

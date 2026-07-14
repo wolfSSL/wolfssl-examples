@@ -62,8 +62,11 @@ if [ ! -f "$GEN" ]; then
     exit 1
 fi
 
-# Parse version from ChangeLog.md: first line matching "## wolfHSM Release vX.Y.Z"
-VERSION=$(sed -n 's/^# wolfHSM Release v\([0-9][0-9.]*\).*/\1/p' \
+# Parse version from ChangeLog.md: first heading matching "wolfHSM Release vX.Y.Z".
+# Current ChangeLog.md uses an H1 ("# wolfHSM Release v1.4.0"); tolerate one or
+# two leading '#', surrounding whitespace, and an optional 'v' so a changelog
+# style change does not silently break the parse.
+VERSION=$(sed -n 's/^#\{1,2\}[[:space:]]*wolfHSM Release[[:space:]]*v\{0,1\}\([0-9][0-9.]*\).*/\1/p' \
     "$WOLFHSM_DIR/ChangeLog.md" 2>/dev/null | head -1)
 if [ -z "$VERSION" ]; then
     echo "ERROR: could not parse version from $WOLFHSM_DIR/ChangeLog.md." >&2
