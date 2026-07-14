@@ -1,4 +1,5 @@
 /* Demo user_settings.h for CRA Kit embedded SBOM generation.
+ * Illustrative only, NOT a security-hardened production configuration.
  * Production: replace with your project's user_settings.h (or point gen-sbom at it). */
 #ifndef CRA_KIT_USER_SETTINGS_H
 #define CRA_KIT_USER_SETTINGS_H
