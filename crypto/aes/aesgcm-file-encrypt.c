@@ -496,10 +496,6 @@ exit:
         unlink(out_file);
     }
 
-    if (ret != 0) {
-        unlink(out_file);
-    }
-
     printf("File decryption with AES GCM complete.\n");
     return ret;
 }
