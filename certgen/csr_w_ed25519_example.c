@@ -121,6 +121,10 @@ int main(void)
     }
     printf("%s", pem);
 
+    /* wc_DerToPem returns a length, so only a negative value is an error */
+    if (ret > 0)
+        ret = 0;
+
 exit:
     wc_ForceZero(der, sizeof(der));
     wc_ForceZero(pem, sizeof(pem));
