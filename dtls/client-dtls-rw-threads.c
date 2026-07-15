@@ -158,7 +158,7 @@ int main (int argc, char** argv)
     struct          sockaddr_in servAddr;
     WOLFSSL*        ssl = 0;
     WOLFSSL_CTX*    ctx = 0;
-    char            cert_array[]  = "certs/ca-cert.pem";
+    char            cert_array[]  = "../certs/ca-cert.pem";
     char*           certs = cert_array;
     threadArgs      args;
     pthread_t       threadidReader;
