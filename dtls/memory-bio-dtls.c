@@ -119,8 +119,7 @@ static void* client_thread(void* args)
     } while (ret <= 0 &&
       ((err ==  WOLFSSL_ERROR_WANT_READ) || (err == WOLFSSL_ERROR_WANT_WRITE)));
 
-    /* clean up, wolfSSL_free would also free the WOLFSSL_BIO's so set as NULL
-     * since they are also being used with srv_ssl and will be free'd there. */
+    /* drops this thread's BIO references; srv_ssl still holds its own */
     wolfSSL_set_bio(cli_ssl, NULL, NULL);
     wolfSSL_free(cli_ssl);
     wolfSSL_CTX_free(cli_ctx);
@@ -147,6 +146,10 @@ int main()
 
     io.rbio = wolfSSL_BIO_new(wolfSSL_BIO_s_mem());
     io.wbio = wolfSSL_BIO_new(wolfSSL_BIO_s_mem());
+    /* cli_ssl and srv_ssl both use these, so take the second reference here or
+     * whichever side cleans up first frees them under the other. */
+    wolfSSL_BIO_up_ref(io.rbio);
+    wolfSSL_BIO_up_ref(io.wbio);
     sem_init(&io.bioSem, 0, 1);
 
     /* set up server */
