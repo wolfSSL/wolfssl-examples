@@ -34,7 +34,7 @@
 #include <wolfssl/wolfcrypt/chacha20_poly1305.h>
 #include <wolfssl/wolfcrypt/mlkem.h>
 #include <wolfssl/wolfcrypt/wc_mlkem.h>
-#include <wolfssl/wolfcrypt/dilithium.h>
+#include <wolfssl/wolfcrypt/wc_mldsa.h>
 
 #include "wolfcrypt_api.h"
 
@@ -1251,50 +1251,50 @@ cleanup:
 #endif /* WOLFSSL_HAVE_MLKEM */
 
 /* ------------------------------------------------------------------ */
-/* Dilithium (ML-DSA-44): keygen, sign, verify */
+/* ML-DSA-44: keygen, sign, verify */
 /* ------------------------------------------------------------------ */
-#if defined(HAVE_DILITHIUM)
-static EFI_STATUS TestDilithium(void)
+#if defined(WOLFSSL_HAVE_MLDSA)
+static EFI_STATUS TestMlDsa(void)
 {
     EFI_STATUS status = EFI_SUCCESS;
     int ret;
     WC_RNG rng;
-    dilithium_key key;
+    wc_MlDsaKey key;
     BOOLEAN rngInit = FALSE, keyInit = FALSE;
-    static const byte msg[] = "wolfCrypt UEFI Dilithium test";
-    byte sig[DILITHIUM_MAX_SIG_SIZE];
+    static const byte msg[] = "wolfCrypt UEFI ML-DSA test";
+    byte sig[MLDSA_MAX_SIG_SIZE];
     word32 sigLen = sizeof(sig);
     int verify = 0;
 
     ZeroMem(&rng, sizeof(rng)); ZeroMem(&key, sizeof(key));
 
     ret = InitRngDet(&rng);
-    status = CheckWolfResult(ret, L"wc_InitRng Dilithium"); if (EFI_ERROR(status)) return status;
+    status = CheckWolfResult(ret, L"wc_InitRng ML-DSA"); if (EFI_ERROR(status)) return status;
     rngInit = TRUE;
 
-    ret = Api->wc_dilithium_init(&key);
-    status = CheckWolfResult(ret, L"wc_dilithium_init"); if (EFI_ERROR(status)) goto cleanup;
+    ret = Api->wc_MlDsaKey_Init(&key, NULL, INVALID_DEVID);
+    status = CheckWolfResult(ret, L"wc_MlDsaKey_Init"); if (EFI_ERROR(status)) goto cleanup;
     keyInit = TRUE;
 
-    ret = Api->wc_dilithium_set_level(&key, 2); /* ML-DSA-44 */
-    status = CheckWolfResult(ret, L"wc_dilithium_set_level"); if (EFI_ERROR(status)) goto cleanup;
+    ret = Api->wc_MlDsaKey_SetParams(&key, WC_ML_DSA_44);
+    status = CheckWolfResult(ret, L"wc_MlDsaKey_SetParams"); if (EFI_ERROR(status)) goto cleanup;
 
-    ret = Api->wc_dilithium_make_key(&key, &rng);
-    status = CheckWolfResult(ret, L"wc_dilithium_make_key"); if (EFI_ERROR(status)) goto cleanup;
+    ret = Api->wc_MlDsaKey_MakeKey(&key, &rng);
+    status = CheckWolfResult(ret, L"wc_MlDsaKey_MakeKey"); if (EFI_ERROR(status)) goto cleanup;
 
-    ret = Api->wc_dilithium_sign_msg(msg, (word32)sizeof(msg)-1, sig, &sigLen, &key, &rng);
-    status = CheckWolfResult(ret, L"wc_dilithium_sign_msg"); if (EFI_ERROR(status)) goto cleanup;
+    ret = Api->wc_MlDsaKey_Sign(&key, sig, &sigLen, msg, (word32)sizeof(msg)-1, &rng);
+    status = CheckWolfResult(ret, L"wc_MlDsaKey_Sign"); if (EFI_ERROR(status)) goto cleanup;
 
-    ret = Api->wc_dilithium_verify_msg(sig, sigLen, msg, (word32)sizeof(msg)-1, &verify, &key);
-    status = CheckWolfResult(ret, L"wc_dilithium_verify_msg"); if (EFI_ERROR(status)) goto cleanup;
-    status = CheckCondition(verify == 1, L"Dilithium signature verified");
+    ret = Api->wc_MlDsaKey_Verify(&key, sig, sigLen, msg, (word32)sizeof(msg)-1, &verify);
+    status = CheckWolfResult(ret, L"wc_MlDsaKey_Verify"); if (EFI_ERROR(status)) goto cleanup;
+    status = CheckCondition(verify == 1, L"ML-DSA signature verified");
 
 cleanup:
-    if (keyInit) Api->wc_dilithium_free(&key);
+    if (keyInit) Api->wc_MlDsaKey_Free(&key);
     if (rngInit) Api->wc_FreeRng(&rng);
     return status;
 }
-#endif /* HAVE_DILITHIUM */
+#endif /* WOLFSSL_HAVE_MLDSA */
 
 /* ------------------------------------------------------------------ */
 /* Test runner */
@@ -1319,8 +1319,8 @@ static EFI_STATUS RunAllTests(void)
 #if defined(WOLFSSL_HAVE_MLKEM)
         { L"ML-KEM",            TestMlKem            },
 #endif
-#if defined(HAVE_DILITHIUM)
-        { L"Dilithium",         TestDilithium        },
+#if defined(WOLFSSL_HAVE_MLDSA)
+        { L"ML-DSA",            TestMlDsa        },
 #endif
     };
 

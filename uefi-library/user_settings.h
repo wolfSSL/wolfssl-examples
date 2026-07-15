@@ -51,9 +51,8 @@ extern int uefi_strncmp_wolfssl(const char* s1, const char* s2, size_t n);
 #define HAVE_CURVE448
 #define HAVE_ED448
 
-/* Post-quantum: Dilithium (ML-DSA) — native wolfSSL implementation */
-#define HAVE_DILITHIUM
-#define WOLFSSL_WC_DILITHIUM
+/* Post-quantum: ML-DSA — native wolfSSL implementation */
+#define WOLFSSL_HAVE_MLDSA
 /* All levels enabled by default (use WOLFSSL_NO_ML_DSA_44/65/87 to disable) */
 
 /* Falcon requires liboqs; omit unless liboqs is available */
