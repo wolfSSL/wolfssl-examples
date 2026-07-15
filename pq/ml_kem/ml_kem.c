@@ -49,7 +49,7 @@ char* to_hex_string(const unsigned char* array, size_t length)
 }
 
 
-int main(int argc, char** argv)
+int main(void)
 {
     MlKemKey AliceKey;
     MlKemKey BobKey;

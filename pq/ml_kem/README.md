@@ -15,7 +15,7 @@ $ sudo ldconfig
 Build the ML-KEM example:
 
 ```sh
-$ gcc -o ml_kem ml_kem.c -I/usr/local/include -L/usr/local/lib -lwolfssl
+$ make ml_kem
 ```
 
 # Usage
