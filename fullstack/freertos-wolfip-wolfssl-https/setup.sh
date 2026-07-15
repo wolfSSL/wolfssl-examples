@@ -30,7 +30,9 @@ if [ ! -d "wolfssl" ]; then
 fi
 
 if [ ! -d "wolfip" ]; then
-    git clone --depth=1 https://github.com/wolfSSL/wolfip.git
+    # pinned: wolfSSL is what this repo demonstrates, so wolfIP churn should not
+    # decide whether the example builds
+    git clone --depth=1 --branch v1.0 https://github.com/wolfSSL/wolfip.git
     cd wolfip
     make
     cd ..
