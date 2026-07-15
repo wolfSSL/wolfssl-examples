@@ -2,11 +2,18 @@ CC=gcc
 CFLAGS=-Wall
 LIBS=
 
-OPENSSL_DIR=/usr/local/opt
-OPENSSL_FLAGS=-I$(OPENSSL_DIR)/openssl/include
-WOLFSSL_FLAGS=
-OPENSSL_LIB=-L$(OPENSSL_DIR)/openssl/lib -lcrypto -lssl
+# set OPENSSL_DIR only for a non-system OpenSSL (e.g. Homebrew: /usr/local/opt/openssl)
+OPENSSL_DIR ?=
+ifneq ($(OPENSSL_DIR),)
+OPENSSL_FLAGS=-I$(OPENSSL_DIR)/include
+OPENSSL_LIB=-L$(OPENSSL_DIR)/lib -lcrypto -lssl
+else
+OPENSSL_FLAGS=
+OPENSSL_LIB=-lcrypto -lssl
+endif
+
 WOLFSSL_INSTALL_DIR = /usr/local
+WOLFSSL_FLAGS=-I$(WOLFSSL_INSTALL_DIR)/include
 WOLFSSL_LIB= -L$(WOLFSSL_INSTALL_DIR)/lib -lwolfssl
 
 all:wolfsigtest opensigtest eccsiglentest

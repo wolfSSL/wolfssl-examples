@@ -1,4 +1,4 @@
-CC=gcc
+# X9.146 Examples Makefile
 #if you installed wolfssl to an alternate location use CFLAGS and LIBS to
 #control your build:
 

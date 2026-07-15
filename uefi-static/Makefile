@@ -8,7 +8,10 @@ CFLAGS+=-I./wolfssl/ -I. -I/usr/include/efi
 CFLAGS+=-ggdb
 CC=gcc
 LD=ld
-LDFLAGS_START=-static -pie --no-dynamic-linker -Bsymbolic -L/usr/lib -L/usr/lib/gcc/x86_64-pc-linux-gnu/13.2.1/ -Lgnu-efi-dir/x86_64/gnuefi -T/usr/lib/elf_x86_64_efi.lds /usr/lib/crt0-efi-x86_64.o $(LDFLAGS)
+# libgcc and gnu-efi sit at different paths per distro (Arch: /usr/lib; Debian/Ubuntu: /usr/lib/<triplet>/gnuefi)
+GCC_LIBDIR := $(shell dirname `$(CC) -print-libgcc-file-name`)
+EFI_LIBDIR := $(firstword $(wildcard /usr/lib/x86_64-linux-gnu/gnuefi /usr/lib64/gnuefi /usr/lib))
+LDFLAGS_START=-static -pie --no-dynamic-linker -Bsymbolic -L/usr/lib -L$(GCC_LIBDIR) -Lgnu-efi-dir/x86_64/gnuefi -T$(EFI_LIBDIR)/elf_x86_64_efi.lds $(EFI_LIBDIR)/crt0-efi-x86_64.o $(LDFLAGS)
 LDFLAGS_END=-lgnuefi -lefi -lgcc
 
 _OBJS=sha256.o sha3.o misc.o coding.o hmac.o rsa.o random.o wolfmath.o		\

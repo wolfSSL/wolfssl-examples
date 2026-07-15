@@ -1,6 +1,7 @@
 CC=gcc
-LIBS=-lwolfssl
-CFLAGS=-g -Wno-cpp -Wall -Wextra -Wpedantic -Wdeclaration-after-statement
+WOLFSSL_INSTALL_DIR=/usr/local
+LIBS=-L$(WOLFSSL_INSTALL_DIR)/lib -lwolfssl
+CFLAGS=-g -Wno-cpp -Wall -Wextra -Wpedantic -Wdeclaration-after-statement -I$(WOLFSSL_INSTALL_DIR)/include
 
 COMMON_OBJS=common.o
 CLIENT_OBJS=client.o

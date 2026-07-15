@@ -1,4 +1,4 @@
-# ECC Examples Makefile
+# Static Memory Examples Makefile
 CC       = gcc
 WOLFSSL_INSTALL_DIR = /usr/local
 CFLAGS   = -Wall -I$(WOLFSSL_INSTALL_DIR)/include

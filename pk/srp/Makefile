@@ -1,5 +1,5 @@
 CC=gcc
-WOLFSSL_INSTALL_DIR=/usr/local/lib
+WOLFSSL_INSTALL_DIR=/usr/local
 CFLAGS=-Wall -I$(WOLFSSL_INSTALL_DIR)/include -g
 #LIBS= -lwolfssl -lm
 LIBS= -L$(WOLFSSL_INSTALL_DIR)/lib -lwolfssl -lm

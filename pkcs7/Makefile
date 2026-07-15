@@ -1,9 +1,10 @@
-# ECC Examples Makefile
+# PKCS7 Examples Makefile
 CC       = gcc
 WOLFSSL_INSTALL_DIR = /usr/local
 CFLAGS   = -Wall -I$(WOLFSSL_INSTALL_DIR)/include
+# only needed when linking wolfSSL statically; a shared libwolfssl built
+# --with-libz already carries its own dependency on libz
 ZLIB     =
-#ZLIB    += -lz
 PSA_LIB  = -lmbedcrypto
 LIBS     = -L$(WOLFSSL_INSTALL_DIR)/lib -lm ${ZLIB}
 

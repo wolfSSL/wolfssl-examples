@@ -1,6 +1,8 @@
 CC      = gcc
 CLANG   = clang
-CFLAGS  = -O2 -g -Wall
+WOLFSSL_INSTALL_DIR = /usr/local
+CFLAGS  = -O2 -g -Wall -I$(WOLFSSL_INSTALL_DIR)/include
+WOLFSSL_LIBS = -L$(WOLFSSL_INSTALL_DIR)/lib -lwolfssl
 
 # Auto-detect host arch, convert to BPF target name
 UNAME_M := $(shell uname -m)
@@ -25,10 +27,10 @@ all: $(TARGETS)
 
 # ===== TLS Programs =====
 client-tls: client-tls.c
-	$(CC) $(CFLAGS) $< -o $@ -lwolfssl
+	$(CC) $(CFLAGS) $< -o $@ $(WOLFSSL_LIBS)
 
 server-tls: server-tls.c
-	$(CC) $(CFLAGS) $< -o $@ -lwolfssl
+	$(CC) $(CFLAGS) $< -o $@ $(WOLFSSL_LIBS)
 
 # ===== eBPF Program =====
 wolfssl_uprobe.bpf.o: wolfssl_uprobe.bpf.c

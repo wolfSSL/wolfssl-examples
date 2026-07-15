@@ -19,8 +19,10 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
 
 CC = gcc
+WOLFSSL_INSTALL_DIR = /usr/local
 CFLAGS = -Wall -Wextra -O2 -g
-LIBS = -lwolfssl
+INCLUDES = -I$(WOLFSSL_INSTALL_DIR)/include
+LIBS = -L$(WOLFSSL_INSTALL_DIR)/lib -lwolfssl
 
 TARGET = memory_bucket_tester
 SOURCE = memory_bucket_tester.c

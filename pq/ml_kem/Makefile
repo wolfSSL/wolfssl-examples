@@ -7,12 +7,12 @@ WOLFSSL_LIBS   = -L$(WOLFSSL_INSTALL_DIR)/lib -lm -lwolfssl
 
 DEBUG_FLAGS    = -g -DDEBUG
 
-all: ml_dsa_test
+all: ml_kem
 
-ml_dsa_test: ml_dsa.c
+ml_kem: ml_kem.c
 	$(CC) -o $@ $^ $(WOLFSSL_CFLAGS) $(WOLFSSL_LIBS) $(DEBUG_FLAGS)
 
 .PHONY: clean all
 
 clean:
-	rm -f *.o ml_dsa_test
+	rm -f *.o ml_kem

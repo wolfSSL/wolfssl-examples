@@ -1,4 +1,4 @@
-CC=gcc
+# CertGen Examples Makefile
 #if you installed wolfssl to an alternate location use CFLAGS and LIBS to
 #control your build:
 
