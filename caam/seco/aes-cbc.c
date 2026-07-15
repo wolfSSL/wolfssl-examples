@@ -95,7 +95,7 @@ int main(int argc, char** argv)
     unsigned int keyId;
     unsigned int keyStoreId;
     const byte in[] = "test message to encrypt";
-    const byte iv[] = {0,1,2,3,4,5,6,7,8,9,10,11,12};
+    const byte iv[AES_BLOCK_SIZE] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
 
     if (argc == 4) {
         if (XSTRNCMP(argv[1], "1", 1) == 0) {
