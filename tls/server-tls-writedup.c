@@ -43,6 +43,7 @@
 
 int main()
 {
+    int                reuse = 1;
     int                ret = 0;
 #ifdef HAVE_WRITE_DUP
     int                sockfd = SOCKET_INVALID;
@@ -113,6 +114,11 @@ int main()
     servAddr.sin_addr.s_addr = INADDR_ANY;          /* from anywhere   */
 
 
+
+    /* Reuse the port immediately: without this a restart hits TIME_WAIT
+     * and bind() fails with EADDRINUSE. */
+    setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR,
+               (char*)&reuse, (socklen_t)sizeof(reuse));
 
     /* Bind the server socket to our port */
     if (bind(sockfd, (struct sockaddr*)&servAddr, sizeof(servAddr)) == -1) {
