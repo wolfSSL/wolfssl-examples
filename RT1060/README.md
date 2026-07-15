@@ -52,14 +52,14 @@ Build wolfSSL
     - For **MIMXRT1060-EVKB**:
 
 ```
-$ SDK=SDK_2_13_1_MIMXRT1060-EVKB make
+$ SDK=./SDK_2_13_1_MIMXRT1060-EVKB make
 ```
 
 - For **EVK-MIMXRT106**:
 
 
 ```
-$ SDK=SDK_2_8_2_EVK-MIMXRT1060 make
+$ SDK=./SDK_2_8_2_EVK-MIMXRT1060 make
 ```
 
 The resulting binary files will be in `wolfssl-examples/RT1060`:

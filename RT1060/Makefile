@@ -2,6 +2,11 @@
 SDK?=./SDK_2_13_1_MIMXRT1060-EVKB
 WOLFSSL?=../../wolfssl
 
+# make defaults CC to the host cc, which cannot take the cortex-m7 flags below
+CROSS_COMPILE?=arm-none-eabi-
+CC=$(CROSS_COMPILE)gcc
+OBJCOPY=$(CROSS_COMPILE)objcopy
+
 # Common settings and files
 ASMFLAGS=-D__STARTUP_CLEAR_BSS -D__STARTUP_INITIALIZE_NONCACHEDATA -mcpu=cortex-m7 -Wall -mfloat-abi=hard -mfpu=fpv5-d16 -mthumb -fno-common -ffunction-sections -fdata-sections -ffreestanding -fno-builtin -mapcs -std=gnu99
 CFLAGS+=-I$(SDK)/devices/MIMXRT1062/utilities/debug_console/
@@ -101,10 +106,10 @@ BENCH_OBJS:=$(WOLFSSL)/wolfcrypt/benchmark/benchmark.o main-bench.o
 all: wolfcrypt-test.bin wolfcrypt-benchmark.bin
 
 wolfcrypt-test.bin: wolfcrypt-test.elf
-	arm-none-eabi-objcopy -O binary $^ $@
+	$(OBJCOPY) -O binary $^ $@
 
 wolfcrypt-benchmark.bin: wolfcrypt-benchmark.elf
-	arm-none-eabi-objcopy -O binary $^ $@
+	$(OBJCOPY) -O binary $^ $@
 
 wolfcrypt-test.elf: $(OBJS) $(TEST_OBJS)
 	$(CC) -o $@ $^ $(LDFLAGS)
