@@ -1,13 +1,19 @@
 CC = gcc
 
 WOLFSSL_INSTALL_DIR = /usr/local
-OPENSSL_INSTALL_DIR = /usr/local
 
 WOLFSSL_CFLAGS = -Werror -Wall -I$(WOLFSSL_INSTALL_DIR)/include -DUSE_WOLFSSL
 WOLFSSL_LIBS   = -L$(WOLFSSL_INSTALL_DIR)/lib -lm -lwolfssl
 
+# empty = system OpenSSL; pointing this at /usr/local would shadow openssl/*.h with wolfSSL's opensslextra compat headers
+OPENSSL_INSTALL_DIR ?=
+ifneq ($(OPENSSL_INSTALL_DIR),)
 OPENSSL_CFLAGS = -Werror -Wall -I$(OPENSSL_INSTALL_DIR)/include
-OPENSSL_LIBS   = -L$(OPENSSL_INSTALL_DIR)/lib64/ -lm -lssl -lcrypto
+OPENSSL_LIBS   = -L$(OPENSSL_INSTALL_DIR)/lib -lm -lssl -lcrypto
+else
+OPENSSL_CFLAGS = -Werror -Wall
+OPENSSL_LIBS   = -lm -lssl -lcrypto
+endif
 
 DEBUG_FLAGS    = -g -DDEBUG
 
