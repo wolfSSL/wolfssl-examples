@@ -18,7 +18,7 @@ LOCAL_CFLAGS := -DOPENSSL_EXTRA -DWOLFSSL_DTLS -D_POSIX_THREADS -DNDEBUG \
 				-Wall
 LOCAL_SRC_FILES := src/crl.c \
 				   src/internal.c \
-				   src/io.c \
+				   src/wolfio.c \
 				   src/keys.c \
 				   src/ocsp.c \
 				   src/sniffer.c \
