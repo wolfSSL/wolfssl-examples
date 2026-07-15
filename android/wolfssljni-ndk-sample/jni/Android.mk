@@ -50,6 +50,7 @@ LOCAL_SRC_FILES := src/crl.c \
 				   wolfcrypt/src/ge_operations.c \
 				   wolfcrypt/src/hash.c \
 				   wolfcrypt/src/hmac.c \
+				   wolfcrypt/src/kdf.c \
 				   wolfcrypt/src/integer.c \
 				   wolfcrypt/src/logging.c \
 				   wolfcrypt/src/md2.c \
