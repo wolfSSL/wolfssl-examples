@@ -199,7 +199,7 @@ WOLFSSL_ESP_TASK dtls13_smp_client_task(void *pvParameters)
 
         ESP_LOGI(TAG, "Sending message");
 
-        XSTRCPY(sendLine, "Hello World.");
+        XSTRLCPY(sendLine, "Hello World.", sizeof(sendLine));
 
         /* Send sendLine to the server */
         if (wolfSSL_write(ssl, sendLine, XSTRLEN(sendLine)) !=
