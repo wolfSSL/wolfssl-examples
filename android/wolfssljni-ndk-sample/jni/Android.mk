@@ -24,6 +24,7 @@ LOCAL_SRC_FILES := src/crl.c \
 				   src/sniffer.c \
 				   src/ssl.c \
 				   src/tls.c \
+				   src/dtls.c \
 				   wolfcrypt/src/aes.c \
 				   wolfcrypt/src/arc4.c \
 				   wolfcrypt/src/asm.c \
