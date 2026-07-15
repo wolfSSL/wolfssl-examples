@@ -49,7 +49,6 @@ import javax.net.SocketFactory;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.TrustManagerFactory;
 
-import com.wolfssl.provider.jsse.WolfSSLDebug;
 import com.wolfssl.provider.jsse.WolfSSLProvider;
 import com.wolfssl.WolfSSL;
 
