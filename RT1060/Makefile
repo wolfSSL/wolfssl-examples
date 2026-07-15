@@ -39,6 +39,7 @@ OBJS= \
      $(WOLFSSL)/wolfcrypt/src/ge_low_mem.o \
      $(WOLFSSL)/wolfcrypt/src/hash.o \
      $(WOLFSSL)/wolfcrypt/src/pwdbased.o \
+     $(WOLFSSL)/wolfcrypt/src/pkcs12.o \
      $(WOLFSSL)/wolfcrypt/src/wolfmath.o \
      $(WOLFSSL)/wolfcrypt/src/fe_low_mem.o
 
