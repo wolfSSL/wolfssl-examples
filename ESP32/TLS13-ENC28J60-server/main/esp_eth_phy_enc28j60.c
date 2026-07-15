@@ -16,7 +16,6 @@
 #include <sys/cdefs.h>
 #include "esp_log.h"
 #include "esp_eth.h"
-#include "eth_phy_regs_struct.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/gpio.h"
@@ -57,6 +56,25 @@ typedef union {
  * @brief PHSTAT2(PHY Status Register 2)
  *
  */
+/* IDF 5.x removed eth_phy_regs_struct.h; this is the standard 802.3 BMCR */
+typedef union {
+    struct {
+        uint32_t reserved_5_0 : 6;    // Reserved
+        uint32_t speed_select_msb : 1;// Speed select MSB
+        uint32_t collision_test : 1;  // Collision test
+        uint32_t duplex_mode : 1;     // Duplex mode
+        uint32_t restart_auto_nego : 1; // Restart auto negotiation
+        uint32_t isolate : 1;         // Isolate
+        uint32_t power_down : 1;      // Power down
+        uint32_t en_auto_nego : 1;    // Enable auto negotiation
+        uint32_t speed_select : 1;    // Speed select LSB
+        uint32_t loopback : 1;        // Loopback
+        uint32_t reset : 1;           // Reset
+    };
+    uint32_t val;
+} bmcr_reg_t;
+#define ETH_PHY_BMCR_REG_ADDR (0x00)
+
 typedef union {
     struct {
         uint32_t reserved_4_0 : 5;   // Reserved
