@@ -38,6 +38,7 @@ int main()
 {
     int                ret; 
     int                sockfd;
+    int                reuse = 1;
     int                connd;
     struct sockaddr_in servAddr;
     struct sockaddr_in clientAddr;
@@ -71,6 +72,11 @@ int main()
 
 
     /* Bind the server socket to our port */
+    /* Reuse the port immediately: without this a restart hits TIME_WAIT
+     * and bind() fails with EADDRINUSE. */
+    setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR,
+               (char*)&reuse, (socklen_t)sizeof(reuse));
+
     if (bind(sockfd, (struct sockaddr*)&servAddr, sizeof(servAddr)) == -1) {
         fprintf(stderr, "ERROR: failed to bind\n");
         ret = -1;
