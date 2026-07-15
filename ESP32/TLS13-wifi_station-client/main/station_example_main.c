@@ -50,7 +50,7 @@
  **/
 
 /* when using a private config with plain text passwords, not my_private_config.h should be excluded from git updates */
-#define  USE_MY_PRIVATE_CONFIG
+/* #define USE_MY_PRIVATE_CONFIG */
 
 #ifdef  USE_MY_PRIVATE_CONFIG
     #include "/workspace/my_private_config.h"
