@@ -118,6 +118,7 @@ int main(void)
 #if defined(HAVE_ECC) && defined(WOLFSSL_PUBLIC_MP)
     const char* curve_str = "SECP256R1";
     int curve_id = ECC_SECP256R1;
+    int rc = 0;
     unsigned char param[MAX_ECC_BYTES];
 
     wolfSSL_Debugging_ON();
@@ -126,27 +127,51 @@ int main(void)
 
     ret = load_curve_param(curve_id, ECC_CURVE_FIELD_PRIME, param, sizeof(param));
     printf("Prime: %d\n", ret);
-    WOLFSSL_BUFFER(param, ret);
+    if (ret < 0)
+        rc = ret;
+    else
+        WOLFSSL_BUFFER(param, ret);
 
     ret = load_curve_param(curve_id, ECC_CURVE_FIELD_AF, param, sizeof(param));
     printf("Af: %d\n", ret);
-    WOLFSSL_BUFFER(param, ret);
+    if (ret < 0)
+        rc = ret;
+    else
+        WOLFSSL_BUFFER(param, ret);
 
     ret = load_curve_param(curve_id, ECC_CURVE_FIELD_BF, param, sizeof(param));
     printf("Bf: %d\n", ret);
-    WOLFSSL_BUFFER(param, ret);
+    if (ret < 0)
+        rc = ret;
+    else
+        WOLFSSL_BUFFER(param, ret);
 
     ret = load_curve_param(curve_id, ECC_CURVE_FIELD_ORDER, param, sizeof(param));
     printf("Order: %d\n", ret);
-    WOLFSSL_BUFFER(param, ret);
+    if (ret < 0)
+        rc = ret;
+    else
+        WOLFSSL_BUFFER(param, ret);
 
     ret = load_curve_param(curve_id, ECC_CURVE_FIELD_GX, param, sizeof(param));
     printf("Gx: %d\n", ret);
-    WOLFSSL_BUFFER(param, ret);
+    if (ret < 0)
+        rc = ret;
+    else
+        WOLFSSL_BUFFER(param, ret);
 
     ret = load_curve_param(curve_id, ECC_CURVE_FIELD_GY, param, sizeof(param));
     printf("Gy: %d\n", ret);
-    WOLFSSL_BUFFER(param, ret);
+    if (ret < 0)
+        rc = ret;
+    else
+        WOLFSSL_BUFFER(param, ret);
+
+    /* load_curve_param returns a length, so only a negative value is an error.
+     * rc latches a failure across all six calls; ret alone holds only the last.
+     * Return 1, not rc: an exit status is truncated mod 256, and -132 would
+     * surface as 124 -- the shell's timeout code. */
+    ret = (rc < 0) ? 1 : 0;
 #else
     printf("Must build wolfSSL with ./configure CFLAGS=\"-DWOLFSSL_PUBLIC_MP\"\n");
 #endif
