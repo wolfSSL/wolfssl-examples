@@ -23,6 +23,14 @@ void SysTick_Handler(void)
     g_systickCounter++;
 }
 
+/* benchmark.c's generic branch calls clock_gettime, which this board has no
+ * implementation for; WOLFSSL_USER_CURRTIME routes it here instead. */
+double current_time(int reset)
+{
+    (void)reset;
+    return (double)g_systickCounter / 1000.0;
+}
+
 int32_t cust_rand_generate_block(uint8_t *rndb, uint32_t sz)
 {
     status_t status;
