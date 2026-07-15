@@ -12,7 +12,8 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
 
-        <activity android:name="com.wolfssl.wolfcryptjni_ndk_gradle.MainActivity">
+        <activity android:name="com.wolfssl.wolfcryptjni_ndk_gradle.MainActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
