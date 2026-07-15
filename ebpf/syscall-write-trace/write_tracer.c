@@ -167,12 +167,8 @@ int main(int argc, char **argv)
         goto cleanup_link;
     }
     
-    struct perf_buffer_opts pb_opts = {
-        .sample_cb = handle_event,
-        .lost_cb = handle_lost_events,
-    };
-    
-    pb = perf_buffer__new(map_fd, 8, &pb_opts);
+    /* libbpf 1.0 moved the callbacks out of perf_buffer_opts into arguments */
+    pb = perf_buffer__new(map_fd, 8, handle_event, handle_lost_events, NULL, NULL);
     if (libbpf_get_error(pb)) {
         fprintf(stderr, "Failed to create perf buffer\n");
         err = 1;
