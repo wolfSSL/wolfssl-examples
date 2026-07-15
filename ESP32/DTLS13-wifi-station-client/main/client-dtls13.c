@@ -68,7 +68,7 @@
 
 static const char* const TAG = "server-dtls13";
 
-WOLFSSL_CTX*  ctx = NULL;
+static WOLFSSL_CTX*  ctx = NULL;
 WOLFSSL*      ssl = NULL;
 int           listenfd = INVALID_SOCKET;   /* Initialize our socket */
 
