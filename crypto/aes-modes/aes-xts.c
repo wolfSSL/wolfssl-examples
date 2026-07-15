@@ -361,8 +361,10 @@ int main(int argc, char** argv)
 
     wolfCrypt_Init();
 
-    /* Use a fixed key for demonstration (XTS uses two keys) */
-    memset(key, 0x0D, AES_XTS_KEY_SIZE);
+    /* Fixed key for demonstration. XTS is two keys; wolfSSL rejects a key
+     * whose halves are identical, so they must differ. */
+    memset(key, 0x0D, AES_XTS_KEY_SIZE / 2);
+    memset(key + AES_XTS_KEY_SIZE / 2, 0x2A, AES_XTS_KEY_SIZE / 2);
 
     /* Encrypt to temporary file */
     ret = encrypt_file(argv[1], "temp_encrypted.bin", key, AES_XTS_KEY_SIZE);
