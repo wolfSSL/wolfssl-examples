@@ -43,6 +43,7 @@ static int devId = INVALID_DEVID; /* set to alternate dev id if wanted */
 static int createKey(byte** keyDer, word32* keySz, RsaKey* key, WC_RNG* rng)
 {
     int ret;
+    int derSz;
 
     *keyDer = NULL;
     *keySz  = 0;
@@ -57,10 +58,13 @@ static int createKey(byte** keyDer, word32* keySz, RsaKey* key, WC_RNG* rng)
     }
 
     if (ret == 0) {
-        *keySz = wc_RsaKeyToDer(key, NULL, 0);
-        if (*keySz < 0) {
+        derSz = wc_RsaKeyToDer(key, NULL, 0);
+        if (derSz < 0) {
             printf("unable to convert RSA key to DER\n");
-            ret = *keySz;
+            ret = derSz;
+        }
+        else {
+            *keySz = (word32)derSz;
         }
     }
 
@@ -72,10 +76,13 @@ static int createKey(byte** keyDer, word32* keySz, RsaKey* key, WC_RNG* rng)
     }
 
     if (ret == 0) {
-        *keySz = wc_RsaKeyToDer(key, *keyDer, *keySz);
-        if (*keySz < 0) {
+        derSz = wc_RsaKeyToDer(key, *keyDer, *keySz);
+        if (derSz < 0) {
             printf("unable to convert RSA key to DER\n");
-            ret = *keySz;
+            ret = derSz;
+        }
+        else {
+            *keySz = (word32)derSz;
         }
     }
 
