@@ -75,6 +75,25 @@ typedef union {
 } bmcr_reg_t;
 #define ETH_PHY_BMCR_REG_ADDR (0x00)
 
+/* standard 802.3 PHY identifier registers, also from the removed header */
+typedef union {
+    struct {
+        uint32_t oui_msb : 16; // Organizationally Unique Identifier bits 3:18
+    };
+    uint32_t val;
+} phyidr1_reg_t;
+#define ETH_PHY_IDR1_REG_ADDR (0x02)
+
+typedef union {
+    struct {
+        uint32_t model_revision : 4;  // Model revision number
+        uint32_t vendor_model : 6;    // Vendor model number
+        uint32_t oui_lsb : 6;         // Organizationally Unique Identifier bits 19:24
+    };
+    uint32_t val;
+} phyidr2_reg_t;
+#define ETH_PHY_IDR2_REG_ADDR (0x03)
+
 typedef union {
     struct {
         uint32_t reserved_4_0 : 5;   // Reserved
