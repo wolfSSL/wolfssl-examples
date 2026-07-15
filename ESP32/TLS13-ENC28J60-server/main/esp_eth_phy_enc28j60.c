@@ -34,6 +34,24 @@ static const char *TAG = "enc28j60";
 /***************Vendor Specific Register***************/
 
 /**
+ * @brief PHCON1(PHY Control Register 1)
+ *
+ */
+typedef union {
+    struct {
+        uint32_t reserved_7_0 : 8;  // Reserved
+        uint32_t pdpxmd : 1;        // PHY Duplex Mode
+        uint32_t reserved_10_9: 2;  // Reserved
+        uint32_t ppwrsv: 1;         // PHY Power-Down
+        uint32_t reserved_13_12: 2; // Reserved
+        uint32_t ploopbk: 1;        // PHY Loopback
+        uint32_t prst: 1;           // PHY Software Reset
+    };
+    uint32_t val;
+} phcon1_reg_t;
+#define ETH_PHY_PHCON1_REG_ADDR (0x00)
+
+/**
  * @brief PHCON2(PHY Control Register 2)
  *
  */
@@ -208,7 +226,8 @@ static esp_err_t enc28j60_reset_hw(esp_eth_phy_t *phy)
     return ESP_OK;
 }
 
-static esp_err_t enc28j60_negotiate(esp_eth_phy_t *phy)
+static esp_err_t enc28j60_autonego_ctrl(esp_eth_phy_t *phy, eth_phy_autoneg_cmd_t cmd,
+                                        bool *autoneg_en_stat)
 {
     /**
      * ENC28J60 does not support automatic duplex negotiation.
@@ -217,9 +236,70 @@ static esp_err_t enc28j60_negotiate(esp_eth_phy_t *phy)
      * To communicate in Full-Duplex mode, ENC28J60 and the remote node
      * must be manually configured for full-duplex operation.
      */
+    switch (cmd) {
+    case ESP_ETH_PHY_AUTONEGO_RESTART:
+    /* Fallthrough */
+    case ESP_ETH_PHY_AUTONEGO_EN:
+        return ESP_ERR_NOT_SUPPORTED;
+    case ESP_ETH_PHY_AUTONEGO_DIS:
+    /* Fallthrough */
+    case ESP_ETH_PHY_AUTONEGO_G_STAT:
+        *autoneg_en_stat = false;
+        break;
+    default:
+        return ESP_ERR_INVALID_ARG;
+    }
+    return ESP_OK;
+}
+
+static esp_err_t enc28j60_set_link(esp_eth_phy_t *phy, eth_link_t link)
+{
     phy_enc28j60_t *enc28j60 = __containerof(phy, phy_enc28j60_t, parent);
-    /* Updata information about link, speed, duplex */
-    PHY_CHECK(enc28j60_update_link_duplex_speed(enc28j60) == ESP_OK, "update link duplex speed failed", err);
+    esp_eth_mediator_t *eth = enc28j60->eth;
+
+    if (enc28j60->link_status != link) {
+        enc28j60->link_status = link;
+        PHY_CHECK(eth->on_state_changed(eth, ETH_STATE_LINK, (void *)link) == ESP_OK,
+                  "change link failed", err);
+    }
+    return ESP_OK;
+err:
+    return ESP_FAIL;
+}
+
+static esp_err_t enc28j60_set_speed(esp_eth_phy_t *phy, eth_speed_t speed)
+{
+    /* ENC28J60 supports only 10Mbps */
+    if (speed == ETH_SPEED_10M) {
+        return ESP_OK;
+    }
+    return ESP_ERR_NOT_SUPPORTED;
+}
+
+static esp_err_t enc28j60_set_duplex(esp_eth_phy_t *phy, eth_duplex_t duplex)
+{
+    phy_enc28j60_t *enc28j60 = __containerof(phy, phy_enc28j60_t, parent);
+    esp_eth_mediator_t *eth = enc28j60->eth;
+    phcon1_reg_t phcon1;
+
+    /* the link is being reconfigured, so report it down until the driver restarts */
+    enc28j60->link_status = ETH_LINK_DOWN;
+
+    PHY_CHECK(eth->phy_reg_read(eth, enc28j60->addr, ETH_PHY_PHCON1_REG_ADDR, &(phcon1.val)) == ESP_OK,
+              "read PHCON1 failed", err);
+    switch (duplex) {
+    case ETH_DUPLEX_HALF:
+        phcon1.pdpxmd = 0;
+        break;
+    case ETH_DUPLEX_FULL:
+        phcon1.pdpxmd = 1;
+        break;
+    default:
+        PHY_CHECK(false, "unknown duplex", err);
+        break;
+    }
+    PHY_CHECK(eth->phy_reg_write(eth, enc28j60->addr, ETH_PHY_PHCON1_REG_ADDR, phcon1.val) == ESP_OK,
+              "write PHCON1 failed", err);
     return ESP_OK;
 err:
     return ESP_FAIL;
@@ -329,11 +409,14 @@ esp_eth_phy_t *esp_eth_phy_new_enc28j60(const eth_phy_config_t *config)
     enc28j60->parent.init = enc28j60_init;
     enc28j60->parent.deinit = enc28j60_deinit;
     enc28j60->parent.set_mediator = enc28j60_set_mediator;
-    enc28j60->parent.negotiate = enc28j60_negotiate;
+    enc28j60->parent.autonego_ctrl = enc28j60_autonego_ctrl;
     enc28j60->parent.get_link = enc28j60_get_link;
+    enc28j60->parent.set_link = enc28j60_set_link;
     enc28j60->parent.pwrctl = enc28j60_pwrctl;
     enc28j60->parent.get_addr = enc28j60_get_addr;
     enc28j60->parent.set_addr = enc28j60_set_addr;
+    enc28j60->parent.set_speed = enc28j60_set_speed;
+    enc28j60->parent.set_duplex = enc28j60_set_duplex;
     enc28j60->parent.del = enc28j60_del;
     return &(enc28j60->parent);
 err:
