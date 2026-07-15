@@ -8,6 +8,9 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 # wolfSSL configuration
 add_definitions(-DWOLFSSL_USER_SETTINGS)
 add_definitions(-DWOLFSSL_WOLFIP)
+# wolfip's httpd.h puts its whole body behind this, so without it the header
+# includes cleanly and every http_* symbol is undeclared
+add_definitions(-DWOLFIP_ENABLE_HTTP)
 
 # FreeRTOS Kernel source files for POSIX port
 set(FREERTOS_PORT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/freertos/FreeRTOS-Kernel/portable/ThirdParty/GCC/Posix)
