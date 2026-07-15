@@ -22,6 +22,10 @@ OBJS=$(addprefix $(BUILD_DIR)/,$(_OBJS))
 
 $(shell mkdir -p $(BUILD_DIR))
 
+# The $(BUILD_DIR)/%.o rule needs these sources present while make builds its
+# graph, so cloning from a prerequisite recipe is too late to be found.
+$(shell [ -d wolfssl ] || git clone $(WOLFSSL_REPO))
+
 all: wolfcrypt.efi
 
 .PHONY: clone_repo
