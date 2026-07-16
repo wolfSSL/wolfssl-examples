@@ -187,6 +187,14 @@ int main(int argc, char** argv)
                 buff[recvLen] = 0;
                 printf("I heard this: \"%s\"\n", buff);
             }
+            else if (recvLen == 0) {
+                /* close_notify: rebind now. Falling through to write instead
+                 * only escapes once a send fails on an ICMP round trip, and
+                 * until then this socket is still connect()ed to the old peer,
+                 * so a client resuming from a new port is never heard. */
+                printf("Client sent close notify\n");
+                break;
+            }
             else if (recvLen < 0) {
                 int readErr = wolfSSL_get_error(ssl, 0);
                 if(readErr != SSL_ERROR_WANT_READ) {
