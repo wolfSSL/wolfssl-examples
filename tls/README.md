@@ -118,11 +118,13 @@ into.
     2. [Client](#client-ecc)
     3. [Running](#run-ecc)
 
-7. [Encrypted Client Hello](#ech)
+7. [Multi-tenant SNI](#tls-sni)
 
-    1. [client-ech — Real-World ECH with Cloudflare](#ech-cloudflare)
-    2. [Local ECH pair — server-ech-local and client-ech-local](#ech-local)
-    3. [Multi-tenant ECH — server-ech-multi-sni and server-ech-multi-ctx](#ech-multi)
+8. [Encrypted Client Hello](#ech)
+
+    1. [Real-World ECH with Cloudflare](#ech-cloudflare)
+    2. [Local ECH pair](#ech-local)
+    3. [Multi-tenant ECH](#ech-multi)
 
         1. [ECH rejection and retry configs](#ech-rejection)
 
@@ -1343,6 +1345,60 @@ To generate your own cert text, see the [DER to C script](https://github.com/wol
 
 <br />
 
+## <a name="tls-sni">Multi-tenant SNI</a>
+
+There are two examples which showcase multi-tenant SNI: server-tls-sni-callback
+and server-tls-ctx-swap. These two servers show a single TLS front end serving
+several tenants, each with its own certificate, selected by the
+Server Name Indication (SNI) the client sends. A servername callback dispatches
+on the SNI and applies the matching tenant's credentials for the handshake.
+
+Both serve two tenants and fall back to a default cert/key when the client sends
+no SNI or an unrecognized one:
+
+| Tenant SNI | Certificate |
+|---|---|
+| `tenant-a.example` | `../certs/tenant-a-cert.pem` |
+| `tenant-b.example` | `../certs/tenant-b-cert.pem` |
+| *(none / unknown)* | `../certs/server-cert.pem` (default) |
+
+They differ in *how* the tenant credentials are applied once the SNI is known:
+
+- **`server-tls-sni-callback`** keeps a single `WOLFSSL_CTX`. Its SNI callback
+  installs the matched tenant's cert/key directly on the per-connection
+  `WOLFSSL` object with `wolfSSL_use_certificate_file()` /
+  `wolfSSL_use_PrivateKey_file()`. Needs wolfSSL built with `--enable-sni`.
+- **`server-tls-ctx-swap`** builds a separate `WOLFSSL_CTX` per tenant up front
+  and swaps the live connection onto the matching one with
+  `wolfSSL_set_SSL_CTX()`. Needs wolfSSL built with `--enable-sni` and
+  `--enable-opensslextra` (or `--enable-opensslall`).
+
+Drive them with wolfSSL's stock example client, which sends an SNI with `-S`.
+Build and run a server (either variant); it prints the tenants it serves:
+
+```sh
+make server-tls-sni-callback
+./server-tls-sni-callback
+Tenants:
+  tenant-a.example
+  tenant-b.example
+
+Waiting for a connection...
+```
+
+From your wolfSSL source tree, connect as one of the tenants:
+
+```sh
+./examples/client/client -S tenant-a.example
+```
+
+The server prints the SNI it received and prefixes its reply with the selected
+tenant name (`tenant-a.example: I hear ya fa shizzle!`). A client that sends no
+`-S`, or an unknown name, stays on the default certificate and gets the plain
+reply.
+
+<br />
+
 ## <a name="ech">Encrypted Client Hello</a>
 
 Encrypted Client Hello (ECH) encrypts sensitive fields in the TLS ClientHello
@@ -1372,7 +1428,7 @@ This directory contains the following ECH example programs:
 | `server-ech-multi-ctx` | Multi-tenant ECH server: a per-tenant `WOLFSSL_CTX` swapped mid-handshake (needs `--enable-opensslextra`) |
 | `client-ech-local` | Local ECH client for every local server above: takes a base64 ECH config and a target SNI |
 
-### <a name="ech-cloudflare">client-ech — Real-World ECH with Cloudflare</a>
+### <a name="ech-cloudflare">Real-World ECH with Cloudflare</a>
 
 `client-ech` performs an ECH handshake against `crypto.cloudflare.com`. It takes
 the server's ECH config as a base64 command-line argument. Fetch it out of band
@@ -1429,7 +1485,7 @@ kex=X25519
 Client: ECH successful
 ```
 
-### <a name="ech-local">Local ECH pair — server-ech-local and client-ech-local</a>
+### <a name="ech-local">Local ECH pair</a>
 
 `server-ech-local` and `client-ech-local` demonstrate ECH between two local
 processes without requiring internet access or DNS. This is the simplest
@@ -1476,7 +1532,7 @@ Shutdown complete
 
 Send `shutdown` as the message to stop the server.
 
-### <a name="ech-multi">Multi-tenant ECH — server-ech-multi-sni and server-ech-multi-ctx</a>
+### <a name="ech-multi">Multi-tenant ECH</a>
 
 These servers extend the local pair to a single front end that serves several
 tenants behind one public name. The client's true destination travels in the
