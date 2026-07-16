@@ -1,0 +1,70 @@
+{
+  "$schema": "http://cyclonedx.org/schema/bom-1.6.schema.json",
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "serialNumber": "urn:uuid:c7a4f9b2-8e1d-4a3f-b5c6-d2e8f4a7b9c1",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-05-18T12:00:00Z",
+    "component": {
+      "type": "firmware",
+      "bom-ref": "acme-connect-gateway-1.0.0",
+      "name": "acme-connect-gateway",
+      "version": "1.0.0",
+      "supplier": {
+        "name": "Acme Industries (fictional example)"
+      }
+    }
+  },
+  "components": [
+    {
+      "type": "library",
+      "bom-ref": "wolfssl-5.9.1",
+      "name": "wolfssl",
+      "version": "5.9.1",
+      "supplier": {
+        "name": "wolfSSL Inc."
+      },
+      "purl": "pkg:github/wolfSSL/wolfssl@v5.9.1",
+      "cpe": "cpe:2.3:a:wolfssl:wolfssl:5.9.1:*:*:*:*:*:*:*",
+      "licenses": [
+        {
+          "license": {
+            "id": "GPL-3.0-only"
+          }
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "bom",
+          "url": "file:./wolfssl-component/wolfssl-5.9.1.cdx.json",
+          "comment": "Component SBOM from wolfSSL; regenerate with scripts/generate-wolfssl-sbom.sh",
+          "hashes": [
+            {
+              "alg": "SHA-256",
+              "content": "f9498cc976e97dd6bd096943c6357a561f2c41a7b3c674e83a3cc47f1a3ab096"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "acme-connect-gateway-1.0.0",
+      "dependsOn": [
+        "wolfssl-5.9.1"
+      ]
+    },
+    {
+      "ref": "wolfssl-5.9.1",
+      "dependsOn": []
+    }
+  ],
+  "properties": [
+    {
+      "name": "wolfssl:sample:component-deps",
+      "value": "wolfSSL has no transitive runtime library dependencies; the host CRT is the only build-time requirement and is excluded per NTIA SBOM practice."
+    }
+  ]
+}

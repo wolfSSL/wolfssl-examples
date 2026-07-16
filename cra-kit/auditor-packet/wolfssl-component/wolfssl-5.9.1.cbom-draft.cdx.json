@@ -1,0 +1,247 @@
+{
+  "$schema": "http://cyclonedx.org/schema/bom-1.6.schema.json",
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "serialNumber": "urn:uuid:f1a2b3c4-d5e6-4f78-9012-3456789abcde",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-05-12T16:59:40Z",
+    "tools": {
+      "components": [
+        {
+          "type": "application",
+          "author": "wolfSSL Inc.",
+          "name": "cra-kit cbom-draft (hand-rolled)",
+          "version": "0.1"
+        }
+      ]
+    },
+    "component": {
+      "type": "library",
+      "bom-ref": "wolfssl-5.9.1-cbom",
+      "name": "wolfssl",
+      "version": "5.9.1",
+      "supplier": { "name": "wolfSSL Inc." },
+      "purl": "pkg:github/wolfSSL/wolfssl@v5.9.1"
+    },
+    "properties": [
+      {
+        "name": "wolfssl:cbom:status",
+        "value": "DRAFT — illustrative starter set for the CycloneDX 1.6 cryptographic-asset profile. Derived from the build configuration in wolfssl-5.9.1.cdx.json (HAVE_AESGCM, HAVE_CHACHA, HAVE_POLY1305, HAVE_ECC, HAVE_HKDF, WOLFSSL_SHA256/384/512, WOLFSSL_TLS13, WOLFSSL_HAVE_MLKEM). Not exhaustive. See ROADMAP.md."
+      }
+    ]
+  },
+  "components": [
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto-aes-gcm",
+      "name": "AES-GCM",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "ae",
+          "parameterSetIdentifier": "AES-256-GCM",
+          "cryptoFunctions": ["encrypt", "decrypt"],
+          "executionEnvironment": "software-plain-ram",
+          "implementationPlatform": "x86_64",
+          "certificationLevel": ["none"],
+          "nistQuantumSecurityLevel": 0
+        },
+        "oid": "2.16.840.1.101.3.4.1.46"
+      },
+      "properties": [
+        {"name": "wolfssl:build:macro", "value": "HAVE_AESGCM"},
+        {"name": "wolfssl:build:macro", "value": "GCM_TABLE_4BIT"}
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto-chacha20-poly1305",
+      "name": "ChaCha20-Poly1305",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "ae",
+          "parameterSetIdentifier": "ChaCha20-Poly1305 (RFC 8439)",
+          "cryptoFunctions": ["encrypt", "decrypt"],
+          "executionEnvironment": "software-plain-ram",
+          "implementationPlatform": "x86_64",
+          "nistQuantumSecurityLevel": 0
+        }
+      },
+      "properties": [
+        {"name": "wolfssl:build:macro", "value": "HAVE_CHACHA"},
+        {"name": "wolfssl:build:macro", "value": "HAVE_POLY1305"}
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto-ecdh-p256",
+      "name": "ECDH (P-256)",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "key-agree",
+          "parameterSetIdentifier": "secp256r1 (NIST P-256)",
+          "curve": "P-256",
+          "cryptoFunctions": ["keygen", "derive"],
+          "executionEnvironment": "software-plain-ram",
+          "nistQuantumSecurityLevel": 0
+        }
+      },
+      "properties": [
+        {"name": "wolfssl:build:macro", "value": "HAVE_ECC"},
+        {"name": "wolfssl:build:macro", "value": "ECC_TIMING_RESISTANT"}
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto-ecdsa-p256",
+      "name": "ECDSA (P-256)",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "signature",
+          "parameterSetIdentifier": "secp256r1 (NIST P-256)",
+          "curve": "P-256",
+          "cryptoFunctions": ["sign", "verify"],
+          "executionEnvironment": "software-plain-ram",
+          "nistQuantumSecurityLevel": 0
+        }
+      },
+      "properties": [
+        {"name": "wolfssl:build:macro", "value": "HAVE_ECC"}
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto-hkdf",
+      "name": "HKDF",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "kdf",
+          "parameterSetIdentifier": "HKDF-SHA256 (RFC 5869)",
+          "cryptoFunctions": ["derive"],
+          "executionEnvironment": "software-plain-ram"
+        }
+      },
+      "properties": [
+        {"name": "wolfssl:build:macro", "value": "HAVE_HKDF"}
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto-sha-256",
+      "name": "SHA-256",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "hash",
+          "parameterSetIdentifier": "SHA-256",
+          "cryptoFunctions": ["digest"],
+          "executionEnvironment": "software-plain-ram"
+        },
+        "oid": "2.16.840.1.101.3.4.2.1"
+      }
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto-sha-384",
+      "name": "SHA-384",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "hash",
+          "parameterSetIdentifier": "SHA-384",
+          "cryptoFunctions": ["digest"],
+          "executionEnvironment": "software-plain-ram"
+        },
+        "oid": "2.16.840.1.101.3.4.2.2"
+      },
+      "properties": [
+        {"name": "wolfssl:build:macro", "value": "WOLFSSL_SHA384"}
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto-sha-512",
+      "name": "SHA-512",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "hash",
+          "parameterSetIdentifier": "SHA-512",
+          "cryptoFunctions": ["digest"],
+          "executionEnvironment": "software-plain-ram"
+        },
+        "oid": "2.16.840.1.101.3.4.2.3"
+      },
+      "properties": [
+        {"name": "wolfssl:build:macro", "value": "WOLFSSL_SHA512"}
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto-ml-kem",
+      "name": "ML-KEM (post-quantum hybrid)",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "kem",
+          "parameterSetIdentifier": "ML-KEM-768 (NIST FIPS 203, hybrid TLS 1.3)",
+          "cryptoFunctions": ["encapsulate", "decapsulate"],
+          "executionEnvironment": "software-plain-ram",
+          "nistQuantumSecurityLevel": 3
+        }
+      },
+      "properties": [
+        {"name": "wolfssl:build:macro", "value": "WOLFSSL_HAVE_MLKEM"},
+        {"name": "wolfssl:build:macro", "value": "WOLFSSL_PQC_HYBRIDS"}
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto-tls-1.3",
+      "name": "TLS 1.3",
+      "cryptoProperties": {
+        "assetType": "protocol",
+        "protocolProperties": {
+          "type": "tls",
+          "version": "1.3",
+          "cryptoRefArray": [
+            "crypto-aes-gcm",
+            "crypto-chacha20-poly1305",
+            "crypto-ecdh-p256",
+            "crypto-ecdsa-p256",
+            "crypto-hkdf",
+            "crypto-sha-256",
+            "crypto-sha-384",
+            "crypto-ml-kem"
+          ]
+        }
+      },
+      "properties": [
+        {"name": "wolfssl:build:macro", "value": "WOLFSSL_TLS13"},
+        {"name": "wolfssl:note:sha-512-omitted", "value": "SHA-512 is built into the component (crypto-sha-512) but is intentionally absent from this cryptoRefArray: TLS 1.3 handshake/HKDF use SHA-256/SHA-384, not SHA-512. SHA-512 is exposed as a crypto asset for callers, not as a TLS 1.3 protocol dependency."}
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "wolfssl-5.9.1-cbom",
+      "dependsOn": [
+        "crypto-tls-1.3",
+        "crypto-aes-gcm",
+        "crypto-chacha20-poly1305",
+        "crypto-ecdh-p256",
+        "crypto-ecdsa-p256",
+        "crypto-hkdf",
+        "crypto-sha-256",
+        "crypto-sha-384",
+        "crypto-sha-512",
+        "crypto-ml-kem"
+      ]
+    }
+  ]
+}

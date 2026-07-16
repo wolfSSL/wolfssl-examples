@@ -415,6 +415,30 @@ for further usage and details.
 
 <br />
 
+#### cra-kit (wolfSSL CRA Kit)
+
+This directory is **not** a TLS/crypto tutorial. It demonstrates how to
+generate wolfSSL **component SBOMs** (SPDX + CycloneDX), nest them in a
+**fictional product SBOM**, and understand optional **bomsh** build provenance
+(Linux host only) for EU Cyber Resilience Act-style software transparency.
+
+Includes a [CRA compliance shortlist](cra-kit/CRA-Compliance-Shortlist.md), a
+[who provides what cheat sheet](cra-kit/CRA-Cheat-Sheet.md), full
+[glossary](cra-kit/CRA-Supply-Chain-Glossary.md), [AI playbook](cra-kit/SKILL.md), sample
+[customer-side auditor packet](cra-kit/auditor-packet/) (fictional Acme Connect
+Gateway), [manufacturer-side filings](cra-kit/wolfssl-inc-auditor-packet/) (what
+wolfSSL Inc. itself ships under CRA — classification, conformity assessment,
+declaration of conformity template, EU AR status, etc.), and helper scripts
+(`validate.sh` runs without building wolfSSL, with optional `cyclonedx-cli` /
+`pyspdxtools` schema validation). Regenerating component SBOMs requires a
+wolfSSL tree with SBOM support — see [cra-kit/README.md](cra-kit/README.md).
+
+Please see the [cra-kit/README.md](cra-kit/README.md) for further
+usage and details.
+
+
+<br />
+
 #### uefi-library (wolfCrypt UEFI boot module and test app)
 
 This directory contains a UEFI wolfCrypt protocol driver (`libwolfcrypt.efi`)

@@ -1,0 +1,336 @@
+{
+  "$schema": "http://cyclonedx.org/schema/bom-1.6.schema.json",
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "serialNumber": "urn:uuid:bbd8fa2c-814a-5921-b121-e872fe1b42a2",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-05-12T16:59:40Z",
+    "tools": {
+      "components": [
+        {
+          "type": "application",
+          "author": "wolfSSL Inc.",
+          "name": "wolfssl-sbom-gen",
+          "version": "1.1"
+        }
+      ]
+    },
+    "component": {
+      "bom-ref": "721ce791-b9c8-5edf-a9d2-ef3b0539043b",
+      "type": "library",
+      "supplier": {
+        "name": "wolfSSL Inc."
+      },
+      "name": "wolfssl",
+      "version": "5.9.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "GPL-3.0-only"
+          }
+        }
+      ],
+      "copyright": "Copyright (C) 2006-2026 wolfSSL Inc.",
+      "cpe": "cpe:2.3:a:wolfssl:wolfssl:5.9.1:*:*:*:*:*:*:*",
+      "purl": "pkg:github/wolfSSL/wolfssl@v5.9.1",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "0000000000000000000000000000000000000000000000000000000000000000"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/wolfSSL/wolfssl"
+        },
+        {
+          "type": "website",
+          "url": "https://www.wolfssl.com/"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/wolfSSL/wolfssl/issues"
+        },
+        {
+          "type": "advisories",
+          "url": "https://github.com/wolfSSL/wolfssl/security/advisories"
+        },
+        {
+          "type": "security-contact",
+          "url": "https://www.wolfssl.com/.well-known/security.txt"
+        }
+      ],
+      "properties": [
+        {
+          "name": "wolfssl:build:ECC_MIN_KEY_SZ",
+          "value": "224"
+        },
+        {
+          "name": "wolfssl:build:ECC_SHAMIR",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:ECC_TIMING_RESISTANT",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:ERROR_QUEUE_PER_THREAD",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:GCM_TABLE_4BIT",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:HAVE_AESGCM",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:HAVE_CHACHA",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:HAVE_C___ATOMIC",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:HAVE_DH_DEFAULT_PARAMS",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:HAVE_ECC",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:HAVE_ENCRYPT_THEN_MAC",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:HAVE_EXTENDED_MASTER",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:HAVE_FFDHE_2048",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:HAVE_GETPID",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:HAVE_HASHDRBG",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:HAVE_HKDF",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:HAVE_POLY1305",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:HAVE_SERVER_RENEGOTIATION_INFO",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:HAVE_SNI",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:HAVE_SUPPORTED_CURVES",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:HAVE_THREAD_LS",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:HAVE_TLS_EXTENSIONS",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:HAVE_WC_INTROSPECTION",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:HAVE___UINT128_T",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:NO_DES3",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:NO_DES3_TLS_SUITES",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:NO_DO178",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:NO_DSA",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:NO_MD4",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:NO_MD5",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:NO_OLD_TLS",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:NO_PSK",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:NO_RC4",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:TFM_TIMING_RESISTANT",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:WC_NO_ASYNC_THREADING",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:WC_RSA_BLINDING",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:WC_RSA_PSS",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:WOLFSSL_ARMASM_NO_HW_CRYPTO",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:WOLFSSL_ASN_PRINT",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:WOLFSSL_ASN_TEMPLATE",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:WOLFSSL_BASE64_ENCODE",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:WOLFSSL_DRBG_SHA512",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:WOLFSSL_HAVE_ASSERT_H",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:WOLFSSL_HAVE_ATOMIC_H",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:WOLFSSL_HAVE_MLKEM",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:WOLFSSL_PQC_HYBRIDS",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:WOLFSSL_PSS_LONG_SALT",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:WOLFSSL_SHA224",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:WOLFSSL_SHA3",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:WOLFSSL_SHA384",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:WOLFSSL_SHA512",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:WOLFSSL_SHAKE128",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:WOLFSSL_SHAKE256",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:WOLFSSL_SP_MATH_ALL",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:WOLFSSL_SP_X86_64",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:WOLFSSL_SYS_CA_CERTS",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:WOLFSSL_TLS13",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:WOLFSSL_TLS_NO_MLKEM_STANDALONE",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:WOLFSSL_USE_ALIGN",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:build:WOLFSSL_X86_64_BUILD",
+          "value": "1"
+        },
+        {
+          "name": "wolfssl:sbom:hash-kind",
+          "value": "library-binary"
+        }
+      ],
+      "components": [
+        {
+          "type": "file",
+          "name": "libwolfssl.44.dylib",
+          "hashes": [
+            {
+              "alg": "SHA-1",
+              "content": "0000000000000000000000000000000000000000"
+            },
+            {
+              "alg": "SHA-256",
+              "content": "0000000000000000000000000000000000000000000000000000000000000000"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "components": [],
+  "dependencies": [
+    {
+      "ref": "721ce791-b9c8-5edf-a9d2-ef3b0539043b",
+      "dependsOn": []
+    }
+  ]
+}
