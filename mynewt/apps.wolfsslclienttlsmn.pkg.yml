@@ -36,4 +36,6 @@ pkg.deps:
     - "@apache-mynewt-core/sys/log/full"
     - "@apache-mynewt-core/sys/stats/full"
 
-pkg.cflags: -DWOLFSSL_APACHE_MYNEWT -Wno-error -DNO_FILESYSTEM -DWOLFSSL_IGNORE_FILE_WARN
+# WC_NO_HARDEN is required for native sim targets.
+# WOLFSSL_CUSTOM_CONFIG applies Mynewt-specific settings.
+pkg.cflags: -DWOLFSSL_APACHE_MYNEWT -DWOLFSSL_CUSTOM_CONFIG -DWC_NO_HARDEN -Wno-error -DNO_FILESYSTEM -DWOLFSSL_IGNORE_FILE_WARN
