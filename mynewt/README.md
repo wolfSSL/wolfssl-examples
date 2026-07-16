@@ -113,6 +113,35 @@ including the `wolfssl` command with represents the client TLS application.
 
 ## Usage
 
+### Run a local TLS server to connect to
+
+This example uses the repo's test CA (`certs/ca-cert.pem`, embedded as `local_ca.h`). 
+To avoid dependencies on live internet hosts, point the client at the local 
+`tls/server-tls` example.
+
+In a separate terminal, from the `wolfssl-examples` directory:
+
+```
+$ cd tls
+$ make
+$ ./server-tls
+```
+
+Leave this running. It handles one connection at a time.
+
+### Connecting to a different target instead
+
+To connect to a real host, build with `WOLFSSL_MN_USE_CUSTOM_CA`:
+
+```
+$ newt target set wolfsslclienttlsmn_sim syscfg=WOLFSSL_MN_USE_CUSTOM_CA=1
+```
+
+Fill in `mynewt/custom_ca.h` with your target's root CA. Set `DEFAULT_IPADDR` 
+and `DEFAULT_PORT` in `client-tls-mn.c`, then rebuild.
+
+Note: This demo pins the CA and IP address at build time. Update them manually if the target changes.
+
 ### Command list
 
 The client TLS application `wolfssl` has the following commands:
@@ -123,28 +152,29 @@ The client TLS application `wolfssl` has the following commands:
 | time    | "unix timestamp"                 | To set the time            | "time 1532616682"                     |
 | net     | udp                              | create udp socket          | "net udp"                             |
 | net     | tcp                              | create tcp socket          | "net tcp"                             |
-| net     | connect "ipaddress" port         | connect "ipaddress"        | "net connect 93.184.216.34 443"       |
+| net     | connect "ipaddress" port         | connect "ipaddress"        | "net connect 127.0.0.1 11111"         |
 | net     | close                            | close socket               | "net close"                           |
-| net     | send "string" "ipaddress" "port" | send string                | "net send "GET \r\n" 93.184.216.34 80 |
-| net     | recv "ipaddress"                 | recv from ipaddress        | "net recv 93.184.216.34 80            |
+| net     | send "string" "ipaddress" "port" | send string                | "net send "hello" 127.0.0.1 11111"    |
+| net     | recv "ipaddress"                 | recv from ipaddress        | "net recv 127.0.0.1 11111"            |
 | wolfssl | init                             | initialize wolfssl library | "wolfssl init"                        |
 | wolfssl | connect                          | connect via ssl            | "wolfssl connect"                     |
-| wolfssl | write "string"                   | send string via ssl        | "wolfssl write "GET /""               |
+| wolfssl | write "string"                   | send string via ssl        | "wolfssl write "hello wolfssl!""      |
 | wolfssl | read                             | recv via ssl               | "wolfssl recv"                        |
 | wolfssl | clear                            | finish wolfssl library     | "wolfssl clear"                       |
 
 ### Command examples
-Get `index.html` from `www.example.com:443` (i.e. `93.184.216.34:443`) using
-Mynewt TCP networking and the wolfSSL TLS and crypto.
+Connect to the locally-run `tls/server-tls` example (`127.0.0.1:11111`)
+using Mynewt TCP networking and the wolfSSL TLS and crypto. Make sure
+`./server-tls` (see above) is running first.
 
 At the Mynewt `compat>` shell prompt:
 
 ```
 net tcp
-net connect 93.184.216.34 443
+net connect 127.0.0.1 11111
 wolfssl init
 wolfssl connect
-wolfssl write "GET /"
+wolfssl write "hello wolfssl!"
 wolfssl read
 wolfssl clear
 net close
@@ -155,8 +185,8 @@ The resulting application output should be similar to the following:
 ```
 compat> net tcp
 001143 mn_socket(TCP) = 0 566b7800
-compat> net connect 93.184.216.34 443
-005078 93.184.216.34/443
+compat> net connect 127.0.0.1 11111
+005078 127.0.0.1/11111
 005078 mn_connect() = 0
 compat> net_test_writable 0 - 0
 wolfssl init
@@ -164,24 +194,12 @@ wolfssl init
 005854 wolfSSL ctx initialize
 compat> wolfssl connect
 006517 wolfSSL_connect() = 1
-compat> wolfssl write "GET /"
-009182 wolfSSL_write() = 4L
+compat> wolfssl write "hello wolfssl!"
+009182 wolfSSL_write() = 14L
 compat> wolfssl read
-010564 HTTP/1.0 501 Not Implemented
-Content-Type: text/html
-Content-Length: 357
-Connection: close
-Date: Wed, 12 Apr 2023 14:49:27 <?xml version="1.0" encoding="iso-8859-1"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-         "http://wwwitle>501 - Not Implemented</title>
-	</head>
-	<body>
-		<h1>501 - Not Implemented</h1>
-	</body>
-</html>
+010564 I hear ya fa shizzle!
 
 010578 
-010578 ERROR: wolfSSL_read rc:-1 err:6
 compat> wolfssl clear
 012551 clear wolfssl contexts
 012553 wolfSSL ctx clear
@@ -190,8 +208,7 @@ compat> net close
 compat> 
 ```
 
-NOTE: The server-side connection close after reception of data results in the 
-      read error.
+`server-tls` handles one request per connection and loops. It can be reused for repeated `wolfssl connect` runs.
 
 ## Notes
 
@@ -211,6 +228,10 @@ Install:
 - expect
 - bash
 - screen
+- openssl
+- xxd
+- python3
+- fuser
 - [newt](https://mynewt.apache.org/latest/get_started/native_install/index.html)(v1.4.1 over)
 
 ## Usage

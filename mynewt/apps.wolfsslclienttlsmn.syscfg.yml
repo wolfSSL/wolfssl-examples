@@ -19,6 +19,11 @@
 
 # Settings this app defines.
 syscfg.defs:
+    WOLFSSL_MN_USE_CUSTOM_CA:
+        description: >
+            Use custom CA (custom_ca.h) and IP/port (client-tls-mn.c) 
+            instead of local server-tls demo.
+        value: 0
 
 # Settings this app overrides.
 syscfg.vals:
