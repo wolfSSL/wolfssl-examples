@@ -28,12 +28,7 @@
 
 #ifdef WOLFSSL_HAVE_XMSS
 
-#include <wolfssl/wolfcrypt/xmss.h>
-#ifdef HAVE_LIBXMSS
-    #include <wolfssl/wolfcrypt/ext_xmss.h>
-#else
-    #include <wolfssl/wolfcrypt/wc_xmss.h>
-#endif
+#include <wolfssl/wolfcrypt/wc_xmss.h>
 
 static void dump_hex(const char * what, const byte * buf, size_t len);
 static void print_usage(void);
@@ -235,7 +230,7 @@ do_xmss_example(const char * params,
 
     ret = wc_XmssKey_SetParamStr(&signingKey, params);
     if (ret) {
-        fprintf(stderr, "error: wc_XmssKey_SetParameters(%s) returned %d\n",
+        fprintf(stderr, "error: wc_XmssKey_SetParamStr(%s) returned %d\n",
                 params, ret);
         goto exit_xmss_example;
     }
@@ -441,7 +436,7 @@ do_xmss_example(const char * params,
 
     ret = wc_XmssKey_SetParamStr(&verifyKey, params);
     if (ret) {
-        fprintf(stderr, "error: wc_XmssKey_SetParameters(%s) returned %d\n",
+        fprintf(stderr, "error: wc_XmssKey_SetParamStr(%s) returned %d\n",
                 params, ret);
         goto exit_xmss_example;
     }
