@@ -5,7 +5,7 @@ LIBS     ?= -L$(WOLFSSL_INSTALL_DIR)/lib -lm
 
 # PSA implementation
 PSA_INCLUDE ?=
-PSA_WOLFSSL_INSTALL_DIR ?=
+PSA_LIB_PATH ?=
 
 # option variables
 DYN_LIB         = -lwolfssl -lm
@@ -24,7 +24,7 @@ LIBS+=$(DYN_LIB)
 ifneq ($(PSA_INCLUDE),)
 CFLAGS += -I$(PSA_INCLUDE)
 endif
-LIBS += $(PSA_WOLFSSL_INSTALL_DIR)
+LIBS += $(PSA_LIB_PATH)
 
 TARGETS=client-tls13-ecc-psa server-tls13-ecc-psa
 
