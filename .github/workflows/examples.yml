@@ -1,0 +1,178 @@
+name: Examples
+
+# Builds and runs the host-tier examples against a wolfSSL built per profile.
+#
+# Deliberately carries NO `github.repository_owner == 'wolfssl'` guard. That
+# convention exists to stop *scheduled* runs on forks (see nightly.yml, which
+# does guard). Applying it here would make every fork run 100% skips and remove
+# any way to validate a CI change before it reaches master.
+
+# START OF COMMON SECTION
+on:
+  push:
+    branches: [ '**' ]
+    paths-ignore:
+      - 'Arduino/**'
+      - '.github/workflows/arduino*.yml'
+      - '**.md'
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches: [ '*' ]
+  workflow_call:
+    inputs:
+      caller_run_id:
+        description: 'run id of the calling workflow; keeps a called run in its own concurrency group'
+        type: string
+        default: ''
+      wolfssl_refs:
+        description: 'comma-separated wolfSSL refs'
+        type: string
+        default: 'master'
+
+# A reusable workflow must not self-cancel: the group would collide with its caller
+concurrency:
+  group: ${{ inputs.caller_run_id && format('{0}-call-{1}', github.workflow, inputs.caller_run_id) || format('{0}-{1}', github.workflow, github.ref) }}
+  cancel-in-progress: ${{ !inputs.caller_run_id }}
+# END OF COMMON SECTION
+
+permissions:
+  contents: read
+
+jobs:
+  # Fails when a dir holding buildable source has no manifest entry. This is what
+  # keeps "test every example" true a year from now rather than only on day one.
+  coverage:
+    name: Coverage gate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    steps:
+      - uses: actions/checkout@v5
+      - run: pip install --quiet pyyaml
+      - run: python3 .github/scripts/manifest.py check
+
+  # PRs test master AND the latest stable tag. Testing only master would let a
+  # break against the released version reach users unnoticed until nightly.
+  refs:
+    uses: ./.github/workflows/_resolve-wolfssl.yml
+    with:
+      refs: ${{ inputs.wolfssl_refs || '' }}
+      stable_count: 1
+
+  matrix:
+    name: Resolve matrix
+    needs: [refs]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    outputs:
+      examples: ${{ steps.gen.outputs.examples }}
+      wolfssl: ${{ steps.gen.outputs.wolfssl }}
+    steps:
+      - uses: actions/checkout@v5
+      - run: pip install --quiet pyyaml
+      - id: gen
+        run: |
+          set -euo pipefail
+          refs='${{ needs.refs.outputs.refs }}'
+          shas='${{ needs.refs.outputs.shas }}'
+          m() { python3 .github/scripts/manifest.py "$1" --refs "$refs" --shas "$shas"; }
+          echo "examples=$(m matrix)" >> "$GITHUB_OUTPUT"
+          echo "wolfssl=$(m wolfssl-matrix)" >> "$GITHUB_OUTPUT"
+          n=$(m matrix | python3 -c 'import json,sys;print(len(json.load(sys.stdin)))')
+          w=$(m wolfssl-matrix | python3 -c 'import json,sys;print(len(json.load(sys.stdin)))')
+          echo "$n example jobs against $w wolfSSL build(s)"
+          echo "$n example jobs against $w cached wolfSSL build(s)" >> "$GITHUB_STEP_SUMMARY"
+
+  # Build each wolfSSL profile ONCE and let the cache fan out to the per-example
+  # jobs. Without this, every example pays a full wolfSSL build.
+  build-wolfssl:
+    name: wolfSSL ${{ matrix.profile }} (${{ matrix.wolfssl_ref }})
+    needs: [matrix]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.matrix.outputs.wolfssl) }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/apt-update
+      - name: Install build deps
+        run: sudo apt-get install -y --no-install-recommends autoconf automake libtool
+      - name: Setup wolfSSL (${{ matrix.profile }})
+        uses: ./.github/actions/setup-wolfssl
+        with:
+          # the pinned commit, not the branch name: every job must build and
+          # cache the same wolfSSL
+          ref: ${{ matrix.wolfssl_sha }}
+          flags: ${{ matrix.flags }}
+          cflags: ${{ matrix.cflags }}
+
+  # One job per example, so a red tile names the example that broke.
+  examples:
+    name: ${{ matrix.mode_label }} / ${{ matrix.id }} (${{ matrix.wolfssl_ref }})
+    needs: [matrix, build-wolfssl]
+    # always(): plain needs would skip every example job if one profile failed
+    if: ${{ !cancelled() && needs.matrix.result == 'success' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.matrix.outputs.examples) }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: ./.github/actions/apt-update
+      - name: Install deps
+        run: |
+          sudo apt-get install -y --no-install-recommends autoconf automake libtool ${{ matrix.deps }}
+          pip install --quiet pyyaml
+
+      # Cache hit from build-wolfssl above: restores and installs, does not rebuild.
+      - name: Setup wolfSSL (${{ matrix.profile }})
+        id: wolfssl
+        uses: ./.github/actions/setup-wolfssl
+        with:
+          # the pinned commit, not the branch name: every job must build and
+          # cache the same wolfSSL
+          ref: ${{ matrix.wolfssl_sha }}
+          flags: ${{ matrix.flags }}
+          cflags: ${{ matrix.cflags }}
+
+      # Probe the exact netns invocation: --map-root-user is the part that fails
+      - name: Enable unprivileged user namespaces
+        run: |
+          if ! unshare --user --map-root-user --net -- true 2>/dev/null; then
+            echo "userns with uid mapping blocked; relaxing the apparmor restriction"
+            sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0 || true
+          fi
+          unshare --user --map-root-user --net -- true 2>/dev/null \
+            && echo "userns ok" \
+            || echo "userns still blocked; harness will fall back to sudo unshare --net"
+
+      # Before the run: run_example.py execs itself into a netns with only
+      # loopback, so an example needing a third-party tree has to get it now.
+      - name: Fetch third-party sources for ${{ matrix.id }}
+        run: |
+          python3 .github/scripts/run_example.py --only '${{ matrix.id }}' --fetch
+
+      - name: Build and run ${{ matrix.id }}
+        run: |
+          python3 .github/scripts/run_example.py \
+            --only '${{ matrix.id }}' \
+            --expect-sha '${{ steps.wolfssl.outputs.sha256 }}' \
+            --wolfssl-ref '${{ matrix.wolfssl_ref }}' \
+            --results "results-${{ matrix.id }}-${{ matrix.ref_slug }}.json"
+
+      # run_attempt in the name: a rerun (attempt 2) must not collide with the
+      # attempt-1 artifact, and triage merges attempt 2 over attempt 1 per dir.
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-${{ matrix.id }}-${{ matrix.ref_slug }}-attempt${{ github.run_attempt }}
+          path: results-*.json
+          retention-days: 5
+          if-no-files-found: ignore

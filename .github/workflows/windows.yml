@@ -1,0 +1,63 @@
+name: Windows
+
+on:
+  push:
+    paths:
+      - 'cmake/**'
+      - '.github/workflows/windows.yml'
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - 'cmake/**'
+      - '.github/workflows/windows.yml'
+  workflow_call:
+    inputs:
+      caller_run_id:
+        description: 'run id of the calling workflow; keeps a called run in its own concurrency group'
+        type: string
+        default: ''
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ inputs.caller_run_id && format('windows-call-{0}', inputs.caller_run_id) || format('windows-{0}', github.ref) }}
+  cancel-in-progress: ${{ !inputs.caller_run_id }}
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    name: cmake hash (MSVC)
+    runs-on: windows-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Fetch wolfSSL master
+        run: git clone -q --depth 1 --branch master https://github.com/wolfSSL/wolfssl cmake/wolfssl
+
+      # Same cmake/ app the Linux cmake job builds; here through MSVC (multi-config,
+      # so --config Release and the binary lands under a Release/ subdir).
+      - name: Build (MSVC, Release)
+        run: |
+          set -euo pipefail
+          cd cmake
+          cmake -S . -B build -DCMAKE_C_FLAGS=-I../include/
+          cmake --build build --config Release
+
+      - name: Run
+        run: |
+          set -euo pipefail
+          cd cmake
+          bin=$(find build -name hash.exe | head -1)
+          [ -n "$bin" ] || { echo "FAIL: hash.exe not produced"; exit 1; }
+          out=$("./$bin" example_string)
+          echo "$out"
+          want=9BFB55A8406617FF3E6767EC5D27FC6B5682C3A79C415EF6E084BF7D050273E6
+          case "$out" in
+            *"$want"*) echo "verified: sha256 matches on Windows" ;;
+            *) echo "FAIL: expected $want"; exit 1 ;;
+          esac

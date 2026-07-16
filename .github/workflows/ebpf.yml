@@ -1,0 +1,77 @@
+name: ebpf
+
+on:
+  push:
+    paths:
+      - 'ebpf/**'
+      - '.github/workflows/ebpf.yml'
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  # No cron: nightly.yml calls this, so the nightly stays one run and one triage writer
+  workflow_call:
+    inputs:
+      caller_run_id:
+        description: 'run id of the calling workflow; keeps a called run in its own concurrency group'
+        type: string
+        default: ''
+  workflow_dispatch:
+
+# github.workflow is the CALLER's name in a called workflow, so hardcode ours
+concurrency:
+  group: ${{ inputs.caller_run_id && format('ebpf-call-{0}', inputs.caller_run_id) || format('ebpf-{0}', github.ref) }}
+  cancel-in-progress: ${{ !inputs.caller_run_id }}
+
+permissions:
+  contents: read
+
+jobs:
+  resolve:
+    uses: ./.github/workflows/_resolve-wolfssl.yml
+    with:
+      stable_count: 1
+
+  ebpf:
+    needs: resolve
+    name: Build / ebpf (${{ matrix.example }}) wolfSSL ${{ matrix.wolfssl_ref }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        wolfssl_ref: ${{ fromJson(needs.resolve.outputs.refs_json) }}
+        example:
+          - ebpf/syscall-write-trace
+          - ebpf/tls-uprobe-trace
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: ./.github/actions/apt-update
+      # exactly what ebpf/tls-uprobe-trace/README.md documents
+      - name: Install deps
+        run: |
+          set -euo pipefail
+          sudo apt-get install -y --no-install-recommends \
+            clang llvm libbpf-dev libelf-dev zlib1g-dev make >/dev/null
+
+      # tls-uprobe-trace resolves wolfSSL_write in the installed libwolfssl.so
+      - uses: ./.github/actions/setup-wolfssl
+        with:
+          ref: ${{ matrix.wolfssl_ref }}
+          flags: "--enable-static --enable-shared"
+
+      - name: Build ${{ matrix.example }}
+        run: |
+          set -euo pipefail
+          cd '${{ matrix.example }}'
+          make
+
+      # a green make proves nothing if the BPF object was not produced
+      - name: Assert a BPF object came out
+        run: |
+          set -euo pipefail
+          cd '${{ matrix.example }}'
+          o=$(find . -name '*.bpf.o' -o -name '*_bpf.o' | head -n1)
+          [ -n "$o" ] || { echo "FAIL: no BPF object built"; exit 1; }
+          file "$o"
+          file "$o" | grep -qi 'eBPF\|BPF' || { echo "FAIL: not a BPF object"; exit 1; }
+          echo "verified: $o"

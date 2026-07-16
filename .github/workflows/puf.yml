@@ -1,0 +1,72 @@
+name: PUF
+
+on:
+  push:
+    paths:
+      - 'puf/**'
+      - '.github/workflows/puf.yml'
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  # No cron: nightly.yml calls this, so the nightly stays one run and one triage writer
+  workflow_call:
+    inputs:
+      caller_run_id:
+        description: 'run id of the calling workflow; keeps a called run in its own concurrency group'
+        type: string
+        default: ''
+  workflow_dispatch:
+
+# github.workflow is the CALLER's name in a called workflow, so hardcode ours
+concurrency:
+  group: ${{ inputs.caller_run_id && format('puf-call-{0}', inputs.caller_run_id) || format('puf-{0}', github.ref) }}
+  cancel-in-progress: ${{ !inputs.caller_run_id }}
+
+permissions:
+  contents: read
+
+jobs:
+  resolve:
+    uses: ./.github/workflows/_resolve-wolfssl.yml
+    with:
+      stable_count: 1
+
+  puf:
+    needs: resolve
+    name: Build / puf (arm-none-eabi) wolfSSL ${{ matrix.wolfssl_ref }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        wolfssl_ref: ${{ fromJson(needs.resolve.outputs.refs_json) }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: ./.github/actions/apt-update
+      - name: Install toolchain
+        run: |
+          set -euo pipefail
+          sudo apt-get install -y --no-install-recommends \
+            gcc-arm-none-eabi libnewlib-arm-none-eabi build-essential
+
+      # puf/Makefile:21 defaults WOLFSSL_ROOT to ../../wolfssl and compiles
+      # $(WOLFSSL_ROOT)/wolfcrypt/src/puf.c straight from source.
+      - name: Build puf
+        run: |
+          set -euo pipefail
+          git clone -q --depth 1 --branch '${{ matrix.wolfssl_ref }}' https://github.com/wolfSSL/wolfssl /tmp/wolfssl
+          cd puf
+          make WOLFSSL_ROOT=/tmp/wolfssl
+
+      - name: Assert it really cross-compiled
+        run: |
+          set -euo pipefail
+          cd puf
+          elf=$(find . -maxdepth 2 -name '*.elf' -o -maxdepth 2 -name '*.axf' | head -n1)
+          [ -n "$elf" ] || { echo "no elf produced"; exit 1; }
+          arch=$(readelf -h "$elf" | awk -F: '/Machine:/ {print $2}' | xargs)
+          echo "machine: $arch"
+          case "$arch" in
+            *ARM*) ;;
+            *) echo "FAIL: not an ARM binary: $arch"; exit 1 ;;
+          esac

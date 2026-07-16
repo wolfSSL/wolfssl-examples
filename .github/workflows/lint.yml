@@ -1,0 +1,45 @@
+name: Lint
+
+on:
+  push:
+    paths:
+      - '**/*.sh'
+      - '**/*.c'
+      - '**/*.h'
+      - '.github/workflows/**'
+      - '.github/scripts/lint.sh'
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  # No cron: nightly.yml calls this, so the nightly stays one run and one triage writer
+  workflow_call:
+    inputs:
+      caller_run_id:
+        description: 'run id of the calling workflow; keeps a called run in its own concurrency group'
+        type: string
+        default: ''
+  workflow_dispatch:
+
+# github.workflow is the CALLER's name in a called workflow, so hardcode ours
+concurrency:
+  group: ${{ inputs.caller_run_id && format('lint-call-{0}', inputs.caller_run_id) || format('lint-{0}', github.ref) }}
+  cancel-in-progress: ${{ !inputs.caller_run_id }}
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: shellcheck + actionlint
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/apt-update
+      - name: Install shellcheck + cppcheck + actionlint
+        run: |
+          set -euo pipefail
+          sudo apt-get install -y --no-install-recommends shellcheck cppcheck
+          bash <(curl -fsSL https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
+          echo "$PWD" >> "$GITHUB_PATH"
+      - name: Lint scripts and workflows
+        run: ./.github/scripts/lint.sh

@@ -1,0 +1,74 @@
+name: CMake
+
+on:
+  push:
+    paths:
+      - 'cmake/**'
+      - '.github/workflows/cmake.yml'
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  # No cron: nightly.yml calls this, so the nightly stays one run and one triage writer
+  workflow_call:
+    inputs:
+      caller_run_id:
+        description: 'run id of the calling workflow; keeps a called run in its own concurrency group'
+        type: string
+        default: ''
+  workflow_dispatch:
+
+# github.workflow is the CALLER's name in a called workflow, so hardcode ours
+concurrency:
+  group: ${{ inputs.caller_run_id && format('cmake-call-{0}', inputs.caller_run_id) || format('cmake-{0}', github.ref) }}
+  cancel-in-progress: ${{ !inputs.caller_run_id }}
+
+permissions:
+  contents: read
+
+jobs:
+  resolve:
+    uses: ./.github/workflows/_resolve-wolfssl.yml
+    with:
+      stable_count: 1
+
+  cmake:
+    needs: resolve
+    name: Run / cmake (myApp) wolfSSL ${{ matrix.wolfssl_ref }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        wolfssl_ref: ${{ fromJson(needs.resolve.outputs.refs_json) }}
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+
+      # Own job, not a manifest entry: add_subdirectory(wolfssl) needs a source tree
+      - name: Fetch the wolfSSL ref under test
+        run: |
+          set -euo pipefail
+          git clone -q --depth 1 --branch '${{ matrix.wolfssl_ref }}' \
+            https://github.com/wolfSSL/wolfssl cmake/wolfssl
+          git -C cmake/wolfssl log -1 --format='wolfssl at ${{ matrix.wolfssl_ref }}: %h %s'
+
+      # README: cmake .. -DCMAKE_C_FLAGS=-I../include/ && make && ./hash example_string
+      - name: Build
+        run: |
+          set -euo pipefail
+          cd cmake
+          cmake -S . -B build -DCMAKE_C_FLAGS=-I../include/
+          cmake --build build -j"$(nproc)"
+          test -x build/hash || { echo "FAIL: build/hash not produced"; exit 1; }
+
+      - name: Run
+        run: |
+          set -euo pipefail
+          cd cmake
+          out=$(./build/hash example_string)
+          echo "$out"
+          # sha256("example_string"), so this asserts wolfCrypt's answer rather
+          # than just a zero exit
+          want=9BFB55A8406617FF3E6767EC5D27FC6B5682C3A79C415EF6E084BF7D050273E6
+          case "$out" in
+            *"$want"*) echo "verified: hash matches sha256(example_string)" ;;
+            *) echo "FAIL: expected $want"; exit 1 ;;
+          esac

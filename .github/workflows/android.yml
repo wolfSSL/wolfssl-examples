@@ -1,0 +1,115 @@
+name: Android
+
+on:
+  push:
+    paths:
+      - 'android/**'
+      - '.github/workflows/android.yml'
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  # No cron: nightly.yml calls this, so the nightly stays one run and one triage writer
+  workflow_call:
+    inputs:
+      caller_run_id:
+        description: 'run id of the calling workflow; keeps a called run in its own concurrency group'
+        type: string
+        default: ''
+  workflow_dispatch:
+
+# github.workflow is the CALLER's name in a called workflow, so hardcode ours
+concurrency:
+  group: ${{ inputs.caller_run_id && format('android-call-{0}', inputs.caller_run_id) || format('android-{0}', github.ref) }}
+  cancel-in-progress: ${{ !inputs.caller_run_id }}
+
+permissions:
+  contents: read
+
+jobs:
+  resolve:
+    uses: ./.github/workflows/_resolve-wolfssl.yml
+    with:
+      stable_count: 1
+
+  android:
+    needs: resolve
+    name: Build / android (${{ matrix.example }}) wolfSSL ${{ matrix.wolfssl_ref }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        wolfssl_ref: ${{ fromJson(needs.resolve.outputs.refs_json) }}
+        example:
+          - android/wolfcryptjni-ndk-gradle
+          - android/wolfssljni-ndk-gradle
+          - android/wolfssljni-ndk-sample
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      # README documents `git submodule update --remote`; point it at the ref under test
+      - name: Check out the wolfSSL ref under test
+        run: |
+          set -euo pipefail
+          cd '${{ matrix.example }}'
+          # a submodule's .git is a FILE (gitdir: ...), so -d silently skipped this
+          test -e wolfssl/.git || { echo "FAIL: wolfssl submodule not checked out"; exit 1; }
+          # Replace the tree: fetching into the shallow submodule races on .git/modules/*/shallow
+          rm -rf wolfssl
+          git clone -q --depth 1 --branch '${{ matrix.wolfssl_ref }}' \
+            https://github.com/wolfSSL/wolfssl.git wolfssl
+          echo "wolfssl now at ${{ matrix.wolfssl_ref }}: $(git -C wolfssl rev-parse --short HEAD)"
+
+      # The job title claims a ref; prove the tree matches it rather than
+      # trusting that the checkout above did anything.
+      - name: Assert wolfSSL is actually at the ref under test
+        run: |
+          set -euo pipefail
+          cd '${{ matrix.example }}/wolfssl'
+          want=$(git rev-parse HEAD)
+          got=$(git ls-remote https://github.com/wolfSSL/wolfssl.git \
+                  '${{ matrix.wolfssl_ref }}^{}' 2>/dev/null | cut -f1)
+          [ -n "$got" ] || got=$(git ls-remote https://github.com/wolfSSL/wolfssl.git \
+                  '${{ matrix.wolfssl_ref }}' | head -n1 | cut -f1)
+          [ "$want" = "$got" ] || {
+            echo "FAIL: building $want but ${{ matrix.wolfssl_ref }} is $got"; exit 1; }
+          echo "verified: wolfssl at ${{ matrix.wolfssl_ref }} ($want)"
+
+      # android/README.md step 3: wolfSSL release tarballs ship wolfssl/options.h
+      # but a GitHub clone does not, and the jni sources include it.
+      - name: Create the stub options.h the README documents
+        run: |
+          set -euo pipefail
+          cd '${{ matrix.example }}'
+          if [ -f wolfssl/wolfssl/options.h.in ] && [ ! -f wolfssl/wolfssl/options.h ]; then
+            cp wolfssl/wolfssl/options.h.in wolfssl/wolfssl/options.h
+            echo "created wolfssl/wolfssl/options.h"
+          fi
+
+      # These are Studio projects with no instrumentation harness, so a build is
+      # the honest ceiling.
+      - name: Build ${{ matrix.example }}
+        run: |
+          set -euo pipefail
+          cd '${{ matrix.example }}'
+          if [ -f gradlew ]; then
+            chmod +x gradlew
+            ./gradlew assembleDebug --no-daemon
+          else
+            # the older standalone-toolchain sample: Android.mk + ndk-build
+            "${ANDROID_NDK_HOME:-$ANDROID_NDK_ROOT}/ndk-build"
+          fi
+
+      - name: Assert an apk or .so came out
+        run: |
+          set -euo pipefail
+          cd '${{ matrix.example }}'
+          find . \( -name '*.apk' -o -name '*.so' \) | head -n3 | grep -q . \
+            || { echo "FAIL: no apk/.so produced"; exit 1; }
+          find . \( -name '*.apk' -o -name '*.so' \) | head -n3

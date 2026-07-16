@@ -1,0 +1,44 @@
+name: SE050 sim
+
+on:
+  push:
+    paths:
+      - 'SE050/**'
+      - '.github/workflows/se050.yml'
+      - '.github/scripts/se050-run.sh'
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - 'SE050/**'
+      - '.github/workflows/se050.yml'
+      - '.github/scripts/se050-run.sh'
+  workflow_call:
+    inputs:
+      caller_run_id:
+        description: 'run id of the calling workflow; keeps a called run in its own concurrency group'
+        type: string
+        default: ''
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ inputs.caller_run_id && format('se050-call-{0}', inputs.caller_run_id) || format('se050-{0}', github.ref) }}
+  cancel-in-progress: ${{ !inputs.caller_run_id }}
+
+permissions:
+  contents: read
+
+jobs:
+  se050:
+    name: wolfcrypt_test vs SE050Sim
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/apt-update
+      - name: Install toolchain
+        run: |
+          set -euo pipefail
+          sudo apt-get install -y --no-install-recommends \
+            autoconf automake libtool cmake pkg-config curl cargo
+      - name: Build SE050 stack and run wolfcrypt_test against the sim
+        run: ./.github/scripts/se050-run.sh

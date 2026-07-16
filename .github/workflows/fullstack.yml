@@ -1,0 +1,112 @@
+name: Fullstack
+
+on:
+  push:
+    paths:
+      - 'fullstack/**'
+      - '.github/workflows/fullstack.yml'
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  # No cron: nightly.yml calls this, so the nightly stays one run and one triage writer
+  workflow_call:
+    inputs:
+      caller_run_id:
+        description: 'run id of the calling workflow; keeps a called run in its own concurrency group'
+        type: string
+        default: ''
+  workflow_dispatch:
+
+# github.workflow is the CALLER's name in a called workflow, so hardcode ours
+concurrency:
+  group: ${{ inputs.caller_run_id && format('fullstack-call-{0}', inputs.caller_run_id) || format('fullstack-{0}', github.ref) }}
+  cancel-in-progress: ${{ !inputs.caller_run_id }}
+
+permissions:
+  contents: read
+
+jobs:
+  resolve:
+    uses: ./.github/workflows/_resolve-wolfssl.yml
+    with:
+      stable_count: 1
+
+  fullstack:
+    needs: resolve
+    name: Build / fullstack (freertos + wolfip + wolfssl) wolfSSL ${{ matrix.wolfssl_ref }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        wolfssl_ref: ${{ fromJson(needs.resolve.outputs.refs_json) }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+
+      # setup.sh clones the deps as siblings; pre-place the ref so its guard skips its own clone
+      - name: Pre-place the wolfSSL ref under test
+        run: |
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE/.."
+          git clone -q --depth 1 --branch '${{ matrix.wolfssl_ref }}' \
+            https://github.com/wolfSSL/wolfssl.git wolfssl
+          cd wolfssl
+          ./autogen.sh >/dev/null 2>&1
+          ./configure --enable-tls13 --enable-static >/dev/null
+          make -j"$(nproc)" >/dev/null
+          sudo make install >/dev/null
+          sudo ldconfig
+
+      - name: Run the example's own setup.sh
+        run: |
+          set -euo pipefail
+          cd fullstack/freertos-wolfip-wolfssl-https
+          chmod +x setup.sh
+          ./setup.sh
+
+      - name: Build
+        run: |
+          set -euo pipefail
+          cd fullstack/freertos-wolfip-wolfssl-https
+          mkdir -p build && cd build
+          cmake ..
+          make
+
+      - name: Assert the sim binary came out
+        run: |
+          set -euo pipefail
+          cd fullstack/freertos-wolfip-wolfssl-https
+          f=$(find . -name 'freertos_sim' -type f | head -n1)
+          [ -n "$f" ] || { echo "FAIL: freertos_sim not built"; exit 1; }
+          file "$f"
+
+      # The sim talks wolfIP over a TAP link, so it is unreachable without this.
+      - name: Bring up the wtap0 interface
+        run: |
+          set -euo pipefail
+          cd fullstack/freertos-wolfip-wolfssl-https
+          chmod +x setup_network.sh test_https.sh
+          sudo ./setup_network.sh
+          ip addr show wtap0
+
+      # The whole point of the stack is that it serves HTTPS, which building
+      # proves nothing about. Run the author's own curl test against it.
+      - name: Serve HTTPS from the sim and fetch it
+        run: |
+          set -euo pipefail
+          d=fullstack/freertos-wolfip-wolfssl-https
+          # CERT_FILE only resolves from build/; stdbuf or the sim's printf never flushes
+          ( cd "$d/build" && sudo stdbuf -oL -eL ./freertos_sim ) > "$d/sim.log" 2>&1 &
+          for _ in $(seq 1 100); do
+            curl -sk --max-time 1 https://10.10.0.10:443/ >/dev/null 2>&1 && break
+            sleep 0.3
+          done
+          echo "--- sim:"; cat "$d/sim.log" || true
+          ip link show wtap0
+          rc=0
+          ( cd "$d" && sudo ./test_https.sh ) > "$d/curl.log" 2>&1 || rc=$?
+          echo "--- test_https.sh:"; cat "$d/curl.log"
+          if [ "$rc" -ne 0 ]; then
+            exit 1
+          fi
+          grep -q 'HTTPS test successful' "$d/curl.log" \
+            || { echo "FAIL: no successful HTTPS fetch"; exit 1; }

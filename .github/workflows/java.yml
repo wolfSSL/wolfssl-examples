@@ -1,0 +1,78 @@
+name: Java
+
+on:
+  push:
+    paths:
+      - 'java/**'
+      - '.github/workflows/java.yml'
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  # No cron: nightly.yml calls this, so the nightly stays one run and one triage writer
+  workflow_call:
+    inputs:
+      caller_run_id:
+        description: 'run id of the calling workflow; keeps a called run in its own concurrency group'
+        type: string
+        default: ''
+  workflow_dispatch:
+
+# github.workflow is the CALLER's name in a called workflow, so hardcode ours
+concurrency:
+  group: ${{ inputs.caller_run_id && format('java-call-{0}', inputs.caller_run_id) || format('java-{0}', github.ref) }}
+  cancel-in-progress: ${{ !inputs.caller_run_id }}
+
+permissions:
+  contents: read
+
+jobs:
+  resolve:
+    uses: ./.github/workflows/_resolve-wolfssl.yml
+    with:
+      stable_count: 1
+
+  java:
+    needs: resolve
+    name: Build / java (https-url) wolfSSL ${{ matrix.wolfssl_ref }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        wolfssl_ref: ${{ fromJson(needs.resolve.outputs.refs_json) }}
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      # README: javac -cp <wolfssljni>/lib/wolfssl-jsse.jar URLClient.java
+      # so wolfSSL must be built with JNI support and wolfssljni built on top.
+      - uses: ./.github/actions/apt-update
+      - name: Build wolfSSL and wolfssljni
+        run: |
+          set -euo pipefail
+          sudo apt-get install -y --no-install-recommends ant >/dev/null
+          git clone -q --depth 1 --branch '${{ matrix.wolfssl_ref }}' https://github.com/wolfSSL/wolfssl /tmp/wolfssl
+          cd /tmp/wolfssl
+          ./autogen.sh >/dev/null 2>&1
+          ./configure --enable-jni --enable-static --enable-shared >/dev/null
+          make -j"$(nproc)" >/dev/null
+          sudo make install >/dev/null
+          sudo ldconfig
+          git clone -q --depth 1 https://github.com/wolfSSL/wolfssljni /tmp/wolfssljni
+          cd /tmp/wolfssljni
+          ./java.sh
+          ant
+          test -f lib/wolfssl-jsse.jar || { echo "FAIL: wolfssl-jsse.jar not built"; exit 1; }
+
+      - name: Compile URLClient
+        run: |
+          set -euo pipefail
+          cd java/https-url
+          # -Xlint:all surfaces deprecation/unchecked warnings (the Java analog of
+          # the C -Wall lint); informational, not -Werror.
+          javac -Xlint:all -cp /tmp/wolfssljni/lib/wolfssl-jsse.jar URLClient.java
+          test -f URLClient.class || { echo "FAIL: no class produced"; exit 1; }
+          echo "verified: URLClient.class"

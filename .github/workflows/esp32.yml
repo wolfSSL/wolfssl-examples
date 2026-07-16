@@ -1,0 +1,109 @@
+name: ESP32
+
+on:
+  push:
+    paths:
+      - 'ESP32/**'
+      - '.github/workflows/esp32.yml'
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  # No cron: nightly.yml calls this, so the nightly stays one run and one triage writer
+  workflow_call:
+    inputs:
+      caller_run_id:
+        description: 'run id of the calling workflow; keeps a called run in its own concurrency group'
+        type: string
+        default: ''
+  workflow_dispatch:
+
+# github.workflow is the CALLER's name in a called workflow, so hardcode ours
+concurrency:
+  group: ${{ inputs.caller_run_id && format('esp32-call-{0}', inputs.caller_run_id) || format('esp32-{0}', github.ref) }}
+  cancel-in-progress: ${{ !inputs.caller_run_id }}
+
+permissions:
+  contents: read
+
+jobs:
+  resolve:
+    uses: ./.github/workflows/_resolve-wolfssl.yml
+    with:
+      stable_count: 1
+
+  esp32:
+    needs: resolve
+    name: Build / ESP32 (ESP-IDF) (${{ matrix.example }}) wolfSSL ${{ matrix.wolfssl_ref }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    # idf:latest is 6.x, which dropped the PERIPH_*_MODULE the port needs
+    container: espressif/idf:release-v5.3
+    strategy:
+      fail-fast: false
+      matrix:
+        wolfssl_ref: ${{ fromJson(needs.resolve.outputs.refs_json) }}
+        example:
+          - ESP32/TLS13-wifi_station-client
+          - ESP32/TLS13-wifi_station-server
+          - ESP32/DTLS13-wifi-station-client
+          - ESP32/DTLS13-wifi-station-server
+          - ESP32/TLS13-ENC28J60-client
+          - ESP32/TLS13-ENC28J60-server
+    steps:
+      - uses: actions/checkout@v5
+
+      # the idf container runs as a different uid, so git refuses to read the repo
+      - name: Trust the checkout inside the container
+        run: git config --global --add safe.directory '*'
+
+      # The projects expect wolfssl installed into $IDF_PATH/components
+      - name: Install the wolfSSL ESP-IDF component
+        shell: bash
+        run: |
+          set -euo pipefail
+          . /opt/esp/idf/export.sh
+          git clone -q --depth 1 --branch '${{ matrix.wolfssl_ref }}' https://github.com/wolfSSL/wolfssl.git /tmp/wolfssl
+          # The component hard-errors if wolfSSL is both local and installed
+          if [ -d '${{ matrix.example }}/components/wolfssl' ]; then
+            echo 'ships its own wolfssl component; skipping the IDF-wide install'
+            exit 0
+          fi
+          cd /tmp/wolfssl/IDE/Espressif/ESP-IDF
+          ./setup.sh
+          test -d "$IDF_PATH/components/wolfssl" \
+            || { echo "setup.sh did not install the component"; exit 1; }
+
+      # The component reads $ENV{WOLFSSL_ROOT} to find the wolfSSL sources and
+      # hard-errors ("Could not find wolfssl in ../wolfssl") without it.
+      - name: Point the component at the wolfSSL sources
+        run: echo "WOLFSSL_ROOT=/tmp/wolfssl" >> "$GITHUB_ENV"
+
+      - name: Build ${{ matrix.example }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          . /opt/esp/idf/export.sh
+          cd '${{ matrix.example }}'
+          # -Wcpp: IDF builds -Werror and wolfSSL emits an advisory #warning
+          idf.py build -DCMAKE_C_FLAGS=-Wno-error=cpp
+
+      # A green build proves nothing if idf.py fell back to the host compiler or
+      # skipped the wolfSSL component entirely.
+      - name: Assert it really cross-compiled
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd '${{ matrix.example }}'
+          elf=$(find build -maxdepth 1 -name '*.elf' | head -n1)
+          [ -n "$elf" ] || { echo "no .elf produced"; exit 1; }
+          # readelf ships with the toolchain; the idf container has no `file`.
+          arch=$(readelf -h "$elf" | awk -F: '/Machine:/ {print $2}' | xargs)
+          echo "machine: $arch"
+          case "$arch" in
+            *Tensilica*|*Xtensa*|*RISC-V*) ;;
+            *X86-64*|*x86-64*) echo "FAIL: host binary -- the cross toolchain was not used"; exit 1 ;;
+            *) echo "FAIL: unexpected architecture: $arch"; exit 1 ;;
+          esac
+          # and wolfSSL must actually be linked in, not stubbed out
+          find build -name 'libwolfssl.a' -o -name '*wolfssl*.o' | head -n1 | grep -q . \
+            || { echo "FAIL: no wolfSSL objects in the build tree"; exit 1; }
+          echo "cross-compile verified: Xtensa/RISC-V ELF with wolfSSL objects"

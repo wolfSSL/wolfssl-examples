@@ -1,0 +1,91 @@
+name: BSDKM
+
+on:
+  push:
+    paths:
+      - 'kernel/bsdkm/**'
+      - '.github/workflows/bsdkm.yml'
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  # No cron: nightly.yml calls this, so the nightly stays one run and one triage writer
+  workflow_call:
+    inputs:
+      caller_run_id:
+        description: 'run id of the calling workflow; keeps a called run in its own concurrency group'
+        type: string
+        default: ''
+  workflow_dispatch:
+
+# github.workflow is the CALLER's name in a called workflow, so hardcode ours
+concurrency:
+  group: ${{ inputs.caller_run_id && format('bsdkm-call-{0}', inputs.caller_run_id) || format('bsdkm-{0}', github.ref) }}
+  cancel-in-progress: ${{ !inputs.caller_run_id }}
+
+permissions:
+  contents: read
+
+jobs:
+  resolve:
+    uses: ./.github/workflows/_resolve-wolfssl.yml
+    with:
+      stable_count: 1
+
+  bsdkm:
+    needs: resolve
+    name: Run / kernel-bsdkm (kldload) wolfSSL ${{ matrix.wolfssl_ref }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        wolfssl_ref: ${{ fromJson(needs.resolve.outputs.refs_json) }}
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+
+      # FreeBSD kernel code: BSD make, and kldload needs a real kernel. README.md
+      # says 14.2, but FreeBSD no longer serves it (only 14.3+), so run 14.3.
+      - name: Build the module and load it in a FreeBSD VM
+        uses: vmactions/freebsd-vm@v1
+        with:
+          release: '14.3'
+          usesh: true
+          prepare: |
+            pkg install -y git autoconf automake libtool
+          run: |
+            set -e
+            # The Makefile ends with .include "/usr/src/sys/conf/kmod.mk" -- the
+            # LIVE kernel source, not the bsd.kmod.mk that ships in base, so the
+            # VM image's missing /usr/src has to be filled in first.
+            if [ ! -f /usr/src/sys/conf/kmod.mk ]; then
+              # keyed off the running kernel, so this cannot drift from the VM
+              rel=$(uname -r | sed 's/-p[0-9]*$//')
+              fetch -o /tmp/src.txz "https://download.freebsd.org/releases/amd64/${rel}/src.txz"
+              tar -C / -xf /tmp/src.txz
+            fi
+            test -f /usr/src/sys/conf/kmod.mk
+
+            git clone -q --depth 1 --branch '${{ matrix.wolfssl_ref }}' \
+              https://github.com/wolfSSL/wolfssl /tmp/wolfssl
+            cd /tmp/wolfssl
+            ./autogen.sh
+            ./configure --enable-freebsdkm --enable-cryptonly \
+                        --enable-crypttests --enable-all-crypto
+            make
+            test -f bsdkm/libwolfssl.ko
+
+            # README: load wolfSSL's module first; it runs the wolfCrypt self-test
+            kldload bsdkm/libwolfssl.ko
+            dmesg | tail -20
+            dmesg | grep -q 'wolfCrypt self-test passed' \
+              || { echo "FAIL: wolfSSL kernel module did not report a passing self-test"; exit 1; }
+
+            # Now this repo's example module against that wolfSSL tree.
+            cd "$GITHUB_WORKSPACE/kernel/bsdkm"
+            make WOLFSSL_DIR=/tmp/wolfssl/
+            test -f bsd_example.ko
+            kldload ./bsd_example.ko
+            kldstat | grep -q bsd_example \
+              || { echo "FAIL: bsd_example.ko did not stay loaded"; exit 1; }
+            dmesg | tail -10
+            kldunload ./bsd_example.ko
+            echo "verified: wolfCrypt ran in a FreeBSD kernel module"

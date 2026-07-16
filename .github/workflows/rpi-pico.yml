@@ -1,0 +1,92 @@
+name: RPi-Pico
+
+on:
+  push:
+    paths:
+      - 'RPi-Pico/**'
+      - '.github/workflows/rpi-pico.yml'
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  # No cron: nightly.yml calls this, so the nightly stays one run and one triage writer
+  workflow_call:
+    inputs:
+      caller_run_id:
+        description: 'run id of the calling workflow; keeps a called run in its own concurrency group'
+        type: string
+        default: ''
+  workflow_dispatch:
+
+# github.workflow is the CALLER's name in a called workflow, so hardcode ours
+concurrency:
+  group: ${{ inputs.caller_run_id && format('rpi-pico-call-{0}', inputs.caller_run_id) || format('rpi-pico-{0}', github.ref) }}
+  cancel-in-progress: ${{ !inputs.caller_run_id }}
+
+permissions:
+  contents: read
+
+jobs:
+  resolve:
+    uses: ./.github/workflows/_resolve-wolfssl.yml
+    with:
+      # master only: v5.9.2-stable cannot compile its own Pico port (fixed after the tag)
+      refs: master
+
+  rpi-pico:
+    needs: resolve
+    name: Build / RPi-Pico (arm-none-eabi) wolfSSL ${{ matrix.wolfssl_ref }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        wolfssl_ref: ${{ fromJson(needs.resolve.outputs.refs_json) }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: ./.github/actions/apt-update
+      - name: Install toolchain and Pico SDK
+        run: |
+          set -euo pipefail
+          # libstdc++-arm-none-eabi-newlib supplies the C++ headers the Pico SDK
+          # needs (<cassert>); gcc-arm-none-eabi alone is not enough.
+          sudo apt-get install -y --no-install-recommends \
+            cmake gcc-arm-none-eabi libnewlib-arm-none-eabi \
+            libstdc++-arm-none-eabi-newlib build-essential
+          git clone --depth 1 --recurse-submodules \
+            https://github.com/raspberrypi/pico-sdk /tmp/pico-sdk
+
+      - name: Build testwolfcrypt
+        env:
+          PICO_SDK_PATH: /tmp/pico-sdk
+          # WOLFSSL_ROOT must be in the env: CMakeLists.txt:48 overwrites the -D
+          WOLFSSL_ROOT: /tmp/wolfssl
+        run: |
+          set -euo pipefail
+          # --branch, or every leg silently clones the default branch and the
+          # "wolfSSL v5.9.2-stable" job builds master
+          git clone -q --depth 1 --branch '${{ matrix.wolfssl_ref }}' \
+            https://github.com/wolfSSL/wolfssl /tmp/wolfssl
+          git -C /tmp/wolfssl log -1 --format='wolfssl at ${{ matrix.wolfssl_ref }}: %h %s'
+          cd RPi-Pico
+          # No `|| cmake -B build .` fallback: retrying without the root would
+          # silently configure a build with no wolfSSL in it.
+          cmake -B build -DWOLFSSL_ROOT=/tmp/wolfssl .
+          cmake --build build -j"$(nproc)"
+
+      - name: Assert it really cross-compiled
+        run: |
+          set -euo pipefail
+          cd RPi-Pico
+          elf=$(find build -name '*.elf' | head -n1)
+          [ -n "$elf" ] || { echo "no .elf produced"; exit 1; }
+          arch=$(file -b "$elf")
+          echo "$arch"
+          # wolfSSL must actually be linked in, not configured away
+          find build -name 'libwolfssl*' -o -name '*wolfssl*.obj' -o -name '*wolfssl*.o' \
+            | head -n1 | grep -q . \
+            || { echo "FAIL: no wolfSSL objects in the build tree"; exit 1; }
+          case "$arch" in
+            *ARM*) echo "cross-compile verified: ARM ELF with wolfSSL objects" ;;
+            *x86-64*) echo "FAIL: host binary -- arm-none-eabi was not used"; exit 1 ;;
+            *) echo "FAIL: unexpected architecture"; exit 1 ;;
+          esac

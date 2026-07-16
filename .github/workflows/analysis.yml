@@ -1,0 +1,86 @@
+name: Analysis
+
+on:
+  # ASan+UBSan gates every PR (fast, verified). valgrind is heavier and
+  # leak-noise prone, so the nightly (workflow_call) runs it -- see setup job.
+  push:
+    paths:
+      - '**/*.c'
+      - '**/*.h'
+      - '.github/workflows/analysis.yml'
+      - '.github/scripts/sanitize-run.sh'
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - '**/*.c'
+      - '**/*.h'
+      - '.github/workflows/analysis.yml'
+      - '.github/scripts/sanitize-run.sh'
+  workflow_call:
+    inputs:
+      caller_run_id:
+        description: 'run id of the calling workflow; keeps a called run in its own concurrency group'
+        type: string
+        default: ''
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ inputs.caller_run_id && format('analysis-call-{0}', inputs.caller_run_id) || format('analysis-{0}', github.ref) }}
+  cancel-in-progress: ${{ !inputs.caller_run_id }}
+
+permissions:
+  contents: read
+
+jobs:
+  setup:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 1
+    outputs:
+      modes: ${{ steps.pick.outputs.modes }}
+    steps:
+      - id: pick
+        run: |
+          case "${{ github.event_name }}" in
+            workflow_call|workflow_dispatch) echo 'modes=["asan","valgrind"]' >> "$GITHUB_OUTPUT" ;;
+            *)                               echo 'modes=["asan"]'            >> "$GITHUB_OUTPUT" ;;
+          esac
+
+  analysis:
+    needs: setup
+    name: ${{ matrix.mode }} (self-contained crypto examples)
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: ${{ fromJson(needs.setup.outputs.modes) }}
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/apt-update
+      - name: Install toolchain
+        run: |
+          set -euo pipefail
+          sudo apt-get install -y --no-install-recommends autoconf automake libtool
+          [ "${{ matrix.mode }}" = valgrind ] && sudo apt-get install -y --no-install-recommends valgrind || true
+
+      # Deep analysis tracks master, the moving ref -- that is where a new leak or
+      # UB would land. A sanitized build cannot be shared with a valgrind build.
+      - name: Build wolfSSL for ${{ matrix.mode }}
+        run: |
+          set -euo pipefail
+          git clone -q --depth 1 --branch master https://github.com/wolfSSL/wolfssl /tmp/wolfssl
+          cd /tmp/wolfssl
+          ./autogen.sh >/dev/null
+          if [ "${{ matrix.mode }}" = asan ]; then
+            ./configure --enable-all --enable-static --enable-shared \
+              CFLAGS="-fsanitize=address,undefined -fno-sanitize-recover=all -g -O1" \
+              LDFLAGS="-fsanitize=address,undefined" --prefix=/tmp/wolfssl-inst >/dev/null
+          else
+            ./configure --enable-all --enable-static --enable-shared \
+              CFLAGS="-g -O1" --prefix=/tmp/wolfssl-inst >/dev/null
+          fi
+          make -j"$(nproc)" >/dev/null
+          make install >/dev/null
+
+      - name: Run examples under ${{ matrix.mode }}
+        run: ./.github/scripts/sanitize-run.sh ${{ matrix.mode }} /tmp/wolfssl-inst

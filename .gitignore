@@ -203,6 +203,9 @@ pkcs7/envelopedData-ktri-stream
 pkcs7/envelopedData-kekri
 pkcs7/envelopedData-pwri
 pkcs7/envelopedData-ori
+pkcs7/envelopedDataDecode
+pkcs7/smime
+pkcs7/smime-verify
 pkcs7/signedData
 pkcs7/signedData-stream
 pkcs7/signedData-cryptodev
@@ -246,7 +249,7 @@ pk/rsa-pss/sign.bin
 pk/rsa/rsa-nb
 pk/ecc/ecc_verify
 pk/ecc/ecc_sign
-pk/ecc/ecc_sign_determinisitc
+pk/ecc/ecc_sign_deterministic
 pk/ecc/ecc_pub
 pk/ecc/ecc_keys
 
@@ -434,3 +437,11 @@ http-message-signatures/http_client_signed
 uefi-library/efifs
 
 puf/Build
+
+# python bytecode from .github/scripts
+__pycache__/
+crypto/keywrap/keywrap
+pq/ml_kem/ml_kem
+
+# openssl ocsp -index writes this beside the index when it is missing
+ocsp/stapling/responder-certs/index.txt.attr

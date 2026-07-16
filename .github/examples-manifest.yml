@@ -1,0 +1,1972 @@
+# Source of truth for what CI builds and runs.
+#
+# Every directory holding buildable source must appear here, or
+# `manifest.py check` fails. That is deliberate: a new example is a CI failure
+# until someone decides what to do with it.
+#
+#   tier:    host (default) | emulated | cross     -- which workflow owns it
+#   mode:    run (default) | build-only | skip     -- skip REQUIRES a reason
+#   profile: which wolfSSL build it needs (a property of the dir, never a matrix axis)
+#   build:   make (default) | none | [literal, argv]
+#
+# Every entry gets its own CI job, so a red tile names the example that broke.
+#
+# Adding an example: add an entry. If it cannot run in CI, say so in `reason`.
+#
+# PIN EVERY EXTERNAL PROJECT. wolfSSL is the only thing CI follows a moving ref
+# for -- that is the point. Anything else (picoTCP, mbedTLS, ibmswtpm2, newt,
+# wolfTPM, an SDK) gets the version the example's README documents, or a tag if
+# the README is silent. Tracking someone else's master means their drift lands
+# as our red, on a PR that changed none of it.
+
+# Each profile is derived from the READMEs of the examples that use it -- NOT
+# from --enable-all. --enable-all is not a superset: it omits mlkem, acert,
+# ascon and trackmemory, so examples that need those fail to compile against it.
+# Testing what the README documents is also the only honest thing for a repo
+# whose whole job is showing people how to build.
+#
+# Where a README and the source disagree, the source wins (noted inline).
+# A profile is built once per (profile, wolfSSL ref) and cached; every example
+# using it then restores rather than rebuilds.
+profiles:
+  # plain ./configure -- examples whose README asks for nothing special
+  default:
+    flags: "--enable-static --enable-shared"
+
+  all:
+    # Only for the emulated/cross tiers, whose workflows either build wolfSSL
+    # in-tree (ESP32, Pico) or pass their own flags (tpm, sgx). Host examples
+    # must name the profile their README documents instead.
+    flags: "--enable-all --enable-static --enable-shared"
+
+  crl:
+    # certmanager/README: certverify loads a CRL and fails rc=1 without it
+    flags: "--enable-crl --enable-ocsp --enable-static --enable-shared"
+
+  debug:
+    # custom-io-callbacks/README: the file-io callback pair needs debug output
+    flags: "--enable-debug --enable-static --enable-shared"
+
+  opensslextra:
+    # certfields/* and certstore. keyUsage/extendedKeyUsage READMEs say plain
+    # ./configure but their sources print "configure with --enable-opensslextra"
+    # and produce nothing without it.
+    flags: "--enable-opensslall --enable-opensslextra --enable-static --enable-shared"
+
+  crypto:
+    # union of crypto/*: 3des, aes, aes-modes, camellia, ascon, keywrap, pkcs12
+    flags: >-
+      --enable-pwdbased --enable-des3 --enable-camellia --enable-ascon
+      --enable-experimental --enable-aesgcm-stream --enable-aesccm --enable-aesctr
+      --enable-aescfb --enable-aesofb --enable-aeseax --enable-aessiv
+      --enable-aesxts --enable-aeskeywrap --enable-keygen --enable-certgen
+      --enable-certext --enable-pkcs12 --enable-static --enable-shared
+    # aes-cts and aes-ecb have no configure flag: without these defines both
+    # compile to a stub main() that prints "not compiled in" and returns 0.
+    # WC_RNG_SEED_CB likewise has no --enable of its own (only opensslextra and
+    # the FIPS paths set it), and aes/rdseed exits 1 with "requires __x86_64__
+    # and WC_RNG_SEED_CB" without it.
+    cflags: "-DWOLFSSL_AES_CTS -DHAVE_AES_ECB -DWC_RNG_SEED_CB"
+
+  certgen:
+    flags: >-
+      --enable-certgen --enable-certreq --enable-certext --enable-keygen
+      --enable-ecc --enable-ed25519 --enable-cryptocb --enable-static --enable-shared
+    cflags: "-DWOLFSSL_TEST_CERT -DHAVE_OID_DECODING -DHAVE_OID_ENCODING -DWOLFSSL_CUSTOM_OID -DOPENSSL_EXTRA_X509_SMALL"
+
+  ecc:
+    flags: >-
+      --enable-ecc --enable-ecccustcurves --enable-trackmemory
+      --enable-static --enable-shared
+    # trackmemory is not in the README, but ecc-stack.c includes mem_track.h and
+    # fails to link with "undefined reference to InitMemoryTracker" without it.
+    cflags: "-DWOLFSSL_TEST_CERT -DWOLFSSL_DER_TO_PEM -DHAVE_ECC_KOBLITZ -DWOLFSSL_PUBLIC_MP"
+
+  pk:
+    # union of pk/*: ecc, ed25519, ed448, curve25519/448, srp, hpke, rsa-pss, keygen
+    flags: >-
+      --enable-ecc --enable-ed25519 --enable-ed448 --enable-curve25519
+      --enable-curve448 --enable-keygen --enable-rsapss --enable-srp --enable-hpke
+      --enable-aesgcm --enable-static --enable-shared
+    # WOLFSSL_RSA_KEY_CHECK has no configure option: pk/rsa-kg calls
+    # wc_CheckRsaKey, which rsa.c only defines under that macro.
+    cflags: "-DWOLFSSL_PUBLIC_MP -DUSE_CERT_BUFFERS_2048 -DWOLFSSL_ECDSA_DETERMINISTIC_K -DWOLFSSL_RSA_KEY_CHECK"
+
+  pkcs7:
+    # --enable-indef is required by the streaming examples: without it
+    # envelopedData-ktri-stream prints "Must build wolfSSL using ./configure
+    # --enable-pkcs7 --enable-indef" and signedData-stream fails encode with -173.
+    flags: >-
+      --enable-pkcs7 --enable-indef --enable-pwdbased --enable-cryptocb --with-libz
+      --enable-static --enable-shared
+    cflags: "-DWOLFSSL_DER_TO_PEM"
+
+  pkcs7smime:
+    # Split from pkcs7 because --enable-smime forces opensslall on, and the other
+    # eight targets do not need that surface. Without it smime and smime-verify
+    # print "wolfSSL was compiled with out HAVE_SMIME support" and return 0.
+    flags: >-
+      --enable-pkcs7 --enable-indef --enable-pwdbased --enable-cryptocb --with-libz
+      --enable-smime --enable-static --enable-shared
+    cflags: "-DWOLFSSL_DER_TO_PEM"
+
+  tls:
+    # union of tls/ and tls-options/ READMEs. --enable-asynccrypt is deliberately
+    # absent: it needs the separate wolfAsyncCrypt repo patched in.
+    # keygen + des3: client-tls-pkcs12 needs both (PKCS12 default PBE is 3DES) or
+    # it prints "not configured with ..." and exits 0.
+    flags: >-
+      --enable-tls13 --enable-ech --enable-writedup --enable-pkcallbacks
+      --enable-postauth --enable-cryptocb --enable-opensslall --enable-session-ticket
+      --enable-earlydata --enable-keygen --enable-des3 --enable-static --enable-shared
+    cflags: "-DHAVE_SECRET_CALLBACK"
+
+  dtls:
+    # earlydata requires session tickets or PSK: without session-ticket,
+    # configure dies with "cannot enable earlydata without enabling session
+    # tickets and/or PSK".
+    flags: >-
+      --enable-dtls --enable-dtls13 --enable-tls13 --enable-sessionexport
+      --enable-dtls-mtu --enable-earlydata --enable-session-ticket
+      --enable-dtlscid --enable-opensslextra --enable-ipv6
+      --enable-static --enable-shared
+    # No configure flag for this one; dtls/README.md says to define it so
+    # server-dtls13-earlydata can call wolfSSL_dtls13_no_hrr_on_resume().
+    cflags: "-DWOLFSSL_DTLS13_NO_HRR_ON_RESUME -DWOLFSSL_DTLS_RECORDS_CAN_SPAN_DATAGRAMS"
+
+  psk:
+    flags: "--enable-psk --enable-opensslextra --enable-tls13 --enable-static --enable-shared"
+    cflags: "-DWOLFSSL_STATIC_PSK"
+
+  pq:
+    # pq/ml_kem, pq/ml_dsa, pq/stateful_hash_sig. --enable-all omits mlkem
+    # entirely, which is what made pq-ml-kem fail on mlkem.h.
+    # extra-pqc-hybrids (default off) is what gates WOLFSSL_SECP521R1MLKEM1024
+    # behind WOLFSSL_EXTRA_PQC_HYBRIDS in tls.c; pq/tls asks for that exact group,
+    # so without it the client dies on "failed to set the requested group".
+    flags: >-
+      --enable-mlkem --enable-dilithium --enable-lms --enable-xmss
+      --enable-extra-pqc-hybrids
+      --enable-experimental --enable-tls13 --enable-static --enable-shared
+
+  acert:
+    flags: "--enable-acert --enable-opensslextra --enable-rsapss --enable-static --enable-shared"
+
+  staticmemory:
+    # README says plain ./configure, but size-calculation.c has a hard
+    # `#error requires --enable-staticmemory`.
+    flags: "--enable-staticmemory --enable-static --enable-shared"
+    # DEBUG_MEMORY_PRINT makes every wolfSSL allocation print "Alloc: ... -> N",
+    # which is exactly what memory_bucket_optimizer parses. Its README reaches for
+    # testwolfcrypt, but that is just a convenient allocator -- any program linked
+    # against this build emits the same lines, so debug-callback-example next door
+    # is the log source and no crypttests build is needed.
+    cflags: "-DWOLFSSL_STATIC_MEMORY_DEBUG_CALLBACK -DWOLFSSL_DEBUG_MEMORY -DWOLFSSL_DEBUG_MEMORY_PRINT"
+
+  staticmemory-nomalloc:
+    # the bucket tester replays allocations against wolfSSL's static pool with no
+    # heap fallback, so it needs WOLFSSL_NO_MALLOC -- and cannot share the
+    # optimizer's debug-print build, whose log source allocates.
+    flags: "--enable-staticmemory --enable-static --enable-shared"
+    cflags: "-DWOLFSSL_NO_MALLOC"
+
+  eccencrypt:
+    flags: "--enable-eccencrypt --enable-tls13 --enable-static --enable-shared"
+
+  httpsig:
+    flags: "--enable-ed25519 --enable-coding --enable-static --enable-shared"
+
+  x9146:
+    flags: >-
+      --enable-experimental --enable-dual-alg-certs --enable-dilithium
+      --enable-debug --enable-static --enable-shared
+
+  certvfy:
+    flags: "--enable-cryptonly --enable-singlethreaded --enable-static --enable-shared"
+    cflags: "-DWOLFSSL_SMALL_CERT_VERIFY"
+
+  ocsp:
+    flags: >-
+      --enable-ocsp --enable-ocspstapling --enable-ocspstapling2
+      --enable-ocsp-responder --enable-cert-setup-cb --enable-sessioncerts
+      --enable-tls13 --enable-static --enable-shared
+
+  pkcs11:
+    flags: "--enable-pkcs11 --enable-cryptocb --enable-static --enable-shared"
+
+  fastmath:
+    # Not irreconcilable with --enable-all: configure.ac lets fastmath win and
+    # sets SP_MATH_ALL=no, so it configures cleanly. Kept separate as a coverage
+    # choice -- folding it in would flip every other dir off the sp-math default
+    # that users actually ship. Drop this profile if pk/rsa gains an sp-math
+    # nonblock path.
+    flags: "--enable-all --enable-fastmath --enable-static --enable-shared"
+    cflags: "-DWC_RSA_NONBLOCK -DWC_RSA_NONBLOCK_TIME"
+
+  cryptonly:
+    # Genuinely separate: removes the TLS API every other dir links against.
+    # This is signature/rsa_vfy_only's README line in full -- an abridged version
+    # fails configure with "please disable rsa if disabling asn", because
+    # --enable-rsavfy is what reconciles RSA with --disable-asn.
+    flags: >-
+      --disable-asn --disable-filesystem --enable-cryptonly
+      --enable-sp=smallrsa2048 --enable-sp-math
+      --disable-dh --disable-ecc --disable-sha224 --enable-rsavfy
+      --enable-static --enable-shared
+    cflags: "-DWOLFSSL_PUBLIC_MP"
+
+examples:
+  # ---------------------------------------------------------------- host: run
+  # cmake.yml, not here: add_subdirectory(wolfssl) needs a wolfSSL source tree
+  # beside it, and cloning one is impossible inside this harness's netns.
+  - id: cmake
+    path: cmake
+    tier: cross
+    profile: default
+
+  - id: pkcs7
+    path: pkcs7
+    profile: pkcs7
+    deps: [zlib1g-dev]
+    run:
+      # runall.sh drives the binaries in dependency order (envelopedData-ktri
+      # before envelopedDataDecode). It does not cover the targets driven
+      # explicitly below.
+      # openssl-verify.sh runs runall.sh and then validates every bundle it
+      # produced with openssl cms. runall.sh alone only checks exit codes, which
+      # is how signedData-stream shipped an empty eContent unnoticed.
+      - script: [./scripts/openssl-verify.sh]
+        timeout: 300
+        expect: "all openssl verifications passed"
+      # Every expect: below is also the --enable-pkcs7 gate: without it these
+      # print "Must build wolfSSL using ./configure --enable-pkcs7" and return 0,
+      # so exit code alone cannot tell a real pass from PKCS#7 never running.
+      - exec: [./signedData-p7b]
+        expect: "Successfully verified SignedData bundle."
+      # later and stricter than "PKCS7 Verify Success": the DER round-trip matched
+      - exec: [./pkcs7-verify]
+        expect: "DER output matches the original PEM"
+      - exec: [./envelopedData-ktri-stream, content.txt]
+        expect: "bytes for encrypted file found"
+      - exec: [./signedData-DetachedSignature]
+        expect: "Successfully verified SignedData bundle."
+      - exec: [./signedData-verifyFile, -b, signedData_detached_attrs.der, -c, content.txt]
+        expect: "Successfully verified SignedData bundle!"
+
+  # Split out of pkcs7 above purely so the other 8 targets keep testing the
+  # released library. This one CANNOT pass on v5.9.2-stable:
+  # wc_PKCS7_EncodeContentStreamHelper() leaves ret at its BAD_FUNC_ARG
+  # initializer when the caller passes a precomputed hash, so the content is
+  # never written and the bundle verifies nowhere (ret = -140).
+  # wolfSSL 9b1aad457 (wolfSSL/wolfssl#10904) fixed it after the tag, and no
+  # release contains it yet -- drop the pin and fold this back into pkcs7 once
+  # a release does.
+  - id: pkcs7-signeddata-stream
+    path: pkcs7
+    profile: pkcs7
+    wolfssl_ref: master
+    deps: [zlib1g-dev]
+    run:
+      # last line of the real path; the not-compiled-in branch returns 0 without it
+      - exec: [./signedData-stream, content.txt]
+        expect: "bytes from file"
+
+  # Both commands come from pkcs7/README.md "Creating an SMIME bundle and
+  # verifying it"; smime-verify consumes the bundle smime writes.
+  - id: pkcs7-smime
+    path: pkcs7
+    profile: pkcs7smime
+    deps: [zlib1g-dev]
+    run:
+      - exec: [./smime, ../certs/client-key.der, ../certs/client-cert.der]
+        expect: "output to file ./smime-created.p7s"
+      - exec: [./smime-verify, smime-created.p7s, ../certs/client-cert.der, content.txt]
+        expect: "Verify Success"
+      # negative: verifying the bundle against the wrong signer cert must fail
+      - exec: [./smime-verify, smime-created.p7s, ../certs/server-cert.der, content.txt]
+        must_fail: true
+        expect: "Verify Failed"
+
+  - id: certgen
+    path: certgen
+    profile: certgen
+    run:
+      - exec: [./certgen_example]
+        expect: "Tests passed"
+      - exec: [./certgen_ca_example]
+        expect: "Tests passed"
+      # the end marker: proves a whole PEM CSR was emitted, not a truncated one
+      - exec: [./csr_w_ed25519_example]
+        expect: "-----END CERTIFICATE REQUEST-----"
+      - exec: [./csr_example, ecc]
+        expect: "Saved PEM to \"ecc-csr.pem\""
+      # csr_sign consumes ecc-csr.pem from csr_example
+      - exec: [./csr_sign, ecc-csr.pem, ca-ecc-cert.der, ca-ecc-key.der]
+        expect: "Tests passed"
+      - exec: [./csr_cryptocb, ecc]
+        expect: "Saved CSR PEM to \"ecc-csr.pem\""
+      # custom_ext must be the LAST writer of newCert.der before the callback
+      # reads it -- certgen_example and csr_sign also write that filename.
+      - exec: [./custom_ext]
+        expect: "Tests passed"
+      - exec: [./custom_ext_callback, newCert.der]
+        expect: "Success"
+
+  - id: certmanager
+    path: certmanager
+    profile: crl
+    run:
+      - exec: [./certverify]
+        expect: "CRL Verification Successful!"
+      - exec: [./certloadverifybuffer]
+        expect: "Verification successful on cert2!"
+    # certverify_ocsp is not run: it needs the wolfssl source tree as a sibling
+    # and a manually launched openssl responder on :22221.
+
+  - id: certstore
+    path: certstore
+    profile: opensslextra
+    run:
+      - exec: [./certverify]
+        expect: "Verified certificate"
+
+  - id: certvfy
+    path: certvfy
+    profile: certvfy
+    run:
+      - exec: [./certvfy]
+        expect: "Verification Successful!"
+      - exec: [./certsigvfy]
+        expect: "Verification Successful!"
+      - exec: [./sigvfycert]
+        expect: "Verification Successful!"
+
+  - id: certfields-all-fields
+    path: certfields/all-fields
+    profile: opensslextra
+    run:
+      # cert must be DER; keyType is RSA or ECC. CN proves the subject parsed.
+      - exec: [./app, ../../certs/client-cert.der, RSA]
+        expect: "CN = www.wolfssl.com (15)"
+      # negative: a PEM key is not a DER cert, so d2i must reject it, not accept it
+      - exec: [./app, ../../certs/client-key.pem, RSA]
+        must_fail: true
+        expect: "Failed to convert DER to WOLFSSL_X509"
+
+  - id: certfields-keyusage
+    path: certfields/keyUsage
+    profile: opensslextra
+    run:
+      # the binary is named `run`, not `test`
+      - exec: [./run]
+        expect: "cert can be used for"
+
+  - id: certfields-extendedkeyusage
+    path: certfields/extendedKeyUsage
+    profile: opensslextra
+    env:
+      # this Makefile bakes in -fsanitize=address; leak reports against a shared
+      # libwolfssl would fail the run without this
+      ASAN_OPTIONS: "detect_leaks=0"
+    run:
+      - exec: [./run]
+        expect: "extKeyUsage OID:"
+
+  - id: certfields-extract-pubkey
+    path: certfields/extract-pubkey-from-certfile
+    profile: opensslextra
+    run:
+      # known-answer: the RSA public key DER of client-cert.der
+      - exec: [./app]
+        expect: "3082010A0282010100C303D12BFE39A432"
+
+  - id: ecc
+    path: ecc
+    profile: ecc
+    run:
+      - exec: [./ecc-key-decode]
+        expect: "Success"
+      - exec: [./ecc-params]
+        expect: "Gy: 32"
+      # the last of 10 rounds; a failure in any earlier one now exits non-zero
+      - exec: [./ecc-sign]
+        expect: "Firmware Signature 9: Ret 0"
+      - exec: [./ecc-stack]
+        expect: "stack used ="
+      - exec: [./ecc-verify]
+        expect: "hash_firmware_verify: 0"
+      - exec: [./ecc-verify-minimal]
+        expect: "wc_ecc_verify_hash: ret=0, is_valid_sig=1"
+      # must follow ecc-key-export, which writes the .der it reads
+      - exec: [./ecc-key-export]
+        expect: "ECC Public Key Exported to ./ECC_SECP256K1_pub.pem"
+      - exec: [./ecc-export-Qx-Qy, ECC_SECP256K1.der, qxqy.raw]
+        expect: "Exported Qx and Qy"
+
+  - id: hash
+    path: hash
+    profile: crypto
+    # Known-answer tests: every digest below was cross-checked against shasum and
+    # openssl dgst, so these assert the algorithm is right, not just that it ran.
+    # input.txt is tracked -- if it changes on purpose, recompute these.
+    run:
+      - exec: [./sha256-hash, input.txt]
+        expect: "75294625788129796c09fcbf313ea16e2883356e322adc2f956b37dbdc10b6a7"
+      - exec: [./sha512-hash, input.txt]
+        expect: "ead56209da2dfb3562263aadc57d9382f0f7cb579ebb6dbf2f20bfd3cb68aaaad422f6ce6f1a88ec6c326edcf8456f650579b6e20eb39f3bb444bee8b65615ed"
+      - exec: [./sha3-256-hash, input.txt]
+        expect: "0704c6ca55e7e5c706b543f07da1daed8149c838549096df6a52dac5f95f2fe0"
+      - exec: [./hash-file, SHA256, input.txt]
+        expect: "75294625788129796c09fcbf313ea16e2883356e322adc2f956b37dbdc10b6a7"
+      # sha256 and sha3-256 of the literal "String to hash"
+      - exec: [./sha256-hash-string]
+        expect: "d4476d30fd94c746eb38d8a1b3931aa81d1e485be5a6362f47598017a91cb5d2"
+      - exec: [./sha256-hash-oneshot-string]
+        expect: "d4476d30fd94c746eb38d8a1b3931aa81d1e485be5a6362f47598017a91cb5d2"
+      - exec: [./sha3-256-hash-oneshot-string]
+        expect: "10d69e59ac10b1d81755733f323bdadca3e04e4b17df72f5b343d6da701a4225"
+
+  - id: embedded
+    path: embedded
+    profile: default
+    run:
+      # the client receives the server's HTML: proves the full round-trip, not "Done"
+      - exec: [./tls-client-server]
+        expect: "wolfSSL has successfully performed handshake!"
+      - exec: [./tls-threaded]
+        expect: "wolfSSL has successfully performed handshake!"
+      - exec: [./tls-sock-threaded]
+        expect: "wolfSSL has successfully performed handshake!"
+      - pair:
+          server: [./tls-sock-server]
+          client: [./tls-sock-client]
+          server_exit: killed
+        expect: "wolfSSL has successfully performed handshake!"
+      - pair:
+          server: [./tls-sock-server-ca]
+          client: [./tls-sock-client-ca]
+          server_exit: killed
+        expect: "wolfSSL has successfully performed handshake!"
+    # tls-server-size is deliberately not run: its buffer-IO recv callback returns
+    # WANT_READ forever with no client, so it spins at 100% CPU and never exits.
+    # It is a code-size demo, not a runnable example.
+
+  - id: crypto-3des
+    path: crypto/3des
+    profile: crypto
+    setup:
+      - [sh, -c, "printf '3des ci input\\n' > in.txt"]
+    run:
+      # NoEcho() calls tcsetattr(fileno(stdin)), which returns ENOTTY on a pipe
+      # and makes main return -1060. `script -qec` gives it a real PTY.
+      - exec: [sh, -c, "printf 'ciphertestpw\\n' | script -qec './3des-file-encrypt -e 168 -i in.txt -o out.enc' /dev/null"]
+        expect: "Success: 3DES encrypt complete"
+
+  - id: crypto-aes
+    path: crypto/aes
+    profile: crypto
+    run:
+      # known answer: hex of "single block msg"
+      - exec: [./aesgcm-minimal]
+        expect: "Decrypted: 73696e676c6520626c6f636b206d736700"
+      - exec: [./aesgcm-oneshot]
+        expect: "Decrypted: 090909090909090909090909090909090909090909090909090909090909090909"
+      # -t encrypts a random file, decrypts it and diffs the two
+      - exec: [./aesgcm-file-encrypt, -t, "256"]
+        expect: "Pass: The files are identical."
+    # aes/aescfb/aesctr-file-encrypt share crypto/3des's tcsetattr blocker and
+    # are deliberately absent from run:.
+
+  - id: crypto-aes-modes
+    path: crypto/aes-modes
+    profile: crypto
+    setup:
+      - [sh, -c, "printf 'wolfssl-examples aes-modes CI input\\n' > in.txt"]
+    # Every one prints "<MODE> not compiled in" and returns 0 when its feature is
+    # off, so exit code alone cannot tell a round-trip from a no-op. "Success!"
+    # is the last line before return and only the round-trip reaches it.
+    run:
+      - exec: [./aes-cbc, in.txt, out-cbc.bin]
+        expect: "Success!"
+      - exec: [./aes-cfb, in.txt, out-cfb.bin]
+        expect: "Success!"
+      - exec: [./aes-cfb1, in.txt, out-cfb1.bin]
+        expect: "Success!"
+      - exec: [./aes-cfb8, in.txt, out-cfb8.bin]
+        expect: "Success!"
+      - exec: [./aes-ofb, in.txt, out-ofb.bin]
+        expect: "Success!"
+      - exec: [./aes-ecb, in.txt, out-ecb.bin]
+        expect: "Success!"
+      - exec: [./aes-ctr, in.txt, out-ctr.bin]
+        expect: "Success!"
+      - exec: [./aes-direct, in.txt, out-direct.bin]
+        expect: "Success!"
+      - exec: [./aes-gcm, in.txt, out-gcm.bin]
+        expect: "Success!"
+      - exec: [./aes-gmac, in.txt, out-gmac.bin]
+        expect: "Success!"
+      - exec: [./aes-ccm, in.txt, out-ccm.bin]
+        expect: "Success!"
+      - exec: [./aes-keywrap, in.txt, out-keywrap.bin]
+        expect: "Success!"
+      - exec: [./aes-xts, in.txt, out-xts.bin]
+        expect: "Success!"
+      - exec: [./aes-siv, in.txt, out-siv.bin]
+        expect: "Success!"
+      - exec: [./aes-eax, in.txt, out-eax.bin]
+        expect: "Success!"
+      - exec: [./aes-cts, in.txt, out-cts.bin]
+        expect: "Success!"
+
+  - id: crypto-aes-rdseed
+    path: crypto/aes/rdseed
+    profile: crypto
+    run:
+      # Deliberately unguarded. rdseed64() is bare inline asm with no CPUID probe,
+      # so a CPU without RDSEED SIGILLs rather than failing cleanly -- and a
+      # `grep /proc/cpuinfo || exit 0` guard would turn "never tested here" into a
+      # green tick, which is worse than a loud crash. Hosted runners are Xeon or
+      # EPYC and have had RDSEED since Broadwell/Zen.
+      - exec: [./aesgcm-rdseed]
+        # the last line it prints, and only reached once the GCM round-trip
+        # compared equal
+        expect: "Decrypted"
+
+  - id: crypto-ascon
+    path: crypto/ascon
+    profile: crypto
+    setup:
+      - [sh, -c, "printf 'ascon ci input\\n' > in.txt"]
+    run:
+      # same tcsetattr prompt as crypto/3des; `script -qec` supplies a PTY.
+      - exec: [sh, -c, "printf 'ciphertestpw\\n' | script -qec './ascon-file-encrypt -e -i in.txt -o out.enc' /dev/null"]
+        expect: "Success: Ascon encrypt complete"
+
+  - id: crypto-camellia
+    path: crypto/camellia
+    profile: crypto
+    setup:
+      - [sh, -c, "printf 'camellia ci input\\n' > in.txt"]
+    run:
+      # same tcsetattr prompt as crypto/3des; `script -qec` supplies a PTY.
+      - exec: [sh, -c, "printf 'ciphertestpw\\n' | script -qec './camellia-encrypt -e 128 -i in.txt -o out.enc' /dev/null"]
+        expect: "Success: Camellia encrypt complete"
+
+  - id: crypto-keywrap
+    path: crypto/keywrap
+    profile: crypto
+    run:
+      # only printed once wc_AesGcmDecrypt's auth tag verified the unwrap
+      - exec: [./keywrap]
+        expect: "Decrypted Random Key: "
+
+  - id: crypto-pkcs12
+    path: crypto/pkcs12
+    profile: crypto
+    run:
+      - exec: [./pkcs12-example]
+        expect: "return value of parsing pkcs12 = 0 SUCCESS"
+      - exec: [./pkcs12-create-example]
+        expect: "Printing PKCS12 DER file to output.p12"
+
+  - id: signature
+    path: signature
+    profile: default
+    run:
+      - exec: [./signature, Makefile]
+        expect: "ECC Signature Verification: Pass (0)"
+
+  - id: signature-ecc-sign-verify
+    path: signature/ecc-sign-verify
+    profile: default
+    run:
+      # the last curve it sweeps, so this only prints if every earlier one passed
+      - exec: [./ecc_sign_verify]
+        timeout: 120
+        # fresh keygen + ECDSA (random k) every run; repeat to surface a flaky nonce
+        repeat: 3
+        expect: "Successfully verified signature w/ ecc key size 521!"
+
+  - id: signature-rsa-buffer
+    path: signature/rsa_buffer
+    profile: default
+    run:
+      # signature.h is committed, so verify works against it directly. Running
+      # ./sign would rewrite signature.h and require a rebuild of verify.
+      - exec: [./verify]
+        expect: "Verified"
+
+  - id: signature-sigtest
+    path: signature/sigtest
+    profile: certgen
+    deps: [libssl-dev]
+    run:
+      - exec: [./wolfsigtest]
+        expect: "Signatures match!"
+      - exec: [./opensigtest]
+        expect: "CRYPTO: EXPECTED signature verify OK! 1"
+    # eccsiglentest is not run: 1000 loops across ~26 curves takes minutes.
+
+  - id: staticmemory
+    path: staticmemory
+    profile: staticmemory
+    run:
+      # size-calculation.c has a hard #error without --enable-staticmemory, which
+      # the `all` profile supplies.
+      # last bucket ...ok; bucket sizes are hardcoded so this string is stable
+      - exec: [./size-calculation]
+        expect: "Checking out bucket 4 size of 25...ok"
+      # "bucket size used was" only prints when the debug callback is compiled in
+      - exec: [./debug-callback-example]
+        expect: "bucket size used was"
+
+  - id: staticmemory-bucket-optimizer
+    path: staticmemory/memory-bucket-optimizer/optimizer
+    profile: staticmemory
+    setup:
+      # Generate the log from the sibling example rather than testwolfcrypt: the
+      # parser only wants "Alloc:"/"Free:" lines, which the profile's
+      # DEBUG_MEMORY_PRINT makes any wolfSSL program emit.
+      - [sh, -c, "make -C ../.. >/dev/null && ../../debug-callback-example > mem.log 2>&1"]
+      - [sh, -c, "grep -q 'Alloc:' mem.log"]
+    run:
+      # Summary only prints after the whole log parsed and buckets were computed.
+      - exec: [./memory_bucket_optimizer, mem.log]
+        expect: "Optimization Summary:"
+
+  - id: staticmemory-bucket-tester
+    path: staticmemory/memory-bucket-optimizer/tester
+    profile: staticmemory-nomalloc
+    setup:
+      # a small synthetic log keeps the run self-contained: the tester's usual log
+      # source allocates, so it cannot be built in this no-malloc job.
+      - [sh, -c, "printf 'Alloc: 0x1000 -> 64 at t:1\\nAlloc: 0x2000 -> 128 at t:2\\nFree: 0x1000 -> 64 at t:3\\nAlloc: 0x3000 -> 256 at t:4\\nFree: 0x2000 -> 128 at t:5\\nFree: 0x3000 -> 256 at t:6\\n' > mem-sample.log"]
+    run:
+      # replays the log's allocations against the static buckets; PASSED means
+      # every one fit with no heap fallback.
+      - exec: [./memory_bucket_tester, mem-sample.log, --buckets, "64,128,256", --dist, "1,1,1", --buffer-size, "8192"]
+        expect: "TEST PASSED: All allocations succeeded"
+
+  - id: x509-acert
+    path: x509_acert
+    profile: acert
+    deps: [libssl-dev]
+    # `make` also builds openssl_acert, which needs openssl/x509_acert.h -- that
+    # is OpenSSL 3.4+, and ubuntu-24.04 ships 3.0.
+    build: [make, wolfssl_acert]
+    run:
+      # README says acerts/ -- the real dir is certs/
+      - exec: [./wolfssl_acert, -f, certs/acert.pem, -k, certs/acert_pubkey.pem]
+        expect: "info: acert_do_test: good"
+      - exec: [./wolfssl_acert, -f, certs/acert_ietf.pem, -k, certs/acert_ietf_pubkey.pem]
+        expect: "info: acert_do_test: good"
+    # openssl_acert is not run: X509_ACERT is not in distro OpenSSL.
+
+  - id: x9146
+    path: X9.146
+    profile: x9146
+    deps: [openssl]
+    # ca-key.der / server-key.der are not committed, so the generators fopen()
+    # NULL on a fresh clone. The README documents this openssl step.
+    setup:
+      - [sh, -c, "openssl genpkey -algorithm rsa -pkeyopt rsa_keygen_bits:3072 -out ca-key.der -outform der"]
+      - [sh, -c, "openssl genpkey -algorithm rsa -pkeyopt rsa_keygen_bits:3072 -out server-key.der -outform der"]
+    run:
+      # root before server: the server generator reads ./ca-cert-pq.der that the
+      # root one writes. The rsa and ecdsa families collide on that filename, so
+      # only one family runs here.
+      # SUCCESS! prints only after ret=0; the byte count varies with ML-DSA sig
+      - exec: [./gen_rsa_mldsa_dual_keysig_root_cert]
+        timeout: 120
+        expect: "SUCCESS!"
+      - exec: [./gen_rsa_mldsa_dual_keysig_server_cert]
+        timeout: 120
+        expect: "SUCCESS!"
+
+  - id: tls-options
+    path: tls-options
+    profile: tls
+    run:
+      # -e prints the enabled cipher list; TLS1.3 is on, so this suite is present
+      - exec: [./client-tls-cipher, -e]
+        expect: "TLS13-AES128-GCM-SHA256"
+      - exec: [./server-tls-cipher, -e]
+        expect: "TLS13-AES128-GCM-SHA256"
+      - pair:
+          server: [./server-tls-cipher]
+          client: [./client-tls-cipher, 127.0.0.1]
+          stdin: "hello\n"
+          server_exit: killed
+        expect: "Server: I hear ya fa shizzle"
+      # both need -a <mode>: a bare IP arg prints usage and exits 0 (a no-op).
+      # NONE keeps the self-signed test certs from failing peer verification.
+      - pair:
+          server: [./server-tls-peerauth, -a, NONE]
+          client: [./client-tls-peerauth, -a, NONE]
+          stdin: "hello\n"
+          server_exit: killed
+        expect: "Server: I hear ya fa shizzle"
+    # The session/resume pair needs ../tls/server-tls13 built first and writes
+    # session.bin; client-tls-resume silently falls back to a fresh session when
+    # session.bin is absent, so a naive run would pass without testing resumption.
+
+  - id: psk
+    path: psk
+    profile: psk
+    run:
+      # psk clients do NOT read stdin (the message is hardcoded), and no psk
+      # server honours a "shutdown" string -- that terminator exists only in
+      # tls/. Every server here accept-loops, so all pairs are server_exit: killed.
+      - pair:
+          server: [./server-tcp]
+          client: [./client-tcp, 127.0.0.1]
+          server_exit: killed
+        expect: "Server Message: I hear ya for shizzle"
+      - pair:
+          server: [./server-psk]
+          client: [./client-psk, 127.0.0.1]
+          server_exit: killed
+        expect: "Server Message: I hear ya for shizzle"
+      - pair:
+          server: [./server-psk-nonblocking]
+          client: [./client-psk-nonblocking, 127.0.0.1]
+          server_exit: killed
+        expect: "Server Message: I hear ya for shizzle"
+      - pair:
+          server: [./server-psk-threaded]
+          client: [./client-psk, 127.0.0.1]
+          server_exit: killed
+        expect: "Server Message: I hear ya for shizzle"
+      - pair:
+          server: [./server-psk-tls13-multi-id]
+          client: [./client-psk-tls13-multi-id, 127.0.0.1]
+          server_exit: killed
+        expect: "Server Message: I hear ya for shizzle"
+
+  - id: btle-ecies
+    path: btle/ecies
+    profile: eccencrypt
+    # Transport is a pair of FIFOs in /tmp, not sockets. Stale FIFOs from a
+    # previous run make ecc-server hang on open(), so clear them first.
+    setup:
+      - [rm, -f, /tmp/btleMiso, /tmp/btleMosi]
+    run:
+      # the client decrypting the echoed "exit" proves the ECIES round-trip
+      - pair:
+          server: [./ecc-server]
+          client: [./ecc-client]
+          stdin: "exit\n"
+          server_exit: killed
+          port: none
+        expect: "Recv 16: exit"
+
+  - id: btle-tls
+    path: btle/tls
+    profile: eccencrypt
+    setup:
+      - [rm, -f, /tmp/btleMiso, /tmp/btleMosi]
+    run:
+      # the client reading the echoed "exit" proves the TLS1.3-over-BTLE handshake
+      - pair:
+          server: [./server-tls13-btle]
+          client: [./client-tls13-btle]
+          stdin: "exit\n"
+          server_exit: killed
+          port: none
+        expect: "Read (5): exit"
+
+  - id: http-message-signatures
+    path: http-message-signatures
+    profile: httpsig
+    run:
+      # test_vectors covers the RFC 9421 B.2.6 vector and is self-contained
+      - exec: [./test_vectors]
+        expect: "17/17 tests passed"
+      - exec: [./sign_request]
+        expect: "Success"
+      # the client's 3 demos include a tampered-signature 401, so this proves
+      # both accept and reject paths
+      - pair:
+          server: [./http_server_verify]
+          client: [./http_client_signed]
+          port: 8080
+          server_exit: killed
+        expect: "3/3 demos passed"
+
+  - id: pq-ml-dsa
+    path: pq/ml_dsa
+    profile: pq
+    run:
+      # args are mandatory: a bare run prints usage and exits FAILURE
+      - exec: [./ml_dsa_test, -c, "2"]
+        expect: "info: verify message good"
+      - exec: [./ml_dsa_test, -c, "3"]
+        expect: "info: verify message good"
+      - exec: [./ml_dsa_test, -c, "5", -m, "wolfssl-examples CI"]
+        expect: "info: verify message good"
+      # -p only prints the FIPS 204 parameter tables
+      - exec: [./ml_dsa_test, -p]
+        expect: "ML-DSA-87"
+
+  - id: pq-ml-kem
+    path: pq/ml_kem
+    profile: pq
+    run:
+      # asserts the KEM contract itself: both sides derived the same secret
+      - exec: [./ml_kem]
+        # randomized keygen/encaps every run; repeat to surface an intermittent miss
+        repeat: 5
+        expect: "Shared secrets match"
+
+  - id: pq-stateful-hash-sig
+    path: pq/stateful_hash_sig
+    profile: pq
+    run:
+      # Params pinned to the smallest viable set: LMS/XMSS keygen cost is
+      # exponential in levels*height, and height>=15 runs for minutes.
+      # a failed verify goto's past this print, so it means every round verified
+      - exec: [./lms_example, "1", "5", "1"]
+        timeout: 180
+        expect: "finished"
+      - exec: [./xmss_example, XMSS-SHA2_10_256, "10"]
+        timeout: 180
+        expect: "finished"
+
+  - id: ocsp-nonblock
+    path: ocsp/ocsp_nonblock
+    profile: ocsp
+    mode: build-only
+    reason: "ocsp_nonblock_async connects to an external responder on :443"
+
+  - id: ocsp-responder
+    path: ocsp/responder
+    profile: ocsp
+    run:
+      # ocsp-request-response builds a request, signs a response and verifies it
+      # in-process -- no responder, no network. Every error path gotos cleanup and
+      # skips this line, so it only prints when all seven steps succeeded.
+      - exec: [./ocsp-request-response]
+        expect: "=== Example complete ==="
+    # ocsp-responder-http serves OCSP over HTTP and needs a client driving it; that
+    # is the N-process recipe ocsp-stapling also waits on.
+
+  - id: ocsp-stapling
+    path: ocsp/stapling
+    profile: ocsp
+    # Three processes, not two, which is why this waited on the procs: step.
+    # Certs are pre-generated and checked in (valid to 2027-09-14), so no cert
+    # step -- but they DO expire, and this is the example CI exists to catch.
+    run:
+      # `make responder` verbatim: openssl's own OCSP responder on :22221.
+      - procs: &stapling
+          background:
+            - argv: [openssl, ocsp, -index, responder-certs/index.txt, -port, "22221",
+                     -rsigner, responder-certs/ocsp-responder-int1-cert.pem,
+                     -rkey, responder-certs/ocsp-responder-int1-key.pem,
+                     -CA, client-certs/intermediate1-ca-cert.pem]
+              port: 22221
+            - argv: [./ocsp-server]
+              port: 11111
+          client: [./ocsp-client, --tls12]
+        # exit 0 only means the client ran; this means it got a stapled response
+        # back and the handshake completed.
+        expect: "Client: TLS handshake success"
+      # ocsp-server accepts once and exits, so tls13 needs its own chain.
+      - procs:
+          <<: *stapling
+          client: [./ocsp-client, --tls13]
+        expect: "Client: TLS handshake success"
+        # A wolfSSL bug, not an example bug, reproduced locally: the RFC 8446
+        # 4.4.2 check in tls.c searches only ssl->extensions, but
+        # wolfSSL_CTX_UseOCSPStapling leaves status_request on ctx->extensions,
+        # so the server's staple is killed with unsupported_extension (-429).
+        # wolfSSL's own TLSX_CheckUnsupportedExtension does that ctx fallback;
+        # this call site does not. Fix filed as wolfSSL/wolfssl#10936; drop this
+        # expect_fail when it merges.
+        expect_fail: "wolfSSL drops a CTX-set status_request in the TLS1.3 Certificate msg (-429)"
+
+  - id: custom-io-file-client
+    path: custom-io-callbacks/file-client
+    profile: debug
+    deps: [clang]
+    mode: build-only
+    reason: "client half of the file-server pair; custom-io-file-server runs both"
+
+  - id: custom-io-file-server
+    path: custom-io-callbacks/file-server
+    profile: debug
+    deps: [clang]
+    setup:
+      # the pair talks over files in file-client/, and stale ones desync the handshake
+      - [sh, -c, "cd ../file-client && ./clean-io-files.sh 2>/dev/null || true"]
+      - [make, -C, ../file-client]
+    run:
+      # check.sh drives both halves; they live in different dirs and share io
+      # files by relative path, so neither runs standalone.
+      - script: [./check.sh]
+        timeout: 60
+        expect: "custom-io file transfer succeeded"
+
+  - id: dtls-mcast
+    path: dtls-mcast
+    profile: dtls
+    mode: build-only
+    reason: >-
+      Built here as a stub; run end-to-end by the dedicated dtls-mcast.yml job,
+      which the manifest harness cannot host. mcast-peer is a while(running) loop
+      with no foreground driver, and multicast needs a full network stack, not
+      the harness's loopback-only netns. That job runs all three peers on the
+      host, SIGTERMs them, and asserts a peer decrypted another's message.
+
+  - id: pq-pqc-proxy
+    path: pq/pqc_proxy
+    profile: pq
+    # Not the "4-process chain" this used to claim: it is TWO independent
+    # 3-process chains on disjoint ports (11111/11112 and 22221/22222), and the
+    # README says both can run at once. Six binaries, two directions.
+    run:
+      # Direction 1 -- quantum-safe front door: a modern client reaches a legacy
+      # TLS 1.2 origin through a PQ-terminating proxy.
+      - procs:
+          background:
+            - argv: [./legacy-server]
+              port: 11112
+            - argv: [./pq-proxy]
+              port: 11111
+          client: [./pq-client, 127.0.0.1]
+          stdin: "hello over pq\n"
+        # kex= is the negotiated key exchange: this asserts ML-KEM actually ran,
+        # not merely that some TLS handshake succeeded.
+        expect: "kex="
+      # Direction 2 -- quantum-safe upgrade: a legacy client is upgraded to PQ
+      # by the proxy in front of a PQ origin.
+      - procs:
+          background:
+            - argv: [./pq-server]
+              port: 22222
+            - argv: [./upgrade-proxy]
+              port: 22221
+          client: [./legacy-client, 127.0.0.1]
+          stdin: "hello over legacy\n"
+        expect: "Connected to proxy:"
+
+  # pk/* -- each subdir is its own Makefile and its own example
+  - id: pk-curve25519
+    path: pk/curve25519
+    profile: pk
+    run:
+      - exec: [./curve25519_test]
+        expect: "Curve25519 test success"
+  - id: pk-dh-pg
+    path: pk/dh-pg
+    profile: pk
+    run:
+      # -ffdhe uses predefined groups; a bare run GENERATES DH params and takes
+      # minutes. No expect:: output is C test-vector arrays with no unique
+      # success line; it returns nonzero on any key-agreement mismatch.
+      - exec: [./dh-pg-ka, -ffdhe]
+        timeout: 180
+  - id: pk-ecc
+    path: pk/ecc
+    profile: pk
+    run:
+      - exec: [./ecc_keys]
+        expect: "storing public key into ecc-public.x963 (65 bytes)"
+      # the key is random per run, so assert the exported sizes, not the bytes
+      - exec: [./ecc_pub]
+        expect: "Public Key Qy: 32"
+      # these print Success only after verify_res came back 1
+      - exec: [./ecc_sign]
+        expect: "Success"
+      - exec: [./ecc_sign_deterministic]
+        expect: "Success"
+      - exec: [./ecc_verify]
+        expect: "Success"
+  - id: pk-ecdh-generate-secret
+    path: pk/ecdh_generate_secret
+    profile: pk
+    run:
+      # argv[1] is required: without it the example prompts on stdin via getchar.
+      # each asserts both sides derived the same secret (1=ecc, 2=25519, 3=448).
+      # repeat: fresh keygen every run, so a flaky agreement would not hide.
+      - exec: [./ecdh_gen_secret, "1"]
+        repeat: 5
+        expect: "Successfully generated a common secret"
+      - exec: [./ecdh_gen_secret, "2"]
+        repeat: 5
+        expect: "Successfully generated a common 25519 secret"
+      - exec: [./ecdh_gen_secret, "3"]
+        repeat: 5
+        expect: "Successfully generated a common 448 secret"
+  - id: pk-ed25519
+    path: pk/ed25519
+    profile: pk
+    run:
+      - exec: [./ed25519_keys]
+        expect: "writing public key to ed25519-pubkey.der (32 bytes)"
+      - exec: [./ed25519_pub]
+        expect: "Public Key: 32"
+      - exec: [./ed25519_sign]
+        expect: "Success"
+      - exec: [./ed25519_verify]
+        expect: "Success"
+  - id: pk-ed25519-gen
+    path: pk/ed25519_gen
+    profile: pk
+    run:
+      # sign_and_verify uses the committed test_keys.h. gen_key_files is not run:
+      # it overwrites committed .der files and dirties the worktree.
+      - exec: [./sign_and_verify]
+        expect: "Successfully validated signature"
+  - id: pk-ed448
+    path: pk/ed448
+    profile: pk
+    run:
+      - exec: [./ed448_keys]
+        expect: "writing public key to ed448-pubkey.der (57 bytes)"
+      - exec: [./ed448_pub]
+        expect: "Public Key: 57"
+      - exec: [./ed448_sign]
+        expect: "Success"
+      - exec: [./ed448_verify]
+        expect: "Success"
+  - id: pk-enc-through-sign-rsa
+    path: pk/enc-through-sign-rsa
+    profile: pk
+    run:
+      # silent producer; the decrypt below asserting the known plaintext proves it
+      - exec: [./rsa-private-encrypt-app]
+      # reads ./encryptedAesKey (hardcoded, no argv) written by the app above
+      - exec: [./rsa-public-decrypt-app]
+        expect: "Thisismyfakeaeskeythatis32bytes!"
+  - id: pk-hpke
+    path: pk/hpke
+    profile: pk
+    run:
+      - exec: [./hpke_test]
+        expect: "HPKE test success"
+  - id: pk-rsa-kg
+    path: pk/rsa-kg
+    profile: pk
+    run:
+      # -load-key uses the committed rsa-key.h; without it this generates RSA
+      # keys and can run for minutes. No expect:: output is C test-vector arrays
+      # with no unique success line; it returns nonzero on any sign/verify miss.
+      - exec: [./rsa-kg-sv, -load-key]
+      - exec: [./rsa-kg, -bits, "2048"]
+        timeout: 180
+        expect: "writing public key to ./rsa-private.der"
+  - id: pk-rsa-pss
+    path: pk/rsa-pss
+    profile: pk
+    run:
+      - exec: [./rsa-pss, -s, sign.bin]
+        expect: "Writing to file: sign.bin"
+      # reads ./rsa-public.der + sign.bin written by -s
+      - exec: [./rsa-pss, -v, sign.bin]
+        expect: "RSA PSS verify success"
+  - id: pk-srp
+    path: pk/srp
+    profile: pk
+    run:
+      # srp_store.h is committed, so this works without regenerating it
+      - exec: [./srp, wolfssl, password]
+        expect: "Client verified server proof"
+      # code generator: emitting the verifier array is its whole job. The length
+      # varies (79/80) with the bignum's leading byte, so match the decl only.
+      - exec: [./srp_gen, wolfssl, password]
+        expect: "static const byte verifier["
+  - id: pk-test-cert-keypair
+    path: pk/test_cert_and_private_keypair
+    profile: pk
+    run:
+      # key first, then cert
+      - exec: [./test-cert-privkey-pair, ../../certs/client-key.pem, ../../certs/client-cert.pem]
+        expect: "Congratulations, this private key and cert"
+      # negative: a cert is not a private key, so the key load must fail
+      - exec: [./test-cert-privkey-pair, ../../certs/client-cert.pem, ../../certs/client-cert.pem]
+        must_fail: true
+        expect: "Failed to load PRIVATE KEY"
+
+  # ------------------------------------------------- host: own shard (heavy)
+  - id: tls
+    path: tls
+    profile: tls
+    run:
+      # memory-tls needs no sockets and no stdin: the safest target here.
+      - exec: [./memory-tls]
+        expect: "client msg = hello memory wolfSSL!"
+      # `shutdown` is the literal terminator (strncmp(buff, "shutdown", 8)).
+      # Only these servers check for it; the rest accept-loop and must be killed.
+      - pair:
+          server: [./server-tls13]
+          client: [./client-tls13, 127.0.0.1]
+          stdin: "shutdown\n"
+          server_exit: clean
+        expect: "Server: I hear ya fa shizzle"
+      # interop: an OpenSSL client must complete a mutual TLS 1.3 handshake with the
+      # wolfSSL server and read its reply (no "Server:" prefix -- that is our client's).
+      - pair:
+          server: [./server-tls13]
+          client: [openssl, s_client, -connect, 127.0.0.1:11111, -CAfile, ../certs/ca-cert.pem, -cert, ../certs/client-cert.pem, -key, ../certs/client-key.pem, -quiet]
+          stdin: "shutdown\n"
+          server_exit: clean
+        expect: "I hear ya fa shizzle"
+      # interop, reverse: our wolfSSL client completes a mutual TLS 1.3 handshake with
+      # an OpenSSL server and reads the reply fed to s_server over server_stdin.
+      - pair:
+          server: [openssl, s_server, -accept, "11111", -cert, ../certs/server-cert.pem, -key, ../certs/server-key.pem, -CAfile, ../certs/ca-cert.pem, -Verify, "1", -quiet]
+          server_stdin: "I hear ya from openssl\n"
+          client: [./client-tls13, 127.0.0.1]
+          stdin: "hello\n"
+          server_exit: term
+        expect: "Server: I hear ya from openssl"
+      - pair:
+          server: [./server-tls-cryptocb]
+          client: [./client-tls-cryptocb, 127.0.0.1]
+          stdin: "shutdown\n"
+          server_exit: clean
+        expect: "Server: I hear ya fa shizzle"
+      - pair:
+          server: [./server-tls-posthsauth]
+          client: [./client-tls-posthsauth, 127.0.0.1]
+          stdin: "shutdown\n"
+          server_exit: clean
+        expect: "Server: I hear ya fa shizzle"
+      - pair:
+          server: [./server-tls-threaded]
+          client: [./client-tls, 127.0.0.1]
+          stdin: "shutdown\n"
+          server_exit: clean
+        expect: "Server: I hear ya fa shizzle"
+      - pair:
+          server: [./server-tls]
+          client: [./client-tls, 127.0.0.1]
+          stdin: "shutdown\n"
+          server_exit: killed
+        expect: "Server: I hear ya fa shizzle"
+      - pair:
+          server: [./server-tls-ecdhe]
+          client: [./client-tls-ecdhe, 127.0.0.1]
+          stdin: "shutdown\n"
+          server_exit: killed
+        expect: "Server: I hear ya fa shizzle"
+      # nonblocking connect is timing-sensitive and could not be run locally, but
+      # the client prints the same echo as its siblings once connected.
+      - pair:
+          server: [./server-tls-nonblocking]
+          client: [./client-tls-nonblocking, 127.0.0.1]
+          stdin: "shutdown\n"
+          server_exit: killed
+        expect: "Server: I hear ya fa shizzle"
+      - pair:
+          server: [./server-tls-callback]
+          client: [./client-tls-callback, 127.0.0.1]
+          stdin: "shutdown\n"
+          server_exit: killed
+        expect: "Server: I hear ya fa shizzle"
+      # NOT RUN: see the note on the dtls13-earlydata pair. The server never
+      # sends a session ticket, so the client exits 1 on "Session ticket not
+      # received from server".
+
+      - pair:
+          server: [./server-tls13-certauth-clienthello]
+          client: [./client-tls13-certauth-clienthello, 127.0.0.1]
+          stdin: "shutdown\n"
+          server_exit: clean
+        expect: "Server: I hear ya fa shizzle"
+
+      - pair:
+          server: [./server-tls-pkcallback]
+          client: [./client-tls-pkcallback, 127.0.0.1]
+          stdin: "shutdown\n"
+          server_exit: clean
+        expect: "Server: I hear ya fa shizzle"
+
+      # client-tls-cacb prints the reply in "Received: ...I hear ya fa shizzle"
+      # form, not the "Server:" prefix the others use
+      - pair:
+          server: [./server-tls]
+          client: [./client-tls-cacb, 127.0.0.1]
+          stdin: "shutdown\n"
+          server_exit: killed
+        expect: "I hear ya fa shizzle"
+
+      # server-tcp/client-tcp link no wolfSSL (tls/Makefile strips -lwolfssl); the
+      # server returns its write() byte count, so it cannot be server_exit: clean.
+      - pair:
+          server: [./server-tcp]
+          client: [./client-tcp, 127.0.0.1]
+          stdin: "shutdown\n"
+          server_exit: killed
+        expect: "Server: I hear ya fa shizzle"
+
+      - pair:
+          server: [./server-tls-verifycallback]
+          client: [./client-tls, 127.0.0.1]
+          stdin: "shutdown\n"
+          server_exit: killed
+        expect: "Server: I hear ya fa shizzle"
+      - pair:
+          server: [./server-tls-writedup]
+          client: [./client-tls-writedup, 127.0.0.1]
+          stdin: "shutdown\n"
+          server_exit: killed
+        expect: "Server: I hear ya fa shizzle"
+      - pair:
+          server: [./server-tls]
+          client: [./client-tls-bio, 127.0.0.1]
+          stdin: "shutdown\n"
+          server_exit: killed
+        expect: "Server: I hear ya fa shizzle"
+      - pair:
+          server: [./server-tls]
+          client: [./client-tls-pkcs12, 127.0.0.1]
+          stdin: "shutdown\n"
+          server_exit: killed
+        expect: "Server: I hear ya fa shizzle"
+      # client-tls-resume calls fgets twice, so it needs two lines.
+      - pair:
+          server: [./server-tls]
+          client: [./client-tls-resume, 127.0.0.1]
+          stdin: "hello\nshutdown\n"
+          server_exit: killed
+        expect: "Successful resume."
+      - pair:
+          server: [./server-tls13]
+          client: [./client-tls13-resume, 127.0.0.1]
+          stdin: "hello\nshutdown\n"
+          server_exit: killed
+        expect: "Successful resume"
+    # Deliberately not run: client-ech (external crypto.cloudflare.com:443),
+    # {client,server}-tls-uart (needs /dev/ttyUSB0), and the four *-perf
+    # benchmarks. All still build.
+
+  - id: dtls
+    path: dtls
+    profile: dtls
+    deps: [libevent-dev]
+    run:
+      # No dtls server honours any in-band terminator -- "shutdown" does not
+      # exist in this dir. Every server loops until SIGINT, so all pairs are
+      # server_exit: killed.
+      # BIO_s_mem is a byte stream, so a DTLS record can end mid-read; without
+      # RECORDS_CAN_SPAN_DATAGRAMS (set in the profile) wolfSSL treats that as a
+      # truncated datagram and drops it, and nothing retransmits.
+      - exec: [./memory-bio-dtls]
+        expect: "client msg = hello memory wolfSSL!"
+      # A complete DTLS server rather than a self-contained demo: bare exec just
+      # blocks in poll() until the step times out. It has no dedicated client.
+      # export writes dtls_{server,client}_session.bin; import reads them, so this
+      # order is load bearing.
+      - pair:
+          server: [./server-dtls-export]
+          proto: udp
+          client: [./client-dtls-export, 127.0.0.1]
+          stdin: "hello\n"
+          server_exit: clean
+
+      - pair:
+          server: [./server-dtls-import]
+          proto: udp
+          client: [./client-dtls-import, 127.0.0.1]
+          stdin: "hello\nquit\n"
+          server_exit: killed
+
+      # clients that pair with servers this dir already runs. Each client fputs
+      # the server's reply; server-dtls/server-dtls13 send "I hear you fashizzle".
+      - pair:
+          server: [./server-dtls]
+          proto: udp
+          client: [./client-dtls-cid, 127.0.0.1]
+          stdin: "hello\n"
+          server_exit: killed
+        expect: "I hear you fashizzle"
+
+      - pair:
+          server: [./server-dtls13]
+          proto: udp
+          client: [./client-dtls13-cid, 127.0.0.1]
+          stdin: "hello\n"
+          server_exit: killed
+        expect: "I hear you fashizzle"
+
+      - pair:
+          server: [./server-dtls]
+          proto: udp
+          client: [./client-dtls-resume, 127.0.0.1]
+          server_exit: killed
+        # proves the resumed session carried data back -- the whole point of
+        # the pair the close_notify fix was for. Repeat to stress that fix: this
+        # pair used to flake, so a single green proved little.
+        repeat: 5
+        expect: "info: server response:"
+
+      - pair:
+          server: [./server-dtls]
+          proto: udp
+          client: [./client-dtls-shared, 127.0.0.1]
+          server_exit: killed
+        expect: "got msg"
+
+      - pair:
+          server: [./server-dtls13-event]
+          proto: udp
+          client: [./client-dtls13, 127.0.0.1]
+          stdin: "hello\n"
+          server_exit: killed
+        expect: "I hear you fashizzle"
+
+      - pair:
+          server: [./server-dtls-rw-threads]
+          proto: udp
+          client: [./client-dtls-rw-threads, 127.0.0.1]
+          server_exit: killed
+
+      - pair:
+          server: [./server-dtls-threaded]
+          proto: udp
+          client: [./client-dtls-threaded, 127.0.0.1]
+          server_exit: killed
+
+      # no expect: over IPv6 loopback in the harness netns the reply is not
+      # delivered to the client (all IPv4 dtls pairs print it; only ::1 does not),
+      # so exit code is the only reliable signal here.
+      - pair:
+          server: [./server-dtls-ipv6]
+          proto: udp
+          client: [./client-dtls-ipv6, "::1"]
+          server_exit: killed
+
+      - pair:
+          server: [./server-dtls-demux]
+          proto: udp
+          client: [./client-dtls, 127.0.0.1]
+          stdin: "hello\n"
+          server_exit: killed
+      - pair:
+          server: [./server-udp]
+          proto: udp
+          client: [./client-udp, 127.0.0.1]
+          stdin: "hello\n"
+          server_exit: killed
+      - pair:
+          server: [./server-dtls]
+          proto: udp
+          client: [./client-dtls, 127.0.0.1]
+          stdin: "hello\n"
+          server_exit: killed
+        expect: "I hear you fashizzle"
+      - pair:
+          server: [./server-dtls13]
+          proto: udp
+          client: [./client-dtls13, 127.0.0.1]
+          stdin: "hello\n"
+          server_exit: killed
+        expect: "I hear you fashizzle"
+      - pair:
+          server: [./server-dtls-nonblocking]
+          proto: udp
+          client: [./client-dtls-nonblocking, 127.0.0.1]
+          stdin: "hello\n"
+          server_exit: killed
+        expect: "I hear you fashizzle"
+      - pair:
+          server: [./server-dtls-callback]
+          proto: udp
+          client: [./client-dtls-callback, 127.0.0.1]
+          stdin: "hello\n"
+          server_exit: killed
+      # NOT RUN: the earlydata servers never send a session ticket, so the
+      # clients exit 1 on "Session ticket not received from server".
+      # Measured, not guessed: wolfSSL_read_early_data() completes the handshake
+      # itself, so wolfSSL_is_init_finished() is already 1 and wolfSSL_accept()
+      # is skipped -- and SendTls13NewSessionTicket() only runs inside accept's
+      # state machine (tls13.c:15984). Calling wolfSSL_send_SessionTicket()
+      # explicitly, and peeking >0 bytes on the client, do not help either.
+      # Needs someone who knows the TLS 1.3 ticket state machine.
+
+
+  - id: pkcs11
+    path: pkcs11
+    profile: pkcs11
+    deps: [softhsm2]
+    # softhsm2-init.sh does README steps 3-4 (config, token init) and reads back
+    # the slot id SoftHSM reassigns at random, then runs the 8 examples.
+    # The 3 TLS binaries need wolfSSL's own client as the peer, which is not in
+    # this repo, so 8 of 11 is the honest ceiling here.
+    run:
+      # 7 of the 8 pass. pkcs11_test is run separately rather than folded in
+      # here, so a regression in these 7 still turns the job red.
+      - script: [./softhsm2-init.sh, pkcs11_rsa, pkcs11_ecc, pkcs11_genecc,
+                 pkcs11_aesgcm, pkcs11_aescbc, pkcs11_hmac, pkcs11_rand]
+        # softhsm2.sh only prints this once every example it ran returned 0.
+        expect: "All PKCS#11 examples passed"
+        timeout: 300
+      - script: [./softhsm2-init.sh, pkcs11_test]
+        expect: "All PKCS#11 examples passed"
+        timeout: 300
+        # TODO: drop this expect_fail when wolfSSL/wolfssl#10954 merges into the
+        # refs under test -- that PR fixes it (keygen destroys the HSM public
+        # key, so verify must use the exported point) and pkcs11_test was proven
+        # green against the PR ref. gen_ec_keys_label() then wc_ecc_verify_hash()
+        # on the PKCS#11 public key returns WC_HW_E (-248); signing and the
+        # no-label path pass. Not reproducible locally -- brew SoftHSM 2.7 reports
+        # PKCS#11 3.2 but exports no C_GetInterface, which wolfSSL rejects first.
+        expect_fail: "wc_ecc_verify_hash on a label-generated PKCS#11 EC key returns WC_HW_E (-248)"
+
+  # ------------------------------------------------- host: separate profiles
+  - id: pk-rsa
+    path: pk/rsa
+    profile: fastmath
+    run:
+      - exec: [./rsa-nb]
+        expect: "RSA non-block verify:"
+
+  - id: signature-rsa-vfy-only
+    path: signature/rsa_vfy_only
+    # Keep cryptonly. This used to say "try under the `all` profile and drop this
+    # one" -- but `all` is documented above as emulated/cross only, it supplies
+    # none of --disable-asn/--enable-cryptonly/--enable-rsavfy/-DWOLFSSL_PUBLIC_MP
+    # that verify.c's mp_read_unsigned_bin() needs, and --enable-all would defeat
+    # the point of a minimum-footprint demo anyway.
+    profile: cryptonly
+    run:
+      # No expect: verify.c prints nothing at all -- `return ret == 0 ? 0 : 1` is
+      # its entire result, so the exit code IS the assertion here.
+      - exec: [./verify]
+
+  # -------------------------------------------------------------- emulated
+  # csharp.yml compiles the wrapper's .cs with mcs and plays the client against
+  # each server under mono; the .csproj targets .NET Framework v4.8 and pulls in
+  # wolfSSL's own wolfSSL_CSharp.csproj, so it is not buildable here.
+  - id: csharp-pq-client
+    path: CSharp/wolfSSL-TLS-pq-Client
+    tier: cross
+    profile: pq
+
+  - id: csharp-pq-server
+    path: CSharp/wolfSSL-TLS-pq-Server
+    tier: cross
+    profile: pq
+
+  - id: csharp-pq-server-threaded
+    path: CSharp/wolfSSL-TLS-pq-ServerThreaded
+    tier: cross
+    profile: pq
+
+  - id: tpm
+    path: tpm
+    tier: emulated
+    profile: all
+    # emulated.yml runs it against wolfTPM's own fwTPM simulator on :2321
+
+
+  - id: sgx-linux
+    path: SGX_Linux
+    tier: emulated
+    profile: all
+    # emulated.yml builds the enclave and runs ./App in SGX_MODE=SIM
+
+
+  - id: can-bus
+    path: can-bus
+    tier: emulated
+    profile: all
+    # emulated.yml runs server/client over vcan0 (root + linux-modules-extra)
+
+
+  - id: uefi-library
+    path: uefi-library
+    tier: cross
+    profile: all
+    mode: build-only
+    reason: >-
+      REAL, UNDIAGNOSED wolfCrypt BUG under UEFI. Booting works (OVMF, -cpu
+      qemu64, ESP as a real FAT image via mtools -- QEMU's vvfat "fat:rw:"
+      SIGABRTs on a runner) and the suite runs: AES, SHA, HMAC, CMAC, KDF and RNG
+      all pass, then "Running RSA ... wc_CheckRsaKey failed: -262" and "Test suite
+      FAILED: Aborted". RULED OUT: key size. The test used a 1024-bit asset while
+      RSA_MIN_SIZE defaults to 2048, which looked like the cause -- it is not; the
+      key is now wolfSSL's 2048-bit certs/client-key.der and -262 is unchanged.
+      -262 comes from _ifc_pairwise_consistency_test (rsa.c), which signs and
+      verifies "Everyone gets Friday off." and collapses ANY non-zero into
+      RSA_KEY_PAIR_E, so the real error is hidden. NEXT: instrument that call, and
+      look at this dir's user_settings.h, which sets both WC_RSA_BLINDING and
+      WC_NO_HARDEN (the latter cancels the former), plus RSA_LOW_MEM (no CRT) and
+      XMALLOC_USER. Needs someone who can run a UEFI build. Restore the boot step
+      from this file's history once fixed; it asserts "All tests passed!".
+
+  # ----------------------------------------------------------------- cross
+  - id: esp32-dtls13-client
+    path: ESP32/DTLS13-wifi-station-client
+    tier: cross
+    profile: all
+    mode: build-only
+  - id: esp32-dtls13-server
+    path: ESP32/DTLS13-wifi-station-server
+    tier: cross
+    profile: all
+    mode: build-only
+  - id: esp32-tls13-enc28j60-client
+    path: ESP32/TLS13-ENC28J60-client
+    tier: cross
+    profile: all
+    mode: build-only
+
+  - id: esp32-tls13-enc28j60-server
+    path: ESP32/TLS13-ENC28J60-server
+    tier: cross
+    profile: all
+    mode: build-only
+
+  - id: esp32-tls13-wifi-client
+    path: ESP32/TLS13-wifi_station-client
+    tier: cross
+    profile: all
+    mode: build-only
+  - id: esp32-tls13-wifi-server
+    path: ESP32/TLS13-wifi_station-server
+    tier: cross
+    profile: all
+    mode: build-only
+
+  - id: rpi-pico
+    path: RPi-Pico
+    tier: cross
+    profile: all
+    mode: build-only
+  - id: rpi-pico-benchmark
+    path: RPi-Pico/benchmark
+    tier: cross
+    profile: all
+    mode: build-only
+  - id: rpi-pico-testwolfcrypt
+    path: RPi-Pico/testwolfcrypt
+    tier: cross
+    profile: all
+    mode: build-only
+  - id: rpi-pico-tcp-client
+    path: RPi-Pico/tcp_client
+    tier: cross
+    profile: all
+    mode: build-only
+  - id: rpi-pico-tcp-server
+    path: RPi-Pico/tcp_server
+    tier: cross
+    profile: all
+    mode: build-only
+  - id: rpi-pico-tls-client
+    path: RPi-Pico/tls_client
+    tier: cross
+    profile: all
+    mode: build-only
+  - id: rpi-pico-tls-server
+    path: RPi-Pico/tls_server
+    tier: cross
+    profile: all
+    mode: build-only
+  - id: rpi-pico-wifi
+    path: RPi-Pico/wifi
+    tier: cross
+    profile: all
+    mode: build-only
+
+  - id: rt1060
+    path: RT1060
+    tier: cross
+    profile: all
+    mode: build-only
+  - id: puf
+    path: puf
+    tier: cross
+    profile: all
+    mode: build-only
+  - id: uefi-static
+    path: uefi-static
+    tier: cross
+    profile: all
+    mode: build-only
+  - id: arduino-template
+    path: Arduino/sketches/template
+    tier: cross
+    profile: all
+    mode: build-only
+  - id: ebpf-syscall-write-trace
+    path: ebpf/syscall-write-trace
+    tier: cross
+    profile: all
+    mode: build-only
+  - id: ebpf-tls-uprobe-trace
+    path: ebpf/tls-uprobe-trace
+    tier: cross
+    profile: all
+    mode: build-only
+  - id: fullstack-https
+    path: fullstack/freertos-wolfip-wolfssl-https
+    tier: cross
+    profile: all
+  - id: android-wolfcryptjni
+    path: android/wolfcryptjni-ndk-gradle
+    tier: cross
+    profile: all
+    mode: build-only
+    reason: "gradle + NDK; assembleDebug is the honest ceiling (no instrumentation harness). No job wired yet"
+  - id: android-wolfcryptjni-app
+    path: android/wolfcryptjni-ndk-gradle/app
+    tier: cross
+    profile: all
+    mode: build-only
+    reason: "gradle + NDK; assembleDebug is the honest ceiling (no instrumentation harness). No job wired yet"
+  - id: android-wolfssljni
+    path: android/wolfssljni-ndk-gradle
+    tier: cross
+    profile: all
+    mode: build-only
+    reason: "gradle + NDK; assembleDebug is the honest ceiling (no instrumentation harness). No job wired yet"
+  - id: android-wolfssljni-app
+    path: android/wolfssljni-ndk-gradle/app
+    tier: cross
+    profile: all
+    mode: build-only
+    reason: "gradle + NDK; assembleDebug is the honest ceiling (no instrumentation harness). No job wired yet"
+  - id: android-wolfssljni-sample
+    path: android/wolfssljni-ndk-sample/jni
+    tier: cross
+    profile: all
+    mode: build-only
+    reason: "gradle + NDK; assembleDebug is the honest ceiling (no instrumentation harness). No job wired yet"
+
+  # ------------------------------------------------------------------ skip
+  - id: btle-common
+    path: btle/common
+    mode: skip
+    reason: "shared helper (btle-sim.c) linked by btle/ecies and btle/tls; not an example"
+
+  # arduino.yml does NOT cover these: it copies compile-all-examples.sh into
+  # $ARDUINO_ROOT/wolfssl/examples and runs it there, compiling the examples that
+  # ship inside the installed Arduino wolfSSL library, not this repo's sketches.
+  # Building them needs arduino-cli plus a core per board.
+  - id: arduino-client
+    path: Arduino/sketches/wolfssl_client
+    tier: cross
+    profile: all
+    mode: build-only
+
+  - id: arduino-server
+    path: Arduino/sketches/wolfssl_server
+    tier: cross
+    profile: all
+    mode: build-only
+
+  - id: arduino-client-dtls
+    path: Arduino/sketches/wolfssl_client_dtls
+    tier: cross
+    profile: all
+    mode: build-only
+
+  - id: arduino-server-dtls
+    path: Arduino/sketches/wolfssl_server_dtls
+    tier: cross
+    profile: all
+    mode: build-only
+
+  - id: arduino-AES-CTR
+    path: Arduino/sketches/wolfssl_AES_CTR
+    tier: cross
+    profile: all
+    mode: build-only
+
+  - id: arduino-version
+    path: Arduino/sketches/wolfssl_version
+    tier: cross
+    profile: all
+    mode: build-only
+
+  - id: esp32-hello-world
+    path: ESP32/ESP32-hello-world
+    tier: cross
+    mode: skip
+    reason: >-
+      Not worth wiring: hello_world.ino is 12 lines and does not include wolfSSL
+      at all, so compiling it would test arduino-cli rather than wolfSSL. It is
+      also an arduino-cli sketch rather than an ESP-IDF project (the esp32 job
+      builds idf.py projects), and its dir name does not match the .ino basename,
+      which arduino-cli requires -- so even Arduino/sketches/compile-all-examples.sh
+      could not pick it up as-is. Delete or fold into Arduino/sketches if anyone
+      wants it covered.
+
+  - id: sgx-windows-benchmarks
+    path: SGX_Windows/Benchmarks
+    mode: skip
+    reason: >-
+      Tried on windows-latest and reverted: the Intel SGX SDK for Windows has no
+      download URL that can be verified from here. Intel serves it from
+      registrationcenter-download.intel.com behind a per-release GUID (a guessed
+      one returns AccessDenied), intel/linux-sgx's releases carry no Windows
+      assets, and there is no chocolatey package. Someone with a browser needs to
+      get the current installer link, or host it. Beyond that: README.md targets
+      Visual Studio 2013 with the Intel compiler so the project files likely need
+      retargeting, and wolfssl.lib must be built first from wolfSSL's own
+      IDE/WIN-SGX solution and copied in. sgx-linux already covers the same
+      wolfSSL code under SGX_MODE=SIM, so the payoff is small either way.
+
+  - id: sgx-windows-enclave
+    path: SGX_Windows/Enclave
+    mode: skip
+    reason: >-
+      Tried on windows-latest and reverted: the Intel SGX SDK for Windows has no
+      download URL that can be verified from here. Intel serves it from
+      registrationcenter-download.intel.com behind a per-release GUID (a guessed
+      one returns AccessDenied), intel/linux-sgx's releases carry no Windows
+      assets, and there is no chocolatey package. Someone with a browser needs to
+      get the current installer link, or host it. Beyond that: README.md targets
+      Visual Studio 2013 with the Intel compiler so the project files likely need
+      retargeting, and wolfssl.lib must be built first from wolfSSL's own
+      IDE/WIN-SGX solution and copied in. sgx-linux already covers the same
+      wolfSSL code under SGX_MODE=SIM, so the payoff is small either way.
+
+  - id: java-https-url
+    path: java/https-url
+    tier: cross
+    profile: default
+    mode: build-only
+    # java.yml builds wolfSSL with JNI, builds wolfssljni on top and javac's
+    # URLClient against wolfssl-jsse.jar -- so `build: none` here means the
+    # harness does not build it, not that nothing does.
+    build: none
+    reason: >-
+      URLClient fetches a real URL over the public internet (the README's own
+      invocation is -h https://www.google.com with example-keystores/external.jks),
+      so running it in CI would test GitHub's network, not wolfJSSE. Compiling it
+      against the jar is the honest ceiling. Same call as ocsp-nonblock.
+
+  - id: kernel-bsdkm
+    path: kernel/bsdkm
+    tier: cross
+    profile: default
+    # bsdkm.yml runs it in a real FreeBSD 14.2 VM (vmactions/freebsd-vm), the
+    # version README.md says it was tested on. It also fetches src.txz, because
+    # the Makefile includes /usr/src/sys/conf/kmod.mk -- the live kernel source,
+    # not the bsd.kmod.mk in base. kldload then proves it in-kernel.
+    build: none
+
+  - id: meta-wolfssl-linux-fips
+    path: meta-wolfssl-linux-fips
+    mode: skip
+    reason: "full Yocto bitbake: hours of build time and tens of GB"
+
+  - id: stsafe
+    path: stsafe
+    mode: skip
+    reason: "needs a real STSAFE-A120 over /dev/i2c-N; platform layer is hard-wired to Linux I2C with no transport abstraction, so wolfSSL/simulators' STSAFEA120Sim cannot drive it without a new platform shim"
+
+  - id: rtl8735b
+    path: rtl8735b
+    mode: skip
+    reason: "RealTek AmebaPro2 SDK + licensed ASDK 10.3.0 toolchain"
+  - id: rtl8735b-test
+    path: rtl8735b/test
+    mode: skip
+    reason: "RealTek AmebaPro2 SDK + licensed ASDK 10.3.0 toolchain"
+  - id: rtl8735b-tls
+    path: rtl8735b/tls
+    mode: skip
+    reason: "RealTek AmebaPro2 SDK + licensed ASDK 10.3.0 toolchain"
+
+  - id: renesas-rh850
+    path: Renesas/cs+/RH850/rsapss_sign_verify
+    mode: skip
+    reason: "Renesas CS+ IDE project; licensed Windows-only CC-RH compiler"
+
+  - id: ccb-vaultic
+    path: ccb_vaultic
+    mode: skip
+    reason: "Wisekey VaultIC dev kit + Android NDK ($NDK_CC)"
+
+  - id: caam-seco
+    path: caam/seco
+    mode: skip
+    reason: "NXP SECO HSM ($HSM_DIR) + aarch64-poky cross toolchain"
+  - id: caam-seco-cryptodev
+    path: caam/seco/cryptodev
+    mode: skip
+    reason: "NXP SECO HSM ($HSM_DIR) + aarch64-poky cross toolchain"
+
+  - id: maxq10xx
+    path: maxq10xx
+    mode: skip
+    reason: "Analog Devices MAXQ10xx SDK and hardware"
+
+  - id: crypto-magiccrypto
+    path: crypto/MagicCrypto
+    mode: skip
+    reason: "Aria vendor SDK (ships MagicCrypto.patch); not redistributable"
+
+  - id: psa
+    path: psa
+    tier: cross
+    profile: default
+    # psa.yml owns this one: the example's own build_with_mbedtls_psa.sh pins an
+    # mbedTLS commit and runs ./configure --enable-psa itself, so it cannot be a
+    # profile here. That script is why the old "needs a PSA implementation" skip
+    # was too pessimistic -- the implementation builds from source in ~2 minutes.
+    build: none
+
+  - id: pq-tls
+    path: pq/tls
+    profile: pq
+    # "needs liboqs" was stale: it predates wolfSSL's native ML-KEM/ML-DSA.
+    # Neither the sources nor the Makefile mention oqs -- they gate on
+    # WOLFSSL_HAVE_MLKEM and HAVE_DILITHIUM, which the pq profile already
+    # supplies, and the README asks for plain --enable-kyber --enable-dilithium.
+    # The mldsa87 certs it wants are checked in under certs/.
+    run:
+      - pair:
+          server: [./server-pq-tls13]
+          client: [./client-pq-tls13, 127.0.0.1]
+          stdin: "hello pq tls\n"
+          server_exit: term
+        # the server sends a fixed reply rather than echoing
+        # (server-pq-tls13.c:156), so this is the proof that a
+        # SECP521R1MLKEM1024 session carried data back.
+        expect: "Server: I hear ya fa shizzle"
+  - id: pq-tls-stm32
+    path: pq/tls/stm32
+    mode: skip
+    reason: "STM32 board project for the liboqs TLS example"
+
+  - id: se050
+    path: SE050/wolfssl
+    mode: skip
+    reason: >-
+      Built and run end-to-end by the dedicated se050.yml job, which the examples
+      matrix cannot host: it builds the whole SE050 stack -- the SE050Sim TCP
+      applet sim (wolfSSL/simulators), the NXP plug-and-trust SDK v04.07.01 with
+      wolfSSL osp's simw-top-v040701.patch, and wolfSSL --with-se050 (a two-pass
+      bootstrap) -- then grafts this demo onto the sim's own CMakeLists (the
+      GitHub plug-and-trust tree has no demos/ scaffolding) and runs wolfcrypt_test
+      through the ex_sss boot over the sim, asserting "Ran wolfCrypt test". The
+      other five demos build the same way; the two TLS clients also need a peer
+      server, so wolfcrypt_test is the first one wired.
+  - id: se050-benchmark
+    path: SE050/wolfssl/wolfcrypt_benchmark
+    mode: skip
+    reason: same as se050 -- the public plug-and-trust tree has no demos/ scaffolding to build these in
+  - id: se050-generate-csr
+    path: SE050/wolfssl/wolfcrypt_generate_csr
+    mode: skip
+    reason: same as se050 -- the public plug-and-trust tree has no demos/ scaffolding to build these in
+  - id: se050-key-cert-insert
+    path: SE050/wolfssl/wolfcrypt_key_cert_insert
+    mode: skip
+    reason: same as se050 -- the public plug-and-trust tree has no demos/ scaffolding to build these in
+  - id: se050-test
+    path: SE050/wolfssl/wolfcrypt_test
+    mode: skip
+    reason: same as se050 -- the public plug-and-trust tree has no demos/ scaffolding to build these in
+  - id: se050-client
+    path: SE050/wolfssl/wolfssl_client
+    mode: skip
+    reason: same as se050 -- the public plug-and-trust tree has no demos/ scaffolding to build these in
+  - id: se050-client-cert-key
+    path: SE050/wolfssl/wolfssl_client_cert_key
+    mode: skip
+    reason: same as se050 -- the public plug-and-trust tree has no demos/ scaffolding to build these in
+
+  - id: toppers
+    path: TOPPERS/WolfSSLDemo
+    mode: skip
+    reason: "Renesas RX72N + TOPPERS/ASP3 RTOS; needs the Renesas software package"
+  - id: toppers-wolfdemo
+    path: TOPPERS/WolfSSLDemo/src/wolfDemo
+    mode: skip
+    reason: "Renesas RX72N + TOPPERS/ASP3 RTOS"
+
+  - id: tirtos-tcpecho-client
+    path: tirtos_ccs_examples/tcpEcho_Client_TivaTM4C1294NCPDT
+    mode: skip
+    reason: "TI Code Composer Studio + XDCtools + TI-RTOS"
+  - id: tirtos-tcpecho-server
+    path: tirtos_ccs_examples/tcpEcho_Server_TivaTM4C1294NCPDT
+    mode: skip
+    reason: "TI Code Composer Studio + XDCtools + TI-RTOS"
+  - id: tirtos-tests
+    path: tirtos_ccs_examples/wolfssl_tests
+    mode: skip
+    reason: "TI Code Composer Studio + XDCtools + TI-RTOS"
+  - id: tirtos-benchmark
+    path: tirtos_ccs_examples/wolfssl_tirtos_benchmark
+    mode: skip
+    reason: "TI Code Composer Studio + XDCtools + TI-RTOS"
+
+  - id: mynewt
+    path: mynewt
+    mode: skip
+    reason: >-
+      The full newt build (native bsp sim + TLS run) is a follow-up: jenkins.sh
+      here has been unrun since 2018 and pulls the whole Apache Mynewt RTOS, which
+      is a lot of unproven CI surface. What IS covered now: the wolfSSL Mynewt
+      PORT compiles. Found by wiring this up, it did not -- settings.h set
+      XMALLOC_USER (for user-provided FUNCTIONS) yet defined XFREE as a MACRO, so
+      types.h's "extern void XFREE(void *p, ...)" under the XMALLOC_USER branch had
+      the macro expand into it: "expected identifier". Fixed on wolfSSL master
+      2026-07-20 (XMALLOC_USER -> XMALLOC_OVERRIDE); v5.9.2-stable still has it.
+      mynewt.yml compiles that exact header path on both refs (patching the ones
+      that predate the fix) via ci-compile-check.sh, so the bug cannot come back
+      unseen. Un-skip for the full newt build once stable carries the fix. (Also
+      fixed here: client-tls-mn.c cast pointers through int, which -Werror rejects
+      on the 64-bit native BSP.)
+
+  - id: picotcp
+    path: picotcp
+    profile: default
+    mode: build-only
+    # v1.7.0, not master: README.md:10 asks for "PicoTCP v.1.7 or later", and
+    # picoTCP is archived upstream so master has drifted from what this was
+    # written against. fetch: runs outside the netns; nothing is redirected,
+    # because hiding this build is what made an earlier attempt a mystery.
+    fetch:
+      - [sh, -c, "test -d ../../picotcp || git clone -q --depth 1 --branch v1.7.0 https://github.com/tass-belgium/picotcp ../../picotcp"]
+      # cd, NOT make -C: picotcp's Makefile:16 is PREFIX?=$(PWD)/build, and -C
+      # leaves PWD at the caller, so it built into wolfssl-examples/picotcp/build.
+      # deps before lib as well: lib cp's headers into $(PREFIX)/include but only
+      # deps mkdir's it (Makefile:367-380).
+      - [sh, -c, "cd ../../picotcp && make ARCH=shared TAP=1 deps && make ARCH=shared TAP=1 lib"]
+      - [sh, -c, "ls ../../picotcp/build/include/pico_stack.h"]
+    reason: >-
+      picotcp-server opens /dev/net/tun and brings up 10.0.0.1 itself, so running
+      it needs a tun device in the netns. Building against a real picoTCP is the
+      honest ceiling until that is probed.
+  - id: riot-os-posix-lwip
+    path: riot-os-posix-lwip
+    mode: skip
+    reason: >-
+      Got further than the old "needs a RIOT tree at $RIOTBASE" suggested, and
+      found two things that matter. (1) RIOT does NOT use the wolfSSL under test:
+      it vendors its own pinned wolfSSL package via pkg/pkg.mk, so a green here
+      would say nothing about master or stable -- the point of this CI. (2) That
+      pinned wolfSSL does not compile on a current toolchain anyway:
+      build/pkg/wolfssl/wolfcrypt/src/sp_int.c:13390 "implicit declaration of
+      _sp_exptmod_ex" under gcc-13 -Werror=implicit-function-declaration.
+      Wiring it needs RIOT's pkg pointed at the ref under test first (see
+      RIOT's PKG_URL/PKG_VERSION), which is real work upstream. Mechanics that
+      DO work and are worth reusing: clone RIOT to ../../RIOT (the Makefile's
+      default, BOARD ?= native) via fetch:, then `make pkg-prepare` in fetch: so
+      RIOT downloads its packages before the run enters the netns.
+
+  - id: lwip
+    path: lwip
+    mode: skip
+    reason: "needs an lwIP source tree; no Makefile in this dir"
+
+  - id: freertos
+    path: freertos
+    mode: skip
+    reason: "orphan source (tls_client_freertos_tcp.c): no Makefile and no README"
+
+  - id: utasker
+    path: utasker
+    mode: skip
+    reason: "uTasker project task files; no standalone build"

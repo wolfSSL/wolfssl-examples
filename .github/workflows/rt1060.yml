@@ -1,0 +1,107 @@
+name: RT1060
+
+on:
+  push:
+    paths:
+      - 'RT1060/**'
+      - '.github/workflows/rt1060.yml'
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  # No cron: nightly.yml calls this, so the nightly stays one run and one triage writer
+  workflow_call:
+    inputs:
+      caller_run_id:
+        description: 'run id of the calling workflow; keeps a called run in its own concurrency group'
+        type: string
+        default: ''
+  workflow_dispatch:
+
+# github.workflow is the CALLER's name in a called workflow, so hardcode ours
+concurrency:
+  group: ${{ inputs.caller_run_id && format('rt1060-call-{0}', inputs.caller_run_id) || format('rt1060-{0}', github.ref) }}
+  cancel-in-progress: ${{ !inputs.caller_run_id }}
+
+permissions:
+  contents: read
+
+jobs:
+  resolve:
+    uses: ./.github/workflows/_resolve-wolfssl.yml
+    with:
+      stable_count: 1
+
+  rt1060:
+    needs: resolve
+    name: Build / rt1060 (arm-none-eabi) wolfSSL ${{ matrix.wolfssl_ref }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        wolfssl_ref: ${{ fromJson(needs.resolve.outputs.refs_json) }}
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: ./.github/actions/apt-update
+      - name: Install toolchain
+        run: |
+          set -euo pipefail
+          sudo apt-get install -y --no-install-recommends \
+            gcc-arm-none-eabi libnewlib-arm-none-eabi build-essential >/dev/null
+
+      # NXP publishes the same SDK on GitHub; CMSIS is a separate repo
+      - name: Fetch the MCUXpresso SDK
+        run: |
+          set -euo pipefail
+          git clone -q --depth 1 https://github.com/nxp-mcuxpresso/mcux-sdk /tmp/sdk
+          git clone -q --depth 1 https://github.com/nxp-mcuxpresso/CMSIS_5 /tmp/cmsis
+          cp -r /tmp/cmsis/CMSIS /tmp/sdk/CMSIS
+          # The Builder zip nests debug_console/str under the device dir; the
+          # public repo keeps them top-level. Makefile expects the Builder shape.
+          mkdir -p /tmp/sdk/devices/MIMXRT1062/utilities
+          cp -r /tmp/sdk/utilities/debug_console /tmp/sdk/devices/MIMXRT1062/utilities/
+          cp -r /tmp/sdk/utilities/str /tmp/sdk/devices/MIMXRT1062/utilities/
+          # the zip also folds assert/ and misc_utilities/ straight into utilities/
+          cp -n /tmp/sdk/utilities/assert/*.[ch] \
+                /tmp/sdk/utilities/misc_utilities/*.[ch] \
+                /tmp/sdk/devices/MIMXRT1062/utilities/ 2>/dev/null || true
+          # The zip flattens the drivers; the repo keeps them under drivers/<periph>/
+          for d in common igpio lpuart trng dcp cache/armv7-m7 cache/xcache; do
+            [ -d "/tmp/sdk/drivers/$d" ] || continue
+            cp -n /tmp/sdk/drivers/$d/*.[ch] /tmp/sdk/devices/MIMXRT1062/drivers/ 2>/dev/null || true
+          done
+          echo "gpio driver taken from: $(grep -l PDDR /tmp/sdk/devices/MIMXRT1062/drivers/fsl_gpio.h >/dev/null 2>&1 && echo generic || echo igpio)"
+          for d in devices/MIMXRT1062/drivers devices/MIMXRT1062/utilities/debug_console \
+                   devices/MIMXRT1062/utilities/str components/serial_manager \
+                   components/uart CMSIS/Core/Include; do
+            test -d "/tmp/sdk/$d" || { echo "FAIL: SDK missing $d"; exit 1; }
+          done
+          for h in utilities/debug_console/fsl_debug_console.h drivers/fsl_common.h \
+                   utilities/fsl_assert.c utilities/fsl_sbrk.c utilities/str/fsl_str.c; do
+            test -f "/tmp/sdk/devices/MIMXRT1062/$h" \
+              || { echo "FAIL: $h not where the Makefile looks"; exit 1; }
+          done
+
+      # $(SDK) is a selector, not a path: it gates the CPU define, board objects and linker script
+      - name: Build
+        run: |
+          set -euo pipefail
+          git clone -q --depth 1 --branch '${{ matrix.wolfssl_ref }}' https://github.com/wolfSSL/wolfssl /tmp/wolfssl
+          cd RT1060
+          ln -s /tmp/sdk ./SDK_2_13_1_MIMXRT1060-EVKB
+          make WOLFSSL=/tmp/wolfssl
+
+      - name: Assert it really cross-compiled
+        run: |
+          set -euo pipefail
+          cd RT1060
+          elf=$(find . -name '*.elf' | head -n1)
+          [ -n "$elf" ] || { echo "FAIL: no .elf produced"; exit 1; }
+          arch=$(readelf -h "$elf" | awk -F: '/Machine:/ {print $2}' | xargs)
+          echo "machine: $arch"
+          case "$arch" in
+            *ARM*) echo "cross-compile verified" ;;
+            *) echo "FAIL: not an ARM binary: $arch"; exit 1 ;;
+          esac
+
+  # cross-build.yml already triggered on puf/** but had no job to run

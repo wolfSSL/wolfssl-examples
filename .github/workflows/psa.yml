@@ -1,0 +1,97 @@
+name: PSA
+
+on:
+  push:
+    paths:
+      - 'psa/**'
+      - '.github/workflows/psa.yml'
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  # No cron: nightly.yml calls this, so the nightly stays one run and one triage writer
+  workflow_call:
+    inputs:
+      caller_run_id:
+        description: 'run id of the calling workflow; keeps a called run in its own concurrency group'
+        type: string
+        default: ''
+  workflow_dispatch:
+
+# github.workflow is the CALLER's name in a called workflow, so hardcode ours
+concurrency:
+  group: ${{ inputs.caller_run_id && format('psa-call-{0}', inputs.caller_run_id) || format('psa-{0}', github.ref) }}
+  cancel-in-progress: ${{ !inputs.caller_run_id }}
+
+permissions:
+  contents: read
+
+jobs:
+  resolve:
+    uses: ./.github/workflows/_resolve-wolfssl.yml
+    with:
+      stable_count: 1
+
+  psa:
+    needs: resolve
+    name: Run / psa (tls13-ecc) wolfSSL ${{ matrix.wolfssl_ref }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        wolfssl_ref: ${{ fromJson(needs.resolve.outputs.refs_json) }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: ./.github/actions/apt-update
+      - name: Install build deps
+        run: |
+          set -euo pipefail
+          sudo apt-get install -y --no-install-recommends cmake python3 >/dev/null
+
+      # The example's own script pins mbedTLS and runs ./configure --enable-psa itself
+      - name: Build mbedTLS PSA and wolfSSL with the example's own script
+        run: |
+          set -euo pipefail
+          git clone -q --depth 1 --branch '${{ matrix.wolfssl_ref }}' \
+            https://github.com/wolfSSL/wolfssl /tmp/wolfssl
+          cd /tmp/wolfssl
+          "$GITHUB_WORKSPACE/psa/build_with_mbedtls_psa.sh"
+          sudo make install >/dev/null
+          sudo ldconfig
+
+      - name: Build the PSA client and server
+        env:
+          PSA_INCLUDE: /tmp/mbedtls/build/include
+          PSA_LIB_PATH: /tmp/mbedtls/build/library/libmbedcrypto.a
+        run: |
+          set -euo pipefail
+          cd psa
+          make
+          test -x ./server-tls13-ecc-psa && test -x ./client-tls13-ecc-psa
+
+      # Building proves the PSA glue compiles; only a handshake proves wolfSSL
+      # actually drove ECDH/ECDSA/HKDF/AES-GCM through mbedTLS's PSA API.
+      - name: Run the TLS 1.3 PSA handshake
+        env:
+          LD_LIBRARY_PATH: /usr/local/lib
+        run: |
+          set -euo pipefail
+          cd psa
+          stdbuf -oL -eL ./server-tls13-ecc-psa > server.log 2>&1 &
+          for _ in $(seq 1 100); do
+            ss -tln | grep -q ':11111 ' && break
+            sleep 0.2
+          done
+          ss -tln | grep -q ':11111 ' \
+            || { echo "FAIL: server never listened on 11111"; cat server.log; exit 1; }
+          rc=0
+          echo "hello psa" | stdbuf -oL -eL ./client-tls13-ecc-psa 127.0.0.1 > client.log 2>&1 || rc=$?
+          echo "--- client:"; cat client.log
+          echo "--- server:"; cat server.log
+          [ "$rc" -eq 0 ] || { echo "FAIL: client exited $rc"; exit 1; }
+          # The server sends a fixed reply, not an echo (server-tls13-ecc-psa.c:185)
+          grep -q 'Server: I hear ya fa shizzle' client.log \
+            || { echo "FAIL: no reply back from the PSA server"; exit 1; }
+          grep -q 'Client: hello psa' server.log \
+            || { echo "FAIL: server never received our message"; exit 1; }
+          echo "verified: TLS 1.3 handshake over mbedTLS PSA"
