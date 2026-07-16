@@ -32,10 +32,12 @@ debug: all
 %: %.c
 	$(CC) -o $@ $< $(CFLAGS) $(LIBS)
 
+# the signer must be issued by server1's own issuer, or wolfSSL rejects the
+# response with BAD_OCSP_RESPONDER (RFC 6960 delegated responder)
 responder:
 	openssl ocsp -index responder-certs/index.txt -port 22221 \
-	    -rsigner responder-certs/ocsp-responder-cert.pem \
-		-rkey responder-certs/ocsp-responder-key.pem \
+	    -rsigner responder-certs/ocsp-responder-int1-cert.pem \
+		-rkey responder-certs/ocsp-responder-int1-key.pem \
 		-CA client-certs/intermediate1-ca-cert.pem
 
 clean:
