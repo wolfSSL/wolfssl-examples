@@ -10,13 +10,9 @@ This directory contains:
   message with a configurable XMSS/XMSS^MT parameter string. Requires wolfssl
   with `--enable-xmss`.
 
-By default these examples use the wolfCrypt LMS and XMSS implementations
-(`wc_lms.c`, `wc_lms_impl.c`, `wc_xmss.c`, `wc_xmss_impl.c`), which are more
-performant and configurable. Also, these implementations benefit significantly
-from `--enable-intelasm` and `--enable-armasm`.
-
-If you want to use the old external integrations (`ext_lms.c`, `ext_xmss.c`),
-see the section "Building the External Integration examples".
+These examples use the wolfCrypt LMS and XMSS implementations (`wc_lms.c`,
+`wc_lms_impl.c`, `wc_xmss.c`, `wc_xmss_impl.c`). These implementations benefit
+significantly from `--enable-intelasm` and `--enable-armasm`.
 
 ## Signing and Verifying a Message with LMS/HSS
 
@@ -183,61 +179,4 @@ signature length: 4963
 pub key length: 68
 Verify good!
 finished
-```
-
-
-# Building the External Integration examples
-
-By default wolfssl uses the wolfCrypt LMS/XMSS implementations. However
-the previous external integrations are still supported.
-
-If building with `--with-liblms=<path>`, the LMS/HSS example requires
-that hash-sigs has been built.  Please see Item 17 in the wolfSSL repo's INSTALL file.
-
-https://github.com/wolfSSL/wolfssl/blob/master/INSTALL
-
-If building with `--with-libxmss=<path>`, the XMSS/XMSS^MT example requires
-that the xmss-reference repository has been cloned, patched, and built. Please
-see item 20 in the wolfSSL repo's INSTALL file.
-
-The patch to use is `0001-Patch-to-support-wolfSSL-xmss-reference-integration.patch`
-from this XMSS/XMSS^MT example.  This patch includes an addendum readme,
-`patch_readme.md`, that lists all changes made and explains their rationale.
-
-## Building the external LMS/HSS example
-
-If building with `--with-liblms=<path>`, configure the Makefile to point
-to your hash-sigs install:
-
-```
-HSS_INC  = <path to hss install>
-```
-
-```
-HSS_LIB         = <path to hss_lib_thread.a>
-```
-
-Then build:
-
-```
-$ make lms_example
-```
-
-## Building the external XMSS/XMSS^MT example
-
-If building with `--with-libxmss=<path>`, configure the Makefile to point to
-your xmss install:
-
-```
-XMSS_INC = <path to patched xmss install>
-```
-
-```
-XMSS_LIB = <path to xmss_lib.a or xmss_verify_lib.a>
-```
-
-Then build:
-
-```
-$ make xmss_example
 ```

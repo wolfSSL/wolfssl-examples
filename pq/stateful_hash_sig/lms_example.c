@@ -26,12 +26,7 @@
 
 #ifdef WOLFSSL_HAVE_LMS
 
-#include <wolfssl/wolfcrypt/lms.h>
-#ifdef HAVE_LIBLMS
-    #include <wolfssl/wolfcrypt/ext_lms.h>
-#else
-    #include <wolfssl/wolfcrypt/wc_lms.h>
-#endif
+#include <wolfssl/wolfcrypt/wc_lms.h>
 
 static void print_usage(void);
 static int  write_key_file(const byte * priv, word32 privSz, void * context);
@@ -420,7 +415,7 @@ dump_hex(const char * what,
 #else
 
 int main(int argc, char** argv) {
-    printf("This requires the --with-liblms flag.\n");
+    printf("This requires --enable-lms.\n");
     return 0;
 }
 #endif /* WOLFSSL_HAVE_LMS */
