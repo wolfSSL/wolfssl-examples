@@ -981,6 +981,7 @@ int main(int argc, char** argv)
     if (choice == 't') {
         if (sanityTest_default(file_sz) != 0) {
             perror("Error: sanityTest_default\n");
+            return 1;
         }
         return 0;
     }
