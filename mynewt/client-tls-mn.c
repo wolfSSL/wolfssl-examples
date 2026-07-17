@@ -24,6 +24,7 @@
 
 #include <hal/hal_gpio.h>
 #include <hal/hal_flash.h>
+#include <stdint.h>
 #include <console/console.h>
 
 #include <log/log.h>
