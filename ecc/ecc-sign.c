@@ -26,6 +26,7 @@
 #include <wolfssl/wolfcrypt/sha256.h>
 #include <wolfssl/wolfcrypt/ecc.h>
 #include <wolfssl/wolfcrypt/random.h>
+#include <wolfssl/wolfcrypt/error-crypt.h>
 
 #define MAX_FIRMWARE_LEN (1024 * 1024)
 static const int gFwLen = MAX_FIRMWARE_LEN;
@@ -146,6 +147,9 @@ static int SignFirmware(byte* hashBuf, word32 hashLen, byte* sigBuf, word32* sig
         ret = wc_ecc_verify_hash(sigBuf, *sigLen, hashBuf, hashLen,
             &is_valid_sig, &gMyKey);
         printf("Verify ret %d, is_valid_sig %d\n", ret, is_valid_sig);
+        /* a bad signature also returns 0 here: the result is in is_valid_sig */
+        if (ret == 0 && is_valid_sig != 1)
+            ret = SIG_VERIFY_E;
     }
 
     wc_FreeRng(&rng);
@@ -156,6 +160,7 @@ static int SignFirmware(byte* hashBuf, word32 hashLen, byte* sigBuf, word32* sig
 int main(void)
 {
     int ret;
+    int firstErr = 0;
     byte hashBuf[WC_SHA256_DIGEST_SIZE];
     word32 hashLen = WC_SHA256_DIGEST_SIZE;
     byte sigBuf[ECC_MAX_SIG_SIZE];
@@ -179,6 +184,10 @@ int main(void)
 
         printf("Firmware Signature %d: Ret %d, HashLen %d, SigLen %d\n", i, ret, hashLen, sigLen);
 
+        /* keep the first error: ret alone would report only the last round */
+        if (ret != 0 && firstErr == 0)
+            firstErr = ret;
+
     #ifdef ENABLE_BUF_PRINT
         PrintBuffer(hashBuf, hashLen);
         printf("\n");
@@ -191,5 +200,6 @@ int main(void)
         gMyKeyInit = 0;
     }
 
-    return ret;
+    /* not firstErr: an exit code is masked to 8 bits, so -256 would read as 0 */
+    return (firstErr == 0) ? 0 : 1;
 }
