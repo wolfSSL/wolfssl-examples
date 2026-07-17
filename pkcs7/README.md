@@ -20,7 +20,7 @@ Note, some examples require additional features, such as "--with-libz" and
 "--enable-pwdbased". To build wolfSSL with support for all examples, use:
 
 ```
-$ ./configure --enable-pkcs7 --enable-pwdbased --enable-cryptocb --with-libz CFLAGS="-DWOLFSSL_DER_TO_PEM"
+$ ./configure --enable-pkcs7 --enable-indef --enable-smime --enable-pwdbased --enable-cryptocb --with-libz CFLAGS="-DWOLFSSL_DER_TO_PEM"
 $ make
 $ sudo make install
 ```
