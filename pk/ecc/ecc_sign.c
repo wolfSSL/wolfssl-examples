@@ -263,9 +263,15 @@ int crypto_ecc_sign(const uint8_t *key, uint32_t keySz,
             &r, &s        /* r/s as mp_int */
         );
 
-        /* export r/s */
-        mp_to_unsigned_bin(&r, sig);
-        mp_to_unsigned_bin(&s, sig + curveSz);
+        /* export r/s, left-padded: verify reads them back at fixed curveSz
+         * offsets, and mp_to_unsigned_bin writes only the significant bytes, so
+         * an r or s with a leading zero (~1 in 256) would shift s and fail */
+        if (ret == 0) {
+            ret = mp_to_unsigned_bin_len(&r, sig, curveSz);
+        }
+        if (ret == 0) {
+            ret = mp_to_unsigned_bin_len(&s, sig + curveSz, curveSz);
+        }
     }
     
     mp_clear(&r);
