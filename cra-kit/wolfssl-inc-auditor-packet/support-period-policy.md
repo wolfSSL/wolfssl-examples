@@ -49,6 +49,6 @@ If you embed a wolfSSL release in your product:
 
 ## References
 
-- CRA Art. 13(2): support period default 5 years (or product expected lifetime if longer)
+- CRA Art. 13(2): support period at least 5 years, unless the product is expected to be in use for a shorter period (and longer where the expected lifetime is longer)
 - CRA Art. 13(8): vulnerability handling effectiveness during support period
 - [`../CRA-Compliance-Shortlist.md`](../CRA-Compliance-Shortlist.md) — pillar 4 + "Beyond this kit"

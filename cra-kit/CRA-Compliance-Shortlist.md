@@ -40,7 +40,7 @@ CRA is **not only about software inventory** — it also concerns **data** movin
 |----------------------------|----------------------|
 | Map **remote processing** and **connectivity** in your product (cloud, OTA, admin interfaces, telemetry) | Implementations of **state-of-the-art** secure protocols, for example: |
 | Use **current cryptography** and **secure protocols** for data in transfer; document what is enabled in **your** build | **TLS** (wolfSSL), **SSH** (wolfSSH), **MQTTS** (wolfMQTT), and related stacks |
-| Reflect enabled algorithms in **your** product documentation / SBOM / crypto inventory | Build properties in CycloneDX today (`wolfssl:build:*`); formal CBOM profile: **roadmap** — [ROADMAP.md](ROADMAP.md) |
+| Reflect enabled algorithms in **your** product documentation / SBOM / crypto inventory | Build properties in CycloneDX today (`wolfssl:build:*`); formal CBOM profile: **roadmap** |
 
 ---
 
@@ -55,7 +55,7 @@ operational capacity**, not a one-time deliverable.
 |----------------------------|----------------------|
 | Publish a **Coordinated Vulnerability Disclosure (CVD) policy** and a working security contact (`security.txt` per RFC 9116) so researchers can reach you | Reference templates: wolfSSL's [`security.txt`](https://www.wolfssl.com/.well-known/security.txt) and [CVD policy](https://www.wolfssl.com/.well-known/vulnerability-disclosure-policy.txt) |
 | Operate a **vulnerability handling process** with named owners and stated response targets | wolfSSL [security advisories](https://www.wolfssl.com/docs/security-vulnerabilities/) for libraries you ship; wolfSSL is a CVE Numbering Authority |
-| Notify **ENISA within 24 hours** when a vulnerability in your product is **actively exploited** (Art. 14); follow up at 72 hours and a final report at 14 days | wolfSSL handles ENISA reporting for **wolfSSL libraries placed on the EU market by wolfSSL Inc.**; coordinate with us on shared advisories |
+| File via the **Single Reporting Platform** (to your coordinator CSIRT + ENISA) **within 24 hours** when a vulnerability in your product is **actively exploited** (Art. 14/16); follow up at 72 hours and a final report at 14 days | wolfSSL handles reporting for **wolfSSL libraries placed on the EU market by wolfSSL Inc.**; coordinate with us on shared advisories |
 | Maintain **on-call coverage** including weekends and holidays so the 24-hour clock can be met at any time | — |
 
 This pillar is **not satisfied by SBOM artefacts alone** — it requires

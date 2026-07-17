@@ -26,7 +26,6 @@ reference templates for **your** product.
 | [`CRA-Cheat-Sheet.md`](CRA-Cheat-Sheet.md) | **Who provides what** — you vs wolfSSL (print/PDF) |
 | [`CRA-Supply-Chain-Glossary.md`](CRA-Supply-Chain-Glossary.md) | Full terminology (**self-contained in this kit**) |
 | [`SKILL.md`](SKILL.md) | **AI playbook** — agent checklist, scripts, Cursor install |
-| [`ROADMAP.md`](ROADMAP.md) | SBOM / CBOM / VEX / bomsh / CSAF — today vs roadmap |
 | [`auditor-packet/`](auditor-packet/) | **Customer-side worked example** — fictional Acme Connect Gateway + wolfSSL SBOM samples |
 | [`wolfssl-inc-auditor-packet/`](wolfssl-inc-auditor-packet/) | **Manufacturer-side filings** — what wolfSSL Inc. itself ships under CRA |
 
@@ -71,8 +70,6 @@ separate **wolfSSL source tree** (with SBOM support) to **regenerate** component
 | **VEX** | Does CVE X apply to our build? | **You** | [Advisories](https://www.wolfssl.com/docs/security-vulnerabilities/) (VEX inputs) | Templates / automation |
 | **CBOM** | Crypto algorithms / modules | **You**; we **signal** | **Partial** — `wolfssl:build:*` in CycloneDX | Formal `cryptographic-asset` |
 | **OmniBOR / bomsh** | How the library binary was built | **wolfSSL** (optional) | **Yes** — Linux **host** only | Same |
-
-Details: [`ROADMAP.md`](ROADMAP.md).
 
 **Plain summary:** SBOM = what’s inside. Crypto build properties = what crypto you
 compiled in (CBOM direction). bomsh = how the library was built (optional). Product
@@ -241,8 +238,7 @@ Usually no. SBOM alone covers most transparency asks.
 
 **What about CBOM?**  
 Many RFQs ask for crypto inventory. Today: `wolfssl:build:*` properties in
-CycloneDX from your real config. Formal CycloneDX CBOM: **roadmap** — see
-[`ROADMAP.md`](ROADMAP.md).
+CycloneDX from your real config. Formal CycloneDX CBOM: **roadmap**.
 
 **FIPS builds?**  
 The SBOM generator does not change validated module code; your FIPS boundary

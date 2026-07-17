@@ -9,7 +9,7 @@ image — what we file ourselves.
 
 **Why this exists.** Earlier versions of the kit told customers to declare
 themselves manufacturers, appoint EU Authorised Representatives, classify
-their products under Annex III/IV, and run ENISA reporting rotations —
+their products under Annex III/IV, and run vulnerability-reporting rotations —
 without showing what wolfSSL had done on any of those fronts. The kit's
 audience reasonably read that as *"do as we say, not as we do."* This
 directory closes that gap. Where a decision is made, it is stated.

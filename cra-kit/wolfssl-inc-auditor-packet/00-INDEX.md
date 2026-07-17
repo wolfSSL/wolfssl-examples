@@ -7,7 +7,7 @@
 | [`declaration-of-conformity.template.md`](declaration-of-conformity.template.md) | Art. 28 | 🟡 Template ready; signature pending product release alignment |
 | [`eu-authorised-representative.md`](eu-authorised-representative.md) | Art. 18 | 🟠 In progress — appointment underway |
 | [`support-period-policy.md`](support-period-policy.md) | Art. 13(2), 13(8) | ✅ Decided — 5-year minimum, longer for LTS lines |
-| [`vulnerability-handling-process.md`](vulnerability-handling-process.md) | Art. 13, 14 | 🟡 Process documented; public SLA pending leadership approval |
+| [`vulnerability-handling-process.md`](vulnerability-handling-process.md) | Art. 13, 14, 16 | ✅ Process documented; wolfSSL Inc. commits to Art. 13/14 compliance |
 | [`technical-documentation-outline.md`](technical-documentation-outline.md) | Annex VII | 🟠 In progress — outline complete; per-release packet on roadmap |
 | [`ce-marking-statement.md`](ce-marking-statement.md) | Art. 30 | 🟡 Will affix on first CRA-applicable release after 11 Dec 2027 |
 
