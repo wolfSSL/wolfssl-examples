@@ -66,15 +66,6 @@ ocsp_cb(): http://ocsp.pki.goog/gsr1
   simulate 'want read'
 wolfSSL_connect() returned -1 (error code -408)
 ocsp_cb(): http://ocsp.pki.goog/gsr1
-Running command:
-curl -s --data-binary '@ocsp.req' -o 'ocsp.resp' -X POST -H 'Cache-Control: no-cache' -H 'Content-Type: application/ocsp-request' 'http://ocsp.pki.goog/gsr1'
-Reading OCSP response from file...
-Read 1447 bytes.
-*response is (nil)
-Allocating 1447 bytes...
-*response is now 0x55ef7fdcb4e0
-Copying bytes...
-Bytes copied.
 verify_cb()
   preverify_ok = 1
 wolfSSL_connect() returned -1 (error code -108)
@@ -82,15 +73,6 @@ ocsp_cb(): http://ocsp.pki.goog/gtsr1
   simulate 'want read'
 wolfSSL_connect() returned -1 (error code -408)
 ocsp_cb(): http://ocsp.pki.goog/gtsr1
-Running command:
-curl -s --data-binary '@ocsp.req' -o 'ocsp.resp' -X POST -H 'Cache-Control: no-cache' -H 'Content-Type: application/ocsp-request' 'http://ocsp.pki.goog/gtsr1'
-Reading OCSP response from file...
-Read 724 bytes.
-*response is (nil)
-Allocating 724 bytes...
-*response is now 0x55ef7fdaf030
-Copying bytes...
-Bytes copied.
 verify_cb()
   preverify_ok = 1
 wolfSSL_connect() returned -1 (error code -108)
@@ -98,15 +80,6 @@ ocsp_cb(): http://ocsp.pki.goog/gts1c3
   simulate 'want read'
 wolfSSL_connect() returned -1 (error code -408)
 ocsp_cb(): http://ocsp.pki.goog/gts1c3
-Running command:
-curl -s --data-binary '@ocsp.req' -o 'ocsp.resp' -X POST -H 'Cache-Control: no-cache' -H 'Content-Type: application/ocsp-request' 'http://ocsp.pki.goog/gts1c3'
-Reading OCSP response from file...
-Read 472 bytes.
-*response is (nil)
-Allocating 472 bytes...
-*response is now 0x55ef7fdac4b0
-Copying bytes...
-Bytes copied.
 verify_cb()
   preverify_ok = 1
 wolfSSL_connect() returned -1 (error code -108)
