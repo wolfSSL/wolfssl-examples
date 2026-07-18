@@ -101,13 +101,22 @@ static WC_INLINE void ShowX509Ex(WOLFSSL_X509* x509, const char* hdr,
     if (ret == WOLFSSL_SUCCESS) {
         int  i;
         int  strLen;
-        char serialMsg[80];
+        /* worst case: header string + ":xx " (3 chars stride) per serial
+           byte + null terminator */
+        char serialMsg[64 + sizeof(serial) * 3 + 1];
 
         /* testsuite has multiple threads writing to stdout, get output
            message ready to write once */
-        strLen = sprintf(serialMsg, " %s", words[3]);
-        for (i = 0; i < sz; i++)
-            sprintf(serialMsg + strLen + (i*3), ":%02x ", serial[i]);
+        strLen = snprintf(serialMsg, sizeof(serialMsg), " %s", words[3]);
+        if (strLen < 0)
+            strLen = 0;
+        for (i = 0; i < sz; i++) {
+            int remaining = (int)sizeof(serialMsg) - strLen - (i * 3);
+            if (remaining <= 0)
+                break;
+            snprintf(serialMsg + strLen + (i * 3), (size_t)remaining,
+                    ":%02x ", serial[i]);
+        }
         printf("%s\n", serialMsg);
     }
 
