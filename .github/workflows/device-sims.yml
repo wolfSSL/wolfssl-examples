@@ -41,8 +41,10 @@ jobs:
             dockerfile: Dockerfile.wolfcrypt
           - sim: STM32Sim
             dockerfile: Dockerfile.wolfcrypt
+            wolfssl_mount: 'yes'
           - sim: PIC32MZSim
             dockerfile: Dockerfile.wolfcrypt-direct
+            wolfssl_mount: 'yes'
     timeout-minutes: 40
     steps:
       - name: Fetch wolfSSL/simulators
@@ -56,4 +58,10 @@ jobs:
           set -euo pipefail
           docker build -f "/tmp/sims/${{ matrix.sim }}/${{ matrix.dockerfile }}" \
             -t sim-wolfcrypt "/tmp/sims/${{ matrix.sim }}"
-          docker run --rm sim-wolfcrypt
+          # MCU sims mount wolfSSL at run time; secure-element sims clone it inside.
+          if [ -n "${{ matrix.wolfssl_mount }}" ]; then
+            git clone -q --depth 1 https://github.com/wolfSSL/wolfssl /tmp/wolfssl-mnt
+            docker run --rm -v /tmp/wolfssl-mnt:/opt/wolfssl:ro sim-wolfcrypt
+          else
+            docker run --rm sim-wolfcrypt
+          fi
