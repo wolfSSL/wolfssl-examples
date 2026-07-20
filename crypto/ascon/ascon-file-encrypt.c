@@ -551,14 +551,16 @@ int main(int argc, char** argv)
             }
             if (choice == 'e') {
                 ret = AsconEncrypt(ctx);
-                if (ret != SUCCESS) {
+                if (ret != SUCCESS)
                     printf("Ascon encrypt failed\n");
-                }
+                else
+                    printf("Success: Ascon encrypt complete\n");
             } else  {
                 ret = AsconDecrypt(ctx);
-                if (ret != SUCCESS) {
+                if (ret != SUCCESS)
                     printf("Ascon decrypt failed\n");
-                }
+                else
+                    printf("Success: Ascon decrypt complete\n");
             }
         }
         else {

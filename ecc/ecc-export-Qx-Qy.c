@@ -90,6 +90,7 @@ int main(int argc, char *argv[])
         exit(7);
     }
     close(fd_out);
+    printf("Exported Qx and Qy to %s\n", argv[2]);
     return 0;
 }
 
