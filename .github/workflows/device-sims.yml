@@ -1,0 +1,49 @@
+name: Device sims
+
+on:
+  push:
+    paths:
+      - '.github/workflows/device-sims.yml'
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - '.github/workflows/device-sims.yml'
+  workflow_call:
+    inputs:
+      caller_run_id:
+        description: 'run id of the calling workflow; keeps a called run in its own concurrency group'
+        type: string
+        default: ''
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ inputs.caller_run_id && format('device-sims-call-{0}', inputs.caller_run_id) || format('device-sims-{0}', github.ref) }}
+  cancel-in-progress: ${{ !inputs.caller_run_id }}
+
+permissions:
+  contents: read
+
+jobs:
+  sim:
+    name: ${{ matrix.sim }} wolfcrypt
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        # SE050Sim is covered natively by se050.yml (runs this repo's demo);
+        # here we run each sim's own wolfcrypt test via its proven Dockerfile.
+        sim: [ATECC608Sim, STSAFEA120Sim, TROPIC01Sim]
+    timeout-minutes: 40
+    steps:
+      - name: Fetch wolfSSL/simulators
+        run: git clone -q --depth 1 https://github.com/wolfSSL/simulators /tmp/sims
+
+      # Each Dockerfile.wolfcrypt builds the Rust applet sim + the vendor SDK +
+      # wolfSSL and runs wolfcrypt against the sim; run_test.sh exits nonzero on
+      # any failure, so the container's exit code is the assertion.
+      - name: Build and run ${{ matrix.sim }} wolfcrypt test
+        run: |
+          set -euo pipefail
+          docker build -f "/tmp/sims/${{ matrix.sim }}/Dockerfile.wolfcrypt" \
+            -t sim-wolfcrypt "/tmp/sims/${{ matrix.sim }}"
+          docker run --rm sim-wolfcrypt
