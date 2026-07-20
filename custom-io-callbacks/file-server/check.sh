@@ -29,4 +29,8 @@ fi
 echo "server exited ${SERVER_RESULT}"
 echo "client exited ${CLIENT_RESULT}"
 
-[ ${CLIENT_RESULT} -eq 0 ] && [ ${SERVER_RESULT} -eq 0 ]
+if [ ${CLIENT_RESULT} -eq 0 ] && [ ${SERVER_RESULT} -eq 0 ]; then
+    echo "custom-io file transfer succeeded"
+else
+    exit 1
+fi
