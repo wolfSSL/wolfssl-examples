@@ -139,8 +139,11 @@ int do_ecc(void)
     if (ret == 0) {
         /* Use a constant-time compare (not XMEMCMP) since these buffers
          * hold secret key material. See const_time_memcmp() above. */
-        if (const_time_memcmp(AliceSecret, BobSecret, secretLen))
+        if (const_time_memcmp(AliceSecret, BobSecret, secretLen)) {
             printf("Failed to generate a common secret\n");
+            ret = -1;
+            goto all_three;
+        }
     } else {
         goto all_three;
     }
@@ -202,8 +205,11 @@ int do_25519(void)
     if (ret == 0) {
         /* Use a constant-time compare (not XMEMCMP) since these buffers
          * hold secret key material. See const_time_memcmp() above. */
-        if (const_time_memcmp(AliceSecret, BobSecret, secretLen))
+        if (const_time_memcmp(AliceSecret, BobSecret, secretLen)) {
             printf("Failed to generate a common secret\n");
+            ret = -1;
+            goto all_three;
+        }
     } else {
         goto all_three;
     }
@@ -265,8 +271,11 @@ int do_448(void)
     if (ret == 0) {
         /* Use a constant-time compare (not XMEMCMP) since these buffers
          * hold secret key material. See const_time_memcmp() above. */
-        if (const_time_memcmp(AliceSecret, BobSecret, secretLen))
+        if (const_time_memcmp(AliceSecret, BobSecret, secretLen)) {
             printf("Failed to generate a common secret\n");
+            ret = -1;
+            goto all_three;
+        }
     } else {
         goto all_three;
     }
@@ -285,7 +294,8 @@ only_rng:
     printf("Configure wolfssl with --enable-curve448 and try again\n");
     ret = -1;
 #endif
-    return ret;
+    /* not ret: an exit code is masked to 8 bits, so -256 would read as 0 */
+    return (ret == 0) ? 0 : 1;
 }
 
 void print_secret(char* who, byte* s, int sLen)
