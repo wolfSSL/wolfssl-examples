@@ -64,7 +64,7 @@ vpath %.c $(dir $(SRC_C))
 
 # Default target
 all: check_repos build_wolfssl build_wolfhsm_server build_app
-	@echo "Build complete. Run 'make help' for usage instructions."
+	@echo "Build complete. See README.md for usage instructions."
 
 # Clone repositories
 download_repos:

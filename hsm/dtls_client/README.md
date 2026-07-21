@@ -63,7 +63,6 @@ make WOLFSSL_DIR=/path/to/wolfssl WOLFHSM_DIR=/path/to/wolfhsm all
 | `run_client` | Run the DTLS client (Terminal 3) |
 | `clean` | Clean build artifacts |
 | `clean_repos` | Remove cloned repositories |
-| `help` | Show help |
 
 ## Debug Build
 

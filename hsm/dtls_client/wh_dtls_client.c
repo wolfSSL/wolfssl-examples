@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 wolfSSL Inc.
+ * Copyright (C) 2026 wolfSSL Inc.
  *
  * This file is part of wolfHSM.
  *
@@ -286,6 +286,7 @@ int main(int argc, char** argv)
     ctx = wolfSSL_CTX_new(wolfDTLS_client_method());
     if (ctx == NULL) {
         printf("ERROR: wolfSSL_CTX_new failed\n");
+        ret = -1;
         goto cleanup;
     }
 
@@ -343,6 +344,7 @@ int main(int argc, char** argv)
     sockfd = socket(AF_INET, SOCK_DGRAM, 0);
     if (sockfd < 0) {
         printf("ERROR: Cannot create socket\n");
+        ret = -1;
         goto cleanup;
     }
 
@@ -352,6 +354,7 @@ int main(int argc, char** argv)
     servAddr.sin_port   = htons(DTLS_SERVER_PORT);
     if (inet_pton(AF_INET, dtlsServerIp, &servAddr.sin_addr) != 1) {
         printf("ERROR: Invalid IP address: %s\n", dtlsServerIp);
+        ret = -1;
         goto cleanup;
     }
     printf("  Created UDP socket\n");
@@ -363,6 +366,7 @@ int main(int argc, char** argv)
     ssl = wolfSSL_new(ctx);
     if (ssl == NULL) {
         printf("ERROR: wolfSSL_new failed\n");
+        ret = -1;
         goto cleanup;
     }
 
@@ -381,7 +385,7 @@ int main(int argc, char** argv)
     printf("  DTLS session configured\n");
 
     /*
-     * Step 12: Perform DTLS handshake
+     * Perform DTLS handshake
      */
     printf("\n[5] Performing DTLS handshake...\n");
     ret = wolfSSL_connect(ssl);
@@ -415,6 +419,7 @@ int main(int argc, char** argv)
             ret = wolfSSL_write(ssl, sendLine, (int)len);
             if (ret != (int)len) {
                 printf("ERROR: wolfSSL_write failed\n");
+                ret = -1;
                 goto cleanup;
             }
             printf("  Sent: %s\n", sendLine);
@@ -426,6 +431,8 @@ int main(int argc, char** argv)
                 err = wolfSSL_get_error(ssl, n);
                 if (err != WOLFSSL_ERROR_WANT_READ) {
                     printf("ERROR: wolfSSL_read failed: %d\n", err);
+                    ret = -1;
+                    goto cleanup;
                 }
             }
             else {
