@@ -118,7 +118,15 @@ into.
     2. [Client](#client-ecc)
     3. [Running](#run-ecc)
 
-6. [Encrypted Client Hello](#ech)
+7. [Multi-tenant SNI](#tls-sni)
+
+8. [Encrypted Client Hello](#ech)
+
+    1. [Real-World ECH with Cloudflare](#ech-cloudflare)
+    2. [Local ECH pair](#ech-local)
+    3. [Multi-tenant ECH](#ech-multi)
+
+        1. [ECH rejection and retry configs](#ech-rejection)
 
 
 
@@ -1337,6 +1345,60 @@ To generate your own cert text, see the [DER to C script](https://github.com/wol
 
 <br />
 
+## <a name="tls-sni">Multi-tenant SNI</a>
+
+There are two examples which showcase multi-tenant SNI: server-tls-sni-callback
+and server-tls-ctx-swap. These two servers show a single TLS front end serving
+several tenants, each with its own certificate, selected by the
+Server Name Indication (SNI) the client sends. A servername callback dispatches
+on the SNI and applies the matching tenant's credentials for the handshake.
+
+Both serve two tenants and fall back to a default cert/key when the client sends
+no SNI or an unrecognized one:
+
+| Tenant SNI | Certificate |
+|---|---|
+| `tenant-a.example` | `../certs/tenant-a-cert.pem` |
+| `tenant-b.example` | `../certs/tenant-b-cert.pem` |
+| *(none / unknown)* | `../certs/server-cert.pem` (default) |
+
+They differ in *how* the tenant credentials are applied once the SNI is known:
+
+- **`server-tls-sni-callback`** keeps a single `WOLFSSL_CTX`. Its SNI callback
+  installs the matched tenant's cert/key directly on the per-connection
+  `WOLFSSL` object with `wolfSSL_use_certificate_file()` /
+  `wolfSSL_use_PrivateKey_file()`. Needs wolfSSL built with `--enable-sni`.
+- **`server-tls-ctx-swap`** builds a separate `WOLFSSL_CTX` per tenant up front
+  and swaps the live connection onto the matching one with
+  `wolfSSL_set_SSL_CTX()`. Needs wolfSSL built with `--enable-sni` and
+  `--enable-opensslextra` (or `--enable-opensslall`).
+
+Drive them with wolfSSL's stock example client, which sends an SNI with `-S`.
+Build and run a server (either variant); it prints the tenants it serves:
+
+```sh
+make server-tls-sni-callback
+./server-tls-sni-callback
+Tenants:
+  tenant-a.example
+  tenant-b.example
+
+Waiting for a connection...
+```
+
+From your wolfSSL source tree, connect as one of the tenants:
+
+```sh
+./examples/client/client -S tenant-a.example
+```
+
+The server prints the SNI it received and prefixes its reply with the selected
+tenant name (`tenant-a.example: I hear ya fa shizzle!`). A client that sends no
+`-S`, or an unknown name, stays on the default certificate and gets the plain
+reply.
+
+<br />
+
 ## <a name="ech">Encrypted Client Hello</a>
 
 Encrypted Client Hello (ECH) encrypts sensitive fields in the TLS ClientHello
@@ -1349,35 +1411,44 @@ To run these examples build wolfSSL with ECH support:
 ./configure --enable-ech && make && sudo make install
 ```
 
-There are four ECH example programs in this directory:
+The `server-ech-multi-ctx` example calls `wolfSSL_set_SSL_CTX()`, so it
+additionally needs `--enable-opensslextra`:
+
+```sh
+./configure --enable-ech --enable-opensslextra && make && sudo make install
+```
+
+This directory contains the following ECH example programs:
 
 | Program | Description |
 |---|---|
-| `client-ech` | Connects to Cloudflare to demonstrate real-world ECH |
-| `server-ech-local` | Local ECH server; generates its own ECH config at startup |
-| `client-ech-local` | Local ECH client; accepts a base64 ECH config as an argument |
-| `client-ech-grease` | GREASE ECH probe; retrieves retry configs from a local server |
+| `client-ech` | Connects to Cloudflare for real-world ECH; takes a base64 ECH config fetched from DNS |
+| `server-ech-local` | Minimal local ECH server: one `WOLFSSL_CTX`, a single private SNI |
+| `server-ech-multi-sni` | Multi-tenant ECH server: one `WOLFSSL_CTX`; an SNI callback installs each tenant's cert/key on the connection |
+| `server-ech-multi-ctx` | Multi-tenant ECH server: a per-tenant `WOLFSSL_CTX` swapped mid-handshake (needs `--enable-opensslextra`) |
+| `client-ech-local` | Local ECH client for every local server above: takes a base64 ECH config and a target SNI |
 
-### client-ech — Real-World ECH with Cloudflare
+### <a name="ech-cloudflare">Real-World ECH with Cloudflare</a>
 
-`client-ech` demonstrates ECH against `crypto.cloudflare.com` in two phases:
+`client-ech` performs an ECH handshake against `crypto.cloudflare.com`. It takes
+the server's ECH config as a base64 command-line argument. Fetch it out of band
+from the DNS HTTPS record (the `ech=` value), e.g.:
 
-1. **GREASE phase**: Connects to Cloudflare's ECH endpoint
-   (`cloudflare-ech.com`) without ECH configs set, which causes the library to
-   send GREASE ECH. The server responds with its actual ECH configs as retry
-   configs, which are collected via `wolfSSL_GetEchConfigs()`.
-2. **ECH phase**: Reconnects using the retrieved configs. The retrieved configs
-   are set with `wolfSSL_SetEchConfigs()` which will set the public SNI to
-   (`cloudflare-ech.com`) in addition to enabling encryption of the client
-   hello. The private SNI is set via `wolfSSL_UseSNI()` to
-   (`crypto.cloudflare.com`).
+```sh
+dig +tls @1.1.1.1 HTTPS crypto.cloudflare.com
+```
 
-The test succeeds when Cloudflare's `/cdn-cgi/trace` response shows
-`sni=encrypted`.
+`client-ech` then connects to Cloudflare's public IP on port 443, loads the
+config with `wolfSSL_SetEchConfigsBase64()`, and encrypts the private SNI
+`crypto.cloudflare.com` with `wolfSSL_UseSNI()` before sending an HTTP request
+for `/cdn-cgi/trace`. The handshake succeeds when the response shows
+`sni=encrypted` and `wolfSSL_GetEchStatus()` reports `Client: ECH successful`.
+If the connect fails (for example, a stale config), any retry configs the
+server returned are printed via `wolfSSL_GetEchRetryConfigs()`.
 
 ```sh
 make client-ech
-./client-ech
+./client-ech <base64 ech config>
 HTTP/1.1 200 OK
 Date: Tue, 24 Feb 2026 17:42:20 GMT
 Content-Type: text/plain
@@ -1410,21 +1481,27 @@ rbi=off
 kex=X25519
 
 0
+
+Client: ECH successful
 ```
 
-### Local ECH pair — server-ech-local and client-ech-local
+### <a name="ech-local">Local ECH pair</a>
 
 `server-ech-local` and `client-ech-local` demonstrate ECH between two local
-processes without requiring internet access or DNS.
+processes without requiring internet access or DNS. This is the simplest
+starting point: a single `WOLFSSL_CTX` fronting a single private SNI.
 
 `server-ech-local` generates its own ECH config at startup using
 `wolfSSL_CTX_GenerateEchConfig()`, then encodes and prints it in base64. It
-listens on port 11111 and sets its private SNI to `ech-private-name.com`. The
-server loops accepting clients until it receives the message `shutdown`.
+listens on port 11111 with a public name of `public.com` and a private SNI of
+`example.com`, and loops accepting clients until it receives the message
+`shutdown`.
 
-`client-ech-local` takes the server's base64 ECH config as a command-line
-argument, loads it with `wolfSSL_SetEchConfigsBase64()`, and sets its private
-SNI to `ech-private-name.com` before connecting on port 11111. It then reads a
+`client-ech-local` takes the server's base64 ECH config and a target (private)
+SNI as command-line arguments. It loads the config with
+`wolfSSL_SetEchConfigsBase64()`, sets the SNI with `wolfSSL_UseSNI()`, and also
+checks the server certificate against that SNI with
+`wolfSSL_check_domain_name()` before connecting on port 11111. It then reads a
 message from stdin and sends it to the server.
 
 Build:
@@ -1433,18 +1510,21 @@ Build:
 make server-ech-local client-ech-local
 ```
 
-Run the server in one terminal; it will print its ECH config:
+Run the server in one terminal; it will print its ECH config and private name:
 
 ```sh
 ./server-ech-local
 ECH config: <base64-encoded-config>
+Private name: example.com
+
 Waiting for a connection...
 ```
 
-Run the client in a second terminal, passing the base64 config the server printed:
+Run the client in a second terminal, passing the base64 config the server
+printed and the private SNI:
 
 ```sh
-./client-ech-local <base64-encoded-config>
+./client-ech-local <base64-encoded-config> example.com
 Message for server: hello
 Server: I hear ya fa shizzle!
 Shutdown complete
@@ -1452,41 +1532,66 @@ Shutdown complete
 
 Send `shutdown` as the message to stop the server.
 
-### client-ech-grease — GREASE Probe to Retrieve Server ECH Configs
+### <a name="ech-multi">Multi-tenant ECH</a>
 
-GREASE (Generate Random Extensions And Sustain Extensibility) provides several
-benefits to a user:
-1. Determines if a server supports ECH based on the response it gives.
-2. Retrieves ECH configs from the server if the client does not know any. It is
-   an alternative to fetching them from DNS HTTPS records.
-3. Reduces the extent to which GREASE vs ECH connections stick out.
+These servers extend the local pair to a single front end that serves several
+tenants behind one public name. The client's true destination travels in the
+encrypted (inner) SNI; the server dispatches on it with a servername callback
+and selects that tenant's certificate. Both pair with `client-ech-local` — just
+pass a tenant name as the target SNI.
 
-`client-ech-grease` connects to a local server (such as `server-ech-local`) on
-port 11111 without valid ECH configs, which causes the library to send GREASE
-ECH. The server responds with its actual ECH configs as retry configs.
-`client-ech-grease` retrieves these via `wolfSSL_GetEchConfigs()` and prints
-them in base64. It takes the public SNI as a command-line argument.
+Both servers advertise the public name `public.com` and serve two tenants:
 
-Build:
+| Tenant SNI | Certificate |
+|---|---|
+| `tenant-a.example` | `../certs/tenant-a-cert.pem` |
+| `tenant-b.example` | `../certs/tenant-b-cert.pem` |
+
+They differ in *how* the tenant credentials are applied once the inner SNI is
+known:
+
+- **`server-ech-multi-sni`** keeps a single `WOLFSSL_CTX`. Its SNI callback
+  installs the matched tenant's cert/key directly on the per-connection
+  `WOLFSSL` object with `wolfSSL_use_certificate_file()` /
+  `wolfSSL_use_PrivateKey_file()`.
+- **`server-ech-multi-ctx`** builds a separate `WOLFSSL_CTX` per tenant up
+  front and swaps the live connection onto the matching one with
+  `wolfSSL_set_SSL_CTX()`. This API needs wolfSSL built with
+  `--enable-opensslextra`.
+
+Build and run a server (either variant); it prints its ECH config and the
+tenants it serves:
 
 ```sh
-make client-ech-grease
+make server-ech-multi-sni client-ech-local
+./server-ech-multi-sni
+ECH config: <base64-encoded-config>
+Tenants:
+  tenant-a.example
+  tenant-b.example
+
+Waiting for a connection...
 ```
 
-With `server-ech-local` already running in another terminal, probe for configs:
+Connect as one of the tenants, passing the printed config and the tenant SNI:
 
 ```sh
-./client-ech-grease ech-public-name.com
-ECH config: <base64-encoded-config>
-
+./client-ech-local <base64-encoded-config> tenant-a.example
+Message for server: hello
+Server: I hear ya fa shizzle!
 Shutdown complete
 ```
 
-The printed base64 config can then be passed directly to `client-ech-local`:
+#### <a name="ech-rejection">ECH rejection and retry configs</a>
 
-```sh
-./client-ech-local <base64-encoded-config>
-```
+If a client offers a stale or wrong ECH config, the server cannot decrypt the
+inner ClientHello, so ECH is rejected. The handshake still completes under the
+public name (`public.com`) using the default cert, and the server returns fresh
+ECH configs as **retry configs** for the client to use on a later attempt. The
+server reports `Client ECH failed, sent retry configs` and continues under the
+public name. `client-ech-local` is what stops there: on rejection
+`wolfSSL_connect()` fails, so the client prints the received retry configs and
+exits without exchanging application data.
 
 ## TLS Example with Post-Handshake Authentication
 
