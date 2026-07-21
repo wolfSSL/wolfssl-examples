@@ -37,7 +37,7 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Fetch wolfSSL master
-        run: git clone -q --depth 1 --branch master https://github.com/wolfSSL/wolfssl cmake/wolfssl
+        run: bash .github/scripts/git-clone-retry.sh -q --depth 1 --branch master https://github.com/wolfSSL/wolfssl cmake/wolfssl
 
       # Same cmake/ app the Linux cmake job builds; here through MSVC (multi-config,
       # so --config Release and the binary lands under a Release/ subdir).

@@ -68,7 +68,7 @@ jobs:
       - name: Build wolfTPM
         run: |
           set -euo pipefail
-          git clone --depth 1 --branch v4.1.0 https://github.com/wolfSSL/wolfTPM /tmp/wolftpm
+          bash "$GITHUB_WORKSPACE/.github/scripts/git-clone-retry.sh" --depth 1 --branch v4.1.0 https://github.com/wolfSSL/wolfTPM /tmp/wolftpm
           cd /tmp/wolftpm
           ./autogen.sh
           ./configure --enable-fwtpm --enable-swtpm
@@ -80,7 +80,7 @@ jobs:
         if: matrix.simulator == 'ibmswtpm2'
         run: |
           set -euo pipefail
-          git clone --depth 1 --branch rev1682 https://github.com/kgoldman/ibmswtpm2 /tmp/ibmswtpm2
+          bash "$GITHUB_WORKSPACE/.github/scripts/git-clone-retry.sh" --depth 1 --branch rev1682 https://github.com/kgoldman/ibmswtpm2 /tmp/ibmswtpm2
           make -C /tmp/ibmswtpm2/src -j"$(nproc)"
           (cd /tmp/ibmswtpm2/src && ./tpm_server &)
 
@@ -133,15 +133,24 @@ jobs:
           set -euo pipefail
           # Simulation mode needs only the SDK -- no PSW, no aesmd, no /dev/sgx_enclave.
           url=https://download.01.org/intel-sgx/sgx-linux/2.29/distro/ubuntu24.04-server
-          wget -q "$url/sgx_linux_x64_sdk_2.29.100.1.bin"
-          chmod +x sgx_linux_x64_sdk_2.29.100.1.bin
+          bin=sgx_linux_x64_sdk_2.29.100.1.bin
+          # download.01.org is Intel's aging host and blips, so retry the fetch
+          ok=0
+          for a in 1 2 3 4 5; do
+            if wget -q -O "$bin" --tries=3 --timeout=30 --retry-connrefused "$url/$bin"; then
+              ok=1; break
+            fi
+            echo "attempt $a: SGX SDK download failed; retrying"; sleep 10
+          done
+          [ "$ok" -eq 1 ] || { echo "FAIL: could not download the Intel SGX SDK"; exit 1; }
+          chmod +x "$bin"
           # The installer is interactive.
-          echo yes | ./sgx_linux_x64_sdk_2.29.100.1.bin
+          echo yes | ./"$bin"
 
       - name: Build wolfSSL for SGX
         run: |
           set -euo pipefail
-          git clone -q --depth 1 --branch '${{ matrix.wolfssl_ref }}' \
+          bash "$GITHUB_WORKSPACE/.github/scripts/git-clone-retry.sh" -q --depth 1 --branch '${{ matrix.wolfssl_ref }}' \
             https://github.com/wolfSSL/wolfssl /tmp/wolfssl
           source sgxsdk/environment
           # test.c includes <wolfssl/options.h>, which the SGX build never generates

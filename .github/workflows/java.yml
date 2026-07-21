@@ -54,14 +54,14 @@ jobs:
         run: |
           set -euo pipefail
           sudo apt-get install -y --no-install-recommends ant >/dev/null
-          git clone -q --depth 1 --branch '${{ matrix.wolfssl_ref }}' https://github.com/wolfSSL/wolfssl /tmp/wolfssl
+          bash "$GITHUB_WORKSPACE/.github/scripts/git-clone-retry.sh" -q --depth 1 --branch '${{ matrix.wolfssl_ref }}' https://github.com/wolfSSL/wolfssl /tmp/wolfssl
           cd /tmp/wolfssl
           ./autogen.sh >/dev/null 2>&1
           ./configure --enable-jni --enable-static --enable-shared >/dev/null
           make -j"$(nproc)" >/dev/null
           sudo make install >/dev/null
           sudo ldconfig
-          git clone -q --depth 1 https://github.com/wolfSSL/wolfssljni /tmp/wolfssljni
+          bash "$GITHUB_WORKSPACE/.github/scripts/git-clone-retry.sh" -q --depth 1 https://github.com/wolfSSL/wolfssljni /tmp/wolfssljni
           cd /tmp/wolfssljni
           ./java.sh
           ant

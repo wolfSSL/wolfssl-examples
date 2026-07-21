@@ -47,7 +47,7 @@ jobs:
         run: |
           set -euo pipefail
           cd "$GITHUB_WORKSPACE/.."
-          git clone -q --depth 1 --branch '${{ matrix.wolfssl_ref }}' \
+          bash "$GITHUB_WORKSPACE/.github/scripts/git-clone-retry.sh" -q --depth 1 --branch '${{ matrix.wolfssl_ref }}' \
             https://github.com/wolfSSL/wolfssl.git wolfssl
           cd wolfssl
           ./autogen.sh >/dev/null 2>&1

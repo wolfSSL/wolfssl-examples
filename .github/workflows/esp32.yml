@@ -61,7 +61,7 @@ jobs:
         run: |
           set -euo pipefail
           . /opt/esp/idf/export.sh
-          git clone -q --depth 1 --branch '${{ matrix.wolfssl_ref }}' https://github.com/wolfSSL/wolfssl.git /tmp/wolfssl
+          bash "$GITHUB_WORKSPACE/.github/scripts/git-clone-retry.sh" -q --depth 1 --branch '${{ matrix.wolfssl_ref }}' https://github.com/wolfSSL/wolfssl.git /tmp/wolfssl
           # The component hard-errors if wolfSSL is both local and installed
           if [ -d '${{ matrix.example }}/components/wolfssl' ]; then
             echo 'ships its own wolfssl component; skipping the IDF-wide install'

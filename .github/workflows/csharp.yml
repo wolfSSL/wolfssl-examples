@@ -55,7 +55,7 @@ jobs:
       - name: Build wolfSSL with the C# wrapper's user_settings.h
         run: |
           set -euo pipefail
-          git clone -q --depth 1 --branch '${{ matrix.wolfssl_ref }}' \
+          bash "$GITHUB_WORKSPACE/.github/scripts/git-clone-retry.sh" -q --depth 1 --branch '${{ matrix.wolfssl_ref }}' \
             https://github.com/wolfSSL/wolfssl /tmp/wolfssl
           cd /tmp/wolfssl
           # wrapper/CSharp/user_settings.h already enables ML-KEM, ML-DSA and

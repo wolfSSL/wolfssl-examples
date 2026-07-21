@@ -54,7 +54,7 @@ jobs:
       - name: Build puf
         run: |
           set -euo pipefail
-          git clone -q --depth 1 --branch '${{ matrix.wolfssl_ref }}' https://github.com/wolfSSL/wolfssl /tmp/wolfssl
+          bash "$GITHUB_WORKSPACE/.github/scripts/git-clone-retry.sh" -q --depth 1 --branch '${{ matrix.wolfssl_ref }}' https://github.com/wolfSSL/wolfssl /tmp/wolfssl
           cd puf
           make WOLFSSL_ROOT=/tmp/wolfssl
 

@@ -51,6 +51,6 @@ jobs:
       - name: Compile the wolfSSL Mynewt port header path
         run: |
           set -euo pipefail
-          git clone -q --depth 1 --branch '${{ matrix.wolfssl_ref }}' \
+          bash "$GITHUB_WORKSPACE/.github/scripts/git-clone-retry.sh" -q --depth 1 --branch '${{ matrix.wolfssl_ref }}' \
             https://github.com/wolfSSL/wolfssl /tmp/wolfssl
           ./mynewt/ci-compile-check.sh /tmp/wolfssl

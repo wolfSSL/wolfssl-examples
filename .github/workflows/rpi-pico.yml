@@ -52,7 +52,7 @@ jobs:
           sudo apt-get install -y --no-install-recommends \
             cmake gcc-arm-none-eabi libnewlib-arm-none-eabi \
             libstdc++-arm-none-eabi-newlib build-essential
-          git clone --depth 1 --recurse-submodules \
+          bash "$GITHUB_WORKSPACE/.github/scripts/git-clone-retry.sh" --depth 1 --recurse-submodules \
             https://github.com/raspberrypi/pico-sdk /tmp/pico-sdk
 
       - name: Build testwolfcrypt
@@ -64,7 +64,7 @@ jobs:
           set -euo pipefail
           # --branch, or every leg silently clones the default branch and the
           # "wolfSSL v5.9.2-stable" job builds master
-          git clone -q --depth 1 --branch '${{ matrix.wolfssl_ref }}' \
+          bash "$GITHUB_WORKSPACE/.github/scripts/git-clone-retry.sh" -q --depth 1 --branch '${{ matrix.wolfssl_ref }}' \
             https://github.com/wolfSSL/wolfssl /tmp/wolfssl
           git -C /tmp/wolfssl log -1 --format='wolfssl at ${{ matrix.wolfssl_ref }}: %h %s'
           cd RPi-Pico

@@ -53,8 +53,8 @@ jobs:
       - name: Fetch the MCUXpresso SDK
         run: |
           set -euo pipefail
-          git clone -q --depth 1 https://github.com/nxp-mcuxpresso/mcux-sdk /tmp/sdk
-          git clone -q --depth 1 https://github.com/nxp-mcuxpresso/CMSIS_5 /tmp/cmsis
+          bash "$GITHUB_WORKSPACE/.github/scripts/git-clone-retry.sh" -q --depth 1 https://github.com/nxp-mcuxpresso/mcux-sdk /tmp/sdk
+          bash "$GITHUB_WORKSPACE/.github/scripts/git-clone-retry.sh" -q --depth 1 https://github.com/nxp-mcuxpresso/CMSIS_5 /tmp/cmsis
           cp -r /tmp/cmsis/CMSIS /tmp/sdk/CMSIS
           # The Builder zip nests debug_console/str under the device dir; the
           # public repo keeps them top-level. Makefile expects the Builder shape.
@@ -86,7 +86,7 @@ jobs:
       - name: Build
         run: |
           set -euo pipefail
-          git clone -q --depth 1 --branch '${{ matrix.wolfssl_ref }}' https://github.com/wolfSSL/wolfssl /tmp/wolfssl
+          bash "$GITHUB_WORKSPACE/.github/scripts/git-clone-retry.sh" -q --depth 1 --branch '${{ matrix.wolfssl_ref }}' https://github.com/wolfSSL/wolfssl /tmp/wolfssl
           cd RT1060
           ln -s /tmp/sdk ./SDK_2_13_1_MIMXRT1060-EVKB
           make WOLFSSL=/tmp/wolfssl

@@ -39,7 +39,8 @@ jobs:
         run: |
           set -euo pipefail
           sudo apt-get install -y --no-install-recommends shellcheck cppcheck
-          bash <(curl -fsSL https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
+          .github/scripts/retry.sh bash -c \
+            'bash <(curl -fsSL https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)'
           echo "$PWD" >> "$GITHUB_PATH"
       - name: Lint scripts and workflows
         run: ./.github/scripts/lint.sh

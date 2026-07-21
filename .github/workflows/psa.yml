@@ -52,7 +52,7 @@ jobs:
       - name: Build mbedTLS PSA and wolfSSL with the example's own script
         run: |
           set -euo pipefail
-          git clone -q --depth 1 --branch '${{ matrix.wolfssl_ref }}' \
+          bash "$GITHUB_WORKSPACE/.github/scripts/git-clone-retry.sh" -q --depth 1 --branch '${{ matrix.wolfssl_ref }}' \
             https://github.com/wolfSSL/wolfssl /tmp/wolfssl
           cd /tmp/wolfssl
           "$GITHUB_WORKSPACE/psa/build_with_mbedtls_psa.sh"

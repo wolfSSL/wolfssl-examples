@@ -62,7 +62,7 @@ jobs:
           test -e wolfssl/.git || { echo "FAIL: wolfssl submodule not checked out"; exit 1; }
           # Replace the tree: fetching into the shallow submodule races on .git/modules/*/shallow
           rm -rf wolfssl
-          git clone -q --depth 1 --branch '${{ matrix.wolfssl_ref }}' \
+          bash "$GITHUB_WORKSPACE/.github/scripts/git-clone-retry.sh" -q --depth 1 --branch '${{ matrix.wolfssl_ref }}' \
             https://github.com/wolfSSL/wolfssl.git wolfssl
           echo "wolfssl now at ${{ matrix.wolfssl_ref }}: $(git -C wolfssl rev-parse --short HEAD)"
 

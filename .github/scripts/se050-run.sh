@@ -12,18 +12,19 @@ mkdir -p "$WORK"
 cd "$WORK"
 
 echo "::group::SE050Sim (Rust TCP server)"
-git clone -q --depth 1 https://github.com/wolfSSL/simulators sims
+"$ROOT/.github/scripts/git-clone-retry.sh" -q --depth 1 https://github.com/wolfSSL/simulators sims
 # se050-sim depends on the se050 crate at ../nxp-se050/se050 (its own repo)
-git clone -q --branch sim-compat --depth 1 \
+"$ROOT/.github/scripts/git-clone-retry.sh" -q --branch sim-compat --depth 1 \
   https://github.com/LinuxJedi/nxp-se050.git sims/SE050Sim/nxp-se050
 ( cd sims/SE050Sim/se050-sim && cargo build --release --bin tcp_server )
 SIM="$WORK/sims/SE050Sim/wolfcrypt-test"
 echo "::endgroup::"
 
 echo "::group::plug-and-trust SDK + wolfSSL HostCrypto patch + sim overlays"
-git clone -q --depth 1 --branch v04.07.01 https://github.com/NXP/plug-and-trust simw-top
-curl -fsSL https://raw.githubusercontent.com/wolfSSL/osp/master/nxp-se05x-middleware/simw-top-v040701.patch \
-  | ( cd simw-top && patch -p1 -l --forward --fuzz=3 )
+"$ROOT/.github/scripts/git-clone-retry.sh" -q --depth 1 --branch v04.07.01 https://github.com/NXP/plug-and-trust simw-top
+"$ROOT/.github/scripts/retry.sh" curl -fsSL -o "$WORK/osp-se050.patch" \
+  https://raw.githubusercontent.com/wolfSSL/osp/master/nxp-se05x-middleware/simw-top-v040701.patch
+( cd simw-top && patch -p1 -l --forward --fuzz=3 < "$WORK/osp-se050.patch" )
 test -f simw-top/sss/src/wolfssl/fsl_sss_wolfssl_apis.c
 cp "$SIM/i2c_a7.c"      simw-top/hostlib/hostLib/platform/linux/i2c_a7.c
 cp "$SIM/se05x_reset.c" simw-top/hostlib/hostLib/platform/rsp/se05x_reset.c
@@ -32,7 +33,7 @@ cp "$SIM/CMakeLists.txt" simw-top/CMakeLists.txt
 echo "::endgroup::"
 
 echo "::group::wolfSSL pass A (no se050, so the SDK can link -lwolfssl)"
-git clone -q --depth 1 https://github.com/wolfSSL/wolfssl
+"$ROOT/.github/scripts/git-clone-retry.sh" -q --depth 1 https://github.com/wolfSSL/wolfssl wolfssl
 ( cd wolfssl && ./autogen.sh >/dev/null 2>&1 && \
   ./configure --enable-keygen --enable-cmac \
     CFLAGS="-DWOLFSSL_SE050_NO_TRNG -DSIZEOF_LONG_LONG=8" >/dev/null && \

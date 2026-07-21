@@ -69,7 +69,7 @@ jobs:
       - name: Cross-build wolfSSL (${{ matrix.name }})
         run: |
           set -euo pipefail
-          git clone -q --depth 1 --branch master https://github.com/wolfSSL/wolfssl /tmp/wolfssl
+          bash "$GITHUB_WORKSPACE/.github/scripts/git-clone-retry.sh" -q --depth 1 --branch master https://github.com/wolfSSL/wolfssl /tmp/wolfssl
           cd /tmp/wolfssl
           ./autogen.sh >/dev/null
           host=""

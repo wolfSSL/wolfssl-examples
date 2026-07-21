@@ -46,7 +46,7 @@ jobs:
       - name: Fetch the wolfSSL ref under test
         run: |
           set -euo pipefail
-          git clone -q --depth 1 --branch '${{ matrix.wolfssl_ref }}' \
+          bash "$GITHUB_WORKSPACE/.github/scripts/git-clone-retry.sh" -q --depth 1 --branch '${{ matrix.wolfssl_ref }}' \
             https://github.com/wolfSSL/wolfssl cmake/wolfssl
           git -C cmake/wolfssl log -1 --format='wolfssl at ${{ matrix.wolfssl_ref }}: %h %s'
 

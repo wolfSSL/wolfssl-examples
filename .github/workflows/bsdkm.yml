@@ -59,13 +59,23 @@ jobs:
             if [ ! -f /usr/src/sys/conf/kmod.mk ]; then
               # keyed off the running kernel, so this cannot drift from the VM
               rel=$(uname -r | sed 's/-p[0-9]*$//')
-              fetch -o /tmp/src.txz "https://download.freebsd.org/releases/amd64/${rel}/src.txz"
+              f=1; while :; do
+                fetch -o /tmp/src.txz "https://download.freebsd.org/releases/amd64/${rel}/src.txz" && break
+                [ "$f" -ge 5 ] && { echo "FAIL: src.txz fetch failed"; exit 1; }
+                f=$((f + 1)); sleep 10
+              done
               tar -C / -xf /tmp/src.txz
             fi
             test -f /usr/src/sys/conf/kmod.mk
 
-            git clone -q --depth 1 --branch '${{ matrix.wolfssl_ref }}' \
-              https://github.com/wolfSSL/wolfssl /tmp/wolfssl
+            # FreeBSD VM has no bash, so retry the clone with a POSIX sh loop
+            n=1; while :; do
+              rm -rf /tmp/wolfssl
+              git clone -q --depth 1 --branch '${{ matrix.wolfssl_ref }}' \
+                https://github.com/wolfSSL/wolfssl /tmp/wolfssl && break
+              [ "$n" -ge 5 ] && { echo "FAIL: wolfssl clone failed"; exit 1; }
+              n=$((n + 1)); sleep 10
+            done
             cd /tmp/wolfssl
             ./autogen.sh
             ./configure --enable-freebsdkm --enable-cryptonly \
