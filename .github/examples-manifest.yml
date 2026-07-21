@@ -877,14 +877,11 @@ examples:
           <<: *stapling
           client: [./ocsp-client, --tls13]
         expect: "Client: TLS handshake success"
-        # A wolfSSL bug, not an example bug, reproduced locally: the RFC 8446
-        # 4.4.2 check in tls.c searches only ssl->extensions, but
-        # wolfSSL_CTX_UseOCSPStapling leaves status_request on ctx->extensions,
-        # so the server's staple is killed with unsupported_extension (-429).
-        # wolfSSL's own TLSX_CheckUnsupportedExtension does that ctx fallback;
-        # this call site does not. Fix filed as wolfSSL/wolfssl#10936; drop this
-        # expect_fail when it merges.
+        # wolfSSL bug (not the example): a CTX-set status_request is dropped from
+        # the TLS1.3 Certificate msg (-429). Fixed on master by wolfSSL/wolfssl#10936,
+        # still in v5.9.2-stable; drop expect_fail + fixed_on once a stable tag has it.
         expect_fail: "wolfSSL drops a CTX-set status_request in the TLS1.3 Certificate msg (-429)"
+        fixed_on: [master]
 
   - id: custom-io-file-client
     path: custom-io-callbacks/file-client

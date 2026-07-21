@@ -617,7 +617,7 @@ def attempt_step(step, cwd, env):
     return label, ok, detail, log
 
 
-def run_entry(entry, expect_sha, results):
+def run_entry(entry, expect_sha, results, wolfssl_ref):
     eid = entry["id"]
     cwd = REPO / entry["path"]
     env = dict(os.environ)
@@ -692,6 +692,11 @@ def run_entry(entry, expect_sha, results):
             detail = f"{n} runs ok" if ok else f"flaked on run {run_no}/{n}: {detail}"
 
         xfail = step.get("expect_fail")
+        # A fix lands in master before it ships in a stable tag, so the same bug is
+        # known-fail on stable yet fixed on master; fixed_on lists the refs that
+        # carry the fix and must therefore pass normally.
+        if xfail and wolfssl_ref in (step.get("fixed_on") or []):
+            xfail = None
         if xfail and not ok:
             status, detail = "xfail", f"known: {xfail}"
             ok = True
@@ -793,7 +798,7 @@ def main():
     results = []
     ok = True
     for entry in entries:
-        ok = run_entry(entry, expect_sha, results) and ok
+        ok = run_entry(entry, expect_sha, results, args.wolfssl_ref) and ok
 
     for r in results:
         r["ref"] = args.wolfssl_ref
