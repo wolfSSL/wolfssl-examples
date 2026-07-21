@@ -162,7 +162,8 @@ only_rng:
     printf("Configure wolfSSL with --enable-ecc and try again\n");
     ret = -1;
 #endif
-    return ret;
+    /* not ret: an exit code is masked to 8 bits, so -256 would read as 0 */
+    return (ret == 0) ? 0 : 1;
 }
 
 int do_25519(void)
@@ -228,7 +229,8 @@ only_rng:
     printf("Configure wolfssl with --enable-curve25519 and try again\n");
     ret = -1;
 #endif
-    return ret;
+    /* not ret: an exit code is masked to 8 bits, so -256 would read as 0 */
+    return (ret == 0) ? 0 : 1;
 }
 
 int do_448(void)
