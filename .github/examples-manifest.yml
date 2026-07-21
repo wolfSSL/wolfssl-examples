@@ -1166,9 +1166,13 @@ examples:
           stdin: "shutdown\n"
           server_exit: killed
         expect: "Server: I hear ya fa shizzle"
-      # NOT RUN: see the note on the dtls13-earlydata pair. The server never
-      # sends a session ticket, so the client exits 1 on "Session ticket not
-      # received from server".
+      # the 0.5-RTT reply only prints if the 2nd connection resumed and the
+      # server accepted the client's 0-RTT early data
+      - pair:
+          server: [./server-tls13-earlydata]
+          client: [./client-tls13-earlydata, 127.0.0.1]
+          server_exit: killed
+        expect: "0.5-RTT data hello from early data server"
 
       - pair:
           server: [./server-tls13-certauth-clienthello]
@@ -1378,14 +1382,14 @@ examples:
           client: [./client-dtls-callback, 127.0.0.1]
           stdin: "hello\n"
           server_exit: killed
-      # NOT RUN: the earlydata servers never send a session ticket, so the
-      # clients exit 1 on "Session ticket not received from server".
-      # Measured, not guessed: wolfSSL_read_early_data() completes the handshake
-      # itself, so wolfSSL_is_init_finished() is already 1 and wolfSSL_accept()
-      # is skipped -- and SendTls13NewSessionTicket() only runs inside accept's
-      # state machine (tls13.c:15984). Calling wolfSSL_send_SessionTicket()
-      # explicitly, and peeking >0 bytes on the client, do not help either.
-      # Needs someone who knows the TLS 1.3 ticket state machine.
+      # "Handshake complete after early data" only prints if the 2nd connection
+      # resumed with the ticket and the server accepted the 0-RTT early data
+      - pair:
+          server: [./server-dtls13-earlydata]
+          proto: udp
+          client: [./client-dtls13-earlydata, 127.0.0.1]
+          server_exit: killed
+        expect: "Handshake complete after early data"
 
 
   - id: pkcs11
