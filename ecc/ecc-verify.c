@@ -25,6 +25,9 @@
 #include <wolfssl/wolfcrypt/random.h>
 #include <wolfssl/wolfcrypt/ecc.h>
 #include <wolfssl/wolfcrypt/asn_public.h>
+#include <wolfssl/wolfcrypt/error-crypt.h>
+
+#include <stdio.h>
 
 #if defined(WOLFSSL_CUSTOM_CURVES) && defined(HAVE_ECC_KOBLITZ)
 
@@ -45,11 +48,17 @@ int hash_firmware_verify(const byte* fwAddr, word32 fwLen, const byte* sigBuf, w
         0x1c, 0x8a, 0x80, 0x0d, 0x79, 0x57, 0xe6, 0x6e, 0x3d, 0x73, 0x4a, 0xf1, 0xe1, 0xd2, 0x6f, 0x2b,
         0x51, 0xd0, 0xa8, 0x89, 0xa0, 0x58, 0xff, 0xbd
     };
-    int pos, verify;
+    int pos, verify = 0;
 
     ret = wc_InitSha256(&sha);
     if (ret != 0)
         return ret;
+
+    ret = wc_ecc_init(&eccKey);
+    if (ret != 0) {
+        wc_Sha256Free(&sha);
+        return ret;
+    }
 
     pos = 0;
     while (fwLen > 0) {
@@ -83,7 +92,12 @@ int hash_firmware_verify(const byte* fwAddr, word32 fwLen, const byte* sigBuf, w
     if (ret < 0)
         goto exit;
 
+    /* a good return code only means the check ran, not that it passed */
+    if (verify != 1)
+        ret = SIG_VERIFY_E;
+
 exit:
+    wc_ecc_free(&eccKey);
     wc_Sha256Free(&sha);
 
     return ret;
