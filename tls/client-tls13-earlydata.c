@@ -129,27 +129,19 @@ int main(int argc, char** argv)
         goto cleanup;
     }
 
-    /* Check if ticket was received */
-    if (!wolfSSL_SessionIsSetup(wolfSSL_get_session(ssl))) {
-        /* Attempt to read a session ticket from server */
-        (void)wolfSSL_peek(ssl, recvBuf, 0);
-        if (!wolfSSL_SessionIsSetup(wolfSSL_get_session(ssl))) {
-            fprintf(stderr, "Session ticket not received from server\n");
-            goto cleanup;
-        }
-    }
-
-    /* Save session for resumption */
-    session = wolfSSL_get1_session(ssl);
-    if (!session) {
-        fprintf(stderr, "wolfSSL_get1_session failed\n");
-        goto cleanup;
-    }
-    
+    /* The NewSessionTicket is post-handshake data, so read to process it -- a
+     * check before reading (or peeking 0 bytes) always finds no ticket. */
     len = wolfSSL_read(ssl, recvBuf, sizeof(recvBuf) - 1);
     if (len > 0) {
         recvBuf[len] = '\0';
         printf("Server sent: %s\n", recvBuf);
+    }
+
+    /* Save session for resumption; the read above stored the ticket */
+    session = wolfSSL_get1_session(ssl);
+    if (!session) {
+        fprintf(stderr, "wolfSSL_get1_session failed\n");
+        goto cleanup;
     }
 
     printf("Initial handshake complete, session ticket obtained.\n");
