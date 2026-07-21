@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <assert.h>
+#include <netdb.h>
 
 #include <wolfssl/options.h>
 #include <wolfssl/ssl.h>
@@ -33,7 +34,6 @@
 #include <wolfssl/wolfcrypt/ecc.h>
 
 #define SERVER_NAME "www.youtube.com"
-#define SERVER_IP "172.217.18.14"
 
 #define SERVER_PORT 443
 #define ALPN_PROTOS "http/1.1"
@@ -78,71 +78,29 @@ static int ocsp_cb(void* ctx, const char* url, int urlSz, unsigned char* request
 {
     printf("ocsp_cb(): %s\n", url);
 
-    if (access("ocsp.req", F_OK) == 0) {
-        /* file exists, delete it and return (in order to simulate that it needs read I/O) */
-        if (remove("ocsp.req") != 0) {
+    /* Simulate a non-blocking responder: return "want read" once (using a
+     * marker file to remember the call), then perform the lookup on the retry. */
+    if (access("ocsp.req", F_OK) != 0) {
+        FILE* mark = fopen("ocsp.req", "wb");
+        if (mark == NULL)
             return -1;
-        }
+        if (fclose(mark) != 0)
+            return -1;
         printf("  simulate 'want read'\n");
         return WOLFSSL_CBIO_ERR_WANT_READ;
-    } else {
-        /* file doesn't exist, proceed */
     }
-
-    FILE *frq = fopen("ocsp.req", "wb");
-    if (frq != NULL) {
-        size_t nbytes = fwrite(request, 1, requestSz, frq);
-        if (requestSz != nbytes) {
-            printf("Failed to write all data. Wrote only %zu bytes.\n", nbytes);
-        }
-        fclose(frq);
-        frq = NULL;
-    } else {
+    if (remove("ocsp.req") != 0)
         return -1;
-    }
 
-    char cmd[1024];
-    snprintf(cmd, sizeof(cmd), "curl -s --data-binary '@ocsp.req' -o 'ocsp.resp' -X POST -H 'Cache-Control: no-cache' -H 'Content-Type: application/ocsp-request' '%s'", url);
-    printf("Running command:\n%s\n", cmd);
-    int ret = system(cmd);
-    if (ret == 0) {
-        FILE *frsp = fopen("ocsp.resp", "rb");
-        if (frsp != NULL) {
-            printf("Reading OCSP response from file...\n");
-            char resp[4096];
-            size_t nbytes = fread(resp, 1, sizeof(resp), frsp);
-            printf("Read %zu bytes.\n", nbytes);
-            fclose(frsp);
-            frsp = NULL;
-
-            printf("*response is %p\n", *response);
-            printf("Allocating %zu bytes...\n", nbytes);
-            *response = malloc(nbytes);
-            if (*response == NULL) {
-                printf("malloc() failed\n");
-                return -1;
-            }
-            printf("*response is now %p\n", *response);
-            printf("Copying bytes...\n");
-            memcpy(*response, resp, nbytes);
-            printf("Bytes copied.\n");
-
-            return nbytes;
-        }
-        return -1;
-    } else {
-        printf("Command failed with error code '%d'.\n", ret);
-    }
-
-    return -1;
+    /* Use wolfSSL's built-in OCSP HTTP lookup, which parses the URL and
+     * fetches the response over a socket. */
+    return EmbedOcspLookup(ctx, url, urlSz, request, requestSz, response);
 }
 
 static void ocsp_free(void* ctx, unsigned char* response)
 {
-    (void)ctx;
-    if (response) {
-        free(response);
-    }
+    /* Pair with EmbedOcspLookup's allocator. */
+    EmbedOcspRespFree(ctx, response);
 }
 
 int test_connect(WOLFSSL_CTX* ctx)
@@ -151,30 +109,43 @@ int test_connect(WOLFSSL_CTX* ctx)
     int errCode;
     char errBuff[WOLFSSL_MAX_ERROR_SZ];
 
-    int sockfd;
-    struct sockaddr_in servAddr;
+    int sockfd = -1;
+    struct addrinfo hints, *res = NULL, *ai;
+    char portStr[6];
 
     int result = 0;
 
-    memset(&servAddr, 0, sizeof(servAddr));
+    ret = snprintf(portStr, sizeof(portStr), "%d", SERVER_PORT);
+    if (ret < 0 || (size_t)ret >= sizeof(portStr)) {
+        fprintf(stderr, "failed to format port %d\n", SERVER_PORT);
+        result = -1;
+        goto exit;
+    }
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_STREAM;
 
-    servAddr.sin_family = AF_INET;
-    servAddr.sin_port = htons(SERVER_PORT);
-
-    if (inet_pton(AF_INET, SERVER_IP, &servAddr.sin_addr) != 1) {
-        fprintf(stderr, "invalid address\n");
+    /* Resolve the server by name so the example keeps working as its IP changes. */
+    if (getaddrinfo(SERVER_NAME, portStr, &hints, &res) != 0) {
+        fprintf(stderr, "failed to resolve %s\n", SERVER_NAME);
         result = -1;
         goto exit;
     }
 
-    if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
-        fprintf(stderr, "failed to create socket\n");
-        result = -1;
-        goto exit;
+    for (ai = res; ai != NULL; ai = ai->ai_next) {
+        sockfd = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
+        if (sockfd == -1)
+            continue;
+        if (connect(sockfd, ai->ai_addr, ai->ai_addrlen) == 0)
+            break;
+        if (close(sockfd) != 0)
+            fprintf(stderr, "warning: failed to close socket\n");
+        sockfd = -1;
     }
+    freeaddrinfo(res);
 
-    if (connect(sockfd, (struct sockaddr*) &servAddr, sizeof(servAddr)) == -1) {
-        fprintf(stderr, "failed to connect socket\n");
+    if (sockfd == -1) {
+        fprintf(stderr, "failed to connect to %s:%d\n", SERVER_NAME, SERVER_PORT);
         result = -1;
         goto exit;
     }
