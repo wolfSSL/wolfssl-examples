@@ -13,6 +13,7 @@ on the EU market. The AR:
 - Receives correspondence from EU market surveillance authorities and ENISA on the manufacturer's behalf.
 - Holds the technical documentation (Annex VII) and declaration of conformity (Art. 28) for **10 years** post-placement, available to authorities on request.
 - Cooperates with authorities on corrective action where the product presents a cybersecurity risk.
+- **Determines the Art. 14 reporting end-point.** Because wolfSSL Inc. has no EU main establishment, Art. 14(7) uses the AR's Member State to fix the **CSIRT designated as coordinator** that wolfSSL Inc. files to via the Single Reporting Platform. Appointing the AR therefore also resolves *where* the 24-hour report is filed — see [`vulnerability-handling-process.md`](vulnerability-handling-process.md).
 
 The AR does **not** transfer manufacturer obligations — wolfSSL Inc. remains
 the manufacturer and bears the substantive obligations. The AR is a single

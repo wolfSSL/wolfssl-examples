@@ -52,7 +52,7 @@ flowchart LR
 | **PURL** | **Package URL** | Standard ID like `pkg:github/wolfSSL/wolfssl@v5.9.1` — helps tools match components. wolfSSL ships PURLs in both `github` (canonical, resolves in OSV / GHSA / Snyk / Trivy) and CPE forms. |
 | **CPE** | **Common Platform Enumeration** | Standard ID like `cpe:2.3:a:wolfssl:wolfssl:…` — used by many vulnerability databases. |
 | **VEX** | **Vulnerability Exploitability eXchange** | CycloneDX-side signal: “this CVE does/doesn’t apply to our build.” Often layered on top of SBOM in security tools. |
-| **CBOM** | **Cryptographic Bill of Materials** | Inventory of **crypto algorithms/keys/modules** (beyond generic SBOM). Today: `wolfssl:build:*` in CycloneDX; formal CBOM: see [`ROADMAP.md`](ROADMAP.md). |
+| **CBOM** | **Cryptographic Bill of Materials** | Inventory of **crypto algorithms/keys/modules** (beyond generic SBOM). Today: `wolfssl:build:*` in CycloneDX; formal CBOM: on the roadmap. |
 | **bomsh** | wolfSSL **make** target | Runs **OmniBOR** provenance: proves **how** the library binary was built from sources (**Linux host only**). |
 | **OmniBOR** | Omni **Bill of Resources** | Merkle DAG of build inputs/outputs; stored under `omnibor/`. |
 | **gitoid** | Git-object-style ID | Hash pointer (`gitoid:blob:sha1:…`) into the OmniBOR graph; appears in `omnibor.*.spdx.json`. |
@@ -82,8 +82,11 @@ that no SBOM tool can satisfy. **Not legal advice** — engage CRA counsel.
 | **Declaration of conformity** | Art. 28 | Manufacturer's signed statement of CRA compliance. Names the product, lists applicable EU acts, identifies the manufacturer (and EU AR if applicable). |
 | **Importer** | Art. 19 | EU entity placing a non-EU product on the EU market. Carries CRA obligations parallel to the manufacturer (verify CE mark, retain AR contact, assist regulators). |
 | **Distributor** | Art. 20 | Party in the supply chain making the product available on the EU market without altering it. Lighter obligations than importer/manufacturer, but must verify CE mark and assist regulators. |
-| **Support period** | Art. 13(2), 13(8) | Minimum duration during which the manufacturer must provide **free security updates**. Default: at least **5 years** (or the product's expected lifetime if longer). Must be declared in the technical documentation. |
-| **ENISA** | Art. 14 | EU Agency for Cybersecurity. Recipient of the **24-hour** early-warning report when a vulnerability in your product is **actively exploited**, plus 72-hour update and 14-day final report. |
+| **Support period** | Art. 13(2), 13(8) | Minimum duration during which the manufacturer must provide **free security updates**. Default: at least **5 years**, unless the product is expected to be in use for a shorter period (and longer where the expected lifetime is longer). Must be declared in the technical documentation. |
+| **ENISA** | Art. 14, 16 | EU Agency for Cybersecurity. Operates the **Single Reporting Platform (SRP)**; manufacturers file through it and reports reach the **coordinator CSIRT** with ENISA notified **simultaneously** — the **24-hour** early-warning when a vulnerability is **actively exploited**, plus 72-hour update and 14-day final report. |
+| **SRP** (Single Reporting Platform) | Art. 16 | ENISA-operated platform (live **11 Sep 2026**) where manufacturers file Art. 14 reports once; routes to the coordinator CSIRT + ENISA and on to affected Member States. |
+| **CSIRT** (designated as coordinator) | Art. 14(7) | National incident-response team that receives your Art. 14 report via the SRP and disseminates it. Determined by your EU main establishment — or, for non-EU manufacturers, your **Authorised Representative's** Member State. |
+| **EUVD** (European Vulnerability Database) | Art. 16(2) / NIS2 | ENISA's public database where **fixed** vulnerabilities reported via the SRP are published; makes disclosure timelines verifiable. |
 | **CNA** | (CVE programme) | **CVE Numbering Authority** — organisation authorised to assign CVE IDs within its scope. wolfSSL is a CNA for wolfSSL libraries. |
 
 For execution detail on these obligations, see [`CRA-Compliance-Shortlist.md`](CRA-Compliance-Shortlist.md) "Beyond this kit (structural CRA obligations)".

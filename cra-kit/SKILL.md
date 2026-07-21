@@ -94,7 +94,7 @@ Then run the SBOM execution checklist:
 - **CBOM** = partial today (`wolfssl:build:*`); do not claim full CycloneDX CBOM profile.
 - **VEX** = customer + scanner; wolfSSL provides advisories, not VEX files.
 - **bomsh** = optional provenance; not required for most CRA transparency asks.
-- **Vulnerability handling (Art. 13/14)** = customer publishes their own CVD policy + `security.txt`, runs on-call, files 24h ENISA reports for their product; wolfSSL provides reference templates and handles ENISA reporting only for libraries placed on the EU market by wolfSSL Inc.
+- **Vulnerability handling (Art. 13/14/16)** = customer publishes their own CVD policy + `security.txt`, runs on-call, files 24h reports via the **Single Reporting Platform** (to their coordinator CSIRT + ENISA) for their product; wolfSSL provides reference templates and handles reporting only for libraries placed on the EU market by wolfSSL Inc.
 - **Structural CRA (out of scope for this kit)** = EU Authorised Representative (Art. 18 — required if customer is outside the EU), Annex III/IV classification (determines self-cert vs Notified Body), conformity assessment + CE mark (Art. 32, 30), technical documentation (Annex VII), support-period commitment (Art. 13(8), 5+ years default). When a customer asks "are we ready?", surface these — SBOMs alone are not enough. Recommend engaging CRA counsel or consultant.
 
 ---
