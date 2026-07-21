@@ -163,9 +163,15 @@ AESEXTRA ?= 0
 ifeq ($(AESEXTRA),1)
   CFLAGS  += --define=WOLF_AES --define=WOLF_AESEXTRA
   WC_SRCS += \
-    $(WOLFROOT)/wolfcrypt/src/aes.c \
-    $(WOLFROOT)/wolfcrypt/src/cmac.c \
-    $(WOLFROOT)/wolfcrypt/src/wc_encrypt.c
+    $(WOLFROOT)/wolfcrypt/src/cmac.c
+  # aes.c and wc_encrypt.c are also pulled in by AES=1; add them here only when
+  # AES=1 did not, so they are not listed twice in the single cl2000 invocation
+  # (which would multiply-define their symbols at link).
+  ifneq ($(AES),1)
+    WC_SRCS += \
+      $(WOLFROOT)/wolfcrypt/src/aes.c \
+      $(WOLFROOT)/wolfcrypt/src/wc_encrypt.c
+  endif
 endif
 
 # RSA=1 adds RSA verify (SP math backend, shared with the ECC P-256 build).

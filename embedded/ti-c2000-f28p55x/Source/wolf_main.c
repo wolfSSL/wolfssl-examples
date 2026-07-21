@@ -133,9 +133,10 @@ static void c2000_sciInit(void)
 /* RAM capture buffer: every stdout byte is mirrored here so the host can read
  * program output back over JTAG (symbol g_log / g_logpos), independent of SCI
  * routing or CIO.  Lives in .bss (RAM); survives a warm reset.  The full ML-DSA
- * sign build needs the RAM for two key structs, so use a smaller capture
- * buffer there (the log only ever holds a few KB of text). */
-#ifdef WOLF_MLDSA_SIGN
+ * sign build and the ML-KEM-768 build need the RAM for their large key/poly
+ * state, so use a smaller capture buffer there (the log only ever holds a few
+ * KB of text). */
+#if defined(WOLF_MLDSA_SIGN) || defined(WOLF_MLKEM)
 volatile char         g_log[2048];
 #else
 volatile char         g_log[12288];
@@ -529,6 +530,12 @@ static void wolf_ecc_test(void)
     int     verified;
     int     ok;
     word32  i;
+
+    /* r and s are mp_clear()'d on every path below, including ones reached when
+     * an earlier init fails and their mp_init() was skipped; zero them first so
+     * that cleanup is safe. */
+    XMEMSET(&r, 0, sizeof(r));
+    XMEMSET(&s, 0, sizeof(s));
 
     /* 1. Deterministic verify KAT (no RNG; raw r/s -> no ASN/DER). */
     res = 0;
@@ -1207,7 +1214,7 @@ int main(void)
         static WC_RNG rng;
         byte sh[32], sig[64], ap[32], bp[32];
         word32 shLen = sizeof(sh), sigLen = sizeof(sig);
-        int r, vres = 0, ci;
+        int r, vres = 0, ci, rngOk;
 
         /* X25519: shared = X25519(a_priv, b_pub) == X25519(b_priv, a_pub) == K.
          * wolfSSL requires the scalar to be pre-clamped (RFC 7748 sec 5); the
@@ -1215,14 +1222,15 @@ int main(void)
          * same bits internally, so the shared secret still equals K).  The
          * default C build enables WOLFSSL_CURVE25519_BLINDING, so each private
          * key needs an RNG set (the result is unaffected). */
-        if (wc_InitRng(&rng) != 0)
+        rngOk = (wc_InitRng(&rng) == 0);
+        if (!rngOk)
             printf("X25519: RNG init FAIL\r\n");
         for (ci = 0; ci < 32; ci++) { ap[ci] = a_priv[ci]; bp[ci] = b_priv[ci]; }
         ap[0] &= 248; ap[31] &= 127; ap[31] |= 64;
         bp[0] &= 248; bp[31] &= 127; bp[31] |= 64;
         wc_curve25519_init(&ca);  wc_curve25519_init(&cpb);
         r = wc_curve25519_import_private_ex(ap, 32, &ca, EC25519_LITTLE_ENDIAN);
-        if (r == 0) r = wc_curve25519_set_rng(&ca, &rng);
+        if (r == 0 && rngOk) r = wc_curve25519_set_rng(&ca, &rng);
         if (r == 0) r = wc_curve25519_import_public_ex(b_pub, 32, &cpb,
                                                 EC25519_LITTLE_ENDIAN);
         if (r == 0) r = wc_curve25519_shared_secret_ex(&ca, &cpb, sh, &shLen,
@@ -1233,7 +1241,7 @@ int main(void)
         wc_curve25519_init(&cb);  wc_curve25519_init(&cpa);
         shLen = sizeof(sh);
         r = wc_curve25519_import_private_ex(bp, 32, &cb, EC25519_LITTLE_ENDIAN);
-        if (r == 0) r = wc_curve25519_set_rng(&cb, &rng);
+        if (r == 0 && rngOk) r = wc_curve25519_set_rng(&cb, &rng);
         if (r == 0) r = wc_curve25519_import_public_ex(a_pub, 32, &cpa,
                                                 EC25519_LITTLE_ENDIAN);
         if (r == 0) r = wc_curve25519_shared_secret_ex(&cb, &cpa, sh, &shLen,
@@ -1242,7 +1250,7 @@ int main(void)
             (r == 0 && shLen == 32 && XMEMCMP(sh, x_K, 32) == 0) ? "PASS":"FAIL");
         wc_curve25519_free(&ca); wc_curve25519_free(&cpb);
         wc_curve25519_free(&cb); wc_curve25519_free(&cpa);
-        wc_FreeRng(&rng);
+        if (rngOk) wc_FreeRng(&rng);
 
         /* Ed25519 RFC 8032 Test 1 (empty message): import (re-derives and
          * validates the public key on import), sign, compare to the RFC sig,
