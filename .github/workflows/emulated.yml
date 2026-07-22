@@ -14,6 +14,12 @@ on:
       - '.github/examples-manifest.yml'
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - 'tpm/**'
+      - 'SGX_Linux/**'
+      - 'can-bus/**'
+      - '.github/workflows/emulated.yml'
+      - '.github/examples-manifest.yml'
   # No cron: nightly.yml calls this, so the nightly stays one run and one triage writer
   workflow_call:
     inputs:

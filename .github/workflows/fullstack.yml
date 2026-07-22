@@ -7,6 +7,9 @@ on:
       - '.github/workflows/fullstack.yml'
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - 'fullstack/**'
+      - '.github/workflows/fullstack.yml'
   # No cron: nightly.yml calls this, so the nightly stays one run and one triage writer
   workflow_call:
     inputs:

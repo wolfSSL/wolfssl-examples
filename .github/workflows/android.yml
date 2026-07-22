@@ -7,6 +7,9 @@ on:
       - '.github/workflows/android.yml'
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - 'android/**'
+      - '.github/workflows/android.yml'
   # No cron: nightly.yml calls this, so the nightly stays one run and one triage writer
   workflow_call:
     inputs:
