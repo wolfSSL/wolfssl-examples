@@ -19,6 +19,7 @@ clean:
 check: SHELL := /bin/bash
 check: .SHELLFLAGS := -eo pipefail -c
 check: pkcs12-example pkcs12-create-example
-	./pkcs12-example | grep -q 'return value of parsing pkcs12 = 0 SUCCESS'
-	./pkcs12-create-example | grep -q 'Printing PKCS12 DER file to output.p12'
+	# capture first: grep -q closes the pipe on the long DER dump and pipefail then sees the binary's SIGPIPE
+	out=$$(./pkcs12-example 2>&1); grep -q 'return value of parsing pkcs12 = 0 SUCCESS' <<< "$$out"
+	out=$$(./pkcs12-create-example 2>&1); grep -q 'Printing PKCS12 DER file to output.p12' <<< "$$out"
 	@echo "PASS: crypto-pkcs12 checks"

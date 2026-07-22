@@ -38,5 +38,5 @@ clean:
 check: SHELL := /bin/bash
 check: .SHELLFLAGS := -eo pipefail -c
 check: verify
-	./verify | grep -q 'Verified'
+	./verify 2>&1 | grep -q 'Verified'
 	@echo "PASS: signature-rsa-buffer checks"

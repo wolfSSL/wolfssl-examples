@@ -27,5 +27,5 @@ check: SHELL := /bin/bash
 check: .SHELLFLAGS := -eo pipefail -c
 check: srp srp_gen
 	./srp wolfssl password | grep -q 'Client verified server proof'
-	./srp_gen wolfssl password | grep -q 'static const byte verifier['
+	./srp_gen wolfssl password | grep -qF 'static const byte verifier['
 	@echo "PASS: pk-srp checks"
