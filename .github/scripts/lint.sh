@@ -37,6 +37,13 @@ if command -v cppcheck >/dev/null 2>&1; then
         || echo "cppcheck: reported issues above (informational)"
 fi
 
+# codespell over the repo's own text. Informational: vendored SDKs and binary
+# assets are skipped, and common-word false positives should not fail the build.
+if command -v codespell >/dev/null 2>&1; then
+    codespell --skip='./.git,*/pico-sdk/*,*/mcux-sdk/*,*.der,*.pem,*.raw,*.enc' \
+        . || echo "codespell: reported issues above (informational)"
+fi
+
 # make -n parses every Makefile without building. Informational: a few dirs
 # (RT1060, riot, SGX, uefi) are driven by external SDKs whose fragments a bare
 # make cannot resolve, so a parse miss there is expected, not a defect.
