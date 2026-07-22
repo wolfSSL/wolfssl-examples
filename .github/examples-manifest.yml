@@ -1132,6 +1132,9 @@ examples:
     tier: emulated
     profile: all
     # emulated.yml runs it against wolfTPM's own fwTPM simulator on :2321
+    run:
+      - exec: [./evp_tpm]
+        expect: "Create/Load ECC Key: Handle"
 
 
   - id: sgx-linux
