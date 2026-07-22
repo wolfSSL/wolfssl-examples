@@ -12,7 +12,8 @@ DTLS client with HSM-backed cryptography. Private keys stay on the HSM.
 Quick start (from the `wolfssl-examples` repository root):
 ```bash
 cd hsm/dtls_client
-make download_repos all
+make download_repos
+make all
 # Then run each component in separate terminals (see README)
 ```
 

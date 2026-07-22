@@ -392,7 +392,7 @@ details.
 
 <br />
 
-#### HSM (Hardware Security Module)
+#### hsm (wolfHSM Examples)
 
 This directory contains examples demonstrating wolfSSL integration with wolfHSM,
 a portable Hardware Security Module framework.
@@ -402,7 +402,7 @@ Please see the [hsm/README.md](hsm/README.md) for further details.
 
 <br />
 
-#### UEFI (wolfCrypt UEFI application Example)
+#### uefi-static (wolfCrypt UEFI application Example)
 
 This directory contains an example UEFI application that runs wolfcrypt test.
 

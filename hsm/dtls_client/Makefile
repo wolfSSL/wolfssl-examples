@@ -36,7 +36,7 @@ INC = -I$(PROJECT_DIR) -I$(WOLFSSL_DIR) -I$(WOLFHSM_DIR) -I$(WOLFHSM_PORT_DIR)
 
 # Linker settings
 LDFLAGS = -Wl,--gc-sections
-LIBS = -lc -lm
+LIBS = -lm -lpthread
 
 # Source files (wolfCrypt, wolfSSL, wolfHSM, port, project)
 WOLFCRYPT_SRC := $(wildcard $(WOLFSSL_DIR)/wolfcrypt/src/*.c)
@@ -60,7 +60,7 @@ OBJS_C = $(addprefix $(BUILD_DIR)/, $(FILENAMES_C:.c=.o))
 vpath %.c $(dir $(SRC_C))
 
 # Phony targets
-.PHONY: all download_repos build_wolfssl build_wolfhsm_server build_app run_hsm_server run_dtls_server run_client clean clean_repos
+.PHONY: all download_repos check_repos build_wolfssl build_wolfhsm_server build_app run_hsm_server run_dtls_server run_client clean clean_repos
 
 # Default target
 all: check_repos build_wolfssl build_wolfhsm_server build_app
@@ -116,17 +116,17 @@ build_wolfhsm_server: check_repos
 	fi
 
 # Build DTLS client
-build_app: $(BUILD_DIR) $(BUILD_DIR)/$(BIN).elf
+build_app: $(BUILD_DIR)/$(BIN).elf
 	@echo "DTLS client built: $(BUILD_DIR)/$(BIN).elf"
 
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-$(BUILD_DIR)/%.o: %.c
+$(BUILD_DIR)/%.o: %.c | $(BUILD_DIR)
 	@echo "Compiling: $(notdir $<)"
 	$(CC) $(CFLAGS) $(DEF) $(INC) -c -o $@ $<
 
-$(BUILD_DIR)/$(BIN).elf: $(OBJS_C)
+$(BUILD_DIR)/$(BIN).elf: $(OBJS_C) | $(BUILD_DIR)
 	@echo "Linking: $(notdir $@)"
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 

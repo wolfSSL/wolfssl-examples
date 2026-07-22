@@ -1,24 +1,24 @@
-/*
- * Copyright (C) 2026 wolfSSL Inc.
+/* wh_dtls_client.c
  *
- * This file is part of wolfHSM.
+ * Copyright (C) 2006-2026 wolfSSL Inc.
  *
- * wolfHSM is free software; you can redistribute it and/or modify
+ * This file is part of wolfSSL. (formerly known as CyaSSL)
+ *
+ * wolfSSL is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or
+ * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
- * wolfHSM is distributed in the hope that it will be useful,
+ * wolfSSL is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with wolfHSM.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  */
 /*
- * wh_dtls_client.c
- *
  * wolfHSM DTLS Client Example
  *
  * This example demonstrates a DTLS client that uses wolfHSM as a cryptographic
@@ -72,7 +72,7 @@
 #include "wolfhsm/wh_client_cryptocb.h"
 
 /* posix headers */
-#include "wolfhsm/port/posix/posix_transport_tcp.h"
+#include "port/posix/posix_transport_tcp.h"
 
 /* Configuration constants (wolfHSM posix default port wh_posix_cfg.h) */
 #define HSM_POSIX_SERVER_TCP_PORT     23456
@@ -139,7 +139,7 @@ static int myEccSignCb(WOLFSSL* ssl, const unsigned char* in, unsigned int inSz,
                        const unsigned char* keyDer, unsigned int keySz,
                        void* ctx)
 {
-    DtlsHsmCtx* hsmCtx = (DtlsHsmCtx*)ctx;
+    DtlsHsmCtx* dtlsCtx = (DtlsHsmCtx*)ctx;
     ecc_key     eccKey[1];
     int         ret;
     uint16_t    sigLen;
@@ -164,7 +164,7 @@ static int myEccSignCb(WOLFSSL* ssl, const unsigned char* in, unsigned int inSz,
     }
 
     /* Associate the HSM key ID with this ecc_key structure */
-    ret = wh_Client_EccSetKeyId(eccKey, hsmCtx->clientKeyId);
+    ret = wh_Client_EccSetKeyId(eccKey, dtlsCtx->clientKeyId);
     if (ret != 0) {
         printf("  EccSignCb: wh_Client_EccSetKeyId failed: %d\n", ret);
         wc_ecc_free(eccKey);
@@ -173,8 +173,8 @@ static int myEccSignCb(WOLFSSL* ssl, const unsigned char* in, unsigned int inSz,
 
     /* Perform signing on HSM - private key never leaves the HSM */
     sigLen = (uint16_t)*outSz;
-    ret    = wh_Client_EccSign(hsmCtx->whClient, eccKey, in, (uint16_t)inSz, out,
-                               &sigLen);
+    ret    = wh_Client_EccSign(dtlsCtx->whClient, eccKey, in, (uint16_t)inSz,
+                               out, &sigLen);
     if (ret == 0) {
         *outSz = sigLen;
     }
@@ -240,7 +240,7 @@ int main(int argc, char** argv)
     memset(whConfig, 0, sizeof(whClientConfig));
     ret = InitWolfHSMPosixTcpConfig(whConfig);
     if (ret != 0) {
-        printf("ERROR: wh_PosixDtlsClient_TcpConfig failed with %d\n", ret);
+        printf("ERROR: InitWolfHSMPosixTcpConfig failed with %d\n", ret);
         return 1;
     }
 
