@@ -48,7 +48,10 @@ fi
 # (RT1060, riot, SGX, uefi) are driven by external SDKs whose fragments a bare
 # make cannot resolve, so a parse miss there is expected, not a defect.
 makefail=""
-for mk in $(find . -name Makefile -not -path './.git/*' -not -path '*/wolfssl/*' | sort); do
+# uefi-static/Makefile clones wolfSSL in a parse-time $(shell), so a bare make -n
+# there would pollute the tree; it is covered by the uefi.yml build instead.
+for mk in $(find . -name Makefile -not -path './.git/*' -not -path '*/wolfssl/*' \
+        -not -path './uefi-static/*' | sort); do
     d=$(dirname "$mk")
     make -n -C "$d" >/dev/null 2>&1 || makefail="$makefail $d"
 done
