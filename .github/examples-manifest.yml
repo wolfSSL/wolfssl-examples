@@ -383,25 +383,8 @@ examples:
   - id: ecc
     path: ecc
     profile: ecc
-    run:
-      - exec: [./ecc-key-decode]
-        expect: "Success"
-      - exec: [./ecc-params]
-        expect: "Gy: 32"
-      # the last of 10 rounds; a failure in any earlier one now exits non-zero
-      - exec: [./ecc-sign]
-        expect: "Firmware Signature 9: Ret 0"
-      - exec: [./ecc-stack]
-        expect: "stack used ="
-      - exec: [./ecc-verify]
-        expect: "hash_firmware_verify: 0"
-      - exec: [./ecc-verify-minimal]
-        expect: "wc_ecc_verify_hash: ret=0, is_valid_sig=1"
-      # must follow ecc-key-export, which writes the .der it reads
-      - exec: [./ecc-key-export]
-        expect: "ECC Public Key Exported to ./ECC_SECP256K1_pub.pem"
-      - exec: [./ecc-export-Qx-Qy, ECC_SECP256K1.der, qxqy.raw]
-        expect: "Exported Qx and Qy"
+    # asserts via ecc/Makefile's check target
+    mode: check
 
   - id: hash
     path: hash

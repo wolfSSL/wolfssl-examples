@@ -69,7 +69,7 @@ def validate(data):
             sys.exit(f"manifest: duplicate id '{e['id']}'")
         seen.add(e["id"])
         mode = e.get("mode", "run")
-        if mode not in ("run", "build-only", "skip"):
+        if mode not in ("run", "check", "build-only", "skip"):
             sys.exit(f"manifest: {e['id']}: bad mode '{mode}'")
         if mode == "skip" and not e.get("reason"):
             sys.exit(f"manifest: {e['id']}: mode 'skip' requires a 'reason'")
@@ -258,8 +258,9 @@ def cmd_check(data):
         if isinstance(s, dict) and "expect_fail" in s
     )
     print(
-        f"tested: {modes['run']} run, {modes['build-only']} build-only, "
-        f"{modes['skip']} skip -- {asserts} output assertions, {xfails} known-fail"
+        f"tested: {modes['run']} run, {modes['check']} make-check, "
+        f"{modes['build-only']} build-only, {modes['skip']} skip -- "
+        f"{asserts + modes['check']} output assertions, {xfails} known-fail"
     )
 
 

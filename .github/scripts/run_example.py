@@ -658,6 +658,27 @@ def run_entry(entry, expect_sha, results, wolfssl_ref):
         if binary.exists():
             assert_binary_links_ours(binary, expect_sha)
 
+    # mode: check delegates the run+assert to the example's own `make check`
+    # target, so the assertions live in the Makefile and are user-runnable.
+    if entry.get("mode") == "check":
+        try:
+            p = subprocess.run(["make", "check"], cwd=cwd, capture_output=True,
+                               text=True, env=env, timeout=600)
+            ok = p.returncode == 0
+            detail = "" if ok else f"make check rc={p.returncode}"
+            log = (p.stdout + p.stderr)[-4000:]
+        except subprocess.TimeoutExpired as e:
+            out = e.output or ""
+            if isinstance(out, bytes):
+                out = out.decode(errors="replace")
+            ok, detail, log = False, "make check timed out", out[-4000:]
+        results.append({
+            "id": eid, "target": "make check",
+            "status": "pass" if ok else "fail", "stage": "run",
+            "detail": detail, "log": log,
+        })
+        return ok
+
     all_ok = True
     for step in entry.get("run") or []:
         if "exec" in step and step.get("must_fail"):
