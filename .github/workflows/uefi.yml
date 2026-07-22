@@ -2,6 +2,7 @@ name: UEFI
 
 on:
   push:
+    branches: [master]
     paths:
       - 'uefi-static/**'
       - 'uefi-library/**'
@@ -45,6 +46,7 @@ jobs:
       fail-fast: false
       matrix:
         wolfssl_ref: ${{ fromJson(needs.resolve.outputs.refs_json) }}
+        example: [uefi-static, uefi-library]
         include:
           # uefi-static clones wolfSSL itself; `all` is wolfcrypt.efi
           - example: uefi-static
