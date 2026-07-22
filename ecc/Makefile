@@ -29,6 +29,8 @@ debug: CFLAGS+=$(DEBUG_FLAGS)
 debug: all
 
 # ecc-export-Qx-Qy reads the .der ecc-key-export writes, so keep that order
+check: SHELL := /bin/bash
+check: .SHELLFLAGS := -eo pipefail -c
 check: all
 	./ecc-key-decode     | grep -q "Success"
 	./ecc-params         | grep -q "Gy: 32"

@@ -35,6 +35,8 @@ debug: all
 clean:
 	rm -f $(TARGETS)
 
+check: SHELL := /bin/bash
+check: .SHELLFLAGS := -eo pipefail -c
 check: sha256-hash sha512-hash sha3-256-hash hash-file sha256-hash-string sha256-hash-oneshot-string sha3-256-hash-oneshot-string
 	./sha256-hash input.txt | grep -q '75294625788129796c09fcbf313ea16e2883356e322adc2f956b37dbdc10b6a7'
 	./sha512-hash input.txt | grep -q 'ead56209da2dfb3562263aadc57d9382f0f7cb579ebb6dbf2f20bfd3cb68aaaad422f6ce6f1a88ec6c326edcf8456f650579b6e20eb39f3bb444bee8b65615ed'

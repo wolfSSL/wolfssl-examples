@@ -17,6 +17,8 @@ clean:
 
 .PHONY: all clean check
 
+check: SHELL := /bin/bash
+check: .SHELLFLAGS := -eo pipefail -c
 check: aesgcm-rdseed
 	./aesgcm-rdseed | grep -q 'Decrypted'
 	@echo "PASS: crypto-aes-rdseed checks"

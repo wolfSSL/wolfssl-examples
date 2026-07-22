@@ -61,6 +61,8 @@ clean:
 	rm -f *.o certgen_example certgen_ca_example csr_example csr_w_ed25519_example csr_sign csr_cryptocb custom_ext custom_ext_callback
 	rm -f newCert.*
 
+check: SHELL := /bin/bash
+check: .SHELLFLAGS := -eo pipefail -c
 check: certgen_example certgen_ca_example csr_w_ed25519_example csr_example csr_sign csr_cryptocb custom_ext custom_ext_callback
 	./certgen_example | grep -q 'Tests passed'
 	./certgen_ca_example | grep -q 'Tests passed'

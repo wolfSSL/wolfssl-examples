@@ -12,6 +12,8 @@ app: main.o
 clean:
 	rm -f *.o app
 
+check: SHELL := /bin/bash
+check: .SHELLFLAGS := -eo pipefail -c
 check: app
 	./app ../../certs/client-cert.der RSA | grep -q 'CN = www.wolfssl.com (15)'
 	! ./app ../../certs/client-key.pem RSA >/dev/null 2>&1

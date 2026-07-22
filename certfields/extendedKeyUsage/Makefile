@@ -11,6 +11,8 @@ run: test.o
 clean:
 	rm -f *.o run
 
+check: SHELL := /bin/bash
+check: .SHELLFLAGS := -eo pipefail -c
 check: run
 	ASAN_OPTIONS=detect_leaks=0 ./run | grep -q 'extKeyUsage OID:'
 	@echo "PASS: certfields-extendedkeyusage checks"

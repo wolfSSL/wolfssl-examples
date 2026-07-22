@@ -16,6 +16,8 @@ all: $(TARGETS)
 clean:
 	rm -f $(TARGETS) *.der
 
+check: SHELL := /bin/bash
+check: .SHELLFLAGS := -eo pipefail -c
 check: ed448_keys ed448_pub ed448_sign ed448_verify
 	./ed448_keys | grep -q 'writing public key to ed448-pubkey.der (57 bytes)'
 	./ed448_pub | grep -q 'Public Key: 57'

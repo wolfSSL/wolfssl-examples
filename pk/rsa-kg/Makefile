@@ -22,6 +22,8 @@ rsa-kg: rsa-kg.o
 clean:
 	rm -f *.o rsa-kg-sv rsa-kg
 
+check: SHELL := /bin/bash
+check: .SHELLFLAGS := -eo pipefail -c
 check: rsa-kg-sv rsa-kg
 	./rsa-kg-sv -load-key >/dev/null
 	./rsa-kg -bits 2048 | grep -q 'writing public key to ./rsa-private.der'

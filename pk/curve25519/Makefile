@@ -11,6 +11,8 @@ curve25519_test: curve25519_test.o
 clean:
 	rm -f *.o curve25519_test
 
+check: SHELL := /bin/bash
+check: .SHELLFLAGS := -eo pipefail -c
 check: curve25519_test
 	./curve25519_test | grep -q 'Curve25519 test success'
 	@echo "PASS: pk-curve25519 checks"

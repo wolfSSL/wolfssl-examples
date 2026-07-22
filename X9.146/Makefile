@@ -56,6 +56,8 @@ clean:
 	rm -f *.der
 	rm -f *.pem
 
+check: SHELL := /bin/bash
+check: .SHELLFLAGS := -eo pipefail -c
 check: gen_rsa_mldsa_dual_keysig_root_cert gen_rsa_mldsa_dual_keysig_server_cert
 	./gen_rsa_mldsa_dual_keysig_root_cert | grep -q 'SUCCESS!'
 	./gen_rsa_mldsa_dual_keysig_server_cert | grep -q 'SUCCESS!'

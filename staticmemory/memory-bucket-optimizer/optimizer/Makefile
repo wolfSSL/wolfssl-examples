@@ -33,6 +33,10 @@ clean:
 
 .PHONY: all clean check
 
+check: SHELL := /bin/bash
+check: .SHELLFLAGS := -eo pipefail -c
 check: memory_bucket_optimizer
+	$(MAKE) -C ../.. >/dev/null
+	../../debug-callback-example > mem.log 2>&1
 	./memory_bucket_optimizer mem.log | grep -q 'Optimization Summary:'
 	@echo "PASS: staticmemory-bucket-optimizer checks"

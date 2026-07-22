@@ -12,6 +12,8 @@ app: main.o
 clean:
 	rm -f *.o app
 
+check: SHELL := /bin/bash
+check: .SHELLFLAGS := -eo pipefail -c
 check: app
 	./app | grep -q '3082010A0282010100C303D12BFE39A432'
 	@echo "PASS: certfields-extract-pubkey checks"

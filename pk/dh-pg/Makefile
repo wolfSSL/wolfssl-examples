@@ -16,6 +16,8 @@ dh-pg-ka: dh-pg-ka.o
 clean:
 	rm -f *.o dh-pg-ka
 
+check: SHELL := /bin/bash
+check: .SHELLFLAGS := -eo pipefail -c
 check: dh-pg-ka
 	./dh-pg-ka -ffdhe >/dev/null
 	@echo "PASS: pk-dh-pg checks"

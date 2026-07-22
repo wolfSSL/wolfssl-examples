@@ -23,6 +23,8 @@ srp_gen: srp_gen.o
 clean:
 	rm -f *.der *.x963 *.o srp srp_gen
 
+check: SHELL := /bin/bash
+check: .SHELLFLAGS := -eo pipefail -c
 check: srp srp_gen
 	./srp wolfssl password | grep -q 'Client verified server proof'
 	./srp_gen wolfssl password | grep -q 'static const byte verifier['

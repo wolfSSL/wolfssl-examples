@@ -13,6 +13,8 @@ certverify: certverify.o
 clean:
 	rm -f *.o certverify
 
+check: SHELL := /bin/bash
+check: .SHELLFLAGS := -eo pipefail -c
 check: certverify
 	./certverify | grep -q 'Verified certificate'
 	@echo "PASS: certstore checks"

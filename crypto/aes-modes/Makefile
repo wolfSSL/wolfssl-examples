@@ -66,6 +66,8 @@ aes-cts: aes-cts.o
 clean:
 	rm -f *.o $(EXAMPLES) temp_*.bin
 
+check: SHELL := /bin/bash
+check: .SHELLFLAGS := -eo pipefail -c
 check: aes-cbc aes-cfb aes-cfb1 aes-cfb8 aes-ofb aes-ecb aes-ctr aes-direct aes-gcm aes-gmac aes-ccm aes-keywrap aes-xts aes-siv aes-eax aes-cts
 	./aes-cbc in.txt out-cbc.bin | grep -q 'Success!'
 	./aes-cfb in.txt out-cfb.bin | grep -q 'Success!'

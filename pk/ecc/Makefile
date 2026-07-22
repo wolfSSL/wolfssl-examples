@@ -16,6 +16,8 @@ all: $(TARGETS)
 clean:
 	rm -f $(TARGETS) *.der *.x963 
 
+check: SHELL := /bin/bash
+check: .SHELLFLAGS := -eo pipefail -c
 check: ecc_keys ecc_pub ecc_sign ecc_sign_deterministic ecc_verify
 	./ecc_keys | grep -q 'storing public key into ecc-public.x963 (65 bytes)'
 	./ecc_pub | grep -q 'Public Key Qy: 32'

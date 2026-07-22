@@ -17,6 +17,8 @@ ml_dsa_test: ml_dsa.c
 clean:
 	rm -f *.o ml_dsa_test
 
+check: SHELL := /bin/bash
+check: .SHELLFLAGS := -eo pipefail -c
 check: ml_dsa_test
 	./ml_dsa_test -c 2 | grep -q 'info: verify message good'
 	./ml_dsa_test -c 3 | grep -q 'info: verify message good'

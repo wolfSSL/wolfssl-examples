@@ -17,6 +17,8 @@ ecc_sign_verify:ecc_sign_verify.o
 clean:
 	rm -f *.o ecc_sign_verify
 
+check: SHELL := /bin/bash
+check: .SHELLFLAGS := -eo pipefail -c
 check: ecc_sign_verify
 	./ecc_sign_verify | grep -q 'Successfully verified signature w/ ecc key size 521!'
 	@echo "PASS: signature-ecc-sign-verify checks"

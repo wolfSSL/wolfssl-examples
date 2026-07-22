@@ -17,6 +17,8 @@ ml_kem: ml_kem.c
 clean:
 	rm -f *.o ml_kem
 
+check: SHELL := /bin/bash
+check: .SHELLFLAGS := -eo pipefail -c
 check: ml_kem
 	./ml_kem | grep -q 'Shared secrets match'
 	@echo "PASS: pq-ml-kem checks"

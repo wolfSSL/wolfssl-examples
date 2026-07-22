@@ -59,6 +59,8 @@ clean:
         authEnvelopedDataKEKRI.der compressedData.der \
         smime-created.p7s
 
+check: SHELL := /bin/bash
+check: .SHELLFLAGS := -eo pipefail -c
 check: signedData-stream
 	./signedData-stream content.txt | grep -q 'bytes from file'
 	@echo "PASS: pkcs7-signeddata-stream checks"

@@ -35,6 +35,8 @@ debug: all
 clean:
 	rm -f $(TARGETS)
 
+check: SHELL := /bin/bash
+check: .SHELLFLAGS := -eo pipefail -c
 check: verify
 	./verify | grep -q 'Verified'
 	@echo "PASS: signature-rsa-buffer checks"

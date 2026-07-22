@@ -16,6 +16,8 @@ all: $(TARGETS)
 clean:
 	rm -f $(TARGETS) encryptedAesKey
 
+check: SHELL := /bin/bash
+check: .SHELLFLAGS := -eo pipefail -c
 check: rsa-private-encrypt-app rsa-public-decrypt-app
 	./rsa-private-encrypt-app >/dev/null
 	./rsa-public-decrypt-app | grep -q 'Thisismyfakeaeskeythatis32bytes!'

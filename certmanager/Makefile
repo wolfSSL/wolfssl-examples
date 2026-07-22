@@ -17,6 +17,8 @@ certverify_ocsp: certverify_ocsp.o
 clean:
 	rm -f *.o certverify certloadverifybuffer certverify_ocsp
 
+check: SHELL := /bin/bash
+check: .SHELLFLAGS := -eo pipefail -c
 check: certverify certloadverifybuffer
 	./certverify | grep -q 'CRL Verification Successful!'
 	./certloadverifybuffer | grep -q 'Verification successful on cert2!'
