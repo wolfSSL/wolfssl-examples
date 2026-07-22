@@ -63,10 +63,14 @@ sss_status_t ex_sss_entry(ex_sss_boot_ctx_t *pCtx)
     LOG_I("Ran setconfig successfully");
 
     wolfSSL_Init();
-    wolfcrypt_test(NULL);
+    ret = wolfcrypt_test(NULL);
     wolfSSL_Cleanup();
 
-    LOG_I("Ran wolfCrypt test");
+    if (ret != 0) {
+        LOG_E("wolfCrypt test failed (%d)", ret);
+        return kStatus_SSS_Fail;
+    }
+    LOG_I("Ran wolfCrypt test successfully");
     return status;
 }
 

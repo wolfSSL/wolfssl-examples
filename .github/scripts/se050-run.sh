@@ -89,10 +89,13 @@ echo "::group::run wolfcrypt_test against SE050Sim"
 simpid=$!
 sleep 2
 export SE050_SIM_HOST=127.0.0.1 SE050_SIM_PORT=8050 LD_LIBRARY_PATH=/usr/local/lib
-out=$("$WORK/wolfcrypt_test" 2>&1) || true
+rc=0
+out=$("$WORK/wolfcrypt_test" 2>&1) || rc=$?
 kill "$simpid" 2>/dev/null || true
 printf '%s\n' "$out" | tail -40
-printf '%s' "$out" | grep -qiE "Ran wolfCrypt test|Test complete|error test passed" \
-  || { echo "FAIL: se050 wolfcrypt_test did not report success"; exit 1; }
+# the demo now returns the test result and only prints this on a clean pass
+if [ "$rc" -ne 0 ] || ! printf '%s' "$out" | grep -q "Ran wolfCrypt test successfully"; then
+  echo "FAIL: se050 wolfcrypt_test did not pass (rc=$rc)"; exit 1
+fi
 echo "PASS: se050 wolfcrypt_test ran against SE050Sim"
 echo "::endgroup::"
