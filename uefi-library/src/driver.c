@@ -420,12 +420,15 @@ WRAP_FUNC(int, wc_MlDsaKey_Init, (wc_MlDsaKey* key, void* heap, int devId),
 WRAP_VOID(wc_MlDsaKey_Free, (wc_MlDsaKey* key), (key))
 WRAP_FUNC(int, wc_MlDsaKey_SetParams, (wc_MlDsaKey* key, byte level), (key, level))
 WRAP_FUNC(int, wc_MlDsaKey_MakeKey, (wc_MlDsaKey* key, WC_RNG* rng), (key, rng))
-WRAP_FUNC(int, wc_MlDsaKey_Sign, (wc_MlDsaKey* key, byte* sig, word32* sigLen,
-          const byte* msg, word32 msgLen, WC_RNG* rng),
-          (key, sig, sigLen, msg, msgLen, rng))
-WRAP_FUNC(int, wc_MlDsaKey_Verify, (wc_MlDsaKey* key, const byte* sig, word32 sigLen,
-          const byte* msg, word32 msgLen, int* res),
-          (key, sig, sigLen, msg, msgLen, res))
+/* no-ctx Sign/Verify need WOLFSSL_MLDSA_NO_CTX; the *Ctx path with empty context always exists */
+static int EFI_API_TAG wc_MlDsaKey_Sign_EfiAPI(wc_MlDsaKey* key, byte* sig,
+          word32* sigLen, const byte* msg, word32 msgLen, WC_RNG* rng) {
+    return wc_MlDsaKey_SignCtx(key, NULL, 0, sig, sigLen, msg, msgLen, rng);
+}
+static int EFI_API_TAG wc_MlDsaKey_Verify_EfiAPI(wc_MlDsaKey* key, const byte* sig,
+          word32 sigLen, const byte* msg, word32 msgLen, int* res) {
+    return wc_MlDsaKey_VerifyCtx(key, sig, sigLen, NULL, 0, msg, msgLen, res);
+}
 WRAP_FUNC(int, wc_MlDsaKey_ExportKey, (wc_MlDsaKey* key, byte* priv, word32* privSz,
           byte* pub, word32* pubSz), (key, priv, privSz, pub, pubSz))
 WRAP_FUNC(int, wc_MlDsaKey_ImportKey, (wc_MlDsaKey* key, const byte* priv, word32 privSz,
