@@ -113,12 +113,12 @@ jobs:
         run: |
           python3 .github/scripts/run_example.py --only tpm --no-netns \
             --expect-sha '${{ steps.wolfssl.outputs.sha256 }}' \
-            --results results-tpm-${{ matrix.simulator }}.json
+            --results results-tpm-${{ matrix.simulator }}-${{ matrix.wolfssl_ref }}.json
 
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: results-tpm-${{ matrix.simulator }}-attempt${{ github.run_attempt }}
+          name: results-tpm-${{ matrix.simulator }}-${{ matrix.wolfssl_ref }}-attempt${{ github.run_attempt }}
           path: results-*.json
           retention-days: 5
           if-no-files-found: ignore
