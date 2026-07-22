@@ -21,7 +21,7 @@ LIBS+=$(DYN_LIB)
 SRC=$(wildcard *.c)
 TARGETS=$(patsubst %.c, %, $(SRC))
 
-.PHONY: clean all
+.PHONY: clean all check
 
 all: $(TARGETS)
 
@@ -34,3 +34,7 @@ debug: all
 
 clean:
 	rm -f $(TARGETS)
+
+check: verify
+	./verify >/dev/null
+	@echo "PASS: signature-rsa-vfy-only checks"

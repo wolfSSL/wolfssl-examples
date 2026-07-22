@@ -19,7 +19,7 @@ OPTIMIZE        = -Os
 SRC=$(wildcard *.c)
 TARGETS=$(patsubst %.c, %, $(SRC))
 
-.PHONY: clean all
+.PHONY: clean all check
 
 all: $(TARGETS)
 
@@ -39,3 +39,8 @@ clean:
 	rm -f $(TARGETS)
 	rm -f lms_example.key
 	rm -f xmss_example.key
+
+check: lms_example xmss_example
+	./lms_example 1 5 1 | grep -q 'finished'
+	./xmss_example XMSS-SHA2_10_256 10 | grep -q 'finished'
+	@echo "PASS: pq-stateful-hash-sig checks"

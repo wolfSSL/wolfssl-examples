@@ -6,7 +6,11 @@ LIBS= -L$(WOLFSSL_INSTALL_DIR)/lib -lwolfssl
 curve25519_test: curve25519_test.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
-.PHONY: clean
+.PHONY: clean check
 
 clean:
 	rm -f *.o curve25519_test
+
+check: curve25519_test
+	./curve25519_test | grep -q 'Curve25519 test success'
+	@echo "PASS: pk-curve25519 checks"

@@ -21,7 +21,7 @@ LIBS+=$(DYN_LIB)
 SRC=$(wildcard *.c)
 TARGETS=$(patsubst %.c, %, $(SRC))
 
-.PHONY: clean all
+.PHONY: clean all check
 
 all: $(TARGETS)
 
@@ -34,3 +34,7 @@ debug: all
 
 clean:
 	rm -f $(TARGETS)
+
+check: verify
+	./verify | grep -q 'Verified'
+	@echo "PASS: signature-rsa-buffer checks"

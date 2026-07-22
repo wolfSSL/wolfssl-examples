@@ -12,7 +12,11 @@ all: ml_kem
 ml_kem: ml_kem.c
 	$(CC) -o $@ $^ $(WOLFSSL_CFLAGS) $(WOLFSSL_LIBS) $(DEBUG_FLAGS)
 
-.PHONY: clean all
+.PHONY: clean all check
 
 clean:
 	rm -f *.o ml_kem
+
+check: ml_kem
+	./ml_kem | grep -q 'Shared secrets match'
+	@echo "PASS: pq-ml-kem checks"

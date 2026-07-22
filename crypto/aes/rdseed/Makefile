@@ -15,4 +15,8 @@ aesgcm-rdseed: aesgcm-rdseed.o
 clean:
 	rm -f *.o aesgcm-rdseed
 
-.PHONY: all clean
+.PHONY: all clean check
+
+check: aesgcm-rdseed
+	./aesgcm-rdseed | grep -q 'Decrypted'
+	@echo "PASS: crypto-aes-rdseed checks"

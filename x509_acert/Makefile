@@ -25,7 +25,12 @@ wolfssl_acert: test_x509_acert.c
 openssl_acert: test_x509_acert.c
 	$(CC) -o $@ $^ $(OPENSSL_CFLAGS) $(OPENSSL_LIBS)
 
-.PHONY: clean all
+.PHONY: clean all check
 
 clean:
 	rm -f *.o wolfssl_acert openssl_acert
+
+check: wolfssl_acert
+	./wolfssl_acert -f certs/acert.pem -k certs/acert_pubkey.pem | grep -q 'info: acert_do_test: good'
+	./wolfssl_acert -f certs/acert_ietf.pem -k certs/acert_ietf_pubkey.pem | grep -q 'info: acert_do_test: good'
+	@echo "PASS: x509-acert checks"

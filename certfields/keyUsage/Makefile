@@ -6,7 +6,11 @@ LIBS= -L$(WOLFSSL_INSTALL_DIR)/lib -lwolfssl
 run: test.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
-.PHONY: clean
+.PHONY: clean check
 
 clean:
 	rm -f *.o run
+
+check: run
+	./run | grep -q 'cert can be used for'
+	@echo "PASS: certfields-keyusage checks"

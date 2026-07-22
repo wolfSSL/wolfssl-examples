@@ -31,4 +31,8 @@ memory_bucket_optimizer: memory_bucket_optimizer.c
 clean:
 	rm -f memory_bucket_optimizer
 
-.PHONY: all clean
+.PHONY: all clean check
+
+check: memory_bucket_optimizer
+	./memory_bucket_optimizer mem.log | grep -q 'Optimization Summary:'
+	@echo "PASS: staticmemory-bucket-optimizer checks"

@@ -26,7 +26,13 @@ aesgcm-minimal: aesgcm-minimal.o
 aesgcm-file-minimal: aesgcm-file-minimal.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
-.PHONY: clean
+.PHONY: clean check
 
 clean:
 	rm -f *.o aes-file-encrypt aescfb-file-encrypt aesctr-file-encrypt aesgcm-file-encrypt aesgcm-file-minimal text* aesgcm-oneshot aesgcm-minimal
+
+check: aesgcm-minimal aesgcm-oneshot aesgcm-file-encrypt
+	./aesgcm-minimal | grep -q 'Decrypted: 73696e676c6520626c6f636b206d736700'
+	./aesgcm-oneshot | grep -q 'Decrypted: 090909090909090909090909090909090909090909090909090909090909090909'
+	./aesgcm-file-encrypt -t 256 | grep -q 'Pass: The files are identical.'
+	@echo "PASS: crypto-aes checks"

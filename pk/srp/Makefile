@@ -18,7 +18,12 @@ srp: srp.o
 srp_gen: srp_gen.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
-.PHONY: clean
+.PHONY: clean check
 
 clean:
 	rm -f *.der *.x963 *.o srp srp_gen
+
+check: srp srp_gen
+	./srp wolfssl password | grep -q 'Client verified server proof'
+	./srp_gen wolfssl password | grep -q 'static const byte verifier['
+	@echo "PASS: pk-srp checks"

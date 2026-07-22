@@ -6,7 +6,11 @@ LIBS=-L$(WOLFSSL_INSTALL_DIR)/lib -lwolfssl
 ascon-file-encrypt: ascon-file-encrypt.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
-.PHONY: clean
+.PHONY: clean check
 
 clean:
 	rm -f *.o ascon-file-encrypt
+
+check: ascon-file-encrypt
+	printf 'ciphertestpw\n' | script -qec './ascon-file-encrypt -e -i in.txt -o out.enc' /dev/null | grep -q 'Success: Ascon encrypt complete'
+	@echo "PASS: crypto-ascon checks"

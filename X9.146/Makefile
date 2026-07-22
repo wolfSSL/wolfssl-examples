@@ -48,10 +48,15 @@ gen_ecdsa_mldsa_dual_keysig_root_cert: gen_ecdsa_mldsa_dual_keysig_cert.c
 gen_ecdsa_mldsa_dual_keysig_server_cert: gen_ecdsa_mldsa_dual_keysig_cert.c
 	$(CC) -o $@ gen_ecdsa_mldsa_dual_keysig_cert.c $(CFLAGS) $(CPPFLAGS) $(LIBS) -DGEN_SERVER_CERT
 
-.PHONY: clean all
+.PHONY: clean all check
 
 clean:
 	rm -f gen_*_root_cert
 	rm -f gen_*_server_cert
 	rm -f *.der
 	rm -f *.pem
+
+check: gen_rsa_mldsa_dual_keysig_root_cert gen_rsa_mldsa_dual_keysig_server_cert
+	./gen_rsa_mldsa_dual_keysig_root_cert | grep -q 'SUCCESS!'
+	./gen_rsa_mldsa_dual_keysig_server_cert | grep -q 'SUCCESS!'
+	@echo "PASS: x9146 checks"

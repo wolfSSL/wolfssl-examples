@@ -27,7 +27,7 @@ LIBS = -L$(WOLFSSL_INSTALL_DIR)/lib -lwolfssl
 TARGET = memory_bucket_tester
 SOURCE = memory_bucket_tester.c
 
-.PHONY: all clean test
+.PHONY: all clean test check
 
 all: $(TARGET)
 
@@ -37,3 +37,7 @@ $(TARGET): $(SOURCE)
 clean:
 	rm -f $(TARGET)
 
+
+check: memory_bucket_tester
+	./memory_bucket_tester mem-sample.log --buckets 64,128,256 --dist 1,1,1 --buffer-size 8192 | grep -q 'TEST PASSED: All allocations succeeded'
+	@echo "PASS: staticmemory-bucket-tester checks"

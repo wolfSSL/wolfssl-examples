@@ -17,7 +17,12 @@ rsa-kg.o: rsa-kg.c
 rsa-kg: rsa-kg.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
-.PHONY: clean
+.PHONY: clean check
 
 clean:
 	rm -f *.o rsa-kg-sv rsa-kg
+
+check: rsa-kg-sv rsa-kg
+	./rsa-kg-sv -load-key >/dev/null
+	./rsa-kg -bits 2048 | grep -q 'writing public key to ./rsa-private.der'
+	@echo "PASS: pk-rsa-kg checks"

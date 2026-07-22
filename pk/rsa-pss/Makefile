@@ -21,7 +21,7 @@ LIBS+=$(DYN_LIB)
 SRC=$(wildcard *.c)
 TARGETS=$(patsubst %.c, %, $(SRC))
 
-.PHONY: clean all
+.PHONY: clean all check
 
 all: $(TARGETS)
 
@@ -34,3 +34,8 @@ debug: all
 
 clean:
 	rm -f $(TARGETS)
+
+check: rsa-pss
+	./rsa-pss -s sign.bin | grep -q 'Writing to file: sign.bin'
+	./rsa-pss -v sign.bin | grep -q 'RSA PSS verify success'
+	@echo "PASS: pk-rsa-pss checks"

@@ -12,7 +12,11 @@ ecc_sign_verify:CFLAGS+=$(WOLFSSL_FLAGS)
 ecc_sign_verify:ecc_sign_verify.o
 	$(CC) -o $@ $^ $(LIBS) $(WOLFSSL_LIB) $(CFLAGS)
 
-.PHONY: clean all
+.PHONY: clean all check
 
 clean:
 	rm -f *.o ecc_sign_verify
+
+check: ecc_sign_verify
+	./ecc_sign_verify | grep -q 'Successfully verified signature w/ ecc key size 521!'
+	@echo "PASS: signature-ecc-sign-verify checks"

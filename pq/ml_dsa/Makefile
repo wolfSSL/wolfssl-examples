@@ -12,7 +12,14 @@ all: ml_dsa_test
 ml_dsa_test: ml_dsa.c
 	$(CC) -o $@ $^ $(WOLFSSL_CFLAGS) $(WOLFSSL_LIBS) $(DEBUG_FLAGS)
 
-.PHONY: clean all
+.PHONY: clean all check
 
 clean:
 	rm -f *.o ml_dsa_test
+
+check: ml_dsa_test
+	./ml_dsa_test -c 2 | grep -q 'info: verify message good'
+	./ml_dsa_test -c 3 | grep -q 'info: verify message good'
+	./ml_dsa_test -c 5 -m wolfssl-examples CI | grep -q 'info: verify message good'
+	./ml_dsa_test -p | grep -q 'ML-DSA-87'
+	@echo "PASS: pq-ml-dsa checks"

@@ -11,7 +11,11 @@ dh-pg-ka.o: dh-pg-ka.c dh-params.h
 dh-pg-ka: dh-pg-ka.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS) 
 
-.PHONY: clean
+.PHONY: clean check
 
 clean:
 	rm -f *.o dh-pg-ka
+
+check: dh-pg-ka
+	./dh-pg-ka -ffdhe >/dev/null
+	@echo "PASS: pk-dh-pg checks"

@@ -30,7 +30,7 @@ endif
 SRC=$(wildcard *.c)
 TARGETS=$(patsubst %.c, %, $(SRC))
 
-.PHONY: clean all
+.PHONY: clean all check
 
 all: $(TARGETS)
 
@@ -58,3 +58,7 @@ clean:
         authEnvelopedDataORI.der authEnvelopedDataPWRI.der encryptedData.der \
         authEnvelopedDataKEKRI.der compressedData.der \
         smime-created.p7s
+
+check: signedData-stream
+	./signedData-stream content.txt | grep -q 'bytes from file'
+	@echo "PASS: pkcs7-signeddata-stream checks"

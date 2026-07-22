@@ -9,7 +9,11 @@ all: keywrap
 keywrap: keywrap.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
-.PHONY: clean all
+.PHONY: clean all check
 
 clean:
 	rm -f *.o keywrap
+
+check: keywrap
+	./keywrap | grep -q 'Decrypted Random Key: '
+	@echo "PASS: crypto-keywrap checks"

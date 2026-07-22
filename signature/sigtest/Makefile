@@ -30,7 +30,12 @@ eccsiglentest:CFLAGS+=$(WOLFSSL_FLAGS)
 eccsiglentest:eccsiglentest.o
 	$(CC) -o $@ $(LIBS) $^ $(CFLAGS) $(WOLFSSL_LIB)
 
-.PHONY: clean all
+.PHONY: clean all check
 
 clean:
 	rm -f *.o wolfsigtest opensigtest eccsiglentest
+
+check: wolfsigtest opensigtest
+	./wolfsigtest | grep -q 'Signatures match!'
+	./opensigtest | grep -q 'CRYPTO: EXPECTED signature verify OK! 1'
+	@echo "PASS: signature-sigtest checks"

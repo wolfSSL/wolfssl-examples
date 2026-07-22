@@ -11,7 +11,15 @@ all: $(TARGETS)
 %: %.c
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
-.PHONY: clean
+.PHONY: clean check
 
 clean:
 	rm -f $(TARGETS) *.der *.x963 
+
+check: ecc_keys ecc_pub ecc_sign ecc_sign_deterministic ecc_verify
+	./ecc_keys | grep -q 'storing public key into ecc-public.x963 (65 bytes)'
+	./ecc_pub | grep -q 'Public Key Qy: 32'
+	./ecc_sign | grep -q 'Success'
+	./ecc_sign_deterministic | grep -q 'Success'
+	./ecc_verify | grep -q 'Success'
+	@echo "PASS: pk-ecc checks"

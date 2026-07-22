@@ -12,7 +12,13 @@ certsigvfy: certsigvfy.o
 sigvfycert: sigvfycert.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
-.PHONY: clean
+.PHONY: clean check
 
 clean:
 	rm -f *.o certvfy certsigvfy sigvfycert
+
+check: certvfy certsigvfy sigvfycert
+	./certvfy | grep -q 'Verification Successful!'
+	./certsigvfy | grep -q 'Verification Successful!'
+	./sigvfycert | grep -q 'Verification Successful!'
+	@echo "PASS: certvfy checks"

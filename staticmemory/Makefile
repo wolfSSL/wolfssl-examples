@@ -23,7 +23,7 @@ LIBS+=$(DYN_LIB)
 SRC=$(wildcard *.c)
 TARGETS=$(patsubst %.c, %, $(SRC))
 
-.PHONY: clean all
+.PHONY: clean all check
 
 all: $(TARGETS)
 
@@ -36,3 +36,8 @@ debug: all
 
 clean:
 	rm -f $(TARGETS)
+
+check: size-calculation debug-callback-example
+	./size-calculation | grep -q 'Checking out bucket 4 size of 25...ok'
+	./debug-callback-example | grep -q 'bucket size used was'
+	@echo "PASS: staticmemory checks"
