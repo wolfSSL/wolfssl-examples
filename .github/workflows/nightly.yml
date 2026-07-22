@@ -133,6 +133,12 @@ jobs:
     with:
       caller_run_id: ${{ github.run_id }}
 
+  hsm:
+    needs: [refs]
+    uses: ./.github/workflows/hsm.yml
+    with:
+      caller_run_id: ${{ github.run_id }}
+
   device-sims:
     needs: [refs]
     uses: ./.github/workflows/device-sims.yml

@@ -1645,6 +1645,14 @@ examples:
     mode: skip
     reason: "shared helper (btle-sim.c) linked by btle/ecies and btle/tls; not an example"
 
+  - id: hsm-dtls-client
+    path: hsm/dtls_client
+    mode: skip
+    reason: >-
+      Built and run end-to-end by the dedicated hsm.yml job (wolfHSM posix server +
+      wolfSSL DTLS server + this client, asserting the HSM-backed handshake);
+      master-only since wolfHSM tracks wolfSSL master
+
   # arduino.yml does NOT cover these: it copies compile-all-examples.sh into
   # $ARDUINO_ROOT/wolfssl/examples and runs it there, compiling the examples that
   # ship inside the installed Arduino wolfSSL library, not this repo's sketches.
