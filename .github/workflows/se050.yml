@@ -2,6 +2,7 @@ name: SE050 sim
 
 on:
   push:
+    branches: [master]
     paths:
       - 'SE050/**'
       - '.github/workflows/se050.yml'

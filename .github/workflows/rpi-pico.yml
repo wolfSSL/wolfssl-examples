@@ -2,6 +2,7 @@ name: RPi-Pico
 
 on:
   push:
+    branches: [master]
     paths:
       - 'RPi-Pico/**'
       - '.github/workflows/rpi-pico.yml'

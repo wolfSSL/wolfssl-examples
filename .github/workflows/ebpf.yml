@@ -2,6 +2,7 @@ name: ebpf
 
 on:
   push:
+    branches: [master]
     paths:
       - 'ebpf/**'
       - '.github/workflows/ebpf.yml'

@@ -2,6 +2,7 @@ name: PSA
 
 on:
   push:
+    branches: [master]
     paths:
       - 'psa/**'
       - '.github/workflows/psa.yml'

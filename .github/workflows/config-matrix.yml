@@ -2,6 +2,7 @@ name: Config Matrix
 
 on:
   push:
+    branches: [master]
     paths:
       - '**/*.c'
       - '**/*.h'

@@ -2,6 +2,7 @@ name: RT1060
 
 on:
   push:
+    branches: [master]
     paths:
       - 'RT1060/**'
       - '.github/workflows/rt1060.yml'

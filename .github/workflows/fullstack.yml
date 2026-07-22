@@ -2,6 +2,7 @@ name: Fullstack
 
 on:
   push:
+    branches: [master]
     paths:
       - 'fullstack/**'
       - '.github/workflows/fullstack.yml'

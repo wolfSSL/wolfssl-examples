@@ -2,6 +2,7 @@ name: PUF
 
 on:
   push:
+    branches: [master]
     paths:
       - 'puf/**'
       - '.github/workflows/puf.yml'

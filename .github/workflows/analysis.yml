@@ -4,6 +4,7 @@ on:
   # ASan+UBSan gates every PR (fast, verified). valgrind is heavier and
   # leak-noise prone, so the nightly (workflow_call) runs it -- see setup job.
   push:
+    branches: [master]
     paths:
       - '**/*.c'
       - '**/*.h'

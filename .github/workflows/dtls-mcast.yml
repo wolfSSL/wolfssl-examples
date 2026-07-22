@@ -2,6 +2,7 @@ name: DTLS multicast
 
 on:
   push:
+    branches: [master]
     paths:
       - 'dtls-mcast/**'
       - '.github/workflows/dtls-mcast.yml'

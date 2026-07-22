@@ -2,6 +2,7 @@ name: Java
 
 on:
   push:
+    branches: [master]
     paths:
       - 'java/**'
       - '.github/workflows/java.yml'

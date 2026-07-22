@@ -2,6 +2,7 @@ name: Cert Expiry
 
 on:
   push:
+    branches: [master]
     paths:
       - 'certs/**'
       - '.github/workflows/cert-expiry.yml'

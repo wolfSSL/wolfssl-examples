@@ -2,6 +2,7 @@ name: ESP32
 
 on:
   push:
+    branches: [master]
     paths:
       - 'ESP32/**'
       - '.github/workflows/esp32.yml'

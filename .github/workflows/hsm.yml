@@ -2,6 +2,7 @@ name: HSM
 
 on:
   push:
+    branches: [master]
     paths:
       - 'hsm/**'
       - '.github/workflows/hsm.yml'

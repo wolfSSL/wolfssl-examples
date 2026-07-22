@@ -2,6 +2,7 @@ name: BSDKM
 
 on:
   push:
+    branches: [master]
     paths:
       - 'kernel/bsdkm/**'
       - '.github/workflows/bsdkm.yml'

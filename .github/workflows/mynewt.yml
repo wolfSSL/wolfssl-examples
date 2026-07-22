@@ -2,6 +2,7 @@ name: Mynewt
 
 on:
   push:
+    branches: [master]
     paths:
       - 'mynewt/**'
       - '.github/workflows/mynewt.yml'

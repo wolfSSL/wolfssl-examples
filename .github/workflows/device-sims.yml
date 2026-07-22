@@ -2,6 +2,7 @@ name: Device sims
 
 on:
   push:
+    branches: [master]
     paths:
       - '.github/workflows/device-sims.yml'
   pull_request:

@@ -2,6 +2,7 @@ name: CSharp
 
 on:
   push:
+    branches: [master]
     paths:
       - 'CSharp/**'
       - '.github/workflows/csharp.yml'

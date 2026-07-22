@@ -2,6 +2,7 @@ name: Cross-arch
 
 on:
   push:
+    branches: [master]
     paths:
       - '**/*.c'
       - '**/*.h'
