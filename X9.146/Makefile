@@ -59,6 +59,8 @@ clean:
 check: SHELL := /bin/bash
 check: .SHELLFLAGS := -eo pipefail -c
 check: gen_rsa_mldsa_dual_keysig_root_cert gen_rsa_mldsa_dual_keysig_server_cert
+	openssl genpkey -algorithm rsa -pkeyopt rsa_keygen_bits:3072 -out ca-key.der -outform der
+	openssl genpkey -algorithm rsa -pkeyopt rsa_keygen_bits:3072 -out server-key.der -outform der
 	./gen_rsa_mldsa_dual_keysig_root_cert | grep -q 'SUCCESS!'
 	./gen_rsa_mldsa_dual_keysig_server_cert | grep -q 'SUCCESS!'
 	@echo "PASS: x9146 checks"

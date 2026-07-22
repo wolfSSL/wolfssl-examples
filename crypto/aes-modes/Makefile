@@ -69,6 +69,7 @@ clean:
 check: SHELL := /bin/bash
 check: .SHELLFLAGS := -eo pipefail -c
 check: aes-cbc aes-cfb aes-cfb1 aes-cfb8 aes-ofb aes-ecb aes-ctr aes-direct aes-gcm aes-gmac aes-ccm aes-keywrap aes-xts aes-siv aes-eax aes-cts
+	printf 'wolfssl-examples aes-modes CI input\n' > in.txt
 	./aes-cbc in.txt out-cbc.bin | grep -q 'Success!'
 	./aes-cfb in.txt out-cfb.bin | grep -q 'Success!'
 	./aes-cfb1 in.txt out-cfb1.bin | grep -q 'Success!'

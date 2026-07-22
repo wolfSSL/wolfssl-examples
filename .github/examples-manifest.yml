@@ -290,95 +290,48 @@ examples:
   - id: certgen
     path: certgen
     profile: certgen
-    run:
-      - exec: [./certgen_example]
-        expect: "Tests passed"
-      - exec: [./certgen_ca_example]
-        expect: "Tests passed"
-      # the end marker: proves a whole PEM CSR was emitted, not a truncated one
-      - exec: [./csr_w_ed25519_example]
-        expect: "-----END CERTIFICATE REQUEST-----"
-      - exec: [./csr_example, ecc]
-        expect: "Saved PEM to \"ecc-csr.pem\""
-      # csr_sign consumes ecc-csr.pem from csr_example
-      - exec: [./csr_sign, ecc-csr.pem, ca-ecc-cert.der, ca-ecc-key.der]
-        expect: "Tests passed"
-      - exec: [./csr_cryptocb, ecc]
-        expect: "Saved CSR PEM to \"ecc-csr.pem\""
-      # custom_ext must be the LAST writer of newCert.der before the callback
-      # reads it -- certgen_example and csr_sign also write that filename.
-      - exec: [./custom_ext]
-        expect: "Tests passed"
-      - exec: [./custom_ext_callback, newCert.der]
-        expect: "Success"
+    mode: check
 
   - id: certmanager
     path: certmanager
     profile: crl
-    run:
-      - exec: [./certverify]
-        expect: "CRL Verification Successful!"
-      - exec: [./certloadverifybuffer]
-        expect: "Verification successful on cert2!"
+    mode: check
     # certverify_ocsp is not run: it needs the wolfssl source tree as a sibling
     # and a manually launched openssl responder on :22221.
 
   - id: certstore
     path: certstore
     profile: opensslextra
-    run:
-      - exec: [./certverify]
-        expect: "Verified certificate"
+    mode: check
 
   - id: certvfy
     path: certvfy
     profile: certvfy
-    run:
-      - exec: [./certvfy]
-        expect: "Verification Successful!"
-      - exec: [./certsigvfy]
-        expect: "Verification Successful!"
-      - exec: [./sigvfycert]
-        expect: "Verification Successful!"
+    mode: check
 
   - id: certfields-all-fields
     path: certfields/all-fields
     profile: opensslextra
-    run:
-      # cert must be DER; keyType is RSA or ECC. CN proves the subject parsed.
-      - exec: [./app, ../../certs/client-cert.der, RSA]
-        expect: "CN = www.wolfssl.com (15)"
-      # negative: a PEM key is not a DER cert, so d2i must reject it, not accept it
-      - exec: [./app, ../../certs/client-key.pem, RSA]
-        must_fail: true
-        expect: "Failed to convert DER to WOLFSSL_X509"
+    mode: check
 
   - id: certfields-keyusage
     path: certfields/keyUsage
     profile: opensslextra
-    run:
-      # the binary is named `run`, not `test`
-      - exec: [./run]
-        expect: "cert can be used for"
+    mode: check
 
   - id: certfields-extendedkeyusage
     path: certfields/extendedKeyUsage
     profile: opensslextra
+    mode: check
     env:
       # this Makefile bakes in -fsanitize=address; leak reports against a shared
       # libwolfssl would fail the run without this
       ASAN_OPTIONS: "detect_leaks=0"
-    run:
-      - exec: [./run]
-        expect: "extKeyUsage OID:"
 
   - id: certfields-extract-pubkey
     path: certfields/extract-pubkey-from-certfile
     profile: opensslextra
-    run:
-      # known-answer: the RSA public key DER of client-cert.der
-      - exec: [./app]
-        expect: "3082010A0282010100C303D12BFE39A432"
+    mode: check
 
   - id: ecc
     path: ecc
@@ -389,25 +342,10 @@ examples:
   - id: hash
     path: hash
     profile: crypto
+    mode: check
     # Known-answer tests: every digest below was cross-checked against shasum and
     # openssl dgst, so these assert the algorithm is right, not just that it ran.
     # input.txt is tracked -- if it changes on purpose, recompute these.
-    run:
-      - exec: [./sha256-hash, input.txt]
-        expect: "75294625788129796c09fcbf313ea16e2883356e322adc2f956b37dbdc10b6a7"
-      - exec: [./sha512-hash, input.txt]
-        expect: "ead56209da2dfb3562263aadc57d9382f0f7cb579ebb6dbf2f20bfd3cb68aaaad422f6ce6f1a88ec6c326edcf8456f650579b6e20eb39f3bb444bee8b65615ed"
-      - exec: [./sha3-256-hash, input.txt]
-        expect: "0704c6ca55e7e5c706b543f07da1daed8149c838549096df6a52dac5f95f2fe0"
-      - exec: [./hash-file, SHA256, input.txt]
-        expect: "75294625788129796c09fcbf313ea16e2883356e322adc2f956b37dbdc10b6a7"
-      # sha256 and sha3-256 of the literal "String to hash"
-      - exec: [./sha256-hash-string]
-        expect: "d4476d30fd94c746eb38d8a1b3931aa81d1e485be5a6362f47598017a91cb5d2"
-      - exec: [./sha256-hash-oneshot-string]
-        expect: "d4476d30fd94c746eb38d8a1b3931aa81d1e485be5a6362f47598017a91cb5d2"
-      - exec: [./sha3-256-hash-oneshot-string]
-        expect: "10d69e59ac10b1d81755733f323bdadca3e04e4b17df72f5b343d6da701a4225"
 
   - id: embedded
     path: embedded
@@ -437,235 +375,102 @@ examples:
   - id: crypto-3des
     path: crypto/3des
     profile: crypto
-    setup:
-      - [sh, -c, "printf '3des ci input\\n' > in.txt"]
-    run:
-      # NoEcho() calls tcsetattr(fileno(stdin)), which returns ENOTTY on a pipe
-      # and makes main return -1060. `script -qec` gives it a real PTY.
-      - exec: [sh, -c, "printf 'ciphertestpw\\n' | script -qec './3des-file-encrypt -e 168 -i in.txt -o out.enc' /dev/null"]
-        expect: "Success: 3DES encrypt complete"
+    mode: check
 
   - id: crypto-aes
     path: crypto/aes
     profile: crypto
-    run:
-      # known answer: hex of "single block msg"
-      - exec: [./aesgcm-minimal]
-        expect: "Decrypted: 73696e676c6520626c6f636b206d736700"
-      - exec: [./aesgcm-oneshot]
-        expect: "Decrypted: 090909090909090909090909090909090909090909090909090909090909090909"
-      # -t encrypts a random file, decrypts it and diffs the two
-      - exec: [./aesgcm-file-encrypt, -t, "256"]
-        expect: "Pass: The files are identical."
+    mode: check
     # aes/aescfb/aesctr-file-encrypt share crypto/3des's tcsetattr blocker and
     # are deliberately absent from run:.
 
   - id: crypto-aes-modes
     path: crypto/aes-modes
     profile: crypto
-    setup:
-      - [sh, -c, "printf 'wolfssl-examples aes-modes CI input\\n' > in.txt"]
+    mode: check
     # Every one prints "<MODE> not compiled in" and returns 0 when its feature is
     # off, so exit code alone cannot tell a round-trip from a no-op. "Success!"
     # is the last line before return and only the round-trip reaches it.
-    run:
-      - exec: [./aes-cbc, in.txt, out-cbc.bin]
-        expect: "Success!"
-      - exec: [./aes-cfb, in.txt, out-cfb.bin]
-        expect: "Success!"
-      - exec: [./aes-cfb1, in.txt, out-cfb1.bin]
-        expect: "Success!"
-      - exec: [./aes-cfb8, in.txt, out-cfb8.bin]
-        expect: "Success!"
-      - exec: [./aes-ofb, in.txt, out-ofb.bin]
-        expect: "Success!"
-      - exec: [./aes-ecb, in.txt, out-ecb.bin]
-        expect: "Success!"
-      - exec: [./aes-ctr, in.txt, out-ctr.bin]
-        expect: "Success!"
-      - exec: [./aes-direct, in.txt, out-direct.bin]
-        expect: "Success!"
-      - exec: [./aes-gcm, in.txt, out-gcm.bin]
-        expect: "Success!"
-      - exec: [./aes-gmac, in.txt, out-gmac.bin]
-        expect: "Success!"
-      - exec: [./aes-ccm, in.txt, out-ccm.bin]
-        expect: "Success!"
-      - exec: [./aes-keywrap, in.txt, out-keywrap.bin]
-        expect: "Success!"
-      - exec: [./aes-xts, in.txt, out-xts.bin]
-        expect: "Success!"
-      - exec: [./aes-siv, in.txt, out-siv.bin]
-        expect: "Success!"
-      - exec: [./aes-eax, in.txt, out-eax.bin]
-        expect: "Success!"
-      - exec: [./aes-cts, in.txt, out-cts.bin]
-        expect: "Success!"
 
   - id: crypto-aes-rdseed
     path: crypto/aes/rdseed
     profile: crypto
-    run:
-      # Deliberately unguarded. rdseed64() is bare inline asm with no CPUID probe,
-      # so a CPU without RDSEED SIGILLs rather than failing cleanly -- and a
-      # `grep /proc/cpuinfo || exit 0` guard would turn "never tested here" into a
-      # green tick, which is worse than a loud crash. Hosted runners are Xeon or
-      # EPYC and have had RDSEED since Broadwell/Zen.
-      - exec: [./aesgcm-rdseed]
-        # the last line it prints, and only reached once the GCM round-trip
-        # compared equal
-        expect: "Decrypted"
+    mode: check
 
   - id: crypto-ascon
     path: crypto/ascon
     profile: crypto
-    setup:
-      - [sh, -c, "printf 'ascon ci input\\n' > in.txt"]
-    run:
-      # same tcsetattr prompt as crypto/3des; `script -qec` supplies a PTY.
-      - exec: [sh, -c, "printf 'ciphertestpw\\n' | script -qec './ascon-file-encrypt -e -i in.txt -o out.enc' /dev/null"]
-        expect: "Success: Ascon encrypt complete"
+    mode: check
 
   - id: crypto-camellia
     path: crypto/camellia
     profile: crypto
-    setup:
-      - [sh, -c, "printf 'camellia ci input\\n' > in.txt"]
-    run:
-      # same tcsetattr prompt as crypto/3des; `script -qec` supplies a PTY.
-      - exec: [sh, -c, "printf 'ciphertestpw\\n' | script -qec './camellia-encrypt -e 128 -i in.txt -o out.enc' /dev/null"]
-        expect: "Success: Camellia encrypt complete"
+    mode: check
 
   - id: crypto-keywrap
     path: crypto/keywrap
     profile: crypto
-    run:
-      # only printed once wc_AesGcmDecrypt's auth tag verified the unwrap
-      - exec: [./keywrap]
-        expect: "Decrypted Random Key: "
+    mode: check
 
   - id: crypto-pkcs12
     path: crypto/pkcs12
     profile: crypto
-    run:
-      - exec: [./pkcs12-example]
-        expect: "return value of parsing pkcs12 = 0 SUCCESS"
-      - exec: [./pkcs12-create-example]
-        expect: "Printing PKCS12 DER file to output.p12"
+    mode: check
 
   - id: signature
     path: signature
     profile: default
-    run:
-      - exec: [./signature, Makefile]
-        expect: "ECC Signature Verification: Pass (0)"
+    mode: check
 
   - id: signature-ecc-sign-verify
     path: signature/ecc-sign-verify
     profile: default
-    run:
-      # the last curve it sweeps, so this only prints if every earlier one passed
-      - exec: [./ecc_sign_verify]
-        timeout: 120
-        # fresh keygen + ECDSA (random k) every run; repeat to surface a flaky nonce
-        repeat: 3
-        expect: "Successfully verified signature w/ ecc key size 521!"
+    mode: check
 
   - id: signature-rsa-buffer
     path: signature/rsa_buffer
     profile: default
-    run:
-      # signature.h is committed, so verify works against it directly. Running
-      # ./sign would rewrite signature.h and require a rebuild of verify.
-      - exec: [./verify]
-        expect: "Verified"
+    mode: check
 
   - id: signature-sigtest
     path: signature/sigtest
     profile: certgen
+    mode: check
     deps: [libssl-dev]
-    run:
-      - exec: [./wolfsigtest]
-        expect: "Signatures match!"
-      - exec: [./opensigtest]
-        expect: "CRYPTO: EXPECTED signature verify OK! 1"
     # eccsiglentest is not run: 1000 loops across ~26 curves takes minutes.
 
   - id: staticmemory
     path: staticmemory
     profile: staticmemory
-    run:
-      # size-calculation.c has a hard #error without --enable-staticmemory, which
-      # the `all` profile supplies.
-      # last bucket ...ok; bucket sizes are hardcoded so this string is stable
-      - exec: [./size-calculation]
-        expect: "Checking out bucket 4 size of 25...ok"
-      # "bucket size used was" only prints when the debug callback is compiled in
-      - exec: [./debug-callback-example]
-        expect: "bucket size used was"
+    mode: check
 
   - id: staticmemory-bucket-optimizer
     path: staticmemory/memory-bucket-optimizer/optimizer
     profile: staticmemory
-    setup:
-      # Generate the log from the sibling example rather than testwolfcrypt: the
-      # parser only wants "Alloc:"/"Free:" lines, which the profile's
-      # DEBUG_MEMORY_PRINT makes any wolfSSL program emit.
-      - [sh, -c, "make -C ../.. >/dev/null && ../../debug-callback-example > mem.log 2>&1"]
-      - [sh, -c, "grep -q 'Alloc:' mem.log"]
-    run:
-      # Summary only prints after the whole log parsed and buckets were computed.
-      - exec: [./memory_bucket_optimizer, mem.log]
-        expect: "Optimization Summary:"
+    mode: check
 
   - id: staticmemory-bucket-tester
     path: staticmemory/memory-bucket-optimizer/tester
     profile: staticmemory-nomalloc
-    setup:
-      # a small synthetic log keeps the run self-contained: the tester's usual log
-      # source allocates, so it cannot be built in this no-malloc job.
-      - [sh, -c, "printf 'Alloc: 0x1000 -> 64 at t:1\\nAlloc: 0x2000 -> 128 at t:2\\nFree: 0x1000 -> 64 at t:3\\nAlloc: 0x3000 -> 256 at t:4\\nFree: 0x2000 -> 128 at t:5\\nFree: 0x3000 -> 256 at t:6\\n' > mem-sample.log"]
-    run:
-      # replays the log's allocations against the static buckets; PASSED means
-      # every one fit with no heap fallback.
-      - exec: [./memory_bucket_tester, mem-sample.log, --buckets, "64,128,256", --dist, "1,1,1", --buffer-size, "8192"]
-        expect: "TEST PASSED: All allocations succeeded"
+    mode: check
 
   - id: x509-acert
     path: x509_acert
     profile: acert
+    mode: check
     deps: [libssl-dev]
     # `make` also builds openssl_acert, which needs openssl/x509_acert.h -- that
     # is OpenSSL 3.4+, and ubuntu-24.04 ships 3.0.
     build: [make, wolfssl_acert]
-    run:
-      # README says acerts/ -- the real dir is certs/
-      - exec: [./wolfssl_acert, -f, certs/acert.pem, -k, certs/acert_pubkey.pem]
-        expect: "info: acert_do_test: good"
-      - exec: [./wolfssl_acert, -f, certs/acert_ietf.pem, -k, certs/acert_ietf_pubkey.pem]
-        expect: "info: acert_do_test: good"
     # openssl_acert is not run: X509_ACERT is not in distro OpenSSL.
 
   - id: x9146
     path: X9.146
     profile: x9146
+    mode: check
     deps: [openssl]
     # ca-key.der / server-key.der are not committed, so the generators fopen()
     # NULL on a fresh clone. The README documents this openssl step.
-    setup:
-      - [sh, -c, "openssl genpkey -algorithm rsa -pkeyopt rsa_keygen_bits:3072 -out ca-key.der -outform der"]
-      - [sh, -c, "openssl genpkey -algorithm rsa -pkeyopt rsa_keygen_bits:3072 -out server-key.der -outform der"]
-    run:
-      # root before server: the server generator reads ./ca-cert-pq.der that the
-      # root one writes. The rsa and ecdsa families collide on that filename, so
-      # only one family runs here.
-      # SUCCESS! prints only after ret=0; the byte count varies with ML-DSA sig
-      - exec: [./gen_rsa_mldsa_dual_keysig_root_cert]
-        timeout: 120
-        expect: "SUCCESS!"
-      - exec: [./gen_rsa_mldsa_dual_keysig_server_cert]
-        timeout: 120
-        expect: "SUCCESS!"
 
   - id: tls-options
     path: tls-options
@@ -780,41 +585,17 @@ examples:
   - id: pq-ml-dsa
     path: pq/ml_dsa
     profile: pq
-    run:
-      # args are mandatory: a bare run prints usage and exits FAILURE
-      - exec: [./ml_dsa_test, -c, "2"]
-        expect: "info: verify message good"
-      - exec: [./ml_dsa_test, -c, "3"]
-        expect: "info: verify message good"
-      - exec: [./ml_dsa_test, -c, "5", -m, "wolfssl-examples CI"]
-        expect: "info: verify message good"
-      # -p only prints the FIPS 204 parameter tables
-      - exec: [./ml_dsa_test, -p]
-        expect: "ML-DSA-87"
+    mode: check
 
   - id: pq-ml-kem
     path: pq/ml_kem
     profile: pq
-    run:
-      # asserts the KEM contract itself: both sides derived the same secret
-      - exec: [./ml_kem]
-        # randomized keygen/encaps every run; repeat to surface an intermittent miss
-        repeat: 5
-        expect: "Shared secrets match"
+    mode: check
 
   - id: pq-stateful-hash-sig
     path: pq/stateful_hash_sig
     profile: pq
-    run:
-      # Params pinned to the smallest viable set: LMS/XMSS keygen cost is
-      # exponential in levels*height, and height>=15 runs for minutes.
-      # a failed verify goto's past this print, so it means every round verified
-      - exec: [./lms_example, "1", "5", "1"]
-        timeout: 180
-        expect: "finished"
-      - exec: [./xmss_example, XMSS-SHA2_10_256, "10"]
-        timeout: 180
-        expect: "finished"
+    mode: check
 
   - id: ocsp-nonblock
     path: ocsp/ocsp_nonblock
@@ -825,12 +606,7 @@ examples:
   - id: ocsp-responder
     path: ocsp/responder
     profile: ocsp
-    run:
-      # ocsp-request-response builds a request, signs a response and verifies it
-      # in-process -- no responder, no network. Every error path gotos cleanup and
-      # skips this line, so it only prints when all seven steps succeeded.
-      - exec: [./ocsp-request-response]
-        expect: "=== Example complete ==="
+    mode: check
     # ocsp-responder-http serves OCSP over HTTP and needs a client driving it; that
     # is the N-process recipe ocsp-stapling also waits on.
 
@@ -935,139 +711,55 @@ examples:
   - id: pk-curve25519
     path: pk/curve25519
     profile: pk
-    run:
-      - exec: [./curve25519_test]
-        expect: "Curve25519 test success"
+    mode: check
   - id: pk-dh-pg
     path: pk/dh-pg
     profile: pk
-    run:
-      # -ffdhe uses predefined groups; a bare run GENERATES DH params and takes
-      # minutes. No expect:: output is C test-vector arrays with no unique
-      # success line; it returns nonzero on any key-agreement mismatch.
-      - exec: [./dh-pg-ka, -ffdhe]
-        timeout: 180
+    mode: check
   - id: pk-ecc
     path: pk/ecc
     profile: pk
-    run:
-      - exec: [./ecc_keys]
-        expect: "storing public key into ecc-public.x963 (65 bytes)"
-      # the key is random per run, so assert the exported sizes, not the bytes
-      - exec: [./ecc_pub]
-        expect: "Public Key Qy: 32"
-      # these print Success only after verify_res came back 1
-      - exec: [./ecc_sign]
-        expect: "Success"
-      - exec: [./ecc_sign_deterministic]
-        expect: "Success"
-      - exec: [./ecc_verify]
-        expect: "Success"
+    mode: check
   - id: pk-ecdh-generate-secret
     path: pk/ecdh_generate_secret
     profile: pk
-    run:
-      # argv[1] is required: without it the example prompts on stdin via getchar.
-      # each asserts both sides derived the same secret (1=ecc, 2=25519, 3=448).
-      # repeat: fresh keygen every run, so a flaky agreement would not hide.
-      - exec: [./ecdh_gen_secret, "1"]
-        repeat: 5
-        expect: "Successfully generated a common secret"
-      - exec: [./ecdh_gen_secret, "2"]
-        repeat: 5
-        expect: "Successfully generated a common 25519 secret"
-      - exec: [./ecdh_gen_secret, "3"]
-        repeat: 5
-        expect: "Successfully generated a common 448 secret"
+    mode: check
   - id: pk-ed25519
     path: pk/ed25519
     profile: pk
-    run:
-      - exec: [./ed25519_keys]
-        expect: "writing public key to ed25519-pubkey.der (32 bytes)"
-      - exec: [./ed25519_pub]
-        expect: "Public Key: 32"
-      - exec: [./ed25519_sign]
-        expect: "Success"
-      - exec: [./ed25519_verify]
-        expect: "Success"
+    mode: check
   - id: pk-ed25519-gen
     path: pk/ed25519_gen
     profile: pk
-    run:
-      # sign_and_verify uses the committed test_keys.h. gen_key_files is not run:
-      # it overwrites committed .der files and dirties the worktree.
-      - exec: [./sign_and_verify]
-        expect: "Successfully validated signature"
+    mode: check
   - id: pk-ed448
     path: pk/ed448
     profile: pk
-    run:
-      - exec: [./ed448_keys]
-        expect: "writing public key to ed448-pubkey.der (57 bytes)"
-      - exec: [./ed448_pub]
-        expect: "Public Key: 57"
-      - exec: [./ed448_sign]
-        expect: "Success"
-      - exec: [./ed448_verify]
-        expect: "Success"
+    mode: check
   - id: pk-enc-through-sign-rsa
     path: pk/enc-through-sign-rsa
     profile: pk
-    run:
-      # silent producer; the decrypt below asserting the known plaintext proves it
-      - exec: [./rsa-private-encrypt-app]
-      # reads ./encryptedAesKey (hardcoded, no argv) written by the app above
-      - exec: [./rsa-public-decrypt-app]
-        expect: "Thisismyfakeaeskeythatis32bytes!"
+    mode: check
   - id: pk-hpke
     path: pk/hpke
     profile: pk
-    run:
-      - exec: [./hpke_test]
-        expect: "HPKE test success"
+    mode: check
   - id: pk-rsa-kg
     path: pk/rsa-kg
     profile: pk
-    run:
-      # -load-key uses the committed rsa-key.h; without it this generates RSA
-      # keys and can run for minutes. No expect:: output is C test-vector arrays
-      # with no unique success line; it returns nonzero on any sign/verify miss.
-      - exec: [./rsa-kg-sv, -load-key]
-      - exec: [./rsa-kg, -bits, "2048"]
-        timeout: 180
-        expect: "writing public key to ./rsa-private.der"
+    mode: check
   - id: pk-rsa-pss
     path: pk/rsa-pss
     profile: pk
-    run:
-      - exec: [./rsa-pss, -s, sign.bin]
-        expect: "Writing to file: sign.bin"
-      # reads ./rsa-public.der + sign.bin written by -s
-      - exec: [./rsa-pss, -v, sign.bin]
-        expect: "RSA PSS verify success"
+    mode: check
   - id: pk-srp
     path: pk/srp
     profile: pk
-    run:
-      # srp_store.h is committed, so this works without regenerating it
-      - exec: [./srp, wolfssl, password]
-        expect: "Client verified server proof"
-      # code generator: emitting the verifier array is its whole job. The length
-      # varies (79/80) with the bignum's leading byte, so match the decl only.
-      - exec: [./srp_gen, wolfssl, password]
-        expect: "static const byte verifier["
+    mode: check
   - id: pk-test-cert-keypair
     path: pk/test_cert_and_private_keypair
     profile: pk
-    run:
-      # key first, then cert
-      - exec: [./test-cert-privkey-pair, ../../certs/client-key.pem, ../../certs/client-cert.pem]
-        expect: "Congratulations, this private key and cert"
-      # negative: a cert is not a private key, so the key load must fail
-      - exec: [./test-cert-privkey-pair, ../../certs/client-cert.pem, ../../certs/client-cert.pem]
-        must_fail: true
-        expect: "Failed to load PRIVATE KEY"
+    mode: check
 
   # ------------------------------------------------- host: own shard (heavy)
   - id: tls
@@ -1404,9 +1096,7 @@ examples:
   - id: pk-rsa
     path: pk/rsa
     profile: fastmath
-    run:
-      - exec: [./rsa-nb]
-        expect: "RSA non-block verify:"
+    mode: check
 
   - id: signature-rsa-vfy-only
     path: signature/rsa_vfy_only
@@ -1416,10 +1106,7 @@ examples:
     # that verify.c's mp_read_unsigned_bin() needs, and --enable-all would defeat
     # the point of a minimum-footprint demo anyway.
     profile: cryptonly
-    run:
-      # No expect: verify.c prints nothing at all -- `return ret == 0 ? 0 : 1` is
-      # its entire result, so the exit code IS the assertion here.
-      - exec: [./verify]
+    mode: check
 
   # -------------------------------------------------------------- emulated
   # csharp.yml compiles the wrapper's .cs with mcs and plays the client against
