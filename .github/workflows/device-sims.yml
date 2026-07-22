@@ -26,6 +26,7 @@ permissions:
 jobs:
   sim:
     name: ${{ matrix.sim }} wolfcrypt
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false

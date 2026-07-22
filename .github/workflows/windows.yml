@@ -28,6 +28,7 @@ permissions:
 jobs:
   windows:
     name: cmake hash (MSVC)
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     runs-on: windows-latest
     timeout-minutes: 30
     defaults:

@@ -40,6 +40,7 @@ jobs:
   tpm:
     needs: resolve
     name: Run / tpm (${{ matrix.simulator }}) wolfSSL ${{ matrix.wolfssl_ref }}
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     strategy:
@@ -119,6 +120,7 @@ jobs:
   sgx:
     needs: resolve
     name: Run / SGX_Linux (SGX_MODE=SIM) wolfSSL ${{ matrix.wolfssl_ref }}
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     runs-on: ubuntu-24.04
     timeout-minutes: 40
     strategy:
@@ -174,6 +176,7 @@ jobs:
   can-bus:
     needs: resolve
     name: Run / can-bus (vcan) wolfSSL ${{ matrix.wolfssl_ref }}
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     strategy:

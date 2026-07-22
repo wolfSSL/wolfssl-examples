@@ -33,6 +33,7 @@ permissions:
 
 jobs:
   setup:
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     runs-on: ubuntu-24.04
     timeout-minutes: 1
     outputs:
@@ -48,6 +49,7 @@ jobs:
   analysis:
     needs: setup
     name: ${{ matrix.mode }} (self-contained crypto examples)
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false

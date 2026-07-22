@@ -30,6 +30,7 @@ jobs:
     # wolfHSM tracks wolfSSL master, so make download_repos clones and builds both
     # at master; a stable-tag matrix would not build. Hence master-only.
     name: Run / hsm dtls_client (wolfHSM ECC over DTLS) wolfSSL master
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:

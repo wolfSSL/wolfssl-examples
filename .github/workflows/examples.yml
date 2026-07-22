@@ -45,7 +45,6 @@ jobs:
     name: Coverage gate
     runs-on: ubuntu-24.04
     timeout-minutes: 5
-    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     steps:
       - uses: actions/checkout@v5
       - run: pip install --quiet pyyaml
@@ -64,7 +63,6 @@ jobs:
     needs: [refs]
     runs-on: ubuntu-24.04
     timeout-minutes: 5
-    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     outputs:
       examples: ${{ steps.gen.outputs.examples }}
       wolfssl: ${{ steps.gen.outputs.wolfssl }}

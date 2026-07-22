@@ -34,6 +34,7 @@ jobs:
   uefi:
     needs: resolve
     name: Build / uefi (${{ matrix.example }}) wolfSSL ${{ matrix.wolfssl_ref }}
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     strategy:

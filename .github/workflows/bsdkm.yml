@@ -33,6 +33,7 @@ jobs:
   bsdkm:
     needs: resolve
     name: Run / kernel-bsdkm (kldload) wolfSSL ${{ matrix.wolfssl_ref }}
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
