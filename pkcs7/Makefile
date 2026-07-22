@@ -62,5 +62,5 @@ clean:
 check: SHELL := /bin/bash
 check: .SHELLFLAGS := -eo pipefail -c
 check: signedData-stream
-	./signedData-stream content.txt | grep -q 'bytes from file'
+	./signedData-stream content.txt | grep -q 'Successfully verified SignedData bundle'
 	@echo "PASS: pkcs7-signeddata-stream checks"
