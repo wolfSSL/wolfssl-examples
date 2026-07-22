@@ -961,7 +961,7 @@ static EFI_STATUS TestRsa(void)
 
     /* Export key components */
     {
-        UINT8 e[4], n[128], d[128], p[64], q[64];
+        UINT8 e[4], n[256], d[256], p[128], q[128];
         word32 eSz=sizeof(e), nSz=sizeof(n), dSz=sizeof(d), pSz=sizeof(p), qSz=sizeof(q);
         ret = Api->wc_RsaExportKey(&key, e,&eSz, n,&nSz, d,&dSz, p,&pSz, q,&qSz);
         status = CheckWolfResult(ret, L"wc_RsaExportKey"); if (EFI_ERROR(status)) goto cleanup;
