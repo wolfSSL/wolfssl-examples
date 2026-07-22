@@ -42,10 +42,12 @@ jobs:
     steps:
       - id: pick
         run: |
-          case "${{ github.event_name }}" in
-            workflow_call|workflow_dispatch) echo 'modes=["asan","valgrind"]' >> "$GITHUB_OUTPUT" ;;
-            *)                               echo 'modes=["asan"]'            >> "$GITHUB_OUTPUT" ;;
-          esac
+          # github.event_name is the caller's event (never workflow_call), so key valgrind off the nightly's caller_run_id input
+          if [ -n "${{ inputs.caller_run_id }}" ] || [ "${{ github.event_name }}" = workflow_dispatch ]; then
+            echo 'modes=["asan","valgrind"]' >> "$GITHUB_OUTPUT"
+          else
+            echo 'modes=["asan"]' >> "$GITHUB_OUTPUT"
+          fi
 
   analysis:
     needs: setup
