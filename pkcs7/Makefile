@@ -57,10 +57,11 @@ clean:
         authEnvelopedDataKARI.der authEnvelopedDataKTRI.der \
         authEnvelopedDataORI.der authEnvelopedDataPWRI.der encryptedData.der \
         authEnvelopedDataKEKRI.der compressedData.der \
-        smime-created.p7s
+        smime-created.p7s stream.log
 
-check: SHELL := /bin/bash
-check: .SHELLFLAGS := -eo pipefail -c
+# Redirect then grep (no pipe) so signedData-stream's nonzero exit fails the
+# recipe, there is no SIGPIPE on the dump, and it works under BSD make too.
 check: signedData-stream
-	./signedData-stream content.txt | grep -q 'Successfully verified SignedData bundle'
+	./signedData-stream content.txt > stream.log
+	grep -q 'Successfully verified SignedData bundle' stream.log
 	@echo "PASS: pkcs7-signeddata-stream checks"

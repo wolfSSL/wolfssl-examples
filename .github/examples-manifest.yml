@@ -266,10 +266,8 @@ examples:
     profile: pkcs7
     wolfssl_ref: master
     deps: [zlib1g-dev]
-    run:
-      # last line of the real path; the not-compiled-in branch returns 0 without it
-      - exec: [./signedData-stream, content.txt]
-        expect: "bytes from file"
+    # make check asserts the real verify result, not a mid-stream "bytes from file"
+    mode: check
 
   # Both commands come from pkcs7/README.md "Creating an SMIME bundle and
   # verifying it"; smime-verify consumes the bundle smime writes.
