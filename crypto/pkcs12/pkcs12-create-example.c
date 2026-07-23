@@ -263,6 +263,7 @@ static int createCert(byte** certDer, word32* certSz, RsaKey* key, WC_RNG* rng)
 
 int main(int argc, char* argv[])
 {
+    int result = 0;
 #if defined(HAVE_PKCS12) && defined(WOLFSSL_KEY_GEN) && \
     defined(WOLFSSL_CERT_GEN) && !defined(NO_RSA)
     WC_PKCS12* pkcs12 = NULL;
@@ -316,6 +317,7 @@ int main(int argc, char* argv[])
         printf("Created new PKCS12 structure now converting to DER\n");
         if ((ret = wc_i2d_PKCS12(pkcs12, &pkcs12Der, &pkcs12DerSz)) < 0) {
             printf("unable to convert structure to DER\n");
+            result = -1;
         }
         else {
             char output[] = "output.p12";
@@ -327,6 +329,7 @@ int main(int argc, char* argv[])
     }
     else {
         printf("Issue creating new PKCS12 structure\n");
+        result = -1;
     }
 
     wc_FreeRsaKey(&rsa);
@@ -339,5 +342,5 @@ int main(int argc, char* argv[])
     printf("pkcs12-create-key requires wolfssl to be built with:\n");
     printf("\t./configure --enable-pkcs12 --enable-pwdbased --enable-des3 --enable-keygen --enable-certgen\n");
 #endif
-    return 0;
+    return result;
 }

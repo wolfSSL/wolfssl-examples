@@ -14,12 +14,14 @@ pkcs12-create-example: pkcs12-create-example.o
 .PHONY: clean check
 
 clean:
-	rm -f *.o pkcs12-example pkcs12-create-example output.p12
+	rm -f *.o pkcs12-example pkcs12-create-example output.p12 example.log create.log
 
-check: SHELL := /bin/bash
-check: .SHELLFLAGS := -eo pipefail -c
+# Redirect then grep (no pipe) so the binary's nonzero exit fails the recipe and
+# there is no SIGPIPE on the long DER dump; both examples now return nonzero on
+# failure, so the exit code carries the result and the grep confirms the output.
 check: pkcs12-example pkcs12-create-example
-	# capture first: grep -q closes the pipe on the long DER dump and pipefail then sees the binary's SIGPIPE
-	out=$$(./pkcs12-example 2>&1); grep -q 'return value of parsing pkcs12 = 0 SUCCESS' <<< "$$out"
-	out=$$(./pkcs12-create-example 2>&1); grep -q 'Printing PKCS12 DER file to output.p12' <<< "$$out"
+	./pkcs12-example > example.log
+	grep -q 'return value of parsing pkcs12 = 0 SUCCESS' example.log
+	./pkcs12-create-example > create.log
+	grep -q 'Printing PKCS12 DER file to output.p12' create.log
 	@echo "PASS: crypto-pkcs12 checks"
