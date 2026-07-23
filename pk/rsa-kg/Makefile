@@ -20,11 +20,11 @@ rsa-kg: rsa-kg.o
 .PHONY: clean check
 
 clean:
-	rm -f *.o rsa-kg-sv rsa-kg
+	rm -f *.o rsa-kg-sv rsa-kg rsa-public.der rsa-private.der
 
-check: SHELL := /bin/bash
-check: .SHELLFLAGS := -eo pipefail -c
+# Both binaries now return nonzero on any failure, so the exit code is the check
+# -- no grep of a line that is printed before the write can succeed or fail.
 check: rsa-kg-sv rsa-kg
 	./rsa-kg-sv -load-key >/dev/null
-	./rsa-kg -bits 2048 | grep -q 'writing public key to ./rsa-private.der'
+	./rsa-kg -bits 2048 >/dev/null
 	@echo "PASS: pk-rsa-kg checks"
