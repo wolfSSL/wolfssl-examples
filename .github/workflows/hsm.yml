@@ -64,7 +64,7 @@ jobs:
           ss -uln | grep -q ':11111 ' \
             || { echo "FAIL: DTLS server never listened on 11111"; cat dtls.log; exit 1; }
           rc=0
-          make run_client > client.log 2>&1 || rc=$?
+          printf 'hello\n' | make run_client > client.log 2>&1 || rc=$?
           echo "--- client:"; cat client.log
           pkill -f wh_posix_server 2>/dev/null || true
           pkill -f 'examples/server/server' 2>/dev/null || true
