@@ -17,11 +17,9 @@ ml_dsa_test: ml_dsa.c
 clean:
 	rm -f *.o ml_dsa_test
 
-check: SHELL := /bin/bash
-check: .SHELLFLAGS := -eo pipefail -c
 check: ml_dsa_test
-	./ml_dsa_test -c 2 | grep -q 'info: verify message good'
-	./ml_dsa_test -c 3 | grep -q 'info: verify message good'
-	./ml_dsa_test -c 5 -m wolfssl-examples CI | grep -q 'info: verify message good'
-	./ml_dsa_test -p | grep -q 'ML-DSA-87'
+	out=$$(./ml_dsa_test -c 2) && printf '%s' "$$out" | grep -q 'info: verify message good'
+	out=$$(./ml_dsa_test -c 3) && printf '%s' "$$out" | grep -q 'info: verify message good'
+	out=$$(./ml_dsa_test -c 5 -m wolfssl-examples CI) && printf '%s' "$$out" | grep -q 'info: verify message good'
+	out=$$(./ml_dsa_test -p) && printf '%s' "$$out" | grep -q 'ML-DSA-87'
 	@echo "PASS: pq-ml-dsa checks"

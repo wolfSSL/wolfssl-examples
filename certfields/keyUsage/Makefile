@@ -11,8 +11,6 @@ run: test.o
 clean:
 	rm -f *.o run
 
-check: SHELL := /bin/bash
-check: .SHELLFLAGS := -eo pipefail -c
 check: run
-	./run | grep -q 'cert can be used for'
+	out=$$(./run) && printf '%s' "$$out" | grep -q 'cert can be used for'
 	@echo "PASS: certfields-keyusage checks"

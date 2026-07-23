@@ -11,9 +11,7 @@ ascon-file-encrypt: ascon-file-encrypt.o
 clean:
 	rm -f *.o ascon-file-encrypt
 
-check: SHELL := /bin/bash
-check: .SHELLFLAGS := -eo pipefail -c
 check: ascon-file-encrypt
 	printf 'ascon ci input\n' > in.txt
-	printf 'ciphertestpw\n' | script -qec './ascon-file-encrypt -e -i in.txt -o out.enc' /dev/null | grep -q 'Success: Ascon encrypt complete'
+	out=$$(printf 'ciphertestpw\n' | script -qec './ascon-file-encrypt -e -i in.txt -o out.enc' /dev/null) && printf '%s' "$$out" | grep -q 'Success: Ascon encrypt complete'
 	@echo "PASS: crypto-ascon checks"

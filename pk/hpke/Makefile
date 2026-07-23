@@ -11,8 +11,6 @@ hpke_test: hpke_test.o
 clean:
 	rm -f *.o hpke_test
 
-check: SHELL := /bin/bash
-check: .SHELLFLAGS := -eo pipefail -c
 check: hpke_test
-	./hpke_test | grep -q 'HPKE test success'
+	out=$$(./hpke_test) && printf '%s' "$$out" | grep -q 'HPKE test success'
 	@echo "PASS: pk-hpke checks"

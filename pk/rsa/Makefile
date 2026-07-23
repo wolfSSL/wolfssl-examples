@@ -35,8 +35,6 @@ debug: all
 clean:
 	rm -f $(TARGETS)
 
-check: SHELL := /bin/bash
-check: .SHELLFLAGS := -eo pipefail -c
 check: rsa-nb
-	./rsa-nb | grep -q 'RSA non-block verify successful'
+	out=$$(./rsa-nb) && printf '%s' "$$out" | grep -q 'RSA non-block verify successful'
 	@echo "PASS: pk-rsa checks"

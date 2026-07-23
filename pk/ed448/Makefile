@@ -16,11 +16,9 @@ all: $(TARGETS)
 clean:
 	rm -f $(TARGETS) *.der
 
-check: SHELL := /bin/bash
-check: .SHELLFLAGS := -eo pipefail -c
 check: ed448_keys ed448_pub ed448_sign ed448_verify
-	./ed448_keys | grep -q 'writing public key to ed448-pubkey.der (57 bytes)'
-	./ed448_pub | grep -q 'Public Key: 57'
-	./ed448_sign | grep -q 'Success'
-	./ed448_verify | grep -q 'Success'
+	out=$$(./ed448_keys) && printf '%s' "$$out" | grep -q 'writing public key to ed448-pubkey.der (57 bytes)'
+	out=$$(./ed448_pub) && printf '%s' "$$out" | grep -q 'Public Key: 57'
+	out=$$(./ed448_sign) && printf '%s' "$$out" | grep -q 'Success'
+	out=$$(./ed448_verify) && printf '%s' "$$out" | grep -q 'Success'
 	@echo "PASS: pk-ed448 checks"

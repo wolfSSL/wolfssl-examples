@@ -11,10 +11,8 @@ ecdh_gen_secret: ecdh_gen_secret.o
 clean:
 	rm -f *.der *.x963 *.o ecdh_gen_secret
 
-check: SHELL := /bin/bash
-check: .SHELLFLAGS := -eo pipefail -c
 check: ecdh_gen_secret
-	./ecdh_gen_secret 1 | grep -q 'Successfully generated a common secret'
-	./ecdh_gen_secret 2 | grep -q 'Successfully generated a common 25519 secret'
-	./ecdh_gen_secret 3 | grep -q 'Successfully generated a common 448 secret'
+	out=$$(./ecdh_gen_secret 1) && printf '%s' "$$out" | grep -q 'Successfully generated a common secret'
+	out=$$(./ecdh_gen_secret 2) && printf '%s' "$$out" | grep -q 'Successfully generated a common 25519 secret'
+	out=$$(./ecdh_gen_secret 3) && printf '%s' "$$out" | grep -q 'Successfully generated a common 448 secret'
 	@echo "PASS: pk-ecdh-generate-secret checks"

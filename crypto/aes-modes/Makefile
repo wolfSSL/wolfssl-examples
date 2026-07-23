@@ -66,24 +66,22 @@ aes-cts: aes-cts.o
 clean:
 	rm -f *.o $(EXAMPLES) temp_*.bin
 
-check: SHELL := /bin/bash
-check: .SHELLFLAGS := -eo pipefail -c
 check: aes-cbc aes-cfb aes-cfb1 aes-cfb8 aes-ofb aes-ecb aes-ctr aes-direct aes-gcm aes-gmac aes-ccm aes-keywrap aes-xts aes-siv aes-eax aes-cts
 	printf 'wolfssl-examples aes-modes CI input\n' > in.txt
-	./aes-cbc in.txt out-cbc.bin | grep -q 'Success!'
-	./aes-cfb in.txt out-cfb.bin | grep -q 'Success!'
-	./aes-cfb1 in.txt out-cfb1.bin | grep -q 'Success!'
-	./aes-cfb8 in.txt out-cfb8.bin | grep -q 'Success!'
-	./aes-ofb in.txt out-ofb.bin | grep -q 'Success!'
-	./aes-ecb in.txt out-ecb.bin | grep -q 'Success!'
-	./aes-ctr in.txt out-ctr.bin | grep -q 'Success!'
-	./aes-direct in.txt out-direct.bin | grep -q 'Success!'
-	./aes-gcm in.txt out-gcm.bin | grep -q 'Success!'
-	./aes-gmac in.txt out-gmac.bin | grep -q 'Success!'
-	./aes-ccm in.txt out-ccm.bin | grep -q 'Success!'
-	./aes-keywrap in.txt out-keywrap.bin | grep -q 'Success!'
-	./aes-xts in.txt out-xts.bin | grep -q 'Success!'
-	./aes-siv in.txt out-siv.bin | grep -q 'Success!'
-	./aes-eax in.txt out-eax.bin | grep -q 'Success!'
-	./aes-cts in.txt out-cts.bin | grep -q 'Success!'
+	out=$$(./aes-cbc in.txt out-cbc.bin) && printf '%s' "$$out" | grep -q 'Success!'
+	out=$$(./aes-cfb in.txt out-cfb.bin) && printf '%s' "$$out" | grep -q 'Success!'
+	out=$$(./aes-cfb1 in.txt out-cfb1.bin) && printf '%s' "$$out" | grep -q 'Success!'
+	out=$$(./aes-cfb8 in.txt out-cfb8.bin) && printf '%s' "$$out" | grep -q 'Success!'
+	out=$$(./aes-ofb in.txt out-ofb.bin) && printf '%s' "$$out" | grep -q 'Success!'
+	out=$$(./aes-ecb in.txt out-ecb.bin) && printf '%s' "$$out" | grep -q 'Success!'
+	out=$$(./aes-ctr in.txt out-ctr.bin) && printf '%s' "$$out" | grep -q 'Success!'
+	out=$$(./aes-direct in.txt out-direct.bin) && printf '%s' "$$out" | grep -q 'Success!'
+	out=$$(./aes-gcm in.txt out-gcm.bin) && printf '%s' "$$out" | grep -q 'Success!'
+	out=$$(./aes-gmac in.txt out-gmac.bin) && printf '%s' "$$out" | grep -q 'Success!'
+	out=$$(./aes-ccm in.txt out-ccm.bin) && printf '%s' "$$out" | grep -q 'Success!'
+	out=$$(./aes-keywrap in.txt out-keywrap.bin) && printf '%s' "$$out" | grep -q 'Success!'
+	out=$$(./aes-xts in.txt out-xts.bin) && printf '%s' "$$out" | grep -q 'Success!'
+	out=$$(./aes-siv in.txt out-siv.bin) && printf '%s' "$$out" | grep -q 'Success!'
+	out=$$(./aes-eax in.txt out-eax.bin) && printf '%s' "$$out" | grep -q 'Success!'
+	out=$$(./aes-cts in.txt out-cts.bin) && printf '%s' "$$out" | grep -q 'Success!'
 	@echo "PASS: crypto-aes-modes checks"

@@ -38,10 +38,8 @@ clean:
 	rm -f $(TARGET)
 
 
-check: SHELL := /bin/bash
-check: .SHELLFLAGS := -eo pipefail -c
 check: memory_bucket_tester
 	printf 'Alloc: 0x1000 -> 64 at t:1\nAlloc: 0x2000 -> 128 at t:2\nFree: 0x1000 -> 64 at t:3\nAlloc: 0x3000 -> 256 at t:4\nFree: 0x2000 -> 128 at t:5\nFree: 0x3000 -> 256 at t:6\n' > mem-sample.log
-	./memory_bucket_tester mem-sample.log --buckets 64,128,256 --dist 1,1,1 --buffer-size 8192 | grep -q 'TEST PASSED: All allocations succeeded'
+	out=$$(./memory_bucket_tester mem-sample.log --buckets 64,128,256 --dist 1,1,1 --buffer-size 8192) && printf '%s' "$$out" | grep -q 'TEST PASSED: All allocations succeeded'
 	@echo "PASS: staticmemory-bucket-tester checks"
 	@echo "PASS: staticmemory-bucket-tester checks"

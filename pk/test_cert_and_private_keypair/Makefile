@@ -37,9 +37,7 @@ debug: all
 clean:
 	rm -f $(TARGETS)
 
-check: SHELL := /bin/bash
-check: .SHELLFLAGS := -eo pipefail -c
 check: test-cert-privkey-pair
-	./test-cert-privkey-pair ../../certs/client-key.pem ../../certs/client-cert.pem | grep -q 'Congratulations, this private key and cert'
+	out=$$(./test-cert-privkey-pair ../../certs/client-key.pem ../../certs/client-cert.pem) && printf '%s' "$$out" | grep -q 'Congratulations, this private key and cert'
 	! ./test-cert-privkey-pair ../../certs/client-cert.pem ../../certs/client-cert.pem >/dev/null 2>&1
 	@echo "PASS: pk-test-cert-keypair checks"

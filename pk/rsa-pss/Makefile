@@ -35,9 +35,7 @@ debug: all
 clean:
 	rm -f $(TARGETS)
 
-check: SHELL := /bin/bash
-check: .SHELLFLAGS := -eo pipefail -c
 check: rsa-pss
-	./rsa-pss -s sign.bin | grep -q 'Writing to file: sign.bin'
-	./rsa-pss -v sign.bin | grep -q 'RSA PSS verify success'
+	out=$$(./rsa-pss -s sign.bin) && printf '%s' "$$out" | grep -q 'Writing to file: sign.bin'
+	out=$$(./rsa-pss -v sign.bin) && printf '%s' "$$out" | grep -q 'RSA PSS verify success'
 	@echo "PASS: pk-rsa-pss checks"

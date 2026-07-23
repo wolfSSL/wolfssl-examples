@@ -16,8 +16,6 @@ all: $(TARGETS)
 clean:
 	rm -f $(TARGETS) 
 
-check: SHELL := /bin/bash
-check: .SHELLFLAGS := -eo pipefail -c
 check: sign_and_verify
-	./sign_and_verify | grep -q 'Successfully validated signature'
+	out=$$(./sign_and_verify) && printf '%s' "$$out" | grep -q 'Successfully validated signature'
 	@echo "PASS: pk-ed25519-gen checks"

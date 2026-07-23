@@ -14,8 +14,6 @@ keywrap: keywrap.o
 clean:
 	rm -f *.o keywrap
 
-check: SHELL := /bin/bash
-check: .SHELLFLAGS := -eo pipefail -c
 check: keywrap
-	./keywrap | grep -q 'Decrypted Random Key: '
+	out=$$(./keywrap) && printf '%s' "$$out" | grep -q 'Decrypted Random Key: '
 	@echo "PASS: crypto-keywrap checks"

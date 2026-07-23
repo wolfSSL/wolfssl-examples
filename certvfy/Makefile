@@ -17,10 +17,8 @@ sigvfycert: sigvfycert.o
 clean:
 	rm -f *.o certvfy certsigvfy sigvfycert
 
-check: SHELL := /bin/bash
-check: .SHELLFLAGS := -eo pipefail -c
 check: certvfy certsigvfy sigvfycert
-	./certvfy | grep -q 'Verification Successful!'
-	./certsigvfy | grep -q 'Verification Successful!'
-	./sigvfycert | grep -q 'Verification Successful!'
+	out=$$(./certvfy) && printf '%s' "$$out" | grep -q 'Verification Successful!'
+	out=$$(./certsigvfy) && printf '%s' "$$out" | grep -q 'Verification Successful!'
+	out=$$(./sigvfycert) && printf '%s' "$$out" | grep -q 'Verification Successful!'
 	@echo "PASS: certvfy checks"

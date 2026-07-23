@@ -25,8 +25,6 @@ clean:
 
 .PHONY: check
 
-check: SHELL := /bin/bash
-check: .SHELLFLAGS := -eo pipefail -c
 check: ocsp-request-response
-	./ocsp-request-response | grep -q '=== Example complete ==='
+	out=$$(./ocsp-request-response) && printf '%s' "$$out" | grep -q '=== Example complete ==='
 	@echo "PASS: ocsp-responder checks"

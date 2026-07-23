@@ -35,9 +35,7 @@ eccsiglentest:eccsiglentest.o
 clean:
 	rm -f *.o wolfsigtest opensigtest eccsiglentest
 
-check: SHELL := /bin/bash
-check: .SHELLFLAGS := -eo pipefail -c
 check: wolfsigtest opensigtest
-	./wolfsigtest | grep -q 'Signatures match!'
-	./opensigtest | grep -q 'CRYPTO: EXPECTED signature verify OK! 1'
+	out=$$(./wolfsigtest) && printf '%s' "$$out" | grep -q 'Signatures match!'
+	out=$$(./opensigtest) && printf '%s' "$$out" | grep -q 'CRYPTO: EXPECTED signature verify OK! 1'
 	@echo "PASS: signature-sigtest checks"

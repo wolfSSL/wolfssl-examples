@@ -16,12 +16,10 @@ all: $(TARGETS)
 clean:
 	rm -f $(TARGETS) *.der *.x963 
 
-check: SHELL := /bin/bash
-check: .SHELLFLAGS := -eo pipefail -c
 check: ecc_keys ecc_pub ecc_sign ecc_sign_deterministic ecc_verify
-	./ecc_keys | grep -q 'storing public key into ecc-public.x963 (65 bytes)'
-	./ecc_pub | grep -q 'Public Key Qy: 32'
-	./ecc_sign | grep -q 'Success'
-	./ecc_sign_deterministic | grep -q 'Success'
-	./ecc_verify | grep -q 'Success'
+	out=$$(./ecc_keys) && printf '%s' "$$out" | grep -q 'storing public key into ecc-public.x963 (65 bytes)'
+	out=$$(./ecc_pub) && printf '%s' "$$out" | grep -q 'Public Key Qy: 32'
+	out=$$(./ecc_sign) && printf '%s' "$$out" | grep -q 'Success'
+	out=$$(./ecc_sign_deterministic) && printf '%s' "$$out" | grep -q 'Success'
+	out=$$(./ecc_verify) && printf '%s' "$$out" | grep -q 'Success'
 	@echo "PASS: pk-ecc checks"

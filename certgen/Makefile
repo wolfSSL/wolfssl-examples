@@ -61,15 +61,13 @@ clean:
 	rm -f *.o certgen_example certgen_ca_example csr_example csr_w_ed25519_example csr_sign csr_cryptocb custom_ext custom_ext_callback
 	rm -f newCert.*
 
-check: SHELL := /bin/bash
-check: .SHELLFLAGS := -eo pipefail -c
 check: certgen_example certgen_ca_example csr_w_ed25519_example csr_example csr_sign csr_cryptocb custom_ext custom_ext_callback
-	./certgen_example | grep -q 'Tests passed'
-	./certgen_ca_example | grep -q 'Tests passed'
-	./csr_w_ed25519_example 2>&1 | grep -q -- '-----END CERTIFICATE REQUEST-----'
-	./csr_example ecc | grep -q 'Saved PEM to "ecc-csr.pem"'
-	./csr_sign ecc-csr.pem ca-ecc-cert.der ca-ecc-key.der | grep -q 'Tests passed'
-	./csr_cryptocb ecc | grep -q 'Saved CSR PEM to "ecc-csr.pem"'
-	./custom_ext | grep -q 'Tests passed'
-	./custom_ext_callback newCert.der | grep -q 'Success'
+	out=$$(./certgen_example) && printf '%s' "$$out" | grep -q 'Tests passed'
+	out=$$(./certgen_ca_example) && printf '%s' "$$out" | grep -q 'Tests passed'
+	out=$$(./csr_w_ed25519_example 2>&1) && printf '%s' "$$out" | grep -q -- '-----END CERTIFICATE REQUEST-----'
+	out=$$(./csr_example ecc) && printf '%s' "$$out" | grep -q 'Saved PEM to "ecc-csr.pem"'
+	out=$$(./csr_sign ecc-csr.pem ca-ecc-cert.der ca-ecc-key.der) && printf '%s' "$$out" | grep -q 'Tests passed'
+	out=$$(./csr_cryptocb ecc) && printf '%s' "$$out" | grep -q 'Saved CSR PEM to "ecc-csr.pem"'
+	out=$$(./custom_ext) && printf '%s' "$$out" | grep -q 'Tests passed'
+	out=$$(./custom_ext_callback newCert.der) && printf '%s' "$$out" | grep -q 'Success'
 	@echo "PASS: certgen checks"

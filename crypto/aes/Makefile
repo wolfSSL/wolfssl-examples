@@ -31,10 +31,8 @@ aesgcm-file-minimal: aesgcm-file-minimal.o
 clean:
 	rm -f *.o aes-file-encrypt aescfb-file-encrypt aesctr-file-encrypt aesgcm-file-encrypt aesgcm-file-minimal text* aesgcm-oneshot aesgcm-minimal
 
-check: SHELL := /bin/bash
-check: .SHELLFLAGS := -eo pipefail -c
 check: aesgcm-minimal aesgcm-oneshot aesgcm-file-encrypt
-	./aesgcm-minimal | grep -q 'Decrypted: 73696e676c6520626c6f636b206d736700'
-	./aesgcm-oneshot | grep -q 'Decrypted: 090909090909090909090909090909090909090909090909090909090909090909'
-	./aesgcm-file-encrypt -t 256 | grep -q 'Pass: The files are identical.'
+	out=$$(./aesgcm-minimal) && printf '%s' "$$out" | grep -q 'Decrypted: 73696e676c6520626c6f636b206d736700'
+	out=$$(./aesgcm-oneshot) && printf '%s' "$$out" | grep -q 'Decrypted: 090909090909090909090909090909090909090909090909090909090909090909'
+	out=$$(./aesgcm-file-encrypt -t 256) && printf '%s' "$$out" | grep -q 'Pass: The files are identical.'
 	@echo "PASS: crypto-aes checks"

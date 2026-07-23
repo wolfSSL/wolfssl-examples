@@ -13,8 +13,6 @@ signature: signature.o
 clean:
 	rm -f *.o signature
 
-check: SHELL := /bin/bash
-check: .SHELLFLAGS := -eo pipefail -c
 check: signature
-	./signature Makefile | grep -q 'ECC Signature Verification: Pass (0)'
+	out=$$(./signature Makefile) && printf '%s' "$$out" | grep -q 'ECC Signature Verification: Pass (0)'
 	@echo "PASS: signature checks"
