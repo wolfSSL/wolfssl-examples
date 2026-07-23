@@ -14,16 +14,17 @@ LOCAL_CFLAGS := -DOPENSSL_EXTRA -DWOLFSSL_DTLS -D_POSIX_THREADS -DNDEBUG \
 				-DECC_SHAMIR -DNO_MD4 -DNO_HC128 -DNO_RABBIT \
 				-DHAVE_OCSP -DHAVE_CRL -DWOLFSSL_JNI -DHAVE_DH \
 				-DUSE_FAST_MATH -DTFM_TIMING_RESISTANT -DECC_TIMING_RESISTANT \
-				-DWC_RSA_BLINDING -DTFM_NO_ASM \
+				-DWC_RSA_BLINDING -DTFM_NO_ASM -DHAVE_GETADDRINFO -DHAVE_NETDB_H \
 				-Wall
 LOCAL_SRC_FILES := src/crl.c \
 				   src/internal.c \
-				   src/io.c \
+				   src/wolfio.c \
 				   src/keys.c \
 				   src/ocsp.c \
 				   src/sniffer.c \
 				   src/ssl.c \
 				   src/tls.c \
+				   src/dtls.c \
 				   wolfcrypt/src/aes.c \
 				   wolfcrypt/src/arc4.c \
 				   wolfcrypt/src/asm.c \
@@ -49,6 +50,7 @@ LOCAL_SRC_FILES := src/crl.c \
 				   wolfcrypt/src/ge_operations.c \
 				   wolfcrypt/src/hash.c \
 				   wolfcrypt/src/hmac.c \
+				   wolfcrypt/src/kdf.c \
 				   wolfcrypt/src/integer.c \
 				   wolfcrypt/src/logging.c \
 				   wolfcrypt/src/md2.c \
@@ -92,7 +94,7 @@ LOCAL_CFLAGS := -DOPENSSL_EXTRA -DWOLFSSL_DTLS -D_POSIX_THREADS -DNDEBUG \
 				-DECC_SHAMIR -DNO_MD4 -DNO_HC128 -DNO_RABBIT \
 				-DHAVE_OCSP -DHAVE_CRL -DWOLFSSL_JNI -DHAVE_DH \
 				-DUSE_FAST_MATH -DTFM_TIMING_RESISTANT -DECC_TIMING_RESISTANT \
-				-DWC_RSA_BLINDING -DTFM_NO_ASM \
+				-DWC_RSA_BLINDING -DTFM_NO_ASM -DHAVE_GETADDRINFO -DHAVE_NETDB_H \
 				-Wall
 LOCAL_SHARED_LIBRARIES := libwolfssl
 include $(BUILD_SHARED_LIBRARY)
@@ -109,7 +111,7 @@ LOCAL_CFLAGS := -DOPENSSL_EXTRA -DWOLFSSL_DTLS -D_POSIX_THREADS -DNDEBUG \
 				-DECC_SHAMIR -DNO_MD4 -DNO_HC128 -DNO_RABBIT \
 				-DHAVE_OCSP -DHAVE_CRL -DWOLFSSL_JNI -DHAVE_DH \
 				-DUSE_FAST_MATH -DTFM_TIMING_RESISTANT -DECC_TIMING_RESISTANT \
-				-DWC_RSA_BLINDING -DTFM_NO_ASM \
+				-DWC_RSA_BLINDING -DTFM_NO_ASM -DHAVE_GETADDRINFO -DHAVE_NETDB_H \
 				-Wall
 
 LOCAL_SHARED_LIBRARIES := libwolfssl

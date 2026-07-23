@@ -1,0 +1,15 @@
+name: 'apt update'
+description: 'Refresh apt, minus the runner vendor repos we never install from'
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: |
+        set -euo pipefail
+        # the image ships azure-cli/msprod repos we install nothing from; when they 403 apt fails the whole update
+        msft=$(grep -rl packages.microsoft.com /etc/apt/sources.list.d/ 2>/dev/null || true)
+        if [ -n "$msft" ]; then
+          sudo rm -f $msft
+        fi
+        sudo apt-get update -qq

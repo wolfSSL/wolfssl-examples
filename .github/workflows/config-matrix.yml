@@ -1,0 +1,86 @@
+name: Config Matrix
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - '**/*.c'
+      - '**/*.h'
+      - '.github/workflows/config-matrix.yml'
+      - '.github/scripts/sanitize-run.sh'
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - '**/*.c'
+      - '**/*.h'
+      - '.github/workflows/config-matrix.yml'
+      - '.github/scripts/sanitize-run.sh'
+  workflow_call:
+    inputs:
+      caller_run_id:
+        description: 'run id of the calling workflow; keeps a called run in its own concurrency group'
+        type: string
+        default: ''
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ inputs.caller_run_id && format('config-matrix-call-{0}', inputs.caller_run_id) || format('config-matrix-{0}', github.ref) }}
+  cancel-in-progress: ${{ !inputs.caller_run_id }}
+
+permissions:
+  contents: read
+
+jobs:
+  config:
+    name: ${{ matrix.name }}
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: default-math
+            opts: ''
+            cc: gcc
+          - name: fastmath
+            opts: '--enable-fastmath'
+            cc: gcc
+          - name: sp-math-all
+            opts: '--enable-sp-math-all'
+            cc: gcc
+          - name: debug
+            opts: '--enable-debug'
+            cc: gcc
+          - name: opensslextra
+            opts: '--enable-opensslextra'
+            cc: gcc
+          - name: clang
+            opts: ''
+            cc: clang
+    timeout-minutes: 30
+    env:
+      CC: ${{ matrix.cc }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/apt-update
+      - name: Install toolchain
+        run: |
+          set -euo pipefail
+          sudo apt-get install -y --no-install-recommends autoconf automake libtool
+          [ "${{ matrix.cc }}" = clang ] && sudo apt-get install -y --no-install-recommends clang || true
+
+      # The curated crypto examples must produce correct results under every math
+      # backend and build option -- a wrong ECC result trips the verify assertions.
+      - name: Build wolfSSL (${{ matrix.name }})
+        run: |
+          set -euo pipefail
+          bash "$GITHUB_WORKSPACE/.github/scripts/git-clone-retry.sh" -q --depth 1 --branch master https://github.com/wolfSSL/wolfssl /tmp/wolfssl
+          cd /tmp/wolfssl
+          ./autogen.sh >/dev/null
+          ./configure --enable-ecc --enable-ed25519 --enable-aesgcm --enable-keygen ${{ matrix.opts }} \
+            --prefix=/tmp/wolfssl-inst >/dev/null
+          make -j"$(nproc)" >/dev/null
+          make install >/dev/null
+
+      - name: Run curated examples (${{ matrix.name }})
+        run: ./.github/scripts/sanitize-run.sh plain /tmp/wolfssl-inst

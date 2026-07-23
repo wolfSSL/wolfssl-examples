@@ -35,6 +35,7 @@
 
 static WC_RNG mRng;
 static ecc_key mGenKey;
+static int mEccErr = 0;
 
 static void* do_it(void* args)
 {
@@ -50,6 +51,7 @@ static void* do_it(void* args)
     }
     if (ret != 0) {
         printf("ecc make key failed %d\n", ret);
+        mEccErr = ret;
     }
 
     if (initKey)
@@ -73,6 +75,7 @@ int main()
     ret = wc_InitRng(&mRng);
     if (ret != 0) {
         printf("Init RNG failed %d\n", ret);
+        return 1;
     }
 
     StackSizeCheck(NULL, do_it);
@@ -85,5 +88,5 @@ int main()
     }
     wolfCrypt_Cleanup();
 
-    return 0;
+    return (mEccErr == 0 && ret == 0) ? 0 : 1;
 }

@@ -1,9 +1,10 @@
-# ECC Examples Makefile
+# PKCS7 Examples Makefile
 CC       = gcc
 WOLFSSL_INSTALL_DIR = /usr/local
 CFLAGS   = -Wall -I$(WOLFSSL_INSTALL_DIR)/include
+# only needed when linking wolfSSL statically; a shared libwolfssl built
+# --with-libz already carries its own dependency on libz
 ZLIB     =
-#ZLIB    += -lz
 PSA_LIB  = -lmbedcrypto
 LIBS     = -L$(WOLFSSL_INSTALL_DIR)/lib -lm ${ZLIB}
 
@@ -29,7 +30,7 @@ endif
 SRC=$(wildcard *.c)
 TARGETS=$(patsubst %.c, %, $(SRC))
 
-.PHONY: clean all
+.PHONY: clean all check
 
 all: $(TARGETS)
 
@@ -56,4 +57,11 @@ clean:
         authEnvelopedDataKARI.der authEnvelopedDataKTRI.der \
         authEnvelopedDataORI.der authEnvelopedDataPWRI.der encryptedData.der \
         authEnvelopedDataKEKRI.der compressedData.der \
-        smime-created.p7s
+        smime-created.p7s stream.log
+
+# Redirect then grep (no pipe) so signedData-stream's nonzero exit fails the
+# recipe, there is no SIGPIPE on the dump, and it works under BSD make too.
+check: signedData-stream
+	./signedData-stream content.txt > stream.log
+	grep -q 'Successfully verified SignedData bundle' stream.log
+	@echo "PASS: pkcs7-signeddata-stream checks"

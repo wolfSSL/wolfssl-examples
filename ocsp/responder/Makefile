@@ -22,3 +22,9 @@ all: $(TARGETS)
 
 clean:
 	rm -f $(TARGETS)
+
+.PHONY: check
+
+check: ocsp-request-response
+	out=$$(./ocsp-request-response) && printf '%s' "$$out" | grep -q '=== Example complete ==='
+	@echo "PASS: ocsp-responder checks"

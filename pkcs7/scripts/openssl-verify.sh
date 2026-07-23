@@ -18,6 +18,7 @@
 # generate the necessary DER-encoded bundles.
 
 EXPECTED_INNER_CONTENT="Hello World"
+FAILURES=0
 INNER_CONTENT_FILE="content.txt"
 AES256_KEY="0102030405060708010203040506070801020304050607080102030405060708"
 AES256_KEYID="02020304"
@@ -36,8 +37,12 @@ if ! [ -x "$(command -v openssl)" ]; then
 fi
 
 
-# Run all example applications that exist
-eval "./scripts/runall.sh"
+# Run all example applications that exist. Its status must gate the run: an app
+# that failed produces no bundle, and a missing bundle is skipped silently below.
+if ! ./scripts/runall.sh; then
+    echo "runall.sh reported a failure; not treating the run as verified"
+    FAILURES=$((FAILURES + 1))
+fi
 
 echo ''
 echo '---------------------------------------------'
@@ -54,6 +59,7 @@ if [ -f 'encryptedData.der' ]; then
         echo -e '\tencryptedData.der:\t\t\t\tPASSED!'
     else
         echo -e '\tencryptedData.der:\t\t\t\tFAILED!'
+        FAILURES=$((FAILURES + 1))
         echo -e "\t... output = $OUTPUT, expected '$EXPECTED_INNER_CONTENT'"
     fi
 fi
@@ -62,13 +68,20 @@ fi
 # Trying to verify CompressedData bundle(s)
 echo -e "\nVerifying CompressedData Bundles:"
 if [ -f 'compressedData.der' ]; then
-    OUTPUT=$(openssl cms -uncompress -in compressedData.der -inform der)
+    # cms -uncompress needs an openssl built with zlib. Ubuntu's is not, so this
+    # is an openssl capability gap, not an example failure.
+    if openssl version -f 2>/dev/null | grep -q zlib; then
+        OUTPUT=$(openssl cms -uncompress -in compressedData.der -inform der)
 
-    if [ "$OUTPUT" == "$EXPECTED_INNER_CONTENT" ]; then
-        echo -e '\tcompressedData.der:\t\t\t\tPASSED!'
+        if [ "$OUTPUT" == "$EXPECTED_INNER_CONTENT" ]; then
+            echo -e '\tcompressedData.der:\t\t\t\tPASSED!'
+        else
+            echo -e '\tcompressedData.der:\t\t\t\tFAILED!'
+            FAILURES=$((FAILURES + 1))
+            echo -e "\t... output = $OUTPUT, expected '$EXPECTED_INNER_CONTENT'"
+        fi
     else
-        echo -e '\tcompressedData.der:\t\t\t\tFAILED!'
-        echo -e "\t... output = $OUTPUT, expected '$EXPECTED_INNER_CONTENT'"
+        echo -e '\tcompressedData.der:\t\t\t\tSKIPPED (openssl has no zlib)'
     fi
 fi
 
@@ -82,6 +95,7 @@ if [ -f 'envelopedDataKTRI.der' ]; then
         echo -e '\tenvelopedDataKTRI.der:\t\t\t\tPASSED!'
     else
         echo -e '\tenvelopedDataKTRI.der:\t\t\t\tFAILED!'
+        FAILURES=$((FAILURES + 1))
         echo -e "\t... output = $OUTPUT, expected '$EXPECTED_INNER_CONTENT'"
     fi
 fi
@@ -93,6 +107,7 @@ if [ -f 'envelopedDataKARI.der' ]; then
         echo -e '\tenvelopedDataKARI.der:\t\t\t\tPASSED!'
     else
         echo -e '\tenvelopedDataKARI.der:\t\t\t\tFAILED!'
+        FAILURES=$((FAILURES + 1))
         echo -e "\t... output = $OUTPUT, expected '$EXPECTED_INNER_CONTENT'"
     fi
 fi
@@ -104,6 +119,7 @@ if [ -f 'envelopedDataKEKRI.der' ]; then
         echo -e '\tenvelopedDataKEKRI.der:\t\t\t\tPASSED!'
     else
         echo -e '\tenvelopedDataKEKRI.der:\t\t\t\tFAILED!'
+        FAILURES=$((FAILURES + 1))
         echo -e "\t... output = $OUTPUT, expected '$EXPECTED_INNER_CONTENT'"
     fi
 fi
@@ -115,6 +131,7 @@ if [ -f 'envelopedDataPWRI.der' ]; then
         echo -e '\tenvelopedDataPWRI.der:\t\t\t\tPASSED!'
     else
         echo -e '\tenvelopedDataPWRI.der:\t\t\t\tFAILED!'
+        FAILURES=$((FAILURES + 1))
         echo -e "\t... output = $OUTPUT, expected '$EXPECTED_INNER_CONTENT'"
     fi
 fi
@@ -126,90 +143,95 @@ echo -e "\t[SKIPPING - openssl app doesn't support yet]"
 # Trying to verify SignedData bundle(s)
 echo -e "\nVerifying SignedData Bundles:"
 if [ -f 'signedData_attrs.der' ]; then
-    OUTPUT=$(openssl cms -verify -in signedData_attrs.der -inform der -CAfile $RSA_RECIP_CERT 2>/dev/null)
+    OUTPUT=$(openssl cms -verify -in signedData_attrs.der -inform der -CAfile $RSA_RECIP_CERT -purpose any 2>/dev/null)
 
     if [ "$OUTPUT" == "$EXPECTED_INNER_CONTENT" ]; then
         echo -e '\tsignedData_attrs.der:\t\t\t\tPASSED!'
     else
         echo -e '\tsignedData_attrs.der:\t\t\t\tFAILED!'
+        FAILURES=$((FAILURES + 1))
         echo -e "\t... output = $OUTPUT, expected '$EXPECTED_INNER_CONTENT'"
     fi
 fi
 
 if [ -f 'signedData_noattrs.der' ]; then
-    OUTPUT=$(openssl cms -verify -in signedData_noattrs.der -inform der -CAfile $RSA_RECIP_CERT 2>/dev/null)
+    OUTPUT=$(openssl cms -verify -in signedData_noattrs.der -inform der -CAfile $RSA_RECIP_CERT -certfile $RSA_RECIP_CERT -purpose any 2>/dev/null)
 
     if [ "$OUTPUT" == "$EXPECTED_INNER_CONTENT" ]; then
         echo -e '\tsignedData_noattrs.der:\t\t\t\tPASSED!'
     else
         echo -e '\tsignedData_noattrs.der:\t\t\t\tFAILED!'
+        FAILURES=$((FAILURES + 1))
         echo -e "\t... output = $OUTPUT, expected '$EXPECTED_INNER_CONTENT'"
     fi
 fi
 
 if [ -f 'signedFirmwarePkgData_attrs.der' ]; then
-    OUTPUT=$(openssl cms -verify -in signedFirmwarePkgData_attrs.der -inform der -CAfile $RSA_RECIP_CERT 2>/dev/null)
+    OUTPUT=$(openssl cms -verify -in signedFirmwarePkgData_attrs.der -inform der -CAfile $RSA_RECIP_CERT -purpose any 2>/dev/null)
 
     if [ "$OUTPUT" == "$EXPECTED_INNER_CONTENT" ]; then
         echo -e '\tsignedFirmwarePkgData_attrs.der:\t\tPASSED!'
     else
         echo -e '\tsignedFirmwarePkgData_attrs.der:\t\tFAILED!'
+        FAILURES=$((FAILURES + 1))
         echo -e "\t... output = $OUTPUT, expected '$EXPECTED_INNER_CONTENT'"
     fi
 fi
 
 if [ -f 'signedFirmwarePkgData_noattrs.der' ]; then
-    OUTPUT=$(openssl cms -verify -in signedFirmwarePkgData_noattrs.der -inform der -CAfile $RSA_RECIP_CERT 2>/dev/null)
+    OUTPUT=$(openssl cms -verify -in signedFirmwarePkgData_noattrs.der -inform der -CAfile $RSA_RECIP_CERT -purpose any 2>/dev/null)
 
     if [ "$OUTPUT" == "$EXPECTED_INNER_CONTENT" ]; then
         echo -e '\tsignedFirmwarePkgData_noattrs.der:\t\tPASSED!'
     else
         echo -e '\tsignedFirmwarePkgData_noattrs.der:\t\tFAILED!'
+        FAILURES=$((FAILURES + 1))
         echo -e "\t... output = $OUTPUT, expected '$EXPECTED_INNER_CONTENT'"
     fi
 fi
 
 if [ -f 'signedData_detached_attrs.der' ]; then
-    OUTPUT=$(openssl cms -verify -in signedData_detached_attrs.der -inform der -CAfile $RSA_RECIP_CERT -content $INNER_CONTENT_FILE 2>/dev/null)
+    OUTPUT=$(openssl cms -verify -in signedData_detached_attrs.der -inform der -CAfile $RSA_RECIP_CERT -purpose any -content $INNER_CONTENT_FILE 2>/dev/null)
 
     if [ "$OUTPUT" == "$EXPECTED_INNER_CONTENT" ]; then
         echo -e '\tsignedData_detached_attrs.der:\t\t\tPASSED!'
     else
         echo -e '\tsignedData_detached_attrs.der:\t\t\tFAILED!'
+        FAILURES=$((FAILURES + 1))
         echo -e "\t... output = $OUTPUT, expected '$EXPECTED_INNER_CONTENT'"
     fi
 fi
 
 if [ -f 'signedData_detached_noattrs.der' ]; then
-    OUTPUT=$(openssl cms -verify -in signedData_detached_noattrs.der -inform der -CAfile $RSA_RECIP_CERT -content $INNER_CONTENT_FILE 2>/dev/null)
+    OUTPUT=$(openssl cms -verify -in signedData_detached_noattrs.der -inform der -CAfile $RSA_RECIP_CERT -purpose any -content $INNER_CONTENT_FILE 2>/dev/null)
 
     if [ "$OUTPUT" == "$EXPECTED_INNER_CONTENT" ]; then
         echo -e '\tsignedData_detached_noattrs.der:\t\tPASSED!'
     else
         echo -e '\tsignedData_detached_noattrs.der:\t\tFAILED!'
+        FAILURES=$((FAILURES + 1))
         echo -e "\t... output = $OUTPUT, expected '$EXPECTED_INNER_CONTENT'"
     fi
 fi
 
-if [ -f 'signedData_cryptodev_attrs.der' ]; then
-    OUTPUT=$(openssl cms -verify -in signedData_cryptodev_attrs.der -inform der -CAfile $RSA_RECIP_CERT 2>/dev/null)
+if [ -f 'signedData_cryptocb.der' ]; then
+    # signedData-cryptocb signs with the ECC client cert, not the RSA one.
+    OUTPUT=$(openssl cms -verify -in signedData_cryptocb.der -inform der -CAfile $ECC_RECIP_CERT -purpose any 2>/dev/null)
 
     if [ "$OUTPUT" == "$EXPECTED_INNER_CONTENT" ]; then
-        echo -e '\tsignedData_cryptodev_attrs.der:\t\t\tPASSED!'
+        echo -e '\tsignedData_cryptocb.der:\t\t\tPASSED!'
     else
-        echo -e '\tsignedData_cryptodev_attrs.der:\t\t\tFAILED!'
+        echo -e '\tsignedData_cryptocb.der:\t\t\tFAILED!'
+        FAILURES=$((FAILURES + 1))
         echo -e "\t... output = $OUTPUT, expected '$EXPECTED_INNER_CONTENT'"
     fi
+else
+    echo -e '\tsignedData_cryptocb.der:\t\t\tSKIPPED (needs --enable-cryptocb)'
 fi
 
-if [ -f 'signedData_cryptodev_noattrs.der' ]; then
-    OUTPUT=$(openssl cms -verify -in signedData_cryptodev_noattrs.der -inform der -CAfile $RSA_RECIP_CERT 2>/dev/null)
-
-    if [ "$OUTPUT" == "$EXPECTED_INNER_CONTENT" ]; then
-        echo -e '\tsignedData_cryptodev_noattrs.der:\t\tPASSED!'
-    else
-        echo -e '\tsignedData_cryptodev_noattrs.der:\t\tFAILED!'
-        echo -e "\t... output = $OUTPUT, expected '$EXPECTED_INNER_CONTENT'"
-    fi
+if [ "$FAILURES" -ne 0 ]; then
+    echo "$FAILURES openssl verification(s) FAILED"
+    exit 1
 fi
-
+echo "all openssl verifications passed"
+exit 0

@@ -221,9 +221,9 @@ void* Writer(void* openSock)
 int main(int argc, char** argv)
 {
     /* Loc short for "location" */
-    char          caCertLoc[] = "certs/ca-cert.pem";
-    char          servCertLoc[] = "certs/server-cert.pem";
-    char          servKeyLoc[] = "certs/server-key.pem";
+    char          caCertLoc[] = "../certs/ca-cert.pem";
+    char          servCertLoc[] = "../certs/server-cert.pem";
+    char          servKeyLoc[] = "../certs/server-key.pem";
     WOLFSSL_CTX*  ctx;
     /* Variables for awaiting datagram */
     int           on = 1;

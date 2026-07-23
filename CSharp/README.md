@@ -10,29 +10,29 @@ wolfSSL Server and Client using PQC algorithms (ML-KEM / ML-DSA).
 
 ### Build Options
 
-The following build options need to be added.
-
-#### for `wolfssl` Project
+`wrapper/CSharp/user_settings.h` already enables these, so a wolfSSL built
+against it needs nothing added:
 
 ```
 HAVE_MLKEM
-WOLFSSL_WC_MLKEM
 WOLFSSL_HAVE_MLKEM
 WOLFSSL_DTLS_CH_FRAG
-HAVE_DILITHIUM
-WOLFSSL_WC_DILITHIUM
+WOLFSSL_HAVE_MLDSA
 WOLFSSL_SHAKE128
 WOLFSSL_SHAKE256
 ```
 
-#### for `wolfSSL_CSharp` Project
+On Linux that is:
 
-```
-HAVE_MLKEM
-HAVE_MLDSA
+```sh
+cd wolfssl
+./configure --enable-usersettings CPPFLAGS=-I$PWD/wrapper/CSharp
+make && sudo make install
 ```
 
-If you want to execute `wolfCrypt-Test` Project as well, add these options to `wolfCrypt-Test` Project.
+The Visual Studio `wolfssl` project needs the same defines added to it.
+The `wolfSSL_CSharp` project needs none: the wrapper compiles the ML-KEM and
+ML-DSA bindings unconditionally.
 
 ### wolfSSL-TLS-pq-Server
 

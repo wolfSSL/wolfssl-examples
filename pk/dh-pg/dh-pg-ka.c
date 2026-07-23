@@ -459,6 +459,7 @@ int main(int argc, char *argv[])
     wc_FreeDhKey(&key2);
     wc_FreeRng(&rng);
 
-    return 0;
+    /* ec is set on any key-agreement mismatch; returning 0 hid it */
+    return ec;
 }
 

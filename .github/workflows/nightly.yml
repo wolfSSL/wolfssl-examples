@@ -1,0 +1,200 @@
+name: Nightly Examples
+
+# One scheduled run, with wolfSSL refs as a MATRIX AXIS inside it.
+#
+# Not three cron entries: that would be three runs, and therefore three
+# concurrent ci_triage.py processes doing read-modify-write on the same per-dir
+# issue bodies. One run keeps triage single-writer.
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    inputs:
+      wolfssl_refs:
+        description: 'comma-separated wolfSSL refs'
+        type: string
+        default: 'master'
+
+# cancel-in-progress false: true would cancel the attempt-2 rerun ci-triage triggers
+concurrency:
+  group: nightly-examples
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  # Only the scheduled run is upstream-only; dispatch stays open for forks
+  gate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 1
+    if: github.event_name == 'workflow_dispatch' || github.repository_owner == 'wolfssl'
+    steps:
+      - run: echo "nightly authorised for ${{ github.repository }}"
+
+  # master + the two most recent stable tags, resolved at run time.
+  refs:
+    needs: [gate]
+    uses: ./.github/workflows/_resolve-wolfssl.yml
+    with:
+      refs: ${{ inputs.wolfssl_refs || '' }}
+      stable_count: 2
+
+  # Every target in ONE run: 13 crons meant 13 triage writers racing
+  host:
+    needs: [refs]
+    uses: ./.github/workflows/examples.yml
+    with:
+      wolfssl_refs: ${{ needs.refs.outputs.refs }}
+      caller_run_id: ${{ github.run_id }}
+
+  esp32:
+    needs: [refs]
+    uses: ./.github/workflows/esp32.yml
+    with:
+      caller_run_id: ${{ github.run_id }}
+
+  android:
+    needs: [refs]
+    uses: ./.github/workflows/android.yml
+    with:
+      caller_run_id: ${{ github.run_id }}
+
+  rt1060:
+    needs: [refs]
+    uses: ./.github/workflows/rt1060.yml
+    with:
+      caller_run_id: ${{ github.run_id }}
+
+  uefi:
+    needs: [refs]
+    uses: ./.github/workflows/uefi.yml
+    with:
+      caller_run_id: ${{ github.run_id }}
+
+  puf:
+    needs: [refs]
+    uses: ./.github/workflows/puf.yml
+    with:
+      caller_run_id: ${{ github.run_id }}
+
+  mynewt:
+    needs: [refs]
+    uses: ./.github/workflows/mynewt.yml
+    with:
+      caller_run_id: ${{ github.run_id }}
+
+  cert-expiry:
+    needs: [refs]
+    uses: ./.github/workflows/cert-expiry.yml
+    with:
+      caller_run_id: ${{ github.run_id }}
+
+  lint:
+    needs: [refs]
+    uses: ./.github/workflows/lint.yml
+    with:
+      caller_run_id: ${{ github.run_id }}
+
+  analysis:
+    needs: [refs]
+    uses: ./.github/workflows/analysis.yml
+    with:
+      caller_run_id: ${{ github.run_id }}
+
+  config-matrix:
+    needs: [refs]
+    uses: ./.github/workflows/config-matrix.yml
+    with:
+      caller_run_id: ${{ github.run_id }}
+
+  cross-arch:
+    needs: [refs]
+    uses: ./.github/workflows/cross-arch.yml
+    with:
+      caller_run_id: ${{ github.run_id }}
+
+  windows:
+    needs: [refs]
+    uses: ./.github/workflows/windows.yml
+    with:
+      caller_run_id: ${{ github.run_id }}
+
+  dtls-mcast:
+    needs: [refs]
+    uses: ./.github/workflows/dtls-mcast.yml
+    with:
+      caller_run_id: ${{ github.run_id }}
+
+  se050:
+    needs: [refs]
+    uses: ./.github/workflows/se050.yml
+    with:
+      caller_run_id: ${{ github.run_id }}
+
+  hsm:
+    needs: [refs]
+    uses: ./.github/workflows/hsm.yml
+    with:
+      caller_run_id: ${{ github.run_id }}
+
+  device-sims:
+    needs: [refs]
+    uses: ./.github/workflows/device-sims.yml
+    with:
+      caller_run_id: ${{ github.run_id }}
+
+  rpi-pico:
+    needs: [refs]
+    uses: ./.github/workflows/rpi-pico.yml
+    with:
+      caller_run_id: ${{ github.run_id }}
+
+  ebpf:
+    needs: [refs]
+    uses: ./.github/workflows/ebpf.yml
+    with:
+      caller_run_id: ${{ github.run_id }}
+
+  fullstack:
+    needs: [refs]
+    uses: ./.github/workflows/fullstack.yml
+    with:
+      caller_run_id: ${{ github.run_id }}
+
+  psa:
+    needs: [refs]
+    uses: ./.github/workflows/psa.yml
+    with:
+      caller_run_id: ${{ github.run_id }}
+
+  bsdkm:
+    needs: [refs]
+    uses: ./.github/workflows/bsdkm.yml
+    with:
+      caller_run_id: ${{ github.run_id }}
+
+  java:
+    needs: [refs]
+    uses: ./.github/workflows/java.yml
+    with:
+      caller_run_id: ${{ github.run_id }}
+
+  cmake:
+    needs: [refs]
+    uses: ./.github/workflows/cmake.yml
+    with:
+      caller_run_id: ${{ github.run_id }}
+
+  csharp:
+    needs: [refs]
+    uses: ./.github/workflows/csharp.yml
+    with:
+      caller_run_id: ${{ github.run_id }}
+
+  emulated:
+    needs: [refs]
+    uses: ./.github/workflows/emulated.yml
+    with:
+      caller_run_id: ${{ github.run_id }}

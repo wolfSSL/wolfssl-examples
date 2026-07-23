@@ -19,7 +19,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
 
 CC = gcc
-LDFLAGS = -lwolfssl
+WOLFSSL_INSTALL_DIR = /usr/local
+CFLAGS += -I$(WOLFSSL_INSTALL_DIR)/include
+LDFLAGS = -L$(WOLFSSL_INSTALL_DIR)/lib -lwolfssl
 
 all: memory_bucket_optimizer
 
@@ -27,6 +29,12 @@ memory_bucket_optimizer: memory_bucket_optimizer.c
 	$(CC) $(CFLAGS) -o memory_bucket_optimizer memory_bucket_optimizer.c $(LDFLAGS)
 
 clean:
-	rm -f memory_bucket_optimizer
+	rm -f memory_bucket_optimizer mem.log
 
-.PHONY: all clean
+.PHONY: all clean check
+
+check: memory_bucket_optimizer
+	$(MAKE) -C ../.. >/dev/null
+	../../debug-callback-example > mem.log 2>&1
+	./memory_bucket_optimizer mem.log
+	@echo "PASS: staticmemory-bucket-optimizer checks"

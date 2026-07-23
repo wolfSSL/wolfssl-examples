@@ -21,7 +21,7 @@ LIBS+=$(DYN_LIB)
 SRC=$(wildcard *.c)
 TARGETS=$(patsubst %.c, %, $(SRC))
 
-.PHONY: clean all
+.PHONY: clean all check
 
 all: $(TARGETS)
 
@@ -34,3 +34,7 @@ debug: all
 
 clean:
 	rm -f $(TARGETS)
+
+check: rsa-nb
+	out=$$(./rsa-nb) && printf '%s' "$$out" | grep -q 'RSA non-block verify successful'
+	@echo "PASS: pk-rsa checks"

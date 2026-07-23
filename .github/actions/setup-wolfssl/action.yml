@@ -1,0 +1,126 @@
+name: 'Setup wolfSSL'
+description: 'Build a wolfSSL profile, install it to /usr/local, and report its sha256'
+
+inputs:
+  ref:
+    description: 'wolfSSL git ref (branch, tag, or SHA)'
+    required: true
+    default: 'master'
+  flags:
+    description: 'configure flags for this profile'
+    required: true
+  cflags:
+    description: 'extra CFLAGS for this profile'
+    required: false
+    default: ''
+
+outputs:
+  sha256:
+    description: 'sha256 of the installed libwolfssl.so - the identity gate compares against this'
+    value: ${{ steps.identity.outputs.sha256 }}
+  resolved-ref:
+    description: 'the commit SHA the input ref resolved to'
+    value: ${{ steps.resolve.outputs.sha }}
+
+runs:
+  using: composite
+  steps:
+    # Resolve to a commit SHA so the cache key is stable across a run. Keying on
+    # a moving branch name lets two jobs in one nightly build different wolfSSLs.
+    - name: Resolve wolfSSL ref
+      id: resolve
+      shell: bash
+      run: |
+        ref='${{ inputs.ref }}'
+        if [[ "$ref" =~ ^[0-9a-f]{40}$ ]]; then
+          sha="$ref"
+        else
+          # An annotated tag resolves to the tag object, not the commit, so ask
+          # for the peeled ref first and fall back for branches.
+          sha=$(git ls-remote https://github.com/wolfSSL/wolfssl.git \
+                "refs/tags/$ref^{}" | cut -f1)
+          [ -n "$sha" ] || sha=$(git ls-remote \
+                https://github.com/wolfSSL/wolfssl.git "$ref" | head -n1 | cut -f1)
+        fi
+        [ -n "$sha" ] || { echo "could not resolve wolfSSL ref '$ref'"; exit 1; }
+        echo "sha=$sha" >> "$GITHUB_OUTPUT"
+        echo "resolved '$ref' -> $sha"
+
+    - name: Hash profile config
+      id: cfg
+      shell: bash
+      run: |
+        printf '%s|%s' '${{ inputs.flags }}' '${{ inputs.cflags }}' \
+          | sha256sum | cut -c1-16 | sed 's/^/hash=/' >> "$GITHUB_OUTPUT"
+
+    # Key on the image, not runner.os: a binary built against a newer glibc must
+    # not be restored onto an older runner image. ImageOS is set by the hosted
+    # runner; fall back so a self-hosted or container runner still gets a key.
+    - name: Compute cache key
+      id: key
+      shell: bash
+      run: |
+        img="${ImageOS:-$(. /etc/os-release 2>/dev/null && echo "$ID$VERSION_ID" || echo unknown)}"
+        echo "key=wolfssl-${img}-${{ steps.resolve.outputs.sha }}-${{ steps.cfg.outputs.hash }}-v1" >> "$GITHUB_OUTPUT"
+        echo "cache key: wolfssl-${img}-${{ steps.resolve.outputs.sha }}-${{ steps.cfg.outputs.hash }}-v1"
+
+    - name: Restore wolfSSL install
+      id: cache
+      uses: actions/cache@v5
+      with:
+        path: ~/wolfssl-install
+        key: ${{ steps.key.outputs.key }}
+
+    - name: Build wolfSSL
+      if: steps.cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        set -euo pipefail
+        rm -rf /tmp/wolfssl && mkdir -p /tmp/wolfssl
+        cd /tmp/wolfssl
+        git init -q
+        git fetch -q --depth 1 https://github.com/wolfSSL/wolfssl.git ${{ steps.resolve.outputs.sha }}
+        git checkout -q FETCH_HEAD
+        ./autogen.sh
+        # We need the library, not wolfSSL's own examples and test suite. Those
+        # also fail to build under some profiles (the `tls` profile died on
+        # tests/unit.test), and skipping them cuts every build substantially.
+        ./configure --prefix="$HOME/wolfssl-install" \
+          --disable-examples --disable-crypttests \
+          ${{ inputs.flags }} \
+          ${{ inputs.cflags && format('CFLAGS="{0}"', inputs.cflags) || '' }}
+        make -j"$(nproc)"
+        make install
+
+    # Every README tells users to build against a wolfSSL at /usr/local, and 5
+    # host-tier Makefiles have no -I/-L at all. Installing there means CI runs the
+    # exact command sequence the docs document, with no overrides.
+    - name: Install to /usr/local
+      shell: bash
+      run: |
+        set -euo pipefail
+        sudo cp -a "$HOME/wolfssl-install/." /usr/local/
+        sudo ldconfig
+
+    - name: Report cache outcome
+      shell: bash
+      run: |
+        if [ '${{ steps.cache.outputs.cache-hit }}' = 'true' ]; then
+          echo "wolfSSL restored from cache (no rebuild)"
+        else
+          echo "wolfSSL cache MISS -- built from source and saved for later jobs"
+        fi
+
+    - name: Record wolfSSL identity
+      id: identity
+      shell: bash
+      run: |
+        set -euo pipefail
+        lib=$(ls /usr/local/lib/libwolfssl.so.*.*.* 2>/dev/null | head -n1 \
+              || readlink -f /usr/local/lib/libwolfssl.so)
+        [ -f "$lib" ] || { echo "no libwolfssl.so installed under /usr/local/lib"; exit 1; }
+        sha=$(sha256sum "$lib" | cut -d' ' -f1)
+        echo "sha256=$sha" >> "$GITHUB_OUTPUT"
+        echo "installed $lib"
+        echo "sha256 $sha"
+        /usr/local/bin/wolfssl-config --version 2>/dev/null || true

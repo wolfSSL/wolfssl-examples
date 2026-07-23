@@ -11,7 +11,11 @@ all: $(TARGETS)
 %: %.c
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
-.PHONY: clean
+.PHONY: clean check
 
 clean:
 	rm -f $(TARGETS) 
+
+check: sign_and_verify
+	out=$$(./sign_and_verify) && printf '%s' "$$out" | grep -q 'Successfully validated signature'
+	@echo "PASS: pk-ed25519-gen checks"

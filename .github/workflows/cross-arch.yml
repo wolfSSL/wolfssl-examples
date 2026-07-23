@@ -1,0 +1,93 @@
+name: Cross-arch
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - '**/*.c'
+      - '**/*.h'
+      - '.github/workflows/cross-arch.yml'
+      - '.github/scripts/cross-run.sh'
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - '**/*.c'
+      - '**/*.h'
+      - '.github/workflows/cross-arch.yml'
+      - '.github/scripts/cross-run.sh'
+  workflow_call:
+    inputs:
+      caller_run_id:
+        description: 'run id of the calling workflow; keeps a called run in its own concurrency group'
+        type: string
+        default: ''
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ inputs.caller_run_id && format('cross-arch-call-{0}', inputs.caller_run_id) || format('cross-arch-{0}', github.ref) }}
+  cancel-in-progress: ${{ !inputs.caller_run_id }}
+
+permissions:
+  contents: read
+
+jobs:
+  cross:
+    name: ${{ matrix.name }}
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: m32
+            triple: ''
+            cc: gcc
+            cflags: '-m32'
+            wrap: ''
+            pkgs: gcc-multilib
+          - name: aarch64
+            triple: aarch64-linux-gnu
+            cc: aarch64-linux-gnu-gcc
+            cflags: ''
+            wrap: qemu-aarch64
+            pkgs: gcc-aarch64-linux-gnu libc6-dev-arm64-cross qemu-user
+          - name: s390x
+            triple: s390x-linux-gnu
+            cc: s390x-linux-gnu-gcc
+            cflags: ''
+            wrap: qemu-s390x
+            pkgs: gcc-s390x-linux-gnu libc6-dev-s390x-cross qemu-user
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/apt-update
+      - name: Install toolchain
+        run: |
+          set -euo pipefail
+          sudo apt-get install -y --no-install-recommends autoconf automake libtool ${{ matrix.pkgs }}
+
+      # sp-math-all keeps the bignum path pure C, so the same source runs on every
+      # target; static so qemu-user needs no target sysroot at run time.
+      - name: Cross-build wolfSSL (${{ matrix.name }})
+        run: |
+          set -euo pipefail
+          bash "$GITHUB_WORKSPACE/.github/scripts/git-clone-retry.sh" -q --depth 1 --branch master https://github.com/wolfSSL/wolfssl /tmp/wolfssl
+          cd /tmp/wolfssl
+          ./autogen.sh >/dev/null
+          host=""
+          [ -n "${{ matrix.triple }}" ] && host="--host=${{ matrix.triple }} --build=x86_64-linux-gnu"
+          # shellcheck disable=SC2086  # host is intentionally split into two flags
+          ./configure $host CC="${{ matrix.cc }}" CFLAGS="${{ matrix.cflags }}" \
+            --enable-static --disable-shared \
+            --enable-ecc --enable-ed25519 --enable-keygen --enable-sp-math-all \
+            --prefix=/tmp/wolfssl-inst >/dev/null
+          make -j"$(nproc)" >/dev/null
+          make install >/dev/null
+
+      - name: Cross-run curated examples (${{ matrix.name }})
+        env:
+          CROSS_CC: ${{ matrix.cc }}
+          CROSS_CFLAGS: ${{ matrix.cflags }}
+          CROSS_WRAP: ${{ matrix.wrap }}
+          WOLFSSL: /tmp/wolfssl-inst
+        run: ./.github/scripts/cross-run.sh

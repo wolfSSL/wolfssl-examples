@@ -91,6 +91,11 @@ int main(void)
     check_ret(ret, "wc_RsaSSL_Verify");
     printf("Here is the recovered AES KEY!\n%s\n", plain);
 
+    /* wc_RsaSSL_Verify returns the recovered length, so only a negative value
+     * is an error */
+    if (ret > 0)
+        ret = 0;
+
     return ret;
 }
 

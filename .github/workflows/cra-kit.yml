@@ -2,6 +2,7 @@ name: CRA Kit
 
 on:
   push:
+    branches: [master]
     paths:
       - 'cra-kit/**'
       - '.github/workflows/cra-kit.yml'
@@ -16,6 +17,7 @@ permissions:
 
 jobs:
   validate-auditor-packet:
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
       # Actions pinned to commit SHAs (supply-chain hygiene), not mutable tags.

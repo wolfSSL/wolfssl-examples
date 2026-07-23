@@ -43,6 +43,7 @@ LIBGCC_I32 := /usr/lib/gcc-cross/i686-linux-gnu/14/libgcc.a
 CFLAGS_COMMON := \
 	-fpic -ffreestanding -fno-stack-protector -fno-stack-check \
 	-fshort-wchar -mno-red-zone -maccumulate-outgoing-args \
+	-U__unix__ \
 	-DUEFI -DGNUEFI -DWOLFSSL_USER_SETTINGS -DNEED_DYNAMIC_TYPE_FIX_UEFI \
 	-I. -I/usr/include/efi -I/usr/include/efi/x86_64 \
 	-I$(WOLFSSL_PATH) \
@@ -72,7 +73,7 @@ OBJS_WOLFCRYPT := \
 	$(WOLFSSL_PATH)/wolfcrypt/src/cpuid.o \
 	$(WOLFSSL_PATH)/wolfcrypt/src/memory.o \
 	$(WOLFSSL_PATH)/wolfcrypt/src/rsa.o \
-	$(WOLFSSL_PATH)/wolfcrypt/src/dilithium.o \
+	$(WOLFSSL_PATH)/wolfcrypt/src/wc_mldsa.o \
 	$(WOLFSSL_PATH)/wolfcrypt/src/falcon.o \
 	$(WOLFSSL_PATH)/wolfcrypt/src/dh.o \
 	$(WOLFSSL_PATH)/wolfcrypt/src/kdf.o \

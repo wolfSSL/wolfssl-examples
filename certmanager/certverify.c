@@ -104,6 +104,8 @@ int main(void)
     printf("CRL Verification Successful!\n");
 #endif
 
+    ret = 0;
+
 exit:
     wolfSSL_CertManagerFree(cm);
     wolfSSL_Cleanup();

@@ -162,6 +162,7 @@ int main(int argc, char** argv)
     char sMsg[] = "I hear you fashizzle\r\n";
     char reply[MAXSZ];
     int ret, msgSz;
+    int rc = -1;
     WOLFSSL* sslServ;
     WOLFSSL_CTX* ctxServ = NULL;
 
@@ -185,7 +186,7 @@ int main(int argc, char** argv)
 //    sslServ = Server(&ctxServ, "ECDHE-RSA-AES128-SHA", 1);
     sslServ = Server(&ctxServ, "let-wolfssl-choose", 0);
 
-    if (sslServ == NULL) { printf("sslServ NULL\n"); return 0;}
+    if (sslServ == NULL) { printf("sslServ NULL\n"); goto cleanup; }
     ret = SSL_FAILURE;
     printf("Starting server\n");
     while (ret != SSL_SUCCESS) {
@@ -216,7 +217,7 @@ int main(int argc, char** argv)
             if (error != SSL_ERROR_WANT_READ &&
                 error != SSL_ERROR_WANT_WRITE) {
                 printf("server read failed\n");
-                break;
+                goto cleanup;
             }
         }
         else {
@@ -241,6 +242,7 @@ int main(int argc, char** argv)
             }
         } else if (ret == msgSz) {
             printf("Server send successful\n");
+            rc = 0;
             break;
         } else {
             printf("Unkown error occurred, shutting down\n");
@@ -272,5 +274,5 @@ cleanup:
         if (f != NULL) fclose(f);
     }
 
-    return -1;
+    return rc;
 }

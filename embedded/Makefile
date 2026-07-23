@@ -1,4 +1,4 @@
-# TLS Examples Makefile
+# Embedded Examples Makefile
 CC       = gcc
 WOLFSSL_INSTALL_DIR = /usr/local
 CFLAGS   = -Wall -I$(WOLFSSL_INSTALL_DIR)/include
@@ -22,9 +22,7 @@ LIBS+=$(DYN_LIB)
 # build targets
 SRC=$(wildcard *.c)
 TARGETS=$(patsubst %.c, %, $(SRC))
-LINUX_SPECIFIC=client-tls-perf \
-	server-tls-epoll-perf \
-	server-tls-epoll-threaded
+LINUX_SPECIFIC=
 
 
 # Intel QuickAssist

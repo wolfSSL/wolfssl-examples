@@ -227,6 +227,9 @@ int main(int argc, char** argv)
     if (verifySz != (int)inSz || XMEMCMP(plain, in, inSz) != 0) {
         ret = SIG_VERIFY_E;
     }
+    else {
+        printf("RSA non-block verify successful\n");
+    }
 
 prog_end:
 

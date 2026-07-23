@@ -15,13 +15,18 @@ if ! ip link show wtap0 >/dev/null 2>&1; then
 fi
 
 echo "Testing HTTPS server with curl..."
-curl -v --cacert ./certs/ca-cert.pem \
-     --tlsv1.3 --insecure https://10.10.0.10:443/
 
-# Check if curl command succeeded
-if [ $? -eq 0 ]; then
-    echo "HTTPS test successful!"
-else
-    echo "HTTPS test failed!"
-    exit 1
-fi
+# The sim's cooperative scheduler can be slow to bind :443 on a loaded host, so
+# retry rather than fail on a single connection refusal.
+attempts=30
+for i in $(seq 1 "$attempts"); do
+    curl -v --cacert ./certs/ca-cert.pem \
+         --tlsv1.3 --insecure https://10.10.0.10:443/ && break
+    if [ "$i" -eq "$attempts" ]; then
+        echo "HTTPS test failed!"
+        exit 1
+    fi
+    sleep 1
+done
+
+echo "HTTPS test successful!"

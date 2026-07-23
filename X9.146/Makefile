@@ -1,4 +1,4 @@
-CC=gcc
+# X9.146 Examples Makefile
 #if you installed wolfssl to an alternate location use CFLAGS and LIBS to
 #control your build:
 
@@ -48,10 +48,17 @@ gen_ecdsa_mldsa_dual_keysig_root_cert: gen_ecdsa_mldsa_dual_keysig_cert.c
 gen_ecdsa_mldsa_dual_keysig_server_cert: gen_ecdsa_mldsa_dual_keysig_cert.c
 	$(CC) -o $@ gen_ecdsa_mldsa_dual_keysig_cert.c $(CFLAGS) $(CPPFLAGS) $(LIBS) -DGEN_SERVER_CERT
 
-.PHONY: clean all
+.PHONY: clean all check
 
 clean:
 	rm -f gen_*_root_cert
 	rm -f gen_*_server_cert
 	rm -f *.der
 	rm -f *.pem
+
+check: gen_rsa_mldsa_dual_keysig_root_cert gen_rsa_mldsa_dual_keysig_server_cert
+	openssl genpkey -algorithm rsa -pkeyopt rsa_keygen_bits:3072 -out ca-key.der -outform der
+	openssl genpkey -algorithm rsa -pkeyopt rsa_keygen_bits:3072 -out server-key.der -outform der
+	out=$$(./gen_rsa_mldsa_dual_keysig_root_cert) && printf '%s' "$$out" | grep -q 'SUCCESS!'
+	out=$$(./gen_rsa_mldsa_dual_keysig_server_cert) && printf '%s' "$$out" | grep -q 'SUCCESS!'
+	@echo "PASS: x9146 checks"

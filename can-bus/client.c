@@ -51,11 +51,14 @@ int main(int argc, char *argv[])
         size_t len = 0;
         ssize_t line_size = 0;
         line_size = getline(&line, &len, stdin);
-        if (line_size > 0) {
-            printf("Sending: %s\n", line);
-            wolfSSL_send(ssl, line, line_size, 0);
-            printf("Message sent\n");
+        if (line_size <= 0) {
+            /* EOF: nothing left to send, and spinning here burns the CPU */
+            free(line);
+            break;
         }
+        printf("Sending: %s\n", line);
+        wolfSSL_send(ssl, line, line_size, 0);
+        printf("Message sent\n");
         free(line);
     }
 

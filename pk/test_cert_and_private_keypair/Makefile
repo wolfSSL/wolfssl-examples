@@ -23,7 +23,7 @@ LIBS+=$(DYN_LIB)
 SRC=$(wildcard *.c)
 TARGETS=$(patsubst %.c, %, $(SRC))
 
-.PHONY: clean all
+.PHONY: clean all check
 
 all: $(TARGETS)
 
@@ -36,3 +36,8 @@ debug: all
 
 clean:
 	rm -f $(TARGETS)
+
+check: test-cert-privkey-pair
+	out=$$(./test-cert-privkey-pair ../../certs/client-key.pem ../../certs/client-cert.pem) && printf '%s' "$$out" | grep -q 'Congratulations, this private key and cert'
+	! ./test-cert-privkey-pair ../../certs/client-cert.pem ../../certs/client-cert.pem >/dev/null 2>&1
+	@echo "PASS: pk-test-cert-keypair checks"

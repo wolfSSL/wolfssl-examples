@@ -44,7 +44,7 @@ make wolfssl_acert
 Build the openssl example with:
 
 ```sh
-make wolfssl_acert
+make openssl_acert
 ```
 
 Note: you may need to use this script to set your environment
@@ -58,9 +58,9 @@ info: using env: /usr/local/lib64/:/usr/local/lib/
 ### ACERT verification with pubkey
 
 ```sh
-$./wolfssl_acert -f acerts/acert.pem -k acerts/acert_pubkey.pem
-info: using acert file: acerts/acert.pem
-info: using pubkey file: acerts/acert_pubkey.pem
+$./wolfssl_acert -f certs/acert.pem -k certs/acert_pubkey.pem
+info: using acert file: certs/acert.pem
+info: using pubkey file: certs/acert_pubkey.pem
 info: PEM_read_bio_X509_ACERT: good
 info: acert version: 1
 info: PEM_read_bio_PUBKEY: good

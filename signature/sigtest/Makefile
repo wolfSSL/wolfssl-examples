@@ -2,11 +2,18 @@ CC=gcc
 CFLAGS=-Wall
 LIBS=
 
-OPENSSL_DIR=/usr/local/opt
-OPENSSL_FLAGS=-I$(OPENSSL_DIR)/openssl/include
-WOLFSSL_FLAGS=
-OPENSSL_LIB=-L$(OPENSSL_DIR)/openssl/lib -lcrypto -lssl
+# set OPENSSL_DIR only for a non-system OpenSSL (e.g. Homebrew: /usr/local/opt/openssl)
+OPENSSL_DIR ?=
+ifneq ($(OPENSSL_DIR),)
+OPENSSL_FLAGS=-I$(OPENSSL_DIR)/include
+OPENSSL_LIB=-L$(OPENSSL_DIR)/lib -lcrypto -lssl
+else
+OPENSSL_FLAGS=
+OPENSSL_LIB=-lcrypto -lssl
+endif
+
 WOLFSSL_INSTALL_DIR = /usr/local
+WOLFSSL_FLAGS=-I$(WOLFSSL_INSTALL_DIR)/include
 WOLFSSL_LIB= -L$(WOLFSSL_INSTALL_DIR)/lib -lwolfssl
 
 all:wolfsigtest opensigtest eccsiglentest
@@ -23,7 +30,12 @@ eccsiglentest:CFLAGS+=$(WOLFSSL_FLAGS)
 eccsiglentest:eccsiglentest.o
 	$(CC) -o $@ $(LIBS) $^ $(CFLAGS) $(WOLFSSL_LIB)
 
-.PHONY: clean all
+.PHONY: clean all check
 
 clean:
 	rm -f *.o wolfsigtest opensigtest eccsiglentest
+
+check: wolfsigtest opensigtest
+	out=$$(./wolfsigtest) && printf '%s' "$$out" | grep -q 'Signatures match!'
+	out=$$(./opensigtest) && printf '%s' "$$out" | grep -q 'CRYPTO: EXPECTED signature verify OK! 1'
+	@echo "PASS: signature-sigtest checks"

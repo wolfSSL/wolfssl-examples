@@ -142,6 +142,7 @@ int main(int argc, char** argv)
 
         clilen = sizeof(cliAddr);
         timeout.tv_sec = (currTimeout > 0) ? currTimeout : 0;
+        timeout.tv_usec = 0;
 
         /* Create a UDP/IP socket */
         if ((listenfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) {
@@ -266,6 +267,9 @@ int main(int argc, char** argv)
                 printf("... server would write block\n");
 
             currTimeout = wolfSSL_dtls_get_current_timeout(ssl);
+            /* select() consumes the timeout, so re-arm it every pass */
+            timeout.tv_sec = (currTimeout > 0) ? currTimeout : 0;
+            timeout.tv_usec = 0;
 
             FD_ZERO(&recvfds);
             FD_SET(listenfd, &recvfds);

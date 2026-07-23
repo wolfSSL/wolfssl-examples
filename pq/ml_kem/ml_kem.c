@@ -49,7 +49,7 @@ char* to_hex_string(const unsigned char* array, size_t length)
 }
 
 
-int main(int argc, char** argv)
+int main(void)
 {
     MlKemKey AliceKey;
     MlKemKey BobKey;
@@ -62,6 +62,8 @@ int main(int argc, char** argv)
     byte bob_ct[WC_ML_KEM_512_CIPHER_TEXT_SIZE];
     byte alice_ss[WC_ML_KEM_SS_SZ];
     byte bob_ss[WC_ML_KEM_SS_SZ];
+    byte diff = 0;
+    int i;
 
     printf("Alice creates an ML-KEM-512 key pair\n\n");
 
@@ -133,6 +135,21 @@ int main(int argc, char** argv)
         printf("An error occurred\n");
     }
 
+    if (ret == 0) {
+        /* the whole point of the KEM: both sides must derive the same secret.
+         * Accumulate rather than break early, the secrets are secret data. */
+        for (i = 0; i < WC_ML_KEM_SS_SZ; i++)
+            diff |= (byte)(alice_ss[i] ^ bob_ss[i]);
+
+        if (diff != 0) {
+            printf("Shared secrets do not match\n");
+            ret = -1;
+        }
+        else {
+            printf("Shared secrets match\n");
+        }
+    }
+
     wc_ForceZero(alice_ss, sizeof(alice_ss));
     wc_ForceZero(bob_ss, sizeof(bob_ss));
 
@@ -142,6 +159,7 @@ int main(int argc, char** argv)
         wc_MlKemKey_Free(&BobKey);
     if (rngInit)
         wc_FreeRng(&rng);
-    return ret;
+    /* not ret: an exit code is masked to 8 bits, so -256 would read as 0 */
+    return (ret == 0) ? 0 : 1;
 }
 

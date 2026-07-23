@@ -1,0 +1,151 @@
+name: CSharp
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'CSharp/**'
+      - '.github/workflows/csharp.yml'
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - 'CSharp/**'
+      - '.github/workflows/csharp.yml'
+  # No cron: nightly.yml calls this, so the nightly stays one run and one triage writer
+  workflow_call:
+    inputs:
+      caller_run_id:
+        description: 'run id of the calling workflow; keeps a called run in its own concurrency group'
+        type: string
+        default: ''
+  workflow_dispatch:
+
+# github.workflow is the CALLER's name in a called workflow, so hardcode ours
+concurrency:
+  group: ${{ inputs.caller_run_id && format('csharp-call-{0}', inputs.caller_run_id) || format('csharp-{0}', github.ref) }}
+  cancel-in-progress: ${{ !inputs.caller_run_id }}
+
+permissions:
+  contents: read
+
+jobs:
+  resolve:
+    uses: ./.github/workflows/_resolve-wolfssl.yml
+    with:
+      stable_count: 1
+
+  csharp:
+    needs: resolve
+    name: Run / csharp (${{ matrix.example }}) wolfSSL ${{ matrix.wolfssl_ref }}
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        wolfssl_ref: ${{ fromJson(needs.resolve.outputs.refs_json) }}
+        # both server variants play the same client; full paths so the
+        # coverage gate can see which dirs this job builds
+        example:
+          - CSharp/wolfSSL-TLS-pq-Server
+          - CSharp/wolfSSL-TLS-pq-ServerThreaded
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: ./.github/actions/apt-update
+      - name: Install mono
+        run: sudo apt-get install -y --no-install-recommends mono-complete >/dev/null
+
+      # The .csproj needs .NET v4.8 and wolfSSL's own csproj, so use mcs like wolfSSL's mono.yml
+      - name: Build wolfSSL with the C# wrapper's user_settings.h
+        run: |
+          set -euo pipefail
+          bash "$GITHUB_WORKSPACE/.github/scripts/git-clone-retry.sh" -q --depth 1 --branch '${{ matrix.wolfssl_ref }}' \
+            https://github.com/wolfSSL/wolfssl /tmp/wolfssl
+          cd /tmp/wolfssl
+          # wrapper/CSharp/user_settings.h already enables ML-KEM, ML-DSA and
+          # SHAKE, which is what the pq examples need
+          ./autogen.sh >/dev/null 2>&1
+          ./configure --enable-usersettings --enable-static --enable-shared \
+            CPPFLAGS=-I/tmp/wolfssl/wrapper/CSharp >/dev/null
+          make -j"$(nproc)" >/dev/null
+          sudo make install >/dev/null
+          sudo ldconfig
+
+      # A green build proves nothing if the wrapper silently lost the PQ API the
+      # examples call, so assert the exact symbols rather than trusting configure.
+      - name: Verify the wrapper still exposes the PQ API
+        run: |
+          set -euo pipefail
+          W=/tmp/wolfssl/wrapper/CSharp/wolfSSL_CSharp
+          grep -q 'WOLFSSL_ML_KEM_1024' "$W/wolfSSL.cs" \
+            || { echo "FAIL: NamedGroup.WOLFSSL_ML_KEM_1024 gone from the wrapper"; exit 1; }
+          grep -q 'public static int UseKeyShare' "$W/wolfSSL.cs" \
+            || { echo "FAIL: UseKeyShare() gone from the wrapper"; exit 1; }
+          echo "verified: WOLFSSL_ML_KEM_1024 + UseKeyShare present"
+
+      # wolfSSL's mono.yml only runs this against its PR head; this is the only place a RELEASE gets it
+      - name: Run wolfCrypt-Test through the wrapper
+        # One leg only: the suite is per-wolfSSL-ref, and the example axis would
+        # otherwise run the identical tests twice per ref for nothing.
+        if: matrix.example == 'CSharp/wolfSSL-TLS-pq-Server'
+        env:
+          LD_LIBRARY_PATH: /usr/local/lib
+        working-directory: /tmp/wolfssl/wrapper/CSharp
+        run: |
+          set -euo pipefail
+          cp /usr/local/lib/libwolfssl.so wolfssl.dll
+          cp /usr/local/lib/libwolfssl.so libwolfssl.so
+          mcs wolfCrypt-Test/wolfCrypt-Test.cs wolfSSL_CSharp/wolfCrypt.cs \
+              wolfSSL_CSharp/wolfSSL.cs wolfSSL_CSharp/X509.cs -OUT:wolfcrypttest.exe
+          mono wolfcrypttest.exe | tee wct.log
+          # exit 0 is not enough: the suite prints per-test results and only says
+          # this once every one of them passed.
+          grep -q 'All tests completed successfully' wct.log \
+            || { echo "FAIL: wolfCrypt-Test did not report all tests passing"; exit 1; }
+
+      # wolfssl.setPath() is relative, so the exes must run from CSharp/<project>/
+      - name: Compile the pair with mcs
+        run: |
+          set -euo pipefail
+          W=/tmp/wolfssl/wrapper/CSharp/wolfSSL_CSharp
+          mcs "$W/wolfSSL.cs" "$W/X509.cs" \
+            '${{ matrix.example }}'/*.cs \
+            -OUT:'${{ matrix.example }}/server.exe'
+          mcs "$W/wolfCrypt.cs" "$W/wolfSSL.cs" "$W/X509.cs" \
+            CSharp/wolfSSL-TLS-pq-Client/wolfSSL-TLS-Client.cs \
+            -OUT:CSharp/wolfSSL-TLS-pq-Client/client.exe
+          for d in '${{ matrix.example }}' CSharp/wolfSSL-TLS-pq-Client; do
+            cp /usr/local/lib/libwolfssl.so "$d/wolfssl.dll"
+            cp /usr/local/lib/libwolfssl.so "$d/libwolfssl.so"
+          done
+
+      - name: Run the ML-KEM-1024 / ML-DSA-87 handshake
+        env:
+          LD_LIBRARY_PATH: /usr/local/lib
+        run: |
+          set -euo pipefail
+          ( cd '${{ matrix.example }}' && timeout 30s mono server.exe ) \
+            > server.log 2>&1 &
+          for _ in $(seq 1 100); do
+            ss -tln | grep -q ':11111 ' && break
+            sleep 0.1
+          done
+          ss -tln | grep -q ':11111 ' \
+            || { echo "FAIL: server never listened on 11111"; cat server.log; exit 1; }
+
+          rc=0
+          ( cd CSharp/wolfSSL-TLS-pq-Client && timeout 30s mono client.exe ) \
+            > client.log 2>&1 || rc=$?
+          if [ "$rc" -ne 0 ]; then
+            echo "FAIL: client exited $rc"; echo "--- client:"; cat client.log
+            echo "--- server:"; cat server.log; exit 1
+          fi
+
+          # exit 0 alone does not prove a handshake, so assert on the negotiated
+          # session the way wolfSSL's own mono.yml does
+          grep -q 'SSL version is' client.log && grep -q 'SSL cipher suite is' client.log \
+            || { echo "FAIL: no TLS session reported"; echo "--- client:"; cat client.log
+                 echo "--- server:"; cat server.log; exit 1; }
+          echo "verified: PQ TLS 1.3 handshake"
+          grep -E 'SSL version is|SSL cipher suite is' client.log

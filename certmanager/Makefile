@@ -12,7 +12,12 @@ certverify: certverify.o
 certverify_ocsp: certverify_ocsp.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
-.PHONY: clean
+.PHONY: clean check
 
 clean:
 	rm -f *.o certverify certloadverifybuffer certverify_ocsp
+
+check: certverify certloadverifybuffer
+	out=$$(./certverify) && printf '%s' "$$out" | grep -q 'CRL Verification Successful!'
+	out=$$(./certloadverifybuffer) && printf '%s' "$$out" | grep -q 'Verification successful on cert2!'
+	@echo "PASS: certmanager checks"

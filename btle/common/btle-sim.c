@@ -31,6 +31,7 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <signal.h>
 #include <string.h>
 
 #include "btle-sim.h"
@@ -133,6 +134,10 @@ static int btle_recv_block(BtleDev_t* dev, unsigned char* buf, int len,
 int btle_open(void** dev, int role)
 {
     int fdmiso, fdmosi;
+
+    /* Both peers shut the TLS session down, so whichever writes its close_notify
+     * after the other has gone would take a fatal SIGPIPE on the fifo. */
+    signal(SIGPIPE, SIG_IGN);
 
     mkfifo(kBtleMisoFifo, 0666);
     mkfifo(kBtleMosiFifo, 0666);

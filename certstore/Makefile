@@ -8,7 +8,11 @@ all: certverify
 certverify: certverify.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
-.PHONY: clean
+.PHONY: clean check
 
 clean:
 	rm -f *.o certverify
+
+check: certverify
+	out=$$(./certverify) && printf '%s' "$$out" | grep -q 'Verified certificate'
+	@echo "PASS: certstore checks"

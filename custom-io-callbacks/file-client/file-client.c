@@ -172,6 +172,7 @@ int main(int argc, char** argv)
     char msg[] = "Hello wolfSSL\r\n";
     char reply[MAXSZ];
     int    ret, msgSz;
+    int    rc = -1;
     WOLFSSL* sslCli;
     WOLFSSL_CTX* ctxCli = NULL;
 
@@ -242,6 +243,7 @@ int main(int argc, char** argv)
         else {
             reply[ret] = '\0';
             printf("Client Received Reply: %s\n", reply);
+            rc = 0;
             break;
         }
 
@@ -263,5 +265,5 @@ cleanup:
     close(open(CR, O_RDWR | O_NOCTTY | O_NDELAY));
     close(open(SR, O_RDWR | O_NOCTTY | O_NDELAY));
 
-    return -1;
+    return rc;
 }

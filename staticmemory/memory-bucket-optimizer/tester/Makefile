@@ -19,13 +19,15 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
 
 CC = gcc
+WOLFSSL_INSTALL_DIR = /usr/local
 CFLAGS = -Wall -Wextra -O2 -g
-LIBS = -lwolfssl
+INCLUDES = -I$(WOLFSSL_INSTALL_DIR)/include
+LIBS = -L$(WOLFSSL_INSTALL_DIR)/lib -lwolfssl
 
 TARGET = memory_bucket_tester
 SOURCE = memory_bucket_tester.c
 
-.PHONY: all clean test
+.PHONY: all clean test check
 
 all: $(TARGET)
 
@@ -35,3 +37,9 @@ $(TARGET): $(SOURCE)
 clean:
 	rm -f $(TARGET)
 
+
+check: memory_bucket_tester
+	printf 'Alloc: 0x1000 -> 64 at t:1\nAlloc: 0x2000 -> 128 at t:2\nFree: 0x1000 -> 64 at t:3\nAlloc: 0x3000 -> 256 at t:4\nFree: 0x2000 -> 128 at t:5\nFree: 0x3000 -> 256 at t:6\n' > mem-sample.log
+	out=$$(./memory_bucket_tester mem-sample.log --buckets 64,128,256 --dist 1,1,1 --buffer-size 8192) && printf '%s' "$$out" | grep -q 'TEST PASSED: All allocations succeeded'
+	@echo "PASS: staticmemory-bucket-tester checks"
+	@echo "PASS: staticmemory-bucket-tester checks"

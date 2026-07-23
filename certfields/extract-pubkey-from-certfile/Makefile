@@ -7,7 +7,11 @@ LIBS= -L$(WOLFSSL_INSTALL_DIR)/lib -lwolfssl
 app: main.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
-.PHONY: clean
+.PHONY: clean check
 
 clean:
 	rm -f *.o app
+
+check: app
+	out=$$(./app) && printf '%s' "$$out" | grep -q '3082010A0282010100C303D12BFE39A432'
+	@echo "PASS: certfields-extract-pubkey checks"

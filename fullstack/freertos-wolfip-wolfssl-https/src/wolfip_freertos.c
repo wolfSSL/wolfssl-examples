@@ -59,7 +59,7 @@ static TaskHandle_t g_network_task = NULL;
 static int tap_fd = -1;
 
 /* TUN/TAP device functions */
-static int tap_init(struct ll *dev, const char *ifname) {
+static int tap_init(struct wolfIP_ll_dev *dev, const char *ifname) {
     struct ifreq ifr;
     int sock_fd;
 
@@ -114,7 +114,7 @@ static int tap_init(struct ll *dev, const char *ifname) {
     return 0;
 }
 
-static int tap_poll(struct ll *ll, void *buf, uint32_t len) {
+static int tap_poll(struct wolfIP_ll_dev *ll, void *buf, uint32_t len) {
     struct pollfd pfd;
     int ret;
 
@@ -140,7 +140,7 @@ static int tap_poll(struct ll *ll, void *buf, uint32_t len) {
     return ret;
 }
 
-static int tap_send(struct ll *ll, void *buf, uint32_t len) {
+static int tap_send(struct wolfIP_ll_dev *ll, void *buf, uint32_t len) {
     return write(tap_fd, buf, len);
 }
 
@@ -160,7 +160,7 @@ static void wolfIP_NetworkTask(void *pvParameters) {
 }
 
 int wolfIP_FreeRTOS_Init(void) {
-    struct ll *tapdev;
+    struct wolfIP_ll_dev *tapdev;
     
     /* Initialize wolfIP */
     wolfIP_init_static(&g_wolfip);

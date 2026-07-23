@@ -1,0 +1,243 @@
+name: Emulated Examples
+
+# Examples that need hardware -- run against a simulator instead. No boards,
+# no licences, all on a stock runner.
+
+on:
+  push:
+    branches: [ '**' ]
+    paths:
+      - 'tpm/**'
+      - 'SGX_Linux/**'
+      - 'can-bus/**'
+      - '.github/workflows/emulated.yml'
+      - '.github/examples-manifest.yml'
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - 'tpm/**'
+      - 'SGX_Linux/**'
+      - 'can-bus/**'
+      - '.github/workflows/emulated.yml'
+      - '.github/examples-manifest.yml'
+  # No cron: nightly.yml calls this, so the nightly stays one run and one triage writer
+  workflow_call:
+    inputs:
+      caller_run_id:
+        description: 'run id of the calling workflow; keeps a called run in its own concurrency group'
+        type: string
+        default: ''
+  workflow_dispatch:
+
+# github.workflow is the CALLER's name in a called workflow, so hardcode ours
+concurrency:
+  group: ${{ inputs.caller_run_id && format('emulated-call-{0}', inputs.caller_run_id) || format('emulated-{0}', github.ref) }}
+  cancel-in-progress: ${{ !inputs.caller_run_id }}
+
+permissions:
+  contents: read
+
+jobs:
+  resolve:
+    uses: ./.github/workflows/_resolve-wolfssl.yml
+    with:
+      stable_count: 1
+
+  tpm:
+    needs: resolve
+    name: Run / tpm (${{ matrix.simulator }}) wolfSSL ${{ matrix.wolfssl_ref }}
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        wolfssl_ref: ${{ fromJson(needs.resolve.outputs.refs_json) }}
+        # Both TPMs: a disagreement between them is a real finding
+        simulator: [ibmswtpm2, fwtpm]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/apt-update
+      - run: |
+          sudo apt-get install -y --no-install-recommends autoconf automake libtool
+          pip install --quiet pyyaml
+
+      - uses: ./.github/actions/setup-wolfssl
+        id: wolfssl
+        with:
+          ref: ${{ matrix.wolfssl_ref }}
+          flags: --enable-all --enable-wolftpm --enable-cryptocb --enable-static --enable-shared
+          # fwTPM's RSA_Encrypt/Decrypt return TPM_RC_SCHEME without it, and
+          # --enable-all does not imply it (only the FIPS and provider paths do)
+          cflags: -DWC_RSA_NO_PADDING
+
+      # fwtpm builds wolfTPM's own simulator; swtpm gives both legs the socket transport
+      - name: Build wolfTPM
+        run: |
+          set -euo pipefail
+          bash "$GITHUB_WORKSPACE/.github/scripts/git-clone-retry.sh" --depth 1 --branch v4.1.0 https://github.com/wolfSSL/wolfTPM /tmp/wolftpm
+          cd /tmp/wolftpm
+          ./autogen.sh
+          ./configure --enable-fwtpm --enable-swtpm
+          make -j"$(nproc)"
+          sudo make install
+          sudo ldconfig
+
+      - name: Start ibmswtpm2
+        if: matrix.simulator == 'ibmswtpm2'
+        run: |
+          set -euo pipefail
+          bash "$GITHUB_WORKSPACE/.github/scripts/git-clone-retry.sh" --depth 1 --branch rev1682 https://github.com/kgoldman/ibmswtpm2 /tmp/ibmswtpm2
+          make -C /tmp/ibmswtpm2/src -j"$(nproc)"
+          (cd /tmp/ibmswtpm2/src && ./tpm_server &)
+
+      - name: Start fwtpm_server
+        if: matrix.simulator == 'fwtpm'
+        run: |
+          set -euo pipefail
+          # --clear wipes NV state so a rerun cannot inherit the last run's keys
+          (cd /tmp/wolftpm && ./src/fwtpm/fwtpm_server --clear &)
+
+      # both simulators speak the swtpm command interface on TCP 2321, which is
+      # what makes them interchangeable under the same example
+      - name: Wait for the TPM on :2321
+        run: |
+          for _ in $(seq 1 200); do
+            ss -tln | grep -q ':2321 ' && break
+            sleep 0.05
+          done
+          ss -tln | grep ':2321 ' \
+            || { echo "${{ matrix.simulator }} never listened on 2321"; exit 1; }
+
+      - name: Build and run tpm example
+        run: |
+          python3 .github/scripts/run_example.py --only tpm --no-netns \
+            --expect-sha '${{ steps.wolfssl.outputs.sha256 }}' \
+            --results results-tpm-${{ matrix.simulator }}-${{ matrix.wolfssl_ref }}.json
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: results-tpm-${{ matrix.simulator }}-${{ matrix.wolfssl_ref }}-attempt${{ github.run_attempt }}
+          path: results-*.json
+          retention-days: 5
+          if-no-files-found: ignore
+
+  sgx:
+    needs: resolve
+    name: Run / SGX_Linux (SGX_MODE=SIM) wolfSSL ${{ matrix.wolfssl_ref }}
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        wolfssl_ref: ${{ fromJson(needs.resolve.outputs.refs_json) }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install Intel SGX SDK
+        run: |
+          set -euo pipefail
+          # Simulation mode needs only the SDK -- no PSW, no aesmd, no /dev/sgx_enclave.
+          url=https://download.01.org/intel-sgx/sgx-linux/2.29/distro/ubuntu24.04-server
+          bin=sgx_linux_x64_sdk_2.29.100.1.bin
+          # download.01.org is Intel's aging host and blips, so retry the fetch
+          ok=0
+          for a in 1 2 3 4 5; do
+            if wget -q -O "$bin" --tries=3 --timeout=30 --retry-connrefused "$url/$bin"; then
+              ok=1; break
+            fi
+            echo "attempt $a: SGX SDK download failed; retrying"; sleep 10
+          done
+          [ "$ok" -eq 1 ] || { echo "FAIL: could not download the Intel SGX SDK"; exit 1; }
+          chmod +x "$bin"
+          # The installer is interactive.
+          echo yes | ./"$bin"
+
+      - name: Build wolfSSL for SGX
+        run: |
+          set -euo pipefail
+          bash "$GITHUB_WORKSPACE/.github/scripts/git-clone-retry.sh" -q --depth 1 --branch '${{ matrix.wolfssl_ref }}' \
+            https://github.com/wolfSSL/wolfssl /tmp/wolfssl
+          source sgxsdk/environment
+          # test.c includes <wolfssl/options.h>, which the SGX build never generates
+          : > /tmp/wolfssl/wolfssl/options.h
+          # HAVE_WOLFSSL_TEST must match the App build below: the enclave
+          # references wolfcrypt_test, so the static lib has to contain it.
+          make -C /tmp/wolfssl/IDE/LINUX-SGX -f sgx_t_static.mk HAVE_WOLFSSL_TEST=1
+
+      - name: Build enclave and run in simulation
+        run: |
+          set -euo pipefail
+          source sgxsdk/environment
+          # SKIP_INTELCPU_CHECK: runners are often AMD and SIM mode uses no SGX instructions
+          make -C SGX_Linux \
+            SGX_MODE=SIM SGX_PRERELEASE=0 SGX_DEBUG=0 \
+            SGX_WOLFSSL_LIB=/tmp/wolfssl/IDE/LINUX-SGX/ \
+            WOLFSSL_ROOT=/tmp/wolfssl \
+            HAVE_WOLFSSL_TEST=1
+          cd SGX_Linux && SKIP_INTELCPU_CHECK=TRUE ./App
+
+  can-bus:
+    needs: resolve
+    name: Run / can-bus (vcan) wolfSSL ${{ matrix.wolfssl_ref }}
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        wolfssl_ref: ${{ fromJson(needs.resolve.outputs.refs_json) }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/apt-update
+      - run: |
+          sudo apt-get install -y --no-install-recommends autoconf automake libtool openssl
+          pip install --quiet pyyaml
+
+      - name: Set up vcan0
+        run: |
+          set -euo pipefail
+          # vcan ships in linux-modules-extra and must match the running kernel exactly
+          sudo apt-get install -y "linux-modules-extra-$(uname -r)"
+          sudo modprobe can
+          sudo modprobe can-raw
+          sudo modprobe vcan
+          sudo ip link add dev vcan0 type vcan
+          sudo ip link set vcan0 mtu 16      # 16 = classic CAN (72 for CAN FD)
+          sudo ip link set up vcan0
+          ip -details link show vcan0
+
+      - uses: ./.github/actions/setup-wolfssl
+        id: wolfssl
+        with:
+          ref: ${{ matrix.wolfssl_ref }}
+          flags: --enable-all --enable-static --enable-shared
+          cflags: "-DWOLFSSL_ISOTP"
+
+      - name: Generate certs and build
+        working-directory: can-bus
+        run: |
+          ./generate_ssl.sh
+          make
+
+      - name: Run over vcan0
+        working-directory: can-bus
+        run: |
+          set -euo pipefail
+          sudo apt-get install -y --no-install-recommends can-utils
+          candump -L vcan0 >/tmp/candump.log 2>&1 &
+          dump=$!
+          ./server vcan0 >/tmp/can-server.log 2>&1 &
+          srv=$!
+          sleep 1
+          # The client getline()s stdin, so </dev/null would send nothing
+          printf 'hello over can\n' | timeout 30 ./client vcan0 || rc=$?
+          kill "$srv" 2>/dev/null || true
+          sleep 1; kill "$dump" 2>/dev/null || true
+          echo "--- server output:"
+          cat /tmp/can-server.log || true
+          echo "--- frames on vcan0 ($(wc -l </tmp/candump.log) total), last 16:"
+          tail -16 /tmp/candump.log || true
+          exit "${rc:-0}"

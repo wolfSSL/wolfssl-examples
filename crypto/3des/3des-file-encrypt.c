@@ -469,6 +469,9 @@ int main(int argc, char** argv)
                     ret = Des3Encrypt(&des3, key, size, inFile, outFile);
                 else if (choice == 'd')
                     ret = Des3Decrypt(&des3, key, size, inFile, outFile);
+                if (ret == 0)
+                    XPRINTF("Success: 3DES %s complete\n",
+                            choice == 'e' ? "encrypt" : "decrypt");
             }
             else {
                 wc_ForceZero(key, size);

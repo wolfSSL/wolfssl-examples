@@ -1,0 +1,75 @@
+name: HSM
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'hsm/**'
+      - '.github/workflows/hsm.yml'
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - 'hsm/**'
+      - '.github/workflows/hsm.yml'
+  workflow_call:
+    inputs:
+      caller_run_id:
+        description: 'run id of the calling workflow; keeps a called run in its own concurrency group'
+        type: string
+        default: ''
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ inputs.caller_run_id && format('hsm-call-{0}', inputs.caller_run_id) || format('hsm-{0}', github.ref) }}
+  cancel-in-progress: ${{ !inputs.caller_run_id }}
+
+permissions:
+  contents: read
+
+jobs:
+  hsm:
+    # wolfHSM tracks wolfSSL master, so make download_repos clones and builds both
+    # at master; a stable-tag matrix would not build. Hence master-only.
+    name: Run / hsm dtls_client (wolfHSM ECC over DTLS) wolfSSL master
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/apt-update
+      - name: Install build deps
+        run: sudo apt-get install -y --no-install-recommends autoconf automake libtool
+
+      # download_repos clones wolfSSL + wolfHSM; make all builds the wolfSSL DTLS
+      # server/client, the wolfHSM posix server, and this repo's DTLS client.
+      - name: Clone wolfSSL + wolfHSM and build the stack
+        working-directory: hsm/dtls_client
+        run: |
+          set -euo pipefail
+          bash "$GITHUB_WORKSPACE/.github/scripts/retry.sh" make download_repos
+          make all
+
+      # A successful DTLS handshake proves the client drove its ECC signing through
+      # the HSM: wolfHSM server on TCP 23456, wolfSSL DTLS server on UDP 11111.
+      - name: Run the wolfHSM-backed DTLS handshake
+        working-directory: hsm/dtls_client
+        run: |
+          set -uo pipefail
+          make run_hsm_server > hsm.log 2>&1 &
+          make run_dtls_server > dtls.log 2>&1 &
+          for _ in $(seq 1 150); do ss -tln 2>/dev/null | grep -q ':23456 ' && break; sleep 0.2; done
+          for _ in $(seq 1 150); do ss -uln 2>/dev/null | grep -q ':11111 ' && break; sleep 0.2; done
+          ss -tln | grep -q ':23456 ' \
+            || { echo "FAIL: wolfHSM server never listened on 23456"; cat hsm.log; exit 1; }
+          ss -uln | grep -q ':11111 ' \
+            || { echo "FAIL: DTLS server never listened on 11111"; cat dtls.log; exit 1; }
+          rc=0
+          printf 'hello\n' | make run_client > client.log 2>&1 || rc=$?
+          echo "--- client:"; cat client.log
+          pkill -f wh_posix_server 2>/dev/null || true
+          pkill -f 'examples/server/server' 2>/dev/null || true
+          [ "$rc" -eq 0 ] \
+            || { echo "FAIL: client rc=$rc"; echo '--- hsm:'; cat hsm.log; echo '--- dtls:'; cat dtls.log; exit 1; }
+          grep -q 'DTLS handshake successful' client.log \
+            || { echo "FAIL: no successful HSM-backed DTLS handshake"; exit 1; }
+          echo "verified: wolfHSM-backed DTLS handshake (ECC signing on the HSM)"

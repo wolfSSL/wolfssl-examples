@@ -1,4 +1,4 @@
-# ECC Examples Makefile
+# Static Memory Examples Makefile
 CC       = gcc
 WOLFSSL_INSTALL_DIR = /usr/local
 CFLAGS   = -Wall -I$(WOLFSSL_INSTALL_DIR)/include
@@ -23,7 +23,7 @@ LIBS+=$(DYN_LIB)
 SRC=$(wildcard *.c)
 TARGETS=$(patsubst %.c, %, $(SRC))
 
-.PHONY: clean all
+.PHONY: clean all check
 
 all: $(TARGETS)
 
@@ -35,4 +35,13 @@ debug: all
 	$(CC) -o $@ $< $(CFLAGS) $(LIBS)
 
 clean:
-	rm -f $(TARGETS)
+	rm -f $(TARGETS) size.log debug.log
+
+# Redirect then grep (no pipe) so a nonzero exit fails the recipe on its own and
+# it works under BSD make too, where SHELLFLAGS pipefail is unavailable.
+check: size-calculation debug-callback-example
+	./size-calculation > size.log
+	grep -q 'Checking out bucket 4 size of 25...ok' size.log
+	./debug-callback-example > debug.log
+	grep -q 'bucket size used was' debug.log
+	@echo "PASS: staticmemory checks"

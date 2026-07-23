@@ -4,8 +4,5 @@ set(srcs enc28j60_example_main.c
 
 idf_component_register(
                        SRCS "${srcs}"
-                       INCLUDE_DIRS "."
-                       PRIV_INCLUDE_DIRS
-                       	/SysGCC/esp32/esp-idf/v4.4/components
-                       	/SysGCC/esp32/esp-idf/v4.4/components/wolfssl)
+                       INCLUDE_DIRS ".")
 set_source_files_properties(enc28j60_example_main2.c PROPERTIES HEADER_FILE_ONLY TRUE)

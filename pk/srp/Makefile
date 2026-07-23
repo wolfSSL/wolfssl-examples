@@ -1,5 +1,5 @@
 CC=gcc
-WOLFSSL_INSTALL_DIR=/usr/local/lib
+WOLFSSL_INSTALL_DIR=/usr/local
 CFLAGS=-Wall -I$(WOLFSSL_INSTALL_DIR)/include -g
 #LIBS= -lwolfssl -lm
 LIBS= -L$(WOLFSSL_INSTALL_DIR)/lib -lwolfssl -lm
@@ -18,7 +18,12 @@ srp: srp.o
 srp_gen: srp_gen.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
-.PHONY: clean
+.PHONY: clean check
 
 clean:
 	rm -f *.der *.x963 *.o srp srp_gen
+
+check: srp srp_gen
+	out=$$(./srp wolfssl password) && printf '%s' "$$out" | grep -q 'Client verified server proof'
+	out=$$(./srp_gen wolfssl password) && printf '%s' "$$out" | grep -qF 'static const byte verifier['
+	@echo "PASS: pk-srp checks"

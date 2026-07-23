@@ -18,7 +18,7 @@
 #include <wolfssl/wolfcrypt/logging.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
 #include <wolfssl/wolfcrypt/asn_public.h>
-#include <wolfssl/wolfcrypt/mlkem.h>
+#include <wolfssl/wolfcrypt/wc_mlkem.h>
 #include <wolfssl/wolfcrypt/ecc.h>
 #include <wolfssl/wolfcrypt/dh.h>
 #include <wolfssl/wolfcrypt/chacha.h>
@@ -27,8 +27,8 @@
 #include <wolfssl/wolfcrypt/curve25519.h>
 #include <wolfssl/wolfcrypt/ed25519.h>
 #include <wolfssl/wolfcrypt/cmac.h>
-#ifdef HAVE_DILITHIUM
-#include <wolfssl/wolfcrypt/dilithium.h>
+#ifdef WOLFSSL_HAVE_MLDSA
+#include <wolfssl/wolfcrypt/wc_mldsa.h>
 #endif
 #ifdef HAVE_FALCON
 #include <wolfssl/wolfcrypt/falcon.h>
@@ -371,26 +371,27 @@ typedef int (EFIAPI *wc_MlKemKey_EncodePublicKey_API)(MlKemKey* key,
 #endif /* WOLFSSL_HAVE_MLKEM */
 
 /* ------------------------------------------------------------------ */
-/* Dilithium (ML-DSA) */
+/* ML-DSA */
 /* ------------------------------------------------------------------ */
-#ifdef HAVE_DILITHIUM
-typedef int  (EFIAPI *wc_dilithium_init_API)(dilithium_key* key);
-typedef void (EFIAPI *wc_dilithium_free_API)(dilithium_key* key);
-typedef int  (EFIAPI *wc_dilithium_set_level_API)(dilithium_key* key, byte level);
-typedef int  (EFIAPI *wc_dilithium_make_key_API)(dilithium_key* key, WC_RNG* rng);
-typedef int  (EFIAPI *wc_dilithium_sign_msg_API)(const byte* in, word32 inLen,
-                                                 byte* out, word32* outLen,
-                                                 dilithium_key* key, WC_RNG* rng);
-typedef int  (EFIAPI *wc_dilithium_verify_msg_API)(const byte* sig, word32 sigLen,
-                                                   const byte* msg, word32 msgLen,
-                                                   int* res, dilithium_key* key);
-typedef int  (EFIAPI *wc_dilithium_export_key_API)(dilithium_key* key,
-                                                   byte* priv, word32* privSz,
-                                                   byte* pub, word32* pubSz);
-typedef int  (EFIAPI *wc_dilithium_import_key_API)(const byte* priv, word32 privSz,
-                                                   const byte* pub, word32 pubSz,
-                                                   dilithium_key* key);
-#endif /* HAVE_DILITHIUM */
+#ifdef WOLFSSL_HAVE_MLDSA
+typedef int  (EFIAPI *wc_MlDsaKey_Init_API)(wc_MlDsaKey* key, void* heap,
+                                            int devId);
+typedef void (EFIAPI *wc_MlDsaKey_Free_API)(wc_MlDsaKey* key);
+typedef int  (EFIAPI *wc_MlDsaKey_SetParams_API)(wc_MlDsaKey* key, byte level);
+typedef int  (EFIAPI *wc_MlDsaKey_MakeKey_API)(wc_MlDsaKey* key, WC_RNG* rng);
+typedef int  (EFIAPI *wc_MlDsaKey_Sign_API)(wc_MlDsaKey* key, byte* sig,
+                                            word32* sigLen, const byte* msg,
+                                            word32 msgLen, WC_RNG* rng);
+typedef int  (EFIAPI *wc_MlDsaKey_Verify_API)(wc_MlDsaKey* key, const byte* sig,
+                                              word32 sigLen, const byte* msg,
+                                              word32 msgLen, int* res);
+typedef int  (EFIAPI *wc_MlDsaKey_ExportKey_API)(wc_MlDsaKey* key,
+                                                 byte* priv, word32* privSz,
+                                                 byte* pub, word32* pubSz);
+typedef int  (EFIAPI *wc_MlDsaKey_ImportKey_API)(wc_MlDsaKey* key,
+                                                 const byte* priv, word32 privSz,
+                                                 const byte* pub, word32 pubSz);
+#endif /* WOLFSSL_HAVE_MLDSA */
 
 /* ------------------------------------------------------------------ */
 /* Falcon */
@@ -635,16 +636,16 @@ typedef struct {
     wc_MlKemKey_EncodePublicKey_API  wc_MlKemKey_EncodePublicKey;
 #endif
 
-    /* Dilithium */
-#ifdef HAVE_DILITHIUM
-    wc_dilithium_init_API         wc_dilithium_init;
-    wc_dilithium_free_API         wc_dilithium_free;
-    wc_dilithium_set_level_API    wc_dilithium_set_level;
-    wc_dilithium_make_key_API     wc_dilithium_make_key;
-    wc_dilithium_sign_msg_API     wc_dilithium_sign_msg;
-    wc_dilithium_verify_msg_API   wc_dilithium_verify_msg;
-    wc_dilithium_export_key_API   wc_dilithium_export_key;
-    wc_dilithium_import_key_API   wc_dilithium_import_key;
+    /* ML-DSA */
+#ifdef WOLFSSL_HAVE_MLDSA
+    wc_MlDsaKey_Init_API          wc_MlDsaKey_Init;
+    wc_MlDsaKey_Free_API          wc_MlDsaKey_Free;
+    wc_MlDsaKey_SetParams_API     wc_MlDsaKey_SetParams;
+    wc_MlDsaKey_MakeKey_API       wc_MlDsaKey_MakeKey;
+    wc_MlDsaKey_Sign_API          wc_MlDsaKey_Sign;
+    wc_MlDsaKey_Verify_API        wc_MlDsaKey_Verify;
+    wc_MlDsaKey_ExportKey_API     wc_MlDsaKey_ExportKey;
+    wc_MlDsaKey_ImportKey_API     wc_MlDsaKey_ImportKey;
 #endif
 
     /* Falcon */

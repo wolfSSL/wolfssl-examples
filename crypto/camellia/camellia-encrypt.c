@@ -434,6 +434,9 @@ int main(int argc, char** argv)
                     ret = CamelliaEncrypt(&cam, key, size, inFile, outFile);
                 else if (choice == 'd')
                     ret = CamelliaDecrypt(&cam, key, size, inFile, outFile);
+                if (ret == 0)
+                    printf("Success: Camellia %s complete\n",
+                           choice == 'e' ? "encrypt" : "decrypt");
             }
             else {
                 wc_ForceZero(key, size);

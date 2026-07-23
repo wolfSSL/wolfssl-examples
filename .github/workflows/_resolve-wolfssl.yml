@@ -1,0 +1,92 @@
+name: Resolve wolfSSL refs
+
+# Resolve the wolfSSL refs at run time so a new release needs no edit here
+
+on:
+  workflow_call:
+    inputs:
+      stable_count:
+        description: 'how many most-recent v*-stable tags to include'
+        type: number
+        default: 1
+      refs:
+        description: 'explicit comma-separated refs; skips resolution entirely'
+        type: string
+        default: ''
+    outputs:
+      refs:
+        description: 'comma-separated wolfSSL refs to test'
+        value: ${{ jobs.resolve.outputs.refs }}
+      shas:
+        description: 'commit SHAs for those refs, same order'
+        value: ${{ jobs.resolve.outputs.shas }}
+      refs_json:
+        description: 'same refs as a JSON array, for strategy.matrix'
+        value: ${{ jobs.resolve.outputs.refs_json }}
+
+jobs:
+  resolve:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      refs: ${{ steps.pick.outputs.refs }}
+      shas: ${{ steps.sha.outputs.shas }}
+      refs_json: ${{ steps.json.outputs.refs_json }}
+    steps:
+      - id: pick
+        run: |
+          set -euo pipefail
+          if [ -n '${{ inputs.refs }}' ]; then
+            refs='${{ inputs.refs }}'
+          else
+            # --refs drops the ^{} peel, so sort -V over tag names is enough
+            mapfile -t tags < <(git ls-remote --tags --refs \
+              https://github.com/wolfSSL/wolfssl.git 'v*-stable' \
+              | awk -F/ '{print $NF}' | sort -V | tail -n '${{ inputs.stable_count }}')
+            if [ "${#tags[@]}" -eq 0 ]; then
+              echo "could not resolve any v*-stable tag from wolfSSL/wolfssl"
+              exit 1
+            fi
+            refs="master"
+            for t in "${tags[@]}"; do refs="$refs,$t"; done
+          fi
+          echo "refs=$refs" >> "$GITHUB_OUTPUT"
+          echo "testing against wolfSSL: $refs"
+
+      # Pin each ref once: a push mid-run would give jobs different SHAs
+      - id: sha
+        run: |
+          set -euo pipefail
+          shas=""
+          IFS=',' read -ra list <<< '${{ steps.pick.outputs.refs }}'
+          for ref in "${list[@]}"; do
+            if [[ "$ref" =~ ^[0-9a-f]{40}$ ]]; then
+              sha="$ref"
+            else
+              # An annotated tag resolves to the tag object, not the commit, so
+              # ask for the peeled ref first and fall back for branches.
+              sha=$(git ls-remote https://github.com/wolfSSL/wolfssl.git \
+                    "refs/tags/$ref^{}" | cut -f1)
+              [ -n "$sha" ] || sha=$(git ls-remote \
+                    https://github.com/wolfSSL/wolfssl.git "$ref" \
+                    | head -n1 | cut -f1)
+            fi
+            [ -n "$sha" ] || { echo "could not resolve wolfSSL ref '$ref'"; exit 1; }
+            shas="${shas:+$shas,}$sha"
+            echo "  $ref -> $sha"
+          done
+          echo "shas=$shas" >> "$GITHUB_OUTPUT"
+          {
+            echo "### wolfSSL under test"
+            paste -d'|' <(tr ',' '\n' <<< '${{ steps.pick.outputs.refs }}') \
+                        <(tr ',' '\n' <<< "$shas") \
+              | awk -F'|' '{print "- `"$1"` @ `"substr($2,1,12)"`"}'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - id: json
+        run: |
+          set -euo pipefail
+          json=$(printf '%s' '${{ steps.pick.outputs.refs }}' \
+            | tr ',' '\n' | jq -R . | jq -sc .)
+          echo "refs_json=$json" >> "$GITHUB_OUTPUT"
+          echo "matrix refs: $json"

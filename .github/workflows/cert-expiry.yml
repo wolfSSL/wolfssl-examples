@@ -1,0 +1,40 @@
+name: Cert Expiry
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'certs/**'
+      - '.github/workflows/cert-expiry.yml'
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - 'certs/**'
+      - '.github/workflows/cert-expiry.yml'
+  # No cron: nightly.yml calls this, so the nightly stays one run and one triage writer
+  workflow_call:
+    inputs:
+      caller_run_id:
+        description: 'run id of the calling workflow; keeps a called run in its own concurrency group'
+        type: string
+        default: ''
+  workflow_dispatch:
+
+# github.workflow is the CALLER's name in a called workflow, so hardcode ours
+concurrency:
+  group: ${{ inputs.caller_run_id && format('cert-expiry-call-{0}', inputs.caller_run_id) || format('cert-expiry-{0}', github.ref) }}
+  cancel-in-progress: ${{ !inputs.caller_run_id }}
+
+permissions:
+  contents: read
+
+jobs:
+  cert-expiry:
+    name: Cert expiry canary
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - name: Warn on certs nearing expiry
+        run: ./certs/check-expiry.sh certs

@@ -60,6 +60,7 @@ int main(int argc, char** argv)
     RsaKey* pRsaKey = NULL;
     WC_RNG rng;
     int ret = 0;
+    int result = 0;
     int bits = DEF_RSA_KEY_SIZE;
     int sz;
     unsigned char derBuf[MAX_DER_SIZE];
@@ -184,6 +185,7 @@ int main(int argc, char** argv)
     /* Generate an RSA key pair. */
     if (wc_MakeRsaKey(pRsaKey, bits, WC_RSA_EXPONENT, &rng) != 0) {
         printf("failed to create rsa key\n");
+        result = -1;
     }
     else {
         /* Open public key file. */
@@ -191,12 +193,14 @@ int main(int argc, char** argv)
         printf("writing public key to %s\n", pubKey);
         if (f == NULL) {
             printf("unable to write out public key\n");
+            result = -1;
         }
         else {
             /* Encode public key to DER. */
             sz = wc_RsaKeyToPublicDer(pRsaKey, derBuf, sizeof(derBuf));
             if (sz <= 0) {
                 printf("error with rsa to public der %d\n", sz);
+                result = -1;
             }
             else {
                 /* Write DER encoded public key to file. */
@@ -207,15 +211,17 @@ int main(int argc, char** argv)
 
         /* Open private key file. */
         f = fopen(privKey, "wb");
-        printf("writing public key to %s\n", privKey);
+        printf("writing private key to %s\n", privKey);
         if (f == NULL) {
-            printf("unable to write out public key\n");
+            printf("unable to write out private key\n");
+            result = -1;
         }
         else {
             /* Encode private key to DER. */
             sz = wc_RsaKeyToDer(pRsaKey, derBuf, sizeof(derBuf));
             if (sz <= 0) {
-                printf("error with rsa to public der %d\n", sz);
+                printf("error with rsa to private der %d\n", sz);
+                result = -1;
             }
             else {
                 /* Write DER encoded private key to file. */
@@ -231,7 +237,7 @@ int main(int argc, char** argv)
     free(pRsaKey);
     wolfSSL_Cleanup();
 
-    return 0;
+    return result;
 #else
     (void)kRsaPubKey;
     (void)kRsaPrivKey;

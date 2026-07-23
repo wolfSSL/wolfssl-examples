@@ -6,7 +6,11 @@ LIBS= -L$(WOLFSSL_INSTALL_DIR)/lib -lwolfssl
 run: test.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
-.PHONY: clean
+.PHONY: clean check
 
 clean:
 	rm -f *.o run
+
+check: run
+	out=$$(ASAN_OPTIONS=detect_leaks=0 ./run) && printf '%s' "$$out" | grep -q 'extKeyUsage OID:'
+	@echo "PASS: certfields-extendedkeyusage checks"

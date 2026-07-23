@@ -86,7 +86,7 @@ openssl ocsp -port 22221 -ndays 365 \
 From the `wolfssl-examples/certmanager` directory:
 
 ```bash
-./certverify_crl_ocsp
+./certverify_ocsp
 ```
 
 ### Expected Output

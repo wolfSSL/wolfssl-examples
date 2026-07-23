@@ -110,7 +110,8 @@ int main(int argc, char** argv)
         goto cleanup;
     }
 
-    if (wolfSSL_CTX_set_max_early_data(ctx, 4096) != WOLFSSL_SUCCESS) {
+    /* returns 0 on success without OPENSSL_EXTRA, WOLFSSL_SUCCESS with it */
+    if (wolfSSL_CTX_set_max_early_data(ctx, 4096) < 0) {
         fprintf(stderr, "Failed to set max early data\n");
         goto cleanup;
     }

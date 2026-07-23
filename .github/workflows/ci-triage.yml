@@ -1,0 +1,62 @@
+name: CI Triage
+
+on:
+  workflow_run:
+    workflows: ["Nightly Examples"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: 'nightly run ID to analyze'
+        required: true
+        type: string
+      auto_retry:
+        description: 'rerun failed jobs once before reporting'
+        type: boolean
+        default: false
+      dry_run:
+        description: 'print the report; do not touch issues'
+        type: boolean
+        default: true
+
+permissions:
+  actions: write     # rerun-failed-jobs
+  contents: read
+  issues: write
+
+# Never cancel a pending report. Two triage runs racing would both list, both see
+# nothing, and both open an issue -- there is no conditional-create primitive.
+concurrency:
+  group: ci-triage-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  triage:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90   # must exceed RETRY_DEADLINE_S plus the AI budget
+    # run_attempt == 1 only: our own rerun-failed-jobs fires workflow_run again
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.head_repository.full_name == github.repository &&
+       github.event.workflow_run.run_attempt == 1)
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+
+      - name: Install deps
+        run: pip install --quiet anthropic
+
+      - name: Triage, file issues, report
+        env:
+          GH_REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.event_name == 'workflow_dispatch' && inputs.run_id || github.event.workflow_run.id }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_MODEL: claude-opus-4-8
+          AUTO_RETRY: ${{ github.event_name == 'workflow_run' && 'true' || inputs.auto_retry && 'true' || 'false' }}
+          # Defaults true on dispatch so a manual poke cannot file real issues
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run && 'true' || 'false' }}
+          RETRY_DEADLINE_S: "3600"
+        run: python3 .github/scripts/ci_triage.py
+        working-directory: ${{ github.workspace }}

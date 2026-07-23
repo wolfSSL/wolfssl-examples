@@ -21,13 +21,18 @@ cd ../../../../
 if [ ! -d "wolfssl" ]; then
     git clone --depth=1 https://github.com/wolfSSL/wolfssl.git
     cd wolfssl
+    # a git clone ships no Makefile; only release tarballs are pre-configured
+    ./autogen.sh
+    ./configure --enable-tls13 --enable-static
     make
     sudo make install
     cd ..
 fi
 
 if [ ! -d "wolfip" ]; then
-    git clone --depth=1 https://github.com/wolfSSL/wolfip.git
+    # pinned: wolfSSL is what this repo demonstrates, so wolfIP churn should not
+    # decide whether the example builds
+    git clone --depth=1 --branch v1.0 https://github.com/wolfSSL/wolfip.git
     cd wolfip
     make
     cd ..

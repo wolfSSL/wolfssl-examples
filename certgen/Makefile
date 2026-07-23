@@ -1,4 +1,4 @@
-CC=gcc
+# CertGen Examples Makefile
 #if you installed wolfssl to an alternate location use CFLAGS and LIBS to
 #control your build:
 
@@ -55,8 +55,19 @@ custom_ext:custom_ext.o
 custom_ext_callback:custom_ext_callback.o
 	$(CC) -o $@ $^ $(CFLAGS) $(CPPFLAGS) $(LIBS)
 
-.PHONY: clean all
+.PHONY: clean all check
 
 clean:
 	rm -f *.o certgen_example certgen_ca_example csr_example csr_w_ed25519_example csr_sign csr_cryptocb custom_ext custom_ext_callback
 	rm -f newCert.*
+
+check: certgen_example certgen_ca_example csr_w_ed25519_example csr_example csr_sign csr_cryptocb custom_ext custom_ext_callback
+	out=$$(./certgen_example) && printf '%s' "$$out" | grep -q 'Tests passed'
+	out=$$(./certgen_ca_example) && printf '%s' "$$out" | grep -q 'Tests passed'
+	out=$$(./csr_w_ed25519_example 2>&1) && printf '%s' "$$out" | grep -q -- '-----END CERTIFICATE REQUEST-----'
+	out=$$(./csr_example ecc) && printf '%s' "$$out" | grep -q 'Saved PEM to "ecc-csr.pem"'
+	out=$$(./csr_sign ecc-csr.pem ca-ecc-cert.der ca-ecc-key.der) && printf '%s' "$$out" | grep -q 'Tests passed'
+	out=$$(./csr_cryptocb ecc) && printf '%s' "$$out" | grep -q 'Saved CSR PEM to "ecc-csr.pem"'
+	out=$$(./custom_ext) && printf '%s' "$$out" | grep -q 'Tests passed'
+	out=$$(./custom_ext_callback newCert.der) && printf '%s' "$$out" | grep -q 'Success'
+	@echo "PASS: certgen checks"

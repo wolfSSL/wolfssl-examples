@@ -165,7 +165,7 @@ The protocol struct provides function pointers for:
   SHAKE-128, SHAKE-256
 - **MAC**: HMAC
 - **Asymmetric**: RSA, ECC, DH, Curve25519, Ed25519
-- **Post-quantum**: ML-KEM (Kyber), Dilithium (ML-DSA), Falcon, SPHINCS+, XMSS, LMS
+- **Post-quantum**: ML-KEM (Kyber), ML-DSA, Falcon, SPHINCS+, XMSS, LMS
 - **KDF**: PBKDF2, PKCS12-PBKDF, HKDF
 - **RNG**: hardware-seeded DRBG via UEFI `EFI_RNG_PROTOCOL`
 - **Misc**: logging, error strings, version

@@ -32,9 +32,10 @@ fileArray=(
 
     # CMS EnvelopedData example apps
     "envelopedData-kari"
-    "envelopedDataDecode"
     "envelopedData-kekri"
     "envelopedData-ktri"
+    # must follow envelopedData-ktri, which produces the .der it decodes
+    "envelopedDataDecode"
     "envelopedData-ori"
     "envelopedData-pwri"
 
@@ -46,7 +47,7 @@ fileArray=(
     "signedData-EncryptedFirmwareCB"
     "signedData-FirmwarePkgData"
     "signedData-DetachedSignature"
-    "signedData-cryptodev"
+    "signedData-cryptocb"
     )
 
 echo "Running example applications..."
@@ -62,7 +63,7 @@ do
         if [ $? -ne 0 ]
         then
             echo "Test FAILED"
-            exit
+            exit 1
         fi
     fi
 done

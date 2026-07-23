@@ -34,6 +34,7 @@
 #define WOLFCRYPT_ONLY
 #define SIZEOF_LONG_LONG 8
 #define BENCH_EMBEDDED
+#define WOLFSSL_USER_CURRTIME
 #define NO_WOLFSSL_MEMORY
 
 int32_t cust_rand_generate_block(uint8_t *rndb, uint32_t sz);

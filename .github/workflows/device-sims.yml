@@ -1,0 +1,70 @@
+name: Device sims
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/device-sims.yml'
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - '.github/workflows/device-sims.yml'
+  workflow_call:
+    inputs:
+      caller_run_id:
+        description: 'run id of the calling workflow; keeps a called run in its own concurrency group'
+        type: string
+        default: ''
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ inputs.caller_run_id && format('device-sims-call-{0}', inputs.caller_run_id) || format('device-sims-{0}', github.ref) }}
+  cancel-in-progress: ${{ !inputs.caller_run_id }}
+
+permissions:
+  contents: read
+
+jobs:
+  sim:
+    name: ${{ matrix.sim }} wolfcrypt
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        # SE050Sim is covered natively by se050.yml (runs this repo's demo);
+        # here we run each other sim's own wolfcrypt test via its proven Dockerfile.
+        include:
+          - sim: ATECC608Sim
+            dockerfile: Dockerfile.wolfcrypt
+          - sim: STSAFEA120Sim
+            dockerfile: Dockerfile.wolfcrypt
+          - sim: TROPIC01Sim
+            dockerfile: Dockerfile.wolfcrypt
+          - sim: STM32Sim
+            dockerfile: Dockerfile.wolfcrypt
+            wolfssl_mount: 'yes'
+          - sim: PIC32MZSim
+            dockerfile: Dockerfile.wolfcrypt-direct
+            wolfssl_mount: 'yes'
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v5
+      - name: Fetch wolfSSL/simulators
+        run: bash "$GITHUB_WORKSPACE/.github/scripts/git-clone-retry.sh" -q --depth 1 https://github.com/wolfSSL/simulators /tmp/sims
+
+      # Each Dockerfile.wolfcrypt builds the Rust applet sim + the vendor SDK +
+      # wolfSSL and runs wolfcrypt against the sim; run_test.sh exits nonzero on
+      # any failure, so the container's exit code is the assertion.
+      - name: Build and run ${{ matrix.sim }} wolfcrypt test
+        run: |
+          set -euo pipefail
+          bash "$GITHUB_WORKSPACE/.github/scripts/retry.sh" docker build -f "/tmp/sims/${{ matrix.sim }}/${{ matrix.dockerfile }}" \
+            -t sim-wolfcrypt "/tmp/sims/${{ matrix.sim }}"
+          # MCU sims mount wolfSSL at run time; secure-element sims clone it inside.
+          if [ -n "${{ matrix.wolfssl_mount }}" ]; then
+            bash "$GITHUB_WORKSPACE/.github/scripts/git-clone-retry.sh" -q --depth 1 https://github.com/wolfSSL/wolfssl /tmp/wolfssl-mnt
+            docker run --rm -v /tmp/wolfssl-mnt:/opt/wolfssl:ro sim-wolfcrypt
+          else
+            docker run --rm sim-wolfcrypt
+          fi

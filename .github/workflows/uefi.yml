@@ -1,0 +1,84 @@
+name: UEFI
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'uefi-static/**'
+      - 'uefi-library/**'
+      - '.github/workflows/uefi.yml'
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - 'uefi-static/**'
+      - 'uefi-library/**'
+      - '.github/workflows/uefi.yml'
+  # No cron: nightly.yml calls this, so the nightly stays one run and one triage writer
+  workflow_call:
+    inputs:
+      caller_run_id:
+        description: 'run id of the calling workflow; keeps a called run in its own concurrency group'
+        type: string
+        default: ''
+  workflow_dispatch:
+
+# github.workflow is the CALLER's name in a called workflow, so hardcode ours
+concurrency:
+  group: ${{ inputs.caller_run_id && format('uefi-call-{0}', inputs.caller_run_id) || format('uefi-{0}', github.ref) }}
+  cancel-in-progress: ${{ !inputs.caller_run_id }}
+
+permissions:
+  contents: read
+
+jobs:
+  resolve:
+    uses: ./.github/workflows/_resolve-wolfssl.yml
+    with:
+      stable_count: 1
+
+  uefi:
+    needs: resolve
+    name: Build / uefi (${{ matrix.example }}) wolfSSL ${{ matrix.wolfssl_ref }}
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        wolfssl_ref: ${{ fromJson(needs.resolve.outputs.refs_json) }}
+        example: [uefi-static, uefi-library]
+        include:
+          # uefi-static clones wolfSSL itself; `all` is wolfcrypt.efi
+          - example: uefi-static
+            target: all
+          # lib-nohw sets the target-specific CFLAGS; naming test.efi directly loses them
+          - example: uefi-library
+            target: lib-nohw
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: ./.github/actions/apt-update
+      - name: Install gnu-efi toolchain
+        run: |
+          set -euo pipefail
+          sudo apt-get install -y --no-install-recommends \
+            gnu-efi build-essential >/dev/null
+
+      # uefi-library defaults WOLFSSL_PATH to a sibling checkout
+      - name: Clone wolfSSL
+        run: bash "$GITHUB_WORKSPACE/.github/scripts/git-clone-retry.sh" -q --depth 1 --branch '${{ matrix.wolfssl_ref }}' https://github.com/wolfSSL/wolfssl /tmp/wolfssl
+
+      - name: Build ${{ matrix.example }} (${{ matrix.target }})
+        run: |
+          set -euo pipefail
+          cd '${{ matrix.example }}'
+          make '${{ matrix.target }}' WOLFSSL_PATH=/tmp/wolfssl
+
+      - name: Assert an EFI binary came out
+        run: |
+          set -euo pipefail
+          cd '${{ matrix.example }}'
+          f=$(find . -name '*.efi' | head -n1)
+          [ -n "$f" ] || { echo "FAIL: no .efi produced"; exit 1; }
+          file "$f"
+          echo "verified: $f"

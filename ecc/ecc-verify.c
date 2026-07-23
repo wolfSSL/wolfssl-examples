@@ -119,7 +119,7 @@ int main(void)
     ret = hash_firmware_verify(data, sizeof(data), sigBuf, sigLen);
     printf("hash_firmware_verify: %d\n", ret);
 
-    return 0;
+    return (ret == 0) ? 0 : 1;
 }
 
 #else

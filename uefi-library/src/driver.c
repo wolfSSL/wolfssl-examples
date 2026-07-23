@@ -42,8 +42,8 @@
 #include <wolfssl/wolfcrypt/ed25519.h>
 #include <wolfssl/wolfcrypt/cmac.h>
 #include <wolfssl/wolfcrypt/kdf.h>
-#ifdef HAVE_DILITHIUM
-#include <wolfssl/wolfcrypt/dilithium.h>
+#ifdef WOLFSSL_HAVE_MLDSA
+#include <wolfssl/wolfcrypt/wc_mldsa.h>
 #endif
 #ifdef HAVE_FALCON
 #include <wolfssl/wolfcrypt/falcon.h>
@@ -412,23 +412,28 @@ WRAP_FUNC(int, wc_MlKemKey_EncodePublicKey,
 #endif /* WOLFSSL_HAVE_MLKEM */
 
 /* ------------------------------------------------------------------ */
-/* Dilithium wrappers */
+/* ML-DSA wrappers */
 /* ------------------------------------------------------------------ */
-#ifdef HAVE_DILITHIUM
-WRAP_FUNC(int, wc_dilithium_init, (dilithium_key* key), (key))
-WRAP_VOID(wc_dilithium_free, (dilithium_key* key), (key))
-WRAP_FUNC(int, wc_dilithium_set_level, (dilithium_key* key, byte level), (key, level))
-WRAP_FUNC(int, wc_dilithium_make_key, (dilithium_key* key, WC_RNG* rng), (key, rng))
-WRAP_FUNC(int, wc_dilithium_sign_msg, (const byte* in, word32 inLen, byte* out, word32* outLen,
-          dilithium_key* key, WC_RNG* rng), (in, inLen, out, outLen, key, rng))
-WRAP_FUNC(int, wc_dilithium_verify_msg, (const byte* sig, word32 sigLen, const byte* msg,
-          word32 msgLen, int* res, dilithium_key* key), (sig, sigLen, msg, msgLen, res, key))
-WRAP_FUNC(int, wc_dilithium_export_key, (dilithium_key* key, byte* priv, word32* privSz,
+#ifdef WOLFSSL_HAVE_MLDSA
+WRAP_FUNC(int, wc_MlDsaKey_Init, (wc_MlDsaKey* key, void* heap, int devId),
+          (key, heap, devId))
+WRAP_VOID(wc_MlDsaKey_Free, (wc_MlDsaKey* key), (key))
+WRAP_FUNC(int, wc_MlDsaKey_SetParams, (wc_MlDsaKey* key, byte level), (key, level))
+WRAP_FUNC(int, wc_MlDsaKey_MakeKey, (wc_MlDsaKey* key, WC_RNG* rng), (key, rng))
+/* no-ctx Sign/Verify need WOLFSSL_MLDSA_NO_CTX; the *Ctx path with empty context always exists */
+static int EFI_API_TAG wc_MlDsaKey_Sign_EfiAPI(wc_MlDsaKey* key, byte* sig,
+          word32* sigLen, const byte* msg, word32 msgLen, WC_RNG* rng) {
+    return wc_MlDsaKey_SignCtx(key, NULL, 0, sig, sigLen, msg, msgLen, rng);
+}
+static int EFI_API_TAG wc_MlDsaKey_Verify_EfiAPI(wc_MlDsaKey* key, const byte* sig,
+          word32 sigLen, const byte* msg, word32 msgLen, int* res) {
+    return wc_MlDsaKey_VerifyCtx(key, sig, sigLen, NULL, 0, msg, msgLen, res);
+}
+WRAP_FUNC(int, wc_MlDsaKey_ExportKey, (wc_MlDsaKey* key, byte* priv, word32* privSz,
           byte* pub, word32* pubSz), (key, priv, privSz, pub, pubSz))
-WRAP_FUNC(int, wc_dilithium_import_key, (const byte* priv, word32 privSz,
-          const byte* pub, word32 pubSz, dilithium_key* key),
-          (priv, privSz, pub, pubSz, key))
-#endif /* HAVE_DILITHIUM */
+WRAP_FUNC(int, wc_MlDsaKey_ImportKey, (wc_MlDsaKey* key, const byte* priv, word32 privSz,
+          const byte* pub, word32 pubSz), (key, priv, privSz, pub, pubSz))
+#endif /* WOLFSSL_HAVE_MLDSA */
 
 /* ------------------------------------------------------------------ */
 /* Falcon wrappers */
@@ -670,16 +675,16 @@ static WOLFCRYPT_PROTOCOL g_wolfcrypt_api = {
     .wc_MlKemKey_EncodePublicKey = wc_MlKemKey_EncodePublicKey_EfiAPI,
 #endif
 
-    /* Dilithium */
-#ifdef HAVE_DILITHIUM
-    .wc_dilithium_init = wc_dilithium_init_EfiAPI,
-    .wc_dilithium_free = wc_dilithium_free_EfiAPI,
-    .wc_dilithium_set_level = wc_dilithium_set_level_EfiAPI,
-    .wc_dilithium_make_key = wc_dilithium_make_key_EfiAPI,
-    .wc_dilithium_sign_msg = wc_dilithium_sign_msg_EfiAPI,
-    .wc_dilithium_verify_msg = wc_dilithium_verify_msg_EfiAPI,
-    .wc_dilithium_export_key = wc_dilithium_export_key_EfiAPI,
-    .wc_dilithium_import_key = wc_dilithium_import_key_EfiAPI,
+    /* ML-DSA */
+#ifdef WOLFSSL_HAVE_MLDSA
+    .wc_MlDsaKey_Init = wc_MlDsaKey_Init_EfiAPI,
+    .wc_MlDsaKey_Free = wc_MlDsaKey_Free_EfiAPI,
+    .wc_MlDsaKey_SetParams = wc_MlDsaKey_SetParams_EfiAPI,
+    .wc_MlDsaKey_MakeKey = wc_MlDsaKey_MakeKey_EfiAPI,
+    .wc_MlDsaKey_Sign = wc_MlDsaKey_Sign_EfiAPI,
+    .wc_MlDsaKey_Verify = wc_MlDsaKey_Verify_EfiAPI,
+    .wc_MlDsaKey_ExportKey = wc_MlDsaKey_ExportKey_EfiAPI,
+    .wc_MlDsaKey_ImportKey = wc_MlDsaKey_ImportKey_EfiAPI,
 #endif
 
     /* Falcon */

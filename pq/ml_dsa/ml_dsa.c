@@ -7,7 +7,7 @@
 
 /* wolfssl includes */
 #include <wolfssl/options.h>
-#include <wolfssl/wolfcrypt/dilithium.h>
+#include <wolfssl/wolfcrypt/wc_mldsa.h>
 #include <wolfssl/wolfcrypt/random.h>
 #include <wolfssl/wolfcrypt/memory.h>
 
@@ -220,11 +220,14 @@ main(int    argc,
         goto ml_dsa_exit;
     }
 
-    rc = wc_MlDsaKey_Sign(&key, sig, &sig_len, (const byte *) msg, strlen(msg),
-                          &rng);
+    /* ctx=NULL/ctxLen=0 is FIPS 204 signing with an empty context. The older
+     * wc_MlDsaKey_Sign is pre-FIPS 204 and only exists under
+     * WOLFSSL_MLDSA_NO_CTX. */
+    rc = wc_MlDsaKey_SignCtx(&key, NULL, 0, sig, &sig_len,
+                             (const byte *) msg, strlen(msg), &rng);
 
     if (rc != 0) {
-        printf("error: wc_MlDsaKey_Sign returned %d\n", rc);
+        printf("error: wc_MlDsaKey_SignCtx returned %d\n", rc);
         goto ml_dsa_exit;
     }
 
@@ -235,15 +238,15 @@ main(int    argc,
     ml_dsa_dump_file((const uint8_t *) msg, strlen(msg), "msg.bin");
     ml_dsa_dump_file(sig, sig_len, "signature.bin");
 
-    rc = wc_MlDsaKey_Verify(&key, sig, sig_len,
-                            (const byte *) msg, strlen(msg),
-                            &verify_res);
+    rc = wc_MlDsaKey_VerifyCtx(&key, sig, sig_len, NULL, 0,
+                               (const byte *) msg, strlen(msg),
+                               &verify_res);
 
     if (rc == 0 && verify_res == 1) {
         printf("info: verify message good\n");
     }
     else {
-        printf("error: wc_MlDsaKey_Verify returned: ret=%d, "
+        printf("error: wc_MlDsaKey_VerifyCtx returned: ret=%d, "
                         "res=%d\n", rc, verify_res);
         rc = -1;
         goto ml_dsa_exit;
@@ -445,5 +448,5 @@ ml_dsa_print_parms_and_die(void)
     printf("* from Tables 1 & 2 of FIPS 204:\n");
     printf("    https://csrc.nist.gov/pubs/fips/204/final\n");
 
-    exit(EXIT_FAILURE);
+    exit(EXIT_SUCCESS);
 }

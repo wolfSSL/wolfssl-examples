@@ -8,7 +8,11 @@ all: signature
 signature: signature.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
-.PHONY: clean
+.PHONY: clean check
 
 clean:
 	rm -f *.o signature
+
+check: signature
+	out=$$(./signature Makefile) && printf '%s' "$$out" | grep -q 'ECC Signature Verification: Pass (0)'
+	@echo "PASS: signature checks"
