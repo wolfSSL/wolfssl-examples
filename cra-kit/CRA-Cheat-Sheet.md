@@ -49,11 +49,30 @@ Detail: [CRA-Compliance-Shortlist.md](CRA-Compliance-Shortlist.md)
 
 | Question | Term | wolfSSL today |
 |----------|------|---------------|
-| What software is in the product? | **SBOM** | `make sbom` or `gen-sbom` → SPDX + CycloneDX |
+| What software is in the product? | **SBOM** | `make sbom`, `cmake --target sbom`, or `gen-sbom` → SPDX + CycloneDX |
 | What crypto is enabled in *your* build? | **CBOM** (path) | `wolfssl:build:*` in CycloneDX — not full `cryptographic-asset` yet |
 | How was the library binary built? | **Provenance** | `make bomsh` (**Linux** host, optional) |
 
 *See glossary for SPDX vs CycloneDX, VEX, PURL, OmniBOR.*
+
+---
+
+## Build system integration quick-reference
+
+| Build system | How to generate SBOM | Script env var |
+|---|---|---|
+| **autotools** | `make sbom` | `CRA_SBOM_MODE=autotools` |
+| **cmake** | `cmake --build build --target sbom` | `CRA_SBOM_MODE=cmake` + `WOLFSSL_BUILD_DIR=build` |
+| **embedded / custom** (source list) | `gen-sbom --user-settings … --srcs *.c` | `CRA_SBOM_MODE=embedded` + `CRA_SBOM_SRCS_FILE=srcs.txt` |
+| **embedded** (no hashable artifact) | `gen-sbom --user-settings … --no-artifact-hash` | `CRA_SBOM_MODE=embedded` + `CRA_SBOM_NO_HASH=true` |
+
+For the embedded path the `generate-wolfssl-sbom.sh` script:
+- Tries **pcpp** (pure-Python preprocessor) first — `pip install pcpp`
+- Falls back to **`CC -dM -E`** — set `CC=arm-none-eabi-gcc` for cross builds
+- Accepts a source file list from `CRA_SBOM_SRCS_FILE` (one path per line, `#` lines ignored)
+- Accepts `CRA_SBOM_NO_HASH=true` when no source list is available
+
+Contact wolfssl@wolfssl.com before shipping a `--no-artifact-hash` SBOM in production.
 
 ---
 
