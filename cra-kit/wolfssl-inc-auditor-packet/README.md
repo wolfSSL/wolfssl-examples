@@ -26,7 +26,7 @@ fiction.
 
 **Not legal advice.** These artefacts are templates and statements of position;
 they are not, and do not replace, the actual signed legal documents wolfSSL Inc.
-files with EU regulators or its EU Authorised Representative.
+files with EU regulators.
 
 ---
 

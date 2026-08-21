@@ -6,7 +6,7 @@
 CRA Annex VII enumerates the contents of the technical documentation file that
 manufacturers must maintain (and retain for **10 years** after market placement)
 for each conformant product. This file is not made public; it is held by the
-manufacturer (and the EU AR) and produced to authorities on request.
+manufacturer under Art. 13(13) and produced to authorities on request.
 
 ## Outline of wolfSSL Inc.'s per-release technical documentation file
 
@@ -71,7 +71,7 @@ following sections are populated:
 ## Retention
 
 - **10 years** from the date the product is placed on the EU market, or for the duration of the support period (whichever is longer).
-- Held by wolfSSL Inc. **and** the EU Authorised Representative ([`eu-authorised-representative.md`](eu-authorised-representative.md)).
+- Held by wolfSSL Inc. under **Art. 13(13)**, at the disposal of market surveillance authorities (see [`eu-authorised-representative.md`](eu-authorised-representative.md)).
 
 ## What this means for customers
 

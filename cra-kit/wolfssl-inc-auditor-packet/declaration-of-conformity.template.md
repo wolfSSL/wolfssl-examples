@@ -25,7 +25,7 @@ template for their own products.
 - Email: [TO BE FILLED — kept synchronised with `/.well-known/security.txt` once wolfSSL Inc.'s security alias is provisioned]
 - Website: https://www.wolfssl.com/
 
-**3. EU Authorised Representative** (Art. 18, required for non-EU manufacturers)
+**3. EU Authorised Representative** (Art. 18, include only where one has been mandated)
 
 - Name: [TO BE FILLED — see `eu-authorised-representative.md`]
 - Postal address: [TO BE FILLED]

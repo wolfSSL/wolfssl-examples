@@ -73,7 +73,7 @@ SBOMs alone make you ready:
 
 | Obligation | Article | What it means |
 |------------|---------|---------------|
-| **EU Authorised Representative** | Art. 18 | Manufacturers established **outside** the EU must appoint a written-mandated representative **inside** the EU before placing a product on the EU market. Either contract a third-party AR service or use an existing EU subsidiary. |
+| **EU Authorised Representative** | Art. 18 | **Discretionary under the CRA.** Art. 18(1): a manufacturer *may* appoint one by written mandate. The Art. 18(3) tasks (hold the DoC and technical documentation, answer reasoned requests, cooperate on risk action) duplicate duties the manufacturer already carries under Art. 13(13). The practical reason to appoint one is control: Art. 14(7)(a) then fixes your coordinator CSIRT. Other EU acts covering finished products may require an EU representative outright. |
 | **Product classification** | Annex III / IV | Determines whether conformity assessment is self-declared (default class) or requires a **Notified Body** (important / critical class). Notified-body queues are already long — if you may need one, get in queue early. |
 | **Conformity assessment + CE mark** | Art. 32, 30 | Module A (self-assessment) or external review per classification; CE marking before placing the product on the EU market. |
 | **Technical documentation** | Annex VII | Risk assessment, secure-design rationale, vulnerability handling process, support-period commitment — more than the SBOM. |
@@ -82,7 +82,7 @@ SBOMs alone make you ready:
 
 These are **legal and structural decisions**, not artefacts you can generate
 from source code. wolfSSL ships SBOMs, security-policy templates, and the
-narrative in this kit; **you** appoint your EU AR, classify your product, run
+narrative in this kit; **you** decide your own Art. 18 position, classify your product, run
 your conformity assessment, and produce your declaration of conformity. If
 you do not yet have a CRA consultant, engaging one for the
 classification + AR questions specifically is usually the highest-leverage
@@ -95,7 +95,7 @@ classification statement, conformity assessment route, declaration of
 conformity template, EU Authorised Representative status, support-period
 policy, vulnerability-handling process, technical documentation outline,
 and CE marking statement. Where decisions are made, they're stated; where
-they're in flight (EU AR appointment, public SLA), the gap is named.
+they're in flight, the gap is named.
 Adapt as a template for your own product.
 
 ---

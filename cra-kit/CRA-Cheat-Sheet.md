@@ -89,7 +89,7 @@ the EU market you also need:
 
 | Obligation | Article | Action |
 |------------|---------|--------|
-| **EU Authorised Representative** | Art. 18 | Required if you're established outside the EU |
+| **EU Authorised Representative** | Art. 18 | **Optional** under the CRA (Art. 18(1): *may*); check other EU acts covering your product |
 | **Product class** (Annex III/IV) | — | Determines self-cert vs **Notified Body** — long queues |
 | **Conformity assessment + CE mark** | Art. 32, 30 | Module A or external review |
 | **Technical documentation** | Annex VII | Risk assessment, support-period commitment |
