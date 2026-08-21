@@ -206,6 +206,10 @@ Pinned sample version: see [`VERSION`](VERSION) (default **5.9.1**).
 Production SBOMs must use **your** project's `user_settings.h` and **your** full
 `--srcs` list (every wolfSSL `.c` you compile).
 
+See **[SRCS-FILE-HOWTO.md](SRCS-FILE-HOWTO.md)** for instructions on extracting
+your wolfSSL source list from common embedded build systems (Makefile, CMake,
+Zephyr, ESP-IDF, Keil, IAR) and passing it via `CRA_SBOM_SRCS_FILE`.
+
 ---
 
 ## Presentation
