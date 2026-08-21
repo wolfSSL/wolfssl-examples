@@ -258,10 +258,13 @@ distributor obligations. See [`CRA-Compliance-Shortlist.md`](CRA-Compliance-Shor
 legal/structural decisions, not artefacts.
 
 **Are we outside the EU? (US / Asia / etc.)**  
-Then you almost certainly need an **EU Authorised Representative** (Art. 18)
-appointed in writing **before** placing your product on the EU market. Either
-contract a third-party AR service or use an existing EU subsidiary. This is a
-long-lead item — start now, do not wait for September 2026.
+Under the CRA an **EU Authorised Representative** (Art. 18) is **optional**.
+Art. 18(1) says a manufacturer *may* appoint one, and the Art. 18(3) tasks
+duplicate duties you already carry as manufacturer under Art. 13(13). The reason
+to appoint one is control rather than compliance: Art. 14(7)(a) then fixes which
+coordinator CSIRT you file to. Note that other EU legislation covering finished
+consumer products may require an EU representative outright — check the full set
+of acts that applies to your product with counsel.
 
 ---
 

@@ -59,7 +59,7 @@ Set `WOLFSSL_DIR` to your wolfSSL source tree when regenerating SBOMs.
 
 **Before starting**, confirm with the customer (do not assume):
 
-- Where is the customer **established** (US / EU / other)? If outside the EU, flag the **EU Authorised Representative** requirement (Art. 18) — long-lead item, start now.
+- Where is the customer **established** (US / EU / other)? Note that a CRA **EU Authorised Representative** (Art. 18) is **discretionary** — Art. 18(1) says a manufacturer *may* appoint one. Other EU instruments covering finished products may require an EU representative outright, so point the customer at counsel for the full set of acts, not at Art. 18.
 - What is the **product classification** under Annex III/IV? Self-declared (default class) or Notified Body required (important / critical)? Flag if unknown — Notified Body queues are long.
 - Is the customer's CRA work **on track for 11 Sep 2026** (Art. 14 reporting wave) and **11 Dec 2027** (full applicability)? If structural items are open, SBOM work alone won't make them ready.
 
@@ -95,7 +95,7 @@ Then run the SBOM execution checklist:
 - **VEX** = customer + scanner; wolfSSL provides advisories, not VEX files.
 - **bomsh** = optional provenance; not required for most CRA transparency asks.
 - **Vulnerability handling (Art. 13/14)** = customer publishes their own CVD policy + `security.txt`, runs on-call, files 24h ENISA reports for their product; wolfSSL provides reference templates and handles ENISA reporting only for libraries placed on the EU market by wolfSSL Inc.
-- **Structural CRA (out of scope for this kit)** = EU Authorised Representative (Art. 18 — required if customer is outside the EU), Annex III/IV classification (determines self-cert vs Notified Body), conformity assessment + CE mark (Art. 32, 30), technical documentation (Annex VII), support-period commitment (Art. 13(8), 5+ years default). When a customer asks "are we ready?", surface these — SBOMs alone are not enough. Recommend engaging CRA counsel or consultant.
+- **Structural CRA (out of scope for this kit)** = EU Authorised Representative (Art. 18 — **discretionary** under the CRA; other EU acts may require one), Annex III/IV classification (determines self-cert vs Notified Body), conformity assessment + CE mark (Art. 32, 30), technical documentation (Annex VII), support-period commitment (Art. 13(8), 5+ years default). When a customer asks "are we ready?", surface these — SBOMs alone are not enough. Recommend engaging CRA counsel or consultant.
 
 ---
 

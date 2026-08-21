@@ -71,7 +71,7 @@ that no SBOM tool can satisfy. **Not legal advice** — engage CRA counsel.
 
 | Term | Article / location | Plain English |
 |------|--------------------|---------------|
-| **EU Authorised Representative** (EU AR) | Art. 18 | Required if the manufacturer is established **outside** the EU. A written-mandated EU-resident legal entity that receives regulator correspondence on the manufacturer's behalf. Either contract a third-party AR service or use an existing EU subsidiary. **Long-lead** — start now. |
+| **EU Authorised Representative** (EU AR) | Art. 18 | A written-mandated EU-established **natural or legal** person that receives regulator correspondence on the manufacturer's behalf. Appointment is **discretionary** under the CRA: Art. 18(1) says a manufacturer *may* appoint one, and Art. 18(2) bars the mandate from carrying the substantive obligations. Other EU legislation covering finished products may require an EU representative outright. |
 | **Notified Body** | — | Independent third-party conformity-assessment organisation. For "important" or "critical" products (Annex III/IV) the conformity assessment must involve a Notified Body. Queues are long — engage early if you may need one. |
 | **Annex III** | Annex III | List of **"important"** products with above-baseline cybersecurity risk (e.g. password managers, network management systems, browsers, certain identity-management components). Triggers stricter conformity assessment than the default class. |
 | **Annex IV** | Annex IV | List of **"critical"** products (highest-risk class), e.g. hardware security modules, secure-boot devices, smart-meter gateways of certain types. Always requires Notified Body involvement. |

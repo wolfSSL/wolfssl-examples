@@ -36,7 +36,7 @@ they're actually inheriting when they reference us as a component supplier.
 | CNA status | **Available** | wolfSSL is a CVE Numbering Authority |
 | Public SLA (24h ack / 72h triage) | **Pending leadership approval** | Will be added to CVD policy once approved |
 | 24h ENISA reporting (Art. 14) runbook | **In progress** | Owner assignment pending; on-call rotation TBD |
-| EU Authorised Representative (Art. 18) | **In progress** | wolfSSL Inc. is US-established; AR appointment underway |
+| EU Authorised Representative (Art. 18) | **Settled** | Discretionary under Art. 18(1); wolfSSL Inc. performs the Art. 18(3) functions directly |
 | CSAF 2.0 advisory feed | **Roadmap** | See above |
 
 See [`wolfssl-inc-auditor-packet/`](wolfssl-inc-auditor-packet/) for the manufacturer-side
