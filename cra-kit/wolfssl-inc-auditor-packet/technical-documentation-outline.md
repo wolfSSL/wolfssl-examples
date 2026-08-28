@@ -71,7 +71,7 @@ following sections are populated:
 ## Retention
 
 - **10 years** from the date the product is placed on the EU market, or for the duration of the support period (whichever is longer).
-- Held by wolfSSL Inc. **and** the EU Authorised Representative ([`eu-authorised-representative.md`](eu-authorised-representative.md)).
+- Held by the manufacturer, and also by the EU Authorised Representative where one is appointed ([`eu-authorised-representative.md`](eu-authorised-representative.md)).
 
 ## What this means for customers
 

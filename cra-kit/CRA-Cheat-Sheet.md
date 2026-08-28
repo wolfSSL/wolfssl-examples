@@ -26,7 +26,7 @@ Requires a wolfSSL tree with SBOM support (`make sbom` / `scripts/gen-sbom`).
 | **1. Know your components** | Product SBOM + vuln process for whole product | Component SBOMs, advisories, updates — **this kit** |
 | **2. Secure boot** | Trusted firmware + update path | **wolfBoot** |
 | **3. Data in transfer** | Secure protocols for remote/cloud traffic | **TLS**, **SSH**, **MQTTS**, … |
-| **4. Vulnerability handling & reporting** | Published CVD policy + `security.txt`; 24h ENISA reporting (Art. 14); on-call coverage | Reference templates: wolfSSL [`security.txt`](https://www.wolfssl.com/.well-known/security.txt) + [CVD policy](https://www.wolfssl.com/.well-known/vulnerability-disclosure-policy.txt); advisories; CNA |
+| **4. Vulnerability handling & reporting** | Published CVD policy + `security.txt`; 24h reporting via the **SRP** to your coordinator CSIRT + ENISA (Art. 14/16); on-call coverage | Reference templates: wolfSSL [`security.txt`](https://www.wolfssl.com/.well-known/security.txt) + [CVD policy](https://www.wolfssl.com/.well-known/vulnerability-disclosure-policy.txt); advisories; CNA |
 
 Detail: [CRA-Compliance-Shortlist.md](CRA-Compliance-Shortlist.md)
 
@@ -67,7 +67,7 @@ Detail: [CRA-Compliance-Shortlist.md](CRA-Compliance-Shortlist.md)
 | **VEX** | **You** (+ scanner) | Advisories only |
 | **bomsh** | **wolfSSL** (optional) | **Yes**, Linux host only |
 
-Details: [CRA-Supply-Chain-Glossary.md](CRA-Supply-Chain-Glossary.md) · roadmap: [ROADMAP.md](ROADMAP.md)
+Details: [CRA-Supply-Chain-Glossary.md](CRA-Supply-Chain-Glossary.md)
 
 ---
 
@@ -89,7 +89,7 @@ the EU market you also need:
 
 | Obligation | Article | Action |
 |------------|---------|--------|
-| **EU Authorised Representative** | Art. 18 | Required if you're established outside the EU |
+| **EU Authorised Representative** | Art. 18 | Optional (Art. 18(1) says "may") — but it fixes your Art. 14(7) reporting end-point |
 | **Product class** (Annex III/IV) | — | Determines self-cert vs **Notified Body** — long queues |
 | **Conformity assessment + CE mark** | Art. 32, 30 | Module A or external review |
 | **Technical documentation** | Annex VII | Risk assessment, support-period commitment |
