@@ -162,13 +162,18 @@ static int service_start(TrustService* svc, const char* anchorFile,
             strerror(errno));
         return -1;
     }
-    fseek(f, 0, SEEK_END);
-    sz = ftell(f);
-    fseek(f, 0, SEEK_SET);
+    if ((fseek(f, 0, SEEK_END) != 0) || ((sz = ftell(f)) <= 0) ||
+            (fseek(f, 0, SEEK_SET) != 0)) {
+        fprintf(stderr, "trust service: cannot size %s\n", anchorFile);
+        fclose(f);
+        return -1;
+    }
     svc->anchor = (unsigned char*)malloc((size_t)sz);
-    if ((sz <= 0) || (svc->anchor == NULL) ||
+    if ((svc->anchor == NULL) ||
             (fread(svc->anchor, 1, (size_t)sz, f) != (size_t)sz)) {
         fprintf(stderr, "trust service: cannot read %s\n", anchorFile);
+        free(svc->anchor);
+        svc->anchor = NULL;
         fclose(f);
         return -1;
     }
@@ -179,6 +184,10 @@ static int service_start(TrustService* svc, const char* anchorFile,
     pthread_cond_init(&svc->cond, NULL);
     if (pthread_create(&svc->thread, NULL, service_thread, svc) != 0) {
         fprintf(stderr, "trust service: cannot start thread\n");
+        pthread_cond_destroy(&svc->cond);
+        pthread_mutex_destroy(&svc->lock);
+        free(svc->anchor);
+        svc->anchor = NULL;
         return -1;
     }
     printf("trust service: anchors loaded from %s, running on its own thread\n",
@@ -298,6 +307,7 @@ static int tcp_connect(const char* host, int port)
 {
     struct sockaddr_in addr;
     int sock;
+    int flags;
 
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock < 0) {
@@ -319,7 +329,12 @@ static int tcp_connect(const char* host, int port)
     }
     /* Non-blocking from here on, so the handshake returns to us whenever it
      * waits for the network or for the trust service. */
-    fcntl(sock, F_SETFL, O_NONBLOCK);
+    flags = fcntl(sock, F_GETFL, 0);
+    if ((flags == -1) || (fcntl(sock, F_SETFL, flags | O_NONBLOCK) == -1)) {
+        fprintf(stderr, "cannot set non-blocking: %s\n", strerror(errno));
+        close(sock);
+        return -1;
+    }
     return sock;
 }
 
@@ -477,8 +492,8 @@ cleanup:
         close(sock);
     if (ctx != NULL)
         wolfSSL_CTX_free(ctx);
-    wolfSSL_Cleanup();
     service_stop(&svc);
+    wolfSSL_Cleanup();
     return exitCode;
 }
 
