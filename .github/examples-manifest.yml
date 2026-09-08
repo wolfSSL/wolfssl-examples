@@ -131,7 +131,8 @@ profiles:
     flags: >-
       --enable-tls13 --enable-ech --enable-writedup --enable-pkcallbacks
       --enable-postauth --enable-cryptocb --enable-opensslall --enable-session-ticket
-      --enable-earlydata --enable-keygen --enable-des3 --enable-static --enable-shared
+      --enable-earlydata --enable-keygen --enable-des3 --enable-chain-verify-cb
+      --enable-static --enable-shared
     cflags: "-DHAVE_SECRET_CALLBACK"
 
   dtls:
@@ -950,6 +951,13 @@ examples:
           stdin: "hello\nshutdown\n"
           server_exit: killed
         expect: "Successful resume"
+      # Sends a fixed message rather than reading stdin, so no stdin here and
+      # the server never sees "shutdown".
+      - pair:
+          server: [./server-tls]
+          client: [./client-tls-chainverifycb, 127.0.0.1]
+          server_exit: killed
+        expect: "server: I hear ya fa shizzle"
     # Deliberately not run: client-ech (external crypto.cloudflare.com:443),
     # {client,server}-tls-uart (needs /dev/ttyUSB0), and the four *-perf
     # benchmarks. All still build.
