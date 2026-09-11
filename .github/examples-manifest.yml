@@ -204,6 +204,19 @@ profiles:
       --enable-ocsp-responder --enable-cert-setup-cb --enable-sessioncerts
       --enable-tls13 --enable-static --enable-shared
 
+  ocsp-nonblock:
+    # ocsp/ocsp_nonblock: two clients that fetch a live cert and check OCSP
+    # non-blocking. The plain one needs opensslextra+sni and KEEP_PEER_CERT
+    # (it calls wolfSSL_get_peer_certificate/X509_get_der); the async one adds
+    # asynccrypt, alpn and stapling. This profile mirrors the two README
+    # configure lines and adds tls13 to exercise the TLS 1.3 path against the
+    # live server -- neither client requires it (both still allow TLS 1.2).
+    flags: >-
+      --enable-ocsp --enable-ocspstapling --enable-ocspstapling2
+      --enable-asynccrypt --enable-opensslextra --enable-sni --enable-alpn
+      --enable-tls13 --enable-static --enable-shared
+    cflags: "-DWOLFSSL_NONBLOCK_OCSP -DHAVE_IO_TIMEOUT -DKEEP_PEER_CERT -DWOLFSSL_OCSP_SCREEN_RESPONDER"
+
   pkcs11:
     flags: "--enable-pkcs11 --enable-cryptocb --enable-static --enable-shared"
 
@@ -635,9 +648,9 @@ examples:
 
   - id: ocsp-nonblock
     path: ocsp/ocsp_nonblock
-    profile: ocsp
+    profile: ocsp-nonblock
     mode: build-only
-    reason: "ocsp_nonblock_async connects to an external responder on :443"
+    reason: "both clients connect to a live OCSP responder on :443"
 
   - id: ocsp-responder
     path: ocsp/responder
