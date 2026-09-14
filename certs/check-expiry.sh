@@ -3,7 +3,9 @@
 # expire, so a cert dying becomes a scheduled regeneration instead of a red
 # morning. Already expired ones are reported but not failed: several are legacy
 # or deliberately stale fixtures (ntru-cert.pem, expired-* used for negative
-# tests). Covers PEM and DER X.509 certs, and PEM/DER CRLs (nextUpdate).
+# tests). Covers PEM and DER X.509 certs, PEM/DER CRLs (nextUpdate), and the
+# certs inside PKCS#12 bundles (*.p12, opened with the examples' password).
+# A bundle is never a fixture, so an expired one fails outright.
 set -eu
 
 DIR="${1:-certs}"
@@ -54,10 +56,45 @@ check_crl() {
     fi
 }
 
+P12_PASS="${P12_PASS:-wolfSSL test}"
+
+# True if the PEM cert in $cert is still valid $1 seconds from now.
+cert_ok() {
+    printf '%s\n' "$cert" | openssl x509 -checkend "$1" -noout >/dev/null 2>&1
+}
+
+check_p12() {
+    f="$1"
+    certs=$(openssl pkcs12 -in "$f" -nokeys -passin "pass:${P12_PASS}" \
+        2>/dev/null) \
+        || { echo "::notice::$f does not open with P12_PASS, skipped"; return 0; }
+    n=$(printf '%s\n' "$certs" | grep -c -- '-----BEGIN CERTIFICATE-----')
+    i=0
+    while [ "$i" -lt "$n" ]; do
+        i=$((i + 1))
+        checked=$((checked + 1))
+        cert=$(printf '%s\n' "$certs" | awk -v want="$i" \
+            '/-----BEGIN CERTIFICATE-----/{c++} c==want')
+        end=$(printf '%s\n' "$cert" | openssl x509 -enddate -noout | cut -d= -f2)
+        if ! cert_ok 0; then
+            echo "::error::$f cert $i expired ($end) -- run certs/generate-client-bundle.sh"
+            rc=1
+        elif ! cert_ok "$fail_secs"; then
+            echo "::error::$f cert $i expires within $FAIL_DAYS days ($end)" \
+                "-- regenerate now"
+            rc=1
+        elif ! cert_ok "$warn_secs"; then
+            echo "::warning::$f cert $i expires within $WARN_DAYS days ($end)" \
+                "-- schedule regeneration"
+        fi
+    done
+}
+
 for f in $(find "$DIR" -name '*.pem' | sort); do check_cert "$f" PEM; done
 for f in $(find "$DIR" -name '*.der' | sort); do check_cert "$f" DER; done
 for f in $(find "$DIR" \( -name '*crl*.pem' -o -name '*.crl' \) | sort); do check_crl "$f" PEM; done
 for f in $(find "$DIR" -name '*crl*.der' | sort); do check_crl "$f" DER; done
+for f in $(find "$DIR" -name '*.p12' | sort); do check_p12 "$f"; done
 
 echo "checked $checked cert/CRL file(s); fail threshold ${FAIL_DAYS}d, warn ${WARN_DAYS}d"
 exit $rc
