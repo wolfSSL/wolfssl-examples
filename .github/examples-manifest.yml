@@ -1706,3 +1706,9 @@ examples:
     path: utasker
     mode: skip
     reason: "uTasker project task files; no standalone build"
+
+  - id: wolfhal
+    path: wolfHAL
+    tier: cross
+    profile: all
+    mode: build-only
