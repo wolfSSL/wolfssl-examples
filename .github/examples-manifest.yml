@@ -134,6 +134,17 @@ profiles:
       --enable-earlydata --enable-keygen --enable-des3 --enable-static --enable-shared
     cflags: "-DHAVE_SECRET_CALLBACK"
 
+  tlschainverifycb:
+    # tls plus --enable-chain-verify-cb, which no release carries yet. Kept
+    # separate because configure exits 1 on an unrecognized --enable-*, so
+    # putting it in `tls` would fail that whole dir on the stable tag.
+    flags: >-
+      --enable-tls13 --enable-ech --enable-writedup --enable-pkcallbacks
+      --enable-postauth --enable-cryptocb --enable-opensslall --enable-session-ticket
+      --enable-earlydata --enable-keygen --enable-des3 --enable-chain-verify-cb
+      --enable-static --enable-shared
+    cflags: "-DHAVE_SECRET_CALLBACK"
+
   dtls:
     # earlydata requires session tickets or PSK: without session-ticket,
     # configure dies with "cannot enable earlydata without enabling session
@@ -958,6 +969,27 @@ examples:
     # Deliberately not run: client-ech (external crypto.cloudflare.com:443),
     # {client,server}-tls-uart (needs /dev/ttyUSB0), and the four *-perf
     # benchmarks. All still build.
+
+  # Split out of tls above purely so the other 22 targets keep testing the
+  # released library. --enable-chain-verify-cb reached wolfSSL master in
+  # wolfSSL/wolfssl#11367 and no release contains it yet; configure exits 1 on
+  # an unrecognized --enable-*, so on a stable tag this profile cannot even be
+  # built. Drop the pin and fold this back into tls once a release has it.
+  - id: tls-chainverifycb
+    path: tls
+    profile: tlschainverifycb
+    wolfssl_ref: master
+    # Only the pair, not the whole dir: everything else here is already built
+    # and run by the tls entry against both refs.
+    build: [make, client-tls-chainverifycb, server-tls]
+    run:
+      # Sends a fixed message rather than reading stdin, so no stdin here and
+      # the server never sees "shutdown".
+      - pair:
+          server: [./server-tls]
+          client: [./client-tls-chainverifycb, 127.0.0.1]
+          server_exit: killed
+        expect: "server: I hear ya fa shizzle"
 
   - id: dtls
     path: dtls
