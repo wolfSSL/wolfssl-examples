@@ -1,0 +1,14 @@
+## network callback
+
+## TPM certificate
+
+
+## crypto callback
+
+## check if key is valid
+
+
+### mosquitto TLS example
+`mosquitto -c mosquitto.conf`
+`mosquitto_sub -d -p 18883 -t blah --cafile certs/ca-cert.pem -h 127.0.0.1`
+`mosquitto_pub -d -p 18883 -t blah --cafile certs/ca-cert.pem -h 127.0.0.1 -m hola`
