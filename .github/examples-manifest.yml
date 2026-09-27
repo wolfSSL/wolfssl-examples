@@ -672,11 +672,6 @@ examples:
           <<: *stapling
           client: [./ocsp-client, --tls13]
         expect: "Client: TLS handshake success"
-        # wolfSSL bug (not the example): a CTX-set status_request is dropped from
-        # the TLS1.3 Certificate msg (-429). Fixed on master by wolfSSL/wolfssl#10936,
-        # still in v5.9.2-stable; drop expect_fail + fixed_on once a stable tag has it.
-        expect_fail: "wolfSSL drops a CTX-set status_request in the TLS1.3 Certificate msg (-429)"
-        fixed_on: [master]
 
   - id: custom-io-file-client
     path: custom-io-callbacks/file-client
@@ -1113,8 +1108,8 @@ examples:
     # The 3 TLS binaries need wolfSSL's own client as the peer, which is not in
     # this repo, so 8 of 11 is the honest ceiling here.
     run:
-      # 7 of the 8 pass. pkcs11_test is run separately rather than folded in
-      # here, so a regression in these 7 still turns the job red.
+      # pkcs11_test is run separately rather than folded in here, so a
+      # regression in these 7 still turns the job red.
       - script: [./softhsm2-init.sh, pkcs11_rsa, pkcs11_ecc, pkcs11_genecc,
                  pkcs11_aesgcm, pkcs11_aescbc, pkcs11_hmac, pkcs11_rand]
         # softhsm2.sh only prints this once every example it ran returned 0.
@@ -1123,15 +1118,6 @@ examples:
       - script: [./softhsm2-init.sh, pkcs11_test]
         expect: "All PKCS#11 examples passed"
         timeout: 300
-        # gen_ec_keys_label() then wc_ecc_verify_hash() on the PKCS#11 public key
-        # returns WC_HW_E (-248); signing and the no-label path pass. Fixed on
-        # master by wolfSSL/wolfssl#10954 (keygen destroys the HSM public key, so
-        # verify must use the exported point), still in the latest stable tag;
-        # drop expect_fail + fixed_on once a stable tag has it. Not reproducible
-        # locally -- brew SoftHSM 2.7 reports PKCS#11 3.2 but exports no
-        # C_GetInterface, which wolfSSL rejects first.
-        expect_fail: "wc_ecc_verify_hash on a label-generated PKCS#11 EC key returns WC_HW_E (-248)"
-        fixed_on: [master]
 
   # ------------------------------------------------- host: separate profiles
   - id: pk-rsa
