@@ -16,7 +16,7 @@ Use **[`CRA-Compliance-Shortlist.md`](../CRA-Compliance-Shortlist.md)** — two 
 | **Know your software components** | Survey all integrated components: who maintains them? how do you track vulns/releases? | SBOMs for our products; continuous vulnerability management and updates |
 | **Implement secure boot** | Most influential action today: trusted firmware + update path aligned with complaint/timing rules | **wolfBoot** |
 | **Remote data processing / data in transfer** | CRA covers data between device and network — use current crypto and secure protocols | **TLS**, **SSH**, **MQTTS**, … |
-| **Vulnerability handling & reporting** | Published CVD policy + `security.txt`; 24h ENISA reporting (Art. 14); on-call coverage — process, not a deliverable | wolfSSL [`security.txt`](https://www.wolfssl.com/.well-known/security.txt) + [CVD policy](https://www.wolfssl.com/.well-known/vulnerability-disclosure-policy.txt) as reference templates; advisories; CNA |
+| **Vulnerability handling & reporting** | Published CVD policy + `security.txt`; 24h reporting via the **SRP** (to coordinator CSIRT + ENISA, Art. 14/16); on-call coverage — process, not a deliverable | wolfSSL [`security.txt`](https://www.wolfssl.com/.well-known/security.txt) + [CVD policy](https://www.wolfssl.com/.well-known/vulnerability-disclosure-policy.txt) as reference templates; advisories; CNA |
 
 **Bridge to this session:** pillar 1 is where the **CRA Kit** lands (SBOM, auditor packet, scripts).
 

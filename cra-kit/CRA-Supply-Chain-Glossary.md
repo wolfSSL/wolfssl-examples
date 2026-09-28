@@ -52,7 +52,7 @@ flowchart LR
 | **PURL** | **Package URL** | Standard ID like `pkg:github/wolfSSL/wolfssl@v5.9.1` — helps tools match components. wolfSSL ships PURLs in both `github` (canonical, resolves in OSV / GHSA / Snyk / Trivy) and CPE forms. |
 | **CPE** | **Common Platform Enumeration** | Standard ID like `cpe:2.3:a:wolfssl:wolfssl:…` — used by many vulnerability databases. |
 | **VEX** | **Vulnerability Exploitability eXchange** | CycloneDX-side signal: “this CVE does/doesn’t apply to our build.” Often layered on top of SBOM in security tools. |
-| **CBOM** | **Cryptographic Bill of Materials** | Inventory of **crypto algorithms/keys/modules** (beyond generic SBOM). Today: `wolfssl:build:*` in CycloneDX; formal CBOM: see [`ROADMAP.md`](ROADMAP.md). |
+| **CBOM** | **Cryptographic Bill of Materials** | Inventory of **crypto algorithms/keys/modules** (beyond generic SBOM). Today: `wolfssl:build:*` in CycloneDX; formal CBOM: on the roadmap. |
 | **bomsh** | wolfSSL **make** target | Runs **OmniBOR** provenance: proves **how** the library binary was built from sources (**Linux host only**). |
 | **OmniBOR** | Omni **Bill of Resources** | Merkle DAG of build inputs/outputs; stored under `omnibor/`. |
 | **gitoid** | Git-object-style ID | Hash pointer (`gitoid:blob:sha1:…`) into the OmniBOR graph; appears in `omnibor.*.spdx.json`. |
@@ -71,7 +71,7 @@ that no SBOM tool can satisfy. **Not legal advice** — engage CRA counsel.
 
 | Term | Article / location | Plain English |
 |------|--------------------|---------------|
-| **EU Authorised Representative** (EU AR) | Art. 18 | Required if the manufacturer is established **outside** the EU. A written-mandated EU-resident legal entity that receives regulator correspondence on the manufacturer's behalf. Either contract a third-party AR service or use an existing EU subsidiary. **Long-lead** — start now. |
+| **EU Authorised Representative** (EU AR) | Art. 18 | A written-mandated EU-resident legal entity that holds the manufacturer's documentation and receives regulator correspondence on its behalf. **Optional** — Art. 18(1) says a manufacturer *may* appoint one, including from outside the EU. It cannot take on the Art. 13 core obligations (Art. 18(2)). It does fix the Art. 14(7) coordinator CSIRT. Either contract a third-party AR service or use an existing EU subsidiary. **Long-lead** if you want one. |
 | **Notified Body** | — | Independent third-party conformity-assessment organisation. For "important" or "critical" products (Annex III/IV) the conformity assessment must involve a Notified Body. Queues are long — engage early if you may need one. |
 | **Annex III** | Annex III | List of **"important"** products with above-baseline cybersecurity risk (e.g. password managers, network management systems, browsers, certain identity-management components). Triggers stricter conformity assessment than the default class. |
 | **Annex IV** | Annex IV | List of **"critical"** products (highest-risk class), e.g. hardware security modules, secure-boot devices, smart-meter gateways of certain types. Always requires Notified Body involvement. |
@@ -82,8 +82,11 @@ that no SBOM tool can satisfy. **Not legal advice** — engage CRA counsel.
 | **Declaration of conformity** | Art. 28 | Manufacturer's signed statement of CRA compliance. Names the product, lists applicable EU acts, identifies the manufacturer (and EU AR if applicable). |
 | **Importer** | Art. 19 | EU entity placing a non-EU product on the EU market. Carries CRA obligations parallel to the manufacturer (verify CE mark, retain AR contact, assist regulators). |
 | **Distributor** | Art. 20 | Party in the supply chain making the product available on the EU market without altering it. Lighter obligations than importer/manufacturer, but must verify CE mark and assist regulators. |
-| **Support period** | Art. 13(2), 13(8) | Minimum duration during which the manufacturer must provide **free security updates**. Default: at least **5 years** (or the product's expected lifetime if longer). Must be declared in the technical documentation. |
-| **ENISA** | Art. 14 | EU Agency for Cybersecurity. Recipient of the **24-hour** early-warning report when a vulnerability in your product is **actively exploited**, plus 72-hour update and 14-day final report. |
+| **Support period** | Art. 13(8) | Minimum duration during which the manufacturer must provide **free security updates**. Default: at least **5 years**, unless the product is expected to be in use for a shorter period (and longer where the expected lifetime is longer). Must be declared in the technical documentation. |
+| **ENISA** | Art. 14, 16 | EU Agency for Cybersecurity. Operates the **Single Reporting Platform (SRP)**; manufacturers file through it and reports reach the **coordinator CSIRT** with ENISA notified **simultaneously** — the **24-hour** early-warning when a vulnerability is **actively exploited**, plus 72-hour update and 14-day final report. |
+| **SRP** (Single Reporting Platform) | Art. 16 | ENISA-operated platform (live **11 Sep 2026**) where manufacturers file Art. 14 reports once; routes to the coordinator CSIRT + ENISA and on to affected Member States. |
+| **CSIRT** (designated as coordinator) | Art. 14(7) | National incident-response team that receives your Art. 14 report via the SRP and disseminates it. Determined by your EU main establishment — or, where there is none, by the ordered cascade in Art. 14(7): authorised representative, then importer, then distributor, then the Member State with the most users. |
+| **EUVD** (European Vulnerability Database) | Art. 17(5) / NIS2 Art. 12(2) | ENISA's public database where **fixed** vulnerabilities reported via the SRP are published; makes disclosure timelines verifiable. |
 | **CNA** | (CVE programme) | **CVE Numbering Authority** — organisation authorised to assign CVE IDs within its scope. wolfSSL is a CNA for wolfSSL libraries. |
 
 For execution detail on these obligations, see [`CRA-Compliance-Shortlist.md`](CRA-Compliance-Shortlist.md) "Beyond this kit (structural CRA obligations)".

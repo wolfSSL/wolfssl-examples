@@ -27,7 +27,7 @@
     "properties": [
       {
         "name": "wolfssl:cbom:status",
-        "value": "DRAFT — illustrative starter set for the CycloneDX 1.6 cryptographic-asset profile. Derived from the build configuration in wolfssl-5.9.1.cdx.json (HAVE_AESGCM, HAVE_CHACHA, HAVE_POLY1305, HAVE_ECC, HAVE_HKDF, WOLFSSL_SHA256/384/512, WOLFSSL_TLS13, WOLFSSL_HAVE_MLKEM). Not exhaustive. See ROADMAP.md."
+        "value": "DRAFT — illustrative starter set for the CycloneDX 1.6 cryptographic-asset profile. Derived from the build configuration in wolfssl-5.9.1.cdx.json (HAVE_AESGCM, HAVE_CHACHA, HAVE_POLY1305, HAVE_ECC, HAVE_HKDF, WOLFSSL_SHA256/384/512, WOLFSSL_TLS13, WOLFSSL_HAVE_MLKEM). Not exhaustive."
       }
     ]
   },

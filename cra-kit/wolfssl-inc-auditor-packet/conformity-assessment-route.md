@@ -32,10 +32,8 @@ Module A obligates wolfSSL Inc. to:
 
 Notified Body involvement is required for products in the higher-risk
 categories — **Annex III "important"** or **Annex IV "critical"**. wolfSSL
-libraries are neither. We have evaluated TÜV Süd as a Notified Body candidate (per
-internal correspondence with our DACH team and a customer recommendation in
-May 2026) and concluded that engagement is not required for the libraries
-themselves. Customers whose finished products fall into Annex III/IV may
+libraries are neither, so no Notified Body engagement is required for the
+libraries themselves. Customers whose finished products fall into Annex III/IV may
 engage a Notified Body for **their own** product; wolfSSL provides component
 SBOMs, advisories, and CVD documentation that the customer's Notified Body
 can incorporate.

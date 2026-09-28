@@ -25,7 +25,7 @@ template for their own products.
 - Email: [TO BE FILLED — kept synchronised with `/.well-known/security.txt` once wolfSSL Inc.'s security alias is provisioned]
 - Website: https://www.wolfssl.com/
 
-**3. EU Authorised Representative** (Art. 18, required for non-EU manufacturers)
+**3. EU Authorised Representative** (Art. 18 — optional; omit this block where no AR is appointed)
 
 - Name: [TO BE FILLED — see `eu-authorised-representative.md`]
 - Postal address: [TO BE FILLED]
@@ -72,6 +72,6 @@ No Notified Body involvement required for default-class products.
 ## Notes for customers adapting this template
 
 1. Fields in `[BRACKETS]` must be filled before signature.
-2. The declaration must be drawn up in **at least one of the official languages** of the Member State where the product is placed on the market. English is generally accepted but verify with your EU Authorised Representative.
+2. The declaration must be drawn up in **at least one of the official languages** of the Member State where the product is placed on the market. English is generally accepted, but verify against the Member States you place the product in — or ask your EU Authorised Representative, where you have appointed one.
 3. The signed declaration is part of the **technical documentation** (Annex VII) and must be retained for **10 years**.
 4. The declaration accompanies the product. For software products, this typically means including it in the release tarball, in a `LEGAL/` directory, or alongside the SBOMs.

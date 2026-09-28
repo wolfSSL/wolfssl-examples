@@ -28,7 +28,7 @@ CRA conformity packet for a real product also includes:
 - Declaration of conformity (Art. 28)
 - Technical documentation per Annex VII (risk assessment, design info, support-period commitment, vulnerability handling process)
 - Proof of conformity assessment (self-declared per Art. 32 Module A, or Notified Body certificate per product class)
-- Identity of the EU Authorised Representative (Art. 18) if the manufacturer is established outside the EU
+- Identity of the EU Authorised Representative (Art. 18) where one has been appointed — appointment is optional
 - CE marking declaration
 
 See [`../CRA-Compliance-Shortlist.md`](../CRA-Compliance-Shortlist.md)
