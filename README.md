@@ -22,6 +22,22 @@ details.
 
 <br />
 
+#### autosar (AUTOSAR Classic CSM)
+
+This directory contains examples using the wolfSSL AUTOSAR Classic Platform
+port, which plugs wolfCrypt in under the standard Csm / CryIf / Crypto driver
+chain. Covers AES-CBC, DRBG and AES-CMAC through the `Csm_*` API, keystore slot
+selection, job lifecycle, error handling, concurrent use from several SW-Cs,
+streaming a payload larger than a CAN frame, Secure Onboard Communication
+(SecOC) over classic CAN, SHE key provisioning, backing the Crypto driver with
+an HSM through a crypto callback, and a `user_settings.h` build of the kind an
+ECU uses.
+
+Please see the [autosar/README.md](autosar/README.md) for further usage and
+details.
+
+<br />
+
 #### BTLE
 
 This directory contains examples for securing a Bluetooth Low Energy Link (BTLE).
@@ -132,6 +148,17 @@ Please see the [dtls/README.md](dtls/README.md) for further usage and details.
 
 <br />
 
+#### doip (Diagnostics over IP)
+
+This directory contains an ISO 13400-2 DoIP entity and tester carried over
+TLS 1.3, doing routing activation and a UDS request over loopback. Shows the
+two gates that protect a diagnostic session: client authentication in the
+handshake, and the routing activation response code.
+
+Please see the [doip/README.md](doip/README.md) for further usage and details.
+
+<br />
+
 #### ecc (Elliptic Curve Cryptography)
 
 This directory contains examples that demonstrate the various use-cases of 
@@ -168,6 +195,19 @@ wolfCrypt.
 
 Please see the [hash/README.md](hash/README.md) for further usage and details.
 
+
+<br />
+
+#### iso15118 (Plug & Charge, ISO 15118-20)
+
+This directory contains the TLS layer of ISO 15118-20: a charging station
+(SECC) and a vehicle (EVCC) authenticating each other over TLS 1.3 with a
+realistic four-tier V2G certificate hierarchy, the contract certificate
+installation step that wraps the vehicle's charging key to its OEM provisioning
+key, and the ECDSA operation an ISO 15118 XML signature wraps.
+
+Please see the [iso15118/README.md](iso15118/README.md) for further usage and
+details.
 
 <br />
 
