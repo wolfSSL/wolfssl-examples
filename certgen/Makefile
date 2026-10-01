@@ -29,7 +29,7 @@ CFLAGS+=$(OPTIMIZE)
 #LIBS+=$(STATIC_LIB)
 LIBS+=$(DYN_LIB)
 
-all:certgen_example certgen_ca_example csr_example csr_w_ed25519_example csr_sign csr_cryptocb custom_ext custom_ext_callback
+all:certgen_example certgen_ca_example csr_example csr_w_ed25519_example csr_sign csr_cryptocb csr_ecc_rawpub custom_ext custom_ext_callback
 
 certgen_example:certgen_example.o
 	$(CC) -o $@ $^ $(CFLAGS) $(CPPFLAGS) $(LIBS)
@@ -49,6 +49,9 @@ csr_sign:csr_sign.o
 csr_cryptocb:csr_cryptocb.o
 	$(CC) -o $@ $^ $(CFLAGS) $(CPPFLAGS) $(LIBS)
 
+csr_ecc_rawpub:csr_ecc_rawpub.o
+	$(CC) -o $@ $^ $(CFLAGS) $(CPPFLAGS) $(LIBS)
+
 custom_ext:custom_ext.o
 	$(CC) -o $@ $^ $(CFLAGS) $(CPPFLAGS) $(LIBS)
 
@@ -58,16 +61,17 @@ custom_ext_callback:custom_ext_callback.o
 .PHONY: clean all check
 
 clean:
-	rm -f *.o certgen_example certgen_ca_example csr_example csr_w_ed25519_example csr_sign csr_cryptocb custom_ext custom_ext_callback
+	rm -f *.o certgen_example certgen_ca_example csr_example csr_w_ed25519_example csr_sign csr_cryptocb csr_ecc_rawpub custom_ext custom_ext_callback
 	rm -f newCert.*
 
-check: certgen_example certgen_ca_example csr_w_ed25519_example csr_example csr_sign csr_cryptocb custom_ext custom_ext_callback
+check: certgen_example certgen_ca_example csr_w_ed25519_example csr_example csr_sign csr_cryptocb csr_ecc_rawpub custom_ext custom_ext_callback
 	out=$$(./certgen_example) && printf '%s' "$$out" | grep -q 'Tests passed'
 	out=$$(./certgen_ca_example) && printf '%s' "$$out" | grep -q 'Tests passed'
 	out=$$(./csr_w_ed25519_example 2>&1) && printf '%s' "$$out" | grep -q -- '-----END CERTIFICATE REQUEST-----'
 	out=$$(./csr_example ecc) && printf '%s' "$$out" | grep -q 'Saved PEM to "ecc-csr.pem"'
 	out=$$(./csr_sign ecc-csr.pem ca-ecc-cert.der ca-ecc-key.der) && printf '%s' "$$out" | grep -q 'Tests passed'
 	out=$$(./csr_cryptocb ecc) && printf '%s' "$$out" | grep -q 'Saved CSR PEM to "ecc-csr.pem"'
+	out=$$(./csr_ecc_rawpub) && printf '%s' "$$out" | grep -q 'Tests passed'
 	out=$$(./custom_ext) && printf '%s' "$$out" | grep -q 'Tests passed'
 	out=$$(./custom_ext_callback newCert.der) && printf '%s' "$$out" | grep -q 'Success'
 	@echo "PASS: certgen checks"
