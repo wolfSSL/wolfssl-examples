@@ -268,6 +268,43 @@ GxI=
 ```
 
 
+## Certificate Signing Request (CSR) Example with a Raw ECC Public Key
+
+Example of building a CSR around an ECC public key supplied as raw bytes - no DER SubjectPublicKeyInfo and no PEM. A secure element or HSM usually hands back either the affine coordinates Qx and Qy or the X9.63 point `0x04||X||Y`; `csr_ecc_rawpub` imports both forms with `wc_ecc_import_unsigned()` and `wc_ecc_import_x963_ex()`.
+
+Passing `d = NULL` to `wc_ecc_import_unsigned()` leaves the key public only, which is all `wc_MakeCertReq_ex()` needs. Where the private key lives in hardware, give that public key a `devId` so `wc_SignCert_ex()` routes to a crypto callback - see the `csr_cryptocb` example below for the callback plumbing.
+
+Tested with these wolfSSL build options:
+
+```sh
+./autogen.sh  # If cloned from GitHub
+./configure --enable-certreq --enable-certgen --enable-certext --enable-ecc
+make
+sudo make install
+sudo ldconfig # required on some targets
+```
+
+### `csr_ecc_rawpub` Example output
+
+```
+% ./csr_ecc_rawpub
+Request body from Qx/Qy and from the X9.63 point match: 212 bytes
+Signed CSR: 302 bytes
+Parsed back and signature verified
+-----BEGIN CERTIFICATE REQUEST-----
+MIIBKjCB0QIBADBvMQswCQYDVQQGEwJVUzELMAkGA1UECAwCT1IxETAPBgNVBAcM
+CFBvcnRsYW5kMRAwDgYDVQQKDAd3b2xmU1NMMRQwEgYDVQQLDAtEZXZlbG9wbWVu
+dDEYMBYGA1UEAwwPd3d3LndvbGZzc2wuY29tMFkwEwYHKoZIzj0CAQYIKoZIzj0D
+AQcDQgAE/rF//42PvQmzLaTkHm7U2bD2GPRw4szv7AKfFthiMdT0MY612CDl4BIM
+6rQ44CAfH1CA2urhIBlGCdMlqMcFFKAAMAoGCCqGSM49BAMCA0gAMEUCIFBPIc/G
+Hyv95pXPNQN9E0d+ojt4Gcpq17P8sPJ+BTP6AiEAwc8VcNY28gWDq/74FBa5Lv9d
+XvvZV3GtIFgiBDzaOI4=
+-----END CERTIFICATE REQUEST-----
+
+Tests passed
+```
+
+
 ## Certificate Signing Request (CSR) Example with Crypto Callbacks
 
 Example of generating a PEM-encoded certificate signing request (CSR) using the
