@@ -146,6 +146,7 @@ def job_built_paths():
                       ("java", "java/https-url"), ("rt1060", "RT1060"),
                       ("csharp", "CSharp/wolfSSL-TLS-pq-Client"),
                       ("psa", "psa"),
+                      ("wolfhal", "wolfHAL"),
                       ("bsdkm", "kernel/bsdkm"),
                       ("cmake", "cmake")):
         if job in jobs_seen:

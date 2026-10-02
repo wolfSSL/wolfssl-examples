@@ -151,6 +151,12 @@ jobs:
     with:
       caller_run_id: ${{ github.run_id }}
 
+  wolfhal:
+    needs: [refs]
+    uses: ./.github/workflows/wolfhal.yml
+    with:
+      caller_run_id: ${{ github.run_id }}
+
   ebpf:
     needs: [refs]
     uses: ./.github/workflows/ebpf.yml
