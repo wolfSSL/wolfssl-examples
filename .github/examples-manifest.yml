@@ -128,10 +128,13 @@ profiles:
     # absent: it needs the separate wolfAsyncCrypt repo patched in.
     # keygen + des3: client-tls-pkcs12 needs both (PKCS12 default PBE is 3DES) or
     # it prints "not configured with ..." and exits 0.
+    # quic: server-quic/client-quic otherwise compile to a stub that prints
+    # "requires the QUIC API" and exits 0.
     flags: >-
       --enable-tls13 --enable-ech --enable-writedup --enable-pkcallbacks
       --enable-postauth --enable-cryptocb --enable-opensslall --enable-session-ticket
-      --enable-earlydata --enable-keygen --enable-des3 --enable-static --enable-shared
+      --enable-earlydata --enable-keygen --enable-des3 --enable-quic
+      --enable-static --enable-shared --enable-quic
     cflags: "-DHAVE_SECRET_CALLBACK"
 
   dtls:
@@ -950,6 +953,16 @@ examples:
           stdin: "hello\nshutdown\n"
           server_exit: killed
         expect: "Successful resume"
+      # QUIC over UDP: the client sends its message then "shutdown" as protected
+      # packets, so the server exits on its own. session-ticket in this profile
+      # makes the server send a NewSessionTicket, exercising the client's
+      # post-handshake path.
+      - pair:
+          server: [./server-quic]
+          proto: udp
+          client: [./client-quic, 127.0.0.1, hello from CI]
+          server_exit: clean
+        expect: "I hear ya fa shizzle!"
     # Deliberately not run: client-ech (external crypto.cloudflare.com:443),
     # {client,server}-tls-uart (needs /dev/ttyUSB0), and the four *-perf
     # benchmarks. All still build.
