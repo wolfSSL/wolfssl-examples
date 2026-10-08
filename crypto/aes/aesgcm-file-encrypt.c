@@ -320,7 +320,12 @@ int encrypt_file_AesGCM(const char *in_file, const char *out_file,
 
     while (ret == 0) {
          read_size = read(in_fd, in_buf, buffer_size);
-         if (read_size <= 0)
+         if (read_size < 0) {
+             perror("read");
+             ret = -1;
+             goto exit;
+         }
+         if (read_size == 0)
              break;
 
          ret = wc_AesGcmEncryptUpdate(&gcm, out_buf, in_buf, read_size, NULL, 0);
@@ -497,7 +502,12 @@ int decrypt_file_AesGCM(const char *in_file, const char *out_file,
 
     while (ret == 0) {
          read_size = read(in_fd, in_buf, buffer_size);
-         if (read_size <= 0)
+         if (read_size < 0) {
+             perror("read");
+             ret = -1;
+             goto exit;
+         }
+         if (read_size == 0)
              break;
 
          ret = wc_AesGcmDecryptUpdate(&gcm, out_buf, in_buf, read_size, NULL, 0);
@@ -632,7 +642,12 @@ int encrypt_file(const char *in_file, const char *out_file,
     }
     while (1) {
         in_len = read(in_fd, in_buf, AES_BLOCK_SIZE);
-        if (in_len <= 0)
+        if (in_len < 0) {
+            perror("read");
+            ret = -1;
+            goto exit;
+        }
+        if (in_len == 0)
             break;
 
         if (EVP_EncryptUpdate(ctx, out_buf, &out_len, in_buf, in_len) !=
@@ -779,7 +794,12 @@ int decrypt_file(const char *in_file, const char *out_file, const char *key_str)
     }
     while (1) {
         in_len = read(in_fd, in_buf, AES_BLOCK_SIZE);
-        if (in_len <= 0)
+        if (in_len < 0) {
+            perror("read");
+            ret = -1;
+            goto exit;
+        }
+        if (in_len == 0)
             break;
 
         if (EVP_DecryptUpdate(ctx, out_buf, &out_len, in_buf, in_len) !=
