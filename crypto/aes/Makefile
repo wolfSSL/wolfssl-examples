@@ -31,6 +31,7 @@ aesgcm-file-minimal: aesgcm-file-minimal.o
 .PHONY: clean check
 
 clean:
+	rm -rf text.dir
 	rm -f *.o aes-file-encrypt aescfb-file-encrypt aesctr-file-encrypt aesgcm-file-encrypt aesgcm-file-minimal text* aesgcm-oneshot aesgcm-minimal
 
 check: aesgcm-minimal aesgcm-oneshot aesgcm-file-encrypt
@@ -45,4 +46,7 @@ check: aesgcm-minimal aesgcm-oneshot aesgcm-file-encrypt
 	./aesgcm-file-encrypt -e 256 -m 1 -k $(GCM_KEY) -v $(GCM_KEY) -i text.inplace -o text.inplace.enc && cp text.inplace.enc text.inplace.enc.orig
 	out=$$(timeout 10 ./aesgcm-file-encrypt -d 256 -m 1 -k $(GCM_KEY) -i text.inplace.enc -o text.inplace.enc 2>&1); test $$? -eq 1 && printf '%s' "$$out" | grep -q '$(ALIAS_MSG)' && cmp text.inplace.enc text.inplace.enc.orig
 	out=$$(./aesgcm-file-encrypt -d 256 -m 1 -k X$(GCM_KEY) -i text.inplace.enc -o text.inplace.bad); test $$? -eq 1 && test ! -e text.inplace.bad && ! printf '%s' "$$out" | grep -q 'complete'
+	mkdir -p text.dir
+	for m in 1 2; do out=$$(./aesgcm-file-encrypt -e 256 -m $$m -k $(GCM_KEY) -v $(GCM_KEY) -i text.dir -o text.dir.enc 2>&1); test $$? -eq 1 && test ! -e text.dir.enc && ! printf '%s' "$$out" | grep -q 'complete' || exit 1; done
+	rmdir text.dir
 	@echo "PASS: crypto-aes checks"
