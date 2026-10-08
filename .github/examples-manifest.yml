@@ -128,8 +128,9 @@ profiles:
     # absent: it needs the separate wolfAsyncCrypt repo patched in.
     # keygen + des3: client-tls-pkcs12 needs both (PKCS12 default PBE is 3DES) or
     # it prints "not configured with ..." and exits 0.
+    # alpn: {client,server}-tls-alpn need it; --enable-opensslall does not imply it.
     flags: >-
-      --enable-tls13 --enable-ech --enable-writedup --enable-pkcallbacks
+      --enable-tls13 --enable-ech --enable-alpn --enable-writedup --enable-pkcallbacks
       --enable-postauth --enable-cryptocb --enable-opensslall --enable-session-ticket
       --enable-earlydata --enable-keygen --enable-des3 --enable-static --enable-shared
     cflags: "-DHAVE_SECRET_CALLBACK"
@@ -950,6 +951,14 @@ examples:
           stdin: "hello\nshutdown\n"
           server_exit: killed
         expect: "Successful resume"
+      # the client offers http/1.1 first, so h2 here proves the server's select
+      # callback applied its own preference order rather than the client's.
+      - pair:
+          server: [./server-tls-alpn]
+          client: [./client-tls-alpn, 127.0.0.1]
+          stdin: "shutdown\n"
+          server_exit: clean
+        expect: "Server selected ALPN protocol: h2"
     # Deliberately not run: client-ech (external crypto.cloudflare.com:443),
     # {client,server}-tls-uart (needs /dev/ttyUSB0), and the four *-perf
     # benchmarks. All still build.
