@@ -316,8 +316,15 @@ int main(void)
             struct ConnList *conn = NULL;
 
             sz = recvfrom(listenfd.fd, readBuf, sizeof(readBuf), 0, &peerAddr, &peerAddrLen);
-            if (sz <= 0)
+            if (sz < 0) {
+                if (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK)
+                    continue;
+                perror("recvfrom");
                 goto cleanup;
+            }
+            /* Empty datagrams are valid UDP. Drop them. */
+            if (sz == 0)
+                continue;
 
             /* find ssl object */
             conn = findConn(connList, readBuf, sz, &peerAddr, peerAddrLen);
