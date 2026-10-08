@@ -118,7 +118,8 @@ into.
     2. [Client](#client-ecc)
     3. [Running](#run-ecc)
 
-6. [Encrypted Client Hello](#ech)
+7. [Encrypted Client Hello](#ech)
+8. [ALPN](#alpn)
 
 
 
@@ -1590,6 +1591,127 @@ Expected behavior:
   then completes the TLS handshake.
 - The server logs the received early data and replies both during early-data
   processing and again after the handshake is complete.
+
+## <a name="alpn">ALPN</a>
+
+`client-tls-alpn` and `server-tls-alpn` demonstrate Application-Layer
+Protocol Negotiation (ALPN, RFC 7301) through wolfSSL's OpenSSL-compatible
+API. The client lists the application protocols it speaks in its
+ClientHello, the server picks one, and both sides read the result after the
+handshake.
+
+The native wolfSSL API, `wolfSSL_UseALPN()`, takes a comma-separated list.
+The OpenSSL-compatible setters and the selection callback used here take the
+list in wire format instead: each name preceded by its length, so
+`"h2,http/1.1"` becomes
+`{ 2,'h','2', 8,'h','t','t','p','/','1','.','1' }`.
+
+`client-tls-alpn`:
+
+- `wolfSSL_CTX_set_alpn_protos()` sets the default list (`http/1.1,h2`) for
+  every connection made from the context.
+- `wolfSSL_set_alpn_protos()` overrides it for one connection when a list is
+  given on the command line.
+- `wolfSSL_get0_alpn_selected()` reads the protocol the server chose. An
+  empty result means none was selected.
+
+`server-tls-alpn`:
+
+- `wolfSSL_CTX_set_alpn_select_cb()` registers a selection callback for every
+  connection, with the server's preference list (`h2,http/1.1`) as its
+  argument, kept in wire format like the client's. The callback receives the
+  client's wire-format list and hands both lists to
+  `wolfSSL_select_next_proto()`, which walks the server's preferences in order
+  and picks the first one the client offered. The callback returns
+  `SSL_TLSEXT_ERR_OK` with that pick, or `SSL_TLSEXT_ERR_ALERT_FATAL` when
+  `wolfSSL_select_next_proto()` does not return `WOLFSSL_NPN_NEGOTIATED`
+  (on no overlap it still fills in the client's first protocol, the NPN
+  fallback, so the return value must be checked). The fatal return fails the
+  handshake with a `no_application_protocol` alert, as RFC 7301 requires when
+  there is no common protocol. Returning `SSL_TLSEXT_ERR_NOACK` instead would
+  ignore the client's ALPN extension and continue with no protocol agreed.
+- `wolfSSL_set_alpn_select_cb()` sets the callback and its argument for one
+  connection, overriding the context's. The server uses it when a preference
+  list is given on the command line.
+- `wolfSSL_ALPN_GetProtocol()` reads the negotiated protocol and
+  `wolfSSL_ALPN_GetPeerProtocol()` the whole list the client offered, as a
+  comma-separated string released with `wolfSSL_ALPN_FreePeerProtocol()`.
+
+### Building
+
+The selection callback and `wolfSSL_get0_alpn_selected()` are part of the
+OpenSSL compatibility layer enabled by `OPENSSL_ALL`, and ALPN is off by
+default, so build wolfSSL with both:
+
+```sh
+./configure --enable-opensslall --enable-alpn && make && sudo make install
+```
+
+Without them both programs print a message and exit. Note that
+`wolfSSL_CTX_set_alpn_protos()` and `wolfSSL_set_alpn_protos()` return 0 on
+success under `--enable-opensslall` (`WOLFSSL_ERROR_CODE_OPENSSL`, matching
+OpenSSL) and `WOLFSSL_SUCCESS` otherwise; the client handles both.
+
+Then, in `wolfssl-examples/tls`:
+
+```sh
+make server-tls-alpn client-tls-alpn
+```
+
+### Running
+
+Server in one terminal:
+
+```sh
+./server-tls-alpn
+Waiting for a connection...
+```
+
+Client in another. The client lists `http/1.1` first, the server prefers
+`h2`, and the server's preference wins:
+
+```sh
+./client-tls-alpn 127.0.0.1
+Offering ALPN protocols: http/1.1,h2
+Server selected ALPN protocol: h2
+Message for server: hello
+Server: I hear ya fa shizzle!
+```
+
+The server shows the callback's choice and the getters' results:
+
+```
+ALPN callback: client offered http/1.1,h2; selected h2
+Client connected successfully
+Negotiated ALPN protocol: h2
+Client offered: http/1.1,h2
+Client: hello
+```
+
+Offer only `http/1.1` and that is what gets picked; offer something the
+server does not speak and the handshake fails:
+
+```sh
+./client-tls-alpn 127.0.0.1 http/1.1
+Offering ALPN protocols: http/1.1
+Server selected ALPN protocol: http/1.1
+
+./client-tls-alpn 127.0.0.1 spdy/3
+Offering ALPN protocols: spdy/3
+ERROR: failed to connect to wolfSSL: -313 (received alert fatal error)
+```
+
+On the server side the rejection looks like this:
+
+```
+ALPN callback: client offered spdy/3; no common protocol, rejecting the handshake
+wolfSSL_accept error = -405 (Unrecognized protocol name Error)
+```
+
+Start the server as `./server-tls-alpn http/1.1,h2` to flip its preference
+for every connection through `wolfSSL_set_alpn_select_cb()`; the default
+client then gets `http/1.1`. Send `shutdown` as the message to stop the
+server. A rejected client does not stop it.
 
 
 ## Support
