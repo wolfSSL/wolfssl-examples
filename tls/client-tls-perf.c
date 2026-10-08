@@ -414,11 +414,14 @@ static void SSLConn_Free(SSLConn_CTX* ctx)
         return;
 
     if (ctx->sslConn != NULL) {
-        for (i = 0; i < ctx->numConns; i++)
+        for (i = 0; i < ctx->numConns; i++) {
             if (ctx->sslConn[i].ssl != NULL) {
                 wolfSSL_free(ctx->sslConn[i].ssl);
                 close(ctx->sslConn[i].sockfd);
             }
+            if (ctx->sslConn[i].session != NULL)
+                wolfSSL_SESSION_free(ctx->sslConn[i].session);
+        }
 
         if (ctx->sslConn != NULL)
             free(ctx->sslConn);
@@ -444,8 +447,12 @@ static void SSLConn_Close(SSLConn_CTX* ctx, SSLConn* sslConn)
         ctx->numResumed++;
     ctx->numConnections++;
 
-    if (ctx->resume)
-        sslConn->session = wolfSSL_get_session(sslConn->ssl);
+    if (ctx->resume) {
+        /* get1 keeps the session valid after wolfSSL_free() */
+        if (sslConn->session != NULL)
+            wolfSSL_SESSION_free(sslConn->session);
+        sslConn->session = wolfSSL_get1_session(sslConn->ssl);
+    }
     wolfSSL_free(sslConn->ssl);
     sslConn->ssl = NULL;
 
