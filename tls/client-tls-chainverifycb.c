@@ -433,8 +433,8 @@ int main(int argc, char** argv)
     wolfSSL_set_fd(ssl, sock);
     wolfSSL_SetChainVerifyCtx(ssl, &svc);
 
-    /* Drive the handshake. Three things make wolfSSL_connect() return early:
-     * waiting for the socket, and the callback waiting for the service. */
+    /* Drive the handshake. wolfSSL_connect() returns early while waiting for
+     * the socket or while the callback waits for the service. */
     for (;;) {
         ret = wolfSSL_connect(ssl);
         if (ret == WOLFSSL_SUCCESS)
@@ -463,6 +463,8 @@ int main(int argc, char** argv)
     do {
         ret = wolfSSL_write(ssl, msg, (int)strlen(msg));
         err = wolfSSL_get_error(ssl, ret);
+        if ((ret <= 0) && (err == WOLFSSL_ERROR_WANT_WRITE))
+            wait_socket(sock, 0);
     } while ((ret <= 0) && (err == WOLFSSL_ERROR_WANT_WRITE));
     if (ret <= 0) {
         fprintf(stderr, "wolfSSL_write failed: %d\n", err);
