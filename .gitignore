@@ -122,6 +122,8 @@ android/wolfssljni-ndk-sample/proguard-project.txt
 /tls/server-tls-writedup
 /tls/client-tls13-certauth-clienthello
 /tls/server-tls13-certauth-clienthello
+/tls/server-tls-sni
+/tls/client-tls-sni
 /tls/client-ech
 /tls/client-ech-local
 /tls/server-ech-local
