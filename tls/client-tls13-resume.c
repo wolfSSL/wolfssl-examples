@@ -307,9 +307,10 @@ int main(int argc, char** argv)
 
 
 
-    /* Save the session */
+    /* Save the session. get1 takes a reference the caller owns, so the
+     * session outlives wolfSSL_free(ssl) below and is freed at exit. */
     if (session == NULL) {
-        session = wolfSSL_get_session(ssl);
+        session = wolfSSL_get1_session(ssl);
     }
 
     /* Close the socket */
@@ -429,10 +430,8 @@ exit:
         wolfSSL_free(ssl);      /* Free the wolfSSL object              */
     if (sslRes)
         wolfSSL_free(sslRes);      /* Free the wolfSSL object              */
-#ifdef OPENSSL_EXTRA   
     if (session)
         wolfSSL_SESSION_free(session);
-#endif    
     if (sockfd != SOCKET_INVALID)
         close(sockfd);          /* Close the socket   */
     if (ctx)
