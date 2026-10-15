@@ -340,7 +340,15 @@ def cmd_wolfssl_matrix(data, refs, tier, shas=None):
     rebuild -- otherwise every example pays a full wolfSSL build.
     """
     pinned = dict(zip(refs, shas)) if shas else {}
-    profiles = sorted({e["profile"] for e in live_entries(data, tier)})
+    # Exactly the (profile, ref) pairs some entry asks for. A pinned entry must
+    # seed its own pair, and a profile only pinned entries use must NOT be built
+    # for the refs they exclude: configure exits 1 on an unrecognized
+    # --enable-*, so a profile naming a flag a ref predates fails to build.
+    wanted = {
+        (e["profile"], ref)
+        for e in live_entries(data, tier)
+        for ref in entry_refs(e, refs)
+    }
     out = [
         {
             "profile": name,
@@ -350,28 +358,8 @@ def cmd_wolfssl_matrix(data, refs, tier, shas=None):
             "cflags": data["profiles"][name].get("cflags", ""),
             "overlay": data["profiles"][name].get("overlay", ""),
         }
-        for name in profiles
-        for ref in refs
+        for name, ref in sorted(wanted)
     ]
-    # A pinned example needs its (profile, ref) seeded too, or its job pays a
-    # full wolfSSL build on every run.
-    for e in live_entries(data, tier):
-        ref = e.get("wolfssl_ref")
-        if ref and not any(
-            o["profile"] == e["profile"] and o["wolfssl_ref"] == ref for o in out
-        ):
-            out.append(
-                {
-                    "profile": e["profile"],
-                    "wolfssl_ref": ref,
-                    "wolfssl_sha": pinned.get(ref, ref),
-                    "flags": " ".join(
-                        data["profiles"][e["profile"]].get("flags", "").split()
-                    ),
-                    "cflags": data["profiles"][e["profile"]].get("cflags", ""),
-                    "overlay": data["profiles"][e["profile"]].get("overlay", ""),
-                }
-            )
     print(json.dumps(out))
 
 
