@@ -141,6 +141,28 @@ extern "C" {
 #undef  WOLFSSL_SHAKE256
 #define WOLFSSL_SHAKE256
 
+/* Standalone hash examples (make SHA2=1 / SHA3=1): one hash family only, no
+ * RNG and no ML-DSA. */
+#if defined(WOLF_SHA2_EXAMPLE) || defined(WOLF_SHA3_EXAMPLE)
+#define WOLF_HASH_EXAMPLE
+#undef  WC_NO_RNG
+#define WC_NO_RNG
+#endif
+#ifdef WOLF_SHA2_EXAMPLE
+#undef  WOLFSSL_SHA224
+#define WOLFSSL_SHA224
+#undef  WOLFSSL_SHA3
+#undef  WOLFSSL_SHAKE128
+#undef  WOLFSSL_SHAKE256
+#endif
+#ifdef WOLF_SHA3_EXAMPLE
+#undef  NO_SHA256
+#define NO_SHA256
+#undef  WOLFSSL_SHA512
+#undef  WOLFSSL_SHA384
+#endif
+
+#ifndef WOLF_HASH_EXAMPLE
 /* ------------------------------------------------------------------------- */
 /* ML-DSA-87 (Dilithium L5) - VERIFY ONLY                                    */
 /* ------------------------------------------------------------------------- */
@@ -222,6 +244,7 @@ extern "C" {
  * ~10.7 KB total RAM.  Left off by default because the caller must keep the
  * public-key buffer valid for the key's lifetime. */
 #endif
+#endif /* !WOLF_HASH_EXAMPLE */
 
 /* ------------------------------------------------------------------------- */
 /* Disabled: big-integer / asymmetric (keeps TFM/ECC/integer out of build)   */

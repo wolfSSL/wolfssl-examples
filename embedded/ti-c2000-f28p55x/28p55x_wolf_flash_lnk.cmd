@@ -60,10 +60,16 @@ SECTIONS
     * Ramfuncs memcpy).  Listed before .text so these subsections are claimed
     * here, not by the generic .text below.  --gen_func_subsections=on makes
     * each function its own .text:<name> input section. */
-   .TI.ramfunc      : { sha3.obj(.text:BlockSha3)
+   .TI.ramfunc      : {
+#ifndef WOLF_SHA2_EXAMPLE
+                        sha3.obj(.text:BlockSha3)
+#endif
+#if !defined(WOLF_SHA2_EXAMPLE) && !defined(WOLF_SHA3_EXAMPLE)
                         wc_mldsa.obj(.text:mldsa_ntt_c)
                         wc_mldsa.obj(.text:mldsa_invntt_c)
-                        wc_mldsa.obj(.text:mldsa_ntt_small_c) }
+                        wc_mldsa.obj(.text:mldsa_ntt_small_c)
+#endif
+                      }
                         LOAD = FLASH_BANK0,
                         RUN  = RAMGS_RAMCODE,
                         LOAD_START(RamfuncsLoadStart),

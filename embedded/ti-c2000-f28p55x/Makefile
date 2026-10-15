@@ -348,6 +348,49 @@ endif
   HARNESS_EXTRA += $(CURDIR)/Source/entropy_probe.c
 endif
 
+# SHA2=1 / SHA3=1 build a small standalone example (Source/test_sha2.c or
+# Source/test_sha3.c) with only that hash family: KATs and a throughput loop,
+# in place of wolf_main.c and the wolfcrypt test/benchmark harness.
+SHA2 ?= 0
+SHA3 ?= 0
+ifneq ($(SHA2)$(SHA3),00)
+ifeq ($(SHA2)$(SHA3),11)
+$(error SHA2=1 and SHA3=1 are separate images - build them one at a time)
+endif
+SHA_EXAMPLE_CONFLICTS := ECC MLKEM FASTVERIFY SECUREBOOT PRECOMPA MLDSA AES \
+  X25519 X448 HKDF CHACHA AESEXTRA HWAES RSA SHA1 RSASIGN DH SIGN BENCH \
+  MEMPROF ENTROPY ENTROPY_PROBE
+ifneq ($(strip $(foreach t,$(SHA_EXAMPLE_CONFLICTS),$(filter-out 0,$($(t))))),)
+$(error SHA2=1 / SHA3=1 are standalone images - build them without other toggles)
+endif
+  WC_SRCS := \
+    $(WOLFROOT)/wolfcrypt/src/error.c \
+    $(WOLFROOT)/wolfcrypt/src/wc_port.c \
+    $(WOLFROOT)/wolfcrypt/src/memory.c \
+    $(WOLFROOT)/wolfcrypt/src/logging.c \
+    $(WOLFROOT)/wolfcrypt/src/misc.c \
+    $(WOLFROOT)/wolfcrypt/src/hash.c
+  ifeq ($(SHA2),1)
+    CFLAGS   += --define=WOLF_SHA2_EXAMPLE
+    LFLAGS   += --define=WOLF_SHA2_EXAMPLE
+    WC_SRCS  += \
+      $(WOLFROOT)/wolfcrypt/src/sha256.c \
+      $(WOLFROOT)/wolfcrypt/src/sha512.c
+    BSP_SRCS := $(CURDIR)/Source/test_sha2.c
+  else
+    CFLAGS   += --define=WOLF_SHA3_EXAMPLE
+    LFLAGS   += --define=WOLF_SHA3_EXAMPLE
+    WC_SRCS  += $(WOLFROOT)/wolfcrypt/src/sha3.c
+    BSP_SRCS := $(CURDIR)/Source/test_sha3.c
+  endif
+  BSP_SRCS += \
+    $(CURDIR)/Source/c2000_board.c \
+    $(DEV)/common/source/device.c
+  CFLAGS        += --define=NO_CRYPT_TEST --define=NO_CRYPT_BENCHMARK
+  HARNESS_SRCS  :=
+  HARNESS_EXTRA :=
+endif
+
 # Append the shared AES core once, after every toggle has had its say.
 ifeq ($(NEED_AES_CORE),1)
   WC_SRCS += \

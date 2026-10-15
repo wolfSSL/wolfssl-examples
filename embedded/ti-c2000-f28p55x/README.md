@@ -18,6 +18,24 @@ The default build runs a KAT suite plus `wolfcrypt_test` and (optionally) `bench
 - ECDSA + ECDH over SECP256R1 via SP math (`ECC=1`)
 - RSA-2048 PKCS#1 v1.5 verify via SP math (`RSA=1`)
 
+## Standalone SHA-2 / SHA-3 examples (`SHA2=1`, `SHA3=1`)
+
+The default image is driven by `Source/wolf_main.c`, which runs every algorithm's KATs and then the upstream `wolfcrypt_test()` and `benchmark_test()`. Those two come from `wolfcrypt/test/test.c` and `wolfcrypt/benchmark/benchmark.c` in the wolfSSL tree (`WOLFROOT`), not from this directory.
+
+For a single hash family, two small standalone examples show the whole flow in one file each:
+
+```
+make CGT_ROOT=/path/to/ti-cgt-c2000_xx.y.z SHA2=1   # Source/test_sha2.c
+make CGT_ROOT=/path/to/ti-cgt-c2000_xx.y.z SHA3=1   # Source/test_sha3.c
+```
+
+- `Source/test_sha2.c`: SHA-224, SHA-256, SHA-384, SHA-512, SHA-512/224, SHA-512/256.
+- `Source/test_sha3.c`: SHA3-224, SHA3-256, SHA3-384, SHA3-512, SHAKE128, SHAKE256.
+
+Each `main()` calls `c2000_board_init()` (`Source/c2000_board.c`: clocks, SCIA console, CPU Timer 0) and runs one function per variant that shows the complete API sequence, `wc_InitXxx()` -> `wc_XxxUpdate()` -> `wc_XxxFinal()` -> `wc_XxxFree()`, on the FIPS 180-4 / FIPS 202 "abc" vector, printing the digest and `PASS`/`FAIL`. A streaming case then feeds one message through several `Update` calls, and a throughput loop hashes 64 KiB per variant through the generic `wc_HashInit()` / `wc_HashUpdate()` / `wc_HashFinal()` API. Output ends with `SHA-2 example: PASS` (or `SHA-3 ...`) and `=== done ===`.
+
+Only that family's wolfCrypt source is built (`sha256.c` + `sha512.c`, or `sha3.c`), with no RNG, ML-DSA or test/benchmark harness. `Header/user_settings.h` selects the algorithms under `WOLF_SHA2_EXAMPLE` / `WOLF_SHA3_EXAMPLE`. Both toggles build alone: combining one with the other or with any other toggle is a build error. The output image is `out/wolfcrypt_f28p55x.out` as for every other build, flashed the same way (see Flash and run).
+
 ## Octet representation at the API boundary (`MLDSA=1`)
 
 Every wolfCrypt `byte*` buffer holds one octet per `byte` cell. On this part a cell is 16 bits, so a buffer costs twice the RAM and each cell reads as `0x00nn` -- an ML-DSA-65 signature is 3309 octets = 3309 cells = 6618 bytes of RAM. The octet values are exact, so this is a footprint property, not a signature-integrity one, and `sigLen` stays an octet count.
