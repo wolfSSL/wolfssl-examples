@@ -841,6 +841,16 @@ examples:
           stdin: "shutdown\n"
           server_exit: clean
         expect: "Server: I hear ya fa shizzle"
+      # server-cert.pem has SAN DNS:example.com, so wolfSSL skips the CN and the
+      # client's domain check would already reject it for www.wolfssl.com.
+      # OU=ECC (printed via KEEP_PEER_CERT, set by opensslall) also shows
+      # explicitly that the server picked the non-default vhost from the SNI.
+      - pair:
+          server: [./server-tls-sni]
+          client: [./client-tls-sni, 127.0.0.1, www.wolfssl.com]
+          stdin: "shutdown\n"
+          server_exit: clean
+        expect: "OU=ECC"
       - pair:
           server: [./server-tls-threaded]
           client: [./client-tls, 127.0.0.1]

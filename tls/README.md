@@ -119,6 +119,7 @@ into.
     3. [Running](#run-ecc)
 
 6. [Encrypted Client Hello](#ech)
+7. [Server Name Indication](#sni)
 
 
 
@@ -1487,6 +1488,98 @@ The printed base64 config can then be passed directly to `client-ech-local`:
 ```sh
 ./client-ech-local <base64-encoded-config>
 ```
+
+## <a name="sni">Server Name Indication</a>
+
+`client-tls-sni` and `server-tls-sni` demonstrate Server Name Indication
+(SNI, RFC 6066): the client names the host it wants in the ClientHello, and a
+server hosting several names on one port presents the matching certificate.
+
+`server-tls-sni` listens on port 11111 and serves two names, each from its own
+`WOLFSSL_CTX`:
+
+| Host name | Certificate |
+|---|---|
+| `example.com` (default) | `../certs/server-cert.pem` (RSA) |
+| `www.wolfssl.com` | `../certs/server-ecc.pem` (ECC) |
+
+Before calling `wolfSSL_accept()` the server peeks at the ClientHello with
+`MSG_PEEK`, extracts the name with `wolfSSL_SNI_GetFromBuffer()` and creates
+the `WOLFSSL` from the matching context. wolfSSL then checks the name against
+the one registered with `wolfSSL_CTX_UseSNI()` and applies the policy set with
+`wolfSSL_CTX_SNI_SetOptions()`. After the handshake the server prints
+`wolfSSL_SNI_GetRequest()` and `wolfSSL_SNI_Status()`.
+
+`client-tls-sni` sends the name with `wolfSSL_UseSNI()` and requires the
+server certificate to be valid for it with `wolfSSL_check_domain_name()`.
+Without that check the client would accept any certificate its CAs signed,
+whatever name it asked for.
+
+The server takes the policy as its only argument:
+
+| Policy | Option bits | Unknown name | No SNI |
+|---|---|---|---|
+| `strict` | none | fatal `unrecognized_name` alert | default host |
+| `continue` (default) | `WOLFSSL_SNI_CONTINUE_ON_MISMATCH` | default host, status `NO_MATCH` | default host |
+| `answer` | `WOLFSSL_SNI_ANSWER_ON_MISMATCH` | default host, status `FAKE_MATCH` | default host |
+| `abort` | `WOLFSSL_SNI_ABORT_ON_ABSENCE` + continue | default host, status `NO_MATCH` | fatal alert |
+
+SNI is enabled by default on x86_64, x86, aarch64 and amd64; elsewhere build
+wolfSSL with `--enable-sni`. The client also prints the server certificate's
+subject when wolfSSL has `KEEP_PEER_CERT` (set by `--enable-opensslextra`).
+
+Build:
+
+```sh
+make server-tls-sni client-tls-sni
+```
+
+Run the server in one terminal:
+
+```sh
+./server-tls-sni
+Serving example.com      with ../certs/server-cert.pem
+Serving www.wolfssl.com  with ../certs/server-ecc.pem
+Waiting for a connection...
+```
+
+Run the client in a second terminal with the name to request:
+
+```sh
+./client-tls-sni 127.0.0.1 www.wolfssl.com
+Connecting with SNI "www.wolfssl.com"
+Connected with TLSv1.3, cipher TLS13-AES256-GCM-SHA384
+Message for server: hello
+Server: I hear ya fa shizzle!
+```
+
+The server reports which host it chose and how wolfSSL matched the name:
+
+```
+ClientHello requests "www.wolfssl.com", using host www.wolfssl.com
+Client connected successfully
+SNI request: www.wolfssl.com
+SNI status:  WOLFSSL_SNI_REAL_MATCH
+Client: hello
+```
+
+Ask for a name the server does not host to see both sides reject it. Under the
+default policy the server answers with the `example.com` certificate, and the
+client refuses it:
+
+```sh
+./client-tls-sni 127.0.0.1 other.com
+Connecting with SNI "other.com"
+ERROR: failed to connect to wolfSSL: -322 (peer subject name mismatch)
+```
+
+Under `./server-tls-sni strict` the server rejects the name itself and the
+client gets `-313 (received alert fatal error)`. Omit the host name
+(`./client-tls-sni 127.0.0.1`) to connect without SNI; only the `abort`
+policy rejects that.
+
+Send `shutdown` as the message to stop the server. A rejected client does not
+stop it.
 
 ## TLS Example with Post-Handshake Authentication
 
