@@ -34,7 +34,9 @@ make CGT_ROOT=/path/to/ti-cgt-c2000_xx.y.z SHA3=1   # Source/test_sha3.c
 
 Each `main()` calls `c2000_board_init()` (`Source/c2000_board.c`: clocks, SCIA console, CPU Timer 0) and runs one function per variant that shows the complete API sequence, `wc_InitXxx()` -> `wc_XxxUpdate()` -> `wc_XxxFinal()` -> `wc_XxxFree()`, on the FIPS 180-4 / FIPS 202 "abc" vector, printing the digest and `PASS`/`FAIL`. A streaming case then feeds one message through several `Update` calls, and a throughput loop hashes 64 KiB per variant through the generic `wc_HashInit()` / `wc_HashUpdate()` / `wc_HashFinal()` API. Output ends with `SHA-2 example: PASS` (or `SHA-3 ...`) and `=== done ===`.
 
-Only that family's wolfCrypt source is built (`sha256.c` + `sha512.c`, or `sha3.c`), with no RNG, ML-DSA or test/benchmark harness. `Header/user_settings.h` selects the algorithms under `WOLF_SHA2_EXAMPLE` / `WOLF_SHA3_EXAMPLE`. Both toggles build alone: combining one with the other or with any other toggle is a build error. The output image is `out/wolfcrypt_f28p55x.out` as for every other build, flashed the same way (see Flash and run).
+Only that family's wolfCrypt source is built (`sha256.c` + `sha512.c`, or `sha3.c`), with no RNG, ML-DSA or test/benchmark harness. Each uses its own small `user_settings.h` from `ccs/sha2/` or `ccs/sha3/`, the same file its CCS project uses. Both toggles build alone: combining one with the other or with any other toggle is a build error. The output image is `out/wolfcrypt_f28p55x.out` as for every other build, flashed the same way (see Flash and run).
+
+The same two examples are also available as Code Composer Studio projects: see [ccs/README.md](ccs/README.md).
 
 ## Octet representation at the API boundary (`MLDSA=1`)
 

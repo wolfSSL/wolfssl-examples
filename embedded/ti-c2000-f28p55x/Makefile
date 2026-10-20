@@ -371,21 +371,25 @@ endif
     $(WOLFROOT)/wolfcrypt/src/misc.c \
     $(WOLFROOT)/wolfcrypt/src/hash.c
   ifeq ($(SHA2),1)
-    CFLAGS   += --define=WOLF_SHA2_EXAMPLE
     LFLAGS   += --define=WOLF_SHA2_EXAMPLE
     WC_SRCS  += \
       $(WOLFROOT)/wolfcrypt/src/sha256.c \
       $(WOLFROOT)/wolfcrypt/src/sha512.c
     BSP_SRCS := $(CURDIR)/Source/test_sha2.c
+    SHA_EXAMPLE_DIR := $(CURDIR)/ccs/sha2
   else
-    CFLAGS   += --define=WOLF_SHA3_EXAMPLE
     LFLAGS   += --define=WOLF_SHA3_EXAMPLE
     WC_SRCS  += $(WOLFROOT)/wolfcrypt/src/sha3.c
     BSP_SRCS := $(CURDIR)/Source/test_sha3.c
+    SHA_EXAMPLE_DIR := $(CURDIR)/ccs/sha3
   endif
   BSP_SRCS += \
     $(CURDIR)/Source/c2000_board.c \
     $(DEV)/common/source/device.c
+  # The example's own user_settings.h (shared with its CCS project) must be
+  # found before the full-image one in Header/.
+  CFLAGS        := $(subst -I$(CURDIR)/Header,-I$(SHA_EXAMPLE_DIR) \
+                   -I$(CURDIR)/Header,$(CFLAGS))
   CFLAGS        += --define=NO_CRYPT_TEST --define=NO_CRYPT_BENCHMARK
   HARNESS_SRCS  :=
   HARNESS_EXTRA :=
