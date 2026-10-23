@@ -91,6 +91,17 @@ WC_SRCS := \
   $(WOLFROOT)/wolfcrypt/src/wc_mldsa.c \
   $(WOLFROOT)/wolfcrypt/src/random.c
 
+# ECC384=1 adds SECP384R1, ECCFAST=1 drops WOLFSSL_SP_SMALL, and ECCBENCH=1
+# adds the ECDSA / SHA-384 image-verify timing harness.  All three imply ECC.
+ECC384   ?= 0
+ECCFAST  ?= 0
+ECCBENCH ?= 0
+ifneq ($(ECC384)$(ECCFAST)$(ECCBENCH),000)
+  # override: a command-line ECC=0 alongside one of these would otherwise leave
+  # WOLF_ECC384 defined with the ECC sources and HAVE_ECC block compiled out.
+  override ECC := 1
+endif
+
 # ECC=1 adds ECDSA/ECDH over SECP256R1 via SP single-precision math.
 ECC ?= 0
 ifeq ($(ECC),1)
@@ -100,6 +111,19 @@ ifeq ($(ECC),1)
     $(WOLFROOT)/wolfcrypt/src/wolfmath.c \
     $(WOLFROOT)/wolfcrypt/src/sp_int.c \
     $(WOLFROOT)/wolfcrypt/src/sp_c32.c
+endif
+
+ifeq ($(ECC384),1)
+  CFLAGS += --define=WOLF_ECC384
+endif
+ifeq ($(ECCFAST),1)
+  CFLAGS += --define=WOLF_ECC_FAST
+endif
+# The timing harness runs on its own: the wolfcrypt test and benchmark are left
+# out so the run is short and the heap uncontended.
+ifeq ($(ECCBENCH),1)
+  CFLAGS += --define=WOLF_ECC_BENCH --define=NO_CRYPT_TEST \
+            --define=NO_CRYPT_BENCHMARK
 endif
 
 # MLKEM=1 adds ML-KEM-768 (FIPS 203) via the wolfCrypt C implementation.

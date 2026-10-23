@@ -235,10 +235,18 @@ extern "C" {
 /* ------------------------------------------------------------------------- */
 #undef  HAVE_ECC
 #define HAVE_ECC
-#undef  ECC_USER_CURVES        /* build only the curves we name (just P-256) */
+#undef  ECC_USER_CURVES        /* build only the curves named below: P-256, */
+                               /* plus P-384 when WOLF_ECC384 is set        */
 #define ECC_USER_CURVES
 #undef  HAVE_ECC256
 #define HAVE_ECC256
+#ifdef WOLF_ECC384
+/* SECP384R1 alongside P-256 (ECC384=1 build); pairs with SHA-384. */
+#undef  HAVE_ECC384
+#define HAVE_ECC384
+#undef  WOLFSSL_SP_384
+#define WOLFSSL_SP_384
+#endif
 #undef  HAVE_ECC_VERIFY
 #define HAVE_ECC_VERIFY
 #undef  HAVE_ECC_SIGN
@@ -254,8 +262,12 @@ extern "C" {
 #define WOLFSSL_HAVE_SP_ECC
 #undef  WOLFSSL_SP_NO_MALLOC
 #define WOLFSSL_SP_NO_MALLOC
+#ifndef WOLF_ECC_FAST
+/* Small (looped) SP code by default; ECCFAST=1 picks the windowed SP path,
+ * which trades flash for roughly ten times the ECDSA throughput. */
 #undef  WOLFSSL_SP_SMALL
 #define WOLFSSL_SP_SMALL
+#endif
 #undef  SP_WORD_SIZE
 #define SP_WORD_SIZE 32
 /* C28x int is 16-bit (WC_16BIT_CPU) but we use 32-bit SP digits + octet-wise

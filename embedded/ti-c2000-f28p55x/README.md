@@ -90,6 +90,9 @@ Each is `make <NAME>=1` (default 0 unless noted), additive on top of the default
 | Option | Adds |
 |---|---|
 | `ECC=1` | ECDSA/ECDH over SECP256R1 (SP math) |
+| `ECC384=1` | Adds SECP384R1 (`HAVE_ECC384` + `WOLFSSL_SP_384`) |
+| `ECCFAST=1` | Drops `WOLFSSL_SP_SMALL` for the windowed SP path (~10x faster ECDSA, +30 KB flash for P-256). Needs a wolfSSL with the SP scalar-recode fix for 16-bit bytes; older trees fail to build with `identifier "int8_t" is undefined`. |
+| `ECCBENCH=1` | ECDSA sign/verify, ECDH and SHA-256/384 image-hash timings instead of the test/benchmark harness |
 | `MLKEM=1` | ML-KEM-768 (FIPS 203) |
 | `AES=1` | AES-CBC/CTR/CFB/GCM (table-driven, `GCM_SMALL`) |
 | `AESEXTRA=1` | AES-CMAC, AES-CCM, AES-GMAC (implies the AES core) |
@@ -135,6 +138,23 @@ Measured at 150 MHz (SHA-256 Hash-DRBG via `WOLFSSL_GENSEED_FORTEST`; build with
 | SHA3-224 / 256 / 384 / 512 | ~279 / 264 / 206 / 146 KiB/s |
 | SHAKE128 / SHAKE256 | ~319 / 264 KiB/s |
 | RNG (Hash-DRBG) | ~122 KiB/s |
+
+ECDSA and ECDH (@150 MHz, `ECC_TIMING_RESISTANT` on). The default `WOLFSSL_SP_SMALL` build keeps SP code small at a large cost in speed; `ECCFAST=1` selects the windowed SP path:
+
+| Operation | Default SP | Windowed SP (`ECCFAST=1`) |
+|---|---|---|
+| ECDSA P-256 sign | ~350 ms/op | 46 ms/op |
+| ECDSA P-256 verify | ~635 ms/op | 64 ms/op |
+| ECDH P-256 agree | ~308 ms/op | 57 ms/op |
+| ECDSA P-384 sign | ~1280 ms/op | 98 ms/op |
+| ECDSA P-384 verify | ~2260 ms/op | 183 ms/op |
+| ECDH P-384 agree | ~1108 ms/op | 163 ms/op |
+
+The default-SP column varies by a few percent run to run, since each run makes a fresh key and ECDSA verify is a public operation with no timing-resistance constraint.
+
+The image hash walks a 4 KiB flash-resident block repeatedly to reach 128 KiB. That is equivalent to one sweep over a 128 KiB array on this part, which has no data cache in front of flash: measured on hardware, a true single pass took 0.740 s against 0.736 s for the repeated block. The small block is the default because a genuine 128 KiB octet array costs 256 KB of flash, one octet per 16-bit cell, and fills a whole flash bank. Build with `-DWOLF_IMG_BLK=131072` in `EXTRA_CFLAGS` for the single sweep.
+
+For a secure-boot style check of a 128 KB flash image, the hash dominates once the windowed path is in use: SHA-384 over the image takes 0.75 s, giving 0.81 s for SHA-384 plus a P-256 verify and 0.93 s with P-384 (1.39 s and 2.96 s respectively on the default SP path). SHA-256 over the same image takes 0.46 s. Building with `EXTRA_CFLAGS="--opt_level=3 --opt_for_speed=5"` takes SHA-384 down to 0.64 s for about 7 KB more flash, but does not move the ECC math. The windowed path itself costs about 30 KB of flash for P-256 alone, 82 KB for both curves.
 
 ML-DSA-87 (asymmetric, @150 MHz): verify 244 ms/op default, **189 ms/op** with `FASTVERIFY=1` and `--opt_level=3 --opt_for_speed=5` (23% faster, RAM 10.7 -> 23.9 KB, zero heap either way); keygen and signing also run (`SIGN=1`). ML-DSA-87 verify memory: ~10.7 KB total (key/workspace struct + ~2 KB stack, zero heap) with `WOLFSSL_MLDSA_VERIFY_SMALLEST_MEM` + `WOLFSSL_MLDSA_ASSIGN_KEY`.
 
