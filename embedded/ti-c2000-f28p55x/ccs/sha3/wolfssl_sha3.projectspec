@@ -1,0 +1,53 @@
+<projectSpec>
+  <project
+        name="wolfssl_sha3"
+        device="TMS320F28P550SJ9"
+        cgtVersion="22.6.3.LTS"
+        products="C2000WARE"
+        outputFormat="ELF"
+        launchWizard="False"
+        linkerCommandFile=""
+        enableSysConfigTool="false"
+        >
+
+    <!-- C2000WARE_ROOT comes from the C2000Ware product registered in CCS.
+         WOLFSSL_ROOT defaults to a wolfssl clone next to wolfssl-examples;
+         see ccs/README.md to change it. -->
+    <pathVariable name="C2000WARE_ROOT" path="${COM_TI_C2000WARE_INSTALL_DIR}" scope="project" />
+    <pathVariable name="C2000WARE_DLIB_ROOT" path="${COM_TI_C2000WARE_INSTALL_DIR}/driverlib/f28p55x/driverlib/" scope="project" />
+    <pathVariable name="WOLFSSL_ROOT" path="../../../../../wolfssl" scope="project" />
+
+    <configuration name="CPU1_LAUNCHXL_FLASH"
+        compilerBuildOptions="--opt_level=2 -I${PROJECT_ROOT} -I${PROJECT_ROOT}/device -I${C2000WARE_DLIB_ROOT} -I${WOLFSSL_ROOT} -I${CG_TOOL_ROOT}/include -v28 -ml -mt --float_support=fpu32 --tmu_support=tmu1 --abi=eabi --define=CPU1 --define=_FLASH --define=_LAUNCHXL_F28P55X --define=WOLFSSL_USER_SETTINGS --define=WOLF_C2000_SCI_STDOUT --gen_func_subsections=on --diag_warning=225 --diag_wrap=off --display_error_number --diag_suppress=10063"
+        linkerBuildOptions="--entry_point code_start --define=WOLF_SHA3_EXAMPLE --reread_libs --warn_sections -llibc.a" />
+
+    <configuration name="CPU1_LAUNCHXL_FLASH_DEBUG"
+        compilerBuildOptions="--opt_level=off -g -I${PROJECT_ROOT} -I${PROJECT_ROOT}/device -I${C2000WARE_DLIB_ROOT} -I${WOLFSSL_ROOT} -I${CG_TOOL_ROOT}/include -v28 -ml -mt --float_support=fpu32 --tmu_support=tmu1 --abi=eabi --define=CPU1 --define=_FLASH --define=_LAUNCHXL_F28P55X --define=WOLFSSL_USER_SETTINGS --define=WOLF_C2000_SCI_STDOUT --gen_func_subsections=on --diag_warning=225 --diag_wrap=off --display_error_number --diag_suppress=10063"
+        linkerBuildOptions="--entry_point code_start --define=WOLF_SHA3_EXAMPLE --reread_libs --warn_sections -llibc.a" />
+
+    <!-- Example application -->
+    <file action="copy" path="../../Source/test_sha3.c" targetDirectory="" />
+    <file action="copy" path="../../Source/c2000_board.c" targetDirectory="" />
+    <file action="copy" path="../../Header/c2000_board.h" targetDirectory="" />
+    <file action="copy" path="user_settings.h" targetDirectory="" />
+    <file action="copy" path="../../28p55x_wolf_flash_lnk.cmd" targetDirectory="" />
+
+    <!-- Device support from C2000Ware -->
+    <file action="copy" path="${C2000WARE_ROOT}/device_support/f28p55x/common/include/driverlib.h" targetDirectory="device" />
+    <file action="copy" path="${C2000WARE_ROOT}/device_support/f28p55x/common/include/device.h" targetDirectory="device" />
+    <file action="copy" path="${C2000WARE_ROOT}/device_support/f28p55x/common/source/device.c" targetDirectory="device" />
+    <file action="copy" path="${C2000WARE_ROOT}/device_support/f28p55x/common/source/f28p55x_codestartbranch.asm" targetDirectory="device" />
+    <file action="link" path="${COM_TI_C2000WARE_INSTALL_DIR}/driverlib/f28p55x/driverlib/ccs/Release/driverlib.lib" targetDirectory="device" />
+    <file action="copy" path="${COM_TI_C2000WARE_INSTALL_DIR}/device_support/f28p55x/common/targetConfigs/TMS320F28P550SJ9_LaunchPad.ccxml" targetDirectory="targetConfigs" />
+
+    <!-- wolfCrypt sources, linked from WOLFSSL_ROOT -->
+    <file action="link" path="WOLFSSL_ROOT/wolfcrypt/src/error.c" targetDirectory="wolfcrypt" />
+    <file action="link" path="WOLFSSL_ROOT/wolfcrypt/src/wc_port.c" targetDirectory="wolfcrypt" />
+    <file action="link" path="WOLFSSL_ROOT/wolfcrypt/src/memory.c" targetDirectory="wolfcrypt" />
+    <file action="link" path="WOLFSSL_ROOT/wolfcrypt/src/logging.c" targetDirectory="wolfcrypt" />
+    <file action="link" path="WOLFSSL_ROOT/wolfcrypt/src/misc.c" targetDirectory="wolfcrypt" />
+    <file action="link" path="WOLFSSL_ROOT/wolfcrypt/src/hash.c" targetDirectory="wolfcrypt" />
+    <file action="link" path="WOLFSSL_ROOT/wolfcrypt/src/sha3.c" targetDirectory="wolfcrypt" />
+
+  </project>
+</projectSpec>
