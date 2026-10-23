@@ -200,12 +200,17 @@ jobs:
         run: |
           set -euo pipefail
           # vcan ships in linux-modules-extra and must match the running kernel exactly
-          sudo apt-get install -y "linux-modules-extra-$(uname -r)"
+          set -euo pipefail
+          if ! sudo modprobe vcan 2>/dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y "linux-modules-extra-$(uname -r)" \
+              || sudo apt-get install -y linux-modules-extra-azure
+            sudo modprobe vcan
+          fi
           sudo modprobe can
           sudo modprobe can-raw
-          sudo modprobe vcan
           sudo ip link add dev vcan0 type vcan
-          sudo ip link set vcan0 mtu 16      # 16 = classic CAN (72 for CAN FD)
+          sudo ip link set vcan0 mtu 16
           sudo ip link set up vcan0
           ip -details link show vcan0
 
