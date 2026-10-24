@@ -142,6 +142,7 @@ def job_built_paths():
     # jobs that build one hardcoded dir rather than a matrix
     # csharp: the client is the peer in every matrix leg rather than an axis
     for job, path in (("puf", "puf"), ("rpi-pico", "RPi-Pico"),
+                      ("psoc_e8", "embedded/infineon_psoc_e8"),
                       ("fullstack", "fullstack/freertos-wolfip-wolfssl-https"),
                       ("java", "java/https-url"), ("rt1060", "RT1060"),
                       ("csharp", "CSharp/wolfSSL-TLS-pq-Client"),

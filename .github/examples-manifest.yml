@@ -1233,6 +1233,12 @@ examples:
     profile: all
     mode: build-only
 
+  - id: infineon-psoc-e8
+    path: embedded/infineon_psoc_e8
+    tier: cross
+    profile: all
+    mode: build-only
+    reason: "KIT_PSE84_AI bare metal; the output only comes back over the KitProg3 UART, so infineon-psoc-e8.yml cross-compiles it"
   - id: rpi-pico
     path: RPi-Pico
     tier: cross
