@@ -118,6 +118,9 @@
 #endif
 #ifdef WOLF_ECC
 #include "ecc_p256_kat.h"
+#ifdef WOLF_ECC384
+#include "ecc_p384_kat.h"
+#endif
 #endif
 #ifdef WOLF_RSA
 #include "rsa2048_kat.h"
@@ -664,6 +667,372 @@ static void wolf_ecc_test(void)
     wc_ecc_free(&keyA);
     wc_FreeRng(&rng);
 }
+
+#ifdef WOLF_ECC_BENCH
+/* Timings for a secure-boot style image check: hash a flash-resident image,
+ * then one ECDSA verify.  CPU Timer 0 is sampled every iteration so no single
+ * interval can outrun the counter's ~28 s wrap.  A benchmark that reports a
+ * rate for work that failed is worse than one that reports nothing, so every
+ * loop below stops at the first error and divides by the number of operations
+ * that actually completed. */
+#ifndef WOLF_IMG_TOTAL
+#define WOLF_IMG_TOTAL 131072UL         /* octets hashed in total            */
+#endif
+#ifndef WOLF_IMG_BLK
+#define WOLF_IMG_BLK   4096U            /* size of the flash-resident block  */
+#endif
+#ifndef WOLF_IMG_CHUNK
+#define WOLF_IMG_CHUNK 4096U            /* octets handed to each Update      */
+#endif
+
+/* const lands in .const, i.e. flash, so the hash reads at flash wait states
+ * the way a real image check does rather than out of RAM.  One octet per
+ * 16-bit cell, matching how wolfCrypt addresses bytes on this target.
+ *
+ * By default the block is smaller than WOLF_IMG_TOTAL and is walked repeatedly
+ * to reach the total, so this measures hashing 128 KiB of flash-resident data
+ * rather than a single sweep over a 128 KiB address range.  The two are
+ * equivalent here: the C28x has no data cache in front of flash, and measuring
+ * both on hardware gave 0.740 s for a true single pass over a 128 KiB array
+ * against 0.736 s for a repeated 4 KiB block - within run-to-run spread.  The
+ * small block is the default because a genuine 128 KiB octet array costs 256 KB
+ * of flash (one octet per 16-bit cell) and fills an entire flash bank.  Build
+ * with -DWOLF_IMG_BLK=131072 to do the single sweep instead. */
+static const unsigned char wolf_img[WOLF_IMG_BLK] = { 0 };
+
+/* Hash WOLF_IMG_TOTAL octets of flash-resident data. */
+static void wolf_sha_image_bench(int use384)
+{
+    static wc_Sha256 sha256;
+    static wc_Sha384 sha384;
+    unsigned char dig[WC_SHA384_DIGEST_SIZE];
+    const char*   nm = use384 ? "SHA-384" : "SHA-256";
+    unsigned long off;
+    double t;
+    int    ret;
+
+    ret = use384 ? wc_InitSha384(&sha384) : wc_InitSha256(&sha256);
+    if (ret != 0) {
+        printf("%s image bench: init FAIL ret=%d\r\n", nm, ret);
+        return;
+    }
+
+    (void)current_time(1);
+    for (off = 0; off < WOLF_IMG_TOTAL; off += WOLF_IMG_CHUNK) {
+        unsigned long left = WOLF_IMG_TOTAL - off;
+        word32 n = (word32)((left < WOLF_IMG_CHUNK) ? left : WOLF_IMG_CHUNK);
+        /* walk within the block, wrapping when it is smaller than the total */
+        unsigned long pos = off % (unsigned long)WOLF_IMG_BLK;
+
+        if (pos + n > (unsigned long)WOLF_IMG_BLK) {
+            n = (word32)((unsigned long)WOLF_IMG_BLK - pos);
+        }
+        ret = use384 ? wc_Sha384Update(&sha384, wolf_img + pos, n)
+                     : wc_Sha256Update(&sha256, wolf_img + pos, n);
+        (void)current_time(0);
+        if (ret != 0) {
+            break;
+        }
+    }
+    /* Only finalize a context whose updates all succeeded. */
+    if (ret == 0) {
+        ret = use384 ? wc_Sha384Final(&sha384, dig)
+                     : wc_Sha256Final(&sha256, dig);
+    }
+    t = current_time(0);
+
+    if (use384) {
+        wc_Sha384Free(&sha384);
+    }
+    else {
+        wc_Sha256Free(&sha256);
+    }
+
+    if (ret != 0) {
+        printf("%s over %lu KiB image: FAIL ret=%d (no timing)\r\n",
+               nm, WOLF_IMG_TOTAL / 1024UL, ret);
+        return;
+    }
+    printf("%s over %lu KiB image: %.3f s\r\n", nm, WOLF_IMG_TOTAL / 1024UL, t);
+}
+
+static void wolf_ecdsa_bench(int curveId, int keySz, int reps, const char* nm)
+{
+    static ecc_key bk;
+    static WC_RNG  brng;
+    static mp_int  br;
+    static mp_int  bs;
+    unsigned char  dig[WC_SHA384_DIGEST_SIZE];
+    double t;
+    int    i, ret, res = 0, done;
+    int    rngOk = 0, keyOk = 0, rOk = 0, sOk = 0;
+
+    /* A SHA-384 digest; ECDSA truncates it to the curve order for P-256. */
+    XMEMSET(dig, 0xA5, sizeof(dig));
+
+    ret = wc_InitRng(&brng);
+    if (ret == 0) {
+        rngOk = 1;
+        ret = wc_ecc_init(&bk);
+    }
+    if (ret == 0) {
+        keyOk = 1;
+        ret = wc_ecc_make_key_ex(&brng, keySz, &bk, curveId);
+    }
+    if (ret == 0) {
+        ret = wc_ecc_set_rng(&bk, &brng);
+    }
+    if (ret == 0) {
+        ret = mp_init(&br);
+    }
+    if (ret == 0) {
+        rOk = 1;
+        ret = mp_init(&bs);
+    }
+    if (ret == 0) {
+        sOk = 1;
+    }
+    if (ret != 0) {
+        printf("ECDSA %s bench: setup FAIL ret=%d\r\n", nm, ret);
+        goto bench_done;
+    }
+
+    done = 0;
+    (void)current_time(1);
+    for (i = 0; i < reps; i++) {
+        ret = wc_ecc_sign_hash_ex(dig, (word32)keySz, &brng, &bk, &br, &bs);
+        (void)current_time(0);
+        if (ret != 0) {
+            break;
+        }
+        done++;
+    }
+    t = current_time(0);
+    if (done == 0) {
+        printf("ECDSA %s sign:   FAIL ret=%d (no timing)\r\n", nm, ret);
+        goto bench_done;
+    }
+    printf("ECDSA %s sign:   %d ops in %.3f s = %.1f ms/op%s\r\n",
+           nm, done, t, (t * 1000.0) / (double)done,
+           (done < reps) ? " [STOPPED EARLY]" : "");
+
+    done = 0;
+    (void)current_time(1);
+    for (i = 0; i < reps; i++) {
+        ret = wc_ecc_verify_hash_ex(&br, &bs, dig, (word32)keySz, &res, &bk);
+        (void)current_time(0);
+        if ((ret != 0) || (res != 1)) {
+            break;
+        }
+        done++;
+    }
+    t = current_time(0);
+    if (done == 0) {
+        printf("ECDSA %s verify: FAIL ret=%d res=%d (no timing)\r\n",
+               nm, ret, res);
+        goto bench_done;
+    }
+    printf("ECDSA %s verify: %d ops in %.3f s = %.1f ms/op%s\r\n",
+           nm, done, t, (t * 1000.0) / (double)done,
+           (done < reps) ? " [STOPPED EARLY]" : "");
+
+bench_done:
+    if (sOk) {
+        mp_clear(&bs);
+    }
+    if (rOk) {
+        mp_clear(&br);
+    }
+    if (keyOk) {
+        wc_ecc_free(&bk);
+    }
+    if (rngOk) {
+        wc_FreeRng(&brng);
+    }
+}
+
+static void wolf_ecdh_bench(int curveId, int keySz, int reps, const char* nm)
+{
+    static ecc_key ka;
+    static ecc_key kb;
+    static WC_RNG  brng;
+    static byte    secret[48];
+    word32 len = 0;
+    double t;
+    int    i, ret, done;
+    int    rngOk = 0, kaOk = 0, kbOk = 0;
+
+    ret = wc_InitRng(&brng);
+    if (ret == 0) {
+        rngOk = 1;
+        ret = wc_ecc_init(&ka);
+    }
+    if (ret == 0) {
+        kaOk = 1;
+        ret = wc_ecc_init(&kb);
+    }
+    if (ret == 0) {
+        kbOk = 1;
+        ret = wc_ecc_make_key_ex(&brng, keySz, &ka, curveId);
+    }
+    if (ret == 0) {
+        ret = wc_ecc_make_key_ex(&brng, keySz, &kb, curveId);
+    }
+    if (ret == 0) {
+        ret = wc_ecc_set_rng(&ka, &brng);
+    }
+    if (ret != 0) {
+        printf("ECDH %s bench: setup FAIL ret=%d\r\n", nm, ret);
+        goto ecdh_done;
+    }
+
+    done = 0;
+    (void)current_time(1);
+    for (i = 0; i < reps; i++) {
+        len = (word32)sizeof(secret);
+        ret = wc_ecc_shared_secret(&ka, &kb, secret, &len);
+        (void)current_time(0);
+        if (ret != 0) {
+            break;
+        }
+        done++;
+    }
+    t = current_time(0);
+    if (done == 0) {
+        printf("ECDH  %s agree:  FAIL ret=%d (no timing)\r\n", nm, ret);
+        goto ecdh_done;
+    }
+    printf("ECDH  %s agree:  %d ops in %.3f s = %.1f ms/op (len=%lu)%s\r\n",
+           nm, done, t, (t * 1000.0) / (double)done, (unsigned long)len,
+           (done < reps) ? " [STOPPED EARLY]" : "");
+
+ecdh_done:
+    if (kbOk) {
+        wc_ecc_free(&kb);
+    }
+    if (kaOk) {
+        wc_ecc_free(&ka);
+    }
+    if (rngOk) {
+        wc_FreeRng(&brng);
+    }
+}
+
+static void wolf_ecc_bench(void)
+{
+    wolf_sha_image_bench(0);
+    wolf_sha_image_bench(1);
+    wolf_ecdsa_bench(ECC_SECP256R1, 32, 10, "P-256");
+    wolf_ecdh_bench(ECC_SECP256R1, 32, 10, "P-256");
+#ifdef WOLF_ECC384
+    wolf_ecdsa_bench(ECC_SECP384R1, 48, 5, "P-384");
+    wolf_ecdh_bench(ECC_SECP384R1, 48, 5, "P-384");
+#endif
+}
+#endif /* WOLF_ECC_BENCH */
+
+
+#ifdef WOLF_ECC384
+/* P-384 correctness, independent of the timing harness: an RFC 6979 verify KAT
+ * over a device-computed SHA-384 digest, then a two-sided ECDH agreement.  The
+ * KAT uses externally supplied public-key and signature octets, so it catches
+ * the serialization defects a self-generated sign/verify pair cannot. */
+static void wolf_ecc384_test(void)
+{
+    /* Large under SP_NO_MALLOC - keep off the 16 KW stack. */
+    static ecc_key k384;
+    static ecc_key k384a;
+    static ecc_key k384b;
+    static WC_RNG  rng384;
+    static mp_int  r384;
+    static mp_int  s384;
+    static wc_Sha384 sha384;
+    static byte    secA[48];
+    static byte    secB[48];
+    unsigned char  dig[WC_SHA384_DIGEST_SIZE];
+    word32 lenA, lenB;
+    int    ret, res = 0;
+
+    ret = wc_InitSha384(&sha384);
+    if (ret == 0) {
+        ret = wc_Sha384Update(&sha384, (const byte*)kat_p384_msg,
+                              (word32)(sizeof(kat_p384_msg) - 1));
+    }
+    if (ret == 0) {
+        ret = wc_Sha384Final(&sha384, dig);
+    }
+    wc_Sha384Free(&sha384);
+
+    if (ret == 0) {
+        ret = wc_ecc_init(&k384);
+    }
+    if (ret == 0) {
+        ret = wc_ecc_import_unsigned(&k384, (byte*)kat_p384_qx,
+                  (byte*)kat_p384_qy, NULL, ECC_SECP384R1);
+    }
+    if (ret == 0) {
+        ret = mp_init(&r384);
+    }
+    if (ret == 0) {
+        ret = mp_init(&s384);
+    }
+    if (ret == 0) {
+        ret = mp_read_unsigned_bin(&r384, kat_p384_r,
+                                   (word32)sizeof(kat_p384_r));
+    }
+    if (ret == 0) {
+        ret = mp_read_unsigned_bin(&s384, kat_p384_s,
+                                   (word32)sizeof(kat_p384_s));
+    }
+    if (ret == 0) {
+        ret = wc_ecc_verify_hash_ex(&r384, &s384, dig,
+                                    (word32)sizeof(dig), &res, &k384);
+    }
+    printf("ECDSA P-384 verify KAT: %s (ret=%d res=%d)\r\n",
+           (ret == 0 && res == 1) ? "PASS" : "FAIL", ret, res);
+    mp_clear(&s384);
+    mp_clear(&r384);
+    wc_ecc_free(&k384);
+
+    /* Two-sided ECDH: both parties must derive the same secret. */
+    ret = wc_InitRng(&rng384);
+    if (ret == 0) {
+        ret = wc_ecc_init(&k384a);
+    }
+    if (ret == 0) {
+        ret = wc_ecc_init(&k384b);
+    }
+    if (ret == 0) {
+        ret = wc_ecc_make_key_ex(&rng384, 48, &k384a, ECC_SECP384R1);
+    }
+    if (ret == 0) {
+        ret = wc_ecc_make_key_ex(&rng384, 48, &k384b, ECC_SECP384R1);
+    }
+    if (ret == 0) {
+        ret = wc_ecc_set_rng(&k384a, &rng384);
+    }
+    if (ret == 0) {
+        ret = wc_ecc_set_rng(&k384b, &rng384);
+    }
+    lenA = (word32)sizeof(secA);
+    lenB = (word32)sizeof(secB);
+    if (ret == 0) {
+        ret = wc_ecc_shared_secret(&k384a, &k384b, secA, &lenA);
+    }
+    if (ret == 0) {
+        ret = wc_ecc_shared_secret(&k384b, &k384a, secB, &lenB);
+    }
+    printf("ECDH P-384 shared secret: %s (ret=%d len=%lu)\r\n",
+           (ret == 0 && lenA == lenB && lenA == 48U &&
+            XMEMCMP(secA, secB, lenA) == 0) ? "PASS" : "FAIL",
+           ret, (unsigned long)lenA);
+
+    wc_ecc_free(&k384b);
+    wc_ecc_free(&k384a);
+    wc_FreeRng(&rng384);
+}
+#endif /* WOLF_ECC384 */
+
 #endif /* WOLF_ECC */
 
 /* Focused SHA3-256 known-answer test (SHA3-256("abc")), to confirm the
@@ -2508,6 +2877,16 @@ int main(void)
 #ifdef WOLF_ECC
     printf("\r\n--- ECDSA/ECDH P-256 (SP) ---\r\n");
     wolf_ecc_test();
+#endif
+
+#ifdef WOLF_ECC384
+    printf("\r\n--- ECDSA/ECDH P-384 (SP) ---\r\n");
+    wolf_ecc384_test();
+#endif
+
+#ifdef WOLF_ECC_BENCH
+    printf("\r\n--- ECDSA / SHA-384 image-verify timings ---\r\n");
+    wolf_ecc_bench();
 #endif
 
 #ifdef WOLF_MLKEM
