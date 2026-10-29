@@ -296,6 +296,17 @@ further usage and details.
 
 <br />
 
+#### Infineon PSOC Edge E8 (KIT_PSE84_AI)
+
+This directory contains a bare-metal wolfCrypt test and benchmark for the
+PSOC Edge E84 Cortex-M33, using the on-chip crypto engine for SHA and AES,
+and its TRNG to seed the DRBG.
+
+Please see the [embedded/infineon_psoc_e8/README.md](embedded/infineon_psoc_e8/README.md) for further usage and details.
+
+
+<br />
+
 #### RT1060 (i.MX RT1060-EVK)
 
 This directory contains a wolfCrypt benchmark test application for i.MX RT1060-EVK.

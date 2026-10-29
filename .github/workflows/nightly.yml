@@ -79,6 +79,12 @@ jobs:
     with:
       caller_run_id: ${{ github.run_id }}
 
+  infineon-psoc-e8:
+    needs: [refs]
+    uses: ./.github/workflows/infineon-psoc-e8.yml
+    with:
+      caller_run_id: ${{ github.run_id }}
+
   mynewt:
     needs: [refs]
     uses: ./.github/workflows/mynewt.yml

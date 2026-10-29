@@ -1,0 +1,82 @@
+name: Infineon PSOC Edge E8
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'embedded/infineon_psoc_e8/**'
+      - '.github/workflows/infineon-psoc-e8.yml'
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - 'embedded/infineon_psoc_e8/**'
+      - '.github/workflows/infineon-psoc-e8.yml'
+  # No cron: nightly.yml calls this, so the nightly stays one run and one triage writer
+  workflow_call:
+    inputs:
+      caller_run_id:
+        description: 'run id of the calling workflow; keeps a called run in its own concurrency group'
+        type: string
+        default: ''
+  workflow_dispatch:
+
+# github.workflow is the CALLER's name in a called workflow, so hardcode ours
+concurrency:
+  group: ${{ inputs.caller_run_id && format('psoc-e8-call-{0}', inputs.caller_run_id) || format('psoc-e8-{0}', github.ref) }}
+  cancel-in-progress: ${{ !inputs.caller_run_id }}
+
+permissions:
+  contents: read
+
+jobs:
+  psoc_e8:
+    name: Build / infineon_psoc_e8 (arm-none-eabi) wolfSSL master
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: ./.github/actions/apt-update
+      - name: Install toolchain
+        run: |
+          set -euo pipefail
+          sudo apt-get install -y --no-install-recommends \
+            gcc-arm-none-eabi libnewlib-arm-none-eabi build-essential
+
+      # The Infineon device support is pinned to the releases the example was
+      # validated with; see embedded/infineon_psoc_e8/README.md.
+      - name: Fetch wolfSSL and Infineon device support
+        run: |
+          set -euo pipefail
+          clone() { bash "$GITHUB_WORKSPACE/.github/scripts/git-clone-retry.sh" -q --depth 1 --branch "$1" "$2" "$3"; }
+          clone master https://github.com/wolfSSL/wolfssl /tmp/wolfssl
+          clone release-v1.8.0 https://github.com/Infineon/mtb-dsl-pse8xxgp /tmp/mtb-dsl-pse8xxgp
+          clone release-v1.5.0 https://github.com/Infineon/mtb-template-pse8xxgp /tmp/mtb-template-pse8xxgp
+          clone release-v1.8.0 https://github.com/Infineon/core-lib /tmp/core-lib
+          clone v6.4.0 https://github.com/ARM-software/CMSIS_6 /tmp/CMSIS_6
+
+      - name: Build (crypto engine, engine ECDSA verify, software only)
+        run: |
+          set -euo pipefail
+          cd embedded/infineon_psoc_e8
+          args="WOLFSSL_ROOT=/tmp/wolfssl PSE84_DSL=/tmp/mtb-dsl-pse8xxgp \
+            PSE84_TEMPLATE=/tmp/mtb-template-pse8xxgp CORE_LIB=/tmp/core-lib \
+            CMSIS=/tmp/CMSIS_6"
+          make $args
+          make $args PSOC_CRYPTO_ECC=1
+          make $args PSOC_CRYPTO=0
+
+      - name: Assert it really cross-compiled
+        run: |
+          set -euo pipefail
+          cd embedded/infineon_psoc_e8
+          for elf in Build/wolfcrypt_test.elf Build-ecc/wolfcrypt_test.elf \
+                     Build-sw/wolfcrypt_bench.elf; do
+            arch=$(readelf -h "$elf" | awk -F: '/Machine:/ {print $2}' | xargs)
+            echo "$elf: $arch"
+            case "$arch" in
+              *ARM*) ;;
+              *) echo "FAIL: not an ARM binary: $arch"; exit 1 ;;
+            esac
+          done
