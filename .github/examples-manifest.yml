@@ -228,6 +228,33 @@ profiles:
       --enable-static --enable-shared
     cflags: "-DWOLFSSL_PUBLIC_MP"
 
+  autosar:
+    # Kept although the autosar entries are mode: skip for now -- they name
+    # these profiles again as soon as the port lands. See those entries.
+    # autosar/README: the AUTOSAR Csm/CryIf/Crypto shim is off by default and is
+    # not part of --enable-all, so it needs a profile of its own.
+    flags: "--enable-autosar --enable-static --enable-shared"
+
+  autosar-she:
+    # csm-she-provision needs wolfSSL's SHE support, which --enable-autosar does
+    # not pull in. Unlike the redirection and autosar-cmac paths this option is
+    # already upstream, so this profile can exist now.
+    flags: "--enable-autosar --enable-she=standard --enable-static --enable-shared"
+
+  iso15118:
+    # iso15118/contract-install needs the X9.63 KDF for the session key the
+    # contract private key is wrapped under; --enable-x963kdf is upstream, so
+    # this profile can exist now. Everything else in the dir needs only the
+    # defaults.
+    flags: "--enable-x963kdf --enable-static --enable-shared"
+
+  autosar-cryptocb:
+    # csm-cryptocb needs the crypto callback machinery to register a device at
+    # all. Also upstream already, so this one can run now too.
+    flags: >-
+      --enable-autosar --enable-cryptocb
+      --enable-static --enable-shared
+
 examples:
   # ---------------------------------------------------------------- host: run
   # cmake.yml, not here: add_subdirectory(wolfssl) needs a wolfSSL source tree
@@ -344,11 +371,72 @@ examples:
     profile: opensslextra
     mode: check
 
+  - id: doip
+    path: doip
+    profile: default
+    # asserts via doip/Makefile's check target, which runs the gateway and
+    # tester on loopback: once authenticated (reads the VIN) and once without
+    # a client certificate (refused).
+    mode: check
+
+  - id: iso15118
+    path: iso15118
+    profile: iso15118
+    # The check target generates the V2G hierarchy first, then runs the
+    # signature example and the SECC/EVCC pair both ways. Needs openssl(1) for
+    # the certificate generation, which the runners have.
+    #
+    # NOT run against a -DMAX_CHAIN_DEPTH=4 library, which is what the dir's
+    # README tells users to build: that is a wolfSSL build option and this
+    # harness shares one library per profile. Verified by hand instead.
+    #
+    # The profile adds --enable-x963kdf so contract-install actually runs
+    # rather than reporting SKIP.
+    mode: check
+
   - id: ecc
     path: ecc
     profile: ecc
     # asserts via ecc/Makefile's check target
     mode: check
+
+  - id: autosar-cryptocb
+    path: autosar
+    profile: autosar-cryptocb
+    # Same dir against a crypto-callback wolfSSL, so csm-cryptocb registers a
+    # device and asserts the cipher, MAC and RNG work reaches it instead of
+    # reporting SKIP.
+    mode: skip
+    reason: &autosar_port_pending >-
+      Needs the AUTOSAR port changes that are not on wolfSSL's master ref yet.
+      csm-cryptocb sets Csm_ConfigType.devId, which released Csm.h does not
+      declare, so the dir does not even compile under a crypto-callback
+      profile; csm-errors expects CRYPTO_OPERATIONMODE_FINISH on a job that was
+      never started to return E_NOT_OK, where the released driver frees the
+      slot and returns E_OK; and csm-threads asserts the keystore copy-out and
+      the job-table mutex. Also still waiting on it: -DREDIRECTION_CONFIG,
+      which did not compile before the GetKey fix, and --enable-autosar-cmac
+      for the MAC cases in csm-errors and for csm-secoc. Verified by hand
+      against the port branch -- all nine examples pass, with csm-secoc,
+      csm-she-provision and csm-cryptocb exercising SecOC, SHE and the crypto
+      callback rather than reporting SKIP. Turn these three entries back to
+      `mode: check` once the port lands; see autosar/README.md.
+
+  - id: autosar-she
+    path: autosar
+    profile: autosar-she
+    # Same dir, built against a SHE-enabled wolfSSL so csm-she-provision runs
+    # its known-answer checks instead of reporting SKIP. The other examples in
+    # the dir run here too, which is harmless duplication.
+    mode: skip
+    reason: *autosar_port_pending
+
+  - id: autosar
+    path: autosar
+    profile: autosar
+    # all nine examples assert via autosar/Makefile's check target
+    mode: skip
+    reason: *autosar_port_pending
 
   - id: hash
     path: hash
@@ -1677,6 +1765,18 @@ examples:
       DO work and are worth reusing: clone RIOT to ../../RIOT (the Makefile's
       default, BOARD ?= native) via fetch:, then `make pkg-prepare` in fetch: so
       RIOT downloads its packages before the run enters the netns.
+
+  - id: autosar-user-settings
+    path: autosar/user_settings
+    mode: skip
+    reason: >-
+      Compiles the wolfSSL sources directly with -DWOLFSSL_USER_SETTINGS rather
+      than linking an installed libwolfssl, so it needs a wolfSSL SOURCE tree
+      and a profile install is no use to it. setup-wolfssl does clone one to
+      /tmp/wolfssl, but only on a cache miss, so pointing WOLFSSL_ROOT there
+      would pass or fail depending on the cache -- do not "fix" this that way.
+      Verified by hand against a local checkout; the dir's own `make check`
+      asserts the round trips. See autosar/user_settings/README.md.
 
   - id: lwip
     path: lwip
