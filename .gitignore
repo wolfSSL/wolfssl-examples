@@ -298,6 +298,12 @@ pq/pqc_proxy/upgrade-proxy
 pq/pqc_proxy/legacy-client
 pq/pqc_proxy/pq-server
 
+# PQ crypto callback examples
+pq/ml_kem_cryptocb/ml_kem_cryptocb
+pq/ml_dsa_cryptocb/ml_dsa_cryptocb
+pq/tls_cryptocb/client-tls13-mlkem
+pq/tls_cryptocb/server-tls13-mlkem
+
 embedded/tls-client-server
 embedded/tls-server-size
 embedded/tls-sock-client

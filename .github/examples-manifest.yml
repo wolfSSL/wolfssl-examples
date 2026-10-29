@@ -162,6 +162,16 @@ profiles:
       --enable-extra-pqc-hybrids --enable-slhdsa=yes,sha2
       --enable-experimental --enable-tls13 --enable-static --enable-shared
 
+  pq-cryptocb:
+    # pq/ml_kem_cryptocb, pq/ml_dsa_cryptocb and pq/tls_cryptocb register a
+    # crypto callback that offloads the ML-KEM / ML-DSA operations, so they add
+    # --enable-cryptocb to the mlkem/dilithium flags their READMEs document.
+    # tls13 and the default ML-KEM hybrid groups (WOLFSSL_PQC_HYBRIDS) are on by
+    # default, which is what pq/tls_cryptocb needs.
+    flags: >-
+      --enable-cryptocb --enable-mlkem --enable-dilithium
+      --enable-experimental --enable-static --enable-shared
+
   acert:
     flags: "--enable-acert --enable-opensslextra --enable-rsapss --enable-static --enable-shared"
 
@@ -622,6 +632,29 @@ examples:
     path: pq/ml_kem
     profile: pq
     mode: check
+
+  - id: pq-ml-kem-cryptocb
+    path: pq/ml_kem_cryptocb
+    profile: pq-cryptocb
+    mode: check
+
+  - id: pq-ml-dsa-cryptocb
+    path: pq/ml_dsa_cryptocb
+    profile: pq-cryptocb
+    mode: check
+
+  - id: pq-tls-cryptocb
+    path: pq/tls_cryptocb
+    profile: pq-cryptocb
+    run:
+      - pair:
+          server: [./server-tls13-mlkem]
+          client: [./client-tls13-mlkem, 127.0.0.1]
+          stdin: "hello mlkem cryptocb\n"
+          server_exit: clean
+        # the server replies with a fixed string once the SecP256r1MLKEM768
+        # handshake completes, proving the ML-KEM key exchange carried data.
+        expect: "Server: I hear ya fa shizzle"
 
   - id: pq-slh-dsa
     path: pq/slh_dsa
@@ -1350,6 +1383,11 @@ examples:
     path: btle/common
     mode: skip
     reason: "shared helper (btle-sim.c) linked by btle/ecies and btle/tls; not an example"
+
+  - id: pq-cryptocb-common
+    path: pq
+    mode: skip
+    reason: "shared ML-KEM crypto-callback source (pq/mlkem-cryptocb.c) linked by pq/ml_kem_cryptocb and pq/tls_cryptocb; not an example"
 
   - id: puf-host-test
     path: puf/host_test

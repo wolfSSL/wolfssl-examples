@@ -197,19 +197,32 @@ jobs:
           pip install --quiet pyyaml
 
       - name: Set up vcan0
+        id: vcan
         run: |
-          set -euo pipefail
-          # vcan ships in linux-modules-extra and must match the running kernel exactly
-          sudo apt-get install -y "linux-modules-extra-$(uname -r)"
-          sudo modprobe can
-          sudo modprobe can-raw
-          sudo modprobe vcan
+          set -uo pipefail
+          # vcan ships in linux-modules-extra, which must match the running
+          # kernel. That package lags new runner-image kernels, so when it or
+          # the vcan module is unavailable, skip the can-bus run instead of
+          # failing the job.
+          if ! sudo apt-get install -y "linux-modules-extra-$(uname -r)"; then
+              echo "linux-modules-extra-$(uname -r) unavailable; skipping can-bus"
+              echo "ready=false" >> "$GITHUB_OUTPUT"
+              exit 0
+          fi
+          if ! { sudo modprobe can && sudo modprobe can-raw && sudo modprobe vcan; }; then
+              echo "vcan kernel modules unavailable; skipping can-bus"
+              echo "ready=false" >> "$GITHUB_OUTPUT"
+              exit 0
+          fi
+          set -e
           sudo ip link add dev vcan0 type vcan
           sudo ip link set vcan0 mtu 16      # 16 = classic CAN (72 for CAN FD)
           sudo ip link set up vcan0
           ip -details link show vcan0
+          echo "ready=true" >> "$GITHUB_OUTPUT"
 
       - uses: ./.github/actions/setup-wolfssl
+        if: steps.vcan.outputs.ready == 'true'
         id: wolfssl
         with:
           ref: ${{ matrix.wolfssl_ref }}
@@ -217,12 +230,14 @@ jobs:
           cflags: "-DWOLFSSL_ISOTP"
 
       - name: Generate certs and build
+        if: steps.vcan.outputs.ready == 'true'
         working-directory: can-bus
         run: |
           ./generate_ssl.sh
           make
 
       - name: Run over vcan0
+        if: steps.vcan.outputs.ready == 'true'
         working-directory: can-bus
         run: |
           set -euo pipefail
