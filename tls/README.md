@@ -119,6 +119,7 @@ into.
     3. [Running](#run-ecc)
 
 6. [Encrypted Client Hello](#ech)
+7. [Chain Verify Callback](#chainverifycb)
 
 
 
@@ -181,6 +182,9 @@ to statically link against wolfSSL in these examples.
 For `client-tls-writedup` and `server-tls-writedup`, it is required that
 wolfSSL be configured with the `--enable-writedup` flag. Remember to build 
 and install wolfSSL after configuring it with this flag.
+
+For `client-tls-chainverifycb`, it is required that wolfSSL be configured
+with the `--enable-chain-verify-cb` flag.
 
 
 ## <a name="tcp">A simple TCP client/server pair</a>
@@ -1596,3 +1600,90 @@ Expected behavior:
 
 Please contact wolfSSL at support@wolfssl.com with any questions, bug fixes,
 or suggested feature additions.
+
+
+## <a name="chainverifycb">Chain Verify Callback</a>
+
+A chain verify callback replaces wolfSSL's peer certificate verification
+completely, so an external root of trust - an HSM or secure element holding
+the anchors - can make the trust decision instead.
+
+To run this example build wolfSSL with the feature:
+
+```sh
+./configure --enable-chain-verify-cb && make && sudo make install
+```
+
+`client-tls-chainverifycb` is a TLS client that loads no CA certificate at
+all. It installs a chain verify callback, which wolfSSL calls with the
+server's certificates as raw DER once it has decoded them. wolfSSL builds no
+chain, verifies no signature and checks no date or host name: the trust
+decision is entirely the application's.
+
+Here the application is a small "trust service" on its own thread, standing
+in for the HSM. The callback copies the chain, hands it to the service and
+returns `CHAIN_VERIFY_WANT_E`, which suspends the handshake. The client keeps
+re-entering `wolfSSL_connect()`; each time the callback is asked again, and
+once the service has a verdict the handshake completes or fails.
+
+What to look for:
+
+* `wolfSSL_CTX_SetChainVerifyCb()` is the only verification-related setup.
+  There is no `wolfSSL_CTX_load_verify_locations()`.
+* `chain_verify_cb()` verifies nothing itself. On the first call it copies the
+  DER buffers, which are only valid for the duration of the call, and defers.
+* `service_verify()` is what the root of trust does with the chain: walk it
+  from the certificate nearest the anchor down to the server's own. It uses a
+  CertManager the SSL object knows nothing about; an HSM would use its own
+  store.
+* The connect loop treats `CHAIN_VERIFY_WANT_E` like `WANT_READ`: something to
+  wait for, then call `wolfSSL_connect()` again.
+
+Start a server presenting this repository's `certs/server-cert.pem`, for
+example the one in the wolfSSL source tree. `-d` stops it asking for a client
+certificate, and it serves one connection and exits:
+
+```sh
+cd wolfssl
+./examples/server/server -d -p 11111 \
+    -c ../wolfssl-examples/certs/server-cert.pem \
+    -k ../wolfssl-examples/certs/server-key.pem
+```
+
+Then, from this directory:
+
+```sh
+make client-tls-chainverifycb
+./client-tls-chainverifycb
+trust service: anchors loaded from ../certs/ca-cert.pem, running on its own thread
+client: no CA loaded, chain verify callback installed
+callback: 2 certificate(s) handed to the trust service, deferring
+callback: no verdict yet, deferring again
+callback: trust service accepted the chain
+client: handshake done, TLSv1.2
+server: I hear you fa shizzle!
+```
+
+Two switches show the other outcomes:
+
+* `-n` installs no callback. With no CA loaded the handshake fails with
+  `ASN_NO_SIGNER_E` (-188): wolfSSL's own verification has nothing to trust,
+  which is exactly why the callback exists.
+* `-x` makes the service reject every chain. The handshake fails with
+  `CHAIN_VERIFY_CB_E` (-524) and the server receives a single
+  `bad_certificate` alert; the reason the service gave is never sent to it.
+
+`-a anchor.pem` points the service at a different trust anchor, and the host
+and port default to `127.0.0.1 11111`.
+
+wolfSSL still decodes every certificate before the callback runs, so malformed
+DER fails the handshake without the callback seeing it, and it still enforces
+the minimum key sizes on the server's own key. Everything about trust is the
+callback's. It is consulted even under `WOLFSSL_VERIFY_NONE`.
+
+DTLS, raw public keys and verifying a stapled OCSP response are not supported
+together with the callback: the setters refuse them, and a connection that
+uses one of them anyway fails with `CHAIN_VERIFY_UNSUPPORTED_E` before the
+callback is called.
+
+See `ChainVerifyCb` in `wolfssl/ssl.h` for the full contract.
