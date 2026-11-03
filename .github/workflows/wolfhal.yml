@@ -1,0 +1,81 @@
+name: wolfHAL
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'wolfHAL/**'
+      - '.github/workflows/wolfhal.yml'
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - 'wolfHAL/**'
+      - '.github/workflows/wolfhal.yml'
+  # No cron: nightly.yml calls this, so the nightly stays one run and one triage writer
+  workflow_call:
+    inputs:
+      caller_run_id:
+        description: 'run id of the calling workflow; keeps a called run in its own concurrency group'
+        type: string
+        default: ''
+  workflow_dispatch:
+
+# github.workflow is the CALLER's name in a called workflow, so hardcode ours
+concurrency:
+  group: ${{ inputs.caller_run_id && format('wolfhal-call-{0}', inputs.caller_run_id) || format('wolfhal-{0}', github.ref) }}
+  cancel-in-progress: ${{ !inputs.caller_run_id }}
+
+permissions:
+  contents: read
+
+jobs:
+  resolve:
+    uses: ./.github/workflows/_resolve-wolfssl.yml
+    with:
+      # master only: the wolfHAL crypto-callback port (wolfcrypt/src/port/wolfHAL)
+      # is not in any released tag
+      refs: master
+
+  wolfhal:
+    needs: resolve
+    name: Build / wolfHAL boards, wolfSSL ${{ matrix.wolfssl_ref }}
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        wolfssl_ref: ${{ fromJson(needs.resolve.outputs.refs_json) }}
+    timeout-minutes: 30
+    steps:
+      # The wolfHAL drivers come from the pinned submodule at wolfHAL/wolfHAL.
+      - uses: actions/checkout@v5
+        with:
+          submodules: true
+
+      - uses: ./.github/actions/apt-update
+
+      # Every toolchain any board under wolfHAL/boards needs, installed once for
+      # the whole run. A board added with a different target adds its packages
+      # here; the per-board prefix comes from that board's CROSS_COMPILE.
+      - name: Install toolchains
+        run: |
+          set -euo pipefail
+          sudo apt-get install -y --no-install-recommends \
+            gcc-arm-none-eabi binutils-arm-none-eabi libnewlib-arm-none-eabi
+
+      - name: Fetch wolfSSL
+        run: |
+          set -euo pipefail
+          # --branch, or every leg silently clones the default branch and the
+          # stable leg builds master
+          bash "$GITHUB_WORKSPACE/.github/scripts/git-clone-retry.sh" -q --depth 1 --branch '${{ matrix.wolfssl_ref }}' \
+            https://github.com/wolfSSL/wolfssl /tmp/wolfssl
+          git -C /tmp/wolfssl log -1 --format='wolfssl at ${{ matrix.wolfssl_ref }}: %h %s'
+
+      # One step per board. A new board is not tested until it is listed
+      # here; `if: !cancelled()` keeps a broken board from hiding the rest.
+      - name: Build stm32wb55xx_nucleo
+        if: '!cancelled()'
+        uses: ./.github/actions/wolfhal-build
+        with:
+          board: stm32wb55xx_nucleo
