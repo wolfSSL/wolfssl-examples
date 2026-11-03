@@ -82,6 +82,10 @@ android/wolfssljni-ndk-sample/proguard-project.txt
 /psk/server-psk
 /psk/server-tcp
 
+/mbedtls-compat/client-tls-mbedtls
+/mbedtls-compat/check-server-tls12
+/mbedtls-compat/check-server-tls13
+
 /tls/client-async
 /tls/client-tcp
 /tls/client-tls

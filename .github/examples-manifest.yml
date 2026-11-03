@@ -987,6 +987,20 @@ examples:
     # {client,server}-tls-uart (needs /dev/ttyUSB0), and the four *-perf
     # benchmarks. All still build.
 
+  - id: mbedtls-compat
+    path: mbedtls-compat
+    # default is only for the servers. The client links wolfPSA, built below.
+    profile: default
+    # wolfPSA master until a release has MBEDTLS_COMPAT, then pin that tag
+    fetch:
+      - [sh, -c, "test -d ../../wolfssl || git clone -q --depth 1 --branch \"${WOLFSSL_REF:-master}\" https://github.com/wolfSSL/wolfssl ../../wolfssl"]
+      - [sh, -c, "test -d ../../wolfpsa || git clone -q --depth 1 --branch master https://github.com/wolfSSL/wolfpsa ../../wolfpsa"]
+      - [sh, -c, "cd ../../wolfpsa && make -j\"$(nproc)\" MBEDTLS_COMPAT=1 WOLFSSL_PATH=../wolfssl"]
+    # make check builds ../tls/server-tls.c for TLS 1.2 and 1.3 and runs the
+    # client against it, one server per case. tls/server-tls13 is not used: it
+    # requires a client certificate, which this client does not send.
+    mode: check
+
   - id: dtls
     path: dtls
     profile: dtls

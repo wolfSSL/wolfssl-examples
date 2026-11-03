@@ -155,6 +155,9 @@ jobs:
       # Before the run: run_example.py execs itself into a netns with only
       # loopback, so an example needing a third-party tree has to get it now.
       - name: Fetch third-party sources for ${{ matrix.id }}
+        env:
+          # for a third-party tree that builds the wolfSSL sources under test
+          WOLFSSL_REF: ${{ matrix.wolfssl_ref }}
         run: |
           python3 .github/scripts/run_example.py --only '${{ matrix.id }}' --fetch
 
