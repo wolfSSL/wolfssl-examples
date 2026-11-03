@@ -49,6 +49,10 @@ $ cd mynewt
 $ newt upgrade
 ```
 
+NOTE: This example needs `apache-mynewt-core` master. With either option above,
+set `vers: 0.0.0` under `repository.apache-mynewt-core` in the project's
+`project.yml`, then run `newt upgrade` in the project directory.
+
 3. Install wolfSSL support into Mynewt project.
 
 In the `wolfssl/IDE/mynewt` directory:
@@ -230,9 +234,8 @@ Install:
 - screen
 - openssl
 - xxd
-- python3
 - fuser
-- [newt](https://mynewt.apache.org/latest/get_started/native_install/index.html)(v1.4.1 over)
+- [newt](https://mynewt.apache.org/latest/get_started/native_install/index.html)(tested with v1.15.0)
 
 ## Usage
 

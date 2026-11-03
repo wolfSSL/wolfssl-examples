@@ -10,7 +10,7 @@ if [ -d "$WOLFSSL_REPO" ]; then
 fi
 
 # check for required dependencies
-for cmd in newt expect screen git openssl ss xxd python3 fuser; do
+for cmd in newt expect screen git openssl ss xxd fuser; do
     if ! command -v $cmd &> /dev/null; then
         echo "Error: Required command '$cmd' is not installed."
         echo "Please install it before running this script."
@@ -33,6 +33,22 @@ pushd tmp > /dev/null
 newt new myproj
 NEWTPROJ=`pwd`/myproj
 pushd ${NEWTPROJ} > /dev/null
+
+# This example needs apache-mynewt-core master ("vers: 0.0.0"), not the release
+# "newt new" pins. Same file newt generates, with the version bumped.
+cat > project.yml <<'EOF'
+project.name: "my_project"
+
+project.repositories:
+    - apache-mynewt-core
+
+repository.apache-mynewt-core:
+    type: github
+    vers: 0.0.0
+    user: apache
+    repo: mynewt-core
+EOF
+
 newt upgrade
 popd > /dev/null
 
@@ -65,82 +81,6 @@ newt target create wolfsslclienttlsmn_sim
 newt target set wolfsslclienttlsmn_sim app=apps/wolfsslclienttlsmn
 newt target set wolfsslclienttlsmn_sim bsp=@apache-mynewt-core/hw/bsp/native
 newt target set wolfsslclienttlsmn_sim build_profile=debug
-
-# Fix compiler -Werror for sim targets on 64-bit Linux.
-# Upstream PR: https://github.com/apache/mynewt-core/pull/3713
-sed -i -E 's/-Werror([[:space:]",]|$)/-Wno-error\1/g' repos/apache-mynewt-core/compiler/sim/compiler.yml
-if grep -qE -- '-Werror([[:space:]",]|$)' repos/apache-mynewt-core/compiler/sim/compiler.yml; then
-    echo "Error: -Werror patch did not apply to compiler.yml (upstream may have changed)."
-    exit 1
-fi
-
-# Fix LINK_TABLE start pointer alignment in shell module tables.
-# Upstream PR: https://github.com/apache/mynewt-core/pull/3711
-python3 - repos/apache-mynewt-core/sys/shell/src/shell.c <<'PYEOF'
-import re, sys
-
-path = sys.argv[1]
-with open(path) as f:
-    src = f.read()
-
-old = """static size_t
-shell_mod_std_count(shell_mod_t mod)
-{
-    const struct shell_mod_std *std_mod = (const struct shell_mod_std *)mod;
-    return std_mod->commands_end - std_mod->commands;
-}
-
-static shell_cmd_t
-shell_mod_std_get(shell_mod_t mod, size_t ix)
-{
-    const struct shell_mod_std *std_mod = (const struct shell_mod_std *)mod;
-    size_t limit = std_mod->commands_end - std_mod->commands;
-    return ix < limit ? &std_mod->commands[ix] : NULL;
-}"""
-
-new = """static const struct shell_cmd *
-shell_mod_std_commands(const struct shell_mod_std *std_mod)
-{
-    uintptr_t addr = (uintptr_t)std_mod->commands;
-    uintptr_t aligned = (addr + sizeof(struct shell_cmd) - 1) &
-                         ~(uintptr_t)(sizeof(struct shell_cmd) - 1);
-
-    return (const struct shell_cmd *)aligned;
-}
-
-static size_t
-shell_mod_std_count(shell_mod_t mod)
-{
-    const struct shell_mod_std *std_mod = (const struct shell_mod_std *)mod;
-    return std_mod->commands_end - shell_mod_std_commands(std_mod);
-}
-
-static shell_cmd_t
-shell_mod_std_get(shell_mod_t mod, size_t ix)
-{
-    const struct shell_mod_std *std_mod = (const struct shell_mod_std *)mod;
-    const struct shell_cmd *commands = shell_mod_std_commands(std_mod);
-    size_t limit = std_mod->commands_end - commands;
-    return ix < limit ? &commands[ix] : NULL;
-}"""
-
-if old not in src:
-    print("Error: shell_mod_std_count/get patch target not found in shell.c "
-          "(upstream may have changed).", file=sys.stderr)
-    sys.exit(1)
-
-with open(path, "w") as f:
-    f.write(src.replace(old, new, 1))
-PYEOF
-
-# Fix uart_pty() loop_slave FD leak.
-# Upstream PR: https://github.com/apache/mynewt-core/pull/3712
-sed -i 's|snprintf(msg, sizeof(msg), "uart%d at %s\\n", port, pty_name);|close(loop_slave);\n    snprintf(msg, sizeof(msg), "uart%d at %s\\n", port, pty_name);|' \
-    repos/apache-mynewt-core/hw/mcu/native/src/hal_uart.c
-if ! grep -q 'close(loop_slave);' repos/apache-mynewt-core/hw/mcu/native/src/hal_uart.c; then
-    echo "Error: loop_slave close patch did not apply to hal_uart.c (upstream may have changed)."
-    exit 1
-fi
 
 # Test that WOLFSSL_MN_USE_CUSTOM_CA path halts compilation with #error as intended
 newt target set wolfsslclienttlsmn_sim syscfg=WOLFSSL_MN_USE_CUSTOM_CA=1
