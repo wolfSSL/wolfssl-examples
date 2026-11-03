@@ -132,6 +132,7 @@ profiles:
       --enable-tls13 --enable-ech --enable-writedup --enable-pkcallbacks
       --enable-postauth --enable-cryptocb --enable-opensslall --enable-session-ticket
       --enable-earlydata --enable-keygen --enable-des3 --enable-static --enable-shared
+      --enable-psk --enable-cert-with-extern-psk
     cflags: "-DHAVE_SECRET_CALLBACK"
 
   dtls:
