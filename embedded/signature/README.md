@@ -11,7 +11,7 @@ This directory includes the following examples. Each subdirectory has a Makefile
 ||ecc_vfy_only|verify Signature|
 ||ecc_vfy_only_nonblock|verify signature with non-blocking|
 
-NOTE: ECC non-blocking (`ecc_vfy_only_nonblock`) is supported only with SP math (`math=sp` or the default). wolfSSL does not provide ECC non-blocking for TFM, so building it with `math=tfm` fails with `#error ECC non-blocking only supports SP`.
+NOTE: ECC non-blocking (`ecc_vfy_only_nonblock`) is supported only with SP math (`math=sp` or the default). wolfSSL does not provide ECC non-blocking for TFM, so building it with `math=tfm` fails with `#error ECC non-blocking only supports SP`. `arch=x64` also needs wolfSSL newer than v5.9.4.
 
 
 When building each example, you can specify arguments to control the build.  Specify a target function to run either a simple example, benchmark, or memory tracking example. Specify an "arch" option to build optimized code for MCU architectures such as Intel x86, ARM64 or a generic code by default.  And specify a "math" option to choose an underlying wolfCrypt math library to use, between Single Precision or TFM.

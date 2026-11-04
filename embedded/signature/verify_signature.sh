@@ -50,6 +50,13 @@ NOT_SUPPORTED[ecc_vfy_only_nonblock__tfm__mem]="ECC non-blocking is SP only"
 for c in default sp_c32 sp_c64 sp_x64 sp_arm64; do
     NOT_SUPPORTED[rsa_sign_verify__${c}__nonblock]="RSA non-blocking is TFM only"
 done
+# SP x86_64 assembly gained ECC non-blocking after wolfSSL v5.9.4
+if ! grep -q "} sp_256_ecc_mulmod_4_ctx;" \
+        "$WOLFROOT/wolfcrypt/src/sp_x86_64.c" 2> /dev/null; then
+    for t in ecc_verify_nonblock mem; do
+        NOT_SUPPORTED[ecc_vfy_only_nonblock__sp_x64__$t]="SP x86_64 ECC non-blocking needs wolfSSL newer than v5.9.4"
+    done
+fi
 
 fail=0
 n_ok=0
