@@ -5,11 +5,13 @@ on:
     branches: [master]
     paths:
       - 'certs/**'
+      - 'ocsp/ocsp_nonblock/ca_certs/**'
       - '.github/workflows/cert-expiry.yml'
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - 'certs/**'
+      - 'ocsp/ocsp_nonblock/ca_certs/**'
       - '.github/workflows/cert-expiry.yml'
   # No cron: nightly.yml calls this, so the nightly stays one run and one triage writer
   workflow_call:
@@ -38,3 +40,5 @@ jobs:
       - uses: actions/checkout@v5
       - name: Warn on certs nearing expiry
         run: ./certs/check-expiry.sh certs
+      - name: Warn on example CA certs nearing expiry
+        run: ./certs/check-expiry.sh ocsp/ocsp_nonblock/ca_certs
