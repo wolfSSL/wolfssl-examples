@@ -11,6 +11,8 @@ This directory includes the following examples. Each subdirectory has a Makefile
 ||ecc_vfy_only|verify Signature|
 ||ecc_vfy_only_nonblock|verify signature with non-blocking|
 
+NOTE: ECC non-blocking (`ecc_vfy_only_nonblock`) is supported only with SP math (`math=sp` or the default). wolfSSL does not provide ECC non-blocking for TFM, so building it with `math=tfm` fails with `#error ECC non-blocking only supports SP`.
+
 
 When building each example, you can specify arguments to control the build.  Specify a target function to run either a simple example, benchmark, or memory tracking example. Specify an "arch" option to build optimized code for MCU architectures such as Intel x86, ARM64 or a generic code by default.  And specify a "math" option to choose an underlying wolfCrypt math library to use, between Single Precision or TFM.
 
@@ -42,6 +44,16 @@ NOTE:  No architecture specification is required when using TFM.
 |c64| SP using 64-bit data type   (default)   |
 |arm64|SP for ARM64 |
 |x64|SP for x86 64bit|
+
+## Verify all examples
+
+`verify_signature.sh` builds and runs every example for each math/arch option and prints OK/FAIL per target (unsupported combinations are shown as N/A). Logs are saved to `verify_logs/`.
+
+```bash
+./verify_signature.sh [path to wolfssl]
+```
+
+NOTE: Each build deletes `wolfcrypt/src/*.o` in the wolfSSL directory.
 
 
 Each Makefile is self-contained to statically link wolfCrypt source files (without using a shared libwolfssl.so). Put your wolfSSL source files in parallel with the wolfssl-examples directory. The location of the primary wolfSSL source directory is defined by WOLFROOT in each Makefile. Each build compiles only the needed files for the target. OBJ and OBJ_xxx macros in each Makefile define object files for the common and specific target.
