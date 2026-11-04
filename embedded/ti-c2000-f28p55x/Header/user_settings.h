@@ -607,7 +607,7 @@ extern long my_time(long* t);
  * TRNG, but it does have two independent RC oscillators and a crystal-derived
  * PLL, and a Dual-Clock Comparator that can count one against another.  The
  * LSB of that count is the noise bit; it is oversampled well past its measured
- * min-entropy, health-tested per SP800-90B 4.4, SHA-256 conditioned, and fed
+ * min-entropy, health-tested per SP800-90B 4.4, SHA3-256 conditioned, and fed
  * to the same SHA-256 Hash-DRBG.  See IDE/C2000/README.md in the wolfSSL tree
  * for the on-hardware characterization. */
 #undef  WOLFSSL_C2000_ENTROPY

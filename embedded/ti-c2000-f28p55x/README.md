@@ -192,7 +192,7 @@ Two hardware quirks are documented in `IDE/C2000/README.md` in the wolfSSL tree 
 
 ## RNG and entropy
 
-The F28P550SJ has **no hardware TRNG**. It does have three independent oscillators -- INTOSC1 and INTOSC2 (on-chip ~10 MHz RC) and the external crystal behind SYSCLK/PLLRAWCLK -- and two Dual-Clock Comparators that can count one against another. `ENTROPY=1` uses that: a DCC counts PLLRAWCLK edges inside a window of INTOSC cycles, and the LSB of the count is one noise bit carrying the relative phase drift of two physically distinct oscillators. The raw stream is oversampled well past its measured min-entropy, health-tested per SP800-90B 4.4, SHA-256 conditioned, and fed to the SP800-90A Hash-DRBG.
+The F28P550SJ has **no hardware TRNG**. It does have three independent oscillators -- INTOSC1 and INTOSC2 (on-chip ~10 MHz RC) and the external crystal behind SYSCLK/PLLRAWCLK -- and two Dual-Clock Comparators that can count one against another. `ENTROPY=1` uses that: a DCC counts PLLRAWCLK edges inside a window of INTOSC cycles, and the LSB of the count is one noise bit carrying the relative phase drift of two physically distinct oscillators. The raw stream is oversampled well past its measured min-entropy, health-tested per SP800-90B 4.4, SHA3-256 conditioned, and fed to the SP800-90A Hash-DRBG.
 
 Measured on this board with `ENTROPY_PROBE=1` (262144 raw bits per source, LSB extraction, host analysis):
 
@@ -204,7 +204,7 @@ Measured on this board with `ENTROPY_PROBE=1` (262144 raw bits per source, LSB e
 
 Only INTOSC1 is credited toward the entropy budget; INTOSC2 is hashed in as defence-in-depth but fails a chi-square uniformity check decisively, and the ADC source is off by default because it also fails chi-square and depends on a spare analog pin being left floating. The port assumes 0.5 bits per raw bit and oversamples 2x on top, about a 4x cushion. This is a most-common-value estimate with bias and correlation screening, **not** a full SP800-90B non-IID assessment. Read 0.932 against the estimator's ceiling rather than 1.0: at this sample count a synthetic uniform stream estimates to 0.930, so the credited source is statistically indistinguishable from uniform. These are single-run measurements of a physical source and move slightly between runs (an earlier capture gave 0.924 / 0.775 / 0.865), but the pass/fail conclusions have been identical in every run.
 
-Only the DCC measurement itself is C2000 code. The SP800-90B startup and continuous health tests, the entropy budget, the SHA-256 conditioner and the latched fail-closed state come from wolfSSL's generic `wc_NoiseSrc_*` layer in `wolfcrypt/src/random.c`, which `WOLFSSL_C2000_ENTROPY` configures. See `IDE/C2000/README.md` in the wolfSSL tree.
+Only the DCC measurement itself is C2000 code. The SP800-90B startup and continuous health tests, the entropy budget, the SHA3-256 conditioner and the failure handling come from wolfSSL's generic `wc_NoiseSrc_*` layer in `wolfcrypt/src/rng_noisesrc.c`, which `WOLFSSL_C2000_ENTROPY` configures. A health-test failure on either source returns an error with no output and reruns that source's startup test on the next call. See `IDE/C2000/README.md` in the wolfSSL tree.
 
 `ENTROPY_PROBE=1` builds the measurement image itself: it dumps unconditioned samples over the SCI console for host analysis, and runs no crypto. `tools/entropy_analyze.py` (numpy only) consumes that capture and reproduces the table above:
 

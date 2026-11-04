@@ -347,11 +347,13 @@ ifeq ($(MEMPROF),1)
 endif
 
 # ENTROPY=1 replaces the dev-only WOLFSSL_GENSEED_FORTEST counter with the real
-# oscillator-jitter entropy source (DCC/INTOSC vs PLL, SHA-256 conditioned,
-# SP800-90B health tests) feeding the SP800-90A Hash-DRBG.
+# oscillator-jitter entropy source (DCC/INTOSC vs PLL, SHA3-256 conditioned,
+# SP800-90B health tests) feeding the SP800-90A Hash-DRBG.  The generic noise
+# source layer it configures lives in rng_noisesrc.c.
 ENTROPY ?= 0
 ifeq ($(ENTROPY),1)
   CFLAGS  += --define=WOLF_ENTROPY
+  WC_SRCS += $(WOLFROOT)/wolfcrypt/src/rng_noisesrc.c
   WC_SRCS += $(WOLFROOT)/wolfcrypt/src/port/ti/ti-c2000-entropy.c
 endif
 
