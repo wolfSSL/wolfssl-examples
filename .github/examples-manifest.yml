@@ -373,8 +373,8 @@ examples:
     profile: crypto
     mode: check
 
-  - id: embedded
-    path: embedded
+  - id: embedded-tls
+    path: embedded/tls
     profile: default
     run:
       # the client receives the server's HTML: proves the full round-trip, not "Done"
@@ -1323,6 +1323,36 @@ examples:
     tier: cross
     profile: all
     mode: build-only
+  # signature.yml compiles wolfcrypt from a wolfSSL source tree (WOLFROOT) and
+  # runs every example via verify_signature.sh, so these are not host-tier jobs
+  - id: embedded-signature
+    path: embedded/signature
+    tier: cross
+    profile: all
+  - id: embedded-signature-ecc-sign-verify
+    path: embedded/signature/ecc_sign_verify
+    tier: cross
+    profile: all
+  - id: embedded-signature-ecc-vfy-only
+    path: embedded/signature/ecc_vfy_only
+    tier: cross
+    profile: all
+  - id: embedded-signature-ecc-vfy-only-nonblock
+    path: embedded/signature/ecc_vfy_only_nonblock
+    tier: cross
+    profile: all
+  - id: embedded-signature-rsa-sign-verify
+    path: embedded/signature/rsa_sign_verify
+    tier: cross
+    profile: all
+  - id: embedded-signature-rsa-vfy-only
+    path: embedded/signature/rsa_vfy_only
+    tier: cross
+    profile: all
+  - id: embedded-signature-rsa-vfy-only-nonblock
+    path: embedded/signature/rsa_vfy_only_nonblock
+    tier: cross
+    profile: all
   - id: uefi-static
     path: uefi-static
     tier: cross
@@ -1388,6 +1418,21 @@ examples:
     path: pq
     mode: skip
     reason: "shared ML-KEM crypto-callback source (pq/mlkem-cryptocb.c) linked by pq/ml_kem_cryptocb and pq/tls_cryptocb; not an example"
+
+  - id: efr32xg25
+    path: embedded/efr32xg25
+    mode: skip
+    reason: "EFR32xG25 board build via slc-cli and GNU Arm; output only comes back from the hardware"
+
+  - id: nuvoton-m2354
+    path: embedded/nuvoton_m2354
+    mode: skip
+    reason: "NuMaker-M2354 board build; tests run on the hardware only"
+
+  - id: nuvoton-m2354-secure
+    path: embedded/nuvoton_m2354/secure
+    mode: skip
+    reason: "secure-side NSC source linked into the nuvoton_m2354 board build; not an example"
 
   - id: puf-host-test
     path: puf/host_test
