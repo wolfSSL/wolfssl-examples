@@ -92,7 +92,7 @@ int sign()
     wc_Sha256   sha256;
     wc_Sha256*  pSha256 = NULL;
     WC_RNG      rng;
-    WC_RNG*     pRng;
+    WC_RNG*     pRng = NULL;
     long        e = 65537; /* standard value to use for exponent */
 
     /* Calculate SHA-256 digest of message */

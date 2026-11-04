@@ -145,9 +145,9 @@ int do_sig_ver_test(int eccKeySz)
     printf("Key size is %d, byteField = %d\n", eccKeySz, byteField);
 
     ret = wc_InitRng(&rng);
-    CHECK_RET(ret, 0, key_done, "wc_InitRng()");
+    CHECK_RET(ret, 0, sig_done, "wc_InitRng()");
     ret = wc_ecc_init(&key);
-    CHECK_RET(ret, 0, sig_done, "wc_ecc_init()");
+    CHECK_RET(ret, 0, rng_done, "wc_ecc_init()");
     /* Import signature and ecc_key */
     sig = sig_keys[idx_key(eccKeySz)].sig;
     sig_size = sig_keys[idx_key(eccKeySz)].sig_size;
@@ -155,12 +155,13 @@ int do_sig_ver_test(int eccKeySz)
     key_size = sig_keys[idx_key(eccKeySz)].key_size;
 
     ret = wc_ecc_import_x963(pKeybuff, key_size, &key);
-    CHECK_RET(ret, 0, rng_done, "wc_ecc_import_x963()");
+    CHECK_RET(ret, 0, key_done, "wc_ecc_import_x963()");
 #ifdef NONBLOCK
         ret = wc_ecc_set_nonblock(&key, &nb_ctx);
-        CHECK_RET(ret, 0, rng_done, "wc_ecc_set_nonblock()");
+        CHECK_RET(ret, 0, key_done, "wc_ecc_set_nonblock()");
 
         blk_count = 0;
+        total_blk_time = 0;
         pre_returned_t = current_time(1);
 
         do {
@@ -186,8 +187,11 @@ int do_sig_ver_test(int eccKeySz)
                                                             &verified, &key);
 #endif /* NONBLOCK */
 
-        CHECK_RET(ret, 0, rng_done, "wc_ecc_verify_hash()");
-        CHECK_RET(verified, 1, rng_done, "verification check");
+        CHECK_RET(ret, 0, key_done, "wc_ecc_verify_hash()");
+        if (verified != 1) {
+            ret = SIG_VERIFY_E;
+        }
+        CHECK_RET(ret, 0, key_done, "verification check");
         verified = 0;
         printf("Successfully verified signature w/ ecc key size %d!\n",
                                                                     eccKeySz);
@@ -202,10 +206,10 @@ int do_sig_ver_test(int eccKeySz)
     }
 #endif /* NONBLOCK */
 
-rng_done:
-    wc_FreeRng(&rng);
 key_done:
     wc_ecc_free(&key);
+rng_done:
+    wc_FreeRng(&rng);
 sig_done:
     return ret;
 }

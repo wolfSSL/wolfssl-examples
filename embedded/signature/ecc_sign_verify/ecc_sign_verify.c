@@ -147,7 +147,7 @@ double start_time, total_time;
         return -1001;
     }
     ret = wc_InitRng(&rng);
-    CHECK_RET(ret, 0, key_done, "wc_InitRng()");
+    CHECK_RET(ret, 0, sig_done, "wc_InitRng()");
 
 #ifdef BENCHMARK
     count = 0;
@@ -156,12 +156,12 @@ double start_time, total_time;
     while( (double)BENCH_TIME_SEC > (total_time = current_time(0) - start_time ) ){
 #endif
         ret = wc_ecc_init(&key);
-        CHECK_RET(ret, 0, sig_done, "wc_ecc_init()");
+        CHECK_RET(ret, 0, rng_done, "wc_ecc_init()");
 
         ret = wc_ecc_make_key(&rng, byteField, &key);
-        CHECK_RET(ret, 0, rng_done, "wc_ecc_make_key()");
+        CHECK_RET(ret, 0, key_done, "wc_ecc_make_key()");
         ret = wc_ecc_sign_hash(hash, sizeof(hash), sig, &maxSigSz, &rng, &key);
-        CHECK_RET(ret, 0, rng_done, "wc_ecc_sign_hash()");
+        CHECK_RET(ret, 0, key_done, "wc_ecc_sign_hash()");
 
     #ifdef SHOW_SIGS_IN_EXAMPLE
         hexdump(sig, maxSigSz, 16);
@@ -169,8 +169,11 @@ double start_time, total_time;
 
         ret = wc_ecc_verify_hash(sig, maxSigSz, hash, sizeof(hash),
                                                             &verified, &key);
-        CHECK_RET(ret, 0, rng_done, "wc_ecc_verify_hash()");
-        CHECK_RET(verified, 1, rng_done, "verification check");
+        CHECK_RET(ret, 0, key_done, "wc_ecc_verify_hash()");
+        if (verified != 1) {
+            ret = SIG_VERIFY_E;
+        }
+        CHECK_RET(ret, 0, key_done, "verification check");
         verified = 0;
         maxSigSz = ECC_MAX_SIG_SIZE;
 #ifdef BENCHMARK
@@ -181,10 +184,10 @@ double start_time, total_time;
     printf("Successfully verified signature w/ ecc key size %d!\n", eccKeySz);
 #endif
 
-rng_done:
-    wc_FreeRng(&rng);
 key_done:
     wc_ecc_free(&key);
+rng_done:
+    wc_FreeRng(&rng);
 sig_done:
     XFREE(sig, NULL, DYNAMIC_TYPE_TMP_BUFFER);
     return ret;

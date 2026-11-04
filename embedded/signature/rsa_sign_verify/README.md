@@ -1,7 +1,7 @@
 # RSA Signature Test Example 
 
 ### PKCS#1.5 and PSS
-To switch from PKCS#1.5 to PSS, `#define PSS_PADDING` in user_settings.h
+PSS is used by default. To switch to PKCS#1.5, comment out `#define PSS_PADDING` in user_settings.h
 
 Demonstrates using a hash digest to sign and verify a signature using RSA
 
@@ -17,11 +17,7 @@ make
 
 ### Usage
 ```
-./verify
-```
-
-```
-./sign <message>
+./rsa_sign_verify
 ```
 
 # Signature verification Benchmark
@@ -48,7 +44,7 @@ NOTE: When using TFM, No Architecture specification is required.
 ## Example Output
 - built with the option `math=sp arch=arm64`
 ```
-./verify_bench
+./rsa_sign_verify_bench
 ---------------------------------------------------------------
 Enabled WOLFSSL_SP_ARM64
 ---------------------------------------------------------------
@@ -61,7 +57,7 @@ Finished Benchmark
 
 - built with the option `math=tfm`
 ```
-./verify_bench
+./rsa_sign_verify_bench
 ---------------------------------------------------------------
 Enabled TFM
 ---------------------------------------------------------------
@@ -79,7 +75,7 @@ make mem
 ```
 ## Example Output
 ```
-./verify_mem
+./rsa_sign_verify_mem
 Verified
 total   Allocs   =         0
 total   Deallocs =         0

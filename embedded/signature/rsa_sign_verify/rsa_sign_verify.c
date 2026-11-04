@@ -86,7 +86,7 @@ int sign()
     wc_Sha256   sha256;
     wc_Sha256*  pSha256 = NULL;
     WC_RNG      rng;
-    WC_RNG*     pRng;
+    WC_RNG*     pRng = NULL;
     long        e = 65537; /* standard value to use for exponent */
 
     /* Calculate SHA-256 digest of message */
@@ -134,7 +134,7 @@ int sign()
         ret = (int)encSigLen;
     CHECK_RET(ret, 0, finish, "wc_EncodeSignature()");
 
-    sigLen = wc_RsaSSL_Sign(encSig, encSigLen, signature, sigBuffLen,
+    sigLen = wc_RsaSSL_Sign(encSig, encSigLen, signature, sizeof(signature),
                              &key, NULL);
     if ((int)sigLen < 0)
         ret = (int)sigLen;
