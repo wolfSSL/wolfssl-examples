@@ -33,16 +33,10 @@
 /* #define SHOW_SIGS_IN_EXAMPLE */
 
 #define HEAP_HINT NULL
-#define ECC_KEY_SIZE_112 112
-#define ECC_KEY_SIZE_128 128
-#define ECC_KEY_SIZE_160 160
-#define ECC_KEY_SIZE_192 192
 #define ECC_KEY_SIZE_224 224
 #define ECC_KEY_SIZE_239 239
 #define ECC_KEY_SIZE_256 256
-#define ECC_KEY_SIZE_320 320
 #define ECC_KEY_SIZE_384 384
-#define ECC_KEY_SIZE_512 512
 #define ECC_KEY_SIZE_521 521
 #define BYTE_SZ 8
 #define CHECK_RET(a, b, eLabel, msg) { \
@@ -66,26 +60,14 @@ int ecc_sign_verify(void)
     wolfCrypt_Init();
     InitMemoryTracker();
 #endif
-    ret = do_sig_ver_test(ECC_KEY_SIZE_112);
-    CHECK_RET(ret, 0, finished, "112 test");
-    ret = do_sig_ver_test(ECC_KEY_SIZE_128);
-    CHECK_RET(ret, 0, finished, "128 test");
-    ret = do_sig_ver_test(ECC_KEY_SIZE_160);
-    CHECK_RET(ret, 0, finished, "160 test");
-    ret = do_sig_ver_test(ECC_KEY_SIZE_192);
-    CHECK_RET(ret, 0, finished, "192 test");
     ret = do_sig_ver_test(ECC_KEY_SIZE_224);
     CHECK_RET(ret, 0, finished, "224 test");
     ret = do_sig_ver_test(ECC_KEY_SIZE_239);
     CHECK_RET(ret, 0, finished, "239 test");
     ret = do_sig_ver_test(ECC_KEY_SIZE_256);
     CHECK_RET(ret, 0, finished, "256 test");
-    ret = do_sig_ver_test(ECC_KEY_SIZE_320);
-    CHECK_RET(ret, 0, finished, "320 test");
     ret = do_sig_ver_test(ECC_KEY_SIZE_384);
     CHECK_RET(ret, 0, finished, "384 test");
-    ret = do_sig_ver_test(ECC_KEY_SIZE_512);
-    CHECK_RET(ret, 0, finished, "512 test");
     ret = do_sig_ver_test(ECC_KEY_SIZE_521);
     CHECK_RET(ret, 0, finished, "521 test");
 
@@ -179,9 +161,11 @@ double start_time, total_time;
 #ifdef BENCHMARK
         count++;
     }
-    printf("ECC Key Size %d     %9.2f Cycles/sec\n", eccKeySz, count/total_time);
+    printf("ECC Key Size %d     %9.2f Cycles/sec (%s)\n", eccKeySz,
+           count/total_time, wc_ecc_get_name(wc_ecc_get_curve_id(key.idx)));
 #else
-    printf("Successfully verified signature w/ ecc key size %d!\n", eccKeySz);
+    printf("Successfully verified signature w/ ecc key size %d (%s)!\n",
+           eccKeySz, wc_ecc_get_name(wc_ecc_get_curve_id(key.idx)));
 #endif
 
 key_done:

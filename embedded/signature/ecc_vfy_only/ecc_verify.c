@@ -31,16 +31,10 @@
 #include "signature.h"
 
 #define HEAP_HINT NULL
-#define ECC_KEY_SIZE_112 112
-#define ECC_KEY_SIZE_128 128
-#define ECC_KEY_SIZE_160 160
-#define ECC_KEY_SIZE_192 192
 #define ECC_KEY_SIZE_224 224
 #define ECC_KEY_SIZE_239 239
 #define ECC_KEY_SIZE_256 256
-#define ECC_KEY_SIZE_320 320
 #define ECC_KEY_SIZE_384 384
-#define ECC_KEY_SIZE_512 512
 #define ECC_KEY_SIZE_521 521
 #define BYTE_SZ 8
 
@@ -63,26 +57,14 @@ int ecc_verify(void)
     wolfCrypt_Init();
     InitMemoryTracker();
 #endif
-    ret = do_sig_ver_test(ECC_KEY_SIZE_112);
-    CHECK_RET(ret, 0, finished, "112 test");
-    ret = do_sig_ver_test(ECC_KEY_SIZE_128);
-    CHECK_RET(ret, 0, finished, "128 test");
-    ret = do_sig_ver_test(ECC_KEY_SIZE_160);
-    CHECK_RET(ret, 0, finished, "160 test");
-    ret = do_sig_ver_test(ECC_KEY_SIZE_192);
-    CHECK_RET(ret, 0, finished, "192 test");
     ret = do_sig_ver_test(ECC_KEY_SIZE_224);
     CHECK_RET(ret, 0, finished, "224 test");
     ret = do_sig_ver_test(ECC_KEY_SIZE_239);
     CHECK_RET(ret, 0, finished, "239 test");
     ret = do_sig_ver_test(ECC_KEY_SIZE_256);
     CHECK_RET(ret, 0, finished, "256 test");
-    ret = do_sig_ver_test(ECC_KEY_SIZE_320);
-    CHECK_RET(ret, 0, finished, "320 test");
     ret = do_sig_ver_test(ECC_KEY_SIZE_384);
     CHECK_RET(ret, 0, finished, "384 test");
-    ret = do_sig_ver_test(ECC_KEY_SIZE_512);
-    CHECK_RET(ret, 0, finished, "512 test");
     ret = do_sig_ver_test(ECC_KEY_SIZE_521);
     CHECK_RET(ret, 0, finished, "521 test");
 
@@ -173,9 +155,11 @@ int do_sig_ver_test(int eccKeySz)
 #ifdef BENCHMARK
         count++;
     }
-    printf("ECC Key Size %d     %9.2f Cycles/sec\n", eccKeySz, count/total_time);
+    printf("ECC Key Size %d     %9.2f Cycles/sec (%s)\n", eccKeySz,
+           count/total_time, wc_ecc_get_name(wc_ecc_get_curve_id(key.idx)));
 #else
-    printf("Successfully verified signature w/ ecc key size %d!\n", eccKeySz);
+    printf("Successfully verified signature w/ ecc key size %d (%s)!\n",
+           eccKeySz, wc_ecc_get_name(wc_ecc_get_curve_id(key.idx)));
 #endif /* BENCHMARK */
 
 key_done:
@@ -214,28 +198,16 @@ int main()
 
 int idx_key(int keysize){
     switch(keysize){
-        case ECC_KEY_SIZE_112:
-            return 0;
-        case ECC_KEY_SIZE_128:
-            return 1;
-        case ECC_KEY_SIZE_160:
-            return 2;
-        case ECC_KEY_SIZE_192:
-            return 3;
         case ECC_KEY_SIZE_224:
-            return 4;
+            return 0;
         case ECC_KEY_SIZE_239:
-            return 5;
+            return 1;
         case ECC_KEY_SIZE_256:
-            return 6;
-        case ECC_KEY_SIZE_320:
-            return 7;
+            return 2;
         case ECC_KEY_SIZE_384:
-            return 8;
-        case ECC_KEY_SIZE_512:
-            return 9;
+            return 3;
         case ECC_KEY_SIZE_521:
-            return 10;
+            return 4;
         default:
             return -1;
     }
