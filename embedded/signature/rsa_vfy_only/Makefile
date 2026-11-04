@@ -40,6 +40,14 @@ OBJ_TFM := \
 
 
 .PHONY: all clean size bench mem
+# Every target depends on "clean", which deletes the wolfCrypt objects.
+# Running in parallel would race with that, so force serial execution.
+.NOTPARALLEL:
+
+# Memory tracking (DEBUG_MEMORY) also has to be enabled in memory.c, so
+# compile it together with the example instead of linking memory.o.
+OBJ_MEM = $(WOLFROOT)/wolfcrypt/src/memory.c \
+	$(filter-out $(WOLFROOT)/wolfcrypt/src/memory.o,$(OBJ))
 
 
 ifeq ($(math) $(arch),sp x64)
@@ -70,7 +78,7 @@ verify: clean $(OBJ)
 bench: clean $(OBJ)
 	$(CC) $(CFLAGS) -DBENCHMARK -o verify_bench verify.c $(OBJ) -lpthread
 mem: clean $(OBJ)
-	$(CC) $(CFLAGS) -DDEBUG_MEMORY -o verify_mem verify.c $(OBJ) -lpthread
+	$(CC) $(CFLAGS) -DDEBUG_MEMORY -o verify_mem verify.c $(OBJ_MEM) -lpthread
 clean:
 	rm -f verify verify_bench verify_mem $(WOLFROOT)/wolfcrypt/src/*.o
 size :

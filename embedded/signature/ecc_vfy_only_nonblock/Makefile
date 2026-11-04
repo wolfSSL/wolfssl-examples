@@ -60,6 +60,14 @@ OBJ += $(OBJ_SP_C64)
 endif
 
 .PHONY: all clean size mem
+# Every target depends on "clean", which deletes the wolfCrypt objects.
+# Running in parallel would race with that, so force serial execution.
+.NOTPARALLEL:
+
+# Memory tracking (DEBUG_MEMORY) also has to be enabled in memory.c, so
+# compile it together with the example instead of linking memory.o.
+OBJ_MEM = $(WOLFROOT)/wolfcrypt/src/memory.c \
+	$(filter-out $(WOLFROOT)/wolfcrypt/src/memory.o,$(OBJ))
 
 
 all : ecc_verify_nonblock mem
@@ -70,7 +78,7 @@ ecc_verify_nonblock: clean $(OBJ)
 	$(CC) $(CFLAGS) -o ecc_verify_nonblock ecc_verify_nonblock.c $(OBJ)
 
 mem: clean $(OBJ)
-	$(CC) $(CFLAGS) -DDEBUG_MEMORY -o ecc_verify_nonblock_mem ecc_verify_nonblock.c $(OBJ) -lpthread
+	$(CC) $(CFLAGS) -DDEBUG_MEMORY -o ecc_verify_nonblock_mem ecc_verify_nonblock.c $(OBJ_MEM) -lpthread
 clean:
 	rm -f ecc_verify_nonblock ecc_verify_nonblock_mem $(WOLFROOT)/wolfcrypt/src/*.o
 

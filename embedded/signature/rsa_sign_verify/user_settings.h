@@ -84,6 +84,7 @@
 /* Non-blocking */
 #if defined(NONBLOCK)
     #define WC_RSA_NONBLOCK
+    #define WOLFSSL_KEY_GEN /* wc_MakeRsaKey() in rsa_sign_verify_nonblock.c */
     #define TFM_TIMING_RESISTANT
     #define WOLFSSL_SP_NONBLOCK
     #define WOLFSSL_SP_SMALL

@@ -39,6 +39,14 @@ OBJ_TFM := \
 
 
 .PHONY: all clean size mem bench
+# Every target depends on "clean", which deletes the wolfCrypt objects.
+# Running in parallel would race with that, so force serial execution.
+.NOTPARALLEL:
+
+# Memory tracking (DEBUG_MEMORY) also has to be enabled in memory.c, so
+# compile it together with the example instead of linking memory.o.
+OBJ_MEM = $(WOLFROOT)/wolfcrypt/src/memory.c \
+	$(filter-out $(WOLFROOT)/wolfcrypt/src/memory.o,$(OBJ))
 
 ifeq ($(math) $(arch),sp x64)
 ASFLAGS+= -DSP_X86_64_FLAG
@@ -68,11 +76,11 @@ rsa_sign_verify: clean $(OBJ)
 bench: clean $(OBJ)
 	$(CC) $(CFLAGS) -DBENCHMARK -o rsa_sign_verify_bench rsa_sign_verify.c $(OBJ) -lpthread
 mem: clean $(OBJ)
-	$(CC) $(CFLAGS) -DDEBUG_MEMORY -o rsa_sign_verify_mem rsa_sign_verify.c $(OBJ) -lpthread
+	$(CC) $(CFLAGS) -DDEBUG_MEMORY -o rsa_sign_verify_mem rsa_sign_verify.c $(OBJ_MEM) -lpthread
 
 nonblock: CFLAGS += -DNONBLOCK
 nonblock: clean $(OBJ)
-	$(CC) -DNONBLOCK $(CFLAGS) -DDEBUG_MEMORY  -o rsa_sign_verify_nonblock rsa_sign_verify_nonblock.c $(OBJ) -lpthread
+	$(CC) -DNONBLOCK $(CFLAGS) -DDEBUG_MEMORY  -o rsa_sign_verify_nonblock rsa_sign_verify_nonblock.c $(OBJ_MEM) -lpthread
 
 clean:
 	rm -f rsa_sign_verify rsa_sign_verify_bench rsa_sign_verify_mem rsa_sign_verify_nonblock $(WOLFROOT)/wolfcrypt/src/*.o
