@@ -58,6 +58,15 @@ if ! grep -q "} sp_256_ecc_mulmod_4_ctx;" \
     done
 fi
 
+# Targets that the Makefiles' "all" target does not build
+NOT_IN_ALL=" nonblock "
+
+# make_target <dir> <math> <arch> <target>
+make_target() {
+    make -C "$SIGDIR/$1" WOLFROOT="$WOLFROOT" $2 $3 \
+        EX_CFLAGS="-DBENCH_TIME_SEC=0.2" "$4"
+}
+
 fail=0
 n_ok=0
 n_fail=0
@@ -66,14 +75,34 @@ failed=""
 for d in $DIRS; do
     for c in "${CONFIGS[@]}"; do
         IFS='|' read -r cname m a <<< "$c"
+
+        # Every target runs "clean", so building them one by one recompiles
+        # wolfCrypt each time. "all" builds them together with one clean.
+        # Fall back to per-target builds when "all" includes an N/A target or
+        # fails, so each result still names the target that broke.
+        all_log="$LOGDIR/${d}__${cname}__all.log"
+        all_ok=1
+        for t in ${TARGETS[$d]}; do
+            tgt="${t%%:*}"
+            case "$NOT_IN_ALL" in *" $tgt "*) continue ;; esac
+            [ -n "${NOT_SUPPORTED[${d}__${cname}__${tgt}]}" ] && all_ok=0
+        done
+        if [ $all_ok -eq 1 ] && ! make_target "$d" "$m" "$a" all \
+                > "$all_log" 2>&1; then
+            all_ok=0
+        fi
+
         for t in ${TARGETS[$d]}; do
             tgt="${t%%:*}"; bin="${t##*:}"
             key="${d}__${cname}__${tgt}"
             log="$LOGDIR/$key.log"
+            in_all=1
+            case "$NOT_IN_ALL" in *" $tgt "*) in_all=0 ;; esac
             if [ -n "${NOT_SUPPORTED[$key]}" ]; then
                 build="N/A"; run="N/A (${NOT_SUPPORTED[$key]})"
-            elif make -C "$SIGDIR/$d" WOLFROOT="$WOLFROOT" $m $a \
-                    EX_CFLAGS="-DBENCH_TIME_SEC=0.2" "$tgt" > "$log" 2>&1; then
+            elif { [ $all_ok -eq 1 ] && [ $in_all -eq 1 ] && \
+                       cp "$all_log" "$log"; } || \
+                     make_target "$d" "$m" "$a" "$tgt" > "$log" 2>&1; then
                 build=OK
                 if timeout 300 "$SIGDIR/$d/$bin" >> "$log" 2>&1; then
                     run=OK
