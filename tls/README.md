@@ -119,6 +119,7 @@ into.
     3. [Running](#run-ecc)
 
 6. [Encrypted Client Hello](#ech)
+7. [QUIC](#quic)
 
 
 
@@ -1570,7 +1571,7 @@ Files:
 
 Build requirements:
 - wolfSSL must be built with TLS 1.3 and early data support enabled.
-  Enable early data support by building wolfSSL with 
+  Enable early data support by building wolfSSL with
   `--enable-earlydata --enable-session-ticket`.
 - If early data support is not enabled, these examples will print a message and
   exit.
@@ -1590,6 +1591,161 @@ Expected behavior:
   then completes the TLS handshake.
 - The server logs the received early data and replies both during early-data
   processing and again after the handshake is complete.
+
+
+## <a name="quic">QUIC</a>
+
+`client-quic` and `server-quic` show how a QUIC stack drives the
+TLS 1.3 handshake through wolfSSL's QUIC API (`wolfssl/quic.h`).
+
+wolfSSL does not implement QUIC itself. With `--enable-quic` it runs the
+TLS 1.3 handshake on behalf of a QUIC stack such as ngtcp2: the stack hands
+it the peer's handshake bytes, and wolfSSL answers through four callbacks in
+a `WOLFSSL_QUIC_METHOD` with handshake bytes to send, traffic secrets for
+each encryption level, and alerts to raise. Packetization, packet
+protection, acknowledgements, retransmission and flow control stay with the
+stack.
+
+The demos keep every wolfSSL call in `main()` where it can be read top to
+bottom. The QUIC side is left as a placeholder, with comments describing what
+a real stack would do at each point. Constants shared by both programs live
+in `shared-quic-constants.h`.
+
+The stand-in transport is plain UDP:
+
+| Datagram | Layout |
+|---|---|
+| Handshake | encryption level (1 byte), TLS handshake bytes |
+| Application | `0x04`, packet number (1 byte), AEAD ciphertext and tag |
+
+Handshake bytes travel in the clear. Application data is protected with the
+1-RTT keys expanded from the application traffic secrets as RFC 9001
+section 5.1 describes. Nothing retransmits, so the pair relies on loopback
+delivering every datagram. It is a demonstration of the TLS side of QUIC, not
+a QUIC implementation.
+
+### The callbacks
+
+| Callback | What the demo does | What a real stack does |
+|---|---|---|
+| `set_encryption_secrets` | keeps the application secrets | installs packet protection keys for the level |
+| `add_handshake_data` | sends the bytes tagged with their level | puts them in CRYPTO frames and tracks them until acknowledged |
+| `flush_flight` | nothing | sends any packets it was batching |
+| `send_alert` | prints the alert | sends CONNECTION_CLOSE with error `0x0100 + alert` |
+
+### The API in order
+
+| Step | Calls |
+|---|---|
+| Turn a TLS 1.3 context into a QUIC one | `wolfSSL_CTX_set_quic_method()`, `wolfSSL_is_quic()` |
+| Mandatory QUIC extensions | `wolfSSL_set_quic_transport_params()`, `wolfSSL_UseALPN()` |
+| Set 0-RTT Acceptance (server) | `wolfSSL_set_quic_early_data_enabled()` |
+| Run the handshake | `wolfSSL_provide_quic_data()`, `wolfSSL_quic_do_handshake()` |
+| Watch the levels move | `wolfSSL_quic_read_level()`, `wolfSSL_quic_write_level()` |
+| Read the peer's parameters | `wolfSSL_get_peer_quic_transport_params()` |
+| Learn the negotiated ciphers | `wolfSSL_quic_get_aead()`, `wolfSSL_quic_get_md()`, `wolfSSL_quic_get_hp()`, `wolfSSL_quic_get_aead_tag_len()`, `wolfSSL_quic_aead_is_gcm()` / `_is_ccm()` / `_is_chacha20()` |
+| Derive packet keys and IVs | `wolfSSL_quic_hkdf_expand()` |
+| Protect application data | `wolfSSL_quic_crypt_new()`, `wolfSSL_quic_aead_encrypt()`, `wolfSSL_quic_aead_decrypt()` |
+| NewSessionTicket after the handshake (client) | `wolfSSL_provide_quic_data()`, `wolfSSL_process_quic_post_handshake()` |
+
+The client sends one protected message, reads the server's protected reply,
+then sends `shutdown` as a second packet, which stops the server. The server
+handles one client at a time and keeps serving until it receives `shutdown`.
+
+### Building
+
+```sh
+./configure --enable-quic && make && sudo make install
+```
+
+`--enable-quic` also turns on ALPN, SNI and the OpenSSL
+compatibility layer. Add `--enable-session-ticket` to have the server send a
+NewSessionTicket after the handshake, which exercises the client's
+post-handshake path. Without `--enable-quic` both programs print a message
+and exit.
+
+Then, in `wolfssl-examples/tls`:
+
+```sh
+make server-quic client-quic
+```
+
+### Running
+
+Server in one terminal:
+
+```sh
+./server-quic
+```
+
+Client in another, with an optional message:
+
+```sh
+./client-quic 127.0.0.1 [message]
+[client] wolfSSL_is_quic: 1
+[client] sent 1200 handshake bytes at initial level
+[client] sent 245 handshake bytes at initial level
+[client] received 1178 handshake bytes at initial level
+[client] keys ready at handshake level: read write (48-byte secrets)
+[client] received 42 handshake bytes at handshake level
+[client] received 1200 handshake bytes at handshake level
+[client] received 73 handshake bytes at handshake level
+[client] received 264 handshake bytes at handshake level
+[client] received 52 handshake bytes at handshake level
+[client] keys ready at application level: read write (48-byte secrets)
+[client] sent 52 handshake bytes at handshake level
+[client] handshake complete: TLSv1.3, TLS13-AES256-GCM-SHA384
+[client] reading at application level, writing at application level
+[client] ALPN: quic-demo
+[client] server transport parameters: 16 bytes
+[client] packet AEAD: AES-GCM with 16-byte tag, header protection available, hash available
+[client] sent "hello over QUIC" as protected packet 0 (33 bytes)
+[client] opened protected packet 0: "I hear ya fa shizzle!"
+[client] sent "shutdown" as protected packet 1 (26 bytes)
+```
+
+The server's side:
+
+```sh
+[server] waiting for a client on port 11111
+[server] received 1200 handshake bytes at initial level
+[server] reading at initial level, writing at initial level
+[server] received 245 handshake bytes at initial level
+[server] sent 1178 handshake bytes at initial level
+[server] keys ready at handshake level: read write (48-byte secrets)
+[server] sent 42 handshake bytes at handshake level
+[server] sent 1200 handshake bytes at handshake level
+[server] sent 73 handshake bytes at handshake level
+[server] sent 264 handshake bytes at handshake level
+[server] keys ready at application level: read write (48-byte secrets)
+[server] sent 52 handshake bytes at handshake level
+[server] reading at handshake level, writing at application level
+[server] received 52 handshake bytes at handshake level
+[server] handshake complete: TLSv1.3, TLS13-AES256-GCM-SHA384
+[server] ALPN: quic-demo
+[server] client transport parameters: 12 bytes
+[server] opened protected packet 0: "hello over QUIC"
+[server] sent "I hear ya fa shizzle!" as protected packet 0 (39 bytes)
+[server] opened protected packet 1: "shutdown"
+[server] shutdown requested
+```
+
+Things worth noticing in the output:
+
+- The ClientHello is bigger than one datagram, so it goes out as two at the
+  same level. `wolfSSL_provide_quic_data()` accepts data split across calls
+  as long as the level never goes backwards.
+- The server has its application write keys before its read keys are in
+  use: it writes at the application level as soon as it has sent its
+  Finished, but reads at the handshake level until the client's Finished
+  arrives. `wolfSSL_quic_read_level()` and `wolfSSL_quic_write_level()`
+  report that.
+- With session tickets enabled, a NewSessionTicket arrives at the
+  application level after the client's handshake is over. It still belongs
+  to TLS, so the client feeds it in and calls
+  `wolfSSL_process_quic_post_handshake()`.
+- There is no `wolfSSL_shutdown()`. QUIC has no TLS close_notify; a real
+  stack ends the connection with CONNECTION_CLOSE.
 
 
 ## Support
