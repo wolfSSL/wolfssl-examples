@@ -7,10 +7,13 @@
  * scalar-mult path; see the port README). Proves HUK-accelerated server auth in
  * a real TLS handshake.
  *
- * Two server-key models (RTL_TLS_KEY_MODEL):
- *   1 = general HW offload: a plain P-256 server key loaded from certs_test.h;
- *       with devId set, its handshake ECDSA sign dispatches to the HW engine.
- *   2 = device-bound HUK-wrapped key (follow-on; see README).
+ * Two handshakes run:
+ *   1. Server auth: a plain P-256 server key from certs_test.h; its handshake
+ *      ECDSA sign dispatches to the HW engine.
+ *   2. Mutual auth with a device-bound client key: the client's P-256 scalar is
+ *      wrapped under the HUK (AES-GCM) and only the wrapped blob is kept. The
+ *      client loads its certificate and public key, and its CertificateVerify
+ *      signature comes from the blob. A tampered blob must fail the handshake.
  *
  * Build: configure with -DEXAMPLE=wolfcrypt_huk_tls (see wolfcrypt_huk_tls.cmake).
  */
@@ -26,10 +29,16 @@
 #include <wolfssl/wolfcrypt/settings.h>
 #include <wolfssl/ssl.h>
 #include <wolfssl/certs_test.h>
+#include <wolfssl/wolfcrypt/aes.h>
+#include <wolfssl/wolfcrypt/ecc.h>
 #include <wolfssl/wolfcrypt/port/realtek/rtl8735b.h>
 
-#ifndef RTL_TLS_KEY_MODEL
-    #define RTL_TLS_KEY_MODEL 1
+/* ForceZero, inlined the same way wolfCrypt's test.c does. */
+#ifdef NO_INLINE
+    #include <wolfssl/wolfcrypt/misc.h>
+#else
+    #define WOLFSSL_MISC_INCLUDED
+    #include <wolfcrypt/src/misc.c>
 #endif
 
 #define STACKSIZE   (16 * 1024)
@@ -156,64 +165,146 @@ static int huk_ecc_sign_cb(WOLFSSL* ssl, const byte* in, word32 inSz,
     return ret;
 }
 
-static void huk_tls_test(void)
+/* A HUK-wrapped P-256 private key as an application stores it (for example in
+ * flash). The seed is not secret; only the device that wrapped the scalar can
+ * unwrap it. The scalar is wrapped with AES-GCM (authenticated, recommended) or
+ * AES-ECB (the STM32 DHUK blob layout); an ECB blob has no IV or tag. */
+#define HUK_WRAP_GCM 0
+#define HUK_WRAP_ECB 1
+
+typedef struct huk_key_blob {
+    byte format;            /* HUK_WRAP_GCM or HUK_WRAP_ECB */
+    byte seed[32];
+    byte iv[12];
+    byte tag[16];
+    byte wrapped[32];
+} huk_key_blob;
+
+/* Provisioning step: wrap the client's private scalar under the HUK with a
+ * fresh seed (and IV for GCM). The plaintext key from certs_test.h stands in
+ * for a key whose certificate was issued at manufacture; after this only the
+ * blob is kept. */
+static int huk_wrap_client_key(WC_RNG* rng, byte format, huk_key_blob* blob)
 {
-    WOLFSSL_CTX* cctx = NULL;
-    WOLFSSL_CTX* sctx = NULL;
-    WOLFSSL*     cssl = NULL;
-    WOLFSSL*     sssl = NULL;
-    const char   msg[] = "hello from HUK TLS client";
-    char         rx[64];
-    int          cdone = 0, sdone = 0;
-    int          i, ret;
+    ecc_key key;
+    Aes     aes;
+    byte    d[32] __attribute__((aligned(32)));
+    word32  dLen = sizeof(d);
+    word32  idx = 0;
+    int     ret;
 
-    dbg_printf("\r\n== TLS 1.2 ECDHE-ECDSA (server auth on HUK) ==\r\n");
+    if (format != HUK_WRAP_GCM && format != HUK_WRAP_ECB) {
+        return BAD_FUNC_ARG;
+    }
+    memset(blob, 0, sizeof(*blob));
+    blob->format = format;
+    ret = wc_ecc_init(&key);
+    if (ret != 0) {
+        return ret;
+    }
+    ret = wc_EccPrivateKeyDecode(ecc_clikey_der_256, &idx, &key,
+                                 sizeof_ecc_clikey_der_256);
+    if (ret == 0) {
+        ret = wc_ecc_export_private_only(&key, d, &dLen);
+    }
+    if (ret == 0 && dLen != sizeof(d)) {
+        ret = BUFFER_E;
+    }
+    wc_ecc_free(&key);
+    if (ret == 0) {
+        ret = wc_RNG_GenerateBlock(rng, blob->seed, sizeof(blob->seed));
+    }
+    if (ret == 0 && format == HUK_WRAP_GCM) {
+        ret = wc_RNG_GenerateBlock(rng, blob->iv, sizeof(blob->iv));
+    }
+    if (ret == 0) {
+        ret = wc_AesInit(&aes, NULL, WC_HUK_DEVID);
+        if (ret == 0) {
+            if (format == HUK_WRAP_GCM) {
+                ret = wc_AesGcmSetKey(&aes, blob->seed, sizeof(blob->seed));
+                if (ret == 0) {
+                    ret = wc_AesGcmEncrypt(&aes, blob->wrapped, d, sizeof(d),
+                                           blob->iv, sizeof(blob->iv),
+                                           blob->tag, sizeof(blob->tag),
+                                           NULL, 0);
+                }
+            }
+            else {
+                ret = wc_AesSetKey(&aes, blob->seed, sizeof(blob->seed), NULL,
+                                   AES_ENCRYPTION);
+                if (ret == 0) {
+                    ret = wc_AesEcbEncrypt(&aes, blob->wrapped, d, sizeof(d));
+                }
+            }
+            wc_AesFree(&aes);
+        }
+    }
+    ForceZero(d, sizeof(d));
+    return ret;
+}
 
-    sctx = wolfSSL_CTX_new(wolfTLSv1_2_server_method());
-    cctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method());
-    CHECK("CTX_new (client+server)", sctx != NULL && cctx != NULL);
-    if (sctx == NULL || cctx == NULL) {
-        goto cleanup;
+/* Client ECC sign PK callback: sign the CertificateVerify hash with the
+ * HUK-wrapped key passed as the callback context (wolfSSL_SetEccSignCtx).
+ * keyDer is the public key the client loaded and is not needed here. For an
+ * ECB blob the iv and tag fields stay NULL/0, which is how the port tells the
+ * two formats apart, so an unknown format byte is rejected rather than
+ * falling back to the unauthenticated ECB unwrap. */
+static int huk_wrapped_sign_cb(WOLFSSL* ssl, const byte* in, word32 inSz,
+        byte* out, word32* outSz, const byte* keyDer, word32 keySz, void* ctx)
+{
+    const huk_key_blob* blob = (const huk_key_blob*)ctx;
+    wc_Rtl8735b_EccKey  hk;
+    ecc_key             key;
+    int                 ret;
+    (void)ssl; (void)keyDer; (void)keySz;
+
+    if (blob == NULL ||
+            (blob->format != HUK_WRAP_GCM && blob->format != HUK_WRAP_ECB)) {
+        return BAD_FUNC_ARG;
+    }
+    memset(&hk, 0, sizeof(hk));
+    hk.seed    = blob->seed;    hk.seedSz     = sizeof(blob->seed);
+    hk.wrapped = blob->wrapped; hk.wrappedLen = sizeof(blob->wrapped);
+    hk.plainLen = sizeof(blob->wrapped);
+    if (blob->format == HUK_WRAP_GCM) {
+        hk.iv  = blob->iv;      hk.ivSz       = sizeof(blob->iv);
+        hk.tag = blob->tag;     hk.tagSz      = sizeof(blob->tag);
     }
 
-    /* RNG for the sign callback's nonce. */
-    ret = wc_InitRng(&g_signRng);
-    CHECK("sign-callback RNG init", ret == 0);
-
-    /* Route ONLY the server's cert ECDSA sign to the HUK HW engine (PK callback);
-     * TLS's own HMAC/PRF, record AES and ECDHE stay in software. */
-    wolfSSL_CTX_SetEccSignCb(sctx, huk_ecc_sign_cb);
-
-    /* Restrict to ECDHE-ECDSA + AES-GCM so server auth uses ECDSA (HUK). */
-    wolfSSL_CTX_set_cipher_list(sctx, "ECDHE-ECDSA-AES128-GCM-SHA256");
-    wolfSSL_CTX_set_cipher_list(cctx, "ECDHE-ECDSA-AES128-GCM-SHA256");
-
-    /* Server: P-256 cert + key (model 1: general HW offload). */
-    ret = wolfSSL_CTX_use_certificate_buffer(sctx, serv_ecc_der_256,
-            sizeof_serv_ecc_der_256, WOLFSSL_FILETYPE_ASN1);
-    CHECK("server use_certificate", ret == WOLFSSL_SUCCESS);
-    ret = wolfSSL_CTX_use_PrivateKey_buffer(sctx, ecc_key_der_256,
-            sizeof_ecc_key_der_256, WOLFSSL_FILETYPE_ASN1);
-    CHECK("server use_PrivateKey", ret == WOLFSSL_SUCCESS);
-
-    /* Client: trust the CA that signed the server cert. */
-    ret = wolfSSL_CTX_load_verify_buffer(cctx, ca_ecc_cert_der_256,
-            sizeof_ca_ecc_cert_der_256, WOLFSSL_FILETYPE_ASN1);
-    if (ret != WOLFSSL_SUCCESS) {
-        dbg_printf("load_verify ret=%d\r\n", ret);
+    ret = wc_ecc_init_ex(&key, NULL, WC_HUK_DEVID);
+    if (ret == 0) {
+        ret = wc_ecc_set_curve(&key, sizeof(blob->wrapped), ECC_SECP256R1);
+        if (ret == 0) {
+            key.devCtx = &hk;
+            ret = wc_ecc_sign_hash(in, inSz, out, outSz, &g_signRng, &key);
+        }
+        wc_ecc_free(&key);
     }
-    CHECK("client load_verify (CA)", ret == WOLFSSL_SUCCESS);
+    return ret;
+}
 
-    wolfSSL_SetIORecv(sctx, recv_server);
-    wolfSSL_SetIOSend(sctx, send_server);
-    wolfSSL_SetIORecv(cctx, recv_client);
-    wolfSSL_SetIOSend(cctx, send_client);
+/* Run one in-memory handshake and send one record client -> server. signCtx,
+ * when set, is the client's sign-callback context. Returns 0 when the
+ * handshake completed and the record arrived intact. */
+static int huk_tls_session(WOLFSSL_CTX* cctx, WOLFSSL_CTX* sctx, void* signCtx)
+{
+    WOLFSSL*   cssl;
+    WOLFSSL*   sssl;
+    const char msg[] = "hello from HUK TLS client";
+    char       rx[64];
+    int        cdone = 0, sdone = 0;
+    int        i, ret = -1;
 
+    client_buffer_sz = 0;
+    server_buffer_sz = 0;
     sssl = wolfSSL_new(sctx);
     cssl = wolfSSL_new(cctx);
-    CHECK("wolfSSL_new (client+server)", sssl != NULL && cssl != NULL);
     if (sssl == NULL || cssl == NULL) {
+        dbg_printf("wolfSSL_new failed\r\n");
         goto cleanup;
+    }
+    if (signCtx != NULL) {
+        wolfSSL_SetEccSignCtx(cssl, signCtx);
     }
 
     /* Drive the handshake: interleave connect/accept until both complete. */
@@ -241,25 +332,156 @@ static void huk_tls_test(void)
             }
         }
     }
-    CHECK("TLS handshake completed", cdone == 1 && sdone == 1);
-
+    ret = -1;
     if (cdone == 1 && sdone == 1) {
         dbg_printf("cipher: %s\r\n", wolfSSL_get_cipher(sssl));
-        /* Exchange one application record client -> server. */
-        ret = wolfSSL_write(cssl, msg, (int)sizeof(msg));
-        CHECK("client write", ret == (int)sizeof(msg));
         memset(rx, 0, sizeof(rx));
-        ret = wolfSSL_read(sssl, rx, sizeof(rx) - 1);
-        CHECK("server read == client msg",
-              ret == (int)sizeof(msg) && memcmp(rx, msg, sizeof(msg)) == 0);
+        if (wolfSSL_write(cssl, msg, (int)sizeof(msg)) == (int)sizeof(msg) &&
+                wolfSSL_read(sssl, rx, sizeof(rx) - 1) == (int)sizeof(msg) &&
+                memcmp(rx, msg, sizeof(msg)) == 0) {
+            ret = 0;
+        }
     }
 
 cleanup:
     if (cssl != NULL) wolfSSL_free(cssl);
     if (sssl != NULL) wolfSSL_free(sssl);
+    return ret;
+}
+
+/* Server side shared by both handshakes: P-256 cert + key, ECDSA signed on the
+ * HW engine, ECDHE-ECDSA + AES-GCM only so server auth uses ECDSA. */
+static int huk_tls_server_ctx(WOLFSSL_CTX* sctx)
+{
+    wolfSSL_CTX_SetEccSignCb(sctx, huk_ecc_sign_cb);
+    wolfSSL_CTX_set_cipher_list(sctx, "ECDHE-ECDSA-AES128-GCM-SHA256");
+    wolfSSL_SetIORecv(sctx, recv_server);
+    wolfSSL_SetIOSend(sctx, send_server);
+    if (wolfSSL_CTX_use_certificate_buffer(sctx, serv_ecc_der_256,
+            sizeof_serv_ecc_der_256, WOLFSSL_FILETYPE_ASN1)
+            != WOLFSSL_SUCCESS) {
+        return -1;
+    }
+    if (wolfSSL_CTX_use_PrivateKey_buffer(sctx, ecc_key_der_256,
+            sizeof_ecc_key_der_256, WOLFSSL_FILETYPE_ASN1) != WOLFSSL_SUCCESS) {
+        return -1;
+    }
+    return 0;
+}
+
+/* Client side shared by both handshakes: trust the CA that signed the server
+ * cert. */
+static int huk_tls_client_ctx(WOLFSSL_CTX* cctx)
+{
+    wolfSSL_CTX_set_cipher_list(cctx, "ECDHE-ECDSA-AES128-GCM-SHA256");
+    wolfSSL_SetIORecv(cctx, recv_client);
+    wolfSSL_SetIOSend(cctx, send_client);
+    if (wolfSSL_CTX_load_verify_buffer(cctx, ca_ecc_cert_der_256,
+            sizeof_ca_ecc_cert_der_256, WOLFSSL_FILETYPE_ASN1)
+            != WOLFSSL_SUCCESS) {
+        return -1;
+    }
+    return 0;
+}
+
+static void huk_tls_test(void)
+{
+    WOLFSSL_CTX* cctx;
+    WOLFSSL_CTX* sctx;
+
+    dbg_printf("\r\n== TLS 1.2 ECDHE-ECDSA (server auth on HUK) ==\r\n");
+
+    sctx = wolfSSL_CTX_new(wolfTLSv1_2_server_method());
+    cctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method());
+    CHECK("CTX_new (client+server)", sctx != NULL && cctx != NULL);
+    if (sctx != NULL && cctx != NULL) {
+        CHECK("server cert + key", huk_tls_server_ctx(sctx) == 0);
+        CHECK("client load_verify (CA)", huk_tls_client_ctx(cctx) == 0);
+        CHECK("handshake + record (server signs on HW)",
+              huk_tls_session(cctx, sctx, NULL) == 0);
+    }
     if (cctx != NULL) wolfSSL_CTX_free(cctx);
     if (sctx != NULL) wolfSSL_CTX_free(sctx);
-    wc_FreeRng(&g_signRng);
+}
+
+static void huk_mtls_test(void)
+{
+    WOLFSSL_CTX* cctx;
+    WOLFSSL_CTX* sctx;
+    huk_key_blob blob;
+    huk_key_blob bad;
+    int          format;
+    int          ret;
+
+    dbg_printf("\r\n== TLS 1.2 mutual auth, client key HUK-wrapped ==\r\n");
+
+    sctx = wolfSSL_CTX_new(wolfTLSv1_2_server_method());
+    cctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method());
+    CHECK("CTX_new (client+server)", sctx != NULL && cctx != NULL);
+    if (sctx == NULL || cctx == NULL) {
+        goto cleanup;
+    }
+
+    /* Server requires a client certificate and trusts the self-signed client
+     * cert. */
+    ret = huk_tls_server_ctx(sctx);
+    if (ret == 0) {
+        wolfSSL_CTX_set_verify(sctx, WOLFSSL_VERIFY_PEER |
+                               WOLFSSL_VERIFY_FAIL_IF_NO_PEER_CERT, NULL);
+        if (wolfSSL_CTX_load_verify_buffer(sctx, cliecc_cert_der_256,
+                sizeof_cliecc_cert_der_256, WOLFSSL_FILETYPE_ASN1)
+                != WOLFSSL_SUCCESS) {
+            ret = -1;
+        }
+    }
+    CHECK("server cert + key, client cert required", ret == 0);
+    if (ret != 0) {
+        goto cleanup;
+    }
+
+    /* Client: the sign callback is set before the key is loaded, so wolfSSL
+     * accepts the public key in place of the private key and sends every
+     * signature to the callback. */
+    ret = huk_tls_client_ctx(cctx);
+    if (ret == 0) {
+        wolfSSL_CTX_SetEccSignCb(cctx, huk_wrapped_sign_cb);
+        if (wolfSSL_CTX_use_certificate_buffer(cctx, cliecc_cert_der_256,
+                sizeof_cliecc_cert_der_256, WOLFSSL_FILETYPE_ASN1)
+                != WOLFSSL_SUCCESS ||
+            wolfSSL_CTX_use_PrivateKey_buffer(cctx, ecc_clikeypub_der_256,
+                sizeof_ecc_clikeypub_der_256, WOLFSSL_FILETYPE_ASN1)
+                != WOLFSSL_SUCCESS) {
+            ret = -1;
+        }
+    }
+    CHECK("client cert + public key only", ret == 0);
+    if (ret != 0) {
+        goto cleanup;
+    }
+
+    /* A tampered GCM blob fails its unwrap on the client. A tampered ECB blob
+     * unwraps to a wrong scalar and signs, and the server rejects the
+     * CertificateVerify. Either way the handshake fails. */
+    for (format = HUK_WRAP_GCM; format <= HUK_WRAP_ECB; format++) {
+        dbg_printf("-- %s-wrapped client key --\r\n",
+                   (format == HUK_WRAP_GCM) ? "GCM" : "ECB");
+        ret = huk_wrap_client_key(&g_signRng, (byte)format, &blob);
+        CHECK("wrap the client private key under the HUK", ret == 0);
+        if (ret != 0) {
+            continue;
+        }
+        CHECK("mutual handshake + record (client signs from the HUK blob)",
+              huk_tls_session(cctx, sctx, &blob) == 0);
+
+        memcpy(&bad, &blob, sizeof(bad));
+        bad.wrapped[0] ^= 0x01;
+        CHECK("tampered HUK blob fails the handshake",
+              huk_tls_session(cctx, sctx, &bad) != 0);
+    }
+
+cleanup:
+    if (cctx != NULL) wolfSSL_CTX_free(cctx);
+    if (sctx != NULL) wolfSSL_CTX_free(sctx);
 }
 
 static void wolf_tls_thread(void* param)
@@ -277,7 +499,13 @@ static void wolf_tls_thread(void* param)
         CHECK("wc_Rtl8735b_HukRegister", ret == 0);
     }
     if (ret == 0) {
-        huk_tls_test();
+        ret = wc_InitRng(&g_signRng);
+        CHECK("sign-callback RNG init", ret == 0);
+        if (ret == 0) {
+            huk_tls_test();
+            huk_mtls_test();
+            wc_FreeRng(&g_signRng);
+        }
         wc_Rtl8735b_HukUnRegister(WC_HUK_DEVID);
     }
     wolfSSL_Cleanup();

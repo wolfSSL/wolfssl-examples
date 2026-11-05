@@ -55,3 +55,7 @@ list(APPEND app_example_sources
     ${WOLFSSL_ROOT}/wolfcrypt/src/sp_int.c
     ${WOLFSSL_ROOT}/wolfcrypt/src/wolfmath.c
 )
+# Key-store API (wc_KeyStore_*), present in wolfSSL builds that have it.
+if(EXISTS "${WOLFSSL_ROOT}/wolfcrypt/src/wc_keystore.c")
+    list(APPEND app_example_sources ${WOLFSSL_ROOT}/wolfcrypt/src/wc_keystore.c)
+endif()

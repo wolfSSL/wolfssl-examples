@@ -17,6 +17,7 @@ extern "C" {
 #define WOLF_CRYPTO_CB
 #define WOLF_CRYPTO_CB_COPY        /* HUK HMAC buffer copy/free ops */
 #define WOLF_CRYPTO_CB_FREE
+#define WOLF_CRYPTO_CB_KEYSTORE    /* HUK-wrapped AES keys in key-storage slots */
 
 /* ---- platform / RTOS ---- */
 #define WOLFSSL_GENERAL_ALIGNMENT 4
@@ -34,6 +35,7 @@ extern "C" {
 #define HAVE_AESGCM
 #define WOLFSSL_AES_DIRECT
 #define HAVE_AES_ECB
+#define HAVE_AES_KEYWRAP           /* RFC 3394 wrap for key-store imports */
 #define HAVE_AES_CBC
 #define WOLFSSL_AES_COUNTER
 #define WOLFSSL_AES_256
