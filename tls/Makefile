@@ -99,6 +99,7 @@ debug: all
 %-threaded: CFLAGS+=-pthread
 %-writedup: CFLAGS+=-pthread
 memory-tls: CFLAGS+=-pthread
+client-tls-chainverifycb: CFLAGS+=-pthread
 
 # compile tcp examples without the LIBS variable
 %-tcp: LIBS=
