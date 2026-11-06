@@ -11,7 +11,12 @@ It is built inside the RealTek AmebaPro2 FreeRTOS SDK (which provides the startu
 - The key is device-bound and deterministic: the same seed yields the same key (so GMAC verifies and AES round-trips), and a different seed yields a different key (GCM decrypt returns `AES_GCM_AUTH_E`).
 - The port tolerates unaligned caller buffers (it bounces them to satisfy the HAL's 32-byte alignment); the example includes an explicitly-unaligned GCM check.
 - HMAC-SHA256 under the HUK (`wc_HmacInit` with `devId = WC_HUK_DEVID`, then `wc_HmacSetKey`/`wc_HmacUpdate`/`wc_HmacFinal`): the MAC is deterministic for a given seed and differs for a wrong seed.
-- HUK-bound ECDSA P-256 sign: a key is generated in software, its private scalar is wrapped under the HUK (ECB-encrypted with the HUK device), and signing then goes through the HUK device (unwrap + sign); the signature verifies against the software public key.
+- HUK-bound ECDSA P-256 sign: a key is generated in software, its private scalar is wrapped under the HUK (AES-GCM-encrypted with the HUK device), and signing then goes through the HUK device (unwrap + sign); the signature verifies against the software public key.
+- HUK-wrapped key storage: `huk_blob_create()` and `huk_blob_load()` in `main.c` show how to wrap a P-256 key, keep the seed, wrapped scalar and public key (plus the IV and tag for GCM) as a stored blob, and sign with a key set up from that blob alone. The blob only unwraps on the device that wrapped it. The example runs both wrap formats:
+  - AES-GCM (recommended): a damaged tag or wrapped scalar fails with `AES_GCM_AUTH_E`.
+  - AES-ECB: the same blob layout as the STM32 DHUK `wc_ecc_import_wrapped_private()`, for wrap code shared between the two parts. The port selects it when the key's `iv`, `ivSz`, `tag` and `tagSz` are all NULL/0. ECB has no integrity check: a damaged blob signs with a wrong scalar and the signature does not verify. Signing with an ECB blob needs wolfSSL PR #12056 or later.
+
+  Neither format covers the stored public key, so an application that relies on it needs its own integrity check; the example's verify of a fresh signature against the stored public key is one.
 - HW ECDSA P-256 verify offload: the same signature is then verified through the HW engine (the public point is imported into a `WC_HUK_DEVID` key so `wc_ecc_verify_hash` dispatches to `hal_ecdsa`), and a tampered digest is shown to be rejected. No HUK context is needed to verify -- any P-256 public key.
 - **Plaintext-key AES (second device):** with `WOLFSSL_RTL8735B_AES` also enabled (see `user_settings.h`), the example registers a second crypto-callback device, `wc_Rtl8735b_AesRegister(WC_RTL8735B_AES_DEVID)`, that runs a caller-supplied AES key directly on the HW engine with no HUK binding. It reproduces a published AES-GCM test vector (proving the key is used verbatim), then encrypts the same 32 key bytes through both devices to show the plaintext-key ciphertext differs from the HUK device-bound ciphertext -- the two devices coexist and are selected per `Aes` by `devId`.
 
@@ -78,6 +83,18 @@ Remove the J27 jumper and reset to boot. The console (UART, 115200) prints:
 [PASS] verify with software public key
 [PASS] HW ECDSA verify (good sig)
 [PASS] HW ECDSA verify (tampered -> reject)
+== HUK-wrapped ECDSA key: wrap, store, reload, sign ==
+[PASS] InitRng
+-- GCM-wrapped blob --
+[PASS] create wrapped key blob
+[PASS] sign with reloaded blob
+[PASS] verify with stored public key
+[PASS] tampered blob tag -> AES_GCM_AUTH_E
+-- ECB-wrapped blob --
+[PASS] create wrapped key blob
+[PASS] sign with reloaded blob
+[PASS] verify with stored public key
+[PASS] tampered ECB blob signs, signature does not verify
 == AES-GCM with a plaintext key (devId=WC_RTL8735B_AES_DEVID) ==
 [PASS] AesInit(devId=WC_RTL8735B_AES_DEVID)
 [PASS] AesGcmSetKey(plaintext 128-bit key)
@@ -94,7 +111,7 @@ Remove the J27 jumper and reset to boot. The console (UART, 115200) prints:
 [PASS] ciphertext matches FIPS-197 vector
 [PASS] AesEcb round-trip
 == AES-GCM plaintext key, UNALIGNED buffers (port bounces) ==  ... round-trip PASS
-== AES-GCM plaintext key, non-12-byte IV must hard-fail ==  ... 16-byte IV rejected PASS
+== AES-GCM plaintext key, non-12-byte IV uses software GCM ==  ... matches software GCM PASS
 === done ===
 ```
 
