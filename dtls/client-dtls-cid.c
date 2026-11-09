@@ -142,10 +142,11 @@ int main (int argc, char** argv)
             }
             continue;
         }
-
-        /* Add a terminating character to the generic server message */
-        recvLine[n] = '\0';
-        fputs(recvLine, stdout);
+        else {
+            /* Add a terminating character to the generic server message */
+            recvLine[n] = '\0';
+            fputs(recvLine, stdout);
+        }
 
         close(sockfd);
         if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
