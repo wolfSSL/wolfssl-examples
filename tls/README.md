@@ -119,6 +119,7 @@ into.
     3. [Running](#run-ecc)
 
 6. [Encrypted Client Hello](#ech)
+7. [Certificate Pinning](#pinning)
 
 
 
@@ -1590,6 +1591,117 @@ Expected behavior:
   then completes the TLS handshake.
 - The server logs the received early data and replies both during early-data
   processing and again after the handshake is complete.
+
+
+## <a name="pinning">Certificate Pinning</a>
+
+`client-tls13-pinning` is a TLS v1.3 client that pins the server's public key.
+
+Normal certificate validation accepts any server certificate that chains to a
+CA in the trust store. Pinning adds a second check on top of that: the client
+ships with the SHA-256 hash of the SubjectPublicKeyInfo (SPKI) of the server it
+expects, and refuses the handshake if the server presents any other key, even
+one signed by a trusted CA. This defends against a compromised or mis-issuing
+CA and against extra roots installed on the device.
+
+The client pins the public key rather than the whole certificate, so the pin
+survives certificate renewal as long as the server keeps the same key.
+
+How it works:
+
+1. `wolfSSL_CTX_set_verify()` registers a verify callback. wolfSSL calls it for
+   the server's leaf certificate after running its own chain validation. If
+   wolfSSL is built with `WOLFSSL_VERIFY_CB_ALL_CERTS` it also calls it for
+   each intermediate; the example passes those through unchanged.
+2. `wolfSSL_CTX_SetCertCbCtx()` hands the pin to the callback, which receives
+   it as `store->userCtx`.
+3. Inside the callback, `store->certs[0]` holds the DER of the server's
+   certificate. `wc_GetSubjectPubKeyInfoDerFromCert()` extracts the SPKI and
+   `wc_Sha256Hash()` hashes it.
+4. The example's callback returns 1 only when chain validation passed *and*
+   the hash matches the pin. Returning 0 aborts the handshake before any
+   application data is sent. The callback never overrides a chain validation
+   error, so a pinned key on an expired or untrusted certificate is still
+   rejected.
+
+### Building
+
+The example requires wolfSSL 5.8.2 or later, for
+`wc_GetSubjectPubKeyInfoDerFromCert()`, built with TLS v1.3 and SHA-256
+enabled (the defaults).
+
+wolfSSL must also be built with `WOLFSSL_ALWAYS_VERIFY_CB`. Without it,
+wolfSSL only calls the verify callback when chain validation fails, so the pin
+would never be checked on a valid chain. `--enable-opensslextra` defines it;
+otherwise add it explicitly:
+
+```sh
+./configure CFLAGS="-DWOLFSSL_ALWAYS_VERIFY_CB" && make && sudo make install
+```
+
+If any of these are missing, the example prints a message saying what it
+needs and exits with status 0.
+
+Then, in `wolfssl-examples/tls`:
+
+```sh
+make server-tls13 client-tls13-pinning
+```
+
+### Running
+
+```
+./client-tls13-pinning <IPv4 address> [pin-sha256-hex]
+```
+
+The pin defaults to the SPKI hash of `../certs/server-cert.pem`, which is the
+certificate `server-tls13` serves. To compute the pin for a different
+certificate:
+
+```sh
+openssl x509 -in ../certs/server-cert.pem -pubkey -noout | \
+    openssl pkey -pubin -outform DER | openssl dgst -sha256
+```
+
+Run the server in one terminal and the client in another:
+
+```sh
+./server-tls13
+```
+
+```sh
+./client-tls13-pinning 127.0.0.1
+Pin check: server public key matches pin
+Connected with TLSv1.3, server public key SHA-256: 5b3efef086a7b4637b2843d0a8fb5c5e7bf1e40b49e182184077f4b1405eddcd
+Message for server: hello
+Server: I hear ya fa shizzle!
+
+```
+
+Send `shutdown` as the message to stop the server.
+
+To see the pin reject a server that otherwise validates, pass a pin that does
+not match:
+
+```sh
+./client-tls13-pinning 127.0.0.1 0000000000000000000000000000000000000000000000000000000000000000
+Pin check: server public key does not match pin
+ERROR: failed to connect to wolfSSL: -329 (verify problem on certificate)
+  expected pin: 0000000000000000000000000000000000000000000000000000000000000000
+  server sent:  5b3efef086a7b4637b2843d0a8fb5c5e7bf1e40b49e182184077f4b1405eddcd
+```
+
+The handshake is aborted before any application data is exchanged.
+`server-tls13` exits after a failed handshake, so restart it before the next
+connection.
+
+Notes:
+
+- Pinning is brittle. Rotating the server key breaks every client that pinned
+  the old value, so real deployments pin a backup key as well, or pin an
+  intermediate CA's key instead of the leaf's.
+- `server-tls` defaults to TLS v1.2. Use `server-tls13`, or build `server-tls`
+  with `-DUSE_TLSV13`, since this client only offers TLS v1.3.
 
 
 ## Support
