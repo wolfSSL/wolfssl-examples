@@ -307,8 +307,8 @@ int main(int argc, char** argv)
 
 
 
-    /* Save the session. get1 takes a reference that outlives ssl; the session
-     * is released with wolfSSL_SESSION_free() below. */
+    /* Save the session. get1 takes a reference the caller owns, so the
+     * session outlives wolfSSL_free(ssl) below and is freed at exit. */
     if (session == NULL) {
         session = wolfSSL_get1_session(ssl);
     }
