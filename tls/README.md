@@ -1592,6 +1592,49 @@ Expected behavior:
   processing and again after the handshake is complete.
 
 
+## TLS 1.3 Certificate-Based Authentication with an External PSK (RFC 9973)
+
+See `client-tls13-psk-with-certs.c` and `server-tls13-psk-with-certs.c`. These
+examples show a TLS 1.3 handshake that uses an external (out-of-band) PSK
+*together with* certificate-based authentication, as described in
+[RFC 9973](https://www.rfc-editor.org/rfc/rfc9973.html) (Standards Track,
+obsoletes the experimental RFC 8773). Normally a TLS 1.3 handshake that
+selects an external PSK skips the Certificate and
+CertificateVerify messages; with this extension both peers still authenticate
+with certificates, so the connection is secure as long as either the PSK or the
+certificate keys remain secret.
+
+The feature is enabled per context with
+`wolfSSL_CTX_set_cert_with_extern_psk(ctx, 1)`, or per session with
+`wolfSSL_set_cert_with_extern_psk(ssl, 1)`. It must be enabled on both peers,
+and the PSK must be used with (EC)DHE key exchange (do not call
+`wolfSSL_CTX_no_dhe_psk()`).
+
+Build requirements:
+- wolfSSL must be built with PSK support and the extension enabled. TLS 1.3 is
+  on by default, but `--enable-psk` is required: without it `configure`
+  silently disables the extension ("PSK is disabled - disabling
+  cert-with-extern-psk").
+
+```sh
+./configure --enable-psk --enable-cert-with-extern-psk
+make
+sudo make install
+```
+
+Build and run (in `wolfssl-examples/tls`, in separate terminals):
+
+```sh
+make client-tls13-psk-with-certs server-tls13-psk-with-certs
+./server-tls13-psk-with-certs
+./client-tls13-psk-with-certs 127.0.0.1
+```
+
+Send the message "shutdown" from the client to stop the server.
+
+Note that the PSK in these examples is a fixed dummy value; a real deployment
+must provision the key securely.
+
 ## Support
 
 Please contact wolfSSL at support@wolfssl.com with any questions, bug fixes,
