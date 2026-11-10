@@ -1,0 +1,45 @@
+name: 'Build a wolfHAL board'
+description: 'Cross-build the wolfHAL example for one board and assert the port is linked'
+
+inputs:
+  board:
+    description: 'directory name under wolfHAL/boards'
+    required: true
+  wolfssl-root:
+    description: 'path to the wolfSSL source tree to compile wolfCrypt from'
+    required: false
+    default: '/tmp/wolfssl'
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: |
+        set -euo pipefail
+        board='${{ inputs.board }}'
+        [ -f "wolfHAL/boards/$board/board.mk" ] \
+          || { echo "no such board: wolfHAL/boards/$board/board.mk"; exit 1; }
+
+        make -C wolfHAL BOARD="$board" WOLFSSL_ROOT='${{ inputs.wolfssl-root }}' -j"$(nproc)"
+
+        # The board declares its own toolchain, so ask make rather than assume
+        # a prefix here.
+        cross=$(make -s -C wolfHAL BOARD="$board" print-CROSS_COMPILE)
+        elf=wolfHAL/wolfcrypt_test.elf
+        arch=$(file -b "$elf")
+        echo "$arch"
+        case "$arch" in
+          *x86-64*) echo "FAIL: host binary, the cross toolchain was not used"; exit 1 ;;
+        esac
+
+        # A build with the port configured away would still link and still be
+        # the right arch, so assert the callback is registered and reaches a
+        # driver. Which modes are offloaded is the board's choice, so accept any.
+        "${cross}nm" "$elf" | grep -q ' T wc_wolfHAL_RegisterDevice' \
+          || { echo "FAIL: wolfHAL port not linked"; exit 1; }
+        modes=$("${cross}objdump" -d "$elf" --disassemble=wc_wolfHAL_CryptoDevCb \
+                | grep -oE 'whal_Aes(Ecb|Cbc|Gcm|Ccm)_Oneshot' | sort -u | tr '\n' ' ')
+        [ -n "$modes" ] || { echo "FAIL: no AES mode dispatched to wolfHAL"; exit 1; }
+        echo "$board offloads: $modes"
+
+        make -C wolfHAL BOARD="$board" clean >/dev/null
