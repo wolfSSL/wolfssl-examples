@@ -1019,6 +1019,23 @@ examples:
           server_exit: killed
         expect: "server: I hear ya fa shizzle"
 
+  - id: mbedtls-compat
+    path: mbedtls-compat
+    # default is only for the servers. The client links wolfPSA, built below.
+    profile: default
+    # wolfPSA's compatibility layer supports wolfSSL master, not releases
+    wolfssl_ref: master
+    # wolfSSL is the commit installed for the servers. No wolfPSA release has
+    # MBEDTLS_COMPAT yet, so wolfPSA is pinned to a commit.
+    fetch:
+      - [sh, -c, "test -d ../../wolfssl || { git init -q ../../wolfssl && git -C ../../wolfssl fetch -q --depth 1 https://github.com/wolfSSL/wolfssl \"${WOLFSSL_SHA:-master}\" && git -C ../../wolfssl checkout -q FETCH_HEAD; }"]
+      - [sh, -c, "test -d ../../wolfpsa || { git init -q ../../wolfpsa && git -C ../../wolfpsa fetch -q --depth 1 https://github.com/wolfSSL/wolfpsa b7759866447c6d7fcc69ec09676d93e4089491fa && git -C ../../wolfpsa checkout -q FETCH_HEAD; }"]
+      - [sh, -c, "cd ../../wolfpsa && make -j\"$(nproc)\" MBEDTLS_COMPAT=1 WOLFSSL_PATH=../wolfssl"]
+    # make check builds ../tls/server-tls.c for TLS 1.2 and 1.3 and runs the
+    # client against it, one server per case. tls/server-tls13 is not used: it
+    # requires a client certificate, which this client does not send.
+    mode: check
+
   - id: dtls
     path: dtls
     profile: dtls

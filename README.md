@@ -181,6 +181,25 @@ Please see the [java/README.md](java/README.md) for further usage and details.
 
 <br />
 
+#### mbedtls-compat (Mbed TLS Compatibility)
+
+This directory contains a client written for the Mbed TLS 4.x API, built on
+wolfSSL through the Mbed TLS compatibility layer in wolfPSA.
+
+The client links wolfPSA, built with the compatibility layer, in place of the
+Mbed TLS libraries:
+
+```
+cd wolfpsa
+make MBEDTLS_COMPAT=1 WOLFSSL_PATH=../wolfssl
+```
+
+Please see the [mbedtls-compat/README.md](mbedtls-compat/README.md) for further
+usage and details.
+
+
+<br />
+
 #### mynewt (Apache Mynewt Examples)
 
 This directory contains examples that demonstrate using wolfSSL with Apache 
