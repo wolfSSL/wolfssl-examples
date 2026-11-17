@@ -11,7 +11,7 @@
  * device (WC_RTL8735B_AES_DEVID) that runs a caller-supplied plaintext AES key
  * directly on the HW engine (no HUK binding), selected per Aes by devId, and
  * exercises it with AES-GCM (published KAT + coexistence), an AES-ECB FIPS-197
- * KAT, the unaligned-buffer bounce path, and non-12-byte-IV rejection.
+ * KAT, the unaligned-buffer bounce path, and software GCM for a non-12-byte IV.
  *
  * Build: configure with -DEXAMPLE=wolfcrypt_huk (see wolfcrypt_huk.cmake).
  */
@@ -32,6 +32,9 @@
 #include <wolfssl/wolfcrypt/random.h>
 #include <wolfssl/wolfcrypt/error-crypt.h>
 #include <wolfssl/wolfcrypt/port/realtek/rtl8735b.h>
+#ifdef WC_RTL8735B_HAVE_KEYSTORE
+    #include <wolfssl/wolfcrypt/wc_keystore.h>
+#endif
 
 /* ForceZero (used to scrub key material below). Inline the misc helpers the same
  * way wolfCrypt's own test.c/benchmark.c do; misc.c provides ForceZero only as an
@@ -419,7 +422,7 @@ static void huk_hmac_test(void)
 }
 
 /* HUK-bound ECDSA P-256 sign. A key is generated in software, its private
- * scalar wrapped under the HUK (ECB-encrypted with the HUK device using the
+ * scalar wrapped under the HUK (AES-GCM-encrypted with the HUK device using the
  * seed), then signing goes through the HUK device (which unwraps under the HUK
  * and signs). The signature is checked against the software public key. To
  * exercise the HW ECDSA engine instead of the software-after-unwrap path, set
@@ -569,6 +572,440 @@ cleanup:
     ForceZero(wrapped, sizeof(wrapped));
     ForceZero(seed, sizeof(seed));
 }
+
+/* A HUK-wrapped P-256 key in the form an application stores it, for example in
+ * flash. The seed is not secret, and only the device that wrapped the scalar can
+ * unwrap it. The scalar is wrapped with AES-GCM (authenticated, recommended) or
+ * AES-ECB (the same blob layout as the STM32 DHUK, for code shared between the
+ * two parts). An ECB blob has no IV or tag. */
+#define HUK_WRAP_GCM 0
+#define HUK_WRAP_ECB 1
+
+typedef struct huk_key_blob {
+    byte format;            /* HUK_WRAP_GCM or HUK_WRAP_ECB */
+    byte seed[32];
+    byte iv[12];
+    byte tag[16];
+    byte wrapped[32];
+    byte qx[32];
+    byte qy[32];
+} huk_key_blob;
+
+/* Wrap a 32-byte scalar under the HUK with the blob's seed (and IV for GCM). */
+static int huk_blob_wrap(huk_key_blob* blob, const byte* d)
+{
+    Aes aes;
+    int ret;
+
+    if (blob->format != HUK_WRAP_GCM && blob->format != HUK_WRAP_ECB) {
+        return BAD_FUNC_ARG;
+    }
+    ret = wc_AesInit(&aes, NULL, WC_HUK_DEVID);
+    if (ret != 0) {
+        return ret;
+    }
+    if (blob->format == HUK_WRAP_GCM) {
+        ret = wc_AesGcmSetKey(&aes, blob->seed, sizeof(blob->seed));
+        if (ret == 0) {
+            ret = wc_AesGcmEncrypt(&aes, blob->wrapped, d,
+                                   sizeof(blob->wrapped), blob->iv,
+                                   sizeof(blob->iv), blob->tag,
+                                   sizeof(blob->tag), NULL, 0);
+        }
+    }
+    else {
+        ret = wc_AesSetKey(&aes, blob->seed, sizeof(blob->seed), NULL,
+                           AES_ENCRYPTION);
+        if (ret == 0) {
+            ret = wc_AesEcbEncrypt(&aes, blob->wrapped, d,
+                                   sizeof(blob->wrapped));
+        }
+    }
+    wc_AesFree(&aes);
+    return ret;
+}
+
+/* Generate a P-256 key and wrap its scalar under the HUK with a fresh seed (and
+ * a fresh IV for GCM). */
+static int huk_blob_create(WC_RNG* rng, byte format, huk_key_blob* blob)
+{
+    ecc_key key;
+    byte    d[32] __attribute__((aligned(32)));
+    word32  dLen = sizeof(d);
+    word32  qxLen = sizeof(blob->qx);
+    word32  qyLen = sizeof(blob->qy);
+    int     ret;
+
+    memset(blob, 0, sizeof(*blob));
+    blob->format = format;
+    ret = wc_ecc_init(&key);
+    if (ret != 0) {
+        return ret;
+    }
+    ret = wc_ecc_make_key(rng, sizeof(d), &key);
+    if (ret == 0) {
+        ret = wc_ecc_export_private_only(&key, d, &dLen);
+    }
+    if (ret == 0 && dLen != sizeof(d)) {
+        ret = BUFFER_E;
+    }
+    if (ret == 0) {
+        ret = wc_ecc_export_public_raw(&key, blob->qx, &qxLen, blob->qy, &qyLen);
+    }
+    if (ret == 0) {
+        ret = wc_RNG_GenerateBlock(rng, blob->seed, sizeof(blob->seed));
+    }
+    if (ret == 0 && format == HUK_WRAP_GCM) {
+        ret = wc_RNG_GenerateBlock(rng, blob->iv, sizeof(blob->iv));
+    }
+    if (ret == 0) {
+        ret = huk_blob_wrap(blob, d);
+    }
+    wc_ecc_free(&key);
+    ForceZero(d, sizeof(d));
+    return ret;
+}
+
+/* Set up a signing key from a stored blob. The key borrows hk and the blob, so
+ * both must stay valid until wc_ecc_free. For an ECB blob the iv and tag fields
+ * stay NULL/0, which is how the port tells the two formats apart, so an unknown
+ * format byte is rejected rather than falling back to the unauthenticated ECB
+ * unwrap. */
+static int huk_blob_load(const huk_key_blob* blob, wc_Rtl8735b_EccKey* hk,
+                         ecc_key* key)
+{
+    int ret;
+
+    if (blob->format != HUK_WRAP_GCM && blob->format != HUK_WRAP_ECB) {
+        return BAD_FUNC_ARG;
+    }
+    memset(hk, 0, sizeof(*hk));
+    hk->seed = blob->seed;       hk->seedSz = sizeof(blob->seed);
+    hk->wrapped = blob->wrapped; hk->wrappedLen = sizeof(blob->wrapped);
+    hk->plainLen = sizeof(blob->wrapped);
+    if (blob->format == HUK_WRAP_GCM) {
+        hk->iv = blob->iv;       hk->ivSz = sizeof(blob->iv);
+        hk->tag = blob->tag;     hk->tagSz = sizeof(blob->tag);
+    }
+
+    ret = wc_ecc_init_ex(key, NULL, WC_HUK_DEVID);
+    if (ret == 0) {
+        ret = wc_ecc_set_curve(key, sizeof(blob->wrapped), ECC_SECP256R1);
+    }
+    if (ret == 0) {
+        key->devCtx = hk;
+    }
+    return ret;
+}
+
+/* Sign with a blob, using a key object set up only from what was stored. */
+static int huk_blob_sign(const huk_key_blob* blob, WC_RNG* rng, const byte* hash,
+                         word32 hashSz, byte* sig, word32* sigLen)
+{
+    wc_Rtl8735b_EccKey hk;
+    ecc_key key;
+    int     ret;
+
+    memset(&key, 0, sizeof(key));
+    ret = huk_blob_load(blob, &hk, &key);
+    if (ret == 0) {
+        ret = wc_ecc_sign_hash(hash, hashSz, sig, sigLen, rng, &key);
+    }
+    wc_ecc_free(&key);
+    return ret;
+}
+
+/* Verify a signature with the blob's stored public key. Returns 1 if valid. */
+static int huk_blob_verify(const huk_key_blob* blob, const byte* hash,
+                           word32 hashSz, const byte* sig, word32 sigLen)
+{
+    ecc_key pub;
+    int     verified = 0;
+    int     ret;
+
+    ret = wc_ecc_init(&pub);
+    if (ret == 0) {
+        ret = wc_ecc_import_unsigned(&pub, blob->qx, blob->qy, NULL,
+                                     ECC_SECP256R1);
+        if (ret == 0) {
+            ret = wc_ecc_verify_hash(sig, sigLen, hash, hashSz, &verified,
+                                     &pub);
+        }
+        wc_ecc_free(&pub);
+    }
+    return (ret == 0 && verified == 1);
+}
+
+/* Wrap a key, reload it from the stored blob, and sign with it, for both wrap
+ * formats. A real application writes the blob to flash and reloads it after a
+ * reset. */
+static void huk_ecdsa_reload_test(void)
+{
+    static huk_key_blob blob;
+    WC_RNG  rng;
+    byte    hash[32];
+    byte    sig[80];
+    word32  sigLen;
+    int     format;
+    int     ret;
+
+    dbg_printf("\r\n== HUK-wrapped ECDSA key: wrap, store, reload, sign ==\r\n");
+
+    memset(hash, 0x42, sizeof(hash));
+    ret = wc_InitRng(&rng);
+    CHECK("InitRng", ret == 0);
+    if (ret != 0) {
+        return;
+    }
+    for (format = HUK_WRAP_GCM; format <= HUK_WRAP_ECB; format++) {
+        const char* name = (format == HUK_WRAP_GCM) ? "GCM" : "ECB";
+
+        dbg_printf("-- %s-wrapped blob --\r\n", name);
+        ret = huk_blob_create(&rng, (byte)format, &blob);
+        CHECK("create wrapped key blob", ret == 0);
+        if (ret != 0) {
+            continue;
+        }
+        sigLen = sizeof(sig);
+        ret = huk_blob_sign(&blob, &rng, hash, sizeof(hash), sig, &sigLen);
+        CHECK("sign with reloaded blob", ret == 0);
+        if (ret == 0) {
+            CHECK("verify with stored public key",
+                  huk_blob_verify(&blob, hash, sizeof(hash), sig, sigLen));
+        }
+
+        /* A damaged GCM blob cannot produce a key: the tag does not match. A
+         * damaged ECB blob unwraps to a wrong scalar, so it signs, but the
+         * signature does not verify. Neither covers qx/qy. */
+        sigLen = sizeof(sig);
+        if (format == HUK_WRAP_GCM) {
+            blob.tag[0] ^= 0x01;
+            ret = huk_blob_sign(&blob, &rng, hash, sizeof(hash), sig, &sigLen);
+            CHECK("tampered blob tag -> AES_GCM_AUTH_E", ret == AES_GCM_AUTH_E);
+            blob.tag[0] ^= 0x01;
+            blob.format ^= 0x02;
+            sigLen = sizeof(sig);
+            ret = huk_blob_sign(&blob, &rng, hash, sizeof(hash), sig, &sigLen);
+            CHECK("corrupted format byte -> BAD_FUNC_ARG", ret == BAD_FUNC_ARG);
+        }
+        else {
+            blob.wrapped[0] ^= 0x01;
+            ret = huk_blob_sign(&blob, &rng, hash, sizeof(hash), sig, &sigLen);
+            CHECK("tampered ECB blob signs, signature does not verify",
+                  ret == 0 &&
+                  !huk_blob_verify(&blob, hash, sizeof(hash), sig, sigLen));
+        }
+    }
+    wc_FreeRng(&rng);
+}
+
+#ifdef WC_RTL8735B_HAVE_KEYSTORE
+/* An application AES key, wrapped under the HUK and stored, loaded into a
+ * key-storage slot with wc_KeyStore_ImportWrapped() and then used from that slot
+ * through an Aes made with wc_AesInit_Id(). The key is in RAM only while it is
+ * imported. */
+#define HUK_KS_SLOT WC_RTL8735B_KS_SLOT_FIRST
+
+/* Wrap key under the HUK-derived key for seed: AES-ECB (the STM32 DHUK style)
+ * or RFC 3394 key wrap (authenticated). Returns the blob size, or < 0. */
+static int huk_key_wrap(int format, const byte* seed, word32 seedSz,
+                        const byte* key, word32 keySz, byte* blob,
+                        word32 blobSz)
+{
+    Aes aes;
+    int ret;
+
+    if (seedSz != 32) {
+        return BAD_FUNC_ARG;
+    }
+    if (format != WC_KEYWRAP_FORMAT_AESKW && keySz > blobSz) {
+        return BUFFER_E;
+    }
+    ret = wc_AesInit(&aes, NULL, WC_HUK_DEVID);
+    if (ret != 0) {
+        return ret;
+    }
+    ret = wc_AesSetKey(&aes, seed, seedSz, NULL, AES_ENCRYPTION);
+    if (ret == 0) {
+        if (format == WC_KEYWRAP_FORMAT_AESKW) {
+            ret = wc_AesKeyWrap_ex(&aes, key, keySz, blob, blobSz, NULL);
+        }
+        else {
+            ret = wc_AesEcbEncrypt(&aes, blob, key, keySz);
+            if (ret == 0) {
+                ret = (int)keySz;
+            }
+        }
+    }
+    wc_AesFree(&aes);
+    return ret;
+}
+
+/* AES-ECB of one block and AES-GCM of pt, with either the key in a slot
+ * (ref != NULL) or a plain software key. */
+static int huk_slot_aes(const byte* ref, word32 refSz, const byte* key,
+                        word32 keySz, const byte* pt, byte* ecbOut,
+                        byte* gcmOut, byte* tag)
+{
+    /* Fixed so the slot and software runs produce comparable output. An
+     * application must use a unique IV for every message under a key. */
+    static const byte iv[12] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+    Aes aes;
+    int ret;
+
+    if (ref != NULL) {
+        ret = wc_AesInit_Id(&aes, (unsigned char*)ref, (int)refSz, NULL,
+                            WC_HUK_DEVID);
+    }
+    else {
+        ret = wc_AesInit(&aes, NULL, INVALID_DEVID);
+        if (ret == 0) {
+            ret = wc_AesSetKey(&aes, key, keySz, NULL, AES_ENCRYPTION);
+        }
+        if (ret == 0) {
+            ret = wc_AesGcmSetKey(&aes, key, keySz);
+        }
+    }
+    if (ret == 0) {
+        ret = wc_AesEcbEncrypt(&aes, ecbOut, pt, 16);
+    }
+    if (ret == 0) {
+        ret = wc_AesGcmEncrypt(&aes, gcmOut, pt, 32, iv, sizeof(iv), tag, 16,
+                               NULL, 0);
+    }
+    wc_AesFree(&aes);
+    return ret;
+}
+
+static int huk_slot_import(const byte* ref, word32 refSz, const byte* seed,
+                           word32 seedSz, int format, const byte* blob,
+                           word32 blobSz)
+{
+    return wc_KeyStore_ImportWrapped(WC_HUK_DEVID, ref, refSz,
+                                     WC_KEYSTORE_KEY_AES, seed, seedSz,
+                                     (word32)format, blob, blobSz, 0, NULL);
+}
+
+static void huk_slot_key_test(void)
+{
+    static const int formats[2] = { WC_KEYWRAP_FORMAT_VENDOR,
+                                    WC_KEYWRAP_FORMAT_AESKW };
+    byte   key[32], key2[32], seed[32], pt[32];
+    byte   blob[40], ref[WC_RTL8735B_KEYREF_SZ];
+    byte   ecb0[16], ecb1[16], gcm0[32], gcm1[32], tag0[16], tag1[16];
+    word32 refSz = sizeof(ref);
+    word32 keyType = 0, keyBits = 0;
+    int    i, f, ret, blobSz;
+
+    dbg_printf("\r\n== HUK-wrapped AES key in a key-storage slot ==\r\n");
+    for (i = 0; i < 32; i++) {
+        key[i]  = (byte)(0x10 + i);
+        key2[i] = (byte)(0x90 + i);
+        seed[i] = (byte)(0x5A ^ i);
+        pt[i]   = (byte)(0xC0 + i);
+    }
+    ret = wc_Rtl8735b_MakeKeyRef(HUK_KS_SLOT, ref, &refSz);
+    CHECK("make key reference", ret == 0);
+    if (ret != 0) {
+        return;
+    }
+    ret = huk_slot_aes(NULL, 0, key, 32, pt, ecb0, gcm0, tag0);
+    CHECK("software AES reference", ret == 0);
+    if (ret != 0) {
+        return;
+    }
+
+    for (f = 0; f < 2; f++) {
+        const char* name = (formats[f] == WC_KEYWRAP_FORMAT_AESKW) ?
+                           "RFC 3394" : "ECB";
+
+        dbg_printf("-- %s-wrapped AES-256 key --\r\n", name);
+        blobSz = huk_key_wrap(formats[f], seed, sizeof(seed), key, 32, blob,
+                              sizeof(blob));
+        CHECK("wrap key under the HUK", blobSz > 0);
+        if (blobSz <= 0) {
+            continue;
+        }
+        ret = huk_slot_import(ref, refSz, seed, sizeof(seed), formats[f],
+                              blob, (word32)blobSz);
+        CHECK("wc_KeyStore_ImportWrapped into slot", ret == 0);
+        if (ret != 0) {
+            continue;
+        }
+        ret = wc_KeyStore_GetInfo(WC_HUK_DEVID, ref, refSz, &keyType, &keyBits,
+                                  NULL, NULL);
+        CHECK("wc_KeyStore_GetInfo: AES-256",
+              ret == 0 && keyType == WC_KEYSTORE_KEY_AES && keyBits == 256);
+        ret = huk_slot_import(ref, refSz, seed, sizeof(seed), formats[f],
+                              blob, (word32)blobSz);
+        CHECK("import into an occupied slot -> BAD_STATE_E",
+              ret == BAD_STATE_E);
+        memset(ecb1, 0, sizeof(ecb1));
+        ret = huk_slot_aes(ref, refSz, NULL, 0, pt, ecb1, gcm1, tag1);
+        CHECK("AES-ECB and AES-GCM from the slot match the software key",
+              ret == 0 && memcmp(ecb0, ecb1, 16) == 0 &&
+              memcmp(gcm0, gcm1, 32) == 0 && memcmp(tag0, tag1, 16) == 0);
+        ret = wc_KeyStore_Delete(WC_HUK_DEVID, ref, refSz, NULL);
+        CHECK("wc_KeyStore_Delete", ret == 0);
+        ret = huk_slot_aes(ref, refSz, NULL, 0, pt, ecb1, gcm1, tag1);
+        CHECK("AES from a deleted slot fails", ret != 0);
+
+        /* RFC 3394 rejects a damaged blob; ECB imports a wrong key. */
+        blob[blobSz - 1] ^= 0x01;
+        ret = huk_slot_import(ref, refSz, seed, sizeof(seed), formats[f],
+                              blob, (word32)blobSz);
+        if (formats[f] == WC_KEYWRAP_FORMAT_AESKW) {
+            CHECK("damaged RFC 3394 blob -> BAD_KEYWRAP_IV_E",
+                  ret == BAD_KEYWRAP_IV_E);
+        }
+        else {
+            CHECK("damaged ECB blob imports", ret == 0);
+            ret = huk_slot_aes(ref, refSz, NULL, 0, pt, ecb1, gcm1, tag1);
+            CHECK("... but the key is wrong", ret == 0 &&
+                  memcmp(ecb0, ecb1, 16) != 0);
+            (void)wc_KeyStore_Delete(WC_HUK_DEVID, ref, refSz, NULL);
+        }
+    }
+
+    dbg_printf("-- re-import a different key, and AES-128 --\r\n");
+    blobSz = huk_key_wrap(WC_KEYWRAP_FORMAT_AESKW, seed, sizeof(seed), key2,
+                          32, blob, sizeof(blob));
+    ret = (blobSz > 0) ? 0 : blobSz;
+    if (ret == 0) {
+        ret = huk_slot_import(ref, refSz, seed, sizeof(seed),
+                              WC_KEYWRAP_FORMAT_AESKW, blob, (word32)blobSz);
+    }
+    if (ret == 0) {
+        ret = huk_slot_aes(NULL, 0, key2, 32, pt, ecb0, gcm0, tag0);
+    }
+    if (ret == 0) {
+        ret = huk_slot_aes(ref, refSz, NULL, 0, pt, ecb1, gcm1, tag1);
+    }
+    CHECK("slot reused for a second key", ret == 0 &&
+          memcmp(ecb0, ecb1, 16) == 0 && memcmp(tag0, tag1, 16) == 0);
+    (void)wc_KeyStore_Delete(WC_HUK_DEVID, ref, refSz, NULL);
+
+    blobSz = huk_key_wrap(WC_KEYWRAP_FORMAT_AESKW, seed, sizeof(seed), key,
+                          16, blob, sizeof(blob));
+    ret = (blobSz > 0) ? 0 : blobSz;
+    if (ret == 0) {
+        ret = huk_slot_import(ref, refSz, seed, sizeof(seed),
+                              WC_KEYWRAP_FORMAT_AESKW, blob, (word32)blobSz);
+    }
+    if (ret == 0) {
+        ret = huk_slot_aes(NULL, 0, key, 16, pt, ecb0, gcm0, tag0);
+    }
+    if (ret == 0) {
+        ret = huk_slot_aes(ref, refSz, NULL, 0, pt, ecb1, gcm1, tag1);
+    }
+    CHECK("AES-128 key from a slot matches the software key", ret == 0 &&
+          memcmp(ecb0, ecb1, 16) == 0 && memcmp(tag0, tag1, 16) == 0);
+    (void)wc_KeyStore_Delete(WC_HUK_DEVID, ref, refSz, NULL);
+
+    ForceZero(key, sizeof(key));
+    ForceZero(key2, sizeof(key2));
+}
+#endif /* WC_RTL8735B_HAVE_KEYSTORE */
 
 #ifdef WOLFSSL_RTL8735B_AES
 /* AES-GCM with a plaintext key through the second device (WC_RTL8735B_AES_DEVID).
@@ -785,9 +1222,9 @@ static void plain_gcm_unaligned_test(void)
     ForceZero(key, 16);   /* scrub key material before return */
 }
 
-/* A non-12-byte GCM IV must hard-fail on the plaintext device too, NOT silently
- * fall back to software GCM (regression for the IV hard-error contract). */
-static void plain_gcm_badiv_test(void)
+/* The HW path only takes a 12-byte IV, so the plaintext device declines any other
+ * length and software GCM serves it with the same literal key. */
+static void plain_gcm_long_iv_test(void)
 {
     Aes  aes;
     byte key[16] __attribute__((aligned(32)));
@@ -795,12 +1232,14 @@ static void plain_gcm_badiv_test(void)
     byte pt[16]  __attribute__((aligned(32)));
     byte ct[16]  __attribute__((aligned(32)));
     byte tag[16] __attribute__((aligned(32)));
+    byte swCt[16];
+    byte swTag[16];
     int  ret;
 
     memset(key, 0x5A, sizeof(key)); memset(iv, 0x11, sizeof(iv));
     memset(pt, 0x33, sizeof(pt));
 
-    dbg_printf("\r\n== AES-GCM plaintext key, non-12-byte IV must hard-fail "
+    dbg_printf("\r\n== AES-GCM plaintext key, non-12-byte IV uses software GCM "
                "==\r\n");
     ret = wc_AesInit(&aes, NULL, WC_RTL8735B_AES_DEVID);
     CHECK("AesInit(devId=WC_RTL8735B_AES_DEVID)", ret == 0);
@@ -815,8 +1254,22 @@ static void plain_gcm_badiv_test(void)
     }
     ret = wc_AesGcmEncrypt(&aes, ct, pt, sizeof(pt), iv, sizeof(iv),
                            tag, sizeof(tag), NULL, 0);
-    CHECK("16-byte IV rejected (no silent SW fallback)", ret != 0);
+    CHECK("AesGcmEncrypt (16-byte IV)", ret == 0);
     wc_AesFree(&aes);
+    if (ret == 0) {
+        ret = wc_AesInit(&aes, NULL, INVALID_DEVID);
+        if (ret == 0) {
+            ret = wc_AesGcmSetKey(&aes, key, sizeof(key));
+            if (ret == 0) {
+                ret = wc_AesGcmEncrypt(&aes, swCt, pt, sizeof(pt), iv, sizeof(iv),
+                                       swTag, sizeof(swTag), NULL, 0);
+            }
+            wc_AesFree(&aes);
+        }
+        CHECK("16-byte IV matches software GCM with the same key",
+              ret == 0 && memcmp(ct, swCt, sizeof(ct)) == 0 &&
+              memcmp(tag, swTag, sizeof(tag)) == 0);
+    }
     ForceZero(key, sizeof(key));   /* scrub key material before return */
 }
 #endif /* WOLFSSL_RTL8735B_AES */
@@ -858,12 +1311,16 @@ static void wolf_huk_thread(void* param)
         huk_gcm_badiv_test();
         huk_hmac_test();
         huk_ecdsa_test();
+        huk_ecdsa_reload_test();
+#ifdef WC_RTL8735B_HAVE_KEYSTORE
+        huk_slot_key_test();
+#endif
 #ifdef WOLFSSL_RTL8735B_AES
         if (aesRet == 0) {
             plain_gcm_test();
             plain_ecb_test();
             plain_gcm_unaligned_test();
-            plain_gcm_badiv_test();
+            plain_gcm_long_iv_test();
             wc_Rtl8735b_AesUnRegister(WC_RTL8735B_AES_DEVID);
         }
 #endif

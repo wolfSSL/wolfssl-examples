@@ -39,12 +39,12 @@ extern "C" {
 #define WOLFSSL_NO_TLS12_RENEGOTIATION
 #define NO_SESSION_CACHE           /* save RAM (no resumption cache) */
 #define WOLFSSL_AEAD_ONLY          /* AES-GCM suites only (no CBC-HMAC) */
-#define HAVE_PK_CALLBACKS          /* route ONLY the server ECDSA sign to the HUK
+#define HAVE_PK_CALLBACKS          /* route ONLY the ECDSA signs to the HUK
                                     * (whole-CTX devId would send TLS's own 32-byte
                                     * HMAC/PRF + record AES to the HUK too, whose
                                     * key==HUK-seed semantics break TLS) */
 
-/* ---- test certificate buffers (serv_ecc/ecc_key/ca_ecc, P-256) ---- */
+/* ---- test certificate buffers (server, CA and client, P-256) ---- */
 #define USE_CERT_BUFFERS_256
 #define NO_ASN_TIME                /* no RTC on the board -> skip cert date checks */
 
