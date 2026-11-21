@@ -21,7 +21,8 @@
 
 /* Mbed TLS 4.x client built on wolfSSL through wolfPSA's Mbed TLS
  * compatibility layer. tls_get() is the client from the Mbed TLS migration
- * guide, with the request write retried until all of it is sent. */
+ * guide, plus retrying partial writes, poll() before non-blocking retries and
+ * an error when the server closes without a reply. */
 
 /* the usual suspects */
 #include <stdlib.h>
@@ -29,10 +30,8 @@
 #include <string.h>
 
 /* socket includes */
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
 #include <fcntl.h>
+#include <poll.h>
 #include <unistd.h>
 
 /* Mbed TLS, provided by wolfPSA */
@@ -41,17 +40,24 @@
 #include <mbedtls/net_sockets.h>
 #include <mbedtls/x509_crt.h>
 
-#define DEFAULT_PORT 11111
+#define DEFAULT_PORT "11111"
 
 #define CA_FILE   "../certs/ca-cert.pem"
-/* DNS name in the subjectAltName of ../certs/server-cert.pem */
-#define HOST_NAME "example.com"
 
-/* Non-blocking I/O: call again with the same arguments */
-static int tls_want(int ret)
+/* Non-blocking I/O: wait for the socket, then call again with the same
+ * arguments */
+static int tls_want(int fd, int ret)
 {
-    return ret == MBEDTLS_ERR_SSL_WANT_READ ||
-           ret == MBEDTLS_ERR_SSL_WANT_WRITE;
+    struct pollfd pfd;
+
+    if (ret != MBEDTLS_ERR_SSL_WANT_READ &&
+        ret != MBEDTLS_ERR_SSL_WANT_WRITE) {
+        return 0;
+    }
+    pfd.fd = fd;
+    pfd.events = (ret == MBEDTLS_ERR_SSL_WANT_READ) ? POLLIN : POLLOUT;
+    pfd.revents = 0;
+    return poll(&pfd, 1, -1) > 0;
 }
 
 int tls_get(int fd, const char* host, const char* caFile)
@@ -92,7 +98,7 @@ int tls_get(int fd, const char* host, const char* caFile)
     mbedtls_ssl_set_bio(&ssl, &net, mbedtls_net_send, mbedtls_net_recv, NULL);
 
     while ((ret = mbedtls_ssl_handshake(&ssl)) != 0) {
-        if (!tls_want(ret)) {
+        if (!tls_want(fd, ret)) {
             goto out;
         }
     }
@@ -102,16 +108,19 @@ int tls_get(int fd, const char* host, const char* caFile)
         if (ret > 0) {
             sent += (size_t)ret;
         }
-        else if (!tls_want(ret)) {
+        else if (!tls_want(fd, ret)) {
             goto out;
         }
     }
     do {
         ret = mbedtls_ssl_read(&ssl, buf, sizeof(buf) - 1);
-    } while (tls_want(ret) ||
+    } while (tls_want(fd, ret) ||
              ret == MBEDTLS_ERR_SSL_RECEIVED_NEW_SESSION_TICKET);
     if (ret > 0) {
         ret = 0;
+    }
+    else if (ret == 0) {
+        ret = MBEDTLS_ERR_SSL_CONN_EOF; /* closed before any data */
     }
     mbedtls_ssl_close_notify(&ssl);
 
@@ -124,20 +133,24 @@ out:
 
 int main(int argc, char** argv)
 {
-    int                sockfd;
-    struct sockaddr_in servAddr;
-    const char*        caFile = CA_FILE;
-    const char*        host = HOST_NAME;
-    int                nonBlock = 0;
-    int                opt;
-    int                ret;
+    mbedtls_net_context net;
+    const char*         caFile = CA_FILE;
+    const char*         name = NULL;
+    const char*         port = DEFAULT_PORT;
+    int                 nonBlock = 0;
+    int                 flags;
+    int                 opt;
+    int                 ret;
 
-    while ((opt = getopt(argc, argv, "A:S:N")) != -1) {
+    while ((opt = getopt(argc, argv, "A:S:p:N")) != -1) {
         if (opt == 'A') {
             caFile = optarg;
         }
         else if (opt == 'S') {
-            host = optarg;
+            name = optarg;
+        }
+        else if (opt == 'p') {
+            port = optarg;
         }
         else if (opt == 'N') {
             nonBlock = 1;
@@ -147,39 +160,34 @@ int main(int argc, char** argv)
         }
     }
     if (opt != -1 || optind != argc - 1) {
-        printf("usage: %s [-A <CA file>] [-S <server name>] [-N] "
-               "<IPv4 address>\n", argv[0]);
+        printf("usage: %s [-A <CA file>] [-S <server name>] [-p <port>] [-N] "
+               "<host>\n", argv[0]);
         return 1;
+    }
+    if (name == NULL) {
+        name = argv[optind];
     }
 
-    memset(&servAddr, 0, sizeof(servAddr));
-    servAddr.sin_family = AF_INET;
-    servAddr.sin_port   = htons(DEFAULT_PORT);
-    if (inet_pton(AF_INET, argv[optind], &servAddr.sin_addr) != 1) {
-        fprintf(stderr, "ERROR: invalid address\n");
-        return 1;
-    }
-
-    if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
-        fprintf(stderr, "ERROR: failed to create the socket\n");
-        return 1;
-    }
-    if (connect(sockfd, (struct sockaddr*)&servAddr, sizeof(servAddr)) == -1) {
+    mbedtls_net_init(&net);
+    if (mbedtls_net_connect(&net, argv[optind], port,
+            MBEDTLS_NET_PROTO_TCP) != 0) {
         fprintf(stderr, "ERROR: failed to connect\n");
-        close(sockfd);
         return 1;
     }
     /* tls_get() retries on MBEDTLS_ERR_SSL_WANT_READ/WANT_WRITE */
-    if (nonBlock &&
-            fcntl(sockfd, F_SETFL, fcntl(sockfd, F_GETFL) | O_NONBLOCK) != 0) {
-        fprintf(stderr, "ERROR: failed to set non-blocking\n");
-        close(sockfd);
-        return 1;
+    if (nonBlock) {
+        flags = fcntl(net.fd, F_GETFL);
+        if (flags == -1 ||
+                fcntl(net.fd, F_SETFL, flags | O_NONBLOCK) == -1) {
+            fprintf(stderr, "ERROR: failed to set non-blocking\n");
+            mbedtls_net_free(&net);
+            return 1;
+        }
     }
 
-    ret = tls_get(sockfd, host, caFile);
+    ret = tls_get(net.fd, name, caFile);
     printf("tls_get() returned %d\n", ret);
 
-    close(sockfd);
+    mbedtls_net_free(&net);
     return (ret == 0) ? 0 : 1;
 }

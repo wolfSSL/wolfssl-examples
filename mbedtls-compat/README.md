@@ -2,9 +2,10 @@
 
 `client-tls-mbedtls.c` is an application written for the Mbed TLS 4.x API,
 built on wolfSSL through the Mbed TLS compatibility layer in
-[wolfPSA](https://github.com/wolfSSL/wolfpsa). Its `tls_get()` function is the
+[wolfPSA](https://github.com/wolfSSL/wolfPSA). Its `tls_get()` function is the
 client from the "Porting a TLS Client" chapter of the Mbed TLS to wolfSSL
-migration guide, with the request write retried until all of it is sent.
+migration guide, plus retrying partial writes, `poll()` before non-blocking
+retries and an error when the server closes without a reply.
 
 wolfPSA provides the PSA Crypto API on wolfCrypt, as TF-PSA-Crypto does for
 Mbed TLS. Built with `MBEDTLS_COMPAT=1`, it also provides the Mbed TLS TLS,
@@ -21,7 +22,7 @@ compiles wolfCrypt and the wolfSSL TLS sources from `WOLFSSL_PATH` into
 `WOLFSSL_PATH` must be a checkout of wolfSSL's master branch:
 
 ```
-cd wolfpsa
+cd wolfPSA
 make MBEDTLS_COMPAT=1 WOLFSSL_PATH=../wolfssl
 ```
 
@@ -47,33 +48,45 @@ sudo make install
 sudo ldconfig
 ```
 
-Start a TLS 1.3 server, then run the client:
+Start a TLS 1.3 server, run the client, then stop the server:
 
 ```
 make check-server-tls13
 ./check-server-tls13 &
+sleep 1
 ./client-tls-mbedtls 127.0.0.1
+kill %1
 ```
 
 ```
 tls_get() returned 0
 ```
 
-The client checks the server certificate against `../certs/ca-cert.pem` and
-the name `example.com`. Options:
+The host is a name or an IPv4 or IPv6 address. The client checks the server
+certificate against `../certs/ca-cert.pem` and the host. Options:
 
 * `-A <file>` CA certificate file, PEM or DER
-* `-S <name>` server name to send and check
+* `-S <name>` server name to send and check, instead of the host
+* `-p <port>` server port, default 11111
 * `-N` use a non-blocking socket
+
+To connect to a public HTTPS server, give the port and the system's CA
+bundle, whose path depends on the system:
+
+```
+./client-tls-mbedtls -p 443 -A /etc/ssl/certs/ca-certificates.crt \
+    www.wolfssl.com
+```
 
 ## Testing
 
 `make check` builds `../tls/server-tls.c` as `check-server-tls12` and
 `check-server-tls13` and runs the client against them for TLS 1.2 and 1.3,
-blocking and non-blocking, with an IP address as the server name, and for each
-failure it should report: wrong server name or IP address, wrong CA, missing CA
-file and a CA file that is not a certificate. `../tls/server-tls13` is not used
-because it requires a client certificate, which this client does not send.
+blocking and non-blocking, with an IP address and a DNS name as the server
+name and a host name to connect to, and for each failure it should report:
+wrong server name or IP address, wrong CA, missing CA file and a CA file that
+is not a certificate. `../tls/server-tls13` is not used because it requires a
+client certificate, which this client does not send.
 
 A wrong server name, IP address or CA fails with
 `MBEDTLS_ERR_X509_CERT_VERIFY_FAILED` (`-9984`), a missing CA file with

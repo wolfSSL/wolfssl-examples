@@ -2,7 +2,7 @@
 CC       = gcc
 WOLFSSL_INSTALL_DIR = /usr/local
 # wolfPSA built with MBEDTLS_COMPAT=1
-WOLFPSA_DIR = ../../wolfpsa
+WOLFPSA_DIR = ../../wolfPSA
 CFLAGS   = -Wall -I$(WOLFSSL_INSTALL_DIR)/include
 LIBS     = -L$(WOLFSSL_INSTALL_DIR)/lib -lwolfssl -lm
 # The client uses only wolfPSA, so <mbedtls/ssl.h> resolves to wolfPSA

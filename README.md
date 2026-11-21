@@ -190,7 +190,7 @@ The client links wolfPSA, built with the compatibility layer, in place of the
 Mbed TLS libraries:
 
 ```
-cd wolfpsa
+cd wolfPSA
 make MBEDTLS_COMPAT=1 WOLFSSL_PATH=../wolfssl
 ```
 
