@@ -59,6 +59,7 @@ kill %1
 ```
 
 ```
+Handshake done, TLSv1.3, TLS1-3-AES-256-GCM-SHA384
 tls_get() returned 0
 ```
 
@@ -78,6 +79,24 @@ bundle, whose path depends on the system:
     www.wolfssl.com
 ```
 
+```
+Handshake done, TLSv1.3, TLS1-3-AES-128-GCM-SHA256
+tls_get() returned 0
+```
+
+When the certificate check fails, the client prints the reasons from
+`mbedtls_x509_crt_verify_info()`, as the Mbed TLS sample programs do. For
+example, with a CA that did not sign the server's chain:
+
+```
+./client-tls-mbedtls -p 443 -A ../certs/ca-cert.pem www.wolfssl.com
+```
+
+```
+  ! The certificate is not correctly signed by the trusted CA
+tls_get() returned -9984
+```
+
 ## Testing
 
 `make check` builds `../tls/server-tls.c` as `check-server-tls12` and
@@ -85,8 +104,10 @@ bundle, whose path depends on the system:
 blocking and non-blocking, with an IP address and a DNS name as the server
 name and a host name to connect to, and for each failure it should report:
 wrong server name or IP address, wrong CA, missing CA file and a CA file that
-is not a certificate. `../tls/server-tls13` is not used because it requires a
-client certificate, which this client does not send.
+is not a certificate. Each handshake must also print the protocol line, and
+each failed certificate check at least one reason. `../tls/server-tls13` is
+not used because it requires a client certificate, which this client does not
+send.
 
 A wrong server name, IP address or CA fails with
 `MBEDTLS_ERR_X509_CERT_VERIFY_FAILED` (`-9984`), a missing CA file with

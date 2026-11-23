@@ -12,6 +12,11 @@ has_line() {
     printf '%s\n' "$out" | grep -qxF "$1"
 }
 
+# True if a line of the client output starts with $1
+has_prefix() {
+    printf '%s\n' "$out" | grep -q "^$1"
+}
+
 # Retry while the server is not listening yet. A probe connection would end
 # the server, since it exits when a handshake fails.
 run_client() {
@@ -35,7 +40,12 @@ while IFS='|' read -r name server opts expect host; do
     run_client
     want=1
     [ "$expect" -eq 0 ] && want=0
-    if ! has_line "tls_get() returned $expect" || [ $rc -ne $want ]; then
+    # The protocol after a handshake, the reasons after a failed verify
+    info=
+    [ $want -eq 0 ] && info="Handshake done, TLSv1"
+    [ "$expect" -eq -9984 ] && info="  ! "
+    if ! has_line "tls_get() returned $expect" || [ $rc -ne $want ] ||
+            { [ -n "$info" ] && ! has_prefix "$info"; }; then
         echo "FAIL: $name: $out"
         FAILS=$((FAILS + 1))
     # If the server failed to bind, the client reached another server
