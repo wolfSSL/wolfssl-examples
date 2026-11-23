@@ -28,6 +28,7 @@
 
 # IDE Temp Files
 **/*.swp
+**/compile_commands.json
 
 # Android files
 android/wolfcryptjni-ndk-gradle/.gradle

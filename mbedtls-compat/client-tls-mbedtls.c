@@ -21,8 +21,9 @@
 
 /* Mbed TLS 4.x client built on wolfSSL through wolfPSA's Mbed TLS
  * compatibility layer. tls_get() is the client from the Mbed TLS migration
- * guide, plus retrying partial writes, poll() before non-blocking retries and
- * an error when the server closes without a reply. */
+ * guide, plus retrying partial writes, poll() before non-blocking retries, an
+ * error when the server closes without a reply, and printing the protocol,
+ * cipher suite and certificate verify result. */
 
 /* the usual suspects */
 #include <stdlib.h>
@@ -68,6 +69,7 @@ int tls_get(int fd, const char* host, const char* caFile)
     mbedtls_ssl_config conf;
     mbedtls_x509_crt ca;
     unsigned char buf[256];
+    char info[512];
     const char req[] = "GET / HTTP/1.0\r\n\r\n";
     size_t sent = 0;
 
@@ -102,6 +104,9 @@ int tls_get(int fd, const char* host, const char* caFile)
             goto out;
         }
     }
+    printf("Handshake done, %s, %s\n", mbedtls_ssl_get_version(&ssl),
+           mbedtls_ssl_get_ciphersuite(&ssl));
+
     while (sent < sizeof(req) - 1) {
         ret = mbedtls_ssl_write(&ssl, (const unsigned char*)req + sent,
                                 sizeof(req) - 1 - sent);
@@ -125,6 +130,11 @@ int tls_get(int fd, const char* host, const char* caFile)
     mbedtls_ssl_close_notify(&ssl);
 
 out:
+    if (ret == MBEDTLS_ERR_X509_CERT_VERIFY_FAILED) {
+        mbedtls_x509_crt_verify_info(info, sizeof(info), "  ! ",
+                                     mbedtls_ssl_get_verify_result(&ssl));
+        printf("%s", info);
+    }
     mbedtls_ssl_free(&ssl);
     mbedtls_ssl_config_free(&conf);
     mbedtls_x509_crt_free(&ca);
