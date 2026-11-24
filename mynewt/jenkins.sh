@@ -4,7 +4,7 @@ BASEDIR=`cd $BASEDIR && pwd -P`
 
 # Resolve local WOLFSSL_REPO to absolute path.
 WOLFSSL_REPO=${WOLFSSL_REPO:-https://github.com/wolfSSL/wolfssl.git}
-WOLFSSL_BRANCH=${WOLFSSL_BRANCH:-master}
+WOLFSSL_BRANCH=${WOLFSSL_BRANCH:-v5.9.4-stable}
 if [ -d "$WOLFSSL_REPO" ]; then
     WOLFSSL_REPO=$(cd "$WOLFSSL_REPO" && pwd -P)
 fi

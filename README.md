@@ -203,7 +203,8 @@ usage and details.
 #### mynewt (Apache Mynewt Examples)
 
 This directory contains examples that demonstrate using wolfSSL with Apache 
-Mynewt OS.
+Mynewt OS. Requires wolfSSL v5.9.4-stable or earlier; Apache Mynewt support
+was removed from later wolfSSL versions.
 
 Please see the [mynewt/README.md](mynewt/README.md) for further usage and 
 details.

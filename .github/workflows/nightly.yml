@@ -85,12 +85,6 @@ jobs:
     with:
       caller_run_id: ${{ github.run_id }}
 
-  mynewt:
-    needs: [refs]
-    uses: ./.github/workflows/mynewt.yml
-    with:
-      caller_run_id: ${{ github.run_id }}
-
   cert-expiry:
     needs: [refs]
     uses: ./.github/workflows/cert-expiry.yml
