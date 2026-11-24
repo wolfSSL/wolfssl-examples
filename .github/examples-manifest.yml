@@ -1720,19 +1720,8 @@ examples:
     path: mynewt
     mode: skip
     reason: >-
-      The full newt build (native bsp sim + TLS run) is a follow-up: jenkins.sh
-      here has been unrun since 2018 and pulls the whole Apache Mynewt RTOS, which
-      is a lot of unproven CI surface. What IS covered now: the wolfSSL Mynewt
-      PORT compiles. Found by wiring this up, it did not -- settings.h set
-      XMALLOC_USER (for user-provided FUNCTIONS) yet defined XFREE as a MACRO, so
-      types.h's "extern void XFREE(void *p, ...)" under the XMALLOC_USER branch had
-      the macro expand into it: "expected identifier". Fixed on wolfSSL master
-      2026-07-20 (XMALLOC_USER -> XMALLOC_OVERRIDE); v5.9.2-stable still has it.
-      mynewt.yml compiles that exact header path on both refs (patching the ones
-      that predate the fix) via ci-compile-check.sh, so the bug cannot come back
-      unseen. Un-skip for the full newt build once stable carries the fix. (Also
-      fixed here: client-tls-mn.c cast pointers through int, which -Werror rejects
-      on the 64-bit native BSP.)
+      Kept for reference only. wolfSSL removed Apache Mynewt support after
+      v5.9.4-stable, so this cannot build against the wolfSSL refs CI tests.
 
   - id: picotcp
     path: picotcp

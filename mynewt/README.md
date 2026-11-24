@@ -4,6 +4,9 @@
 
 [Mynewt](https://mynewt.apache.org) is a security-oriented OS for IoT.
 
+NOTE: Apache Mynewt support was removed from wolfSSL after v5.9.4-stable. These
+examples require wolfSSL v5.9.4-stable or earlier.
+
 WolfSSL integration with the Mynewt OS may be found in the `/IDE/mynewt`
 directory in the `wolfssl` source-tree.  Support includes the wolfCrypt test
 application which demonstrates the cryptography provided by the wolfCrypt
