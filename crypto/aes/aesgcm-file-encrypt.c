@@ -151,6 +151,59 @@ static int check_file_permission(const char *fileName, uid_t owner, gid_t group)
         return 0;
     }
 }
+
+/* Open without O_TRUNC so an output that aliases the input (same path, hard
+ * link or symlink) is refused before any data is destroyed. */
+static int open_output_file(int in_fd, const char *out_file, mode_t mode)
+{
+    int out_fd;
+    int ret = 0;
+    struct stat in_st;
+    struct stat out_st;
+
+    out_fd = open(out_file, O_WRONLY | O_CREAT, mode);
+    if (out_fd == -1) {
+        perror("open");
+        ret = -1;
+    }
+    if (ret == 0 &&
+        (fstat(in_fd, &in_st) == -1 || fstat(out_fd, &out_st) == -1)) {
+        perror("fstat");
+        ret = -1;
+    }
+    if (ret == 0 && in_st.st_dev == out_st.st_dev &&
+        in_st.st_ino == out_st.st_ino) {
+        fprintf(stderr, "Error: input and output must be different files\n");
+        ret = -1;
+    }
+    /* O_TRUNC is ignored for FIFOs and devices; ftruncate fails on them */
+    if (ret == 0 && S_ISREG(out_st.st_mode) && ftruncate(out_fd, 0) == -1) {
+        perror("ftruncate");
+        ret = -1;
+    }
+    if (ret != 0 && out_fd != -1) {
+        close(out_fd);
+        out_fd = -1;
+    }
+    return out_fd;
+}
+static int read_header_field(int fd, byte *buf, size_t sz)
+{
+    int ret = 0;
+    ssize_t read_size;
+
+    read_size = read(fd, buf, sz);
+    if (read_size == -1) {
+        perror("read");
+        ret = -1;
+    }
+    else if ((size_t)read_size != sz) {
+        fprintf(stderr, "Input is too short to hold a cipher header\n");
+        ret = -1;
+    }
+    return ret;
+}
+
 /*!
     \ingroup AES
     \brief This function encrypts the input file containing plain text
@@ -200,10 +253,8 @@ int encrypt_file_AesGCM(const char *in_file, const char *out_file,
         return -1;
     }
 
-    out_fd = open(out_file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-
+    out_fd = open_output_file(in_fd, out_file, 0644);
     if (out_fd == -1) {
-        perror("open");
         close(in_fd);
         return -1;
     }
@@ -269,7 +320,12 @@ int encrypt_file_AesGCM(const char *in_file, const char *out_file,
 
     while (ret == 0) {
          read_size = read(in_fd, in_buf, buffer_size);
-         if (read_size <= 0)
+         if (read_size < 0) {
+             perror("read");
+             ret = -1;
+             goto exit;
+         }
+         if (read_size == 0)
              break;
 
          ret = wc_AesGcmEncryptUpdate(&gcm, out_buf, in_buf, read_size, NULL, 0);
@@ -304,7 +360,9 @@ int encrypt_file_AesGCM(const char *in_file, const char *out_file,
             }
         }
     }
-    printf("File encryption with AES GCM complete.\n");
+    if (ret == 0) {
+        printf("File encryption with AES GCM complete.\n");
+    }
 exit:
     if (aes_initialized) {
         wc_AesFree(&gcm);
@@ -378,10 +436,8 @@ int decrypt_file_AesGCM(const char *in_file, const char *out_file,
         return -1;
     }
 
-    out_fd = open(out_file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-
+    out_fd = open_output_file(in_fd, out_file, 0600);
     if (out_fd == -1) {
-        perror("open");
         close(in_fd);
         return -1;
     }
@@ -415,27 +471,21 @@ int decrypt_file_AesGCM(const char *in_file, const char *out_file,
     strncpy((char *)key, key_str, AES_KEY_SIZE);
 
     /* Extract a WOLFCRYPT MAGIC | TAG | IV  from the cipher file */
-    if (read(in_fd, wolf_magic,
-        strlen(WOLFCRYPT_MAGIC)) != strlen(WOLFCRYPT_MAGIC)) {
-        perror("write");
+    if (read_header_field(in_fd, wolf_magic, strlen(WOLFCRYPT_MAGIC)) != 0) {
         ret = -1;
         goto exit;
     }
     if (memcmp(wolf_magic, WOLFCRYPT_MAGIC, strlen(WOLFCRYPT_MAGIC)) != 0) {
-        perror("WOLFCRYPT_MAGIC didn't match\n");
+        fprintf(stderr, "WOLFCRYPT_MAGIC didn't match\n");
         ret = AES_GCM_AUTH_E;
         goto exit;
     }
-    read_size = read(in_fd, tag, AESGCM_TAG_SIZE);
-    if (read_size != AESGCM_TAG_SIZE) {
-        perror("read");
+    if (read_header_field(in_fd, tag, AESGCM_TAG_SIZE) != 0) {
         ret = -1;
         goto exit;
     }
 
-    read_size = read(in_fd, iv, AES_IV_SIZE);
-    if (read_size != AES_IV_SIZE) {
-        perror("read");
+    if (read_header_field(in_fd, iv, AES_IV_SIZE) != 0) {
         ret = -1;
         goto exit;
     }
@@ -452,7 +502,12 @@ int decrypt_file_AesGCM(const char *in_file, const char *out_file,
 
     while (ret == 0) {
          read_size = read(in_fd, in_buf, buffer_size);
-         if (read_size <= 0)
+         if (read_size < 0) {
+             perror("read");
+             ret = -1;
+             goto exit;
+         }
+         if (read_size == 0)
              break;
 
          ret = wc_AesGcmDecryptUpdate(&gcm, out_buf, in_buf, read_size, NULL, 0);
@@ -496,7 +551,9 @@ exit:
         unlink(out_file);
     }
 
-    printf("File decryption with AES GCM complete.\n");
+    if (ret == 0) {
+        printf("File decryption with AES GCM complete.\n");
+    }
     return ret;
 }
 
@@ -514,7 +571,7 @@ int encrypt_file(const char *in_file, const char *out_file,
     byte key[AES_KEY_SIZE];
     byte out_buf[AES_BLOCK_SIZE];
     byte tag_enc[AESGCM_TAG_SIZE];
-    EVP_CIPHER_CTX *ctx;
+    EVP_CIPHER_CTX *ctx = NULL;
 
     if (!in_file || !out_file || !key_str || !iv_str) {
         return BAD_FUNC_ARG;
@@ -533,9 +590,8 @@ int encrypt_file(const char *in_file, const char *out_file,
         perror("open");
         return -1;
     }
-    out_fd = open(out_file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    out_fd = open_output_file(in_fd, out_file, 0644);
     if (out_fd == -1) {
-        perror("open");
         close(in_fd);
         return -1;
     }
@@ -549,17 +605,20 @@ int encrypt_file(const char *in_file, const char *out_file,
     ctx = EVP_CIPHER_CTX_new();
     if (ctx == NULL) {
         perror("EVP_CIPHER_CTX_new");
+        ret = -1;
         goto exit;
     }
     if (EVP_EncryptInit_ex(ctx, EVP_aes_256_gcm(), NULL, key, iv) !=
         WOLFSSL_SUCCESS) {
         perror("EVP_EncryptInit_ex");
+        ret = -1;
         goto exit;
     }
 
     if (EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_IVLEN, AES_IV_SIZE, NULL) !=
         WOLFSSL_SUCCESS) {
         perror("EVP_CIPHER_CTX_ctrl");
+        ret = -1;
         goto exit;
     }
 
@@ -583,7 +642,12 @@ int encrypt_file(const char *in_file, const char *out_file,
     }
     while (1) {
         in_len = read(in_fd, in_buf, AES_BLOCK_SIZE);
-        if (in_len <= 0)
+        if (in_len < 0) {
+            perror("read");
+            ret = -1;
+            goto exit;
+        }
+        if (in_len == 0)
             break;
 
         if (EVP_EncryptUpdate(ctx, out_buf, &out_len, in_buf, in_len) !=
@@ -611,7 +675,8 @@ int encrypt_file(const char *in_file, const char *out_file,
         goto exit;
     }
 
-    ret = EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_GET_TAG, AES_IV_SIZE, tag_enc);
+    ret = EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_GET_TAG, AESGCM_TAG_SIZE,
+                              tag_enc);
 
     if (ret == WOLFSSL_SUCCESS ) {
         /* move file pointer to beginning of file after the magic word */
@@ -632,7 +697,9 @@ int encrypt_file(const char *in_file, const char *out_file,
             goto exit;
         }
     }
-    printf("File encryption with EVP GCM complete.\n");
+    if (ret == WOLFSSL_SUCCESS) {
+        printf("File encryption with EVP GCM complete.\n");
+    }
 exit:
     wc_ForceZero(key, AES_KEY_SIZE);
     wc_ForceZero(iv, AES_IV_SIZE);
@@ -654,7 +721,6 @@ int decrypt_file(const char *in_file, const char *out_file, const char *key_str)
     int out_fd;
     int out_len;
     int ret = WOLFSSL_SUCCESS;
-    int read_size;
     byte in_buf[AES_BLOCK_SIZE];
     byte iv[AES_IV_SIZE];
     byte wolf_magic[strlen(WOLFCRYPT_MAGIC)];
@@ -662,7 +728,7 @@ int decrypt_file(const char *in_file, const char *out_file, const char *key_str)
     byte out_buf[AES_BLOCK_SIZE];
     byte tag_dec[AESGCM_TAG_SIZE];
     byte tag_enc[AESGCM_TAG_SIZE];
-    EVP_CIPHER_CTX *ctx;
+    EVP_CIPHER_CTX *ctx = NULL;
 
     if (!in_file || !out_file || !key_str) {
         return BAD_FUNC_ARG;
@@ -683,10 +749,8 @@ int decrypt_file(const char *in_file, const char *out_file, const char *key_str)
         return -1;
     }
 
-    out_fd = open(out_file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-
+    out_fd = open_output_file(in_fd, out_file, 0600);
     if (out_fd == -1) {
-        perror("open");
         close(in_fd);
         return -1;
     }
@@ -698,26 +762,20 @@ int decrypt_file(const char *in_file, const char *out_file, const char *key_str)
     strncpy((char *)key, key_str, AES_KEY_SIZE);
 
     /* Extract a WOLFCRYPT MAGIC | TAG | IV  from the cipher file */
-    if (read(in_fd, wolf_magic,
-        strlen(WOLFCRYPT_MAGIC)) != strlen(WOLFCRYPT_MAGIC)) {
-        perror("write");
+    if (read_header_field(in_fd, wolf_magic, strlen(WOLFCRYPT_MAGIC)) != 0) {
         ret = -1;
         goto exit;
     }
     if (memcmp(wolf_magic, WOLFCRYPT_MAGIC, strlen(WOLFCRYPT_MAGIC)) != 0) {
-        perror("WOLFCRYPT_MAGIC didn't match\n");
+        fprintf(stderr, "WOLFCRYPT_MAGIC didn't match\n");
         ret = AES_GCM_AUTH_E;
         goto exit;
     }
-    read_size = read(in_fd, tag_enc, AESGCM_TAG_SIZE);
-    if (read_size != AESGCM_TAG_SIZE) {
-        perror("read");
+    if (read_header_field(in_fd, tag_enc, AESGCM_TAG_SIZE) != 0) {
         ret = -1;
         goto exit;
     }
-    read_size = read(in_fd, iv, AES_IV_SIZE);
-    if (read_size != AES_IV_SIZE) {
-        perror("read");
+    if (read_header_field(in_fd, iv, AES_IV_SIZE) != 0) {
         ret = -1;
         goto exit;
     }
@@ -736,7 +794,12 @@ int decrypt_file(const char *in_file, const char *out_file, const char *key_str)
     }
     while (1) {
         in_len = read(in_fd, in_buf, AES_BLOCK_SIZE);
-        if (in_len <= 0)
+        if (in_len < 0) {
+            perror("read");
+            ret = -1;
+            goto exit;
+        }
+        if (in_len == 0)
             break;
 
         if (EVP_DecryptUpdate(ctx, out_buf, &out_len, in_buf, in_len) !=
@@ -752,7 +815,8 @@ int decrypt_file(const char *in_file, const char *out_file, const char *key_str)
         }
     }
 
-    if (EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_AEAD_SET_TAG, AES_IV_SIZE, tag_enc)
+    if (EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_AEAD_SET_TAG, AESGCM_TAG_SIZE,
+                            tag_enc)
             != WOLFSSL_SUCCESS) {
         perror("EVP_CIPHER_CTX_ctrl");
         ret = -1;
@@ -772,7 +836,7 @@ int decrypt_file(const char *in_file, const char *out_file, const char *key_str)
 
     if (ret == WOLFSSL_SUCCESS) {
         ret = EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_GET_TAG,
-                                  AES_IV_SIZE, tag_dec);
+                                  AESGCM_TAG_SIZE, tag_dec);
         if (ret != WOLFSSL_SUCCESS ||
             (memcmp(tag_enc, tag_dec, AESGCM_TAG_SIZE) != 0)) {
             fprintf(stderr,
@@ -887,18 +951,26 @@ text.bin", (file_sz/1024)+1, file_sz);
 #endif /* __linux__ */
 
 void usage(char *prog_name) {
-    fprintf(stderr, "Usage: %s [-e | -d] [-m] [-i input filename] \
-            [-o output filename]\n", prog_name);
+    fprintf(stderr, "Usage: %s -e %d | -d %d  -m <1|2>  -k <key>  "
+            "[-v <iv> (required with -e)]  -i <input file>  "
+            "-o <output file>\n", prog_name, AES_KEY_SIZE * 8,
+            AES_KEY_SIZE * 8);
     exit(EXIT_FAILURE);
 }
 
 void help(char *prog_name) {
     printf("This program accepts several switches:\n");
-    printf("  -e <num>   encryption. 256, 192, 128 \n");
-    printf("  -d <num>   decryption. 256, 192, 128\n");
+    printf("  -e <num>   encryption. Key size in bits, must be %d\n",
+           AES_KEY_SIZE * 8);
+    printf("  -d <num>   decryption. Key size in bits, must be %d\n",
+           AES_KEY_SIZE * 8);
     printf("  -m <num>   method to use.  GCM(1), EVP GCM (2), \n");
+    printf("  -k <str>   key, at least %d characters\n", AES_KEY_SIZE);
+    printf("  -v <str>   IV for encryption, at least %d characters\n",
+           AES_IV_SIZE);
     printf("  -i <file>  Set the input filename to 'file'\n");
-    printf("  -o <file>  Set the output filename to 'file'\n");
+    printf("  -o <file>  Set the output filename to 'file', must differ "
+           "from the input\n");
 #if defined(__linux__)
     printf("  -t <num>   Sanity test with the given file size in Bytes. The \
 test will create three files:text.bin, cipher, decrypted plain. \n");
@@ -918,6 +990,7 @@ int main(int argc, char** argv)
     int    key_sz = 0;
     int    method = 0;
     int    option;    /* options of how to run the program */
+    int    ret = 0;
     char   choice = 'n';
 
     while ((option = getopt(argc, argv, "e:d:i:o:m:t:k:v:h")) != -1 && choice != 't') {
@@ -925,18 +998,10 @@ int main(int argc, char** argv)
             case 'e': /* encrypt */
                 choice = 'e';
                 key_sz = atoi(optarg);
-                if (!(key_sz == 128 || key_sz == 192 || key_sz == 256 )) {
-                    perror("Wrong key size: use 128, 192 or 256 \n");
-                    usage(argv[0]);
-                }
                 break;
             case 'd': /* decrypt */
-                key_sz = atoi(optarg);
-                if (!(key_sz == 128 || key_sz == 192 || key_sz == 256 )) {
-                    perror("Wrong key size: use 128, 192 or 256 \n");
-                    usage(argv[0]);
-                }
                 choice = 'd';
+                key_sz = atoi(optarg);
                 break;
             case 'i': /* input file */
                 inFile = optarg;
@@ -947,23 +1012,16 @@ int main(int argc, char** argv)
             case 'm': /* options to do enc/dec */
                 method = atoi(optarg);
                 if (method < 1 || method > 2) {
-                    perror("Wrong AES choice: use EVP (1), GCM(2)\n");
+                    fprintf(stderr, "Wrong AES choice: use GCM (1), "
+                            "EVP GCM (2)\n");
                     usage(argv[0]);
                 }
                 break;
             case 'k': /* key */
                 keyStr = optarg;
-                if (strlen(keyStr) < key_sz/8) {
-                    perror("Wrong key string size\n");
-                    usage(argv[0]);
-                }
                 break;
             case 'v': /* IV */
                 ivStr = optarg;
-                if (strlen(ivStr) < 12) {
-                    perror("Wrong IV length\n");
-                    usage(argv[0]);
-                }
                 break;
             case 't': /* sanity test */
                 choice = 't';
@@ -980,53 +1038,76 @@ int main(int argc, char** argv)
 #if defined(__linux__)
     if (choice == 't') {
         if (sanityTest_default(file_sz) != 0) {
-            perror("Error: sanityTest_default\n");
+            fprintf(stderr, "Error: sanityTest_default\n");
             return 1;
         }
         return 0;
     }
 #endif
-    if (inFile && outFile && choice != 'n') {
-
-        switch (method) {
-        case 1:
-            if (choice == 'e') {
-                if (encrypt_file_AesGCM(inFile, outFile, keyStr, ivStr) != 0) {
-                    perror("Error: encrypt_file_AesGCM\n");
-                }
-            }
-            else if (choice == 'd') {
-                if (decrypt_file_AesGCM(inFile, outFile, keyStr) != 0) {
-                    perror("Error: decrypt_file_AesGCM\n");
-                }
-                else
-                    printf("Passed: decrypt_file_AesGCM\n");
-
-            }
-            break;
-#ifdef OPENSSL_EXTRA
-            case 2:
-                if (choice == 'e') {
-                    if (encrypt_file(inFile, outFile, keyStr, ivStr) !=
-                        WOLFSSL_SUCCESS) {
-                        perror("Error: encrypt_file \n");
-                    }
-                }
-                else if (choice == 'd') {
-                    if (decrypt_file(inFile, outFile, keyStr) !=
-                        WOLFSSL_SUCCESS) {
-                        perror("Error: decrypt_file\n");
-                    }
-                    else
-                        printf("Passed: decrypt_file\n");
-                }
-                break;
-#endif
-            default:
-                abort();
-        }
+    if (inFile == NULL || outFile == NULL || (choice != 'e' && choice != 'd')) {
+        usage(argv[0]);
     }
-    return 0;
+
+    /* Validated after parsing so the result does not depend on option order */
+    if (key_sz != AES_KEY_SIZE * 8) {
+        fprintf(stderr, "Wrong key size: only %d is supported\n",
+                AES_KEY_SIZE * 8);
+        usage(argv[0]);
+    }
+    if (keyStr == NULL || strlen(keyStr) < AES_KEY_SIZE) {
+        fprintf(stderr, "Key must be at least %d characters\n", AES_KEY_SIZE);
+        usage(argv[0]);
+    }
+    if (choice == 'e' && (ivStr == NULL || strlen(ivStr) < AES_IV_SIZE)) {
+        fprintf(stderr, "IV must be at least %d characters\n", AES_IV_SIZE);
+        usage(argv[0]);
+    }
+
+    switch (method) {
+    case 1:
+        if (choice == 'e') {
+            if (encrypt_file_AesGCM(inFile, outFile, keyStr, ivStr) != 0) {
+                fprintf(stderr, "Error: encrypt_file_AesGCM\n");
+                ret = 1;
+            }
+        }
+        else {
+            if (decrypt_file_AesGCM(inFile, outFile, keyStr) != 0) {
+                fprintf(stderr, "Error: decrypt_file_AesGCM\n");
+                ret = 1;
+            }
+            else
+                printf("Passed: decrypt_file_AesGCM\n");
+        }
+        break;
+#ifdef OPENSSL_EXTRA
+    case 2:
+        if (choice == 'e') {
+            if (encrypt_file(inFile, outFile, keyStr, ivStr) !=
+                WOLFSSL_SUCCESS) {
+                fprintf(stderr, "Error: encrypt_file\n");
+                ret = 1;
+            }
+        }
+        else {
+            if (decrypt_file(inFile, outFile, keyStr) != WOLFSSL_SUCCESS) {
+                fprintf(stderr, "Error: decrypt_file\n");
+                ret = 1;
+            }
+            else
+                printf("Passed: decrypt_file\n");
+        }
+        break;
+#endif
+    case 0:
+        fprintf(stderr, "Missing required option -m\n");
+        usage(argv[0]);
+        break;
+    default:
+        fprintf(stderr, "Method %d is not available in this build\n", method);
+        usage(argv[0]);
+    }
+    return ret;
 }
 
 #else
