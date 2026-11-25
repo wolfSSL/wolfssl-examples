@@ -1614,7 +1614,19 @@ The feature is enabled per context with
 and the PSK must be used with (EC)DHE key exchange (do not call
 `wolfSSL_CTX_no_dhe_psk()`).
 
+Enabling the extension does not make the PSK mandatory: by default, a handshake
+in which the PSK is not negotiated falls back to certificate-only
+authentication. Both examples therefore call `wolfSSL_CTX_require_psk()`, so
+that the handshake fails with `PSK_MISSING_ERROR` when the peer does not use the
+PSK.
+
+Likewise, enabling the extension does not make the certificate mandatory: a peer
+that negotiates the PSK without the extension sends no certificate. Both
+examples therefore call `wolfSSL_CTX_set_verify()` with `WOLFSSL_VERIFY_PEER |
+WOLFSSL_VERIFY_FAIL_IF_NO_PEER_CERT`.
+
 Build requirements:
+- wolfSSL v5.9.4 or later, for `wolfSSL_CTX_require_psk()`.
 - wolfSSL must be built with PSK support and the extension enabled. TLS 1.3 is
   on by default, but `--enable-psk` is required: without it `configure`
   silently disables the extension ("PSK is disabled - disabling

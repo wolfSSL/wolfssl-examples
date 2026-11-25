@@ -29,6 +29,9 @@
  * (or wolfSSL_set_cert_with_extern_psk(ssl, 1) for a single session).
  * Note that (EC)DHE key exchange must be used with the PSK - do not call
  * wolfSSL_CTX_no_dhe_psk().
+ *
+ * wolfSSL_CTX_require_psk(ctx) makes the PSK mandatory. It is available in
+ * wolfSSL v5.9.4 and later.
  */
 
 /* the usual suspects */
@@ -151,6 +154,12 @@ int main(int argc, char** argv)
     /* Set up the external PSK */
     wolfSSL_CTX_set_psk_client_tls13_callback(ctx, my_psk_client_tls13_cb);
 
+    /* Fail the handshake if the PSK is not negotiated. */
+    if (wolfSSL_CTX_require_psk(ctx) != 0) {
+        fprintf(stderr, "ERROR: failed to require the PSK\n");
+        ret = -1; goto exit;
+    }
+
     /* Ask for certificate messages to also be used with the external PSK. */
     if ((ret = wolfSSL_CTX_set_cert_with_extern_psk(ctx, 1))
         != WOLFSSL_SUCCESS) {
@@ -163,6 +172,10 @@ int main(int argc, char** argv)
         fprintf(stderr, "ERROR: failed to set cipher list\n");
         goto exit;
     }
+
+    /* Fail the handshake if the server does not send a certificate. */
+    wolfSSL_CTX_set_verify(ctx,
+        WOLFSSL_VERIFY_PEER | WOLFSSL_VERIFY_FAIL_IF_NO_PEER_CERT, NULL);
 
     if ((ret = wolfSSL_CTX_use_certificate_file(ctx, CERT_FILE,
         WOLFSSL_FILETYPE_PEM)) != WOLFSSL_SUCCESS) {
