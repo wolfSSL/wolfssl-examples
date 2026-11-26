@@ -79,6 +79,12 @@ jobs:
     with:
       caller_run_id: ${{ github.run_id }}
 
+  signature:
+    needs: [refs]
+    uses: ./.github/workflows/signature.yml
+    with:
+      caller_run_id: ${{ github.run_id }}
+
   infineon-psoc-e8:
     needs: [refs]
     uses: ./.github/workflows/infineon-psoc-e8.yml
