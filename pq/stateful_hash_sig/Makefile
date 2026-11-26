@@ -31,6 +31,24 @@ debug: all
 lms_example: lms_example.c
 	$(CC) -o $@ $< $(CFLAGS) $(LIBS) $(WOLF_DYN_LIB)
 
+lms-kg: lms-kg.c
+# If building with wc_lms (--enable-lms):
+	$(CC) -o $@ $< $(CFLAGS) -DWOLFSSL_WC_LMS $(LIBS) $(WOLF_DYN_LIB)
+# If building with ext_lms (--enable-lms --with-liblms=<path>):
+#	$(CC) -o $@ $< $(CFLAGS) -I$(HSS_INC) $(LIBS) $(WOLF_STATIC_LIB) $(HSS_LIB)
+
+lms-sign: lms-sign.c
+# If building with wc_lms (--enable-lms):
+	$(CC) -o $@ $< $(CFLAGS) -DWOLFSSL_WC_LMS $(LIBS) $(WOLF_DYN_LIB)
+# If building with ext_lms (--enable-lms --with-liblms=<path>):
+#	$(CC) -o $@ $< $(CFLAGS) -I$(HSS_INC) $(LIBS) $(WOLF_STATIC_LIB) $(HSS_LIB)
+
+lms-verify: lms-verify.c
+# If building with wc_lms (--enable-lms):
+	$(CC) -o $@ $< $(CFLAGS) -DWOLFSSL_WC_LMS $(LIBS) $(WOLF_DYN_LIB)
+# If building with ext_lms (--enable-lms --with-liblms=<path>):
+#	$(CC) -o $@ $< $(CFLAGS) -I$(HSS_INC) $(LIBS) $(WOLF_STATIC_LIB) $(HSS_LIB)
+
 # Requires wolfSSL built with --enable-xmss:
 xmss_example: xmss_example.c
 	$(CC) -o $@ $< $(CFLAGS) $(LIBS) $(WOLF_DYN_LIB)
